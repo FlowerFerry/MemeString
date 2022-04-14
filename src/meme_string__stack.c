@@ -1,0 +1,216 @@
+
+#include "meme/string.h"
+#include "meme/impl/string.h"
+#include "meme/impl/string_p__user.h"
+#include "meme/impl/string_p__small.h"
+#include "meme/impl/string_p__large.h"
+
+MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_init(
+	MemeStringStack_t* _out, size_t _object_size)
+{
+	MemeString_t obj = NULL;
+
+	assert(_out);
+	assert(_object_size != 0);
+
+	//memset(_out, 0, _object_size);
+
+	if (_object_size > sizeof(struct _MemeString_t))
+		return -ENOTSUP;
+
+	obj = (MemeString_t)_out;
+	obj->small_.buffer_[0] = '\0';
+	obj->small_.type_ = MemeString_ImplType_small;
+	obj->small_.capacity_ = MEME_STRING__GET_SMALL_BUFFER_SIZE;
+	return 0;
+}
+
+MEME_API int MEME_STDCALL MemeStringStack_initTakeOverUserObject(
+	MemeStringStack_t* _out, size_t _object_size, 
+	void* _user_data, 
+	MemeString_UserObjectDestruct_t* _destruct_fn, 
+	MemeString_UserObjectData_t* _data_fn, 
+	MemeString_UserObjectSize_t* _size_fn)
+{
+	size_t len = 0;
+	int result = 0;
+
+	assert(_out != NULL			&& "function is" && MemeStringStack_initTakeOverUserObject);
+	assert(_user_data != NULL	&& "function is" && MemeStringStack_initTakeOverUserObject);
+	assert(_destruct_fn != NULL && "function is" && MemeStringStack_initTakeOverUserObject);
+	assert(_data_fn != NULL		&& "function is" && MemeStringStack_initTakeOverUserObject);
+	assert(_size_fn != NULL		&& "function is" && MemeStringStack_initTakeOverUserObject);
+
+	len = _size_fn(_user_data);
+	if (len <= MEME_STRING__GET_SMALL_BUFFER_SIZE)
+	{
+		result = MemeStringStack_initByU8bytes(_out, _object_size, _data_fn(_user_data), len);
+		if (result)
+			return result;
+
+		_destruct_fn(_user_data);
+	}
+	else {
+		return MemeStringUser_initTakeOver(
+			(MemeStringUser_t*)_out, NULL, NULL, _user_data, len, _destruct_fn, _data_fn);
+	}
+	return 0;
+}
+
+MEME_API int MEME_STDCALL MemeStringStack_unInit(MemeStringStack_t* _out, size_t _object_size)
+{
+	MemeString_t obj = (MemeString_t)_out;
+
+	assert(_out && MemeStringStack_unInit);
+	assert(_object_size != 0 && MemeStringStack_unInit);
+
+	switch (MEME_STRING__GET_TYPE(*obj)) {
+	case MemeString_ImplType_user:
+	{
+		return MemeStringUser_unInit((MemeStringUser_t*)_out);
+	};
+	case MemeString_ImplType_small:
+	{
+		// do nothing
+	} break;
+	case MemeString_ImplType_medium:
+	{
+		// TO_DO
+	} break;
+	case MemeString_ImplType_large:
+	{
+		return MemeStringLargeStack_unInit(_out);
+	};
+	default: {
+		return -ENOTSUP;
+	};
+	}
+	return 0;
+}
+
+MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByU8bytesAndType(
+	MemeStringStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, size_t _len,
+	MemeString_Storage_t _suggest)
+{
+	MemeString_Storage_t type;
+
+	assert(_out);
+	assert(_object_size != 0);
+
+	type = MemeStringImpl_initSuggestType(_len, _suggest);
+	switch (type) {
+	case MemeString_StorageType_large: {
+		return MemeStringLargeStack_initByU8bytes(_out, _utf8, _len, NULL, NULL, 0, 0);
+	} break;
+	case MemeString_StorageType_medium: {
+		// TO_DO
+	} break;
+	case MemeString_StorageType_small: {
+		return MemeStringSmall_initByU8bytes((MemeStringSmall_t*)_out, _utf8, _len);
+	};
+	//case MemeString_StorageType_viewUnsafe: {
+	//	// TO_DO
+	//} break;
+	}
+
+	if (MemeString_StorageType_user < type)
+	{
+		// TO_DO
+	}
+
+	return MemeStringLargeStack_initByU8bytes(_out, _utf8, _len, NULL, NULL, 0, 0);
+}
+
+MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByOtherAndType(
+	MemeStringStack_t* _out, size_t _object_size,
+	MemeString_Const_t _other, MemeString_Storage_t _suggest)
+{
+	//MemeString_t obj = NULL;
+
+	assert(_out);
+	assert(_object_size != 0);
+
+	//obj = (MemeString_t)_out;
+	switch (_suggest) {
+	case MemeString_ImplType_large:
+	{
+		// TO_DO
+	} break;
+
+	// default is MemeString_ImplType_small
+	default: {
+
+	};
+	}
+	return 0;
+}
+
+MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByOther(
+	MemeStringStack_t* _out, size_t _object_size, MemeString_Const_t _other)
+{
+
+	assert(_out);
+	assert(_other);
+	assert(_object_size != 0);
+
+	switch (MEME_STRING__GET_TYPE(*_other)) {
+	case MemeString_StorageType_small: {
+		memcpy(_out, _other, MEME_STRING__OBJECT_SIZE);
+	} break;
+	case MemeString_StorageType_medium: {
+		// TO_DO
+	} break;
+	case MemeString_StorageType_large: {
+		return MemeStringLargeStack_initByOther(_out, &(_other->large_), 0, 0);
+	};
+	//case MemeString_StorageType_viewUnsafe: {
+	//	// TO_DO
+	//} break;
+	case MemeString_StorageType_none: {
+		// Error
+	} break;
+	case MemeString_StorageType_user: {
+		// TO_DO
+	} break;
+	default: {
+	} break;
+	}
+
+	return 0;
+}
+
+MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByU8bytes(
+	MemeStringStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, size_t _len)
+{
+	return MemeStringStack_initByU8bytesAndType(
+		_out, _object_size, _utf8, _len, MemeString_StorageType_none);
+}
+
+MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_reset(
+	MemeStringStack_t* _out, size_t _object_size)
+{
+	MemeString_t obj = NULL;
+
+	assert(_out);
+	assert(_object_size != 0);
+
+	obj = (MemeString_t)_out;
+	switch (MEME_STRING__GET_TYPE(*obj)) {
+	case MemeString_ImplType_user:
+	{
+		return MemeStringUser_reset((MemeStringUser_t*)_out);
+	}
+	case MemeString_ImplType_small:
+	{
+		MemeStringSmall_clear(&(obj->small_));
+	} break;
+	case MemeString_ImplType_large:
+	{
+		return MemeStringLargeStack_reset(_out);
+	};
+	default: {
+		return -ENOTSUP;
+	};
+	}
+	return 0;
+}

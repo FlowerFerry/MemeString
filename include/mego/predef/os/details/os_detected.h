@@ -1,0 +1,4 @@
+
+#ifndef __MEGO_PREDEF_DETAIL__OS_DETECTED
+#define __MEGO_PREDEF_DETAIL__OS_DETECTED (1)
+#endif
