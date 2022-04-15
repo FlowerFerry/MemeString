@@ -157,6 +157,20 @@ namespace memepp {
 		return result;
 	}
 
+	inline bool operator!=(const string& _lhs, const string& _rhs)
+	{
+		return !(_lhs == _rhs);
+	}
+
+	inline bool operator!=(const char* _lhs, const string& _rhs)
+	{
+		return !(_lhs == _rhs);
+	}
+	inline bool operator!=(const string& _lhs, const char* _rhs)
+	{
+		return !(_lhs == _rhs);
+	}
+
 }; // namespace memepp
 
 	inline memepp::string operator""meme(const char* _str, size_t _len)
