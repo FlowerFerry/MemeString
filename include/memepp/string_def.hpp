@@ -91,6 +91,6 @@ namespace memepp {
 
 }; // namespace memepp
 
-	inline memepp::string operator""_meme(const char* _str, size_t _len);
+	memepp::string operator""_meme(const char* _str, size_t _len);
 
 #endif // !MEMEPP_STRING_DEF_HPP_INCLUDED

@@ -11,6 +11,8 @@
 #		define MEME_API MEGO_SYMBOL__EXPORT
 #	elif !defined(MEME_OPTION__BUILD_STATIC)
 #		define MEME_API MEGO_SYMBOL__IMPORT
+#	else
+#		define MEME_API
 #	endif
 #endif 
 

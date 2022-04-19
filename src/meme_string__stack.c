@@ -214,3 +214,45 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_reset(
 	}
 	return 0;
 }
+
+MEME_API int MEME_STDCALL MemeStringStack_assign(MemeStringStack_t* _s, MemeString_Const_t _other)
+{
+	int result = 0;
+
+	assert(_s != NULL		&& MemeStringStack_assign);
+	assert(_other != NULL	&& MemeStringStack_assign);
+
+	switch (MEME_STRING__GET_TYPE(*_other))
+	{
+	case MemeString_ImplType_small:
+	case MemeString_ImplType_large:
+	case MemeString_ImplType_user:
+		break;
+	default: {
+		return -ENOTSUP;
+	};
+	}
+
+	result = MemeStringStack_unInit(_s, sizeof(MemeStringStack_t));
+	if (result)
+		return result;
+
+	switch (MEME_STRING__GET_TYPE(*_other)) 
+	{
+	case MemeString_ImplType_small: {
+		memcpy(_s, &(_other->small_), MEME_STRING__OBJECT_SIZE);
+	} break;
+	case MemeString_ImplType_large: {
+		MemeStringLarge_RefCount_increment(_other->large_.ref_);
+		memcpy(_s, &(_other->user_), MEME_STRING__OBJECT_SIZE);
+	} break;
+	case MemeString_ImplType_user: {
+		MemeStringUser_RefCount_increment(_other->user_.ref_);
+		memcpy(_s, &(_other->user_), MEME_STRING__OBJECT_SIZE);
+	} break;
+	default: {
+		return -ENOTSUP;
+	};
+	}
+	return 0;
+}

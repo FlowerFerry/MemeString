@@ -90,7 +90,7 @@ namespace memepp {
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE string & string::operator=(const string & _other)
 	{
-		MemeString_assign(__to_object__(data_), __to_object__(_other.data_));
+		MemeStringStack_assign(&data_, __to_object__(_other.data_));
 		return *this;
 	}
 

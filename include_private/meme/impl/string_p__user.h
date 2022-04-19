@@ -20,7 +20,7 @@ inline int MemeStringUser_initTakeOver(MemeStringUser_t* _s,
 	MemeString_UserObjectData_t* _data_fn);
 inline int MemeStringUser_unInit(MemeStringUser_t* _s);
 inline int MemeStringUser_reset (MemeStringUser_t* _s);
-inline const char* MemeStringUser_cStr(MemeStringUser_t* _s);
+inline const char* MemeStringUser_cStr(const MemeStringUser_t* _s);
 
 
 inline int MemeStringUser_initTakeOver(MemeStringUser_t* _s,
@@ -69,19 +69,18 @@ inline int MemeStringUser_initTakeOver(MemeStringUser_t* _s,
 
 inline int MemeStringUser_unInit(MemeStringUser_t* _s)
 {
-	return MemeStringUser_RefCount_decrementAndDestruct(_s->ref_);
+	MemeStringUser_RefCount_decrementAndDestruct(_s->ref_);
+	return 0;
 }
 
 inline int MemeStringUser_reset(MemeStringUser_t* _s)
 {
-	int result = MemeStringUser_RefCount_decrementAndDestruct(_s->ref_);
-	if (result)
-		return result;
+	MemeStringUser_RefCount_decrementAndDestruct(_s->ref_);
 	MemeStringSmall_stackReset((MemeStringStack_t*)_s);
 	return 0;
 }
 
-inline const char* MemeStringUser_cStr(MemeStringUser_t* _s)
+inline const char* MemeStringUser_cStr(const MemeStringUser_t* _s)
 {
 	const char* p = _s->ref_->data_fn_(_s->ref_->user_data_);
 	return p ? p : (const char*)MemeStringImpl_default();
