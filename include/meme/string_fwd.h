@@ -5,6 +5,7 @@
 #include "common.h"
 
 #include <stdint.h>
+#include <stddef.h>
 
 MEME_EXTERN_C_SCOPE_START
 

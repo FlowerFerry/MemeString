@@ -7,6 +7,7 @@
 #include "meme/impl/atomic.h"
 
 #include <assert.h>
+#include <errno.h>
 
 inline void MemeStringLarge_RefCount_init(volatile MemeStringLarge_RefCounted_t* _refcount);
 inline MemeInteger_t MemeStringLarge_RefCount_increment(volatile MemeStringLarge_RefCounted_t* _refcount);

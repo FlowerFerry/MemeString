@@ -256,7 +256,7 @@ static size_t* __MemeStringOption_storageMediumLimit()
 
 MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringOption_setStorageMediumLimit(size_t _value)
 {
-	if (_value > RSIZE_MAX)
+	if (_value > (SIZE_MAX >> 1))
 		return -EINVAL;
 
 	if (_value <= MEME_STRING__GET_SMALL_BUFFER_SIZE) {

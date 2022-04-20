@@ -9,8 +9,8 @@ namespace std {
 	template<class _Elem>
 	class initializer_list;
 
-	template<class CharT, class Traits, class Allocator> 
-	class basic_string;
+	//template<class CharT, class Traits, class Allocator> 
+	//class basic_string;
 };
 
 namespace memepp {
@@ -69,8 +69,8 @@ namespace memepp {
 		size_t max_size() const noexcept;
 		size_t capacity() const noexcept;
 
-		template<class Traits, class Allocator>
-		int compare(const std::basic_string<char, Traits, Allocator>& _str) const noexcept;
+		//template<class Traits, class Allocator>
+		//int compare(const std::basic_string<char, Traits, Allocator>& _str) const noexcept;
 		void swap(string& _other) noexcept;
 
 		size_type find(string& _other, size_type _pos = 0) const noexcept;

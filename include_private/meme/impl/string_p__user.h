@@ -6,6 +6,7 @@
 #include <meme/impl/string.h>
 #include <meme/impl/string_p__small.h>
 #include <assert.h>
+#include <errno.h>
 
 inline void MemeStringUser_RefCount_init(volatile MemeStringUser_RefCounted_t* _refcount);
 inline MemeInteger_t MemeStringUser_RefCount_increment(volatile MemeStringUser_RefCounted_t* _refcount);
