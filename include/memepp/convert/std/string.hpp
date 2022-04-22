@@ -2,8 +2,9 @@
 #ifndef MEMEPP_CONVERT_STD_STRING_HPP_INCLUDED
 #define MEMEPP_CONVERT_STD_STRING_HPP_INCLUDED
 
+#include "meme/string.h"
+#include "memepp/string_def.hpp"
 #include <string>
-#include "memepp/string.hpp"
 
 namespace memepp {
 
@@ -25,6 +26,9 @@ namespace memepp {
 		static const auto destruct_func = [](void* _object) { delete reinterpret_cast<std::string*>(_object); };
 		static const auto data_func = [](const void* _object) { return reinterpret_cast<const std::string*>(_object)->data(); };
 		static const auto size_func = [](const void* _object) { return reinterpret_cast<const std::string*>(_object)->size(); };
+		
+		if (_s.empty())
+			return {};
 
 		memepp::string out;
 		auto obj = new std::string(std::move(_s));

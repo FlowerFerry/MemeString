@@ -149,6 +149,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\include\memepp\convert\common.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\convert\std\vector.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\convert\std\string.hpp" />
     <ClInclude Include="..\..\..\include\memepp\hash\std_hash.hpp" />
     <ClInclude Include="..\..\..\include\memepp\predef\macro_option.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string.hpp" />
@@ -170,6 +173,7 @@
     <ClInclude Include="..\..\..\include_private\meme\impl\string_p__large.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\string_p__medium.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\string_p__small.h" />
+    <ClInclude Include="..\..\..\include_private\meme\impl\string_p__user.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>

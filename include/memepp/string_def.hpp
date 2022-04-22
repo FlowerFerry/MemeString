@@ -6,8 +6,8 @@
 #include "memepp/string_fwd.hpp"
 
 namespace std {
-	template<class _Elem>
-	class initializer_list;
+	// template<class _Elem>
+	// class initializer_list;
 
 	//template<class CharT, class Traits, class Allocator> 
 	//class basic_string;
@@ -45,8 +45,8 @@ namespace memepp {
 
 		string(size_t _count, char _ch);
 
-		string(const std::initializer_list<char>& _ilist);
-		string(const std::initializer_list<uint8_t>& _ilist);
+		//string(const std::initializer_list<char>& _ilist);
+		//string(const std::initializer_list<uint8_t>& _ilist);
 
 		template< class InputIt >
 		string(InputIt _first, InputIt _last);
