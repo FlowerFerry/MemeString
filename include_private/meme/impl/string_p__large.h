@@ -15,18 +15,17 @@ inline MemeInteger_t MemeStringLarge_RefCount_increment(volatile MemeStringLarge
 inline MemeInteger_t MemeStringLarge_RefCount_decrementAndDestruct(
 	volatile MemeStringLarge_RefCounted_t* _refcount);
 
-inline int MemeStringLargeStack_init (
-	MemeStringStack_t* _s, MemeString_MallocFunction_t* _cfn, MemeString_FreeFunction_t* _dfn,
+inline int MemeStringLarge_init (
+	MemeStringLarge_t* _s, MemeString_MallocFunction_t* _cfn, MemeString_FreeFunction_t* _dfn,
 	uint8_t _front_capacity, size_t _capacity);
-inline int MemeStringLargeStack_initByOther(
-	MemeStringStack_t* _s, const MemeStringLarge_t* _other,
-	uint8_t _front_capacity, size_t _capacity);
-inline int MemeStringLargeStack_initByU8bytes (
-	MemeStringStack_t* _s, const uint8_t* _buf, size_t _len, 
+inline int MemeStringLarge_initByOther(
+	MemeStringLarge_t* _s, const MemeStringLarge_t* _other);
+inline int MemeStringLarge_initByU8bytes (
+	MemeStringLarge_t* _s, const uint8_t* _buf, size_t _len,
 	MemeString_MallocFunction_t* _cfn, MemeString_FreeFunction_t* _dfn,
 	uint8_t _front_capacity, size_t _capacity);
-inline int MemeStringLargeStack_unInit(MemeStringStack_t* _s);
-inline int MemeStringLargeStack_reset (MemeStringStack_t* _s);
+inline int MemeStringLarge_unInit(MemeStringLarge_t* _s);
+inline int MemeStringLarge_reset (MemeStringLarge_t* _s);
 
 
 
@@ -93,11 +92,10 @@ inline MemeInteger_t MemeStringLarge_RefCount_decrementAndDestruct(
 	return result;
 }
 
-inline int MemeStringLargeStack_init (
-	MemeStringStack_t * _s, MemeString_MallocFunction_t* _cfn, MemeString_FreeFunction_t* _dfn, 
+inline int MemeStringLarge_init (
+	MemeStringLarge_t* _s, MemeString_MallocFunction_t* _cfn, MemeString_FreeFunction_t* _dfn,
 	uint8_t _front_capacity, size_t _capacity)
 {
-	MemeStringLarge_t* p = (MemeStringLarge_t*)_s;
 	MemeString_MallocFunction_t* c_func = NULL;
 	MemeString_FreeFunction_t  * d_func = NULL;
 	MemeStringLarge_RefCounted_t* ref   = NULL;
@@ -106,8 +104,8 @@ inline int MemeStringLargeStack_init (
 	assert(_front_capacity + _capacity > 0);
 
 	memset(_s, 0, sizeof(MemeStringStack_t));
-	p->basic_.type_ = MemeString_ImplType_large;
-	p->basic_.capacity_ = _capacity;
+	_s->basic_.type_ = MemeString_ImplType_large;
+	_s->basic_.capacity_ = _capacity;
 
 	c_func = (_cfn ? _cfn : MemeString_getMallocFunction());
 	if (c_func == _cfn) {
@@ -132,28 +130,31 @@ inline int MemeStringLargeStack_init (
 	}
 	ref->data_ = ref->real_ + _front_capacity;
 
-	if (p->ref_) {
+	if (_s->ref_) {
 		d_func(ref->real_);
 		d_func(ref);
 		return -EPERM;
 	}
-	p->ref_ = ref;
+	_s->ref_ = ref;
 	return 0;
 }
 
-inline int MemeStringLargeStack_initByOther(
-	MemeStringStack_t* _s, const MemeStringLarge_t* _other,
-	uint8_t _front_capacity, size_t _capacity)
+inline int MemeStringLarge_initByOther(
+	MemeStringLarge_t* _s, const MemeStringLarge_t* _other)
 {
+	assert(_s != NULL		&& MemeStringLarge_initByOther);
+	assert(_other != NULL	&& MemeStringLarge_initByOther);
+
+	MemeStringLarge_RefCount_increment(_other->ref_);
+	memcpy(_s, _other, MEME_STRING__OBJECT_SIZE);
 	return 0;
 }
 
-inline int MemeStringLargeStack_initByU8bytes(
-	MemeStringStack_t* _s, const uint8_t* _buf, size_t _len, 
+inline int MemeStringLarge_initByU8bytes(
+	MemeStringLarge_t* _s, const uint8_t* _buf, size_t _len,
 	MemeString_MallocFunction_t* _cfn, MemeString_FreeFunction_t* _dfn, 
 	uint8_t _front_capacity, size_t _capacity)
 {
-	MemeStringLarge_t* p = (MemeStringLarge_t*)_s;
 	MemeString_MallocFunction_t* c_func = NULL;
 	MemeString_FreeFunction_t* d_func   = NULL;
 	MemeStringLarge_RefCounted_t* ref   = NULL;
@@ -193,36 +194,32 @@ inline int MemeStringLargeStack_initByU8bytes(
 	memcpy(ref->data_, _buf, _len);
 	ref->data_[_len] = '\0';
 
-	if (p->ref_) {
+	if (_s->ref_) {
 		d_func(ref->real_);
 		d_func(ref);
 		return -EPERM;
 	}
-	p->ref_ = ref;
-	p->basic_.type_ = MemeString_ImplType_large;
-	p->basic_.capacity_ = _capacity;
-	p->basic_.size_ = _len;
+	_s->ref_ = ref;
+	_s->basic_.type_ = MemeString_ImplType_large;
+	_s->basic_.capacity_ = _capacity;
+	_s->basic_.size_ = _len;
 	return 0;
 }
 
-inline int MemeStringLargeStack_unInit(MemeStringStack_t* _s)
+inline int MemeStringLarge_unInit(MemeStringLarge_t* _s)
 {
-	MemeStringLarge_t* p = (MemeStringLarge_t*)_s;
 	assert(_s != NULL);
 
-	MemeStringLarge_RefCount_decrementAndDestruct(p->ref_);
-
+	MemeStringLarge_RefCount_decrementAndDestruct(_s->ref_);
 	return 0;
 }
 
-inline int MemeStringLargeStack_reset(MemeStringStack_t * _s)
+inline int MemeStringLarge_reset(MemeStringLarge_t* _s)
 {
-	MemeStringLarge_t* p = (MemeStringLarge_t*)_s;
 	assert(_s != NULL);
 
-	MemeStringLarge_RefCount_decrementAndDestruct(p->ref_);
-	MemeStringSmall_stackReset(_s);
-
+	MemeStringLarge_RefCount_decrementAndDestruct(_s->ref_);
+	MemeStringSmall_stackReset((MemeStringStack_t*)_s);
 	return 0;
 }
 

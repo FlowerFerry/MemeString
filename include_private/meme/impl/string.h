@@ -40,6 +40,7 @@ enum _MemeString_ImplType_t {
 	MemeString_ImplType_small		= MemeString_StorageType_small,
 	MemeString_ImplType_medium		= MemeString_StorageType_medium,
 	MemeString_ImplType_large		= MemeString_StorageType_large,
+	MemeString_ImplType_view		= MemeString_UnsafeStorageType_view,
 	MemeString_ImplType_user		= MemeString_StorageType_user
 };
 
@@ -96,6 +97,19 @@ typedef struct _MemeStringSmall_t
 	};
 } MemeStringSmall_t;
 
+typedef struct _MemeStringViewUnsafe_t
+{
+	uint8_t* data_;
+	size_t   size_;
+	union {
+		size_t __reserve__ : ((sizeof(size_t) - 1)* (CHAR_BIT));
+		struct {
+			uint8_t __occupy_a_seat__[sizeof(size_t) - 1];
+			uint8_t type_;
+		};
+	};
+} MemeStringViewUnsafe_t;
+
 struct _MemeString_t
 {
 	union {
@@ -103,6 +117,7 @@ struct _MemeString_t
 		MemeStringMedium_t medium_;
 		MemeStringLarge_t  large_;
 		MemeStringUser_t   user_;
+		MemeStringViewUnsafe_t viewUnsafe_;
 	};
 };
 

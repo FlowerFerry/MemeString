@@ -79,7 +79,7 @@ MEME_API int MEME_STDCALL MemeStringStack_unInit(MemeStringStack_t* _out, size_t
 	} break;
 	case MemeString_ImplType_large:
 	{
-		return MemeStringLargeStack_unInit(_out);
+		return MemeStringLarge_unInit((MemeStringLarge_t*)_out);
 	};
 	default: {
 		return -ENOTSUP;
@@ -100,7 +100,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByU8bytesAndType(
 	type = MemeStringImpl_initSuggestType(_len, _suggest);
 	switch (type) {
 	case MemeString_StorageType_large: {
-		return MemeStringLargeStack_initByU8bytes(_out, _utf8, _len, NULL, NULL, 0, 0);
+		return MemeStringLarge_initByU8bytes((MemeStringLarge_t*)_out, _utf8, _len, NULL, NULL, 0, 0);
 	} break;
 	case MemeString_StorageType_medium: {
 		// TO_DO
@@ -118,7 +118,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByU8bytesAndType(
 		// TO_DO
 	}
 
-	return MemeStringLargeStack_initByU8bytes(_out, _utf8, _len, NULL, NULL, 0, 0);
+	return MemeStringLarge_initByU8bytes((MemeStringLarge_t*)_out, _utf8, _len, NULL, NULL, 0, 0);
 }
 
 MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByOtherAndType(
@@ -161,16 +161,13 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByOther(
 		// TO_DO
 	} break;
 	case MemeString_StorageType_large: {
-		return MemeStringLargeStack_initByOther(_out, &(_other->large_), 0, 0);
+		return MemeStringLarge_initByOther((MemeStringLarge_t*)_out, &(_other->large_));
 	};
-	//case MemeString_StorageType_viewUnsafe: {
-	//	// TO_DO
-	//} break;
 	case MemeString_StorageType_none: {
 		// Error
 	} break;
 	case MemeString_StorageType_user: {
-		// TO_DO
+		return MemeStringUser_initByOther((MemeStringUser_t*)_out, &(_other->user_));
 	} break;
 	default: {
 	} break;
@@ -206,7 +203,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_reset(
 	} break;
 	case MemeString_ImplType_large:
 	{
-		return MemeStringLargeStack_reset(_out);
+		return MemeStringLarge_reset((MemeStringLarge_t*)_out);
 	};
 	default: {
 		return -ENOTSUP;

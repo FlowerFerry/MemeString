@@ -19,6 +19,7 @@ inline int MemeStringUser_initTakeOver(MemeStringUser_t* _s,
 	size_t _strlen,
 	MemeString_UserObjectDestruct_t* _destruct_fn,
 	MemeString_UserObjectData_t* _data_fn);
+inline int MemeStringUser_initByOther(MemeStringUser_t* _s, const MemeStringUser_t* _other);
 inline int MemeStringUser_unInit(MemeStringUser_t* _s);
 inline int MemeStringUser_reset (MemeStringUser_t* _s);
 inline const char* MemeStringUser_cStr(const MemeStringUser_t* _s);
@@ -65,6 +66,16 @@ inline int MemeStringUser_initTakeOver(MemeStringUser_t* _s,
 	_s->size_ = _strlen;
 	_s->type_ = MemeString_ImplType_user;
 
+	return 0;
+}
+
+inline int MemeStringUser_initByOther(MemeStringUser_t* _s, const MemeStringUser_t* _other)
+{
+	assert(_s != NULL		&& MemeStringUser_initByOther);
+	assert(_other != NULL	&& MemeStringUser_initByOther);
+	
+	MemeStringUser_RefCount_increment(_other->ref_);
+	memcpy(_s, _other, MEME_STRING__OBJECT_SIZE);
 	return 0;
 }
 

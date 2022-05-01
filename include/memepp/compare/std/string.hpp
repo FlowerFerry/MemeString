@@ -68,11 +68,11 @@ namespace memepp {
 	}
 
 
-	template<class Traits, class Allocator>
-	int string::compare(const std::basic_string<char, Traits, Allocator>& _str) const noexcept
-	{
-		return - memepp::compare(_str, *this);
-	}
+	//template<class Traits, class Allocator>
+	//int string::compare(const std::basic_string<char, Traits, Allocator>& _str) const noexcept
+	//{
+	//	return - memepp::compare(_str, *this);
+	//}
 
 };
 

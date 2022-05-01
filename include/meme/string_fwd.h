@@ -39,6 +39,9 @@ enum _MemeString_Storage_t {
 	MemeString_StorageType_large		= 3,
 	MemeString_StorageType_user			= 100
 };
+enum _MemeString_UnsafeStorage_t {
+	MemeString_UnsafeStorageType_view   = 99
+};
 
 #ifdef MEME_STRING__OBJECT_SIZE
 #undef MEME_STRING__OBJECT_SIZE
