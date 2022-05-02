@@ -11,7 +11,7 @@ namespace memepp {
 	enum class string_storage_type {
 		small = MemeString_StorageType_small,
 		large = MemeString_StorageType_large,
-		user = MemeString_StorageType_user
+		user  = MemeString_StorageType_user
 	};
 
 	inline MemeString_t __to_object__(MemeStringStack_t& _s) noexcept

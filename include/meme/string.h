@@ -37,11 +37,11 @@ MEME_API int
 
 MEME_API int
 	MEME_STDCALL MemeStringStack_initByU8bytes(
-		MemeStringStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, size_t _len);
+		MemeStringStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len);
 
 MEME_API int
 	MEME_STDCALL MemeStringStack_initByU8bytesAndType(
-		MemeStringStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, size_t _len,
+		MemeStringStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len,
 		MemeString_Storage_t _suggest);
 
 MEME_API int 

@@ -3,6 +3,7 @@
 #define MEMEPP_HASH_STD_HPP_INCLUDED
 
 #include "memepp/string_def.hpp"
+#include "memepp/string_view_def.hpp"
 
 #include <type_traits>
 
@@ -60,6 +61,15 @@ namespace std {
 		}
 	};
 
+	template<>
+	struct hash<memepp::string_view>
+	{
+		inline size_t operator()(const memepp::string_view& _s) const
+		{
+			return memepp::hash::details::hash_value_with_bytes(
+				reinterpret_cast<const uint8_t*>(_s.data()), _s.size());
+		}
+	};
 };
 
 #endif // !MEMEPP_HASH_STD_HPP_INCLUDED

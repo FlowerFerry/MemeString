@@ -99,7 +99,7 @@ typedef struct _MemeStringSmall_t
 
 typedef struct _MemeStringViewUnsafe_t
 {
-	uint8_t* data_;
+	const uint8_t* data_;
 	size_t   size_;
 	union {
 		size_t __reserve__ : ((sizeof(size_t) - 1)* (CHAR_BIT));

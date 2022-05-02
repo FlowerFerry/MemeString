@@ -127,6 +127,10 @@ MEME_EXTERN_C MEME_API const char *MEME_STDCALL MemeString_cStr(MemeString_Const
 	{
 		return (const char*)(_s->large_.ref_->data_);
 	};
+	case MemeString_ImplType_view:
+	{
+		return (const char*)_s->viewUnsafe_.data_;
+	}
 	default: {
 		return (const char*)(MemeStringImpl_default());
 	};
@@ -154,6 +158,10 @@ MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL MemeString_byteSize(MemeString
 	{
 		return (MemeInteger_t)(_s->large_.basic_.size_);
 	};
+	case MemeString_ImplType_view:
+	{
+		return (MemeInteger_t)_s->viewUnsafe_.size_;
+	}
 	default: {
 		return 0;
 	};

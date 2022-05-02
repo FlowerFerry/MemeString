@@ -160,6 +160,7 @@
     <ClInclude Include="..\..\..\include\memepp\string_fwd.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string_impl.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string_view.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\string_view_def.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string_view_fwd.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string_view_impl.hpp" />
     <ClInclude Include="..\..\..\include\meme\common.h" />
@@ -167,6 +168,7 @@
     <ClInclude Include="..\..\..\include\meme\string_fwd.h" />
     <ClInclude Include="..\..\..\include\meme\string_memory.h" />
     <ClInclude Include="..\..\..\include\meme\string_memory_fwd.h" />
+    <ClInclude Include="..\..\..\include\meme\unsafe\view.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\atomic.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\atomic_fwd.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\string.h" />

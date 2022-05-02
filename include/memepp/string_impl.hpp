@@ -8,11 +8,13 @@
 
 #include <string.h>
 
-#ifdef MEMEPP_STRING__IMPL_SEPARATE
-#define MEMEPP_STRING__IMPL_SEPARATE_INLINE 
-#else
-#define MEMEPP_STRING__IMPL_SEPARATE_INLINE inline
-#endif
+#ifndef MEMEPP_STRING__IMPL_SEPARATE_INLINE
+#	ifdef MEMEPP_STRING__IMPL_SEPARATE
+#		define MEMEPP_STRING__IMPL_SEPARATE_INLINE 
+#	else
+#		define MEMEPP_STRING__IMPL_SEPARATE_INLINE inline
+#	endif
+#endif 
 
 namespace memepp {
 
@@ -48,7 +50,7 @@ namespace memepp {
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE string::string(const char* _utf8)
 	{
 		MemeStringStack_initByU8bytes(&data_, MEME_STRING__OBJECT_SIZE,
-			reinterpret_cast<const uint8_t*>(_utf8), strlen(_utf8));
+			reinterpret_cast<const uint8_t*>(_utf8), -1);
 	}
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE string::string(const char* _utf8, size_t _size)
@@ -59,8 +61,7 @@ namespace memepp {
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE string::string(const uint8_t* _utf8)
 	{
-		MemeStringStack_initByU8bytes(&data_, MEME_STRING__OBJECT_SIZE,
-			_utf8, strlen(reinterpret_cast<const char*>(_utf8)));
+		MemeStringStack_initByU8bytes(&data_, MEME_STRING__OBJECT_SIZE, _utf8, -1);
 	}
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE string::string(const uint8_t* _utf8, size_t _size)
