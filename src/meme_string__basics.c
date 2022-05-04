@@ -94,8 +94,16 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_isEmpty(MemeString_Const_t _s
 	} break;
 	case MemeString_ImplType_large:
 	{
-		return (_s->large_.basic_.size_ == 0) ? 0 : 1;
+		return (_s->large_.size_ == 0) ? 0 : 1;
 	} break;
+	case MemeString_ImplType_user:
+	{
+		return (_s->user_.size_ == 0) ? 0 : 1;
+	}
+	case MemeString_ImplType_view:
+	{
+		return (_s->viewUnsafe_.size_ == 0) ? 0 : 1;
+	}
 	default: {
 		return 1;
 	} break;
@@ -154,7 +162,7 @@ MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL MemeString_byteSize(MemeString
 	};
 	case MemeString_ImplType_large:
 	{
-		return _s->large_.basic_.size_;
+		return _s->large_.size_;
 	};
 	case MemeString_ImplType_view:
 	{
@@ -185,7 +193,7 @@ MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL MemeString_byteCapacity(MemeSt
 	};
 	case MemeString_ImplType_large:
 	{
-		return (MemeInteger_t)(_s->large_.basic_.capacity_);
+		return (MemeInteger_t)(0);
 	};
 	default: {
 		return 0;

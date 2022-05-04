@@ -100,12 +100,14 @@ inline int MemeStringLarge_init (
 	MemeString_FreeFunction_t  * d_func = NULL;
 	MemeStringLarge_RefCounted_t* ref   = NULL;
 
+	_capacity = 0; // Can not be used, first so deal with
+
 	assert(_s != NULL);
 	assert(_front_capacity + _capacity > 0);
 
 	memset(_s, 0, sizeof(MemeStringStack_t));
-	_s->basic_.type_ = MemeString_ImplType_large;
-	_s->basic_.capacity_ = _capacity;
+	_s->type_   = MemeString_ImplType_large;
+	_s->offset_ = 0;
 
 	c_func = (_cfn ? _cfn : MemeString_getMallocFunction());
 	if (c_func == _cfn) {
@@ -159,6 +161,8 @@ inline int MemeStringLarge_initByU8bytes(
 	MemeString_FreeFunction_t* d_func   = NULL;
 	MemeStringLarge_RefCounted_t* ref   = NULL;
 
+	_capacity = 0; // Can not be used, first so deal with
+
 	size_t total_length = _front_capacity + _capacity + _len;
 
 	assert(_s != NULL);
@@ -200,9 +204,9 @@ inline int MemeStringLarge_initByU8bytes(
 		return -EPERM;
 	}
 	_s->ref_ = ref;
-	_s->basic_.type_ = MemeString_ImplType_large;
-	_s->basic_.capacity_ = _capacity;
-	_s->basic_.size_ = _len;
+	_s->type_ = MemeString_ImplType_large;
+	_s->offset_ = 0;
+	_s->size_ = _len;
 	return 0;
 }
 

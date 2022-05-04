@@ -52,7 +52,7 @@ typedef struct _MemeString_Basic_t
 	union {
 		size_t capacity_ : ((sizeof(size_t) - 1) * (CHAR_BIT));
 		struct {
-			uint8_t __occupy_a_seat2__[sizeof(size_t) - 1];
+			uint8_t __occupy_a_seat__[sizeof(size_t) - 1];
 			uint8_t type_;
 		};
 	};
@@ -65,9 +65,9 @@ typedef struct _MemeStringUser_t
 		MemeInteger_t size_;
 	};
 	union {
-		size_t __reserve__ : ((sizeof(size_t) - 1)* (CHAR_BIT));
+		size_t offset_ : ((sizeof(size_t) - 1)* (CHAR_BIT));
 		struct {
-			uint8_t __occupy_a_seat2__[sizeof(size_t) - 1];
+			uint8_t __occupy_a_seat__[sizeof(size_t) - 1];
 			uint8_t type_;
 		};
 	};
@@ -82,7 +82,16 @@ typedef struct _MemeStringMedium_t
 typedef struct _MemeStringLarge_t
 {
 	MemeStringLarge_RefCounted_t * ref_;
-	MemeString_Basic_t basic_;
+	union {
+		MemeInteger_t size_;
+	};
+	union {
+		size_t offset_ : ((sizeof(size_t) - 1)* (CHAR_BIT));
+		struct {
+			uint8_t __occupy_a_seat__[sizeof(size_t) - 1];
+			uint8_t type_;
+		};
+	};
 } MemeStringLarge_t;
 
 typedef struct _MemeStringSmall_t
@@ -90,7 +99,7 @@ typedef struct _MemeStringSmall_t
 	union {
 		uint8_t buffer_[sizeof(MemeStringMedium_t)];
 		struct {
-			uint8_t __occupy_a_seat1__[sizeof(MemeStringMedium_t) - 2];
+			uint8_t __occupy_a_seat__[sizeof(MemeStringMedium_t) - 2];
 			uint8_t capacity_;
 			uint8_t type_;
 		};
@@ -102,7 +111,7 @@ typedef struct _MemeStringViewUnsafe_t
 	const uint8_t* data_;
 	MemeInteger_t  size_;
 	union {
-		size_t __reserve__ : ((sizeof(size_t) - 1)* (CHAR_BIT));
+		size_t offset_ : ((sizeof(size_t) - 1)* (CHAR_BIT));
 		struct {
 			uint8_t __occupy_a_seat__[sizeof(size_t) - 1];
 			uint8_t type_;

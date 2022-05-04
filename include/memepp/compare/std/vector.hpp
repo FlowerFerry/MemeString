@@ -12,7 +12,7 @@ namespace memepp {
 	{
 		int result = 0;
 		MemeString_isEqual(
-			__to_object__(_lhs.native_handle()), _rhs.data(), _rhs.size(), &result);
+			to_pointer(_lhs.native_handle()), _rhs.data(), _rhs.size(), &result);
 		return result;
 	}
 
@@ -21,7 +21,7 @@ namespace memepp {
 	{
 		int result = 0;
 		MemeString_isEqual(
-			__to_object__(_lhs.native_handle()), static_cast<const char*>(_rhs.data()), _rhs.size(), &result);
+			to_pointer(_lhs.native_handle()), static_cast<const char*>(_rhs.data()), _rhs.size(), &result);
 		return result;
 	}
 
@@ -30,7 +30,7 @@ namespace memepp {
 	{
 		int result = 0;
 		MemeString_isEqual(
-			__to_object__(_rhs.native_handle()), _lhs.data(), _lhs.size(), &result);
+			to_pointer(_rhs.native_handle()), _lhs.data(), _lhs.size(), &result);
 		return result;
 	}
 
@@ -39,7 +39,7 @@ namespace memepp {
 	{
 		int result = 0;
 		MemeString_isEqual(
-			__to_object__(_rhs.native_handle()), static_cast<const char*>(_lhs.data()), _lhs.size(), &result);
+			to_pointer(_rhs.native_handle()), static_cast<const char*>(_lhs.data()), _lhs.size(), &result);
 		return result;
 	}
 
