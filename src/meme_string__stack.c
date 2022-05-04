@@ -271,6 +271,7 @@ MEME_API int MEME_STDCALL MemeStringViewUnsafeStack_init(MemeStringStack_t* _s, 
 	MemeStringViewUnsafe_t* p = (MemeStringViewUnsafe_t*)_s;
 	p->data_ = _buf;
 	p->size_ = (_len == -1 ? strlen(_buf) : _len);
+	p->offset_ = 0;
 	p->type_ = MemeString_ImplType_view;
 	return 0;
 }

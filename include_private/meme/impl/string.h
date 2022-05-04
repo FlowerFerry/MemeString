@@ -86,7 +86,7 @@ typedef struct _MemeStringLarge_t
 		MemeInteger_t size_;
 	};
 	union {
-		size_t offset_ : ((sizeof(size_t) - 1)* (CHAR_BIT));
+		size_t offset_ : ((sizeof(size_t) - 1)* (CHAR_BIT)); ///< split 
 		struct {
 			uint8_t __occupy_a_seat__[sizeof(size_t) - 1];
 			uint8_t type_;
