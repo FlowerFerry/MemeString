@@ -47,7 +47,7 @@ enum _MemeString_ImplType_t {
 typedef struct _MemeString_Basic_t
 {
 	union {
-		size_t size_;
+		MemeInteger_t size_;
 	};
 	union {
 		size_t capacity_ : ((sizeof(size_t) - 1) * (CHAR_BIT));
@@ -62,7 +62,7 @@ typedef struct _MemeStringUser_t
 {
 	MemeStringUser_RefCounted_t* ref_;
 	union {
-		size_t size_;
+		MemeInteger_t size_;
 	};
 	union {
 		size_t __reserve__ : ((sizeof(size_t) - 1)* (CHAR_BIT));
@@ -100,7 +100,7 @@ typedef struct _MemeStringSmall_t
 typedef struct _MemeStringViewUnsafe_t
 {
 	const uint8_t* data_;
-	size_t   size_;
+	MemeInteger_t  size_;
 	union {
 		size_t __reserve__ : ((sizeof(size_t) - 1)* (CHAR_BIT));
 		struct {

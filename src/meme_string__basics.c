@@ -142,7 +142,7 @@ MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL MemeString_byteSize(MemeString
 	switch (MEME_STRING__GET_TYPE(*_s)) {
 	case MemeString_ImplType_user:
 	{
-		return (MemeInteger_t)_s->user_.size_;
+		return _s->user_.size_;
 	};
 	case MemeString_ImplType_small:
 	{
@@ -150,15 +150,15 @@ MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL MemeString_byteSize(MemeString
 	};
 	case MemeString_ImplType_medium:
 	{
-		return (MemeInteger_t)(_s->medium_.basic_.size_);
+		return _s->medium_.basic_.size_;
 	};
 	case MemeString_ImplType_large:
 	{
-		return (MemeInteger_t)(_s->large_.basic_.size_);
+		return _s->large_.basic_.size_;
 	};
 	case MemeString_ImplType_view:
 	{
-		return (MemeInteger_t)_s->viewUnsafe_.size_;
+		return _s->viewUnsafe_.size_;
 	}
 	default: {
 		return 0;

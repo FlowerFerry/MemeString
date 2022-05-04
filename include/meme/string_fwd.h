@@ -16,7 +16,7 @@ typedef struct _MemeString_t* MemeString_t;
 typedef const struct _MemeString_t* MemeString_Const_t;
 
 typedef struct _MemeWordIndex_t {
-	size_t size;
+	MemeInteger_t size;
     const MemeByte_t * data;
 } MemeWordIndex_t;
 
@@ -37,10 +37,10 @@ enum _MemeString_Storage_t {
 	MemeString_StorageType_small		= 1,
 	MemeString_StorageType_medium		= 2,
 	MemeString_StorageType_large		= 3,
-	MemeString_StorageType_user			= 100
+	MemeString_StorageType_user			= 63
 };
 enum _MemeString_UnsafeStorage_t {
-	MemeString_UnsafeStorageType_view   = 99
+	MemeString_UnsafeStorageType_view   = 62
 };
 
 #ifdef MEME_STRING__OBJECT_SIZE
