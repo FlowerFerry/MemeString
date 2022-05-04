@@ -47,7 +47,7 @@ namespace memepp {
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE string_view::string_view(const string& _other)
 	{
 		MemeStringStack_initByOther(
-			&data_, MEME_STRING__OBJECT_SIZE, __to_object__(_other.native_handle()));
+			&data_, MEME_STRING__OBJECT_SIZE, to_pointer(_other.native_handle()));
 	}
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE string_view::string_view(const string_view& _other)
@@ -59,14 +59,14 @@ namespace memepp {
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE string_view::string_view(string&& _other)
 	{
 		MemeStringStack_init(&data_, MEME_STRING__OBJECT_SIZE);
-		MemeString_swap(__to_object__(data_), 
-			__to_object__(const_cast<MemeStringStack_t&>(_other.native_handle())));
+		MemeString_swap(to_pointer(data_), 
+			to_pointer(const_cast<MemeStringStack_t&>(_other.native_handle())));
 	}
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE string_view::string_view(string_view&& _other)
 	{
 		MemeStringStack_init(&data_, MEME_STRING__OBJECT_SIZE);
-		MemeString_swap(__to_object__(data_), __to_object__(_other.data_));
+		MemeString_swap(to_pointer(data_), to_pointer(_other.data_));
 	}
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE memepp::string_view::~string_view()
@@ -76,7 +76,7 @@ namespace memepp {
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE string_view& string_view::operator=(const string& _other)
 	{
-		MemeStringStack_assign(&data_, __to_object__(const_cast<MemeStringStack_t&>(_other.native_handle())));
+		MemeStringStack_assign(&data_, to_pointer(const_cast<MemeStringStack_t&>(_other.native_handle())));
 		return *this;
 	}
 
@@ -88,35 +88,35 @@ namespace memepp {
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE string_view& string_view::operator=(string&& _other)
 	{
-		MemeString_swap(__to_object__(data_), __to_object__(const_cast<MemeStringStack_t&>(_other.native_handle())));
+		MemeString_swap(to_pointer(data_), to_pointer(const_cast<MemeStringStack_t&>(_other.native_handle())));
 		return *this;
 	}
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE string_view& string_view::operator=(string_view&& _other)
 	{
-		MemeString_swap(__to_object__(data_), __to_object__(_other.data_));
+		MemeString_swap(to_pointer(data_), to_pointer(_other.data_));
 		return *this;
 	}
 
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE const char* string_view::data() const noexcept
 	{
-		return MemeString_cStr(__to_object__(data_));
+		return MemeString_cStr(to_pointer(data_));
 	}
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE size_t string_view::size() const noexcept
 	{
-		return static_cast<size_t>(MemeString_byteSize(__to_object__(data_)));
+		return static_cast<size_t>(MemeString_byteSize(to_pointer(data_)));
 	}
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE string memepp::string_view::to_string() const
 	{
-		if (MemeString_storageType(__to_object__(data_)) == MemeString_UnsafeStorageType_view)
+		if (MemeString_storageType(to_pointer(data_)) == MemeString_UnsafeStorageType_view)
 			return string { data(), size() };
 
 		MemeStringStack_t stack;
 		MemeStringStack_initByOther(
-			&stack, MEME_STRING__OBJECT_SIZE, __to_object__(data_));
+			&stack, MEME_STRING__OBJECT_SIZE, to_pointer(data_));
 		return string { reinterpret_cast<MemeStringStack_t&&>(stack) };
 	}
 
@@ -130,8 +130,8 @@ namespace memepp {
 	{
 		int result = 0;
 		MemeString_isEqualWithOther(
-			__to_object__(_lhs.native_handle()),
-			__to_object__(_rhs.native_handle()), &result);
+			to_pointer(_lhs.native_handle()),
+			to_pointer(_rhs.native_handle()), &result);
 		return result;
 	}
 
@@ -144,8 +144,8 @@ namespace memepp {
 	{
 		int result = 0;
 		MemeString_isEqualWithOther(
-			__to_object__(_lhs.native_handle()),
-			__to_object__(_rhs.native_handle()), &result);
+			to_pointer(_lhs.native_handle()),
+			to_pointer(_rhs.native_handle()), &result);
 		return result;
 	}
 
@@ -158,8 +158,8 @@ namespace memepp {
 	{
 		int result = 0;
 		MemeString_isEqualWithOther(
-			__to_object__(_lhs.native_handle()),
-			__to_object__(_rhs.native_handle()), &result);
+			to_pointer(_lhs.native_handle()),
+			to_pointer(_rhs.native_handle()), &result);
 		return result;
 	}
 
@@ -172,7 +172,7 @@ namespace memepp {
 	{
 		int result = 0;
 		MemeString_isEqual(
-			__to_object__(_rhs.native_handle()), _lhs, -1, &result);
+			to_pointer(_rhs.native_handle()), _lhs, -1, &result);
 		return result;
 	}
 
@@ -185,7 +185,7 @@ namespace memepp {
 	{
 		int result = 0;
 		MemeString_isEqual(
-			__to_object__(_lhs.native_handle()), _rhs, -1, &result);
+			to_pointer(_lhs.native_handle()), _rhs, -1, &result);
 		return result;
 	}
 

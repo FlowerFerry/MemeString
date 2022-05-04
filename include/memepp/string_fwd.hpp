@@ -16,11 +16,11 @@ namespace memepp {
 		user  = MemeString_StorageType_user
 	};
 
-	inline MemeString_t __to_object__(MemeStringStack_t& _s) noexcept
+	inline MemeString_t to_pointer(MemeStringStack_t& _s) noexcept
 	{
 		return reinterpret_cast<MemeString_t>(&_s);
 	}
-	inline MemeString_Const_t __to_object__(const MemeStringStack_t& _s) noexcept
+	inline MemeString_Const_t to_pointer(const MemeStringStack_t& _s) noexcept
 	{
 		return reinterpret_cast<MemeString_Const_t>(&_s);
 	}

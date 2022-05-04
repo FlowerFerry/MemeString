@@ -22,20 +22,18 @@ MemeString_Storage_t MemeStringImpl_initSuggestType(
 	case MemeString_StorageType_large: {
 		return MemeString_StorageType_large;
 	};
-	//case MemeString_StorageType_viewUnsafe: {
-	//	return MemeString_StorageType_viewUnsafe;
-	//};
+
 	default: {
 		if (MemeString_StorageType_user < _user_suggest)
 			return _user_suggest;
 
 		if (_len <= MEME_STRING__GET_SMALL_BUFFER_SIZE)
 			return MemeString_StorageType_small;
-		do {
-			size_t medium_limit = MemeStringOption_getStorageMediumLimit();
-			if (medium_limit && _len <= medium_limit)
-				return MemeString_StorageType_medium;
-		} while (0);
+		//do {
+		//	size_t medium_limit = MemeStringOption_getStorageMediumLimit();
+		//	if (medium_limit && _len <= medium_limit)
+		//		return MemeString_StorageType_medium;
+		//} while (0);
 
 		return MemeString_StorageType_large;
 	};

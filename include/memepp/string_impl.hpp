@@ -25,16 +25,17 @@ namespace memepp {
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE string::string(native_handle_type&& _other)
 	{
-		if (MemeString_storageType(__to_object__(_other)) == MemeString_UnsafeStorageType_view)
+		if (MemeString_storageType(to_pointer(_other)) == MemeString_UnsafeStorageType_view)
 		{
 			MemeStringStack_initByU8bytes(&data_, MEME_STRING__OBJECT_SIZE, 
-				reinterpret_cast<const uint8_t*>(MemeString_cStr(__to_object__(_other))), 
-				MemeString_byteSize(__to_object__(_other)));
+				reinterpret_cast<const uint8_t*>(MemeString_cStr(to_pointer(_other))), 
+				MemeString_byteSize(to_pointer(_other)));
 		}
 		else {
 			MemeStringStack_init(&data_, MEME_STRING__OBJECT_SIZE);
-			MemeString_swap(__to_object__(data_), __to_object__(_other));
+			MemeString_swap(to_pointer(data_), to_pointer(_other));
 		}
+		MemeStringStack_unInit(&_other, MEME_STRING__OBJECT_SIZE);
 	}
 
 	//inline string::string(const string& _other, string_storage_type _suggest)
@@ -46,13 +47,13 @@ namespace memepp {
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE string::string(string && _other)
 	{
 		MemeStringStack_init(&data_, MEME_STRING__OBJECT_SIZE);
-		MemeString_swap(__to_object__(data_), __to_object__(_other.data_));
+		MemeString_swap(to_pointer(data_), to_pointer(_other.data_));
 	}
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE string::string(const string & _other)
 	{
 		MemeStringStack_initByOther(
-			&data_, MEME_STRING__OBJECT_SIZE, __to_object__(_other.data_));
+			&data_, MEME_STRING__OBJECT_SIZE, to_pointer(_other.data_));
 	}
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE string::string(const char* _utf8)
@@ -93,49 +94,49 @@ namespace memepp {
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE string & string::operator=(string && _other)
 	{
-		MemeString_swap(__to_object__(data_), __to_object__(_other.data_));
+		MemeString_swap(to_pointer(data_), to_pointer(_other.data_));
 		return *this;
 	}
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE string & string::operator=(const string & _other)
 	{
-		MemeStringStack_assign(&data_, __to_object__(_other.data_));
+		MemeStringStack_assign(&data_, to_pointer(_other.data_));
 		return *this;
 	}
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE string_storage_type string::storage_type() const noexcept
 	{
-		return static_cast<string_storage_type>(MemeString_storageType(__to_object__(data_)));
+		return static_cast<string_storage_type>(MemeString_storageType(to_pointer(data_)));
 	}
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE const char * string::data() const noexcept
 	{
-		return MemeString_cStr(__to_object__(data_));
+		return MemeString_cStr(to_pointer(data_));
 	}
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE const char * string::c_str() const noexcept
 	{
-		return MemeString_cStr(__to_object__(data_));
+		return MemeString_cStr(to_pointer(data_));
 	}
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE size_t string::size() const noexcept
 	{
-		return MemeString_byteSize(__to_object__(data_));
+		return MemeString_byteSize(to_pointer(data_));
 	}
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE bool string::empty() const noexcept
 	{
-		return MemeString_isEmpty(__to_object__(data_)) == 0;
+		return MemeString_isEmpty(to_pointer(data_)) == 0;
 	}
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE size_t string::capacity() const noexcept
 	{
-		return MemeString_byteCapacity(__to_object__(data_));
+		return MemeString_byteCapacity(to_pointer(data_));
 	}
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE void string::swap(string& _other) noexcept
 	{
-		MemeString_swap(__to_object__(data_), __to_object__(_other.data_));
+		MemeString_swap(to_pointer(data_), to_pointer(_other.data_));
 	}
 
 	//string::size_type string::find(string& _other, size_type _pos = 0) const
@@ -151,8 +152,8 @@ namespace memepp {
 	{
 		int result = 0;
 		MemeString_isEqualWithOther(
-			__to_object__(_lhs.native_handle()),
-			__to_object__(_rhs.native_handle()), &result);
+			to_pointer(_lhs.native_handle()),
+			to_pointer(_rhs.native_handle()), &result);
 		return result;
 	}
 
@@ -160,7 +161,7 @@ namespace memepp {
 	{
 		int result = 0;
 		MemeString_isEqual(
-			__to_object__(_rhs.native_handle()), _lhs, -1, &result);
+			to_pointer(_rhs.native_handle()), _lhs, -1, &result);
 		return result;
 	}
 
@@ -168,7 +169,7 @@ namespace memepp {
 	{
 		int result = 0;
 		MemeString_isEqual(
-			__to_object__(_lhs.native_handle()), _rhs, -1, &result);
+			to_pointer(_lhs.native_handle()), _rhs, -1, &result);
 		return result;
 	}
 
