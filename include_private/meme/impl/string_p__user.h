@@ -64,6 +64,7 @@ inline int MemeStringUser_initTakeOver(MemeStringUser_t* _s,
 	}
 	_s->ref_  = refCount;
 	_s->size_ = _strlen;
+	_s->offset_ = 0;
 	_s->type_ = MemeString_ImplType_user;
 
 	return 0;
