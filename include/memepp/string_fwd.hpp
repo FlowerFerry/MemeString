@@ -4,6 +4,8 @@
 
 #include "meme/string_fwd.h"
 
+#undef small
+
 namespace memepp {
 
 	class string;

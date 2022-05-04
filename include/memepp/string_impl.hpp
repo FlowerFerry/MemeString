@@ -25,8 +25,16 @@ namespace memepp {
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE string::string(native_handle_type&& _other)
 	{
-		MemeStringStack_init(&data_, MEME_STRING__OBJECT_SIZE);
-		MemeString_swap(__to_object__(data_), __to_object__(_other));
+		if (MemeString_storageType(__to_object__(_other)) == MemeString_UnsafeStorageType_view)
+		{
+			MemeStringStack_initByU8bytes(&data_, MEME_STRING__OBJECT_SIZE, 
+				reinterpret_cast<const uint8_t*>(MemeString_cStr(__to_object__(_other))), 
+				MemeString_byteSize(__to_object__(_other)));
+		}
+		else {
+			MemeStringStack_init(&data_, MEME_STRING__OBJECT_SIZE);
+			MemeString_swap(__to_object__(data_), __to_object__(_other));
+		}
 	}
 
 	//inline string::string(const string& _other, string_storage_type _suggest)

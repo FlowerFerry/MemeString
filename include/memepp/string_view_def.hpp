@@ -34,10 +34,13 @@ namespace memepp {
 		string_view(string&& _other);
 		string_view(string_view&& _other);
 
+		~string_view();
+
 		string_view& operator=(const string& _other);
 		string_view& operator=(const string_view& _other);
 		string_view& operator=(string&& _other);
 		string_view& operator=(string_view&& _other);
+
 
 		const char* data() const noexcept;
 		size_t size() const noexcept;
@@ -52,6 +55,20 @@ namespace memepp {
 
 	bool operator==(const string_view& _lhs, const string_view& _rhs);
 	bool operator!=(const string_view& _lhs, const string_view& _rhs);
+
+	bool operator==(const string& _lhs, const string_view& _rhs);
+	bool operator!=(const string& _lhs, const string_view& _rhs);
+
+	bool operator==(const string_view& _lhs, const string& _rhs);
+	bool operator!=(const string_view& _lhs, const string& _rhs);
+
+	bool operator==(const char* _lhs, const string_view& _rhs);
+	bool operator!=(const char* _lhs, const string_view& _rhs);
+
+	bool operator==(const string_view& _lhs, const char* _rhs);
+	bool operator!=(const string_view& _lhs, const char* _rhs);
 };
+
+
 
 #endif // !MEMEPP_STRING_VIEW_DEF_HPP_INCLUDED

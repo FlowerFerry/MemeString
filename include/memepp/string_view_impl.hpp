@@ -69,6 +69,10 @@ namespace memepp {
 		MemeString_swap(__to_object__(data_), __to_object__(_other.data_));
 	}
 
+	MEMEPP_STRING__IMPL_SEPARATE_INLINE memepp::string_view::~string_view()
+	{
+		MemeStringStack_unInit(&data_, MEME_STRING__OBJECT_SIZE);
+	}
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE string_view& string_view::operator=(const string& _other)
 	{
@@ -132,6 +136,60 @@ namespace memepp {
 	}
 
 	MEMEPP_STRING__IMPL_SEPARATE_INLINE bool operator!=(const string_view& _lhs, const string_view& _rhs)
+	{
+		return !(_lhs == _rhs);
+	}
+
+	MEMEPP_STRING__IMPL_SEPARATE_INLINE bool memepp::operator==(const string& _lhs, const string_view& _rhs)
+	{
+		int result = 0;
+		MemeString_isEqualWithOther(
+			__to_object__(_lhs.native_handle()),
+			__to_object__(_rhs.native_handle()), &result);
+		return result;
+	}
+
+	MEMEPP_STRING__IMPL_SEPARATE_INLINE bool memepp::operator!=(const string& _lhs, const string_view& _rhs)
+	{
+		return !(_lhs == _rhs);
+	}
+
+	MEMEPP_STRING__IMPL_SEPARATE_INLINE bool memepp::operator==(const string_view& _lhs, const string& _rhs)
+	{
+		int result = 0;
+		MemeString_isEqualWithOther(
+			__to_object__(_lhs.native_handle()),
+			__to_object__(_rhs.native_handle()), &result);
+		return result;
+	}
+
+	MEMEPP_STRING__IMPL_SEPARATE_INLINE bool memepp::operator!=(const string_view& _lhs, const string& _rhs)
+	{
+		return !(_lhs == _rhs);
+	}
+
+	MEMEPP_STRING__IMPL_SEPARATE_INLINE bool memepp::operator==(const char* _lhs, const string_view& _rhs)
+	{
+		int result = 0;
+		MemeString_isEqual(
+			__to_object__(_rhs.native_handle()), _lhs, -1, &result);
+		return result;
+	}
+
+	MEMEPP_STRING__IMPL_SEPARATE_INLINE bool memepp::operator!=(const char* _lhs, const string_view& _rhs)
+	{
+		return !(_lhs == _rhs);
+	}
+
+	MEMEPP_STRING__IMPL_SEPARATE_INLINE bool memepp::operator==(const string_view& _lhs, const char* _rhs)
+	{
+		int result = 0;
+		MemeString_isEqual(
+			__to_object__(_lhs.native_handle()), _rhs, -1, &result);
+		return result;
+	}
+
+	MEMEPP_STRING__IMPL_SEPARATE_INLINE bool memepp::operator!=(const string_view& _lhs, const char* _rhs)
 	{
 		return !(_lhs == _rhs);
 	}
