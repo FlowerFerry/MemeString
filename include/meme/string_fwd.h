@@ -28,6 +28,7 @@ typedef struct _MemeWord_t {
 typedef MemeInteger_t MemeFlag_CaseSensitivity_t;
 enum _MemeFlag_CaseSensitivity_t 
 {
+    MemeFlag_CaseInsensitive,
     MemeFlag_CaseSensitive
 };
 

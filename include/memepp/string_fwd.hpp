@@ -6,6 +6,14 @@
 
 #undef small
 
+#ifndef MEMEPP__IMPL_INLINE
+#	ifdef MEMEPP__IMPL_SEPARATE
+#		define MEMEPP__IMPL_INLINE 
+#	else
+#		define MEMEPP__IMPL_INLINE inline
+#	endif
+#endif 
+
 namespace memepp {
 
 	class string;
@@ -20,6 +28,7 @@ namespace memepp {
 	{
 		return reinterpret_cast<MemeString_t>(&_s);
 	}
+
 	inline MemeString_Const_t to_pointer(const MemeStringStack_t& _s) noexcept
 	{
 		return reinterpret_cast<MemeString_Const_t>(&_s);
