@@ -28,8 +28,10 @@ typedef struct _MemeWord_t {
 typedef MemeInteger_t MemeFlag_CaseSensitivity_t;
 enum _MemeFlag_CaseSensitivity_t 
 {
-    MemeFlag_CaseInsensitive,
-    MemeFlag_CaseSensitive
+	MemeFlag_AllInsensitive = 0,
+    MemeFlag_CaseSensitive  = 1,
+	MemeFlag_SimplifiedTraditionalSensitive = 2,
+	MemeFlag_AllSensitive	= 0xFFFFFFFF
 };
 
 typedef MemeInteger_t MemeString_Storage_t;
@@ -44,6 +46,13 @@ enum _MemeString_UnsafeStorage_t {
 	MemeString_UnsafeStorageType_view   = 62
 };
 
+typedef MemeInteger_t MemeFlag_SplitBehavior_t;
+enum _MemeFlag_SplitBehavior_t 
+{
+	MemeFlag_KeepEmptyParts,
+	MemeFlag_SkipEmptyParts
+};
+
 #ifdef MEME_STRING__OBJECT_SIZE
 #undef MEME_STRING__OBJECT_SIZE
 #endif
@@ -54,8 +63,12 @@ typedef struct _MemeStringStack_t {
 	MemeByte_t byte[MEME_STRING__OBJECT_SIZE];
 } MemeStringStack_t;
 
-#ifndef MEME_ERRNO__OFFSET
-#define MEME_ERRNO__OFFSET (-100000)
+#ifndef MEME_ENO__OFFSET
+#define MEME_ENO__OFFSET (-100000)
+#endif
+
+#ifndef MEME_ENO__POSIX_OFFSET
+#define MEME_ENO__POSIX_OFFSET(VALUE) (-200000-(VALUE))
 #endif
 
 MEME_EXTERN_C_SCOPE_ENDED

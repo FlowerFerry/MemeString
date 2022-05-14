@@ -150,11 +150,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\include\memepp\convert\common.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\convert\exprtk_ex.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\fmt.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\convert\qt\string.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\convert\rapidjson.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\std\vector.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\std\string.hpp" />
     <ClInclude Include="..\..\..\include\memepp\hash\std_hash.hpp" />
     <ClInclude Include="..\..\..\include\memepp\predef\macro_option.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\split\self.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string_def.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string_fwd.hpp" />
@@ -169,6 +173,7 @@
     <ClInclude Include="..\..\..\include\meme\string_memory.h" />
     <ClInclude Include="..\..\..\include\meme\string_memory_fwd.h" />
     <ClInclude Include="..\..\..\include\meme\unsafe\view.h" />
+    <ClInclude Include="..\..\..\include_private\meme\impl\algorithm.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\atomic.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\atomic_fwd.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\string.h" />
@@ -181,6 +186,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\meme_atomic__basics.c" />
+    <ClCompile Include="..\..\..\src\meme_impl__algorithm.c" />
     <ClCompile Include="..\..\..\src\meme_string__basics.c" />
     <ClCompile Include="..\..\..\src\meme_string__stack.c" />
     <ClCompile Include="dllmain.cpp" />

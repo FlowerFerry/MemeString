@@ -12,7 +12,7 @@ namespace memepp {
 	{
 	public:
 		using value_type = uint8_t;
-		using size_type = size_t;
+		using size_type = MemeInteger_t;
 		using difference_type = ptrdiff_t;
 		using reference = value_type&;
 		using const_reference = const value_type&;
@@ -25,9 +25,9 @@ namespace memepp {
 
 		MEMEPP__IMPL_INLINE string_view() noexcept;
 		MEMEPP__IMPL_INLINE string_view(const char* _utf8);
-		MEMEPP__IMPL_INLINE string_view(const char* _utf8, size_t _size);
-		MEMEPP__IMPL_INLINE string_view(const uint8_t* _utf8);
-		MEMEPP__IMPL_INLINE string_view(const uint8_t* _utf8, size_t _size);
+		MEMEPP__IMPL_INLINE string_view(const char* _utf8, size_type _size);
+		MEMEPP__IMPL_INLINE string_view(const_pointer _utf8);
+		MEMEPP__IMPL_INLINE string_view(const_pointer _utf8, size_type _size);
 
 		MEMEPP__IMPL_INLINE string_view(const string& _other);
 		MEMEPP__IMPL_INLINE string_view(const string_view& _other);
@@ -43,9 +43,12 @@ namespace memepp {
 
 
 		MEMEPP__IMPL_INLINE const char* data() const noexcept;
-		MEMEPP__IMPL_INLINE size_t size() const noexcept;
+		MEMEPP__IMPL_INLINE size_type size() const noexcept;
 
 		MEMEPP__IMPL_INLINE string to_string() const;
+
+		MEMEPP__IMPL_INLINE size_type index_of(const char* _utf8,
+			MemeFlag_CaseSensitivity_t _cs = MemeFlag_AllSensitive) const noexcept;
 
 		MEMEPP__IMPL_INLINE const native_handle_type& native_handle() const noexcept;
 
@@ -69,6 +72,7 @@ namespace memepp {
 	MEMEPP__IMPL_INLINE bool operator!=(const string_view& _lhs, const char* _rhs);
 };
 
+	memepp::string_view operator""_meme_sv(const char* _str, size_t _len);
 
 
 #endif // !MEMEPP_STRING_VIEW_DEF_HPP_INCLUDED

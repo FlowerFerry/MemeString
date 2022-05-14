@@ -5,6 +5,7 @@
 
 #include "meme/string.h"
 #include "memepp/string_def.hpp"
+#include "memepp/string_view.hpp"
 
 #include <string.h>
 
@@ -54,18 +55,18 @@ namespace memepp {
 			reinterpret_cast<const uint8_t*>(_utf8), -1);
 	}
 
-	MEMEPP__IMPL_INLINE string::string(const char* _utf8, size_t _size)
+	MEMEPP__IMPL_INLINE string::string(const char* _utf8, size_type _size)
 	{
 		MemeStringStack_initByU8bytes(&data_, MEME_STRING__OBJECT_SIZE,
 			reinterpret_cast<const uint8_t*>(_utf8), _size);
 	}
 
-	MEMEPP__IMPL_INLINE string::string(const uint8_t* _utf8)
+	MEMEPP__IMPL_INLINE string::string(const_pointer _utf8)
 	{
 		MemeStringStack_initByU8bytes(&data_, MEME_STRING__OBJECT_SIZE, _utf8, -1);
 	}
 
-	MEMEPP__IMPL_INLINE string::string(const uint8_t* _utf8, size_t _size)
+	MEMEPP__IMPL_INLINE string::string(const_pointer _utf8, size_type _size)
 	{
 		MemeStringStack_initByU8bytes(&data_, MEME_STRING__OBJECT_SIZE, _utf8, _size);
 	}
@@ -111,7 +112,7 @@ namespace memepp {
 		return MemeString_cStr(to_pointer(data_));
 	}
 
-	MEMEPP__IMPL_INLINE size_t string::size() const noexcept
+	MEMEPP__IMPL_INLINE string::size_type string::size() const noexcept
 	{
 		return MemeString_byteSize(to_pointer(data_));
 	}
@@ -121,7 +122,7 @@ namespace memepp {
 		return MemeString_isEmpty(to_pointer(data_)) == 0;
 	}
 
-	MEMEPP__IMPL_INLINE size_t string::capacity() const noexcept
+	MEMEPP__IMPL_INLINE string::size_type string::capacity() const noexcept
 	{
 		return MemeString_byteCapacity(to_pointer(data_));
 	}
@@ -131,9 +132,33 @@ namespace memepp {
 		MemeString_swap(to_pointer(data_), to_pointer(_other.data_));
 	}
 
-	//string::size_type string::find(string& _other, size_type _pos = 0) const
-	//{
-	//}
+	MEMEPP__IMPL_INLINE string::size_type string::index_of(
+		const string& _other, MemeFlag_CaseSensitivity_t _cs) const noexcept
+	{
+		return MemeString_indexOfWithOther(
+			to_pointer(native_handle()), 0, to_pointer(_other.native_handle()), _cs);
+	}
+
+	MEMEPP__IMPL_INLINE string::size_type string::index_of(
+		const string_view& _other, MemeFlag_CaseSensitivity_t _cs) const noexcept
+	{
+		return MemeString_indexOfWithOther(
+			to_pointer(native_handle()), 0, to_pointer(_other.native_handle()), _cs);
+	}
+
+	MEMEPP__IMPL_INLINE string::size_type string::index_of(
+		const char* _utf8, MemeFlag_CaseSensitivity_t _cs) const noexcept
+	{
+		return MemeString_indexOfWithUtf8bytes(
+			to_pointer(native_handle()), 0, reinterpret_cast<const uint8_t*>(_utf8), -1, _cs);
+	}
+
+	MEMEPP__IMPL_INLINE string::size_type string::index_of_with_strlen(
+		const char* _utf8, size_type _utf8_len, MemeFlag_CaseSensitivity_t _cs) const noexcept
+	{
+		return MemeString_indexOfWithUtf8bytes(
+			to_pointer(native_handle()), 0, reinterpret_cast<const uint8_t*>(_utf8), _utf8_len, _cs);
+	}
 
 	MEMEPP__IMPL_INLINE const string::native_handle_type & string::native_handle() const noexcept
 	{
@@ -183,7 +208,7 @@ namespace memepp {
 
 	MEMEPP__IMPL_INLINE memepp::string operator""_meme(const char* _str, size_t _len)
 	{
-		return memepp::string{ _str, _len };
+		return memepp::string{ _str, static_cast<MemeInteger_t>(_len) };
 	}
 
 #endif // !MEMEPP_STRING_IMPL_HPP_INCLUDED

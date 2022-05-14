@@ -20,7 +20,7 @@ namespace memepp {
 	{
 	public:
 		using value_type = uint8_t;
-		using size_type = size_t;
+		using size_type = MemeInteger_t;
 		using difference_type = ptrdiff_t;
 		using reference = value_type & ;
 		using const_reference = const value_type&;
@@ -36,15 +36,15 @@ namespace memepp {
 		//string(const string& _other, string_storage_type _suggest);
 		MEMEPP__IMPL_INLINE string(string&& _other);
 		MEMEPP__IMPL_INLINE string(const string& _other);
-		MEMEPP__IMPL_INLINE string(const string& _other, size_t _pos);
-		MEMEPP__IMPL_INLINE string(const string& _other, size_t _pos, size_t _count);
+		MEMEPP__IMPL_INLINE string(const string& _other, size_type _pos);
+		MEMEPP__IMPL_INLINE string(const string& _other, size_type _pos, size_type _count);
 
 		MEMEPP__IMPL_INLINE string(const char* _utf8);
-		MEMEPP__IMPL_INLINE string(const char* _utf8, size_t _size);
-		MEMEPP__IMPL_INLINE string(const uint8_t* _utf8);
-		MEMEPP__IMPL_INLINE string(const uint8_t* _utf8, size_t _size);
+		MEMEPP__IMPL_INLINE string(const char* _utf8, size_type _size);
+		MEMEPP__IMPL_INLINE string(const_pointer _utf8);
+		MEMEPP__IMPL_INLINE string(const_pointer _utf8, size_type _size);
 
-		MEMEPP__IMPL_INLINE string(size_t _count, char _ch);
+		MEMEPP__IMPL_INLINE string(size_type _count, char _ch);
 
 		//string(const std::initializer_list<char>& _ilist);
 		//string(const std::initializer_list<uint8_t>& _ilist);
@@ -65,26 +65,26 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE const char* c_str() const noexcept;
 
 
-		MEMEPP__IMPL_INLINE size_t size() const noexcept;
+		MEMEPP__IMPL_INLINE size_type size() const noexcept;
 		MEMEPP__IMPL_INLINE bool empty() const noexcept;
-		MEMEPP__IMPL_INLINE size_t max_size() const noexcept;
-		MEMEPP__IMPL_INLINE size_t capacity() const noexcept;
+		MEMEPP__IMPL_INLINE size_type max_size() const noexcept;
+		MEMEPP__IMPL_INLINE size_type capacity() const noexcept;
 
 		//template<class Traits, class Allocator>
 		//int compare(const std::basic_string<char, Traits, Allocator>& _str) const noexcept;
 		MEMEPP__IMPL_INLINE void swap(string& _other) noexcept;
 
-		MEMEPP__IMPL_INLINE size_type index_of(const string& _other, size_type _offset = 0,
-			MemeFlag_CaseSensitivity_t _cs = MemeFlag_CaseSensitive) const noexcept;
+		MEMEPP__IMPL_INLINE size_type index_of(const string& _other,
+			MemeFlag_CaseSensitivity_t _cs = MemeFlag_AllSensitive) const noexcept;
 
-		MEMEPP__IMPL_INLINE size_type index_of(const string_view& _other, size_type _offset = 0,
-			MemeFlag_CaseSensitivity_t _cs = MemeFlag_CaseSensitive) const noexcept;
+		MEMEPP__IMPL_INLINE size_type index_of(const string_view& _other,
+			MemeFlag_CaseSensitivity_t _cs = MemeFlag_AllSensitive) const noexcept;
 
-		MEMEPP__IMPL_INLINE size_type index_of(const char* _utf8, size_type _offset = 0,
-			MemeFlag_CaseSensitivity_t _cs = MemeFlag_CaseSensitive) const noexcept;
+		MEMEPP__IMPL_INLINE size_type index_of(const char* _utf8,
+			MemeFlag_CaseSensitivity_t _cs = MemeFlag_AllSensitive) const noexcept;
 
-		MEMEPP__IMPL_INLINE size_type index_of(const char* _utf8, size_type _utf8_len, size_type _offset = 0,
-			MemeFlag_CaseSensitivity_t _cs = MemeFlag_CaseSensitive) const noexcept;
+		MEMEPP__IMPL_INLINE size_type index_of_with_strlen(const char* _utf8, size_type _utf8_len,
+			MemeFlag_CaseSensitivity_t _cs = MemeFlag_AllSensitive) const noexcept;
 
 		MEMEPP__IMPL_INLINE const native_handle_type& native_handle() const noexcept;
 

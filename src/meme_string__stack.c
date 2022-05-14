@@ -265,12 +265,19 @@ MEME_API int MEME_STDCALL MemeStringStack_assign(MemeStringStack_t* _s, MemeStri
 MEME_API int MEME_STDCALL MemeStringViewUnsafeStack_init(MemeStringStack_t* _s, size_t _object_size,
 	const uint8_t* _buf, MemeInteger_t _len)
 {
+	MemeStringViewUnsafe_t* p = (MemeStringViewUnsafe_t*)_s;
+
 	assert(_s != NULL		&& MemeStringViewUnsafeStack_init);
 	assert(_buf != NULL		&& MemeStringViewUnsafeStack_init);
 
-	MemeStringViewUnsafe_t* p = (MemeStringViewUnsafe_t*)_s;
+	if (_len == -1)
+		_len = strlen(_buf);
+
+	if (_len <= MEME_STRING__GET_SMALL_BUFFER_SIZE)
+		return MemeStringSmall_initByU8bytes((MemeStringSmall_t*)_s, _buf, _len);
+
 	p->data_ = _buf;
-	p->size_ = (_len == -1 ? strlen(_buf) : _len);
+	p->size_ = _len;
 	p->offset_ = 0;
 	p->type_ = MemeString_ImplType_view;
 	return 0;

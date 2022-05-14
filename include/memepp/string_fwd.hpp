@@ -24,6 +24,11 @@ namespace memepp {
 		user  = MemeString_StorageType_user
 	};
 
+	enum class split_behavior_t {
+		keep_empty_parts = MemeFlag_KeepEmptyParts,
+		skip_empty_parts = MemeFlag_SkipEmptyParts
+	};
+
 	inline MemeString_t to_pointer(MemeStringStack_t& _s) noexcept
 	{
 		return reinterpret_cast<MemeString_t>(&_s);

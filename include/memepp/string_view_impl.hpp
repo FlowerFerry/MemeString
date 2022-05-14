@@ -29,18 +29,18 @@ namespace memepp {
 			reinterpret_cast<const uint8_t*>(_utf8), -1);
 	}
 
-	MEMEPP__IMPL_INLINE string_view::string_view(const char* _utf8, size_t _size)
+	MEMEPP__IMPL_INLINE string_view::string_view(const char* _utf8, size_type _size)
 	{
 		MemeStringViewUnsafeStack_init(&data_, MEME_STRING__OBJECT_SIZE, 
 			reinterpret_cast<const uint8_t*>(_utf8), _size);
 	}
 
-	MEMEPP__IMPL_INLINE string_view::string_view(const uint8_t* _utf8)
+	MEMEPP__IMPL_INLINE string_view::string_view(const_pointer _utf8)
 	{
 		MemeStringViewUnsafeStack_init(&data_, MEME_STRING__OBJECT_SIZE, _utf8, -1);
 	}
 
-	MEMEPP__IMPL_INLINE string_view::string_view(const uint8_t* _utf8, size_t _size)
+	MEMEPP__IMPL_INLINE string_view::string_view(const_pointer _utf8, size_type _size)
 	{
 		MemeStringViewUnsafeStack_init(&data_, MEME_STRING__OBJECT_SIZE, _utf8, _size);
 	}
@@ -105,12 +105,12 @@ namespace memepp {
 		return MemeString_cStr(to_pointer(data_));
 	}
 
-	MEMEPP__IMPL_INLINE size_t string_view::size() const noexcept
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::size() const noexcept
 	{
 		return static_cast<size_t>(MemeString_byteSize(to_pointer(data_)));
 	}
 
-	MEMEPP__IMPL_INLINE string memepp::string_view::to_string() const
+	MEMEPP__IMPL_INLINE string string_view::to_string() const
 	{
 		if (MemeString_storageType(to_pointer(data_)) == MemeString_UnsafeStorageType_view)
 			return string { data(), size() };
@@ -119,6 +119,13 @@ namespace memepp {
 		MemeStringStack_initByOther(
 			&stack, MEME_STRING__OBJECT_SIZE, to_pointer(data_));
 		return string { reinterpret_cast<MemeStringStack_t&&>(stack) };
+	}
+
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::index_of(
+		const char* _utf8, MemeFlag_CaseSensitivity_t _cs) const noexcept
+	{
+		return MemeString_indexOfWithUtf8bytes(
+			to_pointer(native_handle()), 0, reinterpret_cast<const uint8_t*>(_utf8), -1, _cs);
 	}
 
 	MEMEPP__IMPL_INLINE const string_view::native_handle_type& 
@@ -195,5 +202,10 @@ namespace memepp {
 		return !(_lhs == _rhs);
 	}
 };
+
+MEMEPP__IMPL_INLINE memepp::string_view operator""_meme_sv(const char* _str, size_t _len)
+{
+	return memepp::string_view{ _str, static_cast<MemeInteger_t>(_len) };
+}
 
 #endif // !MEMEPP_STRING_VIEW_IMPL_HPP_INCLUDED

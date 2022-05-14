@@ -5,6 +5,8 @@
 #include "meme/impl/string_p__small.h"
 #include "meme/impl/string_p__large.h"
 
+#include "meme/impl/algorithm.h"
+
 #include <errno.h>
 #include <assert.h>
 #include <stdlib.h>
@@ -58,7 +60,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_create(MemeString_t * _out)
 	c_func = MemeString_getMallocFunction();
 	*_out = (MemeString_t)(c_func(sizeof(struct _MemeString_t)));
 	if (!(*_out))
-		return -ENOMEM;
+		return MEME_ENO__POSIX_OFFSET(ENOMEM);
 
 	memset(*_out, 0, sizeof(struct _MemeString_t));
 	(*_out)->small_.type_ = MemeString_ImplType_small;
@@ -218,7 +220,7 @@ static MemeString_FreeFunction_t** __MemeString_freeFuncObject()
 MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_setMallocFunction(MemeString_MallocFunction_t* _fn)
 {
 	if (!_fn)
-		return -EINVAL;
+		return MEME_ENO__POSIX_OFFSET(EINVAL);
 
 	*__MemeString_mallocFuncObject() = _fn;
 	return 0;
@@ -227,7 +229,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_setMallocFunction(MemeString_
 MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_setFreeFunction(MemeString_FreeFunction_t* _fn)
 {
 	if (!_fn)
-		return -EINVAL;
+		return MEME_ENO__POSIX_OFFSET(EINVAL);
 
 	*__MemeString_freeFuncObject() = _fn;
 	return 0;
@@ -251,7 +253,7 @@ int MemeStringMemory_allocFunctionSwitch(
 	if (*_out_malloc_fn == _in_malloc_fn)
 	{
 		if (_in_free_fn == NULL)
-			return -EINVAL;
+			return MEME_ENO__POSIX_OFFSET(EINVAL);
 		*_out_free_fn = _in_free_fn;
 	}
 	else {
@@ -271,7 +273,7 @@ static size_t* __MemeStringOption_storageMediumLimit()
 MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringOption_setStorageMediumLimit(size_t _value)
 {
 	if (_value > (SIZE_MAX >> 1))
-		return -EINVAL;
+		return MEME_ENO__POSIX_OFFSET(EINVAL);
 
 	if (_value <= MEME_STRING__GET_SMALL_BUFFER_SIZE) {
 		*__MemeStringOption_storageMediumLimit() = 0;
@@ -295,7 +297,7 @@ MEME_API int MEME_STDCALL MemeString_isEqual(MemeString_Const_t _s,
 	const char* src = NULL;
 
 	if (!_result)
-		return -EINVAL;
+		return MEME_ENO__POSIX_OFFSET(EINVAL);
 
 	src = MemeString_cStr(_s);
 	if (_len == -1) {
@@ -336,7 +338,7 @@ MEME_API int MEME_STDCALL MemeString_isEqualWithOther(MemeString_Const_t _lhs,
 	const char* rhs = NULL;
 
 	if (!_result)
-		return -EINVAL;
+		return MEME_ENO__POSIX_OFFSET(EINVAL);
 
 	lhslen = MemeString_byteSize(_lhs);
 	rhslen = MemeString_byteSize(_rhs);
@@ -363,4 +365,123 @@ MEME_API int MEME_STDCALL MemeString_isEqualWithOther(MemeString_Const_t _lhs,
 
 	*_result = (memcmp(lhs, rhs, lhslen) == 0 ? 1 : 0);
 	return 0;
+}
+
+MEME_API MemeInteger_t MEME_STDCALL MemeString_indexOfWithUtf8bytes(
+	MemeString_Const_t _s, MemeInteger_t _offset,
+	const uint8_t* _needle, MemeInteger_t _needle_len, 
+	MemeFlag_CaseSensitivity_t _cs)
+{
+	const char* pointer;
+	MemeInteger_t count;
+	MemeInteger_t index = -1;
+
+	pointer = MemeString_cStr(_s);
+	count = MemeString_byteSize(_s);
+
+	if (_offset >= count)
+		return -1;
+	if (_offset < 0)
+		_offset = 0;
+
+	index = MemeImpl_SearchByBoyerMooreWithSensitivity(
+		pointer + _offset, count, _needle, _needle_len, _cs);
+	return index == -1 ? -1 : _offset + index;
+}
+
+MEME_API MemeInteger_t MEME_STDCALL MemeString_indexOfWithOther(
+	MemeString_Const_t _s, MemeInteger_t _offset,
+	MemeString_Const_t _other, MemeFlag_CaseSensitivity_t _cs)
+{
+	const char* pointer = MemeString_cStr(_s);
+	MemeInteger_t count = MemeString_byteSize(_s);
+	MemeInteger_t index = -1;
+
+	if (_offset >= count)
+		return -1; 
+	if (_offset < 0)
+		_offset = 0;
+
+	index = MemeImpl_SearchByBoyerMooreWithSensitivity(
+		pointer + _offset, count,
+		MemeString_cStr(_other), MemeString_byteSize(_other), _cs);
+	return index == -1 ? -1 : _offset + index;
+}
+
+MEME_API MemeInteger_t MEME_STDCALL MemeString_split(
+	MemeString_Const_t _s, const char* _key, MemeInteger_t _key_len, 
+	MemeFlag_SplitBehavior_t _behavior, MemeFlag_CaseSensitivity_t _sensitivity,
+	MemeStringStack_t* _out, MemeInteger_t* _out_count, MemeInteger_t* _search_index)
+{
+	assert(_s != NULL				&& MemeString_split);
+	assert(_out != NULL				&& MemeString_split);
+	assert(_out_count != NULL		&& MemeString_split);
+
+	if (*_out_count < 1)
+		return MEME_ENO__POSIX_OFFSET(EINVAL);
+	if (_key_len == -1)
+		_key_len = strlen(_key);
+
+	MemeInteger_t last_index = (_search_index == NULL ? 0 : *_search_index);
+	MemeInteger_t curr_index = -1;
+	MemeInteger_t output_index = 0;
+	while (output_index < *_out_count)
+	{
+		curr_index =
+			MemeString_indexOfWithUtf8bytes(_s, last_index, _key, _key_len, _sensitivity);
+		if (curr_index == -1) {
+			if (last_index < MemeString_byteSize(_s))
+			{
+				MemeStringStack_initByU8bytes(_out + output_index,
+					MEME_STRING__OBJECT_SIZE, MemeString_cStr(_s) + last_index,
+					MemeString_byteSize(_s) - last_index);
+				*_out_count = output_index + 1;
+			}
+			else if (_behavior == MemeFlag_KeepEmptyParts) 
+			{
+				MemeStringStack_init(_out + output_index,
+					MEME_STRING__OBJECT_SIZE);
+				*_out_count = output_index + 1;
+			}
+			else {
+				*_out_count = output_index;
+			}
+			if (_search_index)
+				*_search_index = -1;
+			return 0;
+		}
+
+		if ((curr_index - last_index) == 0 && _behavior == MemeFlag_SkipEmptyParts)
+		{
+			last_index += _key_len;
+			continue;
+		}
+
+		MemeStringStack_initByU8bytes(_out + output_index, 
+			MEME_STRING__OBJECT_SIZE, MemeString_cStr(_s) + last_index, curr_index - last_index);
+		last_index = curr_index + _key_len;
+		++output_index;
+	}
+	if (_behavior == MemeFlag_SkipEmptyParts) 
+	{
+		curr_index =
+			MemeString_indexOfWithUtf8bytes(_s, last_index, _key, _key_len, _sensitivity);
+		if ((curr_index - last_index) == 0)
+		{
+			last_index += _key_len;
+		}
+	}
+
+	*_out_count = output_index;
+	if (last_index < MemeString_byteSize(_s))
+	{
+		if (_search_index)
+			*_search_index = last_index;
+		return 0;
+	}
+	else {
+		if (_search_index)
+			*_search_index = -1;
+		return 0;
+	}
 }

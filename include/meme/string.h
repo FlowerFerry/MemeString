@@ -134,5 +134,25 @@ MEME_API int
 MEME_API int
 	MEME_STDCALL MemeString_isEqualWithOther(MemeString_Const_t _lhs, MemeString_Const_t _rhs, int* _result);
 
+MEME_API MemeInteger_t
+	MEME_STDCALL MemeString_indexOfWithUtf8bytes(
+		MemeString_Const_t _s, MemeInteger_t _offset,
+		const MemeByte_t* _needle, MemeInteger_t _needle_len,
+		MemeFlag_CaseSensitivity_t _cs);
+
+MEME_API MemeInteger_t
+	MEME_STDCALL MemeString_indexOfWithOther(
+		MemeString_Const_t _s, MemeInteger_t _offset,
+		MemeString_Const_t _other, MemeFlag_CaseSensitivity_t _cs);
+
+MEME_API MemeInteger_t
+MEME_STDCALL MemeString_split(
+	MemeString_Const_t _s,
+	const char* _key, MemeInteger_t _key_len, 
+	MemeFlag_SplitBehavior_t, MemeFlag_CaseSensitivity_t,
+	MemeStringStack_t* _out, MemeInteger_t* _out_count,
+	MemeInteger_t* _search_index
+);
+
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_STRING_H_INCLUDED
