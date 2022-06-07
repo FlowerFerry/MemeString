@@ -219,7 +219,8 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_reset(
 	return 0;
 }
 
-MEME_API int MEME_STDCALL MemeStringStack_assign(MemeStringStack_t* _s, MemeString_Const_t _other)
+MEME_API int MEME_STDCALL MemeStringStack_assign_v02(
+	MemeStringStack_t* _s, size_t _object_size, MemeString_Const_t _other)
 {
 	int result = 0;
 
@@ -254,6 +255,9 @@ MEME_API int MEME_STDCALL MemeStringStack_assign(MemeStringStack_t* _s, MemeStri
 	case MemeString_ImplType_user: {
 		MemeStringUser_RefCount_increment(_other->user_.ref_);
 		memcpy(_s, &(_other->user_), MEME_STRING__OBJECT_SIZE);
+	} break;
+	case MemeString_ImplType_view: {
+		memcpy(_s, &(_other->viewUnsafe_), MEME_STRING__OBJECT_SIZE);
 	} break;
 	default: {
 		return -ENOTSUP;
@@ -314,6 +318,6 @@ MEME_API int MEME_STDCALL MemeStringViewUnsafeStack_assignByOther(
 		return 0;
 	}
 	else {
-		return MemeStringStack_assign(_s, (MemeString_t)_other);
+		return MemeStringStack_assign_v02(_s, _object_size, (MemeString_t)_other);
 	}
 }

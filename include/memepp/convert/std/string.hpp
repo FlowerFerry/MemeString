@@ -3,7 +3,8 @@
 #define MEMEPP_CONVERT_STD_STRING_HPP_INCLUDED
 
 #include "meme/string.h"
-#include "memepp/string_def.hpp"
+#include "memepp/string.hpp"
+#include "memepp/string_view.hpp"
 #include <string>
 
 namespace memepp {
@@ -18,7 +19,7 @@ namespace memepp {
 
 	inline memepp::string from(const std::string& _s)
 	{
-		return memepp::string(_s.data(), _s.size());
+		return memepp::string(_s.data(), static_cast<MemeInteger_t>(_s.size()));
 	}
 
 	inline memepp::string from(std::string&& _s)
@@ -40,6 +41,16 @@ namespace memepp {
 			return {};
 		}
 		return out;
+	}
+
+	inline memepp::string_view view(const std::string& _s)
+	{
+		return memepp::string_view { _s.data(), static_cast<MemeInteger_t>(_s.size()) };
+	}
+
+	inline memepp::string_view view(std::string&& _s)
+	{
+		return from(_s);
 	}
 
 }; // namespace memepp

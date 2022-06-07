@@ -57,7 +57,7 @@ MEME_API int
 	MEME_STDCALL MemeStringStack_reset (MemeStringStack_t* _out, size_t _object_size);
 
 MEME_API int
-	MEME_STDCALL MemeStringStack_assign(MemeStringStack_t* _s, MemeString_Const_t _other);
+	MEME_STDCALL MemeStringStack_assign_v02(MemeStringStack_t* _s, size_t _object_size, MemeString_Const_t _other);
 
 
 MEME_API MemeString_Storage_t

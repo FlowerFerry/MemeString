@@ -93,7 +93,7 @@ namespace memepp {
 
 	MEMEPP__IMPL_INLINE string & string::operator=(const string & _other)
 	{
-		MemeStringStack_assign(&data_, to_pointer(_other.data_));
+		MemeStringStack_assign_v02(&data_, MEME_STRING__OBJECT_SIZE, to_pointer(_other.data_));
 		return *this;
 	}
 

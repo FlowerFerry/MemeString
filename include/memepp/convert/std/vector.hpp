@@ -45,7 +45,7 @@ namespace memepp {
 			return out;
 		}
 		else {
-			return { _v.data(), _v.size() };
+			return { _v.data(), static_cast<MemeInteger_t>(_v.size()) };
 		}
 	}
 

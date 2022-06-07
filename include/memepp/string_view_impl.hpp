@@ -77,7 +77,7 @@ namespace memepp {
 
 	MEMEPP__IMPL_INLINE string_view& string_view::operator=(const string& _other)
 	{
-		MemeStringStack_assign(&data_, to_pointer(const_cast<MemeStringStack_t&>(_other.native_handle())));
+		MemeStringStack_assign_v02(&data_, MEME_STRING__OBJECT_SIZE, to_pointer(const_cast<MemeStringStack_t&>(_other.native_handle())));
 		return *this;
 	}
 
