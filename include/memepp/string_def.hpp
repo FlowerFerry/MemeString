@@ -6,14 +6,6 @@
 #include "memepp/string_fwd.hpp"
 #include "memepp/string_view_fwd.hpp"
 
-namespace std {
-	// template<class _Elem>
-	// class initializer_list;
-
-	//template<class CharT, class Traits, class Allocator> 
-	//class basic_string;
-};
-
 namespace memepp {
 
 	class string final
@@ -33,7 +25,7 @@ namespace memepp {
 
 		MEMEPP__IMPL_INLINE string() noexcept;
 		MEMEPP__IMPL_INLINE string(native_handle_type&& _other);
-		//string(const string& _other, string_storage_type _suggest);
+
 		MEMEPP__IMPL_INLINE string(string&& _other);
 		MEMEPP__IMPL_INLINE string(const string& _other);
 		MEMEPP__IMPL_INLINE string(const string& _other, size_type _pos);
@@ -45,9 +37,6 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE string(const_pointer _utf8, size_type _size);
 
 		MEMEPP__IMPL_INLINE string(size_type _count, char _ch);
-
-		//string(const std::initializer_list<char>& _ilist);
-		//string(const std::initializer_list<uint8_t>& _ilist);
 
 		template< class InputIt >
 		MEMEPP__IMPL_INLINE string(InputIt _first, InputIt _last);
@@ -70,8 +59,6 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE size_type max_size() const noexcept;
 		MEMEPP__IMPL_INLINE size_type capacity() const noexcept;
 
-		//template<class Traits, class Allocator>
-		//int compare(const std::basic_string<char, Traits, Allocator>& _str) const noexcept;
 		MEMEPP__IMPL_INLINE void swap(string& _other) noexcept;
 
 		MEMEPP__IMPL_INLINE size_type index_of(const string& _other,

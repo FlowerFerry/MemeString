@@ -224,8 +224,8 @@ MEME_API int MEME_STDCALL MemeStringStack_assign_v02(
 {
 	int result = 0;
 
-	assert(_s != NULL		&& MemeStringStack_assign);
-	assert(_other != NULL	&& MemeStringStack_assign);
+	assert(_s != NULL		&& MemeStringStack_assign_v02);
+	assert(_other != NULL	&& MemeStringStack_assign_v02);
 
 	switch (MEME_STRING__GET_TYPE(*_other))
 	{

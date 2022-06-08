@@ -84,29 +84,29 @@ MEME_API int
 MEME_API int 
 	MEME_STDCALL MemeString_assign(MemeString_t _s, MemeString_Const_t _other);
 
-MEME_API int 
-	MEME_STDCALL MemeString_append(MemeString_t _s, MemeString_Const_t _other);
-MEME_API int 
-	MEME_STDCALL MemeString_appendWithWord(MemeString_t _s, size_t _len, MemeWord_t _ch);
-MEME_API int 
-	MEME_STDCALL MemeString_appendWithUtf8bytes(MemeString_t _s, const MemeByte_t* _utf8, size_t _len);
-
-MEME_API int 
-	MEME_STDCALL MemeString_replace(
-		MemeString_t _s, MemeString_Const_t _before, MemeString_Const_t _after, 
-		MemeFlag_CaseSensitivity_t _cs
-	);
-MEME_API int 
-	MEME_STDCALL MemeString_replaceFromWordToWord(
-		MemeString_t _s, MemeWord_t _before, MemeWord_t _after, MemeFlag_CaseSensitivity_t _cs);
-MEME_API int 
-	MEME_STDCALL MemeString_replaceFromWordToStr(
-		MemeString_t _s, MemeWord_t _before, MemeString_Const_t _after, MemeFlag_CaseSensitivity_t _cs);
-MEME_API int 
-	MEME_STDCALL MemeString_replaceFromWordToUtf8bytes(
-		MemeString_t _s, MemeWord_t _before, const MemeByte_t* _utf8, size_t _len,
-		MemeFlag_CaseSensitivity_t _cs
-	);
+//MEME_API int 
+//	MEME_STDCALL MemeString_append(MemeString_t _s, MemeString_Const_t _other);
+//MEME_API int 
+//	MEME_STDCALL MemeString_appendWithWord(MemeString_t _s, size_t _len, MemeWord_t _ch);
+//MEME_API int 
+//	MEME_STDCALL MemeString_appendWithUtf8bytes(MemeString_t _s, const MemeByte_t* _utf8, size_t _len);
+//
+//MEME_API int 
+//	MEME_STDCALL MemeString_replace(
+//		MemeString_t _s, MemeString_Const_t _before, MemeString_Const_t _after, 
+//		MemeFlag_CaseSensitivity_t _cs
+//	);
+//MEME_API int 
+//	MEME_STDCALL MemeString_replaceFromWordToWord(
+//		MemeString_t _s, MemeWord_t _before, MemeWord_t _after, MemeFlag_CaseSensitivity_t _cs);
+//MEME_API int 
+//	MEME_STDCALL MemeString_replaceFromWordToStr(
+//		MemeString_t _s, MemeWord_t _before, MemeString_Const_t _after, MemeFlag_CaseSensitivity_t _cs);
+//MEME_API int 
+//	MEME_STDCALL MemeString_replaceFromWordToUtf8bytes(
+//		MemeString_t _s, MemeWord_t _before, const MemeByte_t* _utf8, size_t _len,
+//		MemeFlag_CaseSensitivity_t _cs
+//	);
 
 MEME_API int 
 	MEME_STDCALL MemeString_swap(MemeString_t _lhs, MemeString_t _rhs);
