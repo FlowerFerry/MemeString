@@ -8,17 +8,17 @@
 
 namespace memepp {
 
-	inline memepp::string form(const rapidjson::GenericStringRef<char>& _s)
+	inline memepp::string from(const rapidjson::GenericStringRef<char>& _s)
 	{
 		return memepp::string { _s.s, static_cast<MemeInteger_t>(_s.length) };
 	}
 
-	inline memepp::string form(const rapidjson::StringBuffer& _s)
+	inline memepp::string from(const rapidjson::StringBuffer& _s)
 	{
 		return memepp::string{ _s.GetString(), static_cast<MemeInteger_t>(_s.GetLength())};
 	}
 
-	inline memepp::string form(const rapidjson::Value& _v)
+	inline memepp::string from(const rapidjson::Value& _v)
 	{
 		if (_v.IsString())
 			return memepp::string{ _v.GetString(), static_cast<MemeInteger_t>(_v.GetStringLength()) };
