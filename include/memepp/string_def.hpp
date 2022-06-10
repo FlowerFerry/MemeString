@@ -11,7 +11,7 @@ namespace memepp {
 	class string final
 	{
 	public:
-		using value_type = uint8_t;
+		using value_type = MemeByte_t;
 		using size_type = MemeInteger_t;
 		using difference_type = ptrdiff_t;
 		using reference = value_type & ;

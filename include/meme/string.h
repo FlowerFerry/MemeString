@@ -111,8 +111,8 @@ MEME_API int
 MEME_API int 
 	MEME_STDCALL MemeString_swap(MemeString_t _lhs, MemeString_t _rhs);
 
-MEME_API int 
-	MEME_STDCALL MemeString_clear(MemeString_t _s);
+//MEME_API int 
+//	MEME_STDCALL MemeString_clear(MemeString_t _s);
 
 MEME_API int 
 	MEME_STDCALL MemeString_isEmpty(MemeString_Const_t _s);
