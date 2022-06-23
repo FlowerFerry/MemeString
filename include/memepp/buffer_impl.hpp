@@ -9,7 +9,7 @@
 
 namespace memepp {
 
-	MEMEPP__IMPL_INLINE buffer::buffer() noexcept
+	MEMEPP__IMPL_INLINE buffer::buffer() MEGOPP__NOEXCEPT
 	{
 		MemeBufferStack_init(&data_, MEME_STRING__OBJECT_SIZE);
 	}
@@ -72,46 +72,46 @@ namespace memepp {
 		return *this;
 	}
 
-	MEMEPP__IMPL_INLINE buffer_storage_type buffer::storage_type() const noexcept
+	MEMEPP__IMPL_INLINE buffer_storage_type buffer::storage_type() const MEGOPP__NOEXCEPT
 	{
 		return static_cast<buffer_storage_type>(MemeBuffer_storageType(to_pointer(data_)));
 	}
 
-	MEMEPP__IMPL_INLINE buffer::const_pointer buffer::data() const noexcept
+	MEMEPP__IMPL_INLINE buffer::const_pointer buffer::data() const MEGOPP__NOEXCEPT
 	{
 		return MemeBuffer_data(to_pointer(data_));
 	}
 
-	MEMEPP__IMPL_INLINE buffer::size_type buffer::size() const noexcept
+	MEMEPP__IMPL_INLINE buffer::size_type buffer::size() const MEGOPP__NOEXCEPT
 	{
 		return MemeBuffer_size(to_pointer(data_));
 	}
 
-	MEMEPP__IMPL_INLINE bool buffer::empty() const noexcept
+	MEMEPP__IMPL_INLINE bool buffer::empty() const MEGOPP__NOEXCEPT
 	{
 		return MemeBuffer_isEmpty(to_pointer(data_)) == 0;
 	}
 
-	MEMEPP__IMPL_INLINE void buffer::swap(buffer& _other) noexcept
+	MEMEPP__IMPL_INLINE void buffer::swap(buffer& _other) MEGOPP__NOEXCEPT
 	{
 		MemeBuffer_swap(to_pointer(data_), to_pointer(_other.data_));
 	}
 
 	MEMEPP__IMPL_INLINE buffer::size_type buffer::index_of(
-		const buffer& _other) const noexcept
+		const buffer& _other) const MEGOPP__NOEXCEPT
 	{
 		return MemeBuffer_indexOfWithOther(
 			to_pointer(native_handle()), 0, to_pointer(_other.native_handle()));
 	}
 
 	MEMEPP__IMPL_INLINE buffer::size_type buffer::index_of_with_strlen(
-		const char* _utf8, size_type _utf8_len) const noexcept
+		const char* _utf8, size_type _utf8_len) const MEGOPP__NOEXCEPT
 	{
 		return MemeBuffer_indexOfWithUtf8bytes(
 			to_pointer(native_handle()), 0, reinterpret_cast<const uint8_t*>(_utf8), _utf8_len);
 	}
 
-	MEMEPP__IMPL_INLINE const buffer::native_handle_type& buffer::native_handle() const noexcept
+	MEMEPP__IMPL_INLINE const buffer::native_handle_type& buffer::native_handle() const MEGOPP__NOEXCEPT
 	{
 		return data_;
 	}

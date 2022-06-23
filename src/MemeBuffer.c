@@ -16,7 +16,7 @@ MEME_STDCALL MemeBufferStack_initByOther(
 }
 
 MEME_API int 
-MEME_STDCALL MemeBufferStack_initByU8bytes(
+MEME_STDCALL MemeBufferStack_initByBytes(
 	MemeBufferStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len)
 {
 	return MemeStringStack_initByU8bytes((MemeStringStack_t*)_out, _object_size, _utf8, _len);
@@ -104,7 +104,7 @@ MEME_STDCALL MemeBuffer_isEqualWithOther(
 }
 
 MEME_API MemeInteger_t 
-MEME_STDCALL MemeBuffer_indexOfWithUtf8bytes(
+MEME_STDCALL MemeBuffer_indexOfWithBytes(
 	MemeBuffer_Const_t _s, MemeInteger_t _offset, const MemeByte_t* _needle, MemeInteger_t _needle_len)
 {
 	return MemeString_indexOfWithUtf8bytes(

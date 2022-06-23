@@ -5,6 +5,8 @@
 #include "meme/buffer_fwd.h"
 #include "memepp/buffer_fwd.hpp"
 
+#include "megopp/predef/keyword/noexcept.h"
+
 namespace memepp {
 
 	class buffer final
@@ -22,7 +24,7 @@ namespace memepp {
 
 		static const size_type npos = static_cast<size_type>(-1);
 
-		MEMEPP__IMPL_INLINE buffer() noexcept;
+		MEMEPP__IMPL_INLINE buffer() MEGOPP__NOEXCEPT;
 		MEMEPP__IMPL_INLINE buffer(native_handle_type&& _other);
 
 		MEMEPP__IMPL_INLINE buffer(buffer&& _other);
@@ -41,22 +43,22 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE buffer& operator=(buffer&& _other);
 		MEMEPP__IMPL_INLINE buffer& operator=(const buffer& _other);
 
-		MEMEPP__IMPL_INLINE buffer_storage_type storage_type() const noexcept;
+		MEMEPP__IMPL_INLINE buffer_storage_type storage_type() const MEGOPP__NOEXCEPT;
 
-		MEMEPP__IMPL_INLINE const_pointer data() const noexcept;
+		MEMEPP__IMPL_INLINE const_pointer data() const MEGOPP__NOEXCEPT;
 
-		MEMEPP__IMPL_INLINE size_type size() const noexcept;
-		MEMEPP__IMPL_INLINE bool empty() const noexcept;
-		MEMEPP__IMPL_INLINE size_type max_size() const noexcept;
-		MEMEPP__IMPL_INLINE size_type capacity() const noexcept;
+		MEMEPP__IMPL_INLINE size_type size() const MEGOPP__NOEXCEPT;
+		MEMEPP__IMPL_INLINE bool empty() const MEGOPP__NOEXCEPT;
+		MEMEPP__IMPL_INLINE size_type max_size() const MEGOPP__NOEXCEPT;
+		MEMEPP__IMPL_INLINE size_type capacity() const MEGOPP__NOEXCEPT;
 
-		MEMEPP__IMPL_INLINE void swap(buffer& _other) noexcept;
+		MEMEPP__IMPL_INLINE void swap(buffer& _other) MEGOPP__NOEXCEPT;
 
-		MEMEPP__IMPL_INLINE size_type index_of(const buffer& _other) const noexcept;
+		MEMEPP__IMPL_INLINE size_type index_of(const buffer& _other) const MEGOPP__NOEXCEPT;
 
-		MEMEPP__IMPL_INLINE size_type index_of_with_strlen(const char* _utf8, size_type _utf8_len) const noexcept;
+		MEMEPP__IMPL_INLINE size_type index_of_with_strlen(const char* _utf8, size_type _utf8_len) const MEGOPP__NOEXCEPT;
 
-		MEMEPP__IMPL_INLINE const native_handle_type& native_handle() const noexcept;
+		MEMEPP__IMPL_INLINE const native_handle_type& native_handle() const MEGOPP__NOEXCEPT;
 
 	private:
 		native_handle_type data_;
