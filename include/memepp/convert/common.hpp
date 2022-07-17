@@ -2,22 +2,28 @@
 #ifndef MEMEPP_CONVERT_COMMON_HPP_INCLUDED
 #define MEMEPP_CONVERT_COMMON_HPP_INCLUDED
 
-#include "meme/string.h"
-#include "memepp/string.hpp"
-#include "memepp/string_view.hpp"
+#include "memepp/convert/common_def.hpp"
 
-#include <utility>
+namespace memepp {
+	
+	template<typename _Ty>
+	_Ty to(const memepp::string& _s)
+	{
+		return _Ty{};
+	}
+
+	template<typename _Ty>
+	_Ty to(const memepp::string_view& _sv)
+	{
+		return _Ty{};
+	}
+
+};
 
 template<typename _Ty>
-inline memepp::string meme_from(_Ty _other)
+inline _Ty meme_to(const memepp::string& _s)
 {
-	return memepp::from(std::forward(_other));
-}
-
-template<typename _Ty>
-inline memepp::string_view meme_view(_Ty _other)
-{
-	return memepp::view(std::forward(_other));
+	return memepp::to<_Ty>(_s);
 }
 
 #endif // !MEMEPP_CONVERT_COMMON_HPP_INCLUDED

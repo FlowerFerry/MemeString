@@ -40,10 +40,10 @@ enum _MemeString_Storage_t {
 	MemeString_StorageType_small		= 1,
 	MemeString_StorageType_medium		= 2,
 	MemeString_StorageType_large		= 3,
-	MemeString_StorageType_user			= 63
+	MemeString_StorageType_user			= 10
 };
 enum _MemeString_UnsafeStorage_t {
-	MemeString_UnsafeStorageType_view   = 62
+	MemeString_UnsafeStorageType_view   = 9
 };
 
 typedef MemeInteger_t MemeFlag_SplitBehavior_t;

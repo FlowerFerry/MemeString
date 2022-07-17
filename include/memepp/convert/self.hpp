@@ -2,7 +2,12 @@
 #ifndef MEMEPP_CONVERT_SELF_HPP_INCLUDED
 #define MEMEPP_CONVERT_SELF_HPP_INCLUDED
 
-#include "memepp/string.hpp"
+#include "meme/string.h"
+
+#include "memepp/string_def.hpp"
+#include "memepp/string_view_def.hpp"
+
+#include <utility>
 
 namespace memepp {
 
@@ -15,6 +20,47 @@ namespace memepp {
 			memepp::to_pointer(_other));
 
 		return s;
+	}
+
+	inline memepp::string from(memepp::string&& _other)
+	{
+		return std::move(_other);
+	}
+
+	inline memepp::string from(const memepp::string& _other)
+	{
+		return _other;
+	}
+
+	inline memepp::string from(const memepp::string_view& _other)
+	{
+		return _other.to_string();
+	}
+
+	inline memepp::string_view view(const MemeStringStack_t& _other)
+	{
+		memepp::string_view sv;
+		MemeStringStack_assign_v02(
+			const_cast<MemeStringStack_t*>(&(sv.native_handle())),
+			MEME_STRING__OBJECT_SIZE,
+			memepp::to_pointer(_other));
+
+		return sv;
+	}
+
+	inline memepp::string_view view(const memepp::string& _other)
+	{
+		return memepp::string_view{ _other };
+	}
+
+	inline memepp::string_view view(memepp::string_view&& _other)
+	{
+		return memepp::string_view{ _other };
+	}
+
+	inline memepp::string_view view(const memepp::string_view& _other)
+	{
+		return memepp::string_view{ _other };
 	}
 
 };

@@ -3,8 +3,8 @@
 #define MEME_STRING_COMMON_H_INCLUDED
 
 #include "mego/predef/os/windows.h"
-#include "mego/predef/keyword/export.h"
-#include "mego/predef/keyword/import.h"
+#include "mego/predef/symbol/export.h"
+#include "mego/predef/symbol/import.h"
 
 #ifndef MEME_API
 #	if defined(MEME_OPTION__BUILD_SHARED)

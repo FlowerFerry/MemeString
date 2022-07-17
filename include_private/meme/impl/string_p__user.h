@@ -52,8 +52,8 @@ inline int MemeStringUser_initTakeOver(MemeStringUser_t* _s,
 	if (!refCount)
 		return -ENOMEM;
 	MemeStringUser_RefCount_init(refCount);
-	refCount->malloc_fn_ = c_func;
-	refCount->free_fn_   = d_func;
+	//refCount->malloc_fn_ = c_func;
+	//refCount->free_fn_   = d_func;
 	refCount->data_fn_   = _data_fn;
 	refCount->destruct_fn_ = _destruct_fn;
 	refCount->user_data_ = _user_data;
@@ -124,11 +124,13 @@ inline MemeInteger_t MemeStringUser_RefCount_decrementAndDestruct(volatile MemeS
 	{
 		_refcount->destruct_fn_(_refcount->user_data_);
 
-		if (_refcount->free_fn_)
-			f_func = _refcount->free_fn_;
-		else {
-			f_func = MemeString_getFreeFunction();
-		}
+		//if (_refcount->free_fn_)
+		//	f_func = _refcount->free_fn_;
+		//else {
+		//	f_func = MemeString_getFreeFunction();
+		//}
+		f_func = MemeString_getFreeFunction();
+
 		f_func((void*)_refcount);
 	}
 	return result;

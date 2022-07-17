@@ -3,6 +3,7 @@
 #include "meme/impl/string.h"
 #include "meme/impl/string_p__user.h"
 #include "meme/impl/string_p__small.h"
+#include "meme/impl/string_p__medium.h"
 #include "meme/impl/string_p__large.h"
 
 #include "meme/impl/algorithm.h"
@@ -42,6 +43,110 @@ MemeString_Storage_t MemeStringImpl_initSuggestType(
 	}
 
 	return MemeString_StorageType_large;
+}
+
+int MemeStringImpl_isModifiableType(MemeString_Storage_t _type)
+{
+	switch (_type) {
+	case MemeString_StorageType_small:
+	case MemeString_StorageType_medium:
+		return 1;
+	default:
+		return 0;
+	}
+}
+
+int
+MemeStringImpl_dumpToModifiable(const MemeStringStack_t* _s, MemeStringStack_t* _out)
+{
+	assert(_s);
+	assert(_out);
+
+	switch (MEME_STRING__GET_TYPE((MemeString_t)_s))
+	{
+	case MemeString_StorageType_small:
+	{
+		memcpy(_out, _s, MEME_STRING__OBJECT_SIZE);
+	} break;
+	case MemeString_StorageType_medium:
+	{
+
+	} break;
+	case MemeString_StorageType_large:
+	{
+
+	} break;
+	case MemeString_StorageType_user:
+	{
+
+	} break;
+	case MemeString_UnsafeStorageType_view:
+	{
+
+	} break;
+	default: {
+
+	} break;
+	}
+
+	return 0;
+}
+
+//int MemeStringImpl_convertToModifiable(MemeStringStack_t* _s)
+//{
+//	if (MemeStringImpl_isModifiableType(_s) == 0)
+//	{
+//		switch (MEME_STRING__GET_TYPE(*((MemeString_t)_s)))
+//		{
+//		case MemeString_StorageType_large:
+//		{
+//
+//		} break;
+//		case MemeString_StorageType_user:
+//		{
+//
+//		} break;
+//		case MemeString_UnsafeStorageType_view:
+//		{
+//
+//		} break;
+//		default: {
+//
+//		} break;
+//		}
+//	}
+//	return 0;
+//}
+
+int MemeStringImpl_capacityExpansionWithModifiable(MemeStringStack_t* _s, MemeInteger_t _minSizeRequest)
+{
+	MemeInteger_t dstlen = 0;
+	int result = 0;
+	
+	assert(_s);
+
+	dstlen = (MemeInteger_t)(MemeString_maxByteCapacity((MemeString_Const_t)_s) * 1.667);
+	if (dstlen < _minSizeRequest)
+	{
+		dstlen = (MemeInteger_t)(_minSizeRequest * 1.667);
+	}
+	
+	MemeStringStack_t newString;
+	result = MemeStringMedium_initWithCapacity((MemeStringMedium_t*)&newString, dstlen);
+	if (result) {
+		return result;
+	}
+
+	result = MemeStringMedium_assign((MemeStringMedium_t*)&newString, 
+		MemeString_byteData((MemeString_Const_t)_s), MemeString_byteSize((MemeString_Const_t)_s));
+	if (result) {
+		MemeStringStack_unInit(&newString, MEME_STRING__OBJECT_SIZE);
+		return result;
+	}
+
+	MemeString_swap((MemeString_t)_s, (MemeString_t)&newString);
+	MemeStringStack_unInit(&newString, MEME_STRING__OBJECT_SIZE);
+	return 0;
 }
 
 MEME_API MemeString_Storage_t MEME_STDCALL MemeString_storageType(MemeString_Const_t _s)
@@ -85,14 +190,14 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_isEmpty(MemeString_Const_t _s
 {
 	assert(_s);
 
-	switch (MEME_STRING__GET_TYPE(*_s)) {
+	switch (MEME_STRING__GET_TYPE(_s)) {
 	case MemeString_ImplType_small:
 	{
 		return (_s->small_.capacity_ == MEME_STRING__GET_SMALL_BUFFER_SIZE ? 0: 1);
 	} break;
 	case MemeString_ImplType_medium:
 	{
-		return (_s->medium_.basic_.size_ == 0) ? 0 : 1;
+		return (_s->medium_.size_ == 0) ? 0 : 1;
 	} break;
 	case MemeString_ImplType_large:
 	{
@@ -116,51 +221,26 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_isEmpty(MemeString_Const_t _s
 
 MEME_EXTERN_C MEME_API const char *MEME_STDCALL MemeString_cStr(MemeString_Const_t _s)
 {
-	assert(_s);
-
-	switch (MEME_STRING__GET_TYPE(*_s)) {
-	case MemeString_ImplType_user:
-	{
-		return MemeStringUser_cStr(&(_s->user_));
-	}
-	case MemeString_ImplType_small:
-	{
-		return (const char*)(_s->small_.buffer_);
-	};
-	case MemeString_ImplType_medium:
-	{
-		return (const char*)(_s->medium_.data_);
-	};
-	case MemeString_ImplType_large:
-	{
-		return (const char*)(_s->large_.ref_->data_);
-	};
-	case MemeString_ImplType_view:
-	{
-		return (const char*)_s->viewUnsafe_.data_;
-	}
-	default: {
-		return (const char*)(MemeStringImpl_default());
-	};
-	}
+	assert(_s != NULL && MemeString_cStr);
+	return (const char*)MemeString_byteData(_s);
 }
 
-MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL MemeString_byteSize(MemeString_Const_t _s)
+MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL MemeString_maxByteCapacity(MemeString_Const_t _s)
 {
 	assert(_s);
 	
-	switch (MEME_STRING__GET_TYPE(*_s)) {
+	switch (MEME_STRING__GET_TYPE(_s)) {
 	case MemeString_ImplType_user:
 	{
 		return _s->user_.size_;
 	};
 	case MemeString_ImplType_small:
 	{
-		return (MemeInteger_t)(MEME_STRING__GET_SMALL_BUFFER_SIZE - _s->small_.capacity_);
+		return MEME_STRING__GET_SMALL_BUFFER_SIZE;
 	};
 	case MemeString_ImplType_medium:
 	{
-		return _s->medium_.basic_.size_;
+		return MemeStringMedium_maxByteCapacity(&(_s->medium_));
 	};
 	case MemeString_ImplType_large:
 	{
@@ -176,27 +256,89 @@ MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL MemeString_byteSize(MemeString
 	}
 }
 
-MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL MemeString_byteCapacity(MemeString_Const_t _s)
+MEME_API MemeInteger_t MEME_STDCALL MemeString_maxByteSize(MemeString_Const_t _s)
 {
 	assert(_s);
 
-	switch (MEME_STRING__GET_TYPE(*_s)) {
+	switch (MEME_STRING__GET_TYPE(_s)) {
 	case MemeString_ImplType_user:
 	{
+		return _s->user_.size_;
+	};
+	case MemeString_ImplType_small:
+	{
+		return MEME_STRING__GET_SMALL_BUFFER_SIZE;
+	};
+	case MemeString_ImplType_medium:
+	{
+		return MemeStringMedium_maxByteSize(&(_s->medium_));
+	};
+	case MemeString_ImplType_large:
+	{
+		return _s->large_.size_;
+	};
+	case MemeString_ImplType_view:
+	{
+		return _s->viewUnsafe_.size_;
+	}
+	default: {
 		return 0;
 	};
+	}
+}
+
+MEME_API MemeInteger_t MEME_STDCALL MemeString_byteSize(MemeString_Const_t _s)
+{
+	assert(_s);
+
+	switch (MEME_STRING__GET_TYPE(_s)) {
+	case MemeString_ImplType_user:
+	{
+		return _s->user_.size_;
+	};
+	case MemeString_ImplType_small:
+	{
+		return (MemeInteger_t)(MEME_STRING__GET_SMALL_BUFFER_SIZE - _s->small_.capacity_);
+	};
+	case MemeString_ImplType_medium:
+	{
+		return _s->medium_.size_;
+	};
+	case MemeString_ImplType_large:
+	{
+		return _s->large_.size_;
+	};
+	case MemeString_ImplType_view:
+	{
+		return _s->viewUnsafe_.size_;
+	}
+	default: {
+		return 0;
+	};
+	}
+}
+
+MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL MemeString_availableByteCapacity(MemeString_Const_t _s)
+{
+	assert(_s);
+
+	switch (MEME_STRING__GET_TYPE(_s)) {
+	//case MemeString_ImplType_user:
+	//{
+	//	return 0;
+	//};
 	case MemeString_ImplType_small:
 	{
 		return (MemeInteger_t)(_s->small_.capacity_);
 	};
 	case MemeString_ImplType_medium:
 	{
-		return (MemeInteger_t)(_s->medium_.basic_.capacity_);
+		return (MemeInteger_t)MemeStringMedium_availableByteCapacity(&(_s->medium_));
 	};
-	case MemeString_ImplType_large:
-	{
-		return (MemeInteger_t)(0);
-	};
+	//case MemeString_ImplType_large:
+	//{
+	//	return (MemeInteger_t)(0);
+	//};
 	default: {
 		return 0;
 	} break;
@@ -219,20 +361,24 @@ static MemeString_FreeFunction_t** __MemeString_freeFuncObject()
 
 MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_setMallocFunction(MemeString_MallocFunction_t* _fn)
 {
-	if (!_fn)
-		return MEME_ENO__POSIX_OFFSET(EINVAL);
+	return MEME_ENO__POSIX_OFFSET(ENOTSUP);
 
-	*__MemeString_mallocFuncObject() = _fn;
-	return 0;
+	//if (!_fn)
+	//	return MEME_ENO__POSIX_OFFSET(EINVAL);
+
+	//*__MemeString_mallocFuncObject() = _fn;
+	//return 0;
 }
 
 MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_setFreeFunction(MemeString_FreeFunction_t* _fn)
 {
-	if (!_fn)
-		return MEME_ENO__POSIX_OFFSET(EINVAL);
+	return MEME_ENO__POSIX_OFFSET(ENOTSUP);
 
-	*__MemeString_freeFuncObject() = _fn;
-	return 0;
+	//if (!_fn)
+	//	return MEME_ENO__POSIX_OFFSET(EINVAL);
+
+	//*__MemeString_freeFuncObject() = _fn;
+	//return 0;
 }
 
 MEME_EXTERN_C MEME_API MemeString_MallocFunction_t* MEME_STDCALL MemeString_getMallocFunction()
@@ -393,7 +539,7 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_indexOfWithOther(
 	MemeString_Const_t _s, MemeInteger_t _offset,
 	MemeString_Const_t _other, MemeFlag_CaseSensitivity_t _cs)
 {
-	const char* pointer = MemeString_cStr(_s);
+	const MemeByte_t* pointer = MemeString_byteData(_s);
 	MemeInteger_t count = MemeString_byteSize(_s);
 	MemeInteger_t index = -1;
 
@@ -404,7 +550,7 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_indexOfWithOther(
 
 	index = MemeImpl_SearchByBoyerMooreWithSensitivity(
 		pointer + _offset, count,
-		MemeString_cStr(_other), MemeString_byteSize(_other), _cs);
+		MemeString_byteData(_other), MemeString_byteSize(_other), _cs);
 	return index == -1 ? -1 : _offset + index;
 }
 
@@ -433,7 +579,7 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_split(
 			if (last_index < MemeString_byteSize(_s))
 			{
 				MemeStringStack_initByU8bytes(_out + output_index,
-					MEME_STRING__OBJECT_SIZE, MemeString_cStr(_s) + last_index,
+					MEME_STRING__OBJECT_SIZE, MemeString_byteData(_s) + last_index,
 					MemeString_byteSize(_s) - last_index);
 				*_out_count = output_index + 1;
 			}
@@ -458,7 +604,7 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_split(
 		}
 
 		MemeStringStack_initByU8bytes(_out + output_index, 
-			MEME_STRING__OBJECT_SIZE, MemeString_cStr(_s) + last_index, curr_index - last_index);
+			MEME_STRING__OBJECT_SIZE, MemeString_byteData(_s) + last_index, curr_index - last_index);
 		last_index = curr_index + _key_len;
 		++output_index;
 	}
@@ -483,5 +629,36 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_split(
 		if (_search_index)
 			*_search_index = -1;
 		return 0;
+	}
+}
+
+MEME_API const MemeByte_t* MEME_STDCALL MemeString_byteData(MemeString_Const_t _s)
+{
+	assert(_s != NULL && MemeString_byteData);
+
+	switch (MEME_STRING__GET_TYPE(_s)) {
+	case MemeString_ImplType_user:
+	{
+		return (const MemeByte_t*)MemeStringUser_cStr(&(_s->user_));
+	}
+	case MemeString_ImplType_small:
+	{
+		return (_s->small_.buffer_);
+	};
+	case MemeString_ImplType_medium:
+	{
+		return (MemeStringMedium_constData(&(_s->medium_)));
+	};
+	case MemeString_ImplType_large:
+	{
+		return MemeStringLarge_constData(&(_s->large_));
+	};
+	case MemeString_ImplType_view:
+	{
+		return _s->viewUnsafe_.data_;
+	}
+	default: {
+		return (MemeStringImpl_default());
+	};
 	}
 }

@@ -3,6 +3,7 @@
 #include "meme/impl/string.h"
 #include "meme/impl/string_p__user.h"
 #include "meme/impl/string_p__small.h"
+#include "meme/impl/string_p__medium.h"
 #include "meme/impl/string_p__large.h"
 
 #include "meme/unsafe/view.h"
@@ -66,7 +67,7 @@ MEME_API int MEME_STDCALL MemeStringStack_unInit(MemeStringStack_t* _out, size_t
 	assert(_out && MemeStringStack_unInit);
 	assert(_object_size != 0 && MemeStringStack_unInit);
 
-	switch (MEME_STRING__GET_TYPE(*obj)) {
+	switch (MEME_STRING__GET_TYPE(obj)) {
 	case MemeString_ImplType_user:
 	{
 		return MemeStringUser_unInit((MemeStringUser_t*)_out);
@@ -77,7 +78,7 @@ MEME_API int MEME_STDCALL MemeStringStack_unInit(MemeStringStack_t* _out, size_t
 	} break;
 	case MemeString_ImplType_medium:
 	{
-		// TO_DO
+		return MemeStringMedium_unInit((MemeStringMedium_t*)_out);
 	} break;
 	case MemeString_ImplType_large:
 	{
@@ -160,7 +161,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByOther(
 	assert(_other);
 	assert(_object_size != 0);
 
-	switch (MEME_STRING__GET_TYPE(*_other)) {
+	switch (MEME_STRING__GET_TYPE(_other)) {
 	case MemeString_StorageType_small: {
 		memcpy(_out, _other, MEME_STRING__OBJECT_SIZE);
 	} break;
@@ -170,9 +171,9 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByOther(
 	case MemeString_StorageType_large: {
 		return MemeStringLarge_initByOther((MemeStringLarge_t*)_out, &(_other->large_));
 	};
-	case MemeString_StorageType_none: {
-		// Error
-	} break;
+	//case MemeString_StorageType_none: {
+	//	// Error
+	//} break;
 	case MemeString_StorageType_user: {
 		return MemeStringUser_initByOther((MemeStringUser_t*)_out, &(_other->user_));
 	} break;
@@ -199,7 +200,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_reset(
 	assert(_object_size != 0);
 
 	obj = (MemeString_t)_out;
-	switch (MEME_STRING__GET_TYPE(*obj)) {
+	switch (MEME_STRING__GET_TYPE(obj)) {
 	case MemeString_ImplType_user:
 	{
 		return MemeStringUser_reset((MemeStringUser_t*)_out);
@@ -207,6 +208,10 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_reset(
 	case MemeString_ImplType_small:
 	{
 		MemeStringSmall_clear(&(obj->small_));
+	} break;
+	case MemeString_ImplType_medium:
+	{
+		return MemeStringMedium_reset((MemeStringMedium_t*)_out);
 	} break;
 	case MemeString_ImplType_large:
 	{
@@ -227,7 +232,10 @@ MEME_API int MEME_STDCALL MemeStringStack_assign_v02(
 	assert(_s != NULL		&& MemeStringStack_assign_v02);
 	assert(_other != NULL	&& MemeStringStack_assign_v02);
 
-	switch (MEME_STRING__GET_TYPE(*_other))
+	if ((void*)_s == (void*)_other)
+		return 0;
+
+	switch (MEME_STRING__GET_TYPE(_other))
 	{
 	case MemeString_ImplType_small:
 	case MemeString_ImplType_large:
@@ -243,10 +251,17 @@ MEME_API int MEME_STDCALL MemeStringStack_assign_v02(
 	if (result)
 		return result;
 
-	switch (MEME_STRING__GET_TYPE(*_other)) 
+	switch (MEME_STRING__GET_TYPE(_other)) 
 	{
 	case MemeString_ImplType_small: {
 		memcpy(_s, &(_other->small_), MEME_STRING__OBJECT_SIZE);
+	} break;
+	case MemeString_ImplType_medium: {
+		result = MemeStringMedium_initWithCapacity((MemeStringMedium_t*)_s, MemeString_maxByteSize(_other));
+		if (result)
+			return result;
+		MemeStringMedium_assign((MemeStringMedium_t*)_s, 
+			MemeString_byteData(_other), MemeString_byteSize(_other));
 	} break;
 	case MemeString_ImplType_large: {
 		MemeStringLarge_RefCount_increment(_other->large_.ref_);
@@ -293,7 +308,7 @@ MEME_API int MEME_STDCALL MemeStringViewUnsafeStack_initByOther(
 	assert(_s != NULL		&& MemeStringViewUnsafeStack_initByOther);
 	assert(_other != NULL	&& MemeStringViewUnsafeStack_initByOther);
 
-	if (MEME_STRING__GET_TYPE(*(MemeString_t)_other) == MemeString_ImplType_view)
+	if (MEME_STRING__GET_TYPE((MemeString_t)_other) == MemeString_ImplType_view)
 	{
 		memcpy(_s, _other, MEME_STRING__OBJECT_SIZE);
 		return 0;
@@ -309,7 +324,7 @@ MEME_API int MEME_STDCALL MemeStringViewUnsafeStack_assignByOther(
 	assert(_s != NULL		&& MemeStringViewUnsafeStack_assignByOther);
 	assert(_other != NULL	&& MemeStringViewUnsafeStack_assignByOther);
 
-	if (MEME_STRING__GET_TYPE(*(MemeString_t)_other) == MemeString_ImplType_view)
+	if (MEME_STRING__GET_TYPE((MemeString_t)_other) == MemeString_ImplType_view)
 	{
 		int result = MemeStringStack_unInit(_s, sizeof(MemeStringStack_t));
 		if (result)

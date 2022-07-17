@@ -11,7 +11,7 @@ namespace memepp {
 	class string_view final
 	{
 	public:
-		using value_type = uint8_t;
+		using value_type = MemeByte_t;
 		using size_type = MemeInteger_t;
 		using difference_type = ptrdiff_t;
 		using reference = value_type&;
@@ -40,7 +40,6 @@ namespace memepp {
 		string_view& operator=(const string_view& _other);
 		string_view& operator=(string&& _other);
 		string_view& operator=(string_view&& _other);
-
 
 		MEMEPP__IMPL_INLINE const char* data() const noexcept;
 		MEMEPP__IMPL_INLINE size_type size() const noexcept;

@@ -5,6 +5,8 @@
 #include "meme/string.h"
 #include "memepp/string.hpp"
 #include "memepp/string_view.hpp"
+#include "memepp/convert/common_def.hpp"
+
 #include <string>
 
 namespace memepp {
@@ -51,6 +53,18 @@ namespace memepp {
 	inline memepp::string_view view(std::string&& _s)
 	{
 		return from(_s);
+	}
+
+	template<>
+	inline std::string to<std::string>(const memepp::string& _s)
+	{
+		return std::string { _s.data(), static_cast<size_t>(_s.size()) };
+	}
+
+	template<>
+	inline std::string to<std::string>(const memepp::string_view& _sv)
+	{
+		return std::string { _sv.data(), static_cast<size_t>(_sv.size()) };
 	}
 
 }; // namespace memepp

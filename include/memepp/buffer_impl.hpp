@@ -18,7 +18,7 @@ namespace memepp {
 	{
 		if (MemeBuffer_storageType(to_pointer(_other)) == MemeString_UnsafeStorageType_view)
 		{
-			MemeBufferStack_initByU8bytes(&data_, MEME_STRING__OBJECT_SIZE,
+			MemeBufferStack_initByBytes(&data_, MEME_STRING__OBJECT_SIZE,
 				reinterpret_cast<const uint8_t*>(MemeBuffer_data(to_pointer(_other))),
 				MemeBuffer_size(to_pointer(_other)));
 		}
@@ -43,7 +43,7 @@ namespace memepp {
 
 	MEMEPP__IMPL_INLINE buffer::buffer(const_pointer _utf8, size_type _size)
 	{
-		MemeBufferStack_initByU8bytes(&data_, MEME_STRING__OBJECT_SIZE, _utf8, _size);
+		MemeBufferStack_initByBytes(&data_, MEME_STRING__OBJECT_SIZE, _utf8, _size);
 	}
 
 	//inline buffer::buffer(const std::initializer_list<char>& _ilist)
@@ -107,7 +107,7 @@ namespace memepp {
 	MEMEPP__IMPL_INLINE buffer::size_type buffer::index_of_with_strlen(
 		const char* _utf8, size_type _utf8_len) const MEGOPP__NOEXCEPT
 	{
-		return MemeBuffer_indexOfWithUtf8bytes(
+		return MemeBuffer_indexOfWithBytes(
 			to_pointer(native_handle()), 0, reinterpret_cast<const uint8_t*>(_utf8), _utf8_len);
 	}
 

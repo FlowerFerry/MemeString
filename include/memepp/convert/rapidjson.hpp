@@ -4,6 +4,8 @@
 
 #include "rapidjson/document.h"
 #include "rapidjson/stringbuffer.h"
+
+#include "memepp/convert/common_def.hpp"
 #include "memepp/string.hpp"
 
 namespace memepp {
@@ -42,6 +44,28 @@ namespace memepp {
 			return memepp::string_view { _v.GetString(), static_cast<MemeInteger_t>(_v.GetStringLength()) };
 		else
 			return {};
+	}
+
+	template<>
+	inline rapidjson::GenericStringRef<char> to< rapidjson::GenericStringRef<char> >(const memepp::string& _s)
+	{
+		return rapidjson::GenericStringRef<char>{ _s.data(), static_cast<rapidjson::SizeType>(_s.size()) };
+	}
+
+	template<>
+	inline rapidjson::GenericStringRef<char> to< rapidjson::GenericStringRef<char> >(const memepp::string_view& _sv)
+	{
+		return rapidjson::GenericStringRef<char>{ _sv.data(), static_cast<rapidjson::SizeType>(_sv.size()) };
+	}
+
+
+};
+
+namespace rapidjson
+{
+	inline rapidjson::GenericStringRef<char> toStringRef(const memepp::string_view& _s)
+	{
+		return rapidjson::GenericStringRef<char>{ _s.data(), static_cast<rapidjson::SizeType>(_s.size()) };
 	}
 
 };

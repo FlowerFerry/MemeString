@@ -124,7 +124,7 @@ namespace memepp {
 
 	MEMEPP__IMPL_INLINE string::size_type string::capacity() const noexcept
 	{
-		return MemeString_byteCapacity(to_pointer(data_));
+		return MemeString_availableByteCapacity(to_pointer(data_));
 	}
 
 	MEMEPP__IMPL_INLINE void string::swap(string& _other) noexcept

@@ -4,6 +4,8 @@
 
 #include "buffer_fwd.h"
 
+MEME_EXTERN_C_SCOPE_START
+
 typedef struct _MemeVariableBuffer_t* MemeVariableBuffer_t;
 typedef const struct _MemeVariableBuffer_t* MemeVariableBuffer_Const_t;
 
@@ -24,5 +26,5 @@ typedef struct _MemeVariableBufferStack_t {
 	MemeByte_t byte[MEME_STRING__OBJECT_SIZE];
 } MemeVariableBufferStack_t;
 
-
+MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_VARIABLE_BUFFER_FWD_H_INCLUDED

@@ -4,6 +4,9 @@
 
 #include "meme/string_fwd.h"
 
+#define MemeMath_Max(a, b) (((a) > (b)) ? (a) : (b))
+#define MemeMath_Min(a, b) (((a) < (b)) ? (a) : (b))
+
 MemeInteger_t MemeImpl_SearchByViolenceWithSensitivity(
 	const uint8_t* _source, MemeInteger_t _source_len, uint8_t _key, 
 	MemeFlag_CaseSensitivity_t _cs

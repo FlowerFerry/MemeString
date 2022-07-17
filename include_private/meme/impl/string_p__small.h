@@ -4,23 +4,50 @@
 
 #include <meme/impl/string.h>
 #include <assert.h>
+#include <meme/impl/algorithm.h>
 
-inline int MemeStringSmall_stackReset(MemeStringStack_t* _s);
+inline int 
+MemeStringSmall_stackReset(MemeStringStack_t* _s);
 
-inline int MemeStringSmall_initByU8bytes(
+inline int 
+MemeStringSmall_initByU8bytes(
 	MemeStringSmall_t* _s, const MemeByte_t* _utf8, size_t _len);
-inline int MemeStringSmall_clear(MemeStringSmall_t* _s);
 
-inline int MemeStringSmall_isEmpty(const MemeStringSmall_t* _s);
-inline const char* MemeStringSmall_cStr(const MemeStringSmall_t* _s);
-inline const uint8_t* MemeStringSmall_byteData(const MemeStringSmall_t* _s);
-inline MemeInteger_t MemeStringSmall_byteSize(const MemeStringSmall_t* _s);
-inline MemeInteger_t MemeStringSmall_byteCapacity(const MemeStringSmall_t* _s);
+inline int
+MemeStringSmall_resizeWithByte(MemeStringSmall_t* _s, MemeInteger_t _size, MemeByte_t _byte);
 
-inline MemeInteger_t MemeStringSmall_wordSize(const MemeStringSmall_t* _s);
-inline MemeWordIndex_t MemeStringSmall_at(const MemeStringSmall_t* _s, size_t _index);
+inline int 
+MemeStringSmall_clear(MemeStringSmall_t* _s);
 
+inline int 
+MemeStringSmall_isEmpty(const MemeStringSmall_t* _s);
 
+inline const char* 
+MemeStringSmall_cStr(const MemeStringSmall_t* _s);
+
+inline const uint8_t* 
+MemeStringSmall_byteData(const MemeStringSmall_t* _s);
+
+inline MemeInteger_t 
+MemeStringSmall_byteSize(const MemeStringSmall_t* _s);
+
+inline MemeInteger_t 
+MemeStringSmall_byteCapacity(const MemeStringSmall_t* _s);
+
+inline MemeInteger_t 
+MemeStringSmall_wordSize(const MemeStringSmall_t* _s);
+
+inline MemeWordIndex_t 
+MemeStringSmall_at(const MemeStringSmall_t* _s, size_t _index);
+
+inline int
+MemeStringSmall_appendWithByte(MemeStringSmall_t* _s, MemeInteger_t _count, MemeByte_t _byte);
+
+inline int
+MemeStringSmall_appendWithBytes(MemeStringSmall_t* _s, const MemeByte_t* _buf, MemeInteger_t _buflen);
+
+inline int
+MemeStringSmall_canBeAppendIt(const MemeStringSmall_t* _s, MemeInteger_t _buflen);
 
 inline int MemeStringSmall_initByU8bytes(
 	MemeStringSmall_t* _s, const MemeByte_t* _utf8, size_t _len)
@@ -86,6 +113,60 @@ inline MemeInteger_t MemeStringSmall_byteCapacity(const MemeStringSmall_t * _s)
 {
 	assert(_s);
 	return _s->capacity_;
+}
+
+inline int MemeStringSmall_canBeAppendIt(const MemeStringSmall_t* _s, MemeInteger_t _buflen)
+{
+	assert(_s);
+	if (MemeStringSmall_byteCapacity(_s) < _buflen)
+		return MEME_ENO__POSIX_OFFSET(E2BIG);
+
+	return 0;
+}
+
+inline int MemeStringSmall_resizeWithByte(MemeStringSmall_t* _s, MemeInteger_t _size, MemeByte_t _byte)
+{
+	if (_size <= MemeStringSmall_byteSize(_s))
+	{
+		_s->capacity_ = (uint8_t)(MEME_STRING__GET_SMALL_BUFFER_SIZE - _size);
+		_s->buffer_[MemeStringSmall_byteSize(_s)] = 0;
+	}
+	else {
+		return MemeStringSmall_appendWithByte(_s, _size - MemeStringSmall_byteSize(_s), _byte);
+	}
+	return 0;
+}
+
+inline int MemeStringSmall_appendWithByte(MemeStringSmall_t* _s, MemeInteger_t _count, MemeByte_t _byte)
+{
+	MemeByte_t* pointer = NULL;
+	//_count = MemeMath_Min(_s->capacity_, _count);
+	if (_count <= 0)
+		return 0;
+
+	pointer = _s->buffer_ + MemeStringSmall_byteSize(_s);
+	_s->capacity_ -= (uint8_t)_count;
+	_s->buffer_[MemeStringSmall_byteSize(_s)] = 0;
+	for (; 0<= --_count; ) {
+		*pointer++ = _byte;
+	}
+	return 0;
+}
+
+inline int MemeStringSmall_appendWithBytes(MemeStringSmall_t* _s, const MemeByte_t* _buf, MemeInteger_t _buflen)
+{
+	assert(_s);
+	assert(_buf);
+
+	//_buflen = MemeMath_Min(_s->capacity_, _buflen);
+	if (_buflen <= 0)
+		return 0;
+
+	memcpy(_s->buffer_ + MemeStringSmall_byteSize(_s), _buf, _buflen);
+	_s->capacity_ -= (uint8_t)_buflen;
+	_s->buffer_[MemeStringSmall_byteSize(_s)] = 0;
+
+	return 0;
 }
 
 #endif // !MEME_IMPL_STRING_P_SMALL_H_INCLUDED

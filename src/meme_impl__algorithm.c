@@ -108,7 +108,7 @@ MemeInteger_t MemeImpl_SearchByBoyerMoore(
                 return index + 1 - _haystack;
             }
 
-            move_count = max(delta1[*index], delta2[needle_index]);
+            move_count = MemeMath_Max(delta1[*index], delta2[needle_index]);
             while (move_count --> 0)
             {
                 if (*(++index) == '\0')
@@ -133,7 +133,7 @@ MemeInteger_t MemeImpl_SearchByBoyerMoore(
                 return index + 1;
             }
 
-            index += max(delta1[_haystack[index]], delta2[needle_index]);
+            index += MemeMath_Max(delta1[_haystack[index]], delta2[needle_index]);
         }
     }
     free(delta2);

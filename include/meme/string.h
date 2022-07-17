@@ -125,7 +125,12 @@ MEME_API MemeInteger_t
 MEME_API MemeInteger_t 
 	MEME_STDCALL MemeString_wordSize(MemeString_Const_t _s);
 MEME_API MemeInteger_t 
-	MEME_STDCALL MemeString_byteCapacity(MemeString_Const_t _s);
+	MEME_STDCALL MemeString_availableByteCapacity(MemeString_Const_t _s);
+MEME_API MemeInteger_t
+	MEME_STDCALL MemeString_maxByteSize(MemeString_Const_t _s);
+MEME_API MemeInteger_t
+MEME_STDCALL MemeString_maxByteCapacity(MemeString_Const_t _s);
+
 MEME_API MemeWordIndex_t 
 	MEME_STDCALL MemeString_at(MemeString_Const_t _s, size_t _index);
 
@@ -153,6 +158,10 @@ MEME_STDCALL MemeString_split(
 	MemeStringStack_t* _out, MemeInteger_t* _out_count,
 	MemeInteger_t* _search_index
 );
+
+MEME_API const MemeByte_t*
+MEME_STDCALL MemeString_byteData(MemeString_Const_t _s);
+
 
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_STRING_H_INCLUDED

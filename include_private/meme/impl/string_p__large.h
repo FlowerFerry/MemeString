@@ -27,6 +27,9 @@ inline int MemeStringLarge_initByU8bytes (
 inline int MemeStringLarge_unInit(MemeStringLarge_t* _s);
 inline int MemeStringLarge_reset (MemeStringLarge_t* _s);
 
+//inline uint8_t* MemeStringLarge_data(MemeStringLarge_t* _s);
+inline const uint8_t* MemeStringLarge_constData(const MemeStringLarge_t* _s);
+inline uint8_t* MemeStringLarge_RefCount_data(volatile MemeStringLarge_RefCounted_t* _refcount);
 
 
 inline void MemeStringLarge_RefCount_init(volatile MemeStringLarge_RefCounted_t * _refcount)
@@ -41,6 +44,7 @@ inline MemeInteger_t MemeStringLarge_RefCount_increment(volatile MemeStringLarge
 
 	return MemeAtomicInteger_increment(&(_refcount->count_));
 }
+
 //
 //inline MemeInteger_t MemeStringLarge_RefCount_decrement(volatile MemeStringLarge_RefCounted_t * _refcount)
 //{
@@ -78,11 +82,13 @@ inline MemeInteger_t MemeStringLarge_RefCount_decrementAndDestruct(
 	result = MemeAtomicInteger_decrement(&(_refcount->count_));
 	if (result == 0)
 	{
-		if (_refcount->free_fn_)
-			f_func = _refcount->free_fn_;
-		else {
-			f_func = MemeString_getFreeFunction();
-		}
+		//if (_refcount->free_fn_)
+		//	f_func = _refcount->free_fn_;
+		//else {
+		//	f_func = MemeString_getFreeFunction();
+		//}
+		f_func = MemeString_getFreeFunction();
+
 		if (MemeStringImpl_default() != _refcount->real_)
 		{
 			f_func(_refcount->real_);
@@ -123,14 +129,15 @@ inline int MemeStringLarge_init (
 	if (!ref)
 		return -ENOMEM;
 	MemeStringLarge_RefCount_init(ref);
-	ref->malloc_fn_ = c_func;
-	ref->free_fn_   = d_func;
+	//ref->malloc_fn_ = c_func;
+	//ref->free_fn_   = d_func;
 	ref->real_ = (uint8_t*)c_func(_front_capacity + _capacity);
 	if (!ref->real_) {
 		d_func(ref);
 		return -ENOMEM;
 	}
-	ref->data_ = ref->real_ + _front_capacity;
+
+
 
 	if (_s->ref_) {
 		d_func(ref->real_);
@@ -187,16 +194,22 @@ inline int MemeStringLarge_initByU8bytes(
 	if (!ref)
 		return -ENOMEM;
 	MemeStringLarge_RefCount_init(ref);
-	ref->malloc_fn_ = c_func;
-	ref->free_fn_ = d_func;
+	//ref->malloc_fn_ = c_func;
+	//ref->free_fn_ = d_func;
 	ref->real_ = (uint8_t*)c_func(total_length);
 	if (!ref->real_) {
 		d_func(ref);
 		return -ENOMEM;
 	}
-	ref->data_ = ref->real_ + _front_capacity;
-	memcpy(ref->data_, _buf, _len);
-	ref->data_[_len] = '\0';
+
+
+	//ref->data_ = ref->real_ + _front_capacity;
+	//memcpy(ref->data_, _buf, _len);
+	//ref->data_[_len] = '\0';
+
+	memcpy(MemeStringLarge_RefCount_data(ref), _buf, _len);
+	MemeStringLarge_RefCount_data(ref)[_len] = '\0';
+
 
 	if (_s->ref_) {
 		d_func(ref->real_);
@@ -226,5 +239,20 @@ inline int MemeStringLarge_reset(MemeStringLarge_t* _s)
 	MemeStringSmall_stackReset((MemeStringStack_t*)_s);
 	return 0;
 }
+
+inline const uint8_t* MemeStringLarge_constData(const MemeStringLarge_t* _s)
+{
+	return _s->ref_->real_;
+}
+
+inline uint8_t* MemeStringLarge_RefCount_data(volatile MemeStringLarge_RefCounted_t* _refcount)
+{
+	return _refcount->real_;
+}
+
+//inline uint8_t* MemeStringLarge_data(MemeStringLarge_t* _s)
+//{
+//	return _s->ref_->real_;
+//}
 
 #endif // !MEME_IMPL_STRING_P_LARGE_H_INCLUDED

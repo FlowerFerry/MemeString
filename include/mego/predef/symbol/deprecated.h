@@ -1,0 +1,16 @@
+
+#ifndef MEGO_ATTRIBUTE_DEPRECATED_H_INCLUDED
+#define MEGO_ATTRIBUTE_DEPRECATED_H_INCLUDED
+
+#include "mego/predef/compiler.h"
+
+#if MEGO_COMP__GCC__AVAILABLE && \
+	MEGO_COMP__GNUC_VERSION > MEGO__MAKE_VERSION_NUMBER(3, 1, 0)
+#	define MEGO_SYMBOL__DEPRECATED __attribute__((deprecated))
+#elif MEGO_COMP__MSVC__AVAILABLE
+#	define MEGO_SYMBOL__DEPRECATED __declspec(deprecated)
+#else
+#	define MEGO_SYMBOL__DEPRECATED
+#endif
+
+#endif // !MEGO_ATTRIBUTE_DEPRECATED_H_INCLUDED

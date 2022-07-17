@@ -4,6 +4,8 @@
 
 #include "variable_buffer_fwd.h"
 
+MEME_EXTERN_C_SCOPE_START
+
 MEME_API int
 MEME_STDCALL MemeVariableBufferStack_init(MemeVariableBufferStack_t* _out, size_t _object_size);
 
@@ -13,7 +15,7 @@ MEME_STDCALL MemeVariableBufferStack_initByOther(
 
 MEME_API int
 MEME_STDCALL MemeVariableBufferStack_initByBytes(
-	MemeVariableBufferStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len);
+	MemeVariableBufferStack_t* _out, size_t _object_size, const MemeByte_t* _buf, MemeInteger_t _len);
 
 MEME_API int
 MEME_STDCALL MemeVariableBufferStack_unInit(MemeVariableBufferStack_t* _out, size_t _object_size);
@@ -38,8 +40,14 @@ MEME_STDCALL MemeVariableBuffer_isEmpty(MemeVariableBuffer_Const_t _s);
 MEME_API const MemeByte_t*
 MEME_STDCALL MemeVariableBuffer_data(MemeVariableBuffer_Const_t _s);
 
+MEME_API MemeByte_t*
+MEME_STDCALL MemeVariableBuffer_dataWithNotConst(MemeVariableBuffer_t _s);
+
 MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_size(MemeVariableBuffer_Const_t _s);
+
+MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_maxByteSize(MemeVariableBuffer_Const_t _s);
 
 MEME_API int
 MEME_STDCALL MemeVariableBuffer_isEqual(
@@ -48,6 +56,21 @@ MEME_STDCALL MemeVariableBuffer_isEqual(
 MEME_API int
 MEME_STDCALL MemeVariableBuffer_isEqualWithOther(
 	MemeVariableBuffer_Const_t _lhs, MemeVariableBuffer_Const_t _rhs, int* _result);
+
+MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_availableByteCapacity(MemeVariableBuffer_Const_t _s);
+
+MEME_API const MemeByte_t*
+MEME_STDCALL MemeVariableBuffer_constBackItem(MemeVariableBuffer_Const_t _s);
+
+MEME_API MemeByte_t*
+MEME_STDCALL MemeVariableBuffer_backItem(MemeVariableBuffer_t _s);
+
+MEME_API const MemeByte_t*
+MEME_STDCALL MemeVariableBuffer_constAt(MemeVariableBuffer_Const_t _s, MemeInteger_t _pos);
+
+MEME_API MemeByte_t*
+MEME_STDCALL MemeVariableBuffer_at(MemeVariableBuffer_t _s, MemeInteger_t _pos);
 
 
 MEME_API MemeInteger_t
@@ -76,8 +99,18 @@ MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_appendWithRepeatBytes(
 	MemeVariableBuffer_t _s, MemeInteger_t _count, MemeByte_t _byte);
 
+MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_clear(MemeVariableBuffer_t _s);
 
+MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_resize(MemeVariableBuffer_t _s, MemeInteger_t _size);
 
+MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_resizeWithByte(MemeVariableBuffer_t _s, MemeInteger_t _size, MemeByte_t _byte);
+
+MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_release(
+	MemeVariableBuffer_t _s, MemeBufferStack_t* _out, MemeInteger_t _objectSize);
 
 MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_split(
@@ -88,4 +121,5 @@ MEME_STDCALL MemeVariableBuffer_split(
 	MemeInteger_t* _search_index
 );
 
+MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_VARIABLE_BUFFER_H_INCLUDED
