@@ -10,6 +10,7 @@ MEME_EXTERN_C_SCOPE_START
 
 
 typedef void* (MemeString_MallocFunction_t)(size_t);
+typedef void* (MemeString_ReallocFunction_t)(void*, size_t);
 typedef void MemeString_FreeFunction_t(void*);
 
 typedef void MemeString_UserObjectDestruct_t(void* _object);

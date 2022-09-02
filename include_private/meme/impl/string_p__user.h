@@ -22,8 +22,9 @@ inline int MemeStringUser_initTakeOver(MemeStringUser_t* _s,
 inline int MemeStringUser_initByOther(MemeStringUser_t* _s, const MemeStringUser_t* _other);
 inline int MemeStringUser_unInit(MemeStringUser_t* _s);
 inline int MemeStringUser_reset (MemeStringUser_t* _s);
-inline const char* MemeStringUser_cStr(const MemeStringUser_t* _s);
-
+inline const MemeByte_t* MemeStringUser_constData(const MemeStringUser_t* _s);
+inline void MemeStringUser_setOffset(MemeStringUser_t* _s, MemeInteger_t _offset);
+inline void MemeStringUser_shrinkTailZero(MemeStringUser_t* _s);
 
 inline int MemeStringUser_initTakeOver(MemeStringUser_t* _s,
 	MemeString_MallocFunction_t* _cfn, MemeString_FreeFunction_t* _dfn,
@@ -93,10 +94,23 @@ inline int MemeStringUser_reset(MemeStringUser_t* _s)
 	return 0;
 }
 
-inline const char* MemeStringUser_cStr(const MemeStringUser_t* _s)
+inline const MemeByte_t* MemeStringUser_constData(const MemeStringUser_t* _s)
 {
 	const char* p = _s->ref_->data_fn_(_s->ref_->user_data_);
-	return p ? p : (const char*)MemeStringImpl_default();
+	return p ? (const MemeByte_t*)(p + _s->offset_) : MemeStringImpl_default();
+}
+
+inline void MemeStringUser_setOffset(MemeStringUser_t* _s, MemeInteger_t _offset)
+{
+	_s->offset_ += _offset;
+	_s->size_   -= _offset;
+}
+
+inline void MemeStringUser_shrinkTailZero(MemeStringUser_t* _s)
+{
+	while (MemeStringUser_constData(_s)[_s->size_] == 0 && _s->size_ > 0
+		&& MemeStringUser_constData(_s)[_s->size_ - 1] == 0)
+		--(_s->size_);
 }
 
 inline void MemeStringUser_RefCount_init(volatile MemeStringUser_RefCounted_t* _refcount)

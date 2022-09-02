@@ -14,5 +14,7 @@ MEME_EXTERN_C MEME_API MemeString_MallocFunction_t*
 	MEME_STDCALL MemeString_getMallocFunction();
 MEME_EXTERN_C MEME_API MemeString_FreeFunction_t* 
 	MEME_STDCALL MemeString_getFreeFunction();
+MEME_EXTERN_C MEME_API MemeString_ReallocFunction_t*
+MEME_STDCALL MemeString_getReallocFunction();
 
 #endif // !MEME_STRING_MEMORY_H_INCLUDED

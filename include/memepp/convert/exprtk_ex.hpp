@@ -16,21 +16,6 @@ namespace memepp {
 		return memepp::string{ sv.begin(), static_cast<MemeInteger_t>(sv.size()) };
 	}
 
-	inline string_view from(const exprtk::type_store<float>::string_view& _other)
-	{
-		return memepp::string{ _other.begin(), static_cast<MemeInteger_t>(_other.size()) };
-	}
-
-	inline string_view from(const exprtk::type_store<double>::string_view& _other)
-	{
-		return memepp::string{ _other.begin(), static_cast<MemeInteger_t>(_other.size()) };
-	}
-
-	inline string_view from(const exprtk::type_store<long double>::string_view& _other)
-	{
-		return memepp::string{ _other.begin(), static_cast<MemeInteger_t>(_other.size()) };
-	}
-
 	template<typename _Ty>
 	inline string_view view(const exprtk::type_store<_Ty>& _other)
 	{

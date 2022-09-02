@@ -4,6 +4,7 @@
 #define MEMEPP_STRING_IMPL_HPP_INCLUDED
 
 #include "meme/string.h"
+#include "memepp/word_def.hpp"
 #include "memepp/string_def.hpp"
 #include "memepp/string_view.hpp"
 
@@ -71,6 +72,11 @@ namespace memepp {
 		MemeStringStack_initByU8bytes(&data_, MEME_STRING__OBJECT_SIZE, _utf8, _size);
 	}
 
+	MEMEPP__IMPL_INLINE string::string(const word& _ch)
+	{
+		MemeStringStack_initByU8bytes(&data_, MEME_STRING__OBJECT_SIZE, _ch.data(), -1);
+	}
+
 	//inline string::string(const std::initializer_list<char>& _ilist)
 	//{
 
@@ -110,6 +116,11 @@ namespace memepp {
 	MEMEPP__IMPL_INLINE const char * string::c_str() const noexcept
 	{
 		return MemeString_cStr(to_pointer(data_));
+	}
+
+	MEMEPP__IMPL_INLINE string::const_pointer string::bytes() const noexcept
+	{
+		return MemeString_byteData(to_pointer(data_));
 	}
 
 	MEMEPP__IMPL_INLINE string::size_type string::size() const noexcept
@@ -204,7 +215,27 @@ namespace memepp {
 		return !(_lhs == _rhs);
 	}
 
+	MEMEPP__IMPL_INLINE string from_hexadecimals(const uint8_t* _buf, size_t _len)
+	{
+		MemeStringStack_t stack;
+		int result = MemeStringStack_initWithHexadecimals(&stack, sizeof(stack), NULL, 0, _buf, _len);
+		if (result)
+			return string{};
+
+		return string{ std::move(stack) };
+	}
+
 }; // namespace memepp
+
+	MEMEPP__IMPL_INLINE memepp::string mm_from(const char* _str, size_t _len)
+	{
+		return memepp::string{ _str, static_cast<MemeInteger_t>(_len) };
+	}
+
+	MEMEPP__IMPL_INLINE memepp::string mm_from(const MemeByte_t* _str, size_t _len)
+	{
+		return memepp::string{ _str, static_cast<MemeInteger_t>(_len) };
+	}
 
 	MEMEPP__IMPL_INLINE memepp::string operator""_meme(const char* _str, size_t _len)
 	{

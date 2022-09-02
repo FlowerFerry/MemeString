@@ -3,6 +3,9 @@
 #define MEME_BUFFER_H_INCLUDED
 
 #include "buffer_fwd.h"
+#include "mego/predef/symbol/deprecated.h"
+
+MEME_EXTERN_C_SCOPE_START
 
 MEME_API int
 MEME_STDCALL MemeBufferStack_init(MemeBufferStack_t* _out, size_t _object_size);
@@ -23,16 +26,16 @@ MEME_API int
 MEME_STDCALL MemeBufferStack_initByBytes(
 		MemeBufferStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len);
 
-MEME_API int
+MEME_API MEGO_SYMBOL__DEPRECATED int
 MEME_STDCALL MemeBufferStack_initByU8bytesAndType(
 		MemeBufferStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len,
 		MemeBuffer_Storage_t _suggest);
 
-MEME_API int
-MEME_STDCALL MemeBufferStack_initByOtherAndType(
-	MemeBufferStack_t* _out, size_t _object_size,
-	const MemeBufferStack_t* _other, MemeBuffer_Storage_t _suggest
-);
+//MEME_API int
+//MEME_STDCALL MemeBufferStack_initByOtherAndType(
+//	MemeBufferStack_t* _out, size_t _object_size,
+//	const MemeBufferStack_t* _other, MemeBuffer_Storage_t _suggest
+//);
 
 MEME_API int
 MEME_STDCALL MemeBufferStack_unInit(MemeBufferStack_t* _out, size_t _object_size);
@@ -45,7 +48,6 @@ MEME_STDCALL MemeBufferStack_assign(
 	MemeBufferStack_t* _s, size_t _object_size, const MemeBufferStack_t* _other);
 
 
-
 MEME_API MemeBuffer_Storage_t
 MEME_STDCALL MemeBuffer_storageType(MemeBuffer_Const_t _s);
 
@@ -54,6 +56,9 @@ MEME_STDCALL MemeBuffer_swap(MemeBuffer_t _lhs, MemeBuffer_t _rhs);
 
 MEME_API int
 MEME_STDCALL MemeBuffer_isEmpty(MemeBuffer_Const_t _s);
+
+MEME_API int
+MEME_STDCALL MemeBuffer_isEmpty_v02(MemeBuffer_Const_t _s);
 
 MEME_API const MemeByte_t*
 MEME_STDCALL MemeBuffer_data(MemeBuffer_Const_t _s);
@@ -86,5 +91,5 @@ MEME_STDCALL MemeBuffer_split(
 	MemeInteger_t* _search_index
 );
 
-
+MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_BUFFER_H_INCLUDED

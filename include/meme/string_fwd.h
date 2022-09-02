@@ -21,8 +21,9 @@ typedef struct _MemeWordIndex_t {
 } MemeWordIndex_t;
 
 typedef struct _MemeWord_t {
-    MemeByte_t byte[6];
-    MemeByte_t __spare__[2];
+	union {
+		MemeByte_t byte[8];
+	};
 } MemeWord_t;
 
 typedef MemeInteger_t MemeFlag_CaseSensitivity_t;

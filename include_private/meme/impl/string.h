@@ -20,7 +20,7 @@ typedef struct _MemeStringLarge_RefCounted_t
 
 	//! point to the real buffer; 
 	//! In some cases, set aside a pre-buffer to avoid reallocation
-	uint8_t * real_;	
+	MemeByte_t * real_;	
 
 	//MemeString_MallocFunction_t* malloc_fn_;
 	//MemeString_FreeFunction_t* free_fn_;
@@ -65,8 +65,8 @@ enum _MemeString_ImplType_t {
 typedef struct _MemeStringUser_t
 {
 	MemeStringUser_RefCounted_t* ref_;
-	union {
-		MemeInteger_t offset_;
+	struct {
+		MemeInteger_t offset_ : (sizeof(size_t)*(CHAR_BIT)-sizeof(size_t));
 	};
 	struct {
 		size_t size_ : (sizeof(size_t)* (CHAR_BIT)-sizeof(size_t));
@@ -76,7 +76,7 @@ typedef struct _MemeStringUser_t
 
 typedef struct _MemeStringMedium_t
 {
-	uint8_t * real_;
+	MemeByte_t* real_;
 	struct {
 		size_t size_ : (sizeof(size_t)*(CHAR_BIT)-sizeof(size_t));
 		size_t front_capacity_ : sizeof(size_t);
@@ -96,8 +96,8 @@ typedef struct _MemeStringMedium_t
 typedef struct _MemeStringLarge_t
 {
 	MemeStringLarge_RefCounted_t * ref_;
-	union {
-		MemeInteger_t offset_;
+	struct {
+		MemeInteger_t offset_ : (sizeof(size_t)* (CHAR_BIT)-sizeof(size_t));
 	};
 	struct {
 		size_t size_ : (sizeof(size_t)* (CHAR_BIT)-sizeof(size_t));
@@ -148,7 +148,9 @@ typedef struct _MemeStringNone_t
 typedef struct _MemeStringViewUnsafe_t
 {
 	const uint8_t* data_;
-	MemeInteger_t  offset_;
+	struct {
+		MemeInteger_t offset_ : (sizeof(size_t)* (CHAR_BIT)-sizeof(size_t));
+	};
 	struct {
 		size_t size_ : (sizeof(size_t)* (CHAR_BIT)-sizeof(size_t));
 		size_t type_ : (sizeof(size_t));
@@ -189,11 +191,17 @@ MemeStringImpl_isModifiableType(MemeString_Storage_t _type);
 int
 MemeStringImpl_dumpToModifiable(const MemeStringStack_t* _s, MemeStringStack_t* _out);
 
-//int
-//MemeStringImpl_convertToModifiable(MemeStringStack_t* _s);
-
 int
 MemeStringImpl_capacityExpansionWithModifiable(MemeStringStack_t* _s, MemeInteger_t _minSizeRequest);
+
+int
+MemeStringImpl_capacityExpansionWithModifiable_v02(MemeStringStack_t* _s, MemeInteger_t _minSizeRequest);
+
+void
+MemeStringImpl_setDataOffset(MemeStringStack_t* _s, MemeInteger_t _offset);
+
+void
+MemeStringImpl_shrinkTailZero(MemeStringStack_t* _s);
 
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_IMPL_STRING_H_INCLUDED

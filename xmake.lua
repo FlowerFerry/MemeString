@@ -21,6 +21,7 @@ target("meme_string")
     add_syslinks("pthread", "dl", "rt")
     set_kind("shared")
     set_symbols("hidden")
-    if is_plat("cross", "linux") then
-        add_ldflags("-Wl,-rpath,$ORIGIN", {force = true})
-    end
+    add_rpathdirs("$ORIGIN")
+    -- if is_plat("cross", "linux") then
+    --     add_ldflags("-Wl,-rpath,$ORIGIN", {force = true})
+    -- end

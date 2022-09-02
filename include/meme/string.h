@@ -5,6 +5,7 @@
 #include "meme/common.h"
 #include "meme/string_fwd.h"
 #include "meme/string_memory_fwd.h"
+#include "meme/buffer_fwd.h"
 
 MEME_EXTERN_C_SCOPE_START
 
@@ -19,6 +20,9 @@ MEME_API size_t
 MEME_API int 
 	MEME_STDCALL MemeStringStack_init(MemeStringStack_t* _out, size_t _object_size);
 
+MEME_API MemeStringStack_t
+	MEME_STDCALL MemeStringStack_getInitObject(size_t _object_size);
+
 MEME_API int
 	MEME_STDCALL MemeStringStack_initTakeOverUserObject(
 		MemeStringStack_t* _out, size_t _object_size,
@@ -32,8 +36,12 @@ MEME_API int
 		MemeStringStack_t* _out, size_t _object_size, MemeString_Const_t _other);
 
 MEME_API int
+MEME_STDCALL MemeStringStack_initByBuffer(
+	MemeStringStack_t* _out, size_t _object_size, MemeBuffer_Const_t _other, MemeInteger_t _offset);
+
+MEME_API int
 	MEME_STDCALL MemeStringStack_initByWord(
-		MemeStringStack_t* _out, size_t _object_size, size_t _len, MemeWord_t _ch);
+		MemeStringStack_t* _out, size_t _object_size, MemeInteger_t _count, MemeWord_t _ch);
 
 MEME_API int
 	MEME_STDCALL MemeStringStack_initByU8bytes(
@@ -44,11 +52,16 @@ MEME_API int
 		MemeStringStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len,
 		MemeString_Storage_t _suggest);
 
-MEME_API int 
-	MEME_STDCALL MemeStringStack_initByOtherAndType(
+//MEME_API int 
+//	MEME_STDCALL MemeStringStack_initByOtherAndType(
+//		MemeStringStack_t* _out, size_t _object_size, 
+//		MemeString_Const_t _other, MemeString_Storage_t _suggest
+//	);
+
+MEME_API int
+	MEME_STDCALL MemeStringStack_initWithHexadecimals(
 		MemeStringStack_t* _out, size_t _object_size, 
-		MemeString_Const_t _other, MemeString_Storage_t _suggest
-	);
+		const MemeByte_t* _interval, MemeInteger_t _ivlen, const uint8_t* _hexs, MemeInteger_t _len);
 
 MEME_API int
 	MEME_STDCALL MemeStringStack_unInit(MemeStringStack_t* _out, size_t _object_size);
@@ -84,38 +97,14 @@ MEME_API int
 MEME_API int 
 	MEME_STDCALL MemeString_assign(MemeString_t _s, MemeString_Const_t _other);
 
-//MEME_API int 
-//	MEME_STDCALL MemeString_append(MemeString_t _s, MemeString_Const_t _other);
-//MEME_API int 
-//	MEME_STDCALL MemeString_appendWithWord(MemeString_t _s, size_t _len, MemeWord_t _ch);
-//MEME_API int 
-//	MEME_STDCALL MemeString_appendWithUtf8bytes(MemeString_t _s, const MemeByte_t* _utf8, size_t _len);
-//
-//MEME_API int 
-//	MEME_STDCALL MemeString_replace(
-//		MemeString_t _s, MemeString_Const_t _before, MemeString_Const_t _after, 
-//		MemeFlag_CaseSensitivity_t _cs
-//	);
-//MEME_API int 
-//	MEME_STDCALL MemeString_replaceFromWordToWord(
-//		MemeString_t _s, MemeWord_t _before, MemeWord_t _after, MemeFlag_CaseSensitivity_t _cs);
-//MEME_API int 
-//	MEME_STDCALL MemeString_replaceFromWordToStr(
-//		MemeString_t _s, MemeWord_t _before, MemeString_Const_t _after, MemeFlag_CaseSensitivity_t _cs);
-//MEME_API int 
-//	MEME_STDCALL MemeString_replaceFromWordToUtf8bytes(
-//		MemeString_t _s, MemeWord_t _before, const MemeByte_t* _utf8, size_t _len,
-//		MemeFlag_CaseSensitivity_t _cs
-//	);
-
 MEME_API int 
 	MEME_STDCALL MemeString_swap(MemeString_t _lhs, MemeString_t _rhs);
 
-//MEME_API int 
-//	MEME_STDCALL MemeString_clear(MemeString_t _s);
-
 MEME_API int 
 	MEME_STDCALL MemeString_isEmpty(MemeString_Const_t _s);
+
+MEME_API int
+	MEME_STDCALL MemeString_isEmpty_v02(MemeString_Const_t _s);
 
 MEME_API const char* 
 	MEME_STDCALL MemeString_cStr(MemeString_Const_t _s);
@@ -160,7 +149,10 @@ MEME_STDCALL MemeString_split(
 );
 
 MEME_API const MemeByte_t*
-MEME_STDCALL MemeString_byteData(MemeString_Const_t _s);
+	MEME_STDCALL MemeString_byteData(MemeString_Const_t _s);
+
+MEME_API MemeInteger_t
+MEME_STDCALL MemeString_isSharedStorageTypes(MemeString_Const_t _s);
 
 
 MEME_EXTERN_C_SCOPE_ENDED

@@ -8,7 +8,7 @@
 #include "memepp/variable_buffer_fwd.hpp"
 #include "memepp/buffer_fwd.hpp"
 #include "megopp/predef/keyword/noexcept.h"
-
+#include "megopp/endian/byte_swap.h"
 
 namespace memepp {
 
@@ -57,6 +57,7 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE reference at(size_type _pos);
 
 		MEMEPP__IMPL_INLINE const_pointer data() const MEGOPP__NOEXCEPT;
+		MEMEPP__IMPL_INLINE pointer data() MEGOPP__NOEXCEPT;
 		MEMEPP__IMPL_INLINE size_type size() const MEGOPP__NOEXCEPT;
 		MEMEPP__IMPL_INLINE bool empty() const MEGOPP__NOEXCEPT;
 		MEMEPP__IMPL_INLINE size_type max_size() const MEGOPP__NOEXCEPT;
@@ -72,16 +73,22 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE variable_buffer& push_front(const value_type& value) MEGOPP__NOEXCEPT;
 		MEMEPP__IMPL_INLINE variable_buffer& pop_front() MEGOPP__NOEXCEPT;
 
-		MEMEPP__IMPL_INLINE void reserve(size_type _new_cap) MEGOPP__NOEXCEPT;
+		MEMEPP__IMPL_INLINE void reserve(size_type _new_cap);
 
-		MEMEPP__IMPL_INLINE variable_buffer& append(const_pointer _buf, size_type _len) MEGOPP__NOEXCEPT;
-		MEMEPP__IMPL_INLINE variable_buffer& append(const variable_buffer& _other) MEGOPP__NOEXCEPT;
-		MEMEPP__IMPL_INLINE variable_buffer& append(variable_buffer&& _other) MEGOPP__NOEXCEPT;
-		MEMEPP__IMPL_INLINE variable_buffer& append(const string& _other) MEGOPP__NOEXCEPT;
-		MEMEPP__IMPL_INLINE variable_buffer& append(const string_view& _other) MEGOPP__NOEXCEPT;
+		MEMEPP__IMPL_INLINE variable_buffer& append(const_pointer _buf, size_type _len);
+		MEMEPP__IMPL_INLINE variable_buffer& append(const variable_buffer& _other);
+		MEMEPP__IMPL_INLINE variable_buffer& append(variable_buffer&& _other);
+		MEMEPP__IMPL_INLINE variable_buffer& append(const string& _other);
+		MEMEPP__IMPL_INLINE variable_buffer& append(const string_view& _other);
 
-		MEMEPP__IMPL_INLINE variable_buffer& resize(size_type _count) noexcept;
-		MEMEPP__IMPL_INLINE variable_buffer& resize(size_type _count, value_type _value) MEGOPP__NOEXCEPT;
+		template<typename _Ty>
+		inline variable_buffer& append(const _Ty& _v, megopp::endian_t _endian);
+
+		MEMEPP__IMPL_INLINE variable_buffer& resize(size_type _count);
+		MEMEPP__IMPL_INLINE variable_buffer& resize(size_type _count, value_type _value);
+
+		MEMEPP__IMPL_INLINE MemeInteger_t release(buffer& _buf);
+		MEMEPP__IMPL_INLINE MemeInteger_t release(string& _str);
 
 		MEMEPP__IMPL_INLINE const native_handle_type& native_handle() const MEGOPP__NOEXCEPT;
 

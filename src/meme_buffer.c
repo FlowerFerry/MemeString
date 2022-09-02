@@ -1,6 +1,7 @@
 
 #include "meme/buffer.h"
 #include "meme/string.h"
+#include <errno.h>
 
 MEME_API int 
 MEME_STDCALL MemeBufferStack_init(MemeBufferStack_t* _out, size_t _object_size)
@@ -19,24 +20,27 @@ MEME_API int
 MEME_STDCALL MemeBufferStack_initByBytes(
 	MemeBufferStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len)
 {
-	return MemeStringStack_initByU8bytes((MemeStringStack_t*)_out, _object_size, _utf8, _len);
+	return MemeStringStack_initByU8bytesAndType(
+		(MemeStringStack_t*)_out, _object_size, _utf8, _len, MemeString_StorageType_large);
 }
 
 MEME_API int 
 MEME_STDCALL MemeBufferStack_initByU8bytesAndType(
 	MemeBufferStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len, MemeBuffer_Storage_t _suggest)
 {
-	return MemeStringStack_initByU8bytesAndType(
-		(MemeStringStack_t*)_out, _object_size, _utf8, _len, _suggest);
+	//return MemeStringStack_initByU8bytesAndType(
+	//	(MemeStringStack_t*)_out, _object_size, _utf8, _len, _suggest);
+
+	return MEME_ENO__POSIX_OFFSET(ENOTSUP);
 }
 
-MEME_API int 
-MEME_STDCALL MemeBufferStack_initByOtherAndType(
-	MemeBufferStack_t* _out, size_t _object_size, const MemeBufferStack_t* _other, MemeBuffer_Storage_t _suggest)
-{
-	return MemeStringStack_initByOtherAndType(
-		(MemeStringStack_t*)_out, _object_size, (MemeString_Const_t)_other, _suggest);
-}
+//MEME_API int 
+//MEME_STDCALL MemeBufferStack_initByOtherAndType(
+//	MemeBufferStack_t* _out, size_t _object_size, const MemeBufferStack_t* _other, MemeBuffer_Storage_t _suggest)
+//{
+//	return MemeStringStack_initByOtherAndType(
+//		(MemeStringStack_t*)_out, _object_size, (MemeString_Const_t)_other, _suggest);
+//}
 
 MEME_API int 
 MEME_STDCALL MemeBufferStack_unInit(MemeBufferStack_t* _out, size_t _object_size)
@@ -74,6 +78,11 @@ MEME_API int
 MEME_STDCALL MemeBuffer_isEmpty(MemeBuffer_Const_t _s)
 {
 	return MemeString_isEmpty((MemeString_Const_t)_s);
+}
+
+MEME_API int MEME_STDCALL MemeBuffer_isEmpty_v02(MemeBuffer_Const_t _s)
+{
+	return MemeString_isEmpty_v02((MemeString_Const_t)_s);
 }
 
 MEME_API const MemeByte_t*

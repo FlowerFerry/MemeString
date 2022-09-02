@@ -162,6 +162,7 @@
     <ClInclude Include="..\..\..\include\memepp\convert\self.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\std\vector.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\std\string.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\convert\uvw.hpp" />
     <ClInclude Include="..\..\..\include\memepp\hash\std_hash.hpp" />
     <ClInclude Include="..\..\..\include\memepp\predef\macro_option.hpp" />
     <ClInclude Include="..\..\..\include\memepp\split\self.hpp" />
@@ -181,12 +182,15 @@
     <ClInclude Include="..\..\..\include\memepp\variable_buffer_def.hpp" />
     <ClInclude Include="..\..\..\include\memepp\variable_buffer_fwd.hpp" />
     <ClInclude Include="..\..\..\include\memepp\variable_buffer_impl.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\word_def.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\word_fwd.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\word_impl.hpp" />
     <ClInclude Include="..\..\..\include\meme\buffer.h" />
     <ClInclude Include="..\..\..\include\meme\buffer_fwd.h" />
     <ClInclude Include="..\..\..\include\meme\common.h" />
     <ClInclude Include="..\..\..\include\meme\string.h" />
-    <ClInclude Include="..\..\..\include\meme\string_editor.h" />
-    <ClInclude Include="..\..\..\include\meme\string_editor_fwd.h" />
+    <ClInclude Include="..\..\..\include\meme\string_builder.h" />
+    <ClInclude Include="..\..\..\include\meme\string_builder_fwd.h" />
     <ClInclude Include="..\..\..\include\meme\string_fwd.h" />
     <ClInclude Include="..\..\..\include\meme\string_memory.h" />
     <ClInclude Include="..\..\..\include\meme\string_memory_fwd.h" />
@@ -198,7 +202,7 @@
     <ClInclude Include="..\..\..\include_private\meme\impl\atomic_fwd.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\buffer.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\string.h" />
-    <ClInclude Include="..\..\..\include_private\meme\impl\string_editor.h" />
+    <ClInclude Include="..\..\..\include_private\meme\impl\string_builder.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\string_memory.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\string_p__large.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\string_p__medium.h" />
@@ -207,13 +211,14 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\MemeBuffer.c" />
-    <ClCompile Include="..\..\..\src\MemeStringEditor.c" />
-    <ClCompile Include="..\..\..\src\MemeVariableBuffer.c" />
+    <ClCompile Include="..\..\..\src\meme_buffer.c" />
+    <ClCompile Include="..\..\..\src\meme_string_builder.c" />
+    <ClCompile Include="..\..\..\src\meme_variable_buffer.c" />
     <ClCompile Include="..\..\..\src\meme_atomic__basics.c" />
     <ClCompile Include="..\..\..\src\meme_impl__algorithm.c" />
     <ClCompile Include="..\..\..\src\meme_string__basics.c" />
     <ClCompile Include="..\..\..\src\meme_string__stack.c" />
+    <ClCompile Include="..\..\..\src\meme_word.c" />
     <ClCompile Include="dllmain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

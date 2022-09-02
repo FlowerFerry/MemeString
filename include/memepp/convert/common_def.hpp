@@ -9,15 +9,24 @@
 #include <utility>
 
 template<typename _Ty>
-_Ty meme_to(const memepp::string& _s);
+inline _Ty mm_to(const memepp::string& _s);
+
+template<typename _Ty>
+inline _Ty mm_to(const memepp::string_view& _s);
+
+template<typename _Ty>
+inline memepp::string_view mm_view(const _Ty& _s);
+
+template<typename _Ty>
+inline memepp::string_view mm_from(const _Ty& _s);
 
 namespace memepp {
 	
 	template<typename _Ty>
-	_Ty to(const memepp::string& _s);
+	inline _Ty to(const memepp::string& _s);
 
 	template<typename _Ty>
-	_Ty to(const memepp::string_view& _sv);
+	inline _Ty to(const memepp::string_view& _sv);
 
 };
 

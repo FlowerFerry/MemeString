@@ -50,11 +50,6 @@ namespace memepp {
 		return memepp::string_view { _s.data(), static_cast<MemeInteger_t>(_s.size()) };
 	}
 
-	inline memepp::string_view view(std::string&& _s)
-	{
-		return from(_s);
-	}
-
 	template<>
 	inline std::string to<std::string>(const memepp::string& _s)
 	{
@@ -68,5 +63,7 @@ namespace memepp {
 	}
 
 }; // namespace memepp
+
+#include <memepp/convert/common.hpp>
 
 #endif // !MEMEPP_CONVERT_STD_STRING_HPP_INCLUDED

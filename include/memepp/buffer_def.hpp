@@ -4,6 +4,7 @@
 
 #include "meme/buffer_fwd.h"
 #include "memepp/buffer_fwd.hpp"
+#include "memepp/string_fwd.hpp"
 
 #include "megopp/predef/keyword/noexcept.h"
 
@@ -33,6 +34,7 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE buffer(const buffer& _other, size_type _pos, size_type _count);
 
 		MEMEPP__IMPL_INLINE buffer(const_pointer _utf8, size_type _size);
+		MEMEPP__IMPL_INLINE buffer(const_pointer _begin, const_pointer _end);
 
 		MEMEPP__IMPL_INLINE buffer(size_type _count, MemeByte_t _byte);
 
@@ -53,6 +55,7 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE size_type capacity() const MEGOPP__NOEXCEPT;
 
 		MEMEPP__IMPL_INLINE void swap(buffer& _other) MEGOPP__NOEXCEPT;
+		MEMEPP__IMPL_INLINE string to_string(size_type _front_offset = 0) const;
 
 		MEMEPP__IMPL_INLINE size_type index_of(const buffer& _other) const MEGOPP__NOEXCEPT;
 

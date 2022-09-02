@@ -5,6 +5,7 @@
 #include <meme/impl/string.h>
 #include <assert.h>
 #include <meme/impl/algorithm.h>
+#include <errno.h>
 
 inline int 
 MemeStringSmall_stackReset(MemeStringStack_t* _s);
@@ -48,6 +49,12 @@ MemeStringSmall_appendWithBytes(MemeStringSmall_t* _s, const MemeByte_t* _buf, M
 
 inline int
 MemeStringSmall_canBeAppendIt(const MemeStringSmall_t* _s, MemeInteger_t _buflen);
+
+inline void
+MemeStringSmall_byteSizeOffsetAndSetZero(MemeStringSmall_t* _s, MemeInteger_t _offset);
+
+inline void
+MemeStringSmall_shrinkTailZero(MemeStringSmall_t* _s);
 
 inline int MemeStringSmall_initByU8bytes(
 	MemeStringSmall_t* _s, const MemeByte_t* _utf8, size_t _len)
@@ -124,12 +131,28 @@ inline int MemeStringSmall_canBeAppendIt(const MemeStringSmall_t* _s, MemeIntege
 	return 0;
 }
 
+inline void MemeStringSmall_byteSizeOffsetAndSetZero(MemeStringSmall_t* _s, MemeInteger_t _offset)
+{
+	_s->capacity_ -= _offset;
+	_s->buffer_[MemeStringSmall_byteSize(_s)] = '\0';
+}
+
+inline void MemeStringSmall_shrinkTailZero(MemeStringSmall_t* _s)
+{
+	MemeInteger_t index = MemeStringSmall_byteSize(_s);
+	while (_s->buffer_[index] == 0 && index > 0 && _s->buffer_[index - 1] == 0)
+		--index;
+	_s->capacity_ += (MemeStringSmall_byteSize(_s) - index);
+}
+
 inline int MemeStringSmall_resizeWithByte(MemeStringSmall_t* _s, MemeInteger_t _size, MemeByte_t _byte)
 {
 	if (_size <= MemeStringSmall_byteSize(_s))
 	{
-		_s->capacity_ = (uint8_t)(MEME_STRING__GET_SMALL_BUFFER_SIZE - _size);
-		_s->buffer_[MemeStringSmall_byteSize(_s)] = 0;
+		//_s->capacity_ = (uint8_t)(MEME_STRING__GET_SMALL_BUFFER_SIZE - _size);
+		//_s->buffer_[MemeStringSmall_byteSize(_s)] = 0;
+
+		MemeStringSmall_byteSizeOffsetAndSetZero(_s, _size - (MemeStringSmall_byteSize(_s)));
 	}
 	else {
 		return MemeStringSmall_appendWithByte(_s, _size - MemeStringSmall_byteSize(_s), _byte);
@@ -140,13 +163,12 @@ inline int MemeStringSmall_resizeWithByte(MemeStringSmall_t* _s, MemeInteger_t _
 inline int MemeStringSmall_appendWithByte(MemeStringSmall_t* _s, MemeInteger_t _count, MemeByte_t _byte)
 {
 	MemeByte_t* pointer = NULL;
-	//_count = MemeMath_Min(_s->capacity_, _count);
+
 	if (_count <= 0)
 		return 0;
 
 	pointer = _s->buffer_ + MemeStringSmall_byteSize(_s);
-	_s->capacity_ -= (uint8_t)_count;
-	_s->buffer_[MemeStringSmall_byteSize(_s)] = 0;
+	MemeStringSmall_byteSizeOffsetAndSetZero(_s, _count);
 	for (; 0<= --_count; ) {
 		*pointer++ = _byte;
 	}

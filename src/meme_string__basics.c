@@ -92,32 +92,6 @@ MemeStringImpl_dumpToModifiable(const MemeStringStack_t* _s, MemeStringStack_t* 
 	return 0;
 }
 
-//int MemeStringImpl_convertToModifiable(MemeStringStack_t* _s)
-//{
-//	if (MemeStringImpl_isModifiableType(_s) == 0)
-//	{
-//		switch (MEME_STRING__GET_TYPE(*((MemeString_t)_s)))
-//		{
-//		case MemeString_StorageType_large:
-//		{
-//
-//		} break;
-//		case MemeString_StorageType_user:
-//		{
-//
-//		} break;
-//		case MemeString_UnsafeStorageType_view:
-//		{
-//
-//		} break;
-//		default: {
-//
-//		} break;
-//		}
-//	}
-//	return 0;
-//}
-
 int MemeStringImpl_capacityExpansionWithModifiable(MemeStringStack_t* _s, MemeInteger_t _minSizeRequest)
 {
 	MemeInteger_t dstlen = 0;
@@ -147,6 +121,64 @@ int MemeStringImpl_capacityExpansionWithModifiable(MemeStringStack_t* _s, MemeIn
 	MemeString_swap((MemeString_t)_s, (MemeString_t)&newString);
 	MemeStringStack_unInit(&newString, MEME_STRING__OBJECT_SIZE);
 	return 0;
+}
+
+int MemeStringImpl_capacityExpansionWithModifiable_v02(MemeStringStack_t* _s, MemeInteger_t _minSizeRequest)
+{
+	assert(_s != NULL && MemeStringImpl_capacityExpansionWithModifiable_v02);
+	assert(_minSizeRequest > 0 && MemeStringImpl_capacityExpansionWithModifiable_v02);
+
+	switch (MEME_STRING__GET_TYPE((MemeString_t)_s)) 
+	{
+	case MemeString_ImplType_small: {
+		return MemeStringImpl_capacityExpansionWithModifiable(_s, _minSizeRequest);
+	} break;
+	case MemeString_ImplType_medium: {
+		return MemeStringMedium_capacityExpansion((MemeStringMedium_t*)_s, _minSizeRequest);
+	} break;
+	default:
+	{
+		return MEME_ENO__POSIX_OFFSET(ENOTSUP);
+	} break;
+	}
+
+}
+
+void MemeStringImpl_setDataOffset(MemeStringStack_t* _s, MemeInteger_t _offset)
+{
+	switch (MEME_STRING__GET_TYPE((MemeString_t)_s)) {
+	case MemeString_ImplType_large: {
+		MemeStringLarge_setOffset((MemeStringLarge_t*)_s, _offset);
+	} break;
+	case MemeString_ImplType_user: {
+		MemeStringUser_setOffset((MemeStringUser_t*)_s, _offset);
+	} break;
+	default: {
+
+	} break;
+	}
+}
+
+void MemeStringImpl_shrinkTailZero(MemeStringStack_t* _s)
+{
+	switch (MEME_STRING__GET_TYPE((MemeString_t)_s))
+	{
+	case MemeString_ImplType_small: {
+		MemeStringSmall_shrinkTailZero((MemeStringSmall_t*)_s);
+	} break;
+	case MemeString_ImplType_large: {
+		MemeStringLarge_shrinkTailZero((MemeStringLarge_t*)_s);
+	} break;
+	case MemeString_ImplType_medium: {
+		MemeStringMedium_shrinkTailZero((MemeStringMedium_t*)_s);
+	} break;
+	case MemeString_ImplType_user: {
+		MemeStringUser_shrinkTailZero((MemeStringUser_t*)_s);
+	} break;
+	default: {
+
+	} break;
+	}
 }
 
 MEME_API MemeString_Storage_t MEME_STDCALL MemeString_storageType(MemeString_Const_t _s)
@@ -212,11 +244,15 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_isEmpty(MemeString_Const_t _s
 		return (_s->viewUnsafe_.size_ == 0) ? 0 : 1;
 	}
 	default: {
-		return 1;
+		return MEME_ENO__POSIX_OFFSET(ENOTSUP);
 	} break;
 	}
 
-	return 1;
+}
+
+MEME_API int MEME_STDCALL MemeString_isEmpty_v02(MemeString_Const_t _s)
+{
+	return MemeString_isEmpty(_s) == 0;
 }
 
 MEME_EXTERN_C MEME_API const char *MEME_STDCALL MemeString_cStr(MemeString_Const_t _s)
@@ -389,6 +425,11 @@ MEME_EXTERN_C MEME_API MemeString_MallocFunction_t* MEME_STDCALL MemeString_getM
 MEME_EXTERN_C MEME_API MemeString_FreeFunction_t* MEME_STDCALL MemeString_getFreeFunction()
 {
 	return *__MemeString_freeFuncObject();
+}
+
+MEME_EXTERN_C MEME_API MemeString_ReallocFunction_t* MEME_STDCALL MemeString_getReallocFunction()
+{
+	return realloc;
 }
 
 int MemeStringMemory_allocFunctionSwitch(
@@ -639,7 +680,7 @@ MEME_API const MemeByte_t* MEME_STDCALL MemeString_byteData(MemeString_Const_t _
 	switch (MEME_STRING__GET_TYPE(_s)) {
 	case MemeString_ImplType_user:
 	{
-		return (const MemeByte_t*)MemeStringUser_cStr(&(_s->user_));
+		return MemeStringUser_constData(&(_s->user_));
 	}
 	case MemeString_ImplType_small:
 	{
@@ -659,6 +700,22 @@ MEME_API const MemeByte_t* MEME_STDCALL MemeString_byteData(MemeString_Const_t _
 	}
 	default: {
 		return (MemeStringImpl_default());
+	};
+	}
+}
+
+MEME_API MemeInteger_t MEME_STDCALL MemeString_isSharedStorageTypes(MemeString_Const_t _s)
+{
+	assert(_s != NULL && MemeString_isSharedStorageTypes);
+
+	switch (MEME_STRING__GET_TYPE(_s)) {
+	case MemeString_ImplType_user:
+	case MemeString_ImplType_large:
+	{
+		return 1;
+	}
+	default: {
+		return 0;
 	};
 	}
 }

@@ -4,6 +4,7 @@
 
 #include "meme/buffer.h"
 #include "memepp/buffer_def.hpp"
+#include "memepp/string_def.hpp"
 
 #include <string.h>
 
@@ -44,6 +45,11 @@ namespace memepp {
 	MEMEPP__IMPL_INLINE buffer::buffer(const_pointer _utf8, size_type _size)
 	{
 		MemeBufferStack_initByBytes(&data_, MEME_STRING__OBJECT_SIZE, _utf8, _size);
+	}
+
+	MEMEPP__IMPL_INLINE memepp::buffer::buffer(const_pointer _begin, const_pointer _end)
+	{
+		MemeBufferStack_initByBytes(&data_, MEME_STRING__OBJECT_SIZE, _begin, _end - _begin);
 	}
 
 	//inline buffer::buffer(const std::initializer_list<char>& _ilist)
@@ -95,6 +101,18 @@ namespace memepp {
 	MEMEPP__IMPL_INLINE void buffer::swap(buffer& _other) MEGOPP__NOEXCEPT
 	{
 		MemeBuffer_swap(to_pointer(data_), to_pointer(_other.data_));
+	}
+
+	MEMEPP__IMPL_INLINE string buffer::to_string(size_type _front_offset) const
+	{
+		MemeStringStack_t stack;
+		auto result = MemeStringStack_initByBuffer(
+			&stack, MEME_STRING__OBJECT_SIZE, to_pointer(data_), _front_offset);
+		if (result) {
+			// TO_DO
+			return {};
+		}
+		return std::move(stack);
 	}
 
 	MEMEPP__IMPL_INLINE buffer::size_type buffer::index_of(

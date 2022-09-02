@@ -4,7 +4,7 @@
 
 #include <meme/string_fwd.h>
 
-#include <mego/stool/os/windows/windows_simple.h>
+#include <mego/util/os/windows/windows_simple.h>
 #include <mego/predef/compiler/visualc.h>
 
 #if MEGO_OS__WINDOWS__AVAILABLE
