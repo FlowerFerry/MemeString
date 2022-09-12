@@ -39,7 +39,7 @@ inline memepp::string_view mm_view(const _Ty& _s)
 }
 
 template<typename _Ty>
-inline memepp::string_view mm_from(const _Ty& _s)
+inline memepp::string mm_from(const _Ty& _s)
 {
 	return memepp::from(_s);
 }

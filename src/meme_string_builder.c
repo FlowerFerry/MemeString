@@ -11,8 +11,8 @@ MEME_API int MEME_STDCALL MemeStringBuilderStack_swap(
 	assert(_other	&& MemeStringBuilderStack_swap);
 
 	MemeStringBuilderStack_t temp;
-	memcpy(&temp, _editor, MEME_STRING__OBJECT_SIZE);
+	memcpy(&temp, _editor,  MEME_STRING__OBJECT_SIZE);
 	memcpy(_editor, _other, MEME_STRING__OBJECT_SIZE);
-	memcpy(_other, &temp, MEME_STRING__OBJECT_SIZE);
+	memcpy(_other, &temp,   MEME_STRING__OBJECT_SIZE);
 	return 0;
 }
