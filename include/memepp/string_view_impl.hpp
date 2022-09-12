@@ -23,6 +23,19 @@ namespace memepp {
 		MemeStringStack_init(&data_, MEME_STRING__OBJECT_SIZE);
 	}
 
+	MEMEPP__IMPL_INLINE string_view::string_view(const MemeStringStack_t* _stack)
+	{
+		auto other = to_pointer(*_stack);
+		if (MemeString_isSharedStorageTypes(other) == 1)
+		{
+			MemeStringStack_initByOther(&data_, MEME_STRING__OBJECT_SIZE, other);
+		}
+		else {
+			MemeStringViewUnsafeStack_init(&data_, MEME_STRING__OBJECT_SIZE, 
+				MemeString_byteData(other), MemeString_byteSize(other));
+		}
+	}
+
 	MEMEPP__IMPL_INLINE string_view::string_view(const char* _utf8)
 	{
 		MemeStringViewUnsafeStack_init(&data_, MEME_STRING__OBJECT_SIZE,

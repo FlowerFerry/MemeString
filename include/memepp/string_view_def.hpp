@@ -26,6 +26,7 @@ namespace memepp {
 		static const size_type npos = static_cast<size_type>(-1);
 
 		MEMEPP__IMPL_INLINE string_view() noexcept;
+		MEMEPP__IMPL_INLINE string_view(const MemeStringStack_t* _stack);
 		MEMEPP__IMPL_INLINE string_view(const char* _utf8);
 		MEMEPP__IMPL_INLINE string_view(const char* _utf8, size_type _size);
 		MEMEPP__IMPL_INLINE string_view(const_pointer _utf8);
