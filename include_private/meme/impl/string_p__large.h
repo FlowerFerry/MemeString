@@ -5,6 +5,7 @@
 #include "meme/impl/string.h"
 #include "meme/impl/string_p__small.h"
 #include "meme/impl/atomic.h"
+#include "mego/predef/symbol/likely.h"
 
 #include <assert.h>
 #include <errno.h>
@@ -44,7 +45,8 @@ MemeStringLarge_shrinkTailZero(MemeStringLarge_t* _s);
 inline const uint8_t* MemeStringLarge_constData(const MemeStringLarge_t* _s);
 inline uint8_t* MemeStringLarge_RefCount_data(volatile MemeStringLarge_RefCounted_t* _refcount);
 
-
+inline MemeInteger_t MemeStringLarge_getSharedHeapByteSize (const MemeStringLarge_t* _s);
+inline MemeInteger_t MemeStringLarge_getPrivateHeapByteSize(const MemeStringLarge_t* _s);
 
 
 inline void MemeStringLarge_RefCount_init(volatile MemeStringLarge_RefCounted_t * _refcount)
@@ -167,15 +169,26 @@ inline int MemeStringLarge_initByU8bytes(
 
 	memset(_s, 0, sizeof(MemeStringStack_t));
 
-	c_func = (_cfn ? _cfn : MemeString_getMallocFunction());
-	if (c_func == _cfn) {
-		if (_dfn == NULL)
+	if (_cfn) {
+		if (MEGO_SYMBOL__UNLIKELY(_dfn == NULL))
 			return -EINVAL;
+		c_func = _cfn;
 		d_func = _dfn;
 	}
 	else {
+		c_func = MemeString_getMallocFunction();
 		d_func = MemeString_getFreeFunction();
 	}
+
+	//c_func = (_cfn ? _cfn : MemeString_getMallocFunction());
+	//if (c_func == _cfn) {
+	//	if (_dfn == NULL)
+	//		return -EINVAL;
+	//	d_func = _dfn;
+	//}
+	//else {
+	//	d_func = MemeString_getFreeFunction();
+	//}
 
 	refCount = (MemeStringLarge_RefCounted_t*)c_func(sizeof(MemeStringLarge_RefCounted_t));
 	if (!refCount)
@@ -234,7 +247,7 @@ inline int MemeStringLarge_initAndTakeover(
 )
 {
 	MemeString_MallocFunction_t* c_func = MemeString_getMallocFunction();
-	MemeString_FreeFunction_t* d_func = MemeString_getFreeFunction();
+	//MemeString_FreeFunction_t* d_func = MemeString_getFreeFunction();
 	MemeStringLarge_RefCounted_t* refCount = NULL;
 
 	refCount = (MemeStringLarge_RefCounted_t*)c_func(sizeof(MemeStringLarge_RefCounted_t));
@@ -278,5 +291,17 @@ inline uint8_t* MemeStringLarge_RefCount_data(volatile MemeStringLarge_RefCounte
 //{
 //	return _s->ref_->real_;
 //}
+
+
+inline MemeInteger_t MemeStringLarge_getSharedHeapByteSize(const MemeStringLarge_t* _s)
+{
+	return sizeof(MemeStringLarge_RefCounted_t) + _s->offset_ + _s->size_;
+}
+
+inline MemeInteger_t MemeStringLarge_getPrivateHeapByteSize(const MemeStringLarge_t* _s)
+{
+	return 0;
+}
+
 
 #endif // !MEME_IMPL_STRING_P_LARGE_H_INCLUDED

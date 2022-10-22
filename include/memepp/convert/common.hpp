@@ -4,6 +4,8 @@
 
 #include "memepp/convert/common_def.hpp"
 
+#include <type_traits>
+
 namespace memepp {
 	
 	template<typename _Ty>
@@ -17,7 +19,7 @@ namespace memepp {
 	{
 		return _Ty{ _sv.data(), static_cast<size_t>(_sv.size()) };
 	}
-
+    
 };
 
 template<typename _Ty>
@@ -42,6 +44,18 @@ template<typename _Ty>
 inline memepp::string mm_from(const _Ty& _s)
 {
 	return memepp::from(_s);
+}
+
+template<typename _Ty>
+inline memepp::string mm_from(_Ty& _s)
+{
+	return memepp::from(_s);
+}
+
+template<typename _Ty>
+inline memepp::string mm_from(_Ty&& _s)
+{
+	return memepp::from(std::move(_s));
 }
 
 #endif // !MEMEPP_CONVERT_COMMON_HPP_INCLUDED

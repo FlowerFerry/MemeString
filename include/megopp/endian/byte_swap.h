@@ -48,12 +48,10 @@ namespace endian {
 	template<>
 	struct byte_swap_with_size<-1>
 	{
-		// static_assert(false, "[megopp::endian::byte_swap_with_size] current template parameter is not supported");
 	};
 	template<>
 	struct byte_swap_with_size<1>
 	{
-		// static_assert(false, "[megopp::endian::byte_swap_with_size] current template parameter is not supported");
 	};
 
 	template<int _ByteSize>
@@ -80,8 +78,19 @@ namespace endian {
 	{
 		static_assert(std::is_arithmetic<_Ty>::value, "[megopp::endian::byte_swap] only supports arithmetic types");
 
-		return byte_swap_with_size<sizeof(_Ty)>::convert(_value);
+		typename type_with_size<sizeof(_value)>::uint value = 0;
+		memcpy(&value, &_value, sizeof(_value));
+		value = byte_swap_with_size<sizeof(_value)>::convert(value);
+		memcpy(&_value, &value, sizeof(_value));
+
+		//using convert_t = typename type_with_size<sizeof(_value)>::uint*;
+
+		//*(reinterpret_cast<convert_t>(&_value)) = 
+		//	byte_swap_with_size<sizeof(_value)>::convert(*(reinterpret_cast<convert_t>(&_value)));
+
+		return _value;
 	}
+
 };
 };
 

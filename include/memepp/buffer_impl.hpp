@@ -95,7 +95,7 @@ namespace memepp {
 
 	MEMEPP__IMPL_INLINE bool buffer::empty() const MEGOPP__NOEXCEPT
 	{
-		return MemeBuffer_isEmpty(to_pointer(data_)) == 0;
+		return MemeBuffer_isNonempty(to_pointer(data_)) == 0;
 	}
 
 	MEMEPP__IMPL_INLINE void buffer::swap(buffer& _other) MEGOPP__NOEXCEPT

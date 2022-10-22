@@ -24,6 +24,8 @@ namespace memepp {
 		using const_pointer = const value_type*;
 
 		using native_handle_type = MemeVariableBufferStack_t;
+        
+		static const size_type npos = static_cast<size_type>(-1);
 
 		MEMEPP__IMPL_INLINE variable_buffer() noexcept;
 		MEMEPP__IMPL_INLINE variable_buffer(const_pointer _buf, size_type _size);
@@ -63,6 +65,13 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE size_type max_size() const MEGOPP__NOEXCEPT;
 		MEMEPP__IMPL_INLINE size_type capacity() const MEGOPP__NOEXCEPT;
 
+        MEMEPP__IMPL_INLINE size_type find(const string_view& _other, size_type _pos = 0) const MEGOPP__NOEXCEPT;
+        MEMEPP__IMPL_INLINE size_type find(const variable_buffer& _other, size_type _pos = 0) const MEGOPP__NOEXCEPT;
+        MEMEPP__IMPL_INLINE size_type find(const buffer& _other, size_type _pos = 0) const MEGOPP__NOEXCEPT;
+        MEMEPP__IMPL_INLINE size_type find(value_type _value, size_type _pos = 0) const MEGOPP__NOEXCEPT;
+        MEMEPP__IMPL_INLINE size_type find(const_pointer _buf, size_type _pos, size_type _size) const MEGOPP__NOEXCEPT;
+
+
 		MEMEPP__IMPL_INLINE void swap(variable_buffer& _other) MEGOPP__NOEXCEPT;
 
 		MEMEPP__IMPL_INLINE void clear() MEGOPP__NOEXCEPT;
@@ -95,6 +104,27 @@ namespace memepp {
 	private:
 		native_handle_type data_;
 	};
+
+	template<typename _Ty>
+	inline variable_buffer& memepp::variable_buffer::append(const _Ty& _v, megopp::endian_t _endian)
+	{
+		typename megopp::type_with_size<sizeof(_Ty)>::uint _value = 0;
+		memcpy(&_value, &_v, sizeof(_value));
+
+#if MEGO_ENDIAN__LITTLE_BYTE
+        if (_endian == megopp::endian_t::big_byte)
+        {
+            _value = megopp::endian::byte_swap(_value);
+        }
+#elif MEGO_ENDIAN__BIG_BYTE
+        if (_endian == megopp::endian_t::little_byte)
+        {
+			_value = megopp::endian::byte_swap(_value);
+        }
+#endif
+
+        return append(reinterpret_cast<const_pointer>(&_value), static_cast<size_type>(sizeof(_value)));
+	}
 
 };
 

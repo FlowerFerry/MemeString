@@ -55,10 +55,10 @@ MEME_API int
 MEME_STDCALL MemeBuffer_swap(MemeBuffer_t _lhs, MemeBuffer_t _rhs);
 
 MEME_API int
-MEME_STDCALL MemeBuffer_isEmpty(MemeBuffer_Const_t _s);
+MEME_STDCALL MemeBuffer_isNonempty(MemeBuffer_Const_t _s);
 
 MEME_API int
-MEME_STDCALL MemeBuffer_isEmpty_v02(MemeBuffer_Const_t _s);
+MEME_STDCALL MemeBuffer_isEmpty(MemeBuffer_Const_t _s);
 
 MEME_API const MemeByte_t*
 MEME_STDCALL MemeBuffer_data(MemeBuffer_Const_t _s);

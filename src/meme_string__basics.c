@@ -7,6 +7,7 @@
 #include "meme/impl/string_p__large.h"
 
 #include "meme/impl/algorithm.h"
+#include <mego/predef/symbol/likely.h>
 
 #include <errno.h>
 #include <assert.h>
@@ -25,18 +26,22 @@ MemeString_Storage_t MemeStringImpl_initSuggestType(
 	case MemeString_StorageType_large: {
 		return MemeString_StorageType_large;
 	};
-
+    case MemeString_StorageType_medium: {
+        return MemeString_StorageType_medium;
+    };
 	default: {
 		if (MemeString_StorageType_user < _user_suggest)
 			return _user_suggest;
 
+
 		if (_len <= MEME_STRING__GET_SMALL_BUFFER_SIZE)
 			return MemeString_StorageType_small;
-		//do {
-		//	size_t medium_limit = MemeStringOption_getStorageMediumLimit();
-		//	if (medium_limit && _len <= medium_limit)
-		//		return MemeString_StorageType_medium;
-		//} while (0);
+
+		do {
+			size_t medium_limit = MemeStringOption_getStorageMediumLimit();
+			if (medium_limit && _len <= medium_limit)
+				return MemeString_StorageType_medium;
+		} while (0);
 
 		return MemeString_StorageType_large;
 	};
@@ -181,10 +186,15 @@ void MemeStringImpl_shrinkTailZero(MemeStringStack_t* _s)
 	}
 }
 
+MemeByte_t* MemeStringImpl_forcedData(MemeStringStack_t* _s)
+{
+	return (MemeByte_t*)MemeString_byteData((MemeString_t)_s);
+}
+
 MEME_API MemeString_Storage_t MEME_STDCALL MemeString_storageType(MemeString_Const_t _s)
 {
 	assert(_s);
-	return _s->small_.type_;
+    return MEME_STRING__GET_TYPE((MemeString_t)_s);
 }
 
 
@@ -218,7 +228,7 @@ MEME_API int MEME_STDCALL MemeString_swap(MemeString_t _lhs, MemeString_t _rhs)
 	return 0;
 }
 
-MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_isEmpty(MemeString_Const_t _s)
+MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_isNonempty(MemeString_Const_t _s)
 {
 	assert(_s);
 
@@ -250,9 +260,9 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_isEmpty(MemeString_Const_t _s
 
 }
 
-MEME_API int MEME_STDCALL MemeString_isEmpty_v02(MemeString_Const_t _s)
+MEME_API int MEME_STDCALL MemeString_isEmpty(MemeString_Const_t _s)
 {
-	return MemeString_isEmpty(_s) == 0;
+	return MemeString_isNonempty(_s) == 0;
 }
 
 MEME_EXTERN_C MEME_API const char *MEME_STDCALL MemeString_cStr(MemeString_Const_t _s)
@@ -290,6 +300,15 @@ MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL MemeString_maxByteCapacity(Mem
 		return 0;
 	};
 	}
+}
+
+MEME_API const MemeByte_t* MEME_STDCALL MemeString_at(MemeString_Const_t _s, MemeInteger_t _index)
+{
+    assert(_s);
+
+    if (MEGO_SYMBOL__UNLIKELY(_index >= MemeString_byteSize(_s) || _index < 0))
+        return NULL;
+    return MemeString_byteData(_s) + _index;
 }
 
 MEME_API MemeInteger_t MEME_STDCALL MemeString_maxByteSize(MemeString_Const_t _s)
@@ -453,7 +472,7 @@ int MemeStringMemory_allocFunctionSwitch(
 
 static size_t* __MemeStringOption_storageMediumLimit()
 {
-	static size_t limit = 64;
+	static size_t limit = sizeof(MemeStringStack_t) + sizeof(MemeStringLarge_RefCounted_t) * 2;
 	return &limit;
 }
 
@@ -488,8 +507,7 @@ MEME_API int MEME_STDCALL MemeString_isEqual(MemeString_Const_t _s,
 
 	src = MemeString_cStr(_s);
 	if (_len == -1) {
-		*_result = (strcmp(src, _str) == 0 ? 1 : 0);
-		return 0;
+        _len = (MemeInteger_t)strlen(_str);
 	}
 
 	lhslen = MemeString_byteSize(_s);
@@ -556,7 +574,7 @@ MEME_API int MEME_STDCALL MemeString_isEqualWithOther(MemeString_Const_t _lhs,
 
 MEME_API MemeInteger_t MEME_STDCALL MemeString_indexOfWithUtf8bytes(
 	MemeString_Const_t _s, MemeInteger_t _offset,
-	const uint8_t* _needle, MemeInteger_t _needle_len, 
+	const MemeByte_t* _needle, MemeInteger_t _needle_len,
 	MemeFlag_CaseSensitivity_t _cs)
 {
 	const char* pointer;
@@ -572,7 +590,7 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_indexOfWithUtf8bytes(
 		_offset = 0;
 
 	index = MemeImpl_SearchByBoyerMooreWithSensitivity(
-		pointer + _offset, count, _needle, _needle_len, _cs);
+		pointer + _offset, count - _offset, _needle, _needle_len, _cs);
 	return index == -1 ? -1 : _offset + index;
 }
 
@@ -584,22 +602,180 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_indexOfWithOther(
 	MemeInteger_t count = MemeString_byteSize(_s);
 	MemeInteger_t index = -1;
 
-	if (_offset >= count)
-		return -1; 
-	if (_offset < 0)
+	if (MEGO_SYMBOL__UNLIKELY(_offset < 0))
 		_offset = 0;
+	if (MEGO_SYMBOL__UNLIKELY(_offset >= count))
+		return -1; 
 
 	index = MemeImpl_SearchByBoyerMooreWithSensitivity(
-		pointer + _offset, count,
+		pointer + _offset, count - _offset,
 		MemeString_byteData(_other), MemeString_byteSize(_other), _cs);
 	return index == -1 ? -1 : _offset + index;
+}
+
+MEME_API MemeInteger_t MEME_STDCALL 
+MemeString_indexByCondByteFunc(
+	MemeString_Const_t _s, MemeInteger_t _offset, MemeString_MatchCondByteFunc_t* _cond_func, void* _arg)
+{
+    const MemeByte_t* pointer = MemeString_byteData(_s);
+    MemeInteger_t count = MemeString_byteSize(_s);
+
+    if (MEGO_SYMBOL__UNLIKELY(_offset < 0))
+        _offset = 0;
+    if (MEGO_SYMBOL__UNLIKELY(_offset >= count))
+        return -1;
+
+    for (MemeInteger_t index = _offset, result = 0; index < count; ++index)
+    {
+        result = _cond_func(pointer[index], _arg);
+        if (result == 1)
+            return index;
+        else if (result == -1)
+            return MEME_ENO__POSIX_OFFSET(ECANCELED);
+    }
+	return -1;
+}
+
+MEME_API MemeInteger_t MEME_STDCALL 
+MemeString_lastIndexOfWithUtf8bytes(
+	MemeString_Const_t _s, MemeInteger_t _offset, 
+	const MemeByte_t* _needle, MemeInteger_t _needle_len, MemeFlag_CaseSensitivity_t _cs)
+{
+    const MemeByte_t* pointer = MemeString_byteData(_s);
+    MemeInteger_t count = MemeString_byteSize(_s);
+    MemeInteger_t index = -1;
+
+	if (MEGO_SYMBOL__UNLIKELY(_offset < 0))
+		_offset = count;
+    
+	if (MEGO_SYMBOL__UNLIKELY(_offset > count - 1))
+		_offset = count - 1;
+
+    index = MemeImpl_ReverseSearchByBoyerMooreWithSensitivity(
+        pointer, _offset + 1, _needle, _needle_len, _cs);
+	return index == -1 ? -1 : index;
+}
+
+MEME_API MemeInteger_t MEME_STDCALL 
+MemeString_matchCountWithUtf8bytes(
+	MemeString_Const_t _s, MemeInteger_t _offset, const MemeByte_t* _needle, MemeInteger_t _needle_len, MemeFlag_CaseSensitivity_t _cs)
+{
+    const MemeByte_t* pointer = MemeString_byteData(_s);
+    MemeInteger_t count = MemeString_byteSize(_s);
+    MemeInteger_t index = -1;
+    MemeInteger_t match_count = 0;
+
+    if (MEGO_SYMBOL__UNLIKELY(_offset < 0))
+        _offset = 0;
+    if (MEGO_SYMBOL__UNLIKELY(_offset > count - 1))
+        _offset = count - 1;
+
+    index = MemeString_indexOfWithUtf8bytes(_s, _offset, _needle, _needle_len, _cs);
+    while (index != -1)
+    {
+        match_count++;
+        index = MemeString_indexOfWithUtf8bytes(_s, index + 1, _needle, _needle_len, _cs);
+    }
+    return match_count;
+}
+
+MEME_API MemeInteger_t MEME_STDCALL 
+MemeString_indexOfWithByte(MemeString_Const_t _s, MemeInteger_t _offset, MemeByte_t _byte, MemeFlag_CaseSensitivity_t _cs)
+{
+    const MemeByte_t* pointer = MemeString_byteData(_s);
+    MemeInteger_t count = MemeString_byteSize(_s);
+    MemeInteger_t index = -1;
+
+    if (_offset >= count)
+        return -1;
+    if (_offset < 0)
+        _offset = 0;
+
+    index = MemeImpl_SearchByViolenceWithSensitivity(
+		pointer + _offset, count - _offset, _byte, _cs);
+    return index == -1 ? -1 : _offset + index;
+}
+
+MEME_API MemeInteger_t MEME_STDCALL 
+MemeString_startsMatchWithOther(MemeString_Const_t _s, MemeString_Const_t _other, MemeFlag_CaseSensitivity_t _cs)
+{
+	const MemeByte_t* pointer_l = MemeString_byteData(_s);
+	MemeInteger_t count_l = MemeString_byteSize(_s);
+	const MemeByte_t* pointer_r = MemeString_byteData(_other);
+	MemeInteger_t count_r = MemeString_byteSize(_other);
+    
+    if (count_l < count_r)
+        return 0;
+    if (count_r == 0)
+        return 1;
+    
+    return memcmp(pointer_l, pointer_r, count_r) == 0 ? 1 : 0;
+}
+
+MEME_API MemeInteger_t
+MEME_STDCALL MemeString_startsMatchWithUtf8bytes(
+    MemeString_Const_t _s, const MemeByte_t* _needle, MemeInteger_t _needle_len, MemeFlag_CaseSensitivity_t _cs)
+{
+    const MemeByte_t* pointer = MemeString_byteData(_s);
+    MemeInteger_t count = MemeString_byteSize(_s);
+    
+	if (_needle_len == -1)
+		_needle_len = strlen(_needle);
+
+    if (count < _needle_len)
+        return 0;
+    if (_needle_len == 0)
+        return 1;
+
+    return memcmp(pointer, _needle, _needle_len) == 0 ? 1 : 0;
+}
+
+MEME_API MemeInteger_t MEME_STDCALL 
+MemeString_endsMatchWithOther(
+	MemeString_Const_t _s, MemeString_Const_t _other, MemeFlag_CaseSensitivity_t _cs)
+{
+    const MemeByte_t* pointer_l = MemeString_byteData(_s);
+    MemeInteger_t count_l = MemeString_byteSize(_s);
+    const MemeByte_t* pointer_r = MemeString_byteData(_other);
+    MemeInteger_t count_r = MemeString_byteSize(_other);
+
+    if (count_l < count_r)
+        return 0;
+    if (count_r == 0)
+        return 1;
+
+    return memcmp(pointer_l + count_l - count_r, pointer_r, count_r) == 0 ? 1 : 0;
+}
+
+MEME_API MemeInteger_t MEME_STDCALL 
+MemeString_endsMatchWithUtf8bytes(
+	MemeString_Const_t _s, const MemeByte_t* _needle, MemeInteger_t _needle_len, MemeFlag_CaseSensitivity_t _cs)
+{
+    const MemeByte_t* pointer = MemeString_byteData(_s);
+    MemeInteger_t count = MemeString_byteSize(_s);
+
+    if (_needle_len == -1)
+        _needle_len = strlen(_needle);
+
+    if (count < _needle_len)
+        return 0;
+    if (_needle_len == 0)
+        return 1;
+
+    return memcmp(pointer + count - _needle_len, _needle, _needle_len) == 0 ? 1 : 0;
 }
 
 MEME_API MemeInteger_t MEME_STDCALL MemeString_split(
 	MemeString_Const_t _s, const char* _key, MemeInteger_t _key_len, 
 	MemeFlag_SplitBehavior_t _behavior, MemeFlag_CaseSensitivity_t _sensitivity,
-	MemeStringStack_t* _out, MemeInteger_t* _out_count, MemeInteger_t* _search_index)
+	MemeStringStack_t* MEGO_SYMBOL__RESTRICT _out, 
+	MemeInteger_t* MEGO_SYMBOL__RESTRICT _out_count, 
+	MemeInteger_t* MEGO_SYMBOL__RESTRICT _search_index)
 {
+	MemeInteger_t last_index = (_search_index == NULL ? 0 : *_search_index);
+	MemeInteger_t curr_index = -1;
+	MemeInteger_t output_index = 0;
+
 	assert(_s != NULL				&& MemeString_split);
 	assert(_out != NULL				&& MemeString_split);
 	assert(_out_count != NULL		&& MemeString_split);
@@ -609,9 +785,6 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_split(
 	if (_key_len == -1)
 		_key_len = strlen(_key);
 
-	MemeInteger_t last_index = (_search_index == NULL ? 0 : *_search_index);
-	MemeInteger_t curr_index = -1;
-	MemeInteger_t output_index = 0;
 	while (output_index < *_out_count)
 	{
 		curr_index =
@@ -718,4 +891,48 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_isSharedStorageTypes(MemeString_C
 		return 0;
 	};
 	}
+}
+
+MEME_API MemeInteger_t MEME_STDCALL MemeString_getSharedHeapByteSize(MemeString_Const_t _s)
+{
+	if (MEGO_SYMBOL__UNLIKELY(_s == NULL))
+		return 0;
+    
+    switch (MEME_STRING__GET_TYPE(_s)) {
+    case MemeString_ImplType_user:
+    {
+        return MemeStringUser_getSharedHeapByteSize(&(_s->user_));
+    }
+    case MemeString_ImplType_large:
+    {
+        return MemeStringLarge_getSharedHeapByteSize(&(_s->large_));
+    }
+    default: {
+        return 0;
+    };
+    }
+}
+
+MEME_API MemeInteger_t MEME_STDCALL MemeString_getPrivateHeapByteSize(MemeString_Const_t _s)
+{
+    if (MEGO_SYMBOL__UNLIKELY(_s == NULL))
+        return 0;
+
+    switch (MEME_STRING__GET_TYPE(_s)) {
+    case MemeString_ImplType_user:
+    {
+        return MemeStringUser_getPrivateHeapByteSize(&(_s->user_));
+    }
+    case MemeString_ImplType_large:
+    {
+        return MemeStringLarge_getPrivateHeapByteSize(&(_s->large_));
+    }
+	case MemeString_ImplType_medium:
+	{
+		return MemeStringMedium_maxByteCapacity(&(_s->medium_));
+	}
+    default: {
+        return 0;
+    };
+    }
 }

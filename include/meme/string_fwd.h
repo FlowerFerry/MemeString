@@ -21,8 +21,10 @@ typedef struct _MemeWordIndex_t {
 } MemeWordIndex_t;
 
 typedef struct _MemeWord_t {
-	union {
-		MemeByte_t byte[8];
+	MemeByte_t byte[7];
+	struct {
+		MemeByte_t capacity : 3;
+		MemeByte_t invalid  : 5;
 	};
 } MemeWord_t;
 
@@ -53,6 +55,12 @@ enum _MemeFlag_SplitBehavior_t
 	MemeFlag_KeepEmptyParts,
 	MemeFlag_SkipEmptyParts
 };
+
+typedef int MemeString_MatchCondByteFunc_t(MemeByte_t _ch, void* _user_data);
+
+typedef int MemeString_MatchCondWordFunc_t(const MemeWord_t* _ch, void* _user_data);
+
+typedef int MemeString_MappingConvertFunc_t(const MemeWord_t* _ch, void* _user_data);
 
 #ifdef MEME_STRING__OBJECT_SIZE
 #undef MEME_STRING__OBJECT_SIZE

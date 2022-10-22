@@ -59,7 +59,7 @@ MEME_API int
 MEME_STDCALL MemeBufferStack_assign(
 	MemeBufferStack_t* _s, size_t _object_size, const MemeBufferStack_t* _other)
 {
-	return MemeStringStack_assign_v02((MemeStringStack_t*)_s, _object_size, (MemeString_Const_t)_other);
+	return MemeStringStack_assign((MemeStringStack_t*)_s, _object_size, (MemeString_Const_t)_other);
 }
 
 MEME_API MemeBuffer_Storage_t 
@@ -75,14 +75,14 @@ MEME_STDCALL MemeBuffer_swap(MemeBuffer_t _lhs, MemeBuffer_t _rhs)
 }
 
 MEME_API int 
-MEME_STDCALL MemeBuffer_isEmpty(MemeBuffer_Const_t _s)
+MEME_STDCALL MemeBuffer_isNonempty(MemeBuffer_Const_t _s)
 {
-	return MemeString_isEmpty((MemeString_Const_t)_s);
+	return MemeString_isNonempty((MemeString_Const_t)_s);
 }
 
-MEME_API int MEME_STDCALL MemeBuffer_isEmpty_v02(MemeBuffer_Const_t _s)
+MEME_API int MEME_STDCALL MemeBuffer_isEmpty(MemeBuffer_Const_t _s)
 {
-	return MemeString_isEmpty_v02((MemeString_Const_t)_s);
+	return MemeString_isEmpty((MemeString_Const_t)_s);
 }
 
 MEME_API const MemeByte_t*

@@ -2,8 +2,7 @@
 #ifndef MEMEPP_WORD_DEF_HPP_INCLUDED
 #define MEMEPP_WORD_DEF_HPP_INCLUDED
 
-#include "meme/string_fwd.h"
-
+#include "meme/word.h"
 #include "memepp/string_fwd.hpp"
 
 namespace memepp {
@@ -23,12 +22,17 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE word();
 		MEMEPP__IMPL_INLINE word(char _ch);
 
-		MEMEPP__IMPL_INLINE const_pointer data() const;
-		MEMEPP__IMPL_INLINE size_type size() const;
-		MEMEPP__IMPL_INLINE size_t	length() const;
+		MEMEPP__IMPL_INLINE const_pointer data() const noexcept;
+		MEMEPP__IMPL_INLINE size_type size() const noexcept;
+		MEMEPP__IMPL_INLINE size_t	length() const noexcept;
 
-		constexpr inline bool is_multi() const noexcept { return !!(data_.byte[0] & 0x80); }
-		constexpr inline bool is_english_char() const noexcept { return !is_multi(); }
+		MEMEPP__IMPL_INLINE bool empty() const noexcept;
+		MEMEPP__IMPL_INLINE bool valid() const noexcept;
+        
+		MEMEPP__IMPL_INLINE bool is_multi() const noexcept;
+		inline bool is_english_char() const noexcept { return !is_multi(); }
+
+        inline operator bool() const noexcept { return valid() && !empty(); }
 
 	private:
 		MemeWord_t data_;

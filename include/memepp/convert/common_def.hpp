@@ -19,6 +19,10 @@ inline memepp::string_view mm_view(const _Ty& _s);
 
 template<typename _Ty>
 inline memepp::string mm_from(const _Ty& _s);
+template<typename _Ty>
+inline memepp::string mm_from(_Ty& _s);
+template<typename _Ty>
+inline memepp::string mm_from(_Ty&& _s);
 
 namespace memepp {
 	
@@ -27,6 +31,13 @@ namespace memepp {
 
 	template<typename _Ty>
 	inline _Ty to(const memepp::string_view& _sv);
+
+	inline memepp::string_view view(const memepp::string_view& _sv);
+	inline memepp::string_view view(const memepp::string& _sv);
+    
+	inline memepp::string from(memepp::string&& _sv);
+	inline memepp::string from(const memepp::string& _sv);
+	inline memepp::string from(const memepp::string_view& _sv);
 
 };
 

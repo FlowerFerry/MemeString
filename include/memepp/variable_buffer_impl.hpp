@@ -120,7 +120,8 @@ namespace memepp {
 	{
 		auto p = MemeVariableBuffer_constAt(to_pointer(data_), _pos);
 		if (!p)
-			; // TO_DO
+			throw std::out_of_range(
+				MEGO__STRINGIZE(memepp::variable_buffer::at) " out of range");
 		return *p;
 	}
 
@@ -128,7 +129,8 @@ namespace memepp {
 	{
 		auto p = MemeVariableBuffer_at(to_pointer(data_), _pos);
 		if (!p)
-			; // TO_DO
+			throw std::out_of_range(
+				MEGO__STRINGIZE(memepp::variable_buffer::at) " out of range");
 		return *p;
 	}
 
@@ -149,7 +151,7 @@ namespace memepp {
 
 	MEMEPP__IMPL_INLINE bool variable_buffer::empty() const MEGOPP__NOEXCEPT
 	{
-		return MemeVariableBuffer_isEmpty(to_pointer(data_)) == 0;
+		return MemeVariableBuffer_isNonempty(to_pointer(data_)) == 0;
 	}
 
 	MEMEPP__IMPL_INLINE variable_buffer::size_type variable_buffer::max_size() const MEGOPP__NOEXCEPT
@@ -160,6 +162,39 @@ namespace memepp {
 	MEMEPP__IMPL_INLINE variable_buffer::size_type variable_buffer::capacity() const MEGOPP__NOEXCEPT
 	{
 		return MemeVariableBuffer_availableByteCapacity(to_pointer(data_));
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer::size_type 
+		variable_buffer::find(const string_view& _other, size_type _pos) const MEGOPP__NOEXCEPT
+	{
+        return MemeVariableBuffer_indexOfWithBytes(
+			to_pointer(data_), _pos, reinterpret_cast<const value_type*>(_other.data()), _other.size());
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer::size_type 
+		variable_buffer::find(const variable_buffer& _other, size_type _pos) const MEGOPP__NOEXCEPT
+	{
+        return MemeVariableBuffer_indexOfWithBytes(
+            to_pointer(data_), _pos, reinterpret_cast<const value_type*>(_other.data()), _other.size());
+	}
+    
+	MEMEPP__IMPL_INLINE variable_buffer::size_type 
+		variable_buffer::find(const buffer& _other, size_type _pos) const MEGOPP__NOEXCEPT
+	{
+        return MemeVariableBuffer_indexOfWithBytes(
+            to_pointer(data_), _pos, _other.data(), _other.size());
+	}
+    
+	MEMEPP__IMPL_INLINE variable_buffer::size_type 
+		variable_buffer::find(value_type _value, size_type _pos) const MEGOPP__NOEXCEPT
+	{
+        return MemeVariableBuffer_indexOfWithByte( to_pointer(data_), _pos, _value);
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer::size_type 
+		variable_buffer::find(const_pointer _buf, size_type _pos, size_type _size) const MEGOPP__NOEXCEPT
+	{
+        return MemeVariableBuffer_indexOfWithBytes(to_pointer(data_), _pos, _buf, _size);
 	}
 
 	MEMEPP__IMPL_INLINE void variable_buffer::swap(variable_buffer& _other) MEGOPP__NOEXCEPT

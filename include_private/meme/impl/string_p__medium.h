@@ -250,7 +250,7 @@ inline int MemeStringMedium_resizeWithByte(MemeStringMedium_t* _s, MemeInteger_t
 
 inline int MemeStringMedium_capacityExpansion(MemeStringMedium_t* _s, MemeInteger_t _minSizeRequest)
 {
-	int result = 0;
+	//int result = 0;
 	MemeInteger_t dstlen = 0;
 	MemeString_ReallocFunction_t* realloc_func = MemeString_getReallocFunction();
 	MemeByte_t* new_pointer = NULL;
@@ -261,7 +261,7 @@ inline int MemeStringMedium_capacityExpansion(MemeStringMedium_t* _s, MemeIntege
 	}
 	dstlen = dstlen + _s->front_capacity_ + 1;
 	dstlen = (dstlen % sizeof(size_t)) == 0 ?
-		(dstlen ? dstlen : sizeof(size_t)) : ((dstlen / sizeof(size_t) + 1) * sizeof(size_t));
+		dstlen : ((dstlen / sizeof(size_t) + 1) * sizeof(size_t));
 
 	new_pointer = realloc_func(_s->real_, dstlen);
 	if (new_pointer == NULL)

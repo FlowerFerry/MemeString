@@ -6,7 +6,7 @@
 #include "string_view_fwd.hpp"
 #include "string_editor_fwd.hpp"
 
-#include "meme/string_editor_fwd.h"
+#include "meme/string_builder_fwd.h"
 
 namespace memepp { 
 
@@ -16,7 +16,7 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE string_editor& operator=(const string_editor& _other);
 	public:
 
-		using native_handle_type = MemeStringEditorStack_t;
+		using native_handle_type = MemeStringBuilderStack_t;
 
 		string_editor();
 		string_editor(const string& _in);

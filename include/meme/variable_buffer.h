@@ -31,7 +31,6 @@ MEME_API int
 MEME_STDCALL MemeVariableBufferStack_assign(
 	MemeVariableBufferStack_t* _s, size_t _object_size, const MemeVariableBufferStack_t* _other);
 
-
 MEME_API MemeVariableBuffer_Storage_t
 MEME_STDCALL MemeVariableBuffer_storageType(MemeVariableBuffer_Const_t _s);
 
@@ -39,10 +38,10 @@ MEME_API int
 MEME_STDCALL MemeVariableBuffer_swap(MemeVariableBuffer_t _lhs, MemeVariableBuffer_t _rhs);
 
 MEME_API int
-MEME_STDCALL MemeVariableBuffer_isEmpty(MemeVariableBuffer_Const_t _s);
+MEME_STDCALL MemeVariableBuffer_isNonempty(MemeVariableBuffer_Const_t _s);
 
 MEME_API int
-MEME_STDCALL MemeVariableBuffer_isEmpty_v02(MemeVariableBuffer_Const_t _s);
+MEME_STDCALL MemeVariableBuffer_isEmpty(MemeVariableBuffer_Const_t _s);
 
 MEME_API const MemeByte_t*
 MEME_STDCALL MemeVariableBuffer_data(MemeVariableBuffer_Const_t _s);
@@ -90,6 +89,9 @@ MEME_STDCALL MemeVariableBuffer_indexOfWithOther(
 	MemeVariableBuffer_Const_t _s, MemeInteger_t _offset,
 	MemeVariableBuffer_Const_t _other);
 
+MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_indexOfWithByte(
+    MemeVariableBuffer_Const_t _s, MemeInteger_t _offset, MemeByte_t _byte);
 
 MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_appendWithByte(MemeVariableBuffer_t _s, MemeByte_t _byte);

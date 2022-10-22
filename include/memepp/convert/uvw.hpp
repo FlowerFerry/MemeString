@@ -44,7 +44,7 @@ namespace uvw {
 		::uvw::StreamHandle<T, U>& _stream)
 	{
 		uvw::buf_deleter< memepp::buffer > d;
-		*(d.obj) = _buf;
+		d.obj = _buf;
 
 		auto ptr = d.obj.data();
 		auto len = d.obj.size();

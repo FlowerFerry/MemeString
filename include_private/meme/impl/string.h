@@ -149,7 +149,7 @@ typedef struct _MemeStringViewUnsafe_t
 {
 	const uint8_t* data_;
 	struct {
-		MemeInteger_t offset_ : (sizeof(size_t)* (CHAR_BIT)-sizeof(size_t));
+		MemeInteger_t _res_ : (sizeof(size_t)* (CHAR_BIT)-sizeof(size_t));
 	};
 	struct {
 		size_t size_ : (sizeof(size_t)* (CHAR_BIT)-sizeof(size_t));
@@ -177,6 +177,7 @@ struct _MemeString_t
 #define MEME_STRING__GET_TYPE(S) ((S)->none_.type_)
 #endif 
 
+
 const uint8_t* 
 MemeStringImpl_default();
 
@@ -202,6 +203,10 @@ MemeStringImpl_setDataOffset(MemeStringStack_t* _s, MemeInteger_t _offset);
 
 void
 MemeStringImpl_shrinkTailZero(MemeStringStack_t* _s);
+
+MemeByte_t* MemeStringImpl_forcedData(MemeStringStack_t* _s);
+
+
 
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_IMPL_STRING_H_INCLUDED

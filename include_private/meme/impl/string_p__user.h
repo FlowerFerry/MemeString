@@ -26,6 +26,10 @@ inline const MemeByte_t* MemeStringUser_constData(const MemeStringUser_t* _s);
 inline void MemeStringUser_setOffset(MemeStringUser_t* _s, MemeInteger_t _offset);
 inline void MemeStringUser_shrinkTailZero(MemeStringUser_t* _s);
 
+inline MemeInteger_t MemeStringUser_getSharedHeapByteSize (const MemeStringUser_t* _s);
+inline MemeInteger_t MemeStringUser_getPrivateHeapByteSize(const MemeStringUser_t* _s);
+
+
 inline int MemeStringUser_initTakeOver(MemeStringUser_t* _s,
 	MemeString_MallocFunction_t* _cfn, MemeString_FreeFunction_t* _dfn,
 	void* _user_data,
@@ -149,5 +153,17 @@ inline MemeInteger_t MemeStringUser_RefCount_decrementAndDestruct(volatile MemeS
 	}
 	return result;
 }
+
+
+inline MemeInteger_t MemeStringUser_getSharedHeapByteSize(const MemeStringUser_t* _s)
+{
+    return sizeof(MemeStringUser_RefCounted_t) + _s->offset_ + _s->size_;
+}
+
+inline MemeInteger_t MemeStringUser_getPrivateHeapByteSize(const MemeStringUser_t* _s)
+{
+    return 0;
+}
+
 
 #endif // !MEME_IMPL_STRING_P_SMALL_H_INCLUDED

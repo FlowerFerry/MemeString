@@ -28,6 +28,39 @@ namespace memepp {
 			return {};
 	}
 
+	inline memepp::string from(rapidjson::StringBuffer&& _buf)
+	{
+		static const auto destruct_func = [](void* _object) { 
+			delete reinterpret_cast<rapidjson::StringBuffer*>(_object); };
+		static const auto data_func = [](const void* _object) { 
+			return reinterpret_cast<const rapidjson::StringBuffer*>(_object)->GetString(); };
+		static const auto size_func = [](const void* _object) { 
+			return reinterpret_cast<const rapidjson::StringBuffer*>(_object)->GetLength(); };
+
+		if (_buf.GetLength() == 0)
+			return{};
+        else if (_buf.GetLength() < MEME_STRING__OBJECT_SIZE)
+		{
+			return memepp::string(_buf.GetString(), static_cast<MemeInteger_t>(_buf.GetLength()));
+		}
+		else if (_buf.GetLength() < 16 * sizeof(intptr_t))
+		{
+			return memepp::string(_buf.GetString(), static_cast<MemeInteger_t>(_buf.GetLength()),
+				memepp::string_storage_type::medium);
+		}
+
+        memepp::string out;
+        auto obj = new rapidjson::StringBuffer(std::move(_buf));
+        auto ret = MemeStringStack_initTakeOverUserObject(
+            const_cast<MemeStringStack_t*>(&(out.native_handle())), MEME_STRING__OBJECT_SIZE,
+            obj, destruct_func, data_func, size_func);
+        if (ret) {
+            destruct_func(obj);
+            return {};
+        }
+        return out;
+	}
+
 	inline memepp::string_view view(const rapidjson::GenericStringRef<char>& _s)
 	{
 		return memepp::string_view { _s.s, static_cast<MemeInteger_t>(_s.length) };

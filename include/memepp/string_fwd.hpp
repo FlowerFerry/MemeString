@@ -19,14 +19,23 @@ namespace memepp {
 	class string;
 
 	enum class string_storage_type {
-		small = MemeString_StorageType_small,
-		large = MemeString_StorageType_large,
-		user  = MemeString_StorageType_user
+		small  = MemeString_StorageType_small,
+		medium = MemeString_StorageType_medium,
+		large  = MemeString_StorageType_large,
+		user   = MemeString_StorageType_user,
 	};
 
 	enum class split_behavior_t {
 		keep_empty_parts = MemeFlag_KeepEmptyParts,
 		skip_empty_parts = MemeFlag_SkipEmptyParts
+	};
+
+	enum case_sensitivity_t
+	{
+		all_insensitive = MemeFlag_AllInsensitive,
+		case_sensitive  = MemeFlag_CaseSensitive,
+	 	simplified_traditional_sensitive = MemeFlag_SimplifiedTraditionalSensitive,
+		all_sensitive   = MemeFlag_AllSensitive
 	};
 
 	inline MemeString_t to_pointer(MemeStringStack_t& _s) noexcept

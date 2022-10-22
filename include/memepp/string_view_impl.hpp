@@ -23,9 +23,9 @@ namespace memepp {
 		MemeStringStack_init(&data_, MEME_STRING__OBJECT_SIZE);
 	}
 
-	MEMEPP__IMPL_INLINE string_view::string_view(const MemeStringStack_t* _stack)
+	MEMEPP__IMPL_INLINE string_view::string_view(const MemeStringStack_t& _stack)
 	{
-		auto other = to_pointer(*_stack);
+		auto other = to_pointer(_stack);
 		if (MemeString_isSharedStorageTypes(other) == 1)
 		{
 			MemeStringStack_initByOther(&data_, MEME_STRING__OBJECT_SIZE, other);
@@ -86,13 +86,18 @@ namespace memepp {
 	{
 		MemeStringStack_unInit(&data_, MEME_STRING__OBJECT_SIZE);
 	}
+	
+	MEMEPP__IMPL_INLINE string_storage_type string_view::storage_type() const noexcept
+	{
+		return static_cast<string_storage_type>(MemeString_storageType(to_pointer(data_)));
+	}
 
 	MEMEPP__IMPL_INLINE string_view& string_view::operator=(const string& _other)
 	{
 		auto other = to_pointer(_other.native_handle());
-		if (MemeString_isSharedStorageTypes(other))
+		if (MemeString_isSharedStorageTypes(other) == 1)
 		{
-			MemeStringStack_assign_v02(&data_, MEME_STRING__OBJECT_SIZE, to_pointer(const_cast<MemeStringStack_t&>(_other.native_handle())));
+			MemeStringStack_assign(&data_, MEME_STRING__OBJECT_SIZE, to_pointer(const_cast<MemeStringStack_t&>(_other.native_handle())));
 		}
 		else {
 			*this = memepp::string_view { _other.bytes(), _other.size() };
@@ -125,8 +130,13 @@ namespace memepp {
 
 	MEMEPP__IMPL_INLINE bool memepp::string_view::empty() const noexcept
 	{
-		return MemeString_isEmpty_v02(to_pointer(data_));
+		return MemeString_isNonempty(to_pointer(data_)) == 0;
 	}
+
+    MEMEPP__IMPL_INLINE string_view::const_pointer string_view::bytes() const noexcept
+    {
+        return MemeString_byteData(to_pointer(data_));
+    }
 
 	MEMEPP__IMPL_INLINE string string_view::to_string() const
 	{
@@ -139,11 +149,189 @@ namespace memepp {
 		return string { reinterpret_cast<MemeStringStack_t&&>(stack) };
 	}
 
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::find(
+		const string_view& _other, size_type _pos) const noexcept
+	{
+		return MemeString_indexOfWithOther(
+			to_pointer(native_handle()), _pos, to_pointer(_other.native_handle()), case_sensitivity_t::all_sensitive);
+	}
+
+    MEMEPP__IMPL_INLINE string_view::size_type string_view::find(const char* _utf8, size_type _pos) const noexcept
+    {
+        return MemeString_indexOfWithUtf8bytes(
+            to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), -1, case_sensitivity_t::all_sensitive);
+    }
+
+  //  MEMEPP__IMPL_INLINE string_view::size_type string_view::find(
+		//const char* _utf8, size_type _pos, size_type _size) const noexcept
+  //  {
+  //      return MemeString_indexOfWithUtf8bytes(
+  //          to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), -1, case_sensitivity_t::all_sensitive);
+  //  }
+
+    //MEMEPP__IMPL_INLINE string_view::size_type string_view::find(const_pointer _utf8, size_type _pos) const noexcept
+    //{
+    //    return MemeString_indexOfWithUtf8bytes(
+    //        to_pointer(native_handle()), _pos, _utf8, -1, case_sensitivity_t::all_sensitive);
+    //}
+
+    MEMEPP__IMPL_INLINE string_view::size_type string_view::find(
+		const_pointer _utf8, size_type _pos, size_type _size) const noexcept
+    {
+        return MemeString_indexOfWithUtf8bytes(
+            to_pointer(native_handle()), _pos, _utf8, -1, case_sensitivity_t::all_sensitive);
+    }
+
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::find(char _ch, size_type _pos) const noexcept
+	{
+        return MemeString_indexOfWithByte(
+            to_pointer(native_handle()), _pos, _ch, case_sensitivity_t::all_sensitive);
+	}
+    
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::index_of(const string_view& _other, case_sensitivity_t _cs) const noexcept
+	{
+        return MemeString_indexOfWithOther(
+            to_pointer(native_handle()), 0, to_pointer(_other.native_handle()), _cs);
+	}
+
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::index_of(
-		const char* _utf8, MemeFlag_CaseSensitivity_t _cs) const noexcept
+		const char* _utf8, case_sensitivity_t _cs) const noexcept
 	{
 		return MemeString_indexOfWithUtf8bytes(
 			to_pointer(native_handle()), 0, reinterpret_cast<const uint8_t*>(_utf8), -1, _cs);
+	}
+
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::index_of_with_offset(
+		const char* _utf8, size_type _offset, case_sensitivity_t _cs) const noexcept
+	{
+		return MemeString_indexOfWithUtf8bytes(
+			to_pointer(native_handle()), _offset, reinterpret_cast<const uint8_t*>(_utf8), -1, _cs);
+	}
+
+	MEMEPP__IMPL_INLINE bool string_view::contains(const string_view& _sv) const noexcept
+	{
+		return find(_sv) != npos;
+	}
+
+    MEMEPP__IMPL_INLINE bool string_view::contains(const char* _utf8) const noexcept
+    {
+        return find(_utf8) != npos;
+    }
+
+    MEMEPP__IMPL_INLINE bool string_view::contains(const char* _utf8, size_type _size) const noexcept
+    {
+        return find(_utf8, _size) != npos;
+    }
+
+    MEMEPP__IMPL_INLINE bool string_view::contains(const_pointer _utf8) const noexcept
+    {
+        return find(_utf8) != npos;
+    }
+
+    MEMEPP__IMPL_INLINE bool string_view::contains(const_pointer _utf8, size_type _size) const noexcept
+    {
+        return find(_utf8, _size) != npos;
+    }
+
+	MEMEPP__IMPL_INLINE bool string_view::contains(char _ch) const noexcept
+	{
+        return find(_ch) != npos;
+	}
+
+	MEMEPP__IMPL_INLINE bool string_view::starts_with(const string_view& _sv) const noexcept
+	{
+        return MemeString_startsMatchWithOther(
+            to_pointer(native_handle()), to_pointer(_sv.native_handle()), case_sensitivity_t::all_sensitive);
+    }
+
+    MEMEPP__IMPL_INLINE bool string_view::starts_with(const char* _utf8) const noexcept
+    {
+        return MemeString_startsMatchWithUtf8bytes(
+            to_pointer(native_handle()), 
+			reinterpret_cast<const uint8_t*>(_utf8), -1, case_sensitivity_t::all_sensitive);
+    }
+
+    MEMEPP__IMPL_INLINE bool string_view::starts_with(const char* _utf8, size_type _size) const noexcept
+    {
+        return MemeString_startsMatchWithUtf8bytes(
+            to_pointer(native_handle()), 
+			reinterpret_cast<const uint8_t*>(_utf8), _size, case_sensitivity_t::all_sensitive);
+    }
+
+    MEMEPP__IMPL_INLINE bool string_view::starts_with(const_pointer _utf8) const noexcept
+    {
+        return MemeString_startsMatchWithUtf8bytes(
+            to_pointer(native_handle()), _utf8, -1, case_sensitivity_t::all_sensitive);
+    }
+
+    MEMEPP__IMPL_INLINE bool string_view::starts_with(const_pointer _utf8, size_type _size) const noexcept
+    {
+        return MemeString_startsMatchWithUtf8bytes(
+            to_pointer(native_handle()), _utf8, _size, case_sensitivity_t::all_sensitive);
+    }
+    
+	MEMEPP__IMPL_INLINE bool string_view::ends_with(const string_view& _sv) const noexcept
+	{
+        return MemeString_endsMatchWithOther(
+            to_pointer(native_handle()), to_pointer(_sv.native_handle()), case_sensitivity_t::all_sensitive);
+    }
+
+    MEMEPP__IMPL_INLINE bool string_view::ends_with(const char* _utf8) const noexcept
+    {
+        return MemeString_endsMatchWithUtf8bytes(
+            to_pointer(native_handle()),
+            reinterpret_cast<const uint8_t*>(_utf8), -1, case_sensitivity_t::all_sensitive);
+    }
+
+    MEMEPP__IMPL_INLINE bool string_view::ends_with(const char* _utf8, size_type _size) const noexcept
+    {
+        return MemeString_endsMatchWithUtf8bytes(
+            to_pointer(native_handle()),
+            reinterpret_cast<const uint8_t*>(_utf8), _size, case_sensitivity_t::all_sensitive);
+    }
+
+    MEMEPP__IMPL_INLINE bool string_view::ends_with(const_pointer _utf8) const noexcept
+    {
+        return MemeString_endsMatchWithUtf8bytes(
+            to_pointer(native_handle()), _utf8, -1, case_sensitivity_t::all_sensitive);
+    }
+
+    MEMEPP__IMPL_INLINE bool string_view::ends_with(const_pointer _utf8, size_type _size) const noexcept
+    {
+        return MemeString_endsMatchWithUtf8bytes(
+            to_pointer(native_handle()), _utf8, _size, case_sensitivity_t::all_sensitive);
+    }
+
+	MEMEPP__IMPL_INLINE string string_view::to_en_upper() const noexcept
+	{
+		return MemeStringStack_toEnUpper(&native_handle(), sizeof(data_));
+	}
+
+	MEMEPP__IMPL_INLINE string string_view::to_en_lower() const noexcept
+	{
+		return MemeStringStack_toEnLower(&native_handle(), sizeof(data_));
+	}
+    
+	MEMEPP__IMPL_INLINE string_view string_view::trim_space() const noexcept
+	{
+        return MemeStringStack_trimSpace(&native_handle(), sizeof(data_));
+	}
+
+    MEMEPP__IMPL_INLINE string_view string_view::trim_left_space() const noexcept
+    {
+        return MemeStringStack_trimLeftSpace(&native_handle(), sizeof(data_));
+    }
+
+    MEMEPP__IMPL_INLINE string_view string_view::trim_right_space() const noexcept
+    {
+        return MemeStringStack_trimRightSpace(&native_handle(), sizeof(data_));
+    }
+
+	MEMEPP__IMPL_INLINE string_view string_view::substr(size_type _pos, size_type _count) const noexcept
+	{
+		if (_count == npos)
+            _count = size() - _pos;
+        return string_view(data() + _pos, _count);
 	}
 
 	MEMEPP__IMPL_INLINE const string_view::native_handle_type& 

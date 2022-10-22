@@ -32,6 +32,15 @@ namespace memepp {
 		
 		if (_s.empty())
 			return {};
+		else if (_s.size() < MEME_STRING__OBJECT_SIZE)
+		{
+			return memepp::string(_s.data(), static_cast<MemeInteger_t>(_s.size()));
+		}
+        else if (_s.size() < 16 * sizeof(intptr_t))
+        {
+            return memepp::string(_s.data(), static_cast<MemeInteger_t>(_s.size()), 
+				memepp::string_storage_type::medium);
+        }
 
 		memepp::string out;
 		auto obj = new std::string(std::move(_s));

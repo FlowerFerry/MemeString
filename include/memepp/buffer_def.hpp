@@ -58,7 +58,6 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE string to_string(size_type _front_offset = 0) const;
 
 		MEMEPP__IMPL_INLINE size_type index_of(const buffer& _other) const MEGOPP__NOEXCEPT;
-
 		MEMEPP__IMPL_INLINE size_type index_of_with_strlen(const char* _utf8, size_type _utf8_len) const MEGOPP__NOEXCEPT;
 
 		MEMEPP__IMPL_INLINE const native_handle_type& native_handle() const MEGOPP__NOEXCEPT;

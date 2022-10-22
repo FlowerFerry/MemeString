@@ -14,7 +14,7 @@ namespace memepp {
 	inline memepp::string from(const MemeStringStack_t& _other)
 	{
 		memepp::string s;
-		MemeStringStack_assign_v02(
+		MemeStringStack_assign(
 			const_cast<MemeStringStack_t*>(&(s.native_handle())),
 			MEME_STRING__OBJECT_SIZE, 
 			memepp::to_pointer(_other));
@@ -40,7 +40,7 @@ namespace memepp {
 	inline memepp::string_view view(const MemeStringStack_t& _other)
 	{
 		memepp::string_view sv;
-		MemeStringStack_assign_v02(
+		MemeStringStack_assign(
 			const_cast<MemeStringStack_t*>(&(sv.native_handle())),
 			MEME_STRING__OBJECT_SIZE,
 			memepp::to_pointer(_other));
