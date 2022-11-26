@@ -31,7 +31,7 @@ MEME_STDCALL MemeBufferStack_initByU8bytesAndType(
 	//return MemeStringStack_initByU8bytesAndType(
 	//	(MemeStringStack_t*)_out, _object_size, _utf8, _len, _suggest);
 
-	return MEME_ENO__POSIX_OFFSET(ENOTSUP);
+	return MMENO__POSIX_OFFSET(ENOTSUP);
 }
 
 //MEME_API int 
@@ -88,7 +88,7 @@ MEME_API int MEME_STDCALL MemeBuffer_isEmpty(MemeBuffer_Const_t _s)
 MEME_API const MemeByte_t*
 MEME_STDCALL MemeBuffer_data(MemeBuffer_Const_t _s)
 {
-	return MemeString_cStr((MemeString_Const_t)_s);
+	return MemeString_byteData((MemeString_Const_t)_s);
 }
 
 MEME_API MemeInteger_t 
@@ -101,7 +101,7 @@ MEME_API int
 MEME_STDCALL MemeBuffer_isEqual(
 	MemeBuffer_Const_t _s, const MemeByte_t* _buf, MemeInteger_t _len, int* _result)
 {
-	return MemeString_isEqual((MemeString_Const_t)_s, _buf, _len, _result);
+	return MemeString_isEqual((MemeString_Const_t)_s, (const char*)_buf, _len, _result);
 }
 
 MEME_API int 
@@ -136,6 +136,6 @@ MEME_STDCALL MemeBuffer_split(
 )
 {
 	return MemeString_split(
-		(MemeString_Const_t)_s, _key, _key_len, _sb, MemeFlag_CaseSensitive,
+		(MemeString_Const_t)_s, (const char*)_key, _key_len, _sb, MemeFlag_CaseSensitive,
 		(MemeStringStack_t*)_out, _out_count, _search_index);
 }

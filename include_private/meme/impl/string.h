@@ -183,7 +183,7 @@ MemeStringImpl_default();
 
 MemeString_Storage_t 
 MemeStringImpl_initSuggestType(
-	size_t _len,
+	MemeInteger_t _len,
 	MemeString_Storage_t _user_suggest);
 
 int 
@@ -193,10 +193,10 @@ int
 MemeStringImpl_dumpToModifiable(const MemeStringStack_t* _s, MemeStringStack_t* _out);
 
 int
-MemeStringImpl_capacityExpansionWithModifiable(MemeStringStack_t* _s, MemeInteger_t _minSizeRequest);
+MemeStringImpl_capacityExpansionSmallToMedium(MemeStringStack_t* _s, MemeInteger_t _minSizeRequest);
 
 int
-MemeStringImpl_capacityExpansionWithModifiable_v02(MemeStringStack_t* _s, MemeInteger_t _minSizeRequest);
+MemeStringImpl_capacityExpansionWithModifiable(MemeStringStack_t* _s, MemeInteger_t _minSizeRequest);
 
 void
 MemeStringImpl_setDataOffset(MemeStringStack_t* _s, MemeInteger_t _offset);

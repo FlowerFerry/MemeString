@@ -7,9 +7,9 @@
 #include "memepp/word_fwd.hpp"
 #include "memepp/string_fwd.hpp"
 #include "memepp/buffer_fwd.hpp"
-#include "memepp/string_view_def.hpp"
+#include "memepp/string_view_fwd.hpp"
 
-#include <iterator>
+#include "memepp/iterator.hpp"
 
 namespace memepp {
 
@@ -71,6 +71,12 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE bool empty() const noexcept;
 		//MEMEPP__IMPL_INLINE size_type max_size() const noexcept;
 		MEMEPP__IMPL_INLINE size_type capacity() const noexcept;
+
+		MEMEPP__IMPL_INLINE const_iterator begin() const noexcept;
+		MEMEPP__IMPL_INLINE const_iterator cbegin() const noexcept;
+
+		MEMEPP__IMPL_INLINE const_iterator end() const noexcept;
+		MEMEPP__IMPL_INLINE const_iterator cend() const noexcept;
 
 		MEMEPP__IMPL_INLINE void swap(string& _other) noexcept;
 
@@ -151,7 +157,7 @@ namespace memepp {
         MEMEPP__IMPL_INLINE string trim_left_space() const noexcept;
         MEMEPP__IMPL_INLINE string trim_right_space() const noexcept;
 
-        MEMEPP__IMPL_INLINE string left(size_type _count) const noexcept;
+        MEMEPP__IMPL_INLINE string left (size_type _count) const noexcept;
         MEMEPP__IMPL_INLINE string right(size_type _count) const noexcept;
         
 		//! @brief Returns a substring of this string.
@@ -159,6 +165,15 @@ namespace memepp {
 		//! @param _count The number of characters to copy.
 		//! @returns A substring of this string.
         MEMEPP__IMPL_INLINE string substr(size_type _pos = 0, size_type _count = npos) const noexcept;
+
+		template<class _Container>
+		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,
+			std::back_insert_iterator<_Container> _inserter) const;
+
+		//template<template<class, class...> class _Container, typename _Ty, class... _Arg>
+		//inline MemeInteger_t split(
+		//	string_view _key, split_behavior_t _behavior,
+		//	std::back_insert_iterator<_Container<_Ty, _Arg...>> _inserter) const;
 
 		//! \brief Split string with key.
 		//! \param _key The key to split.
@@ -224,110 +239,6 @@ namespace memepp {
 
 	MEMEPP__IMPL_INLINE memepp::string from_hexadecimals(const uint8_t* _buf, size_t _len);
 
-	template<template<class> class _Container>
-	inline MemeInteger_t string::split(
-		string_view _key, split_behavior_t _behavior, 
-		std::back_insert_iterator<_Container<string>> _inserter) const
-	{
-		MemeStringStack_t stacks[4];
-		MemeInteger_t stacksCount = 0;
-		for (MemeInteger_t index = 0; index != -1;)
-		{
-			stacksCount = sizeof(stacks) / sizeof(stacks[0]);
-			auto result = MemeString_split(to_pointer(native_handle()),
-				_key.data(), _key.size(),
-				static_cast<MemeFlag_SplitBehavior_t>(_behavior), MemeFlag_AllSensitive,
-				stacks, &stacksCount, &index);
-			if (result) {
-				return result;
-			}
-			for (auto i = 0; i < stacksCount; ++i)
-			{
-				*_inserter++ = string(std::move(stacks[i]));
-				MemeStringStack_unInit(stacks + i, MEME_STRING__OBJECT_SIZE);
-			}
-		}
-		return 0;
-	}
-
-	template<template<class> class _Container>
-	inline MemeInteger_t string::split(
-		string_view _key, split_behavior_t _behavior,
-		std::back_insert_iterator<_Container<string_view>> _inserter) const
-	{
-		MemeStringStack_t stacks[4];
-		MemeInteger_t stacksCount = 0;
-		for (MemeInteger_t index = 0; index != -1;)
-		{
-			stacksCount = sizeof(stacks) / sizeof(stacks[0]);
-			auto result = MemeStringViewUnsafe_split(to_pointer(native_handle()),
-				_key.data(), _key.size(),
-				static_cast<MemeFlag_SplitBehavior_t>(_behavior), MemeFlag_AllSensitive,
-				stacks, &stacksCount, &index);
-			if (result) {
-				return result;
-			}
-			for (auto i = 0; i < stacksCount; ++i)
-			{
-				*_inserter++ = memepp::string_view(stacks[i]);
-				MemeStringStack_unInit(stacks + i, MEME_STRING__OBJECT_SIZE);
-			}
-		}
-		return 0;
-	}
-
-	template<template<class, class...> class _Container, class... _Arg>
-	inline MemeInteger_t string::split(
-		string_view _key, split_behavior_t _behavior,
-		std::back_insert_iterator<_Container<string, _Arg...>> _inserter) const
-	{
-		MemeStringStack_t stacks[4];
-		MemeInteger_t stacksCount = 0;
-		for (MemeInteger_t index = 0; index != -1;)
-		{
-			stacksCount = sizeof(stacks) / sizeof(stacks[0]);
-			auto result = MemeString_split(to_pointer(native_handle()),
-				_key.data(), _key.size(),
-				static_cast<MemeFlag_SplitBehavior_t>(_behavior), MemeFlag_AllSensitive,
-				stacks, &stacksCount, &index);
-			if (result) {
-				return result;
-			}
-			for (auto i = 0; i < stacksCount; ++i)
-			{
-				*_inserter++ = memepp::string(std::move(stacks[i]));
-				MemeStringStack_unInit(stacks + i, MEME_STRING__OBJECT_SIZE);
-			}
-		}
-		return 0;
-	}
-
-	template<template<class, class...> class _Container, class... _Arg>
-	inline MemeInteger_t string::split(
-		string_view _key, split_behavior_t _behavior,
-		std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const
-	{
-		MemeStringStack_t stacks[4];
-		MemeInteger_t stacksCount = 0;
-		for (MemeInteger_t index = 0; index != -1;)
-		{
-			stacksCount = sizeof(stacks) / sizeof(stacks[0]);
-			auto result = MemeStringViewUnsafe_split(to_pointer(native_handle()),
-				_key.data(), _key.size(),
-				static_cast<MemeFlag_SplitBehavior_t>(_behavior), MemeFlag_AllSensitive,
-				stacks, &stacksCount, &index);
-			if (result) {
-				return result;
-			}
-			for (auto i = 0; i < stacksCount; ++i)
-			{
-				*_inserter++ = memepp::string_view(stacks[i]);
-				MemeStringStack_unInit(stacks + i, MEME_STRING__OBJECT_SIZE);
-			}
-		}
-		return 0;
-	}
-
 	//! \brief Format the string in C style with the specified formatting string
     //! \param _fmt The formatting string
     //! \param _size_limit The formatted string length limit
@@ -348,3 +259,6 @@ namespace memepp {
 
 
 #endif // !MEMEPP_STRING_DEF_HPP_INCLUDED
+
+#include <memepp/string_templateimpl.hpp>
+    

@@ -5,9 +5,9 @@
 #include "common.h"
 
 #include <stdint.h>
+#include <stddef.h>
 
 MEME_EXTERN_C_SCOPE_START
-
 
 typedef void* (MemeString_MallocFunction_t)(size_t);
 typedef void* (MemeString_ReallocFunction_t)(void*, size_t);

@@ -128,7 +128,7 @@ namespace memepp {
 		return static_cast<size_t>(MemeString_byteSize(to_pointer(data_)));
 	}
 
-	MEMEPP__IMPL_INLINE bool memepp::string_view::empty() const noexcept
+	MEMEPP__IMPL_INLINE bool string_view::empty() const noexcept
 	{
 		return MemeString_isNonempty(to_pointer(data_)) == 0;
 	}
@@ -136,6 +136,26 @@ namespace memepp {
     MEMEPP__IMPL_INLINE string_view::const_pointer string_view::bytes() const noexcept
     {
         return MemeString_byteData(to_pointer(data_));
+    }
+
+	MEMEPP__IMPL_INLINE const_iterator string_view::begin() const noexcept
+	{
+		return const_iterator{ bytes() };
+	}
+
+    MEMEPP__IMPL_INLINE const_iterator string_view::end() const noexcept
+    {
+        return const_iterator{ bytes() + size() };
+    }
+
+    MEMEPP__IMPL_INLINE const_iterator string_view::cbegin() const noexcept
+    {
+        return const_iterator{ bytes() };
+    }
+
+    MEMEPP__IMPL_INLINE const_iterator string_view::cend() const noexcept
+    {
+        return const_iterator{ bytes() + size() };
     }
 
 	MEMEPP__IMPL_INLINE string string_view::to_string() const
@@ -330,6 +350,8 @@ namespace memepp {
 	MEMEPP__IMPL_INLINE string_view string_view::substr(size_type _pos, size_type _count) const noexcept
 	{
 		if (_count == npos)
+            _count = size() - _pos;
+		if (_count > size() - _pos)
             _count = size() - _pos;
         return string_view(data() + _pos, _count);
 	}

@@ -5,6 +5,7 @@
 #include <meme/impl/atomic.h>
 #include <meme/impl/string.h>
 #include <meme/impl/string_p__small.h>
+#include <meme/impl/string_memory.h>
 #include <assert.h>
 #include <errno.h>
 
@@ -29,6 +30,8 @@ inline void MemeStringUser_shrinkTailZero(MemeStringUser_t* _s);
 inline MemeInteger_t MemeStringUser_getSharedHeapByteSize (const MemeStringUser_t* _s);
 inline MemeInteger_t MemeStringUser_getPrivateHeapByteSize(const MemeStringUser_t* _s);
 
+inline MemeInteger_t
+MemeStringUser_checkHeadTailMemory(const MemeStringUser_t* _s);
 
 inline int MemeStringUser_initTakeOver(MemeStringUser_t* _s,
 	MemeString_MallocFunction_t* _cfn, MemeString_FreeFunction_t* _dfn,
@@ -55,7 +58,7 @@ inline int MemeStringUser_initTakeOver(MemeStringUser_t* _s,
 
 	refCount = (MemeStringUser_RefCounted_t*)c_func(sizeof(MemeStringUser_RefCounted_t));
 	if (!refCount)
-		return -ENOMEM;
+		return MMENO__POSIX_OFFSET(ENOMEM);
 	MemeStringUser_RefCount_init(refCount);
 	//refCount->malloc_fn_ = c_func;
 	//refCount->free_fn_   = d_func;
@@ -165,5 +168,16 @@ inline MemeInteger_t MemeStringUser_getPrivateHeapByteSize(const MemeStringUser_
     return 0;
 }
 
+inline MemeInteger_t MemeStringUser_checkHeadTailMemory(const MemeStringUser_t* _s)
+{
+#if !(MMOPT__HEADTAIL_MEMCHECK_ENABLED)
+	return 1;
+#else
+	if (!(_s->ref_))
+		return 1;
+
+	return MemeCheck_calibrate(_s->ref_);
+#endif
+}
 
 #endif // !MEME_IMPL_STRING_P_SMALL_H_INCLUDED

@@ -5,6 +5,7 @@
 #include "meme/impl/string.h"
 #include "meme/impl/string_p__small.h"
 #include "meme/impl/atomic.h"
+#include <meme/impl/string_memory.h>
 #include "mego/predef/symbol/likely.h"
 
 #include <assert.h>
@@ -48,6 +49,8 @@ inline uint8_t* MemeStringLarge_RefCount_data(volatile MemeStringLarge_RefCounte
 inline MemeInteger_t MemeStringLarge_getSharedHeapByteSize (const MemeStringLarge_t* _s);
 inline MemeInteger_t MemeStringLarge_getPrivateHeapByteSize(const MemeStringLarge_t* _s);
 
+inline MemeInteger_t
+	MemeStringLarge_checkHeadTailMemory(const MemeStringLarge_t* _s);
 
 inline void MemeStringLarge_RefCount_init(volatile MemeStringLarge_RefCounted_t * _refcount)
 {
@@ -118,14 +121,14 @@ inline int MemeStringLarge_init (
 
 	refCount = (MemeStringLarge_RefCounted_t*)c_func(sizeof(MemeStringLarge_RefCounted_t));
 	if (!refCount)
-		return -ENOMEM;
+		return MMENO__POSIX_OFFSET(ENOMEM);
 	MemeStringLarge_RefCount_init(refCount);
 	//ref->malloc_fn_ = c_func;
 	//ref->free_fn_   = d_func;
 	refCount->real_ = (uint8_t*)c_func(_front_capacity + _capacity);
 	if (!refCount->real_) {
 		d_func(refCount);
-		return -ENOMEM;
+		return MMENO__POSIX_OFFSET(ENOMEM);
 	}
 
 	if (_s->ref_) {
@@ -161,7 +164,7 @@ inline int MemeStringLarge_initByU8bytes(
 
 	size_t total_length = _front_capacity + _capacity + _len;
 
-	assert(_s != NULL);
+	assert(_s   != NULL);
 	assert(_buf != NULL);
 	assert(total_length);
 
@@ -170,7 +173,7 @@ inline int MemeStringLarge_initByU8bytes(
 	memset(_s, 0, sizeof(MemeStringStack_t));
 
 	if (_cfn) {
-		if (MEGO_SYMBOL__UNLIKELY(_dfn == NULL))
+		if ((_dfn == NULL))
 			return -EINVAL;
 		c_func = _cfn;
 		d_func = _dfn;
@@ -192,14 +195,14 @@ inline int MemeStringLarge_initByU8bytes(
 
 	refCount = (MemeStringLarge_RefCounted_t*)c_func(sizeof(MemeStringLarge_RefCounted_t));
 	if (!refCount)
-		return -ENOMEM;
+		return MMENO__POSIX_OFFSET(ENOMEM);
 	MemeStringLarge_RefCount_init(refCount);
 	//ref->malloc_fn_ = c_func;
 	//ref->free_fn_ = d_func;
 	refCount->real_ = (uint8_t*)c_func(total_length);
 	if (!refCount->real_) {
 		d_func(refCount);
-		return -ENOMEM;
+		return MMENO__POSIX_OFFSET(ENOMEM);
 	}
 
 
@@ -211,11 +214,12 @@ inline int MemeStringLarge_initByU8bytes(
 	MemeStringLarge_RefCount_data(refCount)[_len] = '\0';
 
 
-	if (_s->ref_) {
-		d_func(refCount->real_);
-		d_func(refCount);
-		return -EPERM;
-	}
+	//if (_s->ref_) {
+	//	d_func(refCount->real_);
+	//	d_func(refCount);
+	//	return -EPERM;
+	//}
+
 	_s->ref_ = refCount;
 	_s->type_ = MemeString_ImplType_large;
 	_s->offset_ = 0;
@@ -252,7 +256,7 @@ inline int MemeStringLarge_initAndTakeover(
 
 	refCount = (MemeStringLarge_RefCounted_t*)c_func(sizeof(MemeStringLarge_RefCounted_t));
 	if (!refCount)
-		return -ENOMEM;
+		return MMENO__POSIX_OFFSET(ENOMEM);
 	MemeStringLarge_RefCount_init(refCount);
 	refCount->real_ = _real;
 
@@ -303,5 +307,18 @@ inline MemeInteger_t MemeStringLarge_getPrivateHeapByteSize(const MemeStringLarg
 	return 0;
 }
 
+inline MemeInteger_t MemeStringLarge_checkHeadTailMemory(const MemeStringLarge_t* _s)
+{
+#if !(MMOPT__HEADTAIL_MEMCHECK_ENABLED)
+	return 1;
+#else
+	if (!(_s->ref_))
+		return 1;
+    
+	if (MemeCheck_calibrate(_s->ref_) == 0)
+		return 0;
+	return MemeCheck_calibrate(_s->ref_->real_);
+#endif
+}
 
 #endif // !MEME_IMPL_STRING_P_LARGE_H_INCLUDED

@@ -198,7 +198,7 @@ MemeInteger_t MemeImpl_SearchByBoyerMoore(
     __mm_BoyerMoore_makeBadDelta (b_delta, sizeof(b_delta) / sizeof(b_delta[0]), _needle, _needle_len);
     __mm_BoyerMoore_makeGoodDelta(g_delta, _needle, _needle_len);
     
-    if (MEGO_SYMBOL__UNLIKELY(_haystack_len < 0)) 
+    if ((_haystack_len < 0)) 
     {
         const MemeByte_t* index = _haystack;
         for (MemeInteger_t count = 0; count < _needle_len; ++count)
@@ -272,10 +272,10 @@ MemeInteger_t MemeImpl_ReverseSearchByBoyerMoore(
     assert(_needle != NULL    && MemeImpl_ReverseSearchByBoyerMoore);
     assert(_needle_len != 0   && MemeImpl_ReverseSearchByBoyerMoore);
     
-    if (MEGO_SYMBOL__UNLIKELY(_haystack_len < 0))
-        _haystack_len = strlen(_haystack);
+    if ((_haystack_len < 0))
+        _haystack_len = strlen((const char*)_haystack);
     
-    if (MEGO_SYMBOL__UNLIKELY(_haystack_len < _needle_len))
+    if ((_haystack_len < _needle_len))
         return -1;
 
     s_rbegin = _haystack + _haystack_len - 1;
@@ -317,12 +317,12 @@ MemeInteger_t MemeImpl_SearchByBoyerMooreWithSensitivity
 	MemeFlag_CaseSensitivity_t _cs
 )
 {
-    if (MEGO_SYMBOL__UNLIKELY(_haystack == NULL || _needle == NULL))
+    if ((_haystack == NULL || _needle == NULL))
         return -1;
-    if (MEGO_SYMBOL__UNLIKELY(_haystack_len == 0 || _needle_len == 0))
+    if ((_haystack_len == 0 || _needle_len == 0))
         return -1;
     if (_needle_len < 0)
-        _needle_len = strlen(_needle);
+        _needle_len = strlen((const char*)_needle);
     
     if (_needle_len == 1) {
         return MemeImpl_SearchByViolenceWithSensitivity(_haystack, _haystack_len, *_needle, _cs);
@@ -338,12 +338,12 @@ MemeInteger_t MemeImpl_ReverseSearchByBoyerMooreWithSensitivity(
     const uint8_t* _haystack, MemeInteger_t _haystack_len, 
     const uint8_t* _needle, MemeInteger_t _needle_len, MemeFlag_CaseSensitivity_t _cs)
 {
-    if (MEGO_SYMBOL__UNLIKELY(_haystack == NULL || _needle == NULL))
+    if ((_haystack == NULL || _needle == NULL))
         return -1;
-    if (MEGO_SYMBOL__UNLIKELY(_haystack_len == 0 || _needle_len == 0))
+    if ((_haystack_len == 0 || _needle_len == 0))
         return -1;
     if (_needle_len < 0)
-        _needle_len = strlen(_needle);
+        _needle_len = strlen((const char*)_needle);
 
     if (_needle_len == 1) {
         return MemeImpl_ReverseSearchByViolenceWithSensitivity(_haystack, _haystack_len, *_needle, _cs);
@@ -363,7 +363,7 @@ MemeInteger_t MemeImpl_SearchByViolenceWithSensitivity(
         const uint8_t* index = _source;
         if ((_cs & MemeFlag_CaseSensitive) == 0)
         {
-            uint8_t key = tolower(_key);
+            uint8_t key = (uint8_t)tolower(_key);
             for (; *index == '\0'; ++index)
                 if (tolower(*index) == key)
                     return index - _source;
@@ -377,7 +377,7 @@ MemeInteger_t MemeImpl_SearchByViolenceWithSensitivity(
     else {
         if ((_cs & MemeFlag_CaseSensitive) == 0)
         {
-            uint8_t key = tolower(_key);
+            uint8_t key = (uint8_t)tolower(_key);
             for (MemeInteger_t index = 0; index < _source_len; ++index)
                 if (tolower(_source[index]) == key)
                     return index;
@@ -394,12 +394,12 @@ MemeInteger_t MemeImpl_SearchByViolenceWithSensitivity(
 MemeInteger_t MemeImpl_ReverseSearchByViolenceWithSensitivity(
     const uint8_t* _source, MemeInteger_t _source_len, uint8_t _key, MemeFlag_CaseSensitivity_t _cs)
 {
-    if (MEGO_SYMBOL__UNLIKELY(_source_len < 0))
-        _source_len = strlen(_source);
+    if ((_source_len < 0))
+        _source_len = strlen((const char*)_source);
 
     if ((_cs & MemeFlag_CaseSensitive) == 0)
     {
-        uint8_t key = tolower(_key);
+        uint8_t key = (uint8_t)tolower(_key);
         for (MemeInteger_t index = _source_len - 1; index >= 0; --index)
             if (tolower(_source[index]) == key)
                 return index;

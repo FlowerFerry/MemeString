@@ -98,6 +98,26 @@ namespace memepp {
 		return MemeBuffer_isNonempty(to_pointer(data_)) == 0;
 	}
 
+	MEMEPP__IMPL_INLINE const_iterator buffer::begin() const MEGOPP__NOEXCEPT
+	{
+        return const_iterator(data());
+	}
+	
+	MEMEPP__IMPL_INLINE const_iterator buffer::cbegin() const MEGOPP__NOEXCEPT
+	{
+        return const_iterator(data());
+	}
+
+    MEMEPP__IMPL_INLINE const_iterator buffer::end() const MEGOPP__NOEXCEPT
+    {
+        return const_iterator(data() + size());
+    }
+
+    MEMEPP__IMPL_INLINE const_iterator buffer::cend() const MEGOPP__NOEXCEPT
+    {
+        return const_iterator(data() + size());
+    }
+
 	MEMEPP__IMPL_INLINE void buffer::swap(buffer& _other) MEGOPP__NOEXCEPT
 	{
 		MemeBuffer_swap(to_pointer(data_), to_pointer(_other.data_));

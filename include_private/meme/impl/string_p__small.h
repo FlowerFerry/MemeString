@@ -48,6 +48,9 @@ inline int
 MemeStringSmall_appendWithBytes(MemeStringSmall_t* _s, const MemeByte_t* _buf, MemeInteger_t _buflen);
 
 inline int
+MemeStringSmall_insertWithBytes(MemeStringSmall_t* _s, MemeInteger_t _pos, const MemeByte_t* _buf, MemeInteger_t _buflen);
+
+inline int
 MemeStringSmall_canBeAppendIt(const MemeStringSmall_t* _s, MemeInteger_t _buflen);
 
 inline void
@@ -126,7 +129,7 @@ inline int MemeStringSmall_canBeAppendIt(const MemeStringSmall_t* _s, MemeIntege
 {
 	assert(_s);
 	if (MemeStringSmall_byteCapacity(_s) < _buflen)
-		return MEME_ENO__POSIX_OFFSET(E2BIG);
+		return MMENO__POSIX_OFFSET(E2BIG);
 
 	return 0;
 }
@@ -164,8 +167,8 @@ inline int MemeStringSmall_appendWithByte(MemeStringSmall_t* _s, MemeInteger_t _
 {
 	MemeByte_t* pointer = NULL;
 
-	if (_count <= 0)
-		return 0;
+	//if (_count <= 0)
+	//	return 0;
 
 	pointer = _s->buffer_ + MemeStringSmall_byteSize(_s);
 	MemeStringSmall_byteSizeOffsetAndSetZero(_s, _count);
@@ -181,14 +184,37 @@ inline int MemeStringSmall_appendWithBytes(MemeStringSmall_t* _s, const MemeByte
 	assert(_buf);
 
 	//_buflen = MemeMath_Min(_s->capacity_, _buflen);
-	if (_buflen <= 0)
-		return 0;
+	//if (_buflen <= 0)
+	//	return 0;
 
 	memcpy(_s->buffer_ + MemeStringSmall_byteSize(_s), _buf, _buflen);
 	_s->capacity_ -= (uint8_t)_buflen;
 	_s->buffer_[MemeStringSmall_byteSize(_s)] = 0;
 
 	return 0;
+}
+
+inline int MemeStringSmall_insertWithBytes(
+	MemeStringSmall_t* _s, MemeInteger_t _pos, const MemeByte_t* _buf, MemeInteger_t _buflen)
+{
+    assert(_s);
+    assert(_buf);
+
+    //if (_pos < 0 || _pos > MemeStringSmall_byteSize(_s))
+    //    return MMENO__POSIX_OFFSET(EINVAL);
+
+    //if (_buflen <= 0)
+    //    return 0;
+
+    //if (_buflen > MemeStringSmall_byteCapacity(_s))
+    //    return MMENO__POSIX_OFFSET(E2BIG);
+
+    memmove(_s->buffer_ + _pos + _buflen, _s->buffer_ + _pos, MemeStringSmall_byteSize(_s) - _pos);
+    memcpy (_s->buffer_ + _pos, _buf, _buflen);
+    _s->capacity_ -= (uint8_t)_buflen;
+    _s->buffer_[MemeStringSmall_byteSize(_s)] = 0;
+
+    return 0;
 }
 
 #endif // !MEME_IMPL_STRING_P_SMALL_H_INCLUDED

@@ -109,6 +109,14 @@ MEME_STDCALL MemeVariableBuffer_appendWithRepeatBytes(
 	MemeVariableBuffer_t _s, MemeInteger_t _count, MemeByte_t _byte);
 
 MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_insertWithByte(
+    MemeVariableBuffer_t _s, MemeInteger_t _pos, MemeByte_t _byte);
+
+MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_insertWithBytes(
+    MemeVariableBuffer_t _s, MemeInteger_t _pos, const MemeByte_t* _buf, MemeInteger_t _len);
+
+MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_clear(MemeVariableBuffer_t _s);
 
 MEME_API MemeInteger_t

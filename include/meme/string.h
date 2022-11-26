@@ -15,9 +15,9 @@
 MEME_EXTERN_C_SCOPE_START
 
 MEME_API int
-	MEME_STDCALL MemeStringOption_setStorageMediumLimit(size_t _value);
+	MEME_STDCALL MemeStringOption_setStorageMediumLimit(MemeInteger_t _value);
 
-MEME_API size_t
+MEME_API MemeInteger_t
 	MEME_STDCALL MemeStringOption_getStorageMediumLimit();
 
 
@@ -342,6 +342,9 @@ MEME_API MemeInteger_t
 
 MEME_API MemeInteger_t
 	MEME_STDCALL MemeString_getPrivateHeapByteSize(MemeString_Const_t _s);
+
+MEME_API MemeInteger_t
+	MEME_STDCALL MemeString_checkHeadTailMemory(MemeString_Const_t _s);
 
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_STRING_H_INCLUDED

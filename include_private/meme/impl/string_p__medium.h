@@ -5,6 +5,8 @@
 #include <meme/impl/string.h>
 #include <meme/impl/string_p__small.h>
 #include <meme/string_memory.h>
+#include <meme/impl/string_memory.h>
+#include <mego/predef/symbol/likely.h>
 #include <errno.h>
 
 inline int 
@@ -45,6 +47,10 @@ inline int
 MemeStringMedium_appendWithBytes(
 	MemeStringMedium_t* _s, const MemeByte_t* _buf, MemeInteger_t _buflen);
 
+inline int 
+MemeStringMedium_insertWithBytes(
+    MemeStringMedium_t* _s, MemeInteger_t _pos, const MemeByte_t* _buf, MemeInteger_t _buflen);
+
 inline int
 MemeStringMedium_initWithCapacity(
 	MemeStringMedium_t* _s, MemeInteger_t _capacity);
@@ -71,7 +77,8 @@ MemeStringMedium_reset(MemeStringMedium_t* _s);
 inline void 
 MemeStringMedium_shrinkTailZero(MemeStringMedium_t* _s);
 
-
+inline MemeInteger_t
+MemeStringMedium_checkHeadTailMemory(const MemeStringMedium_t* _s);
 
 
 
@@ -82,7 +89,7 @@ MemeStringMedium_canBeAppendIt(const MemeStringMedium_t* _s, MemeInteger_t _bufl
 	assert(_s);
 
 	if (MemeStringMedium_availableByteCapacity(_s) < _buflen)
-		return MEME_ENO__POSIX_OFFSET(E2BIG);
+		return MMENO__POSIX_OFFSET(E2BIG);
 
 	return 0;
 }
@@ -141,7 +148,7 @@ inline int MemeStringMedium_appendWithByte(MemeStringMedium_t* _s, MemeInteger_t
 	MemeByte_t* pointer = NULL;
 	if (MemeStringMedium_availableByteCapacity(_s) < _count)
 	{
-		int result = MemeStringImpl_capacityExpansionWithModifiable_v02(
+		int result = MemeStringImpl_capacityExpansionWithModifiable(
 			(MemeStringStack_t*)_s, _s->size_ + _count);
 		if (result)
 			return result;
@@ -162,7 +169,7 @@ MemeStringMedium_appendWithBytes(
 {
 	if (MemeStringMedium_availableByteCapacity(_s) < _buflen)
 	{
-		int result = MemeStringImpl_capacityExpansionWithModifiable_v02(
+		int result = MemeStringImpl_capacityExpansionWithModifiable(
 			(MemeStringStack_t*)_s, _s->size_ + _buflen);
 		if (result)
 			return result;
@@ -171,6 +178,34 @@ MemeStringMedium_appendWithBytes(
 	memcpy(MemeStringMedium_iteratorEnd(_s), _buf, _buflen);
 	MemeStringMedium_byteSizeOffsetAndSetZero(_s, _buflen);
 	return 0;
+}
+
+inline int 
+MemeStringMedium_insertWithBytes(
+	MemeStringMedium_t* _s, MemeInteger_t _pos, const MemeByte_t* _buf, MemeInteger_t _buflen)
+{
+	if (_pos + _buflen <= (MemeInteger_t)_s->front_capacity_)
+	{
+		if (_pos != 0)
+			memmove(MemeStringMedium_data(_s) - _buflen, MemeStringMedium_data(_s), _buflen);
+        memcpy(MemeStringMedium_data(_s) + _pos - _buflen, _buf, _buflen);
+		_s->front_capacity_ -= _buflen;
+        _s->size_ += _buflen;
+		return 0;
+    }
+    
+    if (MemeStringMedium_availableByteCapacity(_s) < _buflen)
+    {
+        int result = MemeStringImpl_capacityExpansionWithModifiable(
+            (MemeStringStack_t*)_s, _s->size_ + _buflen);
+        if ((result != 0))
+            return result;
+    }
+    
+	memmove(MemeStringMedium_data(_s) + _pos + _buflen, MemeStringMedium_data(_s) + _pos, _s->size_ - _pos);
+    memcpy (MemeStringMedium_data(_s) + _pos, _buf, _buflen);
+    MemeStringMedium_byteSizeOffsetAndSetZero(_s, _buflen);
+    return 0;
 }
 
 inline int
@@ -191,7 +226,7 @@ MemeStringMedium_initWithCapacity(
 
 	_s->real_ = c_func(front_capacity + _capacity);
 	if (!(_s->real_))
-		return MEME_ENO__POSIX_OFFSET(ENOMEM);
+		return MMENO__POSIX_OFFSET(ENOMEM);
 
 	_s->size_ = 0;
 	_s->type_ = MemeString_StorageType_medium;
@@ -207,7 +242,7 @@ MemeStringMedium_assign(MemeStringMedium_t* _s, const MemeByte_t* _buf, MemeInte
 {
 	if (MemeStringMedium_maxByteCapacity(_s) < _len)
 	{
-		int result = MemeStringImpl_capacityExpansionWithModifiable_v02(
+		int result = MemeStringImpl_capacityExpansionWithModifiable(
 			(MemeStringStack_t*)_s, _len);
 		if (result)
 			return result;
@@ -238,7 +273,7 @@ inline int MemeStringMedium_resizeWithByte(MemeStringMedium_t* _s, MemeInteger_t
 	else {
 		if (MemeStringMedium_maxByteCapacity(_s) < _size)
 		{
-			int result = MemeStringImpl_capacityExpansionWithModifiable_v02((MemeStringStack_t*)_s, _size);
+			int result = MemeStringImpl_capacityExpansionWithModifiable((MemeStringStack_t*)_s, _size);
 			if (result)
 				return result;
 		}
@@ -250,12 +285,11 @@ inline int MemeStringMedium_resizeWithByte(MemeStringMedium_t* _s, MemeInteger_t
 
 inline int MemeStringMedium_capacityExpansion(MemeStringMedium_t* _s, MemeInteger_t _minSizeRequest)
 {
-	//int result = 0;
 	MemeInteger_t dstlen = 0;
 	MemeString_ReallocFunction_t* realloc_func = MemeString_getReallocFunction();
 	MemeByte_t* new_pointer = NULL;
 
-	dstlen = (MemeInteger_t)(MemeString_maxByteCapacity((MemeString_Const_t)_s) * 1.667);
+	dstlen = (MemeInteger_t)(MemeStringMedium_maxByteCapacity(_s) * 1.667);
 	if (dstlen < _minSizeRequest) {
 		dstlen = (MemeInteger_t)(_minSizeRequest * 1.667);
 	}
@@ -265,7 +299,7 @@ inline int MemeStringMedium_capacityExpansion(MemeStringMedium_t* _s, MemeIntege
 
 	new_pointer = realloc_func(_s->real_, dstlen);
 	if (new_pointer == NULL)
-		return MEME_ENO__POSIX_OFFSET(ENOMEM);
+		return MMENO__POSIX_OFFSET(ENOMEM);
 
 	_s->real_ = new_pointer;
 	_s->capacity_ = dstlen - _s->front_capacity_ - _s->size_;
@@ -305,6 +339,15 @@ inline void MemeStringMedium_shrinkTailZero(MemeStringMedium_t* _s)
 	while (MemeStringMedium_constData(_s)[_s->size_] == 0 && _s->size_ > 0
 		&& MemeStringMedium_constData(_s)[_s->size_ - 1] == 0)
 		MemeStringMedium_byteSizeOffset(_s, -1);
+}
+
+inline MemeInteger_t MemeStringMedium_checkHeadTailMemory(const MemeStringMedium_t* _s)
+{
+#if !(MMOPT__HEADTAIL_MEMCHECK_ENABLED)
+	return 1;
+#else
+	return MemeCheck_calibrate(_s->real_);
+#endif
 }
 
 #endif // !MEME_IMPL_STRING_P_MEDIUM_H_INCLUDED

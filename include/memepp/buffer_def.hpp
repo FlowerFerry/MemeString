@@ -8,6 +8,8 @@
 
 #include "megopp/predef/keyword/noexcept.h"
 
+#include <memepp/iterator.hpp>
+
 namespace memepp {
 
 	class buffer final
@@ -53,6 +55,12 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE bool empty() const MEGOPP__NOEXCEPT;
 		MEMEPP__IMPL_INLINE size_type max_size() const MEGOPP__NOEXCEPT;
 		MEMEPP__IMPL_INLINE size_type capacity() const MEGOPP__NOEXCEPT;
+
+        MEMEPP__IMPL_INLINE const_iterator begin() const MEGOPP__NOEXCEPT;
+        MEMEPP__IMPL_INLINE const_iterator cbegin() const MEGOPP__NOEXCEPT;
+        
+        MEMEPP__IMPL_INLINE const_iterator end() const MEGOPP__NOEXCEPT;
+        MEMEPP__IMPL_INLINE const_iterator cend() const MEGOPP__NOEXCEPT;
 
 		MEMEPP__IMPL_INLINE void swap(buffer& _other) MEGOPP__NOEXCEPT;
 		MEMEPP__IMPL_INLINE string to_string(size_type _front_offset = 0) const;

@@ -29,9 +29,10 @@ namespace memepp {
 		if (_v.empty())
 			return {};
 
-		if (_v.capacity() != 0) {
-			if (_v.back() != 0)
-				_v.push_back(0);
+		if (static_cast<MemeInteger_t>(_v.size()) < MemeStringOption_getStorageMediumLimit())
+		{
+			//if (_v.back() != 0)
+			_v.push_back(0);
 
 			memepp::string out;
 			auto obj = new std::vector<uint8_t>(std::move(_v));

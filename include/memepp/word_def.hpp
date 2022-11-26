@@ -5,6 +5,8 @@
 #include "meme/word.h"
 #include "memepp/string_fwd.hpp"
 
+#include <memepp/iterator.hpp>
+
 namespace memepp {
 
 	class word
@@ -22,6 +24,7 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE word();
 		MEMEPP__IMPL_INLINE word(char _ch);
 
+		MEMEPP__IMPL_INLINE pointer data() noexcept;
 		MEMEPP__IMPL_INLINE const_pointer data() const noexcept;
 		MEMEPP__IMPL_INLINE size_type size() const noexcept;
 		MEMEPP__IMPL_INLINE size_t	length() const noexcept;
@@ -29,6 +32,13 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE bool empty() const noexcept;
 		MEMEPP__IMPL_INLINE bool valid() const noexcept;
         
+        MEMEPP__IMPL_INLINE iterator begin() noexcept;
+        MEMEPP__IMPL_INLINE const_iterator begin() const noexcept;
+        MEMEPP__IMPL_INLINE const_iterator cbegin() const noexcept;
+        MEMEPP__IMPL_INLINE iterator end() noexcept;
+        MEMEPP__IMPL_INLINE const_iterator end() const noexcept;
+        MEMEPP__IMPL_INLINE const_iterator cend() const noexcept;
+
 		MEMEPP__IMPL_INLINE bool is_multi() const noexcept;
 		inline bool is_english_char() const noexcept { return !is_multi(); }
 

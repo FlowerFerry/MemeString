@@ -16,7 +16,7 @@ MemeWord_getInitObject()
 {
     MemeWord_t w;
     memset(&w, 0, sizeof(w));
-    w.capacity = 7;
+    w.attr.capacity = 7;
     return w;
 }
 
@@ -34,7 +34,7 @@ MemeWord_initByByte(MemeWord_t* _out, char _ch)
 {
     assert(_out != NULL);
 
-    _out->capacity = 6;
+    _out->attr.capacity = 6;
     _out->byte[0] = _ch;
     _out->byte[1] = '\0';
     return 0;
@@ -49,7 +49,7 @@ MemeWord_reset(MemeWord_t* _out)
     assert(_out != NULL);
 
     memset(_out, 0, sizeof(*_out));
-    _out->capacity = 7;
+    _out->attr.capacity = 7;
     return 0;
 }
 
@@ -78,7 +78,7 @@ MemeWord_isEmpty(const MemeWord_t* _s)
 {
     assert(_s != NULL);
 
-    return _s->capacity == 7;
+    return _s->attr.capacity == 7;
 }
 
 static inline const MemeByte_t*
@@ -98,7 +98,7 @@ MemeWord_size(const MemeWord_t* _s)
 {
     assert(_s != NULL);
 
-    return 7 - _s->capacity;
+    return 7 - _s->attr.capacity;
 }
 
 static inline int
@@ -106,7 +106,7 @@ MemeWord_isValid(const MemeWord_t* _s)
 {
     assert(_s != NULL);
 
-    return _s->invalid == 0;
+    return _s->attr.invalid == 0;
 }
 
 static inline int
@@ -114,10 +114,10 @@ MemeWord_resize(MemeWord_t* _s, uint8_t _count)
 {
     assert(_s != NULL);
 
-    if (MEGO_SYMBOL__UNLIKELY(_count > 7))
-        return MEME_ENO__POSIX_OFFSET(EINVAL);
+    if ((_count > 7))
+        return MMENO__POSIX_OFFSET(EINVAL);
 
-    _s->capacity = 7 - _count;
+    _s->attr.capacity = 7 - _count;
     _s->byte[MemeWord_size(_s)] = '\0';
     return 0;
 }
@@ -135,10 +135,10 @@ MemeWord_initByUtf8Bytes(MemeWord_t* _out, const MemeByte_t* _buf, MemeInteger_t
 {
     assert(_out != NULL && _buf != NULL);
 
-    if (MEGO_SYMBOL__UNLIKELY(_len < 0 || _len > 7))
-        return MEME_ENO__POSIX_OFFSET(EINVAL);
+    if ((_len < 0 || _len > 7))
+        return MMENO__POSIX_OFFSET(EINVAL);
 
-    _out->capacity = 7 - _len;
+    _out->attr.capacity = 7 - _len;
     memcpy(_out->byte, _buf, _len);
     _out->byte[MemeWord_size(_out)] = '\0';
     return 0;

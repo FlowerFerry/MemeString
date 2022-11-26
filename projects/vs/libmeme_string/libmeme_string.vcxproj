@@ -72,6 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>../../../include;../../../include_private;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -86,11 +87,11 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;LIBMEMESTRING_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;LIBMEMESTRING_EXPORTS;_WINDOWS;_USRDLL;MEME_OPTION__BUILD_SHARED;MMOPT__HEADTAIL_MEMCHECK_ENABLED=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -101,10 +102,10 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;LIBMEMESTRING_EXPORTS;_WINDOWS;_USRDLL;MEME_OPTION__BUILD_SHARED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;LIBMEMESTRING_EXPORTS;_WINDOWS;_USRDLL;MEME_OPTION__BUILD_SHARED;MMOPT__HEADTAIL_MEMCHECK_ENABLED=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -159,25 +160,30 @@
     <ClInclude Include="..\..\..\include\memepp\convert\fmt.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\qt\string.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\rapidjson.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\convert\redis++.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\self.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\std\vector.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\std\string.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\uvw.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\errc.hpp" />
     <ClInclude Include="..\..\..\include\memepp\hash\std_hash.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\iterator_basic.hpp" />
     <ClInclude Include="..\..\..\include\memepp\predef\macro_option.hpp" />
     <ClInclude Include="..\..\..\include\memepp\split\self.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string_def.hpp" />
-    <ClInclude Include="..\..\..\include\memepp\string_editor.hpp" />
-    <ClInclude Include="..\..\..\include\memepp\string_editor_def.hpp" />
-    <ClInclude Include="..\..\..\include\memepp\string_editor_fwd.hpp" />
-    <ClInclude Include="..\..\..\include\memepp\string_editor_impl.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\string_builder.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\string_builder_def.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\string_builder_fwd.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\string_builder_impl.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string_fwd.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string_impl.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\string_templateimpl.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string_view.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string_view_def.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string_view_fwd.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string_view_impl.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\string_view_templateimpl.hpp" />
     <ClInclude Include="..\..\..\include\memepp\variable_buffer.hpp" />
     <ClInclude Include="..\..\..\include\memepp\variable_buffer_def.hpp" />
     <ClInclude Include="..\..\..\include\memepp\variable_buffer_fwd.hpp" />
@@ -214,6 +220,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\meme_buffer.c" />
+    <ClCompile Include="..\..\..\src\meme_memory.c" />
     <ClCompile Include="..\..\..\src\meme_string_builder.c" />
     <ClCompile Include="..\..\..\src\meme_variable_buffer.c" />
     <ClCompile Include="..\..\..\src\meme_atomic__basics.c" />

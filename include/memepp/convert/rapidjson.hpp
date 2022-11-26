@@ -4,6 +4,7 @@
 
 #include "rapidjson/document.h"
 #include "rapidjson/stringbuffer.h"
+#include "rapidjson/pointer.h"
 
 #include "memepp/convert/common_def.hpp"
 #include "memepp/string.hpp"
@@ -27,6 +28,16 @@ namespace memepp {
 		else
 			return {};
 	}
+
+    inline string from(const rapidjson::Value& _value, const memepp::string_view& _path, const memepp::string_view& _default)
+    {
+        rapidjson::Pointer p(_path.data(), _path.length());
+		auto value = p.Get(_value);
+        if (value && value->IsString())
+            return memepp::string{ value->GetString(), static_cast<MemeInteger_t>(value->GetStringLength()) };
+        else
+            return _default.to_string();
+    }
 
 	inline memepp::string from(rapidjson::StringBuffer&& _buf)
 	{

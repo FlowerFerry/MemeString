@@ -34,10 +34,10 @@ MEME_STDCALL MemeVariableBufferStack_initByOther(
 	case MemeString_StorageType_medium: {
 		MemeStringStack_init((MemeStringStack_t*)_out, MEME_STRING__OBJECT_SIZE);
 		return (int)MemeVariableBuffer_appendWithBytes((MemeVariableBuffer_t)_out,
-			MemeString_cStr((MemeString_t)_other), MemeString_byteSize((MemeString_t)_other));
+			MemeString_byteData((MemeString_t)_other), MemeString_byteSize((MemeString_t)_other));
 	};
 	default: {
-		return MEME_ENO__POSIX_OFFSET(ENOTSUP);
+		return MMENO__POSIX_OFFSET(ENOTSUP);
 	};
 	}
 
@@ -138,7 +138,7 @@ MEME_API int
 MEME_STDCALL MemeVariableBuffer_isEqual(
 	MemeVariableBuffer_Const_t _s, const MemeByte_t* _buf, MemeInteger_t _len, int* _result)
 {
-	return MemeString_isEqual((MemeString_Const_t)_s, _buf, _len, _result);
+	return MemeString_isEqual((MemeString_Const_t)_s, (const char*)_buf, _len, _result);
 }
 
 MEME_API int
@@ -247,7 +247,7 @@ MEME_STDCALL MemeVariableBuffer_appendWithBytes(
 			return MemeStringSmall_appendWithBytes((MemeStringSmall_t*)s, _buf, _len);
 		}
 		else {
-			int result = MemeStringImpl_capacityExpansionWithModifiable(
+			int result = MemeStringImpl_capacityExpansionSmallToMedium(
 				(MemeStringStack_t*)s, MemeString_byteSize(s) + _len);
 			if (result)
 				return result;
@@ -259,11 +259,11 @@ MEME_STDCALL MemeVariableBuffer_appendWithBytes(
 		return MemeStringMedium_appendWithBytes((MemeStringMedium_t*)s, _buf, _len);
 	};
 	default: {
-		return MEME_ENO__POSIX_OFFSET(ENOTSUP);
+		return MMENO__POSIX_OFFSET(ENOTSUP);
 	} break;
 	}
 
-	return 0;
+	//return 0;
 }
 
 MEME_API MemeInteger_t 
@@ -287,7 +287,7 @@ MEME_STDCALL MemeVariableBuffer_appendWithRepeatBytes(
 			return MemeStringSmall_appendWithByte((MemeStringSmall_t*)s, _count, _byte);
 		}
 		else {
-			int result = MemeStringImpl_capacityExpansionWithModifiable(
+			int result = MemeStringImpl_capacityExpansionSmallToMedium(
 				(MemeStringStack_t*)s, MemeString_byteSize(s) + _count);
 			if (result)
 				return result;
@@ -299,11 +299,11 @@ MEME_STDCALL MemeVariableBuffer_appendWithRepeatBytes(
 		return MemeStringMedium_appendWithByte((MemeStringMedium_t*)s, _count, _byte);
 	};
 	default: {
-		return MEME_ENO__POSIX_OFFSET(ENOTSUP);
+		return MMENO__POSIX_OFFSET(ENOTSUP);
 	} break;
 	}
 
-	return 0;
+	//return 0;
 }
 
 MEME_API MemeInteger_t 
@@ -329,7 +329,7 @@ MEME_STDCALL MemeVariableBuffer_appendWithOther(
 				(MemeStringSmall_t*)s, MemeVariableBuffer_data(_other), MemeVariableBuffer_size(_other));
 		}
 		else {
-			int result = MemeStringImpl_capacityExpansionWithModifiable(
+			int result = MemeStringImpl_capacityExpansionSmallToMedium(
 				(MemeStringStack_t*)s, MemeString_byteSize(s) + MemeVariableBuffer_size(_other));
 			if (result)
 				return result;
@@ -342,7 +342,7 @@ MEME_STDCALL MemeVariableBuffer_appendWithOther(
 		//if (0 != MemeStringMedium_canBeAppendIt(
 		//	(const MemeStringMedium_t*)s, MemeVariableBuffer_size(_other)))
 		//{
-		//	result = MemeStringImpl_capacityExpansionWithModifiable_v02(
+		//	result = MemeStringImpl_capacityExpansionWithModifiable(
 		//		(MemeStringStack_t*)s, MemeString_byteSize(s) + MemeVariableBuffer_size(_other));
 		//	if (result)
 		//		return result;
@@ -351,11 +351,57 @@ MEME_STDCALL MemeVariableBuffer_appendWithOther(
 			(MemeStringMedium_t*)s, MemeVariableBuffer_data(_other), MemeVariableBuffer_size(_other));
 	} break;
 	default: {
-		return MEME_ENO__POSIX_OFFSET(ENOTSUP);
+		return MMENO__POSIX_OFFSET(ENOTSUP);
 	} break;
 	}
 
-	return 0;
+	//return 0;
+}
+
+MEME_API MemeInteger_t 
+MEME_STDCALL MemeVariableBuffer_insertWithBytes(
+	MemeVariableBuffer_t _s, MemeInteger_t _pos, const MemeByte_t* _buf, MemeInteger_t _len)
+{
+    MemeString_Const_t s = (MemeString_Const_t)_s;
+
+    assert(s != 0 && MemeVariableBuffer_insertWithBytes);
+    assert(MemeStringImpl_isModifiableType(MEME_STRING__GET_TYPE(s)) == 1
+        && MemeVariableBuffer_insertWithBytes);
+
+	if ((_len < 0))
+		_len = strlen((const char*)_buf);
+	if ((_buf == NULL || _len == 0))
+		return MMENO__POSIX_OFFSET(EINVAL);
+    //if (_pos < 0 || _pos > MemeVariableBuffer_size(s))
+	if ((_pos & (MemeString_byteSize(s) - _pos)) & INTPTR_MIN)
+		return MMENO__POSIX_OFFSET(EINVAL);
+	
+    switch (MEME_STRING__GET_TYPE(s))
+    {
+    case MemeString_StorageType_small:
+    {
+        if (0 == MemeStringSmall_canBeAppendIt((const MemeStringSmall_t*)s, _len))
+        {
+            return MemeStringSmall_insertWithBytes((MemeStringSmall_t*)s, _pos, _buf, _len);
+        }
+        else {
+            int result = MemeStringImpl_capacityExpansionSmallToMedium(
+                (MemeStringStack_t*)s, MemeString_byteSize(s) + _len);
+            if ((result != 0))
+                return result;
+            return MemeStringMedium_insertWithBytes((MemeStringMedium_t*)s, _pos, _buf, _len);
+        }
+    } break;
+    case MemeString_StorageType_medium:
+    {
+        return MemeStringMedium_insertWithBytes((MemeStringMedium_t*)s, _pos, _buf, _len);
+    };
+    default: {
+        return MMENO__POSIX_OFFSET(ENOTSUP);
+    } break;
+    }
+
+    //return 0;
 }
 
 MEME_API MemeInteger_t 
@@ -376,7 +422,7 @@ MEME_STDCALL MemeVariableBuffer_clear(MemeVariableBuffer_t _s)
 		MemeStringMedium_clear(&(s->medium_));
 	} break;
 	default: {
-		return MEME_ENO__POSIX_OFFSET(ENOTSUP);
+		return MMENO__POSIX_OFFSET(ENOTSUP);
 	} break;
 	}
 
@@ -406,7 +452,7 @@ MEME_STDCALL MemeVariableBuffer_resizeWithByte(MemeVariableBuffer_t _s, MemeInte
 			return MemeStringSmall_resizeWithByte((MemeStringSmall_t*)_s, _size, _byte);
 		}
 		else {
-			int result = MemeStringImpl_capacityExpansionWithModifiable((MemeStringStack_t*)s, _size);
+			int result = MemeStringImpl_capacityExpansionSmallToMedium((MemeStringStack_t*)s, _size);
 			if (result)
 				return result;
 			return MemeStringMedium_resizeWithByte((MemeStringMedium_t*)_s, _size, _byte);
@@ -417,11 +463,11 @@ MEME_STDCALL MemeVariableBuffer_resizeWithByte(MemeVariableBuffer_t _s, MemeInte
 		return MemeStringMedium_resizeWithByte((MemeStringMedium_t*)_s, _size, _byte);
 	} break;
 	default: {
-		return MEME_ENO__POSIX_OFFSET(ENOTSUP);
+		return MMENO__POSIX_OFFSET(ENOTSUP);
 	} break;
 	}
 
-	return 0;
+	//return 0;
 }
 
 MEME_API MemeInteger_t 
@@ -461,7 +507,7 @@ MEME_STDCALL MemeVariableBuffer_releaseToBuffer(
 	} break;
 	default:
 	{
-		return MEME_ENO__POSIX_OFFSET(ENOTSUP);
+		return MMENO__POSIX_OFFSET(ENOTSUP);
 	} break;
 	}
 }
@@ -502,10 +548,10 @@ MEME_STDCALL MemeVariableBuffer_releaseToString(
 	} break;
 	default:
 	{
-		return MEME_ENO__POSIX_OFFSET(ENOTSUP);
+		return MMENO__POSIX_OFFSET(ENOTSUP);
 	} break;
 	}
-	return 0;
+	//return 0;
 }
 
 MEME_API MemeInteger_t
@@ -516,7 +562,7 @@ MEME_STDCALL MemeVariableBuffer_split(
 )
 {
 	return MemeString_split(
-		(MemeString_Const_t)_s, _key, _key_len, _sb, MemeFlag_CaseSensitive,
+		(MemeString_Const_t)_s, (const char*)_key, _key_len, _sb, MemeFlag_CaseSensitive,
 		(MemeStringStack_t*)_out, _out_count, _search_index);
 }
 
@@ -527,7 +573,7 @@ MEME_STDCALL MemeVariableBuffer_reserve(MemeVariableBuffer_t _s, MemeInteger_t _
 	assert(_size >= 0 && MemeVariableBuffer_reserve);
 	assert(MemeStringImpl_isModifiableType(MEME_STRING__GET_TYPE((MemeString_t)_s)) == 1);
 
-	return MemeStringImpl_capacityExpansionWithModifiable_v02((MemeStringStack_t*)_s, _size);
+	return MemeStringImpl_capacityExpansionWithModifiable((MemeStringStack_t*)_s, _size);
 }
 
 MEME_API MemeInteger_t MEME_STDCALL MemeVariableBuffer_selfChop(MemeVariableBuffer_t _s, MemeInteger_t _n)
@@ -554,7 +600,7 @@ MEME_API MemeInteger_t MEME_STDCALL MemeVariableBuffer_selfChop(MemeVariableBuff
 		MemeStringMedium_byteSizeOffsetAndSetZero(&(((MemeString_t)_s)->medium_), _n);
 	} break;
 	default: {
-		return MEME_ENO__POSIX_OFFSET(ENOTSUP);
+		return MMENO__POSIX_OFFSET(ENOTSUP);
 	} break;
 	}
 	return 0;

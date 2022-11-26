@@ -25,7 +25,7 @@ typedef struct _MemeWord_t {
 	struct {
 		MemeByte_t capacity : 3;
 		MemeByte_t invalid  : 5;
-	};
+	} attr;
 } MemeWord_t;
 
 typedef MemeInteger_t MemeFlag_CaseSensitivity_t;
@@ -72,12 +72,12 @@ typedef struct _MemeStringStack_t {
 	MemeByte_t byte[MEME_STRING__OBJECT_SIZE];
 } MemeStringStack_t;
 
-#ifndef MEME_ENO__OFFSET
-#define MEME_ENO__OFFSET (-100000)
+#ifndef MMENO__OFFSET
+#define MMENO__OFFSET (-100000)
 #endif
 
-#ifndef MEME_ENO__POSIX_OFFSET
-#define MEME_ENO__POSIX_OFFSET(VALUE) (-200000-(VALUE))
+#ifndef MMENO__POSIX_OFFSET
+#define MMENO__POSIX_OFFSET(VALUE) (-200000-(VALUE))
 #endif
 
 MEME_EXTERN_C_SCOPE_ENDED

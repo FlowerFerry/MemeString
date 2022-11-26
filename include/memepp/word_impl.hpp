@@ -20,6 +20,11 @@ namespace memepp {
     {
         return MemeWord_data(&data_);
     }
+    
+    MEMEPP__IMPL_INLINE word::pointer word::data() noexcept
+    {
+        return const_cast<value_type*>(MemeWord_data(&data_));
+    }
 
     MEMEPP__IMPL_INLINE word::size_type word::size() const noexcept
     {
@@ -41,6 +46,35 @@ namespace memepp {
         return MemeWord_isValid(&data_);
     }
 
+    MEMEPP__IMPL_INLINE const_iterator word::begin() const noexcept
+    {
+        return const_iterator(data());
+    }
+    
+    MEMEPP__IMPL_INLINE iterator word::begin() noexcept
+    {
+        return iterator(data());
+    }
+
+    MEMEPP__IMPL_INLINE const_iterator word::cbegin() const noexcept
+    {
+        return const_iterator(data());
+    }
+
+    MEMEPP__IMPL_INLINE const_iterator word::end() const noexcept
+    {
+        return const_iterator(data() + size());
+    }
+    
+    MEMEPP__IMPL_INLINE iterator word::end() noexcept
+    {
+        return iterator(data() + size());
+    }
+
+    MEMEPP__IMPL_INLINE const_iterator word::cend() const noexcept
+    {
+        return const_iterator(data() + size());
+    }
 
     MEMEPP__IMPL_INLINE bool word::is_multi() const noexcept 
     { 
