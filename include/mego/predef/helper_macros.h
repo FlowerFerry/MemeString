@@ -19,8 +19,8 @@
 //! is that macro expansion of macro arguments does not
 //! occur in __MEGO__DO_JOIN but does in NCM_DO_JOIN.
 #ifndef MEGO__JOIN
-#   define MEGO__JOIN( X, Y ) NCM_DO_JOIN( X, Y )
-#   define MEGO__DO_JOIN( X, Y ) __NCM_DO_JOIN(X,Y)
+#   define MEGO__JOIN( X, Y ) MEGO__DO_JOIN( X, Y )
+#   define MEGO__DO_JOIN( X, Y ) __MEGO__DO_JOIN(X,Y)
 #   define __MEGO__DO_JOIN( X, Y ) X##Y
 #endif 
 
