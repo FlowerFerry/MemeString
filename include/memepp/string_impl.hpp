@@ -654,7 +654,7 @@ namespace memepp {
 	MEMEPP__IMPL_INLINE string c_format(size_t _size_limit, MEGO_SYMBOL__MSVC_FORMAT_STRING(const char* _fmt),  ...)
 	{
         va_list args;
-        va_start(args, _size_limit);
+        va_start(args, _fmt);
         string result = MemeStringStack_vformatInCstyle_v2(
 			MEME_STRING__OBJECT_SIZE, _size_limit, _fmt, args);
         va_end(args);
