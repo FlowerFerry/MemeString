@@ -15,6 +15,9 @@ typedef intptr_t MemeInteger_t;
 typedef struct _MemeString_t* MemeString_t;
 typedef const struct _MemeString_t* MemeString_Const_t;
 
+typedef struct _MemeString_t* mms_t;
+typedef const struct _MemeString_t* mms_const_t;
+
 typedef struct _MemeWordIndex_t {
 	MemeInteger_t size;
     const MemeByte_t * data;
@@ -67,10 +70,14 @@ typedef int MemeString_MappingConvertFunc_t(const MemeWord_t* _ch, void* _user_d
 #endif
 #define MEME_STRING__OBJECT_SIZE (sizeof(intptr_t) * 3)
 
+#ifndef MMS__OBJECT_SIZE
+#define MMS__OBJECT_SIZE MEME_STRING__OBJECT_SIZE
+#endif
 
 typedef struct _MemeStringStack_t {
 	MemeByte_t byte[MEME_STRING__OBJECT_SIZE];
 } MemeStringStack_t;
+typedef MemeStringStack_t mms_stack_t;
 
 #ifndef MMENO__OFFSET
 #define MMENO__OFFSET (-100000)

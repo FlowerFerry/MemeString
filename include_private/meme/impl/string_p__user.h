@@ -135,7 +135,7 @@ inline MemeInteger_t MemeStringUser_RefCount_increment(volatile MemeStringUser_R
 
 inline MemeInteger_t MemeStringUser_RefCount_decrementAndDestruct(volatile MemeStringUser_RefCounted_t* _refcount)
 {
-	MemeString_FreeFunction_t* f_func = NULL;
+	//MemeString_FreeFunction_t* f_func = NULL;
 	MemeInteger_t result = 0;
 
 	assert(_refcount != NULL);
@@ -150,9 +150,9 @@ inline MemeInteger_t MemeStringUser_RefCount_decrementAndDestruct(volatile MemeS
 		//else {
 		//	f_func = MemeString_getFreeFunction();
 		//}
-		f_func = MemeString_getFreeFunction();
+		//f_func = MemeString_getFreeFunction();
 
-		f_func((void*)_refcount);
+        mmsmem_free((void*)_refcount);
 	}
 	return result;
 }

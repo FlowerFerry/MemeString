@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #endif
 
+#include <string.h>
 #include <time.h>
 
 #ifdef __cplusplus
@@ -59,10 +60,10 @@ enum MegoUtil_StatMode {
 	MegoUtil_StatMode_ixoth = 00001,
 };
 
-static int MegoUtil_GetStat(const char* _path, size_t _slen, struct MegoUtil_Stat* _buf);
+static int MegoUtil_GetStat(const char* _path, intptr_t _slen, struct MegoUtil_Stat* _buf);
 
 
-static int MegoUtil_GetStat(const char* _path, size_t _slen, struct MegoUtil_Stat* _buf)
+static int MegoUtil_GetStat(const char* _path, intptr_t _slen, struct MegoUtil_Stat* _buf)
 {
 	if (_slen == 0)
 		return EINVAL;

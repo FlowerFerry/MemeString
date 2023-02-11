@@ -6,6 +6,7 @@
 #include "meme/unsafe/view.h"
 #include "memepp/string_fwd.hpp"
 #include "memepp/string_view_fwd.hpp"
+#include "memepp/string_builder_fwd.hpp"
 
 #include "memepp/iterator.hpp"
 
@@ -13,6 +14,8 @@ namespace memepp {
 
 	class string_view final
 	{
+        string_view& operator=(string&& _other) = delete;
+        
 	public:
 		using value_type = MemeByte_t;
 		using size_type = MemeInteger_t;
@@ -34,6 +37,7 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE string_view(const_pointer _utf8, size_type _size);
 
 		MEMEPP__IMPL_INLINE string_view(const string& _other);
+		MEMEPP__IMPL_INLINE string_view(string&& _other);
 		MEMEPP__IMPL_INLINE string_view(const string_view& _other);
 		MEMEPP__IMPL_INLINE string_view(string_view&& _other);
 
@@ -44,6 +48,10 @@ namespace memepp {
 		string_view& operator=(const string& _other);
 		string_view& operator=(const string_view& _other);
 		string_view& operator=(string_view&& _other);
+
+		MEMEPP__IMPL_INLINE string_builder operator+(const string& _other) const;
+		MEMEPP__IMPL_INLINE string_builder operator+(const string_view& _other) const;
+		MEMEPP__IMPL_INLINE string_builder operator+(const char* _other) const;
 
 		MEMEPP__IMPL_INLINE const char* data() const noexcept;
 		MEMEPP__IMPL_INLINE size_type size() const noexcept;
@@ -110,31 +118,58 @@ namespace memepp {
         MEMEPP__IMPL_INLINE string_view substr(size_type _pos = 0, size_type _count = npos) const noexcept;
 
 
-		template<template<class> class _Container, typename _Ty>
+		template<class _Container>
 		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,
-			std::back_insert_iterator<_Container<_Ty>> _inserter) const;
+			std::back_insert_iterator<_Container> _inserter) const;
+		
+		template<class _Container>
+		inline MemeInteger_t split(string_view _key, 
+			std::back_insert_iterator<_Container> _inserter) const;
 
-		template<template<class, class...> class _Container, typename _Ty, class... _Arg>
-		inline MemeInteger_t split(
-			string_view _key, split_behavior_t _behavior,
-			std::back_insert_iterator<_Container<_Ty, _Arg...>> _inserter) const;
+		//template<template<class, class...> class _Container, typename _Ty, class... _Arg>
+		//inline MemeInteger_t split(
+		//	string_view _key, split_behavior_t _behavior,
+		//	std::back_insert_iterator<_Container<_Ty, _Arg...>> _inserter) const;
+		//
+		//template<template<class, class...> class _Container, typename _Ty, class... _Arg>
+		//inline MemeInteger_t split(
+		//	string_view _key, 
+		//	std::back_insert_iterator<_Container<_Ty, _Arg...>> _inserter) const;
 
 		template<template<class> class _Container>
 		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string>> _inserter) const;
+		
+		template<template<class> class _Container>
+		inline MemeInteger_t split(string_view _key, 
+			std::back_insert_iterator<_Container<string>> _inserter) const;
 
 		template<template<class> class _Container>
 		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,
+			std::back_insert_iterator<_Container<string_view>> _inserter) const;
+		
+		template<template<class> class _Container>
+		inline MemeInteger_t split(string_view _key, 
 			std::back_insert_iterator<_Container<string_view>> _inserter) const;
 
 		template<template<class, class...> class _Container, class... _Arg>
 		inline MemeInteger_t split(
 			string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string, _Arg...>> _inserter) const;
+		
+		template<template<class, class...> class _Container, class... _Arg>
+		inline MemeInteger_t split(
+			string_view _key, 
+			std::back_insert_iterator<_Container<string, _Arg...>> _inserter) const;
 
 		template<template<class, class...> class _Container, class... _Arg>
 		inline MemeInteger_t split(
 			string_view _key, split_behavior_t _behavior,
+			std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const;
+		
+		template<template<class, class...> class _Container, class... _Arg>
+		inline MemeInteger_t split(
+			string_view _key, 
 			std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const;
 
 		MEMEPP__IMPL_INLINE const native_handle_type& native_handle() const noexcept;

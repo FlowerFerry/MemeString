@@ -8,6 +8,7 @@
 #include "memepp/word_def.hpp"
 #include "memepp/string_def.hpp"
 #include "memepp/string_view.hpp"
+#include "memepp/string_builder.hpp"
 #include <memepp/errc.hpp>
 
 #include <string.h>
@@ -135,6 +136,13 @@ namespace memepp {
 		throw_errc(*errc());
 #endif
 	}
+
+
+	MEMEPP__IMPL_INLINE string::string(const string_builder& _builder)
+	{
+		MemeStringStack_init(&data_, MEME_STRING__OBJECT_SIZE);
+		*this = _builder.generate();
+	}
     
 	MEMEPP__IMPL_INLINE string::~string()
 	{
@@ -154,6 +162,27 @@ namespace memepp {
 		throw_errc(*errc());
 #endif
 		return *this;
+	}
+
+	MEMEPP__IMPL_INLINE string& string::operator=(const string_builder& _builder)
+	{
+        *this = _builder.generate();
+        return *this;
+	}
+
+	MEMEPP__IMPL_INLINE string_builder string::operator+(const string& _other) const
+	{
+		return string_builder{} + *this + _other;
+	}
+
+	MEMEPP__IMPL_INLINE string_builder string::operator+(const string_view& _other) const
+	{
+		return string_builder{} + *this + _other;
+	}
+	
+	MEMEPP__IMPL_INLINE string_builder string::operator+(const char* _other) const
+	{
+		return string_builder{} + *this + _other;
 	}
 
 	MEMEPP__IMPL_INLINE string_storage_type string::storage_type() const noexcept
@@ -622,12 +651,12 @@ namespace memepp {
 		return string{ std::move(stack) };
 	}
 
-	MEMEPP__IMPL_INLINE string c_format(const char* _fmt, size_t _size_limit, ...)
+	MEMEPP__IMPL_INLINE string c_format(size_t _size_limit, MEGO_SYMBOL__MSVC_FORMAT_STRING(const char* _fmt),  ...)
 	{
         va_list args;
         va_start(args, _size_limit);
-        string result = MemeStringStack_vformatInCstyle(
-			MEME_STRING__OBJECT_SIZE, _fmt, _size_limit, args);
+        string result = MemeStringStack_vformatInCstyle_v2(
+			MEME_STRING__OBJECT_SIZE, _size_limit, _fmt, args);
         va_end(args);
         return result;
 	}
@@ -642,6 +671,13 @@ namespace memepp {
 	MEMEPP__IMPL_INLINE memepp::string mm_from(const MemeByte_t* _str, size_t _len)
 	{
 		return memepp::string{ _str, static_cast<MemeInteger_t>(_len) };
+	}
+
+	MEMEPP__IMPL_INLINE memepp::string_builder operator+(const char* _lhs, const memepp::string& _rhs)
+	{
+		memepp::string_builder builder;
+        (builder += _lhs) += _rhs;
+        return builder;
 	}
 
 	MEMEPP__IMPL_INLINE memepp::string operator""_meme(const char* _str, size_t _len)

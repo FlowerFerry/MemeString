@@ -59,30 +59,29 @@ extern "C" {
 #elif defined(__linux__) || defined(__CYGWIN__) || defined(__sun)
     static int MegoUtil_GetExecutablePath(char* _out, int _capacity, int* _dirname_pos)
     {
-        char buf[PATH_MAX] = { 0 };
+        char buffer[PATH_MAX] = { 0 };
+        int  length = -1;
 
         char* resolved = realpath(__MEGOUTIL__PROC_SELF_EXE_PATH__, buffer);
         if (!resolved)
-            break;
+            return -1;
         length = (int)strlen(buffer);
         
-        if (length > _capacity)
-        {
-            return -1;
+        if (length > _capacity) {
+            return length;
         }
 
-        memcpy(_out, buf, length + 1);
-        if (_dirname_pos)
-        {
+        memcpy(_out, buffer, length);
+        if (_dirname_pos) {
             int i = length - 1;
             for (; i >= 0; --i)
             {
                 if (_out[i] == '/')
                 {
+                    *_dirname_pos = i;
                     break;
                 }
             }
-            *_dirname_pos = i;
         }
         return length;
     }

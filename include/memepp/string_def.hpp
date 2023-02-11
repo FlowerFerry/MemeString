@@ -8,6 +8,7 @@
 #include "memepp/string_fwd.hpp"
 #include "memepp/buffer_fwd.hpp"
 #include "memepp/string_view_fwd.hpp"
+#include "memepp/string_builder_fwd.hpp"
 
 #include "memepp/iterator.hpp"
 
@@ -48,6 +49,7 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE string(const_pointer _utf8, size_type _size, memepp::string_storage_type _suggest);
 
 		MEMEPP__IMPL_INLINE string(const word& _ch);
+        MEMEPP__IMPL_INLINE string(const string_builder& _builder);
 		//MEMEPP__IMPL_INLINE string(size_type _count, char _ch);
 
 		//template< class InputIt >
@@ -59,6 +61,11 @@ namespace memepp {
 
 		MEMEPP__IMPL_INLINE string& operator=(string && _other);
 		MEMEPP__IMPL_INLINE string& operator=(const string& _other);
+        MEMEPP__IMPL_INLINE string& operator=(const string_builder& _builder);
+
+        MEMEPP__IMPL_INLINE string_builder operator+(const string& _other) const;
+        MEMEPP__IMPL_INLINE string_builder operator+(const string_view& _other) const;
+        MEMEPP__IMPL_INLINE string_builder operator+(const char* _other) const;
 
 		MEMEPP__IMPL_INLINE string_storage_type storage_type() const noexcept;
 
@@ -170,6 +177,10 @@ namespace memepp {
 		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container> _inserter) const;
 
+		template<class _Container>
+		inline MemeInteger_t split(string_view _key, 
+			std::back_insert_iterator<_Container> _inserter) const;
+
 		//template<template<class, class...> class _Container, typename _Ty, class... _Arg>
 		//inline MemeInteger_t split(
 		//	string_view _key, split_behavior_t _behavior,
@@ -184,6 +195,10 @@ namespace memepp {
 		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string>> _inserter) const;
 
+		template<template<class> class _Container>
+		inline MemeInteger_t split(string_view _key, 
+			std::back_insert_iterator<_Container<string>> _inserter) const;
+
 		//! \brief Split string with key.
 		//! \param _key The key to split.
 		//! \param _behavior The behavior of split.
@@ -191,6 +206,10 @@ namespace memepp {
 		//! \return The error code.
 		template<template<class> class _Container>
 		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,
+			std::back_insert_iterator<_Container<string_view>> _inserter) const;
+
+		template<template<class> class _Container>
+		inline MemeInteger_t split(string_view _key, 
 			std::back_insert_iterator<_Container<string_view>> _inserter) const;
 
 		//! \brief Split string with key.
@@ -203,6 +222,11 @@ namespace memepp {
 			string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string, _Arg...>> _inserter) const;
 
+		template<template<class, class...> class _Container, class... _Arg>
+		inline MemeInteger_t split(
+			string_view _key, 
+			std::back_insert_iterator<_Container<string, _Arg...>> _inserter) const;
+
 		//! \brief Split string with key.
 		//! \param _key The key to split.
 		//! \param _behavior The behavior of split.
@@ -211,6 +235,11 @@ namespace memepp {
 		template<template<class, class...> class _Container, class... _Arg>
 		inline MemeInteger_t split(
 			string_view _key, split_behavior_t _behavior,
+			std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const;
+		
+		template<template<class, class...> class _Container, class... _Arg>
+		inline MemeInteger_t split(
+			string_view _key, 
 			std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const;
 
 		template<typename _Function, template<class> class _Container>
@@ -245,9 +274,10 @@ namespace memepp {
     //! \param ... The arguments
     //! \return The formatted string
 	MEMEPP__IMPL_INLINE string c_format(
+		size_t _size_limit,
 		MEGO_SYMBOL__MSVC_FORMAT_STRING(const char* _fmt),
-		size_t _size_limit, ...)
-		MEGO_SYMBOL__GCC_ATTRIBUTE_FORMAT(printf, 1, 3);
+		...)
+		MEGO_SYMBOL__GCC_ATTRIBUTE_FORMAT(printf, 2, 3);
     
 }; // namespace memepp
 
@@ -255,10 +285,11 @@ namespace memepp {
 	memepp::string mm_from(const char* _str, size_t _len);
 	memepp::string mm_from(const MemeByte_t* _str, size_t _len);
 
+    memepp::string_builder operator+(const char* _lhs, const memepp::string& _rhs);
+
 	memepp::string operator""_meme(const char* _str, size_t _len);
 
 
 #endif // !MEMEPP_STRING_DEF_HPP_INCLUDED
 
 #include <memepp/string_templateimpl.hpp>
-    

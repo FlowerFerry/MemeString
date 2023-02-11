@@ -27,6 +27,8 @@ void*
 	MemeCheck_Malloc(size_t _size);
 void* 
 	MemeCheck_Realloc(void* _block, size_t _size);
+void* 
+	MemeCheck_Calloc(size_t _count, size_t _size);
 void 
 	MemeCheck_Free(void* _pointer);
 

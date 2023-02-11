@@ -7,6 +7,7 @@
 
 #include "memepp/string_def.hpp"
 #include "memepp/string_view_def.hpp"
+#include "memepp/string_builder_def.hpp"
 
 #ifndef MEMEPP__IMPL_INLINE
 #	ifdef MEMEPP__IMPL_SEPARATE
@@ -70,6 +71,20 @@ namespace memepp {
 		}
 	}
 
+	MEMEPP__IMPL_INLINE string_view::string_view(string&& _other)
+	{
+		auto other = to_pointer(_other.native_handle());
+		if (MemeString_isSharedStorageTypes(other) == 1)
+		{
+			MemeStringStack_initByOther(&data_, MMS__OBJECT_SIZE, other);
+		}
+		else {
+			MemeStringStack_init(&data_, MMS__OBJECT_SIZE);
+            memepp::string s{ _other.data(), _other.size(), memepp::string_storage_type::large };
+            *this = memepp::string_view{ s };
+		}
+	}
+
 	MEMEPP__IMPL_INLINE string_view::string_view(const string_view& _other)
 	{
 		MemeStringViewUnsafeStack_initByOther(
@@ -117,6 +132,20 @@ namespace memepp {
 		return *this;
 	}
 
+	MEMEPP__IMPL_INLINE string_builder string_view::operator+(const string& _other) const
+	{
+		return string_builder{} + *this + _other;
+	}
+
+	MEMEPP__IMPL_INLINE string_builder string_view::operator+(const string_view& _other) const
+	{
+		return string_builder{} + *this + _other;
+	}
+
+	MEMEPP__IMPL_INLINE string_builder string_view::operator+(const char* _other) const
+	{
+		return string_builder{} + *this + _other;
+	}
 
 	MEMEPP__IMPL_INLINE const char* string_view::data() const noexcept
 	{

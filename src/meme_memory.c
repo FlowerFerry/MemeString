@@ -67,7 +67,7 @@ uint16_t MemeCheck_Crc16le(const uint8_t* _buf, size_t _len)
 
 void MemeCheckHead_init(MemeCheckHead_t* _factor)
 {
-	srand(time(0));
+	srand((unsigned int)time(0));
 
 	_factor->count   = 0;
 	_factor->byte[0] = (uint8_t)rand();
@@ -82,7 +82,7 @@ void MemeCheckHead_init(MemeCheckHead_t* _factor)
 
 void MemeCheckTail_init(MemeCheckTail_t* _factor)
 {
-	srand(time(0));
+	srand((unsigned int)time(0));
 
     _factor->byte[0] = (uint8_t)rand();
     _factor->byte[1] = (uint8_t)rand();
@@ -119,7 +119,7 @@ const uint8_t* MemeCheck_getTailPointer(const void* _data)
 	if (!_data)
         return NULL;
 	else {
-		MemeCheckHead_t* head = MemeCheck_getHeadPointer(_data);
+		MemeCheckHead_t* head = (MemeCheckHead_t*)MemeCheck_getHeadPointer(_data);
 		return (const uint8_t*)_data + head->count - sizeof(MemeCheckHead_t) - sizeof(MemeCheckTail_t);
 	}
 }
@@ -129,11 +129,11 @@ MemeInteger_t MemeCheck_calibrate(const void* _data)
 	MemeCheckHead_t* head; 
 	MemeCheckTail_t* tail;
     
-	if (MemeString_getMallocFunction() != &MemeCheck_Malloc)
+	if (mmsmem_get_malloc_func() != &MemeCheck_Malloc)
 		return 1;
 
-	head = MemeCheck_getHeadPointer(_data);
-	tail = MemeCheck_getTailPointer(_data);
+	head = (MemeCheckHead_t*)MemeCheck_getHeadPointer(_data);
+	tail = (MemeCheckTail_t*)MemeCheck_getTailPointer(_data);
 
     return MemeCheckHead_calibrate(head) && MemeCheckTail_calibrate(tail) ?
         1 : 0;
@@ -166,7 +166,7 @@ void* MemeCheck_Realloc(void* _block, size_t _size)
     if (_size == 0)
         return realloc(_block, 0);
 
-	uint8_t* p = (uint8_t*)realloc(MemeCheck_getHeadPointer(_block),
+	uint8_t* p = (uint8_t*)realloc((void*)MemeCheck_getHeadPointer(_block),
         _size + sizeof(MemeCheckTail_t) + sizeof(MemeCheckHead_t));
     if (!p)
         return NULL;
@@ -181,9 +181,32 @@ void* MemeCheck_Realloc(void* _block, size_t _size)
     return p + sizeof(MemeCheckHead_t);
 }
 
+void* MemeCheck_Calloc(size_t _count, size_t _size)
+{
+	MemeCheckHead_t* head;
+	MemeCheckTail_t* tail;
+
+	if (_size == 0 || _count == 0)
+		return NULL;
+    _count += ((sizeof(MemeCheckTail_t) + sizeof(MemeCheckHead_t)) / _size + 1);
+    
+	uint8_t* p = (uint8_t*)calloc(_count, _size);
+	if (!p)
+		return NULL;
+
+	head = (MemeCheckHead_t*)p;
+	MemeCheckHead_init(head);
+	head->count = _count * _size;
+
+	tail = (MemeCheckTail_t*)(p + head->count - sizeof(MemeCheckTail_t));
+	MemeCheckTail_init(tail);
+
+	return p + sizeof(MemeCheckHead_t);
+}
+
 void MemeCheck_Free(void* _pointer)
 {
-	free(MemeCheck_getHeadPointer(_pointer));
+	free((void*)MemeCheck_getHeadPointer(_pointer));
 }
 #endif
 
@@ -191,7 +214,7 @@ int MemeStringMemory_allocFunctionSwitch(
 	MemeString_MallocFunction_t* _in_malloc_fn, MemeString_FreeFunction_t* _in_free_fn,
 	MemeString_MallocFunction_t** _out_malloc_fn, MemeString_FreeFunction_t** _out_free_fn)
 {
-	*_out_malloc_fn = (_in_malloc_fn ? _in_malloc_fn : MemeString_getMallocFunction());
+	*_out_malloc_fn = (_in_malloc_fn ? _in_malloc_fn : mmsmem_get_malloc_func());
 	if (*_out_malloc_fn == _in_malloc_fn)
 	{
 		if (_in_free_fn == NULL)
@@ -199,8 +222,27 @@ int MemeStringMemory_allocFunctionSwitch(
 		*_out_free_fn = _in_free_fn;
 	}
 	else {
-		*_out_free_fn = MemeString_getFreeFunction();
+		*_out_free_fn = mmsmem_get_free_func();
 	}
 	return 0;
 }
 
+MEME_EXTERN_C MEME_API void* MEME_STDCALL mmsmem_malloc(size_t _size)
+{
+    return mmsmem_get_malloc_func()(_size);
+}
+
+MEME_EXTERN_C MEME_API void* MEME_STDCALL mmsmem_realloc(void* _block, size_t _size)
+{
+    return mmsmem_get_realloc_func()(_block, _size);
+}
+
+MEME_EXTERN_C MEME_API void* MEME_STDCALL mmsmem_calloc(size_t _count, size_t _size)
+{
+    return mmsmem_get_calloc_func()(_count, _size);
+}
+
+MEME_EXTERN_C MEME_API void MEME_STDCALL mmsmem_free(void* _pointer)
+{
+    mmsmem_get_free_func()(_pointer);
+}

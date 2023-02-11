@@ -54,13 +54,6 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initTakeOverUserObject(
 	assert(_data_fn != NULL		&& "function is" && MemeStringStack_initTakeOverUserObject);
 	assert(_size_fn != NULL		&& "function is" && MemeStringStack_initTakeOverUserObject);
     
-    //if (MEGO_SYMBOL__UNLIKELY(_destruct_fn == NULL))
-    //    return MMENO__POSIX_OFFSET(EINVAL);
-    //if (MEGO_SYMBOL__UNLIKELY(_data_fn == NULL))
-    //    return MMENO__POSIX_OFFSET(EINVAL);
-    //if (MEGO_SYMBOL__UNLIKELY(_size_fn == NULL))
-    //    return MMENO__POSIX_OFFSET(EINVAL);
-
 	len = _size_fn(_user_data);
 	if (len <= MEME_STRING__GET_SMALL_BUFFER_SIZE)
 	{
@@ -218,7 +211,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByBuffer(
 	if (((void*)_out == (void*)_other))
 		return MMENO__POSIX_OFFSET(ECANCELED);
 
-	if ((_offset < 0))
+	if (_offset < 0)
 		_offset = 0;
 
 	length = MemeBuffer_size(_other) - _offset;
@@ -688,42 +681,7 @@ MEME_API MemeStringStack_t
 MemeStringStack_vformatInCstyle(
 	size_t _object_size, const char* _format, MemeInteger_t _size_limit, va_list _args)
 {
-	MemeInteger_t result = 0;
-	MemeVariableBufferStack_t buffer;
-	MemeStringStack_t out;
-    MemeByte_t* data = NULL;
-	MemeInteger_t len = 0;
-
-	//assert(_format != NULL && MemeStringStack_vformatInCstyle);
-
-    if ((_format == NULL))
-        return MemeStringStack_getInitObject(_object_size);
-
-    len = vsnprintf(NULL, 0, _format, _args);
-    if ((len <= 0))
-        return MemeStringStack_getInitObject(_object_size);
-
-    if (_size_limit > 0 && len > _size_limit)
-        len = _size_limit;
-
-	MemeVariableBufferStack_init(&buffer, _object_size);
-    result = MemeVariableBuffer_reserve((MemeVariableBuffer_t)&buffer, len + 1);
-    if (result) {
-        return MemeStringStack_getInitObject(_object_size);
-    }
-
-    data = MemeVariableBuffer_dataWithNotConst((MemeVariableBuffer_t)&buffer);
-
-    len = vsnprintf((char*)data, len + 1, _format, _args);
-	if ((len <= 0))
-		return MemeStringStack_getInitObject(_object_size);
-
-	result = MemeVariableBuffer_releaseToString((MemeVariableBuffer_t)&buffer, &out, _object_size);
-    if (result) {
-        return MemeStringStack_getInitObject(_object_size);
-    }
-
-    return out;
+    return MemeStringStack_vformatInCstyle_v2(_object_size, _size_limit, _format, _args);
 }
 
 MEME_API MemeStringStack_t 
@@ -738,6 +696,70 @@ MemeStringStack_formatInCstyle(size_t _object_size, const char* _format, MemeInt
 
     return out;
 }
+
+MEME_API mms_stack_t MEME_STDCALL
+MemeStringStack_vformatInCstyle_v2(
+	size_t _object_size,
+	MemeInteger_t _size_limit,
+	MEGO_SYMBOL__MSVC_FORMAT_STRING(const char* _format),
+	va_list _args)
+{
+	MemeInteger_t result = 0;
+	MemeVariableBufferStack_t buffer;
+	MemeStringStack_t out;
+	MemeByte_t* data = NULL;
+	MemeInteger_t len = 0;
+
+	//assert(_format != NULL && MemeStringStack_vformatInCstyle);
+
+	if ((_format == NULL))
+		return MemeStringStack_getInitObject(_object_size);
+
+	len = vsnprintf(NULL, 0, _format, _args);
+	if ((len <= 0))
+		return MemeStringStack_getInitObject(_object_size);
+
+	if (_size_limit > 0 && len > _size_limit)
+		len = _size_limit;
+
+	MemeVariableBufferStack_init(&buffer, _object_size);
+	result = MemeVariableBuffer_reserve((MemeVariableBuffer_t)&buffer, len + 1);
+	if (result) {
+		return MemeStringStack_getInitObject(_object_size);
+	}
+
+	data = MemeVariableBuffer_dataWithNotConst((MemeVariableBuffer_t)&buffer);
+
+	len = vsnprintf((char*)data, len + 1, _format, _args);
+	if ((len <= 0))
+		return MemeStringStack_getInitObject(_object_size);
+
+	result = MemeVariableBuffer_releaseToString((MemeVariableBuffer_t)&buffer, &out, _object_size);
+	if (result) {
+		return MemeStringStack_getInitObject(_object_size);
+	}
+
+	return out;
+}
+
+MEME_API mms_stack_t
+MemeStringStack_formatInCstyle_v2(
+	size_t _object_size,
+	MemeInteger_t _size_limit,
+	MEGO_SYMBOL__MSVC_FORMAT_STRING(const char* _format),
+	...)
+	MEGO_SYMBOL__GCC_ATTRIBUTE_FORMAT(printf, 3, 4)
+{
+    va_list args;
+    mms_stack_t out;
+
+    va_start(args, _format);
+    out = MemeStringStack_vformatInCstyle_v2(_object_size, _size_limit, _format, args);
+    va_end(args);
+
+    return out;
+}
+
 
 MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringViewUnsafeStack_init(MemeStringStack_t* _s, size_t _object_size,
 	const uint8_t* _buf, MemeInteger_t _len)
@@ -894,4 +916,121 @@ MemeStringViewUnsafe_split(
 			*_search_index = -1;
 		return 0;
 	}
+}
+
+MEME_API int MEME_STDCALL mmsstack_init(mms_stack_t* _out, size_t _object_size)
+{
+    if (_out == NULL)
+        return MMENO__POSIX_OFFSET(EINVAL);
+    return MemeStringStack_init(_out, _object_size);
+}
+
+MEME_API int MEME_STDCALL mmsstack_init_by_other(mms_stack_t* _out, size_t _object_size, mms_const_t _other)
+{
+    if (_out == NULL)
+        return MMENO__POSIX_OFFSET(EINVAL);
+	if (_other == NULL) 
+        return MemeStringStack_init(_out, _object_size);
+    return MemeStringStack_initByOther(_out, _object_size, _other);
+}
+
+MEME_API int MEME_STDCALL mmsstack_init_by_buf(
+	mms_stack_t* _out, size_t _object_size, mmbuf_const_t _other, MemeInteger_t _offset)
+{
+    if (_out == NULL)
+        return MMENO__POSIX_OFFSET(EINVAL);
+    if (_other == NULL)
+		return MemeStringStack_init(_out, _object_size);
+    return MemeStringStack_initByBuffer(_out, _object_size, _other, _offset);
+}
+
+MEME_API int MEME_STDCALL mmsstack_init_by_utf8(
+	MemeStringStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len)
+{
+    if (_out == NULL)
+        return MMENO__POSIX_OFFSET(EINVAL);
+    if (_utf8 == NULL)
+		return MemeStringStack_init(_out, _object_size);
+    return MemeStringStack_initByU8bytes(_out, _object_size, _utf8, _len);
+}
+
+MEME_API int MEME_STDCALL mmsstack_init_by_utf8_v2(
+	mms_stack_t* _out, size_t _object_size, 
+	const MemeByte_t* _utf8, MemeInteger_t _len, MemeString_Storage_t _suggest)
+{
+    if (_out == NULL)
+        return MMENO__POSIX_OFFSET(EINVAL);
+    if (_utf8 == NULL)
+        return MemeStringStack_init(_out, _object_size);
+    return MemeStringStack_initByU8bytesAndType(_out, _object_size, _utf8, _len, _suggest);
+}
+
+MEME_API int MEME_STDCALL mmsstack_init_by_hexs(
+	mms_stack_t* _out, size_t _object_size, const MemeByte_t* _interval, MemeInteger_t _ivlen, const uint8_t* _hexs, MemeInteger_t _len)
+{
+    if (_out == NULL)
+        return MMENO__POSIX_OFFSET(EINVAL);
+    if (_hexs == NULL)
+        return MemeStringStack_init(_out, _object_size);
+    return MemeStringStack_initWithHexadecimals(_out, _object_size, _interval, _ivlen, _hexs, _len);
+}
+
+MEME_API int MEME_STDCALL mmsstack_init_by_user(
+	mms_stack_t* _out, size_t _object_size, void* _user_data,
+	MemeString_UserObjectDestruct_t* _destruct_fn, 
+	MemeString_UserObjectData_t* _data_fn, 
+	MemeString_UserObjectSize_t* _size_fn)
+{
+    if (_out == NULL)
+        return MMENO__POSIX_OFFSET(EINVAL);
+    if (_user_data == NULL
+	 || _destruct_fn == NULL
+	 || _data_fn == NULL
+	 || _size_fn == NULL)
+        return MemeStringStack_init(_out, _object_size);
+    return MemeStringStack_initTakeOverUserObject(
+		_out, _object_size, _user_data, _destruct_fn, _data_fn, _size_fn);
+}
+
+MEME_API int MEME_STDCALL mmsstack_uninit(mms_stack_t* _out, size_t _object_size)
+{
+    if (_out == NULL)
+        return MMENO__POSIX_OFFSET(EINVAL);
+    return MemeStringStack_unInit(_out, _object_size);
+}
+
+MEME_API int MEME_STDCALL mmsstack_reset(mms_stack_t* _out, size_t _object_size)
+{
+    if (_out == NULL)
+        return MMENO__POSIX_OFFSET(EINVAL);
+    return MemeStringStack_reset(_out, _object_size);
+}
+
+MEME_API int MEME_STDCALL mms_assign(mms_t _s, mms_const_t _other)
+{
+    if (_s == NULL)
+        return MMENO__POSIX_OFFSET(EINVAL);
+    if (_other == NULL)
+        return MemeStringStack_reset((mms_stack_t*)_s, sizeof(*_s));
+    return MemeStringStack_assign((mms_stack_t*)_s, sizeof(*_s), _other);
+}
+
+MEME_API int MEME_STDCALL mms_assign_by_utf8(
+	mms_t _s, const MemeByte_t* _utf8, MemeInteger_t _len)
+{
+    if (_s == NULL)
+        return MMENO__POSIX_OFFSET(EINVAL);
+    if (_utf8 == NULL)
+        return MemeStringStack_reset((mms_stack_t*)_s, sizeof(*_s));
+    return MemeStringStack_assignByU8bytes((mms_stack_t*)_s, sizeof(*_s), _utf8, _len);
+}
+
+MEME_API int MEME_STDCALL mms_assign_by_buf(
+	mms_t _out, mmbuf_const_t _other, MemeInteger_t _offset)
+{
+    if (_out == NULL)
+        return MMENO__POSIX_OFFSET(EINVAL);
+    if (_other == NULL)
+        return MemeStringStack_reset((mms_stack_t*)_out, sizeof(*_out));
+    return MemeStringStack_assignByBuffer((mms_stack_t*)_out, sizeof(*_out), _other, _offset);
 }

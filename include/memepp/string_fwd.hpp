@@ -3,6 +3,7 @@
 #define MEMEPP_STRING_FWD_HPP_INCLUDED
 
 #include "meme/string_fwd.h"
+#include "meme/string_builder_fwd.h"
 
 #undef small
 
@@ -47,6 +48,16 @@ namespace memepp {
 	{
 		return reinterpret_cast<MemeString_Const_t>(&_s);
 	}
+
+	inline mmsbuilder_t to_pointer(mmsbuilder_stack_t& _s) noexcept
+	{
+		return reinterpret_cast<mmsbuilder_t>(&_s);
+	}
+
+    inline mmsbuilder_const_t to_pointer(const mmsbuilder_stack_t& _s) noexcept
+    {
+        return reinterpret_cast<mmsbuilder_const_t>(&_s);
+    }
 
 };
 

@@ -61,9 +61,9 @@ namespace memepp {
 	}
 
 
-	template<template<class> class _Container, typename _Ty>
+	template<class _Container>
 	inline MemeInteger_t string_view::split(string_view _key, split_behavior_t _behavior,
-		std::back_insert_iterator<_Container<_Ty>> _inserter) const
+		std::back_insert_iterator<_Container> _inserter) const
 	{
 		MemeStringStack_t stacks[4];
 		MemeInteger_t stacksCount = 0;
@@ -79,7 +79,7 @@ namespace memepp {
 			}
 			for (auto i = 0; i < stacksCount; ++i)
 			{
-				*_inserter++ = _Ty{
+				*_inserter++ = typename _Container::value_type {
 					MemeString_cStr(to_pointer(stacks[i])),
 					static_cast<size_t>(MemeString_byteSize(to_pointer(stacks[i])))
 				};
@@ -89,34 +89,34 @@ namespace memepp {
 		return 0;
 	}
 
-	template<template<class, class...> class _Container, typename _Ty, class... _Arg>
-	inline MemeInteger_t string_view::split(
-		string_view _key, split_behavior_t _behavior,
-		std::back_insert_iterator<_Container<_Ty, _Arg...>> _inserter) const
-	{
-		MemeStringStack_t stacks[4];
-		MemeInteger_t stacksCount = 0;
-		for (MemeInteger_t index = 0; index != -1;)
-		{
-			stacksCount = sizeof(stacks) / sizeof(stacks[0]);
-			auto result = MemeStringViewUnsafe_split(to_pointer(native_handle()),
-				_key.data(), _key.size(),
-				static_cast<MemeFlag_SplitBehavior_t>(_behavior), MemeFlag_AllSensitive,
-				stacks, &stacksCount, &index);
-			if (result) {
-				return result;
-			}
-			for (auto i = 0; i < stacksCount; ++i)
-			{
-				*_inserter++ = _Ty{
-					MemeString_cStr(to_pointer(stacks[i])),
-					static_cast<size_t>(MemeString_byteSize(to_pointer(stacks[i])))
-				};
-				MemeStringStack_unInit(stacks + i, MEME_STRING__OBJECT_SIZE);
-			}
-		}
-		return 0;
-	}
+	//template<template<class, class...> class _Container, typename _Ty, class... _Arg>
+	//inline MemeInteger_t string_view::split(
+	//	string_view _key, split_behavior_t _behavior,
+	//	std::back_insert_iterator<_Container<_Ty, _Arg...>> _inserter) const
+	//{
+	//	MemeStringStack_t stacks[4];
+	//	MemeInteger_t stacksCount = 0;
+	//	for (MemeInteger_t index = 0; index != -1;)
+	//	{
+	//		stacksCount = sizeof(stacks) / sizeof(stacks[0]);
+	//		auto result = MemeStringViewUnsafe_split(to_pointer(native_handle()),
+	//			_key.data(), _key.size(),
+	//			static_cast<MemeFlag_SplitBehavior_t>(_behavior), MemeFlag_AllSensitive,
+	//			stacks, &stacksCount, &index);
+	//		if (result) {
+	//			return result;
+	//		}
+	//		for (auto i = 0; i < stacksCount; ++i)
+	//		{
+	//			*_inserter++ = _Ty{
+	//				MemeString_cStr(to_pointer(stacks[i])),
+	//				static_cast<size_t>(MemeString_byteSize(to_pointer(stacks[i])))
+	//			};
+	//			MemeStringStack_unInit(stacks + i, MEME_STRING__OBJECT_SIZE);
+	//		}
+	//	}
+	//	return 0;
+	//}
 
 	template<template<class> class _Container>
 	inline MemeInteger_t string_view::split(

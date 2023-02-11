@@ -1,15 +1,14 @@
 
-#ifndef MEMEPP_UTIL_RELATIVE_EXEC_PATH_HPP_INCLUDED
-#define MEMEPP_UTIL_RELATIVE_EXEC_PATH_HPP_INCLUDED
+#ifndef MMUTILS_RELATIVE_EXEC_PATH_HPP_INCLUDED
+#define MMUTILS_RELATIVE_EXEC_PATH_HPP_INCLUDED
 
 #include <mego/util/get_exec_path.h>
 #include <memepp/string.hpp>
 #include <memepp/variable_buffer.hpp>
 
-namespace memepp {
-namespace util {
+namespace mmutils {
 
-    inline memepp::string exec_directory_path()
+    inline memepp::string program_directory_path()
     {
         int pos = 0;
         int len = MegoUtil_GetExecutablePath(NULL, 0, NULL);
@@ -28,7 +27,7 @@ namespace util {
         return memepp::string{ vb.data(), pos };
     }
 
-    inline memepp::string relative_exec_path(const memepp::string_view& _path)
+    inline memepp::string relative_with_program_path(const memepp::string_view& _path)
     {
         auto path = _path.trim_space();
 
@@ -37,7 +36,7 @@ namespace util {
         //if (path.find(":/") != memepp::string_view::npos)
         //    return path.to_string();
 
-        auto dir = exec_directory_path();
+        auto dir = program_directory_path();
         
         memepp::variable_buffer vb{ dir.bytes(), dir.size() };
         vb.push_back(uint8_t('/'));
@@ -48,8 +47,7 @@ namespace util {
         return s;
     }
 
-} // namespace util
-} // namespace memepp
+} // namespace mmutils
 
 
-#endif // MEMEPP_UTIL_RELATIVE_EXEC_PATH_HPP_INCLUDED
+#endif // MMUTILS_RELATIVE_EXEC_PATH_HPP_INCLUDED

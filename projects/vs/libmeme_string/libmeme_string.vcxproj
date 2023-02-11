@@ -76,14 +76,14 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>../../../include;../../../include_private;$(IncludePath)</IncludePath>
+    <IncludePath>../../../deps/include;../../../include;../../../include_private;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>../../../include;../../../include_private;$(IncludePath)</IncludePath>
+    <IncludePath>../../../deps/include;../../../include;../../../include_private;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -168,6 +168,8 @@
     <ClInclude Include="..\..\..\include\memepp\errc.hpp" />
     <ClInclude Include="..\..\..\include\memepp\hash\std_hash.hpp" />
     <ClInclude Include="..\..\..\include\memepp\iterator_basic.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\operation\std\string.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\operation\std\string_view.hpp" />
     <ClInclude Include="..\..\..\include\memepp\predef\macro_option.hpp" />
     <ClInclude Include="..\..\..\include\memepp\split\self.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string.hpp" />

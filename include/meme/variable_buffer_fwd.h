@@ -9,6 +9,9 @@ MEME_EXTERN_C_SCOPE_START
 typedef struct _MemeVariableBuffer_t* MemeVariableBuffer_t;
 typedef const struct _MemeVariableBuffer_t* MemeVariableBuffer_Const_t;
 
+typedef struct _MemeVariableBuffer_t* mmvb_t;
+typedef const struct _MemeVariableBuffer_t* mmvb_const_t;
+
 typedef MemeInteger_t MemeVariableBuffer_Storage_t;
 enum _MemeVariableBuffer_Storage_t {
 	MemeVariableBuffer_StorageType_none   = MemeString_StorageType_none,
@@ -25,6 +28,8 @@ enum _MemeVariableBuffer_UnsafeStorage_t {
 typedef struct _MemeVariableBufferStack_t {
 	MemeByte_t byte[MEME_STRING__OBJECT_SIZE];
 } MemeVariableBufferStack_t;
+
+typedef MemeVariableBufferStack_t mmvb_stack_t;
 
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_VARIABLE_BUFFER_FWD_H_INCLUDED

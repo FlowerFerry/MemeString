@@ -202,12 +202,12 @@ MEME_API MemeString_Storage_t MEME_STDCALL MemeString_storageType(MemeString_Con
 
 MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_create(MemeString_t * _out)
 {
-	MemeString_MallocFunction_t* c_func = NULL;
+	//MemeString_MallocFunction_t* c_func = NULL;
 
 	assert(_out);
 
-	c_func = MemeString_getMallocFunction();
-	*_out = (MemeString_t)(c_func(sizeof(struct _MemeString_t)));
+	//c_func = MemeString_getMallocFunction();
+	*_out = (MemeString_t)(mmsmem_malloc(sizeof(struct _MemeString_t)));
 	if (!(*_out))
 		return MMENO__POSIX_OFFSET(ENOMEM);
 
@@ -215,6 +215,20 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_create(MemeString_t * _out)
 	(*_out)->small_.type_ = MemeString_ImplType_small;
 	(*_out)->small_.capacity_ = MEME_STRING__GET_SMALL_BUFFER_SIZE;
 	return 0;
+}
+
+MEME_API int MEME_STDCALL MemeString_destroy(MemeString_t* _out)
+{
+	int result = 0;
+    
+    assert(_out);
+    assert(*_out);
+
+	result = MemeStringStack_unInit((mms_stack_t*)(*_out), MMS__OBJECT_SIZE);
+    
+    mmsmem_free(*_out);
+    *_out = NULL;
+    return result;
 }
 
 MEME_API int MEME_STDCALL MemeString_swap(MemeString_t _lhs, MemeString_t _rhs)
@@ -425,45 +439,82 @@ static MemeString_FreeFunction_t** __MemeString_freeFuncObject()
 	return &pointer;
 }
 
-MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_setMallocFunction(MemeString_MallocFunction_t* _fn)
-{
-	return MMENO__POSIX_OFFSET(ENOTSUP);
+//MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_setMallocFunction(MemeString_MallocFunction_t* _fn)
+//{
+//	return MMENO__POSIX_OFFSET(ENOTSUP);
 
 	//if (!_fn)
 	//	return MMENO__POSIX_OFFSET(EINVAL);
 
 	//*__MemeString_mallocFuncObject() = _fn;
 	//return 0;
-}
+//}
 
-MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_setFreeFunction(MemeString_FreeFunction_t* _fn)
-{
-	return MMENO__POSIX_OFFSET(ENOTSUP);
+//MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_setFreeFunction(MemeString_FreeFunction_t* _fn)
+//{
+//	return MMENO__POSIX_OFFSET(ENOTSUP);
 
 	//if (!_fn)
 	//	return MMENO__POSIX_OFFSET(EINVAL);
 
 	//*__MemeString_freeFuncObject() = _fn;
 	//return 0;
-}
+//}
+//
+//MEME_EXTERN_C MEME_API MemeString_MallocFunction_t* MEME_STDCALL MemeString_getMallocFunction()
+//{
+//	return *__MemeString_mallocFuncObject();
+//}
+//
+//MEME_EXTERN_C MEME_API MemeString_FreeFunction_t* MEME_STDCALL MemeString_getFreeFunction()
+//{
+//	return *__MemeString_freeFuncObject();
+//}
+//
+//MEME_EXTERN_C MEME_API MemeString_ReallocFunction_t* MEME_STDCALL MemeString_getReallocFunction()
+//{
+//#if MMOPT__HEADTAIL_MEMCHECK_ENABLED
+//	return MemeCheck_Realloc;
+//#else
+//	return realloc;
+//#endif
+//}
+//
+//MEME_EXTERN_C MEME_API MemeString_CallocFunction_t* MEME_STDCALL MemeString_getCallocFunction()
+//{
+//#if MMOPT__HEADTAIL_MEMCHECK_ENABLED
+//    return MemeCheck_Calloc;
+//#else
+//    return calloc;
+//#endif
+//}
 
-MEME_EXTERN_C MEME_API MemeString_MallocFunction_t* MEME_STDCALL MemeString_getMallocFunction()
+MEME_EXTERN_C MEME_API mmsmem_malloc_t* MEME_STDCALL mmsmem_get_malloc_func()
 {
 	return *__MemeString_mallocFuncObject();
 }
 
-MEME_EXTERN_C MEME_API MemeString_FreeFunction_t* MEME_STDCALL MemeString_getFreeFunction()
-{
-	return *__MemeString_freeFuncObject();
-}
-
-MEME_EXTERN_C MEME_API MemeString_ReallocFunction_t* MEME_STDCALL MemeString_getReallocFunction()
+MEME_EXTERN_C MEME_API mmsmem_calloc_t* MEME_STDCALL mmsmem_get_calloc_func()
 {
 #if MMOPT__HEADTAIL_MEMCHECK_ENABLED
-	return MemeCheck_Realloc;
+	return MemeCheck_Calloc;
 #else
-	return realloc;
+	return calloc;
 #endif
+}
+
+MEME_EXTERN_C MEME_API mmsmem_realloc_t* MEME_STDCALL mmsmem_get_realloc_func()
+{
+#if MMOPT__HEADTAIL_MEMCHECK_ENABLED
+    return MemeCheck_Realloc;
+#else
+    return realloc;
+#endif
+}
+
+MEME_EXTERN_C MEME_API mmsmem_free_t* MEME_STDCALL mmsmem_get_free_func()
+{
+    return *__MemeString_freeFuncObject();
 }
 
 static MemeInteger_t* __MemeStringOption_storageMediumLimit()

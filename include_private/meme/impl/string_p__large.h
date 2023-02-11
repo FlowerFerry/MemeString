@@ -81,7 +81,7 @@ inline MemeInteger_t MemeStringLarge_RefCount_decrementAndDestruct(
 		//else {
 		//	f_func = MemeString_getFreeFunction();
 		//}
-		f_func = MemeString_getFreeFunction();
+		f_func = mmsmem_get_free_func();
 
 		if (MemeStringImpl_default() != _refcount->real_)
 		{
@@ -109,14 +109,14 @@ inline int MemeStringLarge_init (
 	_s->type_   = MemeString_ImplType_large;
 	_s->offset_ = 0;
 
-	c_func = (_cfn ? _cfn : MemeString_getMallocFunction());
+	c_func = (_cfn ? _cfn : mmsmem_get_malloc_func());
 	if (c_func == _cfn) {
 		if (_dfn == NULL)
 			return -EINVAL;
 		d_func = _dfn;
 	}
 	else {
-		d_func = MemeString_getFreeFunction();
+		d_func = mmsmem_get_free_func();
 	}
 
 	refCount = (MemeStringLarge_RefCounted_t*)c_func(sizeof(MemeStringLarge_RefCounted_t));
@@ -179,8 +179,8 @@ inline int MemeStringLarge_initByU8bytes(
 		d_func = _dfn;
 	}
 	else {
-		c_func = MemeString_getMallocFunction();
-		d_func = MemeString_getFreeFunction();
+		c_func = mmsmem_get_malloc_func();
+		d_func = mmsmem_get_free_func();
 	}
 
 	//c_func = (_cfn ? _cfn : MemeString_getMallocFunction());
@@ -250,11 +250,11 @@ inline int MemeStringLarge_initAndTakeover(
 	MemeInteger_t _offset, MemeInteger_t _size
 )
 {
-	MemeString_MallocFunction_t* c_func = MemeString_getMallocFunction();
+	//MemeString_MallocFunction_t* c_func = MemeString_getMallocFunction();
 	//MemeString_FreeFunction_t* d_func = MemeString_getFreeFunction();
 	MemeStringLarge_RefCounted_t* refCount = NULL;
 
-	refCount = (MemeStringLarge_RefCounted_t*)c_func(sizeof(MemeStringLarge_RefCounted_t));
+	refCount = (MemeStringLarge_RefCounted_t*)mmsmem_malloc(sizeof(MemeStringLarge_RefCounted_t));
 	if (!refCount)
 		return MMENO__POSIX_OFFSET(ENOMEM);
 	MemeStringLarge_RefCount_init(refCount);

@@ -3,6 +3,7 @@
 #define MEGOPP_STOOL_ENDIAN_BSWAP_H_INCLUDED
 
 #include <stdint.h>
+#include <limits.h>
 
 #include <mego/predef/endian.h>
 

@@ -5,6 +5,7 @@
 #include "meme/string.h"
 #include "memepp/string.hpp"
 #include "memepp/string_view.hpp"
+#include "memepp/string_builder.hpp"
 #include "memepp/convert/common_def.hpp"
 
 #include <string>
@@ -70,7 +71,7 @@ namespace memepp {
 	{
 		return std::string { _sv.data(), static_cast<size_t>(_sv.size()) };
 	}
-
+    
 }; // namespace memepp
 
 #include <memepp/convert/common.hpp>

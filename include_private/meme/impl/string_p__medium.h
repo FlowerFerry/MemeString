@@ -213,7 +213,7 @@ MemeStringMedium_initWithCapacity(
 	MemeStringMedium_t* _s, MemeInteger_t _capacity)
 {
 	MemeInteger_t front_capacity = 0; 
-	MemeString_MallocFunction_t* c_func = MemeString_getMallocFunction();
+	//MemeString_MallocFunction_t* c_func = MemeString_getMallocFunction();
 	
 	++_capacity;
 	front_capacity = (_capacity / (sizeof(size_t) * 10)) * sizeof(size_t);
@@ -224,7 +224,7 @@ MemeStringMedium_initWithCapacity(
 	if (front_capacity > MEME_STRING__GET_MEDIUM_FRONT_CAPACITY_MAX_SIZE)
 		front_capacity = MEME_STRING__GET_MEDIUM_FRONT_CAPACITY_MAX_SIZE;
 
-	_s->real_ = c_func(front_capacity + _capacity);
+	_s->real_ = mmsmem_malloc(front_capacity + _capacity);
 	if (!(_s->real_))
 		return MMENO__POSIX_OFFSET(ENOMEM);
 
@@ -286,7 +286,7 @@ inline int MemeStringMedium_resizeWithByte(MemeStringMedium_t* _s, MemeInteger_t
 inline int MemeStringMedium_capacityExpansion(MemeStringMedium_t* _s, MemeInteger_t _minSizeRequest)
 {
 	MemeInteger_t dstlen = 0;
-	MemeString_ReallocFunction_t* realloc_func = MemeString_getReallocFunction();
+	//MemeString_ReallocFunction_t* realloc_func = MemeString_getReallocFunction();
 	MemeByte_t* new_pointer = NULL;
 
 	dstlen = (MemeInteger_t)(MemeStringMedium_maxByteCapacity(_s) * 1.667);
@@ -297,7 +297,7 @@ inline int MemeStringMedium_capacityExpansion(MemeStringMedium_t* _s, MemeIntege
 	dstlen = (dstlen % sizeof(size_t)) == 0 ?
 		dstlen : ((dstlen / sizeof(size_t) + 1) * sizeof(size_t));
 
-	new_pointer = realloc_func(_s->real_, dstlen);
+	new_pointer = mmsmem_realloc(_s->real_, dstlen);
 	if (new_pointer == NULL)
 		return MMENO__POSIX_OFFSET(ENOMEM);
 
@@ -317,10 +317,10 @@ inline int MemeStringMedium_clear(MemeStringMedium_t* _s)
 inline int 
 MemeStringMedium_unInit(MemeStringMedium_t * _s)
 {
-	MemeString_FreeFunction_t* d_func = MemeString_getFreeFunction();
+	//MemeString_FreeFunction_t* d_func = MemeString_getFreeFunction();
 
 	if (_s->real_) {
-		d_func(_s->real_);
+		mmsmem_free(_s->real_);
 		_s->real_ = NULL;
 	}
 
