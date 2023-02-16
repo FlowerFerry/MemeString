@@ -16,6 +16,17 @@ namespace memepp {
 
 	inline memepp::string from(std::vector<uint8_t>&& _v)
 	{
+        return memepp::string(_v.data(), static_cast<MemeInteger_t>(_v.size()));
+	}
+
+    //! @brief Convert std::vector<uint8_t> to memepp::string.
+	//! 
+    //! One of the reasons why this function is not safe is that when it is used in a child dynamic library,
+    //! the allocated memepp::string is passed to the parent process and its life cycle is longer than the life cycle of the dynamic library, which will cause problems.
+    //! @param _v std::vector<uint8_t> to convert
+    //! @return memepp::string
+	inline memepp::string fromUnsafe(std::vector<uint8_t>&& _v)
+	{
 		static const auto destruct_func = [](void* _object) { 
 			delete reinterpret_cast<std::vector<uint8_t>*>(_object);
 		};

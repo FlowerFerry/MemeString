@@ -5,7 +5,7 @@
 
 #include "meme/string.h"
 #include <memepp/predef/macro_option.hpp>
-#include "memepp/word_def.hpp"
+#include "memepp/rune_def.hpp"
 #include "memepp/string_def.hpp"
 #include "memepp/string_view.hpp"
 #include "memepp/string_builder.hpp"
@@ -129,7 +129,7 @@ namespace memepp {
 #endif
 	}
 
-	MEMEPP__IMPL_INLINE string::string(const word& _ch)
+	MEMEPP__IMPL_INLINE string::string(const rune& _ch)
 	{
 		*errc() = MemeStringStack_initByU8bytes(&data_, MEME_STRING__OBJECT_SIZE, _ch.data(), _ch.size());
 #if !MMOPT__EXCEPTION_DISABLED
@@ -281,7 +281,7 @@ namespace memepp {
             to_pointer(native_handle()), _pos, _ch, case_sensitivity_t::all_sensitive);
 	}
 
-    MEMEPP__IMPL_INLINE string::size_type string::find(const word& _ch, size_type _pos) const noexcept
+    MEMEPP__IMPL_INLINE string::size_type string::find(const rune& _ch, size_type _pos) const noexcept
     {
         return MemeString_indexOfWithUtf8bytes(
             to_pointer(native_handle()), _pos, _ch.data(), _ch.size(), case_sensitivity_t::all_sensitive);
@@ -311,7 +311,7 @@ namespace memepp {
     //        to_pointer(native_handle()), _pos, _utf8, -1, case_sensitivity_t::all_sensitive);
     //}
     
-    MEMEPP__IMPL_INLINE string::size_type string::rfind(const word& _ch, size_type _pos) const noexcept
+    MEMEPP__IMPL_INLINE string::size_type string::rfind(const rune& _ch, size_type _pos) const noexcept
     {
         return MemeString_lastIndexOfWithUtf8bytes(
             to_pointer(native_handle()), _pos, _ch.data(), _ch.size(), case_sensitivity_t::all_sensitive);
@@ -375,7 +375,7 @@ namespace memepp {
         return find(_ch) != npos;
 	}
 
-    MEMEPP__IMPL_INLINE bool string::contains(const word& _ch) const noexcept
+    MEMEPP__IMPL_INLINE bool string::contains(const rune& _ch) const noexcept
     {
         return find(_ch) != npos;
     }
@@ -414,7 +414,7 @@ namespace memepp {
     //        to_pointer(native_handle()), _ch, case_sensitivity_t::all_sensitive);
     //}
 
-    MEMEPP__IMPL_INLINE bool string::starts_with(const word& _ch) const noexcept
+    MEMEPP__IMPL_INLINE bool string::starts_with(const rune& _ch) const noexcept
     {
         return MemeString_startsMatchWithUtf8bytes(
             to_pointer(native_handle()), _ch.data(), _ch.size(), case_sensitivity_t::all_sensitive);
@@ -454,7 +454,7 @@ namespace memepp {
     //        to_pointer(native_handle()), _ch, case_sensitivity_t::all_sensitive);
     //}
 
-    MEMEPP__IMPL_INLINE bool string::ends_with(const word& _ch) const noexcept
+    MEMEPP__IMPL_INLINE bool string::ends_with(const rune& _ch) const noexcept
     {
         return MemeString_endsMatchWithUtf8bytes(
             to_pointer(native_handle()), _ch.data(), _ch.size(), case_sensitivity_t::all_sensitive);

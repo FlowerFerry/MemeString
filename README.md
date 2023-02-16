@@ -1,13 +1,5 @@
 # MemeString
 
-一个玩具库  
+一个期望能跨越动态库的字符串库
 
-不要用到生产环境！！  
-
-A toy library  
-
-Not recommended for production environments !!  
-
-
-  
-  
+A string library that is expected to span dynamic libraries

@@ -1,6 +1,6 @@
 
-#ifndef MEME_WORD_H_INCLUDED
-#define MEME_WORD_H_INCLUDED
+#ifndef MEME_RUNE_H_INCLUDED
+#define MEME_RUNE_H_INCLUDED
 
 #include "meme/string_fwd.h"
 #include "mego/predef/symbol/likely.h"
@@ -11,17 +11,17 @@
 
 MEME_EXTERN_C_SCOPE_START
 
-static inline MemeWord_t
-MemeWord_getInitObject()
+static inline MemeRune_t
+MemeRune_getInitObject()
 {
-    MemeWord_t w;
+    MemeRune_t w;
     memset(&w, 0, sizeof(w));
     w.attr.capacity = 7;
     return w;
 }
 
 static inline int
-MemeWord_initByOther(MemeWord_t* _out, const MemeWord_t* _other)
+MemeRune_initByOther(MemeRune_t* _out, const MemeRune_t* _other)
 {
     assert(_out != NULL && _other != NULL);
 
@@ -30,7 +30,7 @@ MemeWord_initByOther(MemeWord_t* _out, const MemeWord_t* _other)
 }
 
 static inline int
-MemeWord_initByByte(MemeWord_t* _out, char _ch)
+MemeRune_initByByte(MemeRune_t* _out, char _ch)
 {
     assert(_out != NULL);
 
@@ -41,10 +41,10 @@ MemeWord_initByByte(MemeWord_t* _out, char _ch)
 }
 
 static inline int
-MemeWord_initByUtf8Bytes(MemeWord_t* _out, const MemeByte_t* _buf, MemeInteger_t _len);
+MemeRune_initByUtf8Bytes(MemeRune_t* _out, const MemeByte_t* _buf, MemeInteger_t _len);
 
 static inline int
-MemeWord_reset(MemeWord_t* _out)
+MemeRune_reset(MemeRune_t* _out)
 {
     assert(_out != NULL);
 
@@ -54,7 +54,7 @@ MemeWord_reset(MemeWord_t* _out)
 }
 
 static inline int
-MemeWord_assign(MemeWord_t* _s, const MemeWord_t* _other)
+MemeRune_assign(MemeRune_t* _s, const MemeRune_t* _other)
 {
     assert(_s != NULL && _other != NULL);
 
@@ -63,18 +63,18 @@ MemeWord_assign(MemeWord_t* _s, const MemeWord_t* _other)
 }
 
 static inline int
-MemeWord_swap(MemeWord_t* _lhs, MemeWord_t* _rhs)
+MemeRune_swap(MemeRune_t* _lhs, MemeRune_t* _rhs)
 {
     assert(_lhs != NULL && _rhs != NULL);
 
-    MemeWord_t tmp = *_lhs;
+    MemeRune_t tmp = *_lhs;
     *_lhs = *_rhs;
     *_rhs = tmp;
     return 0;
 }
 
 static inline int
-MemeWord_isEmpty(const MemeWord_t* _s)
+MemeRune_isEmpty(const MemeRune_t* _s)
 {
     assert(_s != NULL);
 
@@ -82,19 +82,19 @@ MemeWord_isEmpty(const MemeWord_t* _s)
 }
 
 static inline const MemeByte_t*
-MemeWord_data(const MemeWord_t* _s)
+MemeRune_data(const MemeRune_t* _s)
 {
     return _s->byte;
 }
 
 static inline MemeByte_t*
-MemeWord_dataNotConst(const MemeWord_t* _s)
+MemeRune_dataNotConst(const MemeRune_t* _s)
 {
-    return ((MemeWord_t*)_s)->byte;
+    return ((MemeRune_t*)_s)->byte;
 }
 
 static inline MemeInteger_t
-MemeWord_size(const MemeWord_t* _s)
+MemeRune_size(const MemeRune_t* _s)
 {
     assert(_s != NULL);
 
@@ -102,7 +102,7 @@ MemeWord_size(const MemeWord_t* _s)
 }
 
 static inline int
-MemeWord_isValid(const MemeWord_t* _s)
+MemeRune_isValid(const MemeRune_t* _s)
 {
     assert(_s != NULL);
 
@@ -110,7 +110,7 @@ MemeWord_isValid(const MemeWord_t* _s)
 }
 
 static inline int
-MemeWord_resize(MemeWord_t* _s, uint8_t _count)
+MemeRune_resize(MemeRune_t* _s, uint8_t _count)
 {
     assert(_s != NULL);
 
@@ -118,12 +118,12 @@ MemeWord_resize(MemeWord_t* _s, uint8_t _count)
         return MMENO__POSIX_OFFSET(EINVAL);
 
     _s->attr.capacity = 7 - _count;
-    _s->byte[MemeWord_size(_s)] = '\0';
+    _s->byte[MemeRune_size(_s)] = '\0';
     return 0;
 }
 
 static inline int
-MemeWord_isMulitChar(const MemeWord_t* _s)
+MemeRune_isMulitChar(const MemeRune_t* _s)
 {
     assert(_s != NULL);
 
@@ -131,7 +131,7 @@ MemeWord_isMulitChar(const MemeWord_t* _s)
 }
 
 static inline int
-MemeWord_initByUtf8Bytes(MemeWord_t* _out, const MemeByte_t* _buf, MemeInteger_t _len)
+MemeRune_initByUtf8Bytes(MemeRune_t* _out, const MemeByte_t* _buf, MemeInteger_t _len)
 {
     assert(_out != NULL && _buf != NULL);
 
@@ -140,10 +140,10 @@ MemeWord_initByUtf8Bytes(MemeWord_t* _out, const MemeByte_t* _buf, MemeInteger_t
 
     _out->attr.capacity = 7 - _len;
     memcpy(_out->byte, _buf, _len);
-    _out->byte[MemeWord_size(_out)] = '\0';
+    _out->byte[MemeRune_size(_out)] = '\0';
     return 0;
 }
 
 MEME_EXTERN_C_SCOPE_ENDED
 
-#endif // MEME_WORD_H_INCLUDED
+#endif // MEME_RUNE_H_INCLUDED

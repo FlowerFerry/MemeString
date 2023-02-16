@@ -4,7 +4,7 @@
 
 #include "meme/string.h"
 #include "meme/unsafe/view.h"
-#include "memepp/word_fwd.hpp"
+#include "memepp/rune_fwd.hpp"
 #include "memepp/string_fwd.hpp"
 #include "memepp/buffer_fwd.hpp"
 #include "memepp/string_view_fwd.hpp"
@@ -48,7 +48,7 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE string(const_pointer _utf8, size_type _size);
 		MEMEPP__IMPL_INLINE string(const_pointer _utf8, size_type _size, memepp::string_storage_type _suggest);
 
-		MEMEPP__IMPL_INLINE string(const word& _ch);
+		MEMEPP__IMPL_INLINE string(const rune& _ch);
         MEMEPP__IMPL_INLINE string(const string_builder& _builder);
 		//MEMEPP__IMPL_INLINE string(size_type _count, char _ch);
 
@@ -97,7 +97,7 @@ namespace memepp {
         MEMEPP__IMPL_INLINE size_type find(const_pointer _utf8, size_type _pos = 0) const noexcept;
         MEMEPP__IMPL_INLINE size_type find(const_pointer _utf8, size_type _pos, size_type _count) const noexcept;
 		MEMEPP__IMPL_INLINE size_type find(char _ch, size_type _pos = 0) const noexcept;
-        MEMEPP__IMPL_INLINE size_type find(const word& _ch, size_type _pos = 0) const noexcept;
+        MEMEPP__IMPL_INLINE size_type find(const rune& _ch, size_type _pos = 0) const noexcept;
 
         //MEMEPP__IMPL_INLINE size_type rfind(const string& _other, size_type _pos = npos) const noexcept;
         MEMEPP__IMPL_INLINE size_type rfind(const char* _utf8, size_type _pos = npos) const noexcept;
@@ -105,7 +105,7 @@ namespace memepp {
         MEMEPP__IMPL_INLINE size_type rfind(const_pointer _utf8, size_type _pos = npos) const noexcept;
         MEMEPP__IMPL_INLINE size_type rfind(const_pointer _utf8, size_type _pos, size_type _count) const noexcept;
         //MEMEPP__IMPL_INLINE size_type rfind(char _ch, size_type _pos = npos) const noexcept;
-        MEMEPP__IMPL_INLINE size_type rfind(const word& _ch, size_type _pos = npos) const noexcept;
+        MEMEPP__IMPL_INLINE size_type rfind(const rune& _ch, size_type _pos = npos) const noexcept;
         
 		MEMEPP__IMPL_INLINE size_type index_of(const string& _other,
 			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
@@ -130,7 +130,7 @@ namespace memepp {
         MEMEPP__IMPL_INLINE bool contains(const_pointer _utf8) const noexcept;
         MEMEPP__IMPL_INLINE bool contains(const_pointer _utf8, size_type _count) const noexcept;
         MEMEPP__IMPL_INLINE bool contains(char _ch) const noexcept;
-        MEMEPP__IMPL_INLINE bool contains(const word& _ch) const noexcept;
+        MEMEPP__IMPL_INLINE bool contains(const rune& _ch) const noexcept;
 
 		//! @brief Returns true if this string starts with the given string.
 		//! @param _sv The string to search for.
@@ -143,7 +143,7 @@ namespace memepp {
         MEMEPP__IMPL_INLINE bool starts_with(const_pointer _utf8) const noexcept;
         MEMEPP__IMPL_INLINE bool starts_with(const_pointer _utf8, size_type _count) const noexcept;
         //MEMEPP__IMPL_INLINE bool starts_with(char _ch) const noexcept;
-        MEMEPP__IMPL_INLINE bool starts_with(const word& _ch) const noexcept;
+        MEMEPP__IMPL_INLINE bool starts_with(const rune& _ch) const noexcept;
 
 		//! @brief Returns true if this string ends with the given string.
 		//! @param _sv The string to search for.
@@ -155,7 +155,7 @@ namespace memepp {
         MEMEPP__IMPL_INLINE bool ends_with(const_pointer _utf8) const noexcept;
         MEMEPP__IMPL_INLINE bool ends_with(const_pointer _utf8, size_type _count) const noexcept;
         //MEMEPP__IMPL_INLINE bool ends_with(char _ch) const noexcept;
-        MEMEPP__IMPL_INLINE bool ends_with(const word& _ch) const noexcept;
+        MEMEPP__IMPL_INLINE bool ends_with(const rune& _ch) const noexcept;
 
 		MEMEPP__IMPL_INLINE string to_en_upper() const noexcept;
 		MEMEPP__IMPL_INLINE string to_en_lower() const noexcept;
