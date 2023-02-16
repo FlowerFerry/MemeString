@@ -27,6 +27,17 @@ namespace memepp {
 
 	inline memepp::string from(std::string&& _s)
 	{
+        return memepp::string(_s.data(), static_cast<MemeInteger_t>(_s.size()));
+	}
+
+    //! @brief Convert memepp::string to std::string.
+	//! 
+	//! One of the reasons why this function is not safe is that when it is used in a child dynamic library, 
+	//! the allocated memepp::string is passed to the parent process and its life cycle is longer than the life cycle of the dynamic library, which will cause problems.
+    //! @param _s std::string to convert
+    //! @return memepp::string
+	inline memepp::string fromUnsafe(std::string&& _s)
+	{
 		static const auto destruct_func = [](void* _object) { delete reinterpret_cast<std::string*>(_object); };
 		static const auto data_func = [](const void* _object) { return reinterpret_cast<const std::string*>(_object)->data(); };
 		static const auto size_func = [](const void* _object) { return reinterpret_cast<const std::string*>(_object)->size(); };

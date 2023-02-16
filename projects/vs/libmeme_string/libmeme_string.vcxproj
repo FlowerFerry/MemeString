@@ -190,10 +190,10 @@
     <ClInclude Include="..\..\..\include\memepp\variable_buffer_def.hpp" />
     <ClInclude Include="..\..\..\include\memepp\variable_buffer_fwd.hpp" />
     <ClInclude Include="..\..\..\include\memepp\variable_buffer_impl.hpp" />
-    <ClInclude Include="..\..\..\include\memepp\word.hpp" />
-    <ClInclude Include="..\..\..\include\memepp\word_def.hpp" />
-    <ClInclude Include="..\..\..\include\memepp\word_fwd.hpp" />
-    <ClInclude Include="..\..\..\include\memepp\word_impl.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\rune.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\rune_def.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\rune_fwd.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\rune_impl.hpp" />
     <ClInclude Include="..\..\..\include\meme\buffer.h" />
     <ClInclude Include="..\..\..\include\meme\buffer_fwd.h" />
     <ClInclude Include="..\..\..\include\meme\common.h" />
@@ -206,7 +206,7 @@
     <ClInclude Include="..\..\..\include\meme\unsafe\view.h" />
     <ClInclude Include="..\..\..\include\meme\variable_buffer.h" />
     <ClInclude Include="..\..\..\include\meme\variable_buffer_fwd.h" />
-    <ClInclude Include="..\..\..\include\meme\word.h" />
+    <ClInclude Include="..\..\..\include\meme\rune.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\algorithm.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\atomic.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\atomic_fwd.h" />
@@ -229,7 +229,7 @@
     <ClCompile Include="..\..\..\src\meme_impl__algorithm.c" />
     <ClCompile Include="..\..\..\src\meme_string__basics.c" />
     <ClCompile Include="..\..\..\src\meme_string__stack.c" />
-    <ClCompile Include="..\..\..\src\meme_word.c" />
+    <ClCompile Include="..\..\..\src\meme_rune.c" />
     <ClCompile Include="dllmain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

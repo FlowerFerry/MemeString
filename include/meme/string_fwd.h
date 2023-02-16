@@ -23,13 +23,13 @@ typedef struct _MemeWordIndex_t {
     const MemeByte_t * data;
 } MemeWordIndex_t;
 
-typedef struct _MemeWord_t {
+typedef struct _MemeRune_t {
 	MemeByte_t byte[7];
 	struct {
 		MemeByte_t capacity : 3;
 		MemeByte_t invalid  : 5;
 	} attr;
-} MemeWord_t;
+} MemeRune_t;
 
 typedef MemeInteger_t MemeFlag_CaseSensitivity_t;
 enum _MemeFlag_CaseSensitivity_t 
@@ -61,9 +61,9 @@ enum _MemeFlag_SplitBehavior_t
 
 typedef int MemeString_MatchCondByteFunc_t(MemeByte_t _ch, void* _user_data);
 
-typedef int MemeString_MatchCondWordFunc_t(const MemeWord_t* _ch, void* _user_data);
+typedef int MemeString_MatchCondWordFunc_t(const MemeRune_t* _ch, void* _user_data);
 
-typedef int MemeString_MappingConvertFunc_t(const MemeWord_t* _ch, void* _user_data);
+typedef int MemeString_MappingConvertFunc_t(const MemeRune_t* _ch, void* _user_data);
 
 #ifdef MEME_STRING__OBJECT_SIZE
 #undef MEME_STRING__OBJECT_SIZE

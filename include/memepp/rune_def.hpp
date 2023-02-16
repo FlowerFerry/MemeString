@@ -1,15 +1,15 @@
 
-#ifndef MEMEPP_WORD_DEF_HPP_INCLUDED
-#define MEMEPP_WORD_DEF_HPP_INCLUDED
+#ifndef MEMEPP_RUNE_DEF_HPP_INCLUDED
+#define MEMEPP_RUNE_DEF_HPP_INCLUDED
 
-#include "meme/word.h"
+#include "meme/rune.h"
 #include "memepp/string_fwd.hpp"
 
 #include <memepp/iterator.hpp>
 
 namespace memepp {
 
-	class word
+	class rune
 	{
 	public:
 		using value_type = MemeByte_t;
@@ -21,8 +21,8 @@ namespace memepp {
 		using const_pointer = const value_type*;
 		static const size_type npos = static_cast<size_type>(-1);
 
-		MEMEPP__IMPL_INLINE word();
-		MEMEPP__IMPL_INLINE word(char _ch);
+		MEMEPP__IMPL_INLINE rune();
+		MEMEPP__IMPL_INLINE rune(char _ch);
 
 		MEMEPP__IMPL_INLINE pointer data() noexcept;
 		MEMEPP__IMPL_INLINE const_pointer data() const noexcept;
@@ -45,9 +45,9 @@ namespace memepp {
         inline operator bool() const noexcept { return valid() && !empty(); }
 
 	private:
-		MemeWord_t data_;
+		MemeRune_t data_;
 	};
 
 };
 
-#endif // !MEMEPP_WORD_DEF_HPP_INCLUDED
+#endif // !MEMEPP_RUNE_DEF_HPP_INCLUDED

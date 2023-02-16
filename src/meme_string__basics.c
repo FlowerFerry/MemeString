@@ -816,6 +816,7 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_split(
 	MemeInteger_t* MEGO_SYMBOL__RESTRICT _out_count, 
 	MemeInteger_t* MEGO_SYMBOL__RESTRICT _search_index)
 {
+	int result = 0;
 	MemeInteger_t last_index = (_search_index == NULL ? 0 : *_search_index);
 	MemeInteger_t curr_index = -1;
 	MemeInteger_t output_index = 0;
@@ -862,8 +863,13 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_split(
 			continue;
 		}
 
-		MemeStringStack_initByU8bytes(_out + output_index, 
+		result = MemeStringStack_initByU8bytes(_out + output_index,
 			MEME_STRING__OBJECT_SIZE, MemeString_byteData(_s) + last_index, curr_index - last_index);
+		if (result != 0) {
+            for (MemeInteger_t i = 0; i < output_index; ++i)
+                MemeStringStack_unInit(_out + i, MMS__OBJECT_SIZE);
+            return result;
+		}
 		last_index = curr_index + _key_len;
 		++output_index;
 	}

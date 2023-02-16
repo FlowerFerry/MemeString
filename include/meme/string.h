@@ -45,8 +45,8 @@ MEME_STDCALL MemeStringStack_initByBuffer(
 	MemeStringStack_t* _out, size_t _object_size, MemeBuffer_Const_t _other, MemeInteger_t _offset);
 
 MEME_API int
-	MEME_STDCALL MemeStringStack_initByWord(
-		MemeStringStack_t* _out, size_t _object_size, MemeInteger_t _count, MemeWord_t _ch);
+	MEME_STDCALL MemeStringStack_initByRune(
+		MemeStringStack_t* _out, size_t _object_size, MemeInteger_t _count, MemeRune_t _ch);
 
 MEME_API int
 	MEME_STDCALL MemeStringStack_initByU8bytes(
@@ -190,7 +190,7 @@ MEME_API int
 	MEME_STDCALL MemeString_createByOther(MemeString_t* _out, MemeString_Const_t _other);
 
 MEME_API int 
-	MEME_STDCALL MemeString_createByWord(MemeString_t* _out, size_t _len, MemeWord_t _ch);
+	MEME_STDCALL MemeString_createByRune(MemeString_t* _out, size_t _len, MemeRune_t _ch);
 
 MEME_API int 
 	MEME_STDCALL MemeString_createByUtf8bytes(MemeString_t* _out, const MemeByte_t* _utf8, size_t _len);
@@ -223,7 +223,7 @@ MEME_API MemeInteger_t
 //! @return The length of the string in words.
 //! @note The length of the string in words is not necessarily equal to the length of the string in bytes.
 MEME_API MemeInteger_t 
-	MEME_STDCALL MemeString_wordSize(MemeString_Const_t _s);
+	MEME_STDCALL MemeString_runeSize(MemeString_Const_t _s);
 MEME_API MemeInteger_t 
 	MEME_STDCALL MemeString_availableByteCapacity(MemeString_Const_t _s);
 MEME_API MemeInteger_t
