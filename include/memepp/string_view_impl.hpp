@@ -3,7 +3,7 @@
 #define MEMEPP_STRING_VIEW_IMPL_HPP_INCLUDED
 
 #include "meme/string.h"
-#include "meme/unsafe/view.h"
+#include "meme/unsafe/string_view.h"
 
 #include "memepp/string_def.hpp"
 #include "memepp/string_view_def.hpp"
@@ -192,9 +192,9 @@ namespace memepp {
 		if (MemeString_storageType(to_pointer(data_)) == MemeString_UnsafeStorageType_view)
 			return string { data(), size() };
 
-		MemeStringStack_t stack;
+		mmsstk_t stack;
 		MemeStringStack_initByOther(
-			&stack, MEME_STRING__OBJECT_SIZE, to_pointer(data_));
+			&stack, MMS__OBJECT_SIZE, to_pointer(data_));
 		return string { reinterpret_cast<MemeStringStack_t&&>(stack) };
 	}
 

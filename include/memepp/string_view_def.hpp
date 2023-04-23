@@ -3,7 +3,7 @@
 #define MEMEPP_STRING_VIEW_DEF_HPP_INCLUDED
 
 #include "meme/string.h"
-#include "meme/unsafe/view.h"
+#include "meme/unsafe/string_view.h"
 #include "memepp/string_fwd.hpp"
 #include "memepp/string_view_fwd.hpp"
 #include "memepp/string_builder_fwd.hpp"

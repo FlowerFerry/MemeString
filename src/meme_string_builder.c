@@ -8,18 +8,19 @@
 
 #include <assert.h>
 #include <string.h>
+#include <errno.h>
 
 int MemeStringBuilderPart_init(mmsbuilder_part_t* _part)
 {
     int result = 0;
-    result = mmsstack_init(&(_part->str), MMS__OBJECT_SIZE);
+    result = mmsstk_init(&(_part->str), MMS__OBJECT_SIZE);
     return result;
 }
 
 void MemeStringBuilderPart_unInit(void* _part)
 {
     mmsbuilder_part_t* part = (mmsbuilder_part_t*)_part;
-    mmsstack_uninit(&part->str, MMS__OBJECT_SIZE);
+    mmsstk_uninit(&part->str, MMS__OBJECT_SIZE);
 }
 
 int MemeStringBuilderParts_checkInit(mmsbuilder_part_t** _part)
@@ -52,11 +53,11 @@ MemeStringBuilderFormat_destroy(mmsbuilder_format_t** _fmt)
 }
 
 int
-MemeStringBuilder_generateWithParts(mmsbuilder_const_t _builder, mms_t _out)
+MemeStringBuilder_generateWithParts(mmsbldr_const_t _builder, mms_t _out)
 {
     size_t totalSize = 0;
     int result = 0;
-    mmvb_stack_t vb;
+    mmvbstk_t vb;
     mmvb_t vbp = (mmvb_t)&vb;
     
     for (size_t index = 0; index < cvector_size(_builder->parts_); ++index)
@@ -95,7 +96,7 @@ MemeStringBuilder_generateWithParts(mmsbuilder_const_t _builder, mms_t _out)
 MEME_API int MEME_STDCALL 
 MemeStringBuilderStack_init(MemeStringBuilderStack_t* _builder, size_t _builder_size)
 {
-    mmsbuilder_t builder = (mmsbuilder_t)_builder;
+    mmsbldr_t builder = (mmsbldr_t)_builder;
 
     assert(_builder != NULL && MemeStringBuilderStack_init);
     assert(_builder_size <= sizeof(MemeStringBuilderStack_t) && MemeStringBuilderStack_init);
@@ -107,10 +108,10 @@ MemeStringBuilderStack_init(MemeStringBuilderStack_t* _builder, size_t _builder_
 
 MEME_API int MEME_STDCALL 
 MemeStringBuilderStack_initByOther(
-    mmsbuilder_stack_t* _builder, size_t _builder_size, mmsbuilder_const_t _other)
+    mmsbldrstk_t* _builder, size_t _builder_size, mmsbldr_const_t _other)
 {
     int result = 0;
-    mmsbuilder_t builder = (mmsbuilder_t)_builder;
+    mmsbldr_t builder = (mmsbldr_t)_builder;
 
     assert(_builder != NULL && MemeStringBuilderStack_initByOther);
     assert(_builder_size <= sizeof(MemeStringBuilderStack_t) && MemeStringBuilderStack_initByOther);
@@ -127,7 +128,7 @@ MemeStringBuilderStack_initByOther(
         if (result != 0)
             return result;
         result = MemeStringStack_assign(
-            (mms_stack_t*)builder->out_, MMS__OBJECT_SIZE, _other->out_);
+            (mmsstk_t*)builder->out_, MMS__OBJECT_SIZE, _other->out_);
         if (result != 0)
             return result;
     }
@@ -158,7 +159,7 @@ MemeStringBuilderStack_initByOther(
 MEME_API int MEME_STDCALL 
 MemeStringBuilderStack_unInit(MemeStringBuilderStack_t* _builder, size_t _builder_size)
 {
-    mmsbuilder_t builder = (mmsbuilder_t)_builder;
+    mmsbldr_t builder = (mmsbldr_t)_builder;
     int result = 0;
 
     assert(_builder != NULL && MemeStringBuilderStack_unInit);
@@ -180,7 +181,7 @@ MemeStringBuilderStack_unInit(MemeStringBuilderStack_t* _builder, size_t _builde
 
 MEME_API int MEME_STDCALL 
 MemeStringBuilderStack_assignByOther(
-    mmsbuilder_stack_t* _builder, size_t _builder_size, mmsbuilder_const_t _other)
+    mmsbldrstk_t* _builder, size_t _builder_size, mmsbldr_const_t _other)
 {
     int result = 0;
 
@@ -209,7 +210,7 @@ MEME_API int MEME_STDCALL MemeStringBuilderStack_swap(
 }
 
 MEME_API int MEME_STDCALL 
-MemeStringBuilder_generate(mmsbuilder_const_t _builder, mms_t _out)
+MemeStringBuilder_generate(mmsbldr_const_t _builder, mms_t _out)
 {
     // TO_DO
 
@@ -223,7 +224,7 @@ MemeStringBuilder_generate(mmsbuilder_const_t _builder, mms_t _out)
 }
 
 MEME_API int MEME_STDCALL 
-MemeStringBuilder_appendArgWithString(mmsbuilder_t _builder, mms_const_t _arg)
+MemeStringBuilder_appendArgWithString(mmsbldr_t _builder, mms_const_t _arg)
 {
     int result = 0;
     mmsbuilder_part_t part;
@@ -240,12 +241,12 @@ MemeStringBuilder_appendArgWithString(mmsbuilder_t _builder, mms_const_t _arg)
 }
 
 //MEME_API int MEME_STDCALL 
-//MemeStringBuilder_appendArgByOther(mmsbuilder_t _builder, mmsbuilder_const_t _other)
+//MemeStringBuilder_appendArgByOther(mmsbuilder_t _builder, mmsbldr_const_t _other)
 //{
 //}
 
 MEME_API int MEME_STDCALL 
-MemeStringBuilder_prependArgWithString(mmsbuilder_t _builder, mms_const_t _arg)
+MemeStringBuilder_prependArgWithString(mmsbldr_t _builder, mms_const_t _arg)
 {
     int result = 0;
     mmsbuilder_part_t part;

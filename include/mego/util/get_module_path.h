@@ -5,7 +5,7 @@
 #include <mego/predef/os/windows.h>
 
 #if MEGO_OS__WINDOWS__AVAILABLE
-#   include <mego/util/os/windows/windows_simple.h>
+#   include <mego/util/os/windows/windows_simplify.h>
 #endif
 
 #include <stdlib.h>

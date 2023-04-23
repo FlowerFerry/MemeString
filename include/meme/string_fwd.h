@@ -77,7 +77,7 @@ typedef int MemeString_MappingConvertFunc_t(const MemeRune_t* _ch, void* _user_d
 typedef struct _MemeStringStack_t {
 	MemeByte_t byte[MEME_STRING__OBJECT_SIZE];
 } MemeStringStack_t;
-typedef MemeStringStack_t mms_stack_t;
+typedef MemeStringStack_t mmsstk_t;
 
 #ifndef MMENO__OFFSET
 #define MMENO__OFFSET (-100000)

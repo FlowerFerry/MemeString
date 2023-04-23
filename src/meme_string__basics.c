@@ -224,7 +224,7 @@ MEME_API int MEME_STDCALL MemeString_destroy(MemeString_t* _out)
     assert(_out);
     assert(*_out);
 
-	result = MemeStringStack_unInit((mms_stack_t*)(*_out), MMS__OBJECT_SIZE);
+	result = MemeStringStack_unInit((mmsstk_t*)(*_out), MMS__OBJECT_SIZE);
     
     mmsmem_free(*_out);
     *_out = NULL;

@@ -8,6 +8,7 @@
 #include <meme/impl/string_memory.h>
 #include "mego/predef/symbol/likely.h"
 
+#include <string.h>
 #include <assert.h>
 #include <errno.h>
 

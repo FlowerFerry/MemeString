@@ -29,7 +29,7 @@ typedef struct _MemeVariableBufferStack_t {
 	MemeByte_t byte[MEME_STRING__OBJECT_SIZE];
 } MemeVariableBufferStack_t;
 
-typedef MemeVariableBufferStack_t mmvb_stack_t;
+typedef MemeVariableBufferStack_t mmvbstk_t;
 
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_VARIABLE_BUFFER_FWD_H_INCLUDED

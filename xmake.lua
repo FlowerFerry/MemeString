@@ -12,7 +12,8 @@ set_languages(stdc)
 
 add_includedirs(
     "include",
-    "include_private"
+    "include_private",
+    "deps/include"
 )
 
 target("meme_string")

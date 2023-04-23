@@ -26,7 +26,7 @@ enum _MemeBuffer_UnsafeStorage_t {
 
 typedef struct _MemeBufferStack_t {
 	MemeByte_t byte[MEME_STRING__OBJECT_SIZE];
-} MemeBufferStack_t, mmbuf_stack_t;
+} MemeBufferStack_t, mmbufstk_t;
 
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_BUFFER_FWD_H_INCLUDED

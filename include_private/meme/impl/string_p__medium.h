@@ -7,6 +7,7 @@
 #include <meme/string_memory.h>
 #include <meme/impl/string_memory.h>
 #include <mego/predef/symbol/likely.h>
+#include <string.h>
 #include <errno.h>
 
 inline int 

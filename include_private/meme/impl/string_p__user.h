@@ -6,6 +6,7 @@
 #include <meme/impl/string.h>
 #include <meme/impl/string_p__small.h>
 #include <meme/impl/string_memory.h>
+#include <string.h>
 #include <assert.h>
 #include <errno.h>
 

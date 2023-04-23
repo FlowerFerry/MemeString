@@ -562,7 +562,7 @@ MEME_STDCALL MemeVariableBuffer_split(
 )
 {
 	return MemeString_split(
-		(MemeString_Const_t)_s, (const char*)_key, _key_len, _sb, MemeFlag_CaseSensitive,
+		(MemeString_Const_t)_s, (const char*)_key, _key_len, _sb, MemeFlag_AllSensitive,
 		(MemeStringStack_t*)_out, _out_count, _search_index);
 }
 

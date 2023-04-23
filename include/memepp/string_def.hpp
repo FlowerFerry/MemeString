@@ -3,7 +3,7 @@
 #define MEMEPP_STRING_DEF_HPP_INCLUDED
 
 #include "meme/string.h"
-#include "meme/unsafe/view.h"
+#include "meme/unsafe/string_view.h"
 #include "memepp/rune_fwd.hpp"
 #include "memepp/string_fwd.hpp"
 #include "memepp/buffer_fwd.hpp"
@@ -84,6 +84,8 @@ namespace memepp {
 
 		MEMEPP__IMPL_INLINE const_iterator end() const noexcept;
 		MEMEPP__IMPL_INLINE const_iterator cend() const noexcept;
+
+        MEMEPP__IMPL_INLINE string to_large() const noexcept;
 
 		MEMEPP__IMPL_INLINE void swap(string& _other) noexcept;
 

@@ -27,6 +27,25 @@ namespace mmutils {
         return memepp::string{ vb.data(), pos };
     }
 
+    inline memepp::string program_file_path()
+    {
+        int pos = 0;
+        int len = MegoUtil_GetExecutablePath(NULL, 0, NULL);
+        if (len <= 0)
+        {
+            return {};
+        }
+        memepp::variable_buffer vb{ len, 0 };
+        len = MegoUtil_GetExecutablePath(
+            reinterpret_cast<char*>(vb.data()), len, &pos);
+        if (len <= 0)
+        {
+            return {};
+        }
+
+        return memepp::string{ vb.data(), len };
+    }
+
     inline memepp::string relative_with_program_path(const memepp::string_view& _path)
     {
         auto path = _path.trim_space();

@@ -154,14 +154,14 @@ MemeStringStack_formatInCstyle(
 	const char* _format,
 	MemeInteger_t _size_limit, ...);
 
-MEME_API mms_stack_t MEME_STDCALL
+MEME_API mmsstk_t MEME_STDCALL
 MemeStringStack_vformatInCstyle_v2(
 	size_t _object_size,
 	MemeInteger_t _size_limit,
 	MEGO_SYMBOL__MSVC_FORMAT_STRING(const char* _format),
 	va_list _args);
 
-MEME_API mms_stack_t
+MEME_API mmsstk_t
 MemeStringStack_formatInCstyle_v2(
 	size_t _object_size,
 	MemeInteger_t _size_limit,
@@ -366,42 +366,42 @@ MEME_API MemeInteger_t
 // The following functions will check the parameters
 
 MEME_API int 
-MEME_STDCALL mmsstack_init(mms_stack_t* _out, size_t _object_size);
+MEME_STDCALL mmsstk_init(mmsstk_t* _out, size_t _object_size);
 
 MEME_API int
-MEME_STDCALL mmsstack_init_by_other(mms_stack_t* _out, size_t _object_size, mms_const_t _other);
+MEME_STDCALL mmsstk_init_by_other(mmsstk_t* _out, size_t _object_size, mms_const_t _other);
 
 MEME_API int
-MEME_STDCALL mmsstack_init_by_buf(
-	mms_stack_t* _out, size_t _object_size, mmbuf_const_t _other, MemeInteger_t _offset);
+MEME_STDCALL mmsstk_init_by_buf(
+	mmsstk_t* _out, size_t _object_size, mmbuf_const_t _other, MemeInteger_t _offset);
 
 MEME_API int
-MEME_STDCALL mmsstack_init_by_utf8(
-	MemeStringStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len);
+MEME_STDCALL mmsstk_init_by_utf8(
+	mmsstk_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len);
 
 MEME_API int
-MEME_STDCALL mmsstack_init_by_utf8_v2(
-	mms_stack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len,
+MEME_STDCALL mmsstk_init_by_utf8_v2(
+	mmsstk_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len,
 	MemeString_Storage_t _suggest);
 
 MEME_API int
-MEME_STDCALL mmsstack_init_by_hexs(
-	mms_stack_t* _out, size_t _object_size,
+MEME_STDCALL mmsstk_init_by_hexs(
+	mmsstk_t* _out, size_t _object_size,
 	const MemeByte_t* _interval, MemeInteger_t _ivlen, const uint8_t* _hexs, MemeInteger_t _len);
 
 MEME_API int
-MEME_STDCALL mmsstack_init_by_user(
-	mms_stack_t* _out, size_t _object_size,
+MEME_STDCALL mmsstk_init_by_user(
+	mmsstk_t* _out, size_t _object_size,
 	void* _user_data,
 	MemeString_UserObjectDestruct_t* _destruct_fn,
 	MemeString_UserObjectData_t* _data_fn,
 	MemeString_UserObjectSize_t* _size_fn);
 
 MEME_API int
-MEME_STDCALL mmsstack_uninit(mms_stack_t* _out, size_t _object_size);
+MEME_STDCALL mmsstk_uninit(mmsstk_t* _out, size_t _object_size);
 
 MEME_API int
-MEME_STDCALL mmsstack_reset(mms_stack_t* _out, size_t _object_size);
+MEME_STDCALL mmsstk_reset(mmsstk_t* _out, size_t _object_size);
 
 MEME_API int
 MEME_STDCALL mms_assign(mms_t _s, mms_const_t _other);

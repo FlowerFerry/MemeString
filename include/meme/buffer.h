@@ -47,7 +47,6 @@ MEME_API int
 MEME_STDCALL MemeBufferStack_assign(
 	MemeBufferStack_t* _s, size_t _object_size, const MemeBufferStack_t* _other);
 
-
 MEME_API MemeBuffer_Storage_t
 MEME_STDCALL MemeBuffer_storageType(MemeBuffer_Const_t _s);
 
@@ -79,8 +78,25 @@ MEME_STDCALL MemeBuffer_indexOfWithBytes(
 
 MEME_API MemeInteger_t
 MEME_STDCALL MemeBuffer_indexOfWithOther(
-	MemeBuffer_Const_t _s, MemeInteger_t _offset,
-	MemeBuffer_Const_t _other);
+	MemeBuffer_Const_t _s, MemeInteger_t _offset, MemeBuffer_Const_t _other);
+
+MEME_API MemeInteger_t
+MEME_STDCALL MemeBuffer_startsMatchWithBytes(
+	MemeBuffer_Const_t _s,
+	const MemeByte_t* _needle, MemeInteger_t _needle_len);
+
+MEME_API MemeInteger_t
+MEME_STDCALL MemeBuffer_startsMatchWithOther(
+	MemeBuffer_Const_t _s, MemeBuffer_Const_t _other);
+
+MEME_API MemeInteger_t
+MEME_STDCALL MemeBuffer_endsMatchWithBytes(
+	MemeBuffer_Const_t _s,
+	const MemeByte_t* _needle, MemeInteger_t _needle_len);
+
+MEME_API MemeInteger_t
+MEME_STDCALL MemeBuffer_endsMatchWithOther(
+	MemeBuffer_Const_t _s, MemeBuffer_Const_t _other);
 
 MEME_API MemeInteger_t
 MEME_STDCALL MemeBuffer_split(

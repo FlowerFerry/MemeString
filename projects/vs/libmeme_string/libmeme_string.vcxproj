@@ -154,6 +154,10 @@
     <ClInclude Include="..\..\..\include\memepp\buffer_def.hpp" />
     <ClInclude Include="..\..\..\include\memepp\buffer_fwd.hpp" />
     <ClInclude Include="..\..\..\include\memepp\buffer_impl.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\buffer_view.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\buffer_view_def.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\buffer_view_fwd.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\buffer_view_impl.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\common.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\common_def.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\exprtk_ex.hpp" />
@@ -203,7 +207,8 @@
     <ClInclude Include="..\..\..\include\meme\string_fwd.h" />
     <ClInclude Include="..\..\..\include\meme\string_memory.h" />
     <ClInclude Include="..\..\..\include\meme\string_memory_fwd.h" />
-    <ClInclude Include="..\..\..\include\meme\unsafe\view.h" />
+    <ClInclude Include="..\..\..\include\meme\unsafe\buffer_view.h" />
+    <ClInclude Include="..\..\..\include\meme\unsafe\string_view.h" />
     <ClInclude Include="..\..\..\include\meme\variable_buffer.h" />
     <ClInclude Include="..\..\..\include\meme\variable_buffer_fwd.h" />
     <ClInclude Include="..\..\..\include\meme\rune.h" />

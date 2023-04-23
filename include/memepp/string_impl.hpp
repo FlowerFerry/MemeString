@@ -239,6 +239,12 @@ namespace memepp {
     {
         return const_iterator(bytes() + size());
     }
+
+	MEMEPP__IMPL_INLINE string string::to_large() const noexcept
+	{
+        return storage_type() == string_storage_type::large ? 
+            *this : string{ data(), size(), string_storage_type::large };
+	}
     
 	MEMEPP__IMPL_INLINE void string::swap(string& _other) noexcept
 	{

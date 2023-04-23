@@ -4,8 +4,10 @@
 
 #include <meme/string_fwd.h>
 #include <meme/string_memory.h>
+
 #include <stdlib.h>
 #include <assert.h>
+#include <limits.h>
 
 #include <cvector.h>
 #undef  cvector_clib_malloc
@@ -25,12 +27,12 @@
 typedef struct _MemeStringBuilder_Part_t
 {
     //mmsbuilder_merge_type_t merge_type;
-    mms_stack_t str;
+    mmsstk_t str;
 } MemeStringBuilder_Part_t, mmsbuilder_part_t;
 
 typedef struct _MemeStringBuilder_Format_t
 {
-    mms_stack_t fmt;
+    mmsstk_t fmt;
 } MemeStringBuilder_Format_t, mmsbuilder_format_t;
 
 struct _MemeStringBuilder_t 
@@ -59,6 +61,6 @@ int
 MemeStringBuilderFormat_destroy(mmsbuilder_format_t** _fmt);
 
 int
-MemeStringBuilder_generateWithParts(mmsbuilder_const_t _builder, mms_t _out);
+MemeStringBuilder_generateWithParts(mmsbldr_const_t _builder, mms_t _out);
 
 #endif // MEME_IMPL_STRING_BUILDER_H_INCLUDED

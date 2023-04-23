@@ -3,9 +3,10 @@
 #define MEME_IMPL_STRING_P_SMALL_H_INCLUDED
 
 #include <meme/impl/string.h>
-#include <assert.h>
 #include <meme/impl/algorithm.h>
+#include <string.h>
 #include <errno.h>
+#include <assert.h>
 
 inline int 
 MemeStringSmall_stackReset(MemeStringStack_t* _s);
