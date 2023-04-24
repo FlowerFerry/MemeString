@@ -777,7 +777,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringViewUnsafeStack_init(MemeStrin
     if ((_buf == NULL))
         return MMENO__POSIX_OFFSET(EINVAL);
 
-	if (_len == -1)
+	if (_len < 0)
 		_len = strlen((const char*)_buf);
 
 	//if (_len <= MEME_STRING__GET_SMALL_BUFFER_SIZE)
