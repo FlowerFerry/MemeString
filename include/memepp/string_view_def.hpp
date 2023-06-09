@@ -66,6 +66,7 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE const_iterator cend() const noexcept;
 
 		MEMEPP__IMPL_INLINE string to_string() const;
+        MEMEPP__IMPL_INLINE string to_large () const noexcept;
 
         MEMEPP__IMPL_INLINE size_type find(const string_view& _other, size_type _pos = 0) const noexcept;
         MEMEPP__IMPL_INLINE size_type find(const char* _utf8, size_type _pos = 0) const noexcept;

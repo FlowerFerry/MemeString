@@ -169,7 +169,7 @@ inline int MemeStringLarge_initByU8bytes(
 	assert(_buf != NULL);
 	assert(total_length);
 
-	total_length = (total_length / sizeof(void*) + 1) * (sizeof(void*));
+	total_length = ((total_length / sizeof(void*)) + 1) * (sizeof(void*));
 
 	memset(_s, 0, sizeof(MemeStringStack_t));
 

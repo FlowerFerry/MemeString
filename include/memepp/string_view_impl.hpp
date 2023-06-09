@@ -198,6 +198,12 @@ namespace memepp {
 		return string { reinterpret_cast<MemeStringStack_t&&>(stack) };
 	}
 
+	MEMEPP__IMPL_INLINE string string_view::to_large() const noexcept
+	{
+        return storage_type() == string_storage_type::large ? 
+            to_string() : string{ data(), size(), string_storage_type::large };
+	}
+    
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::find(
 		const string_view& _other, size_type _pos) const noexcept
 	{
