@@ -39,4 +39,10 @@ namespace memepp {
 	}
 };
 
+template<typename _Ty>
+inline memepp::string mm_from(const exprtk::type_store<_Ty>& _other)
+{
+    return memepp::from(_other);
+}
+
 #endif // !MEMEPP_CONVERT_EXPRTK_HPP_INCLUDED

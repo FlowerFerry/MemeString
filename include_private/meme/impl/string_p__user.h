@@ -10,6 +10,10 @@
 #include <assert.h>
 #include <errno.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 inline void MemeStringUser_RefCount_init(volatile MemeStringUser_RefCounted_t* _refcount);
 inline MemeInteger_t MemeStringUser_RefCount_increment(volatile MemeStringUser_RefCounted_t* _refcount);
 inline MemeInteger_t MemeStringUser_RefCount_decrementAndDestruct(
@@ -180,5 +184,9 @@ inline MemeInteger_t MemeStringUser_checkHeadTailMemory(const MemeStringUser_t* 
 	return MemeCheck_calibrate(_s->ref_);
 #endif
 }
+
+#ifdef __cplusplus
+}
+#endif // __cplusplus
 
 #endif // !MEME_IMPL_STRING_P_SMALL_H_INCLUDED

@@ -65,4 +65,24 @@ namespace memepp {
 
 };
 
+inline memepp::string mm_from(const MemeStringStack_t& _s)
+{
+    return memepp::from(_s);
+}
+
+inline memepp::string mm_from(memepp::string&& _s)
+{
+    return std::move(_s);
+}
+
+inline memepp::string mm_from(const memepp::string& _s)
+{
+    return _s;
+}
+
+inline memepp::string mm_from(const memepp::string_view& _s)
+{
+    return _s.to_string();
+}
+
 #endif // !MEMEPP_CONVERT_SELF_HPP_INCLUDED

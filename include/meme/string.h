@@ -57,6 +57,15 @@ MEME_API int
 		MemeStringStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len,
 		MemeString_Storage_t _suggest);
 
+MEME_API int
+	MEME_STDCALL MemeStringStack_initByU16bytes(
+		MemeStringStack_t* _out, size_t _object_size, const uint16_t* _buf, MemeInteger_t _len);
+
+MEME_API int
+	MEME_STDCALL MemeStringStack_initByU16bytesAndType(
+		mmsstk_t* _out, size_t _object_size, const uint16_t* _buf, MemeInteger_t _len,
+		MemeString_Storage_t _suggest);
+
 //MEME_API int 
 //	MEME_STDCALL MemeStringStack_initByOtherAndType(
 //		MemeStringStack_t* _out, size_t _object_size, 
@@ -223,7 +232,9 @@ MEME_API MemeInteger_t
 //! @return The length of the string in words.
 //! @note The length of the string in words is not necessarily equal to the length of the string in bytes.
 MEME_API MemeInteger_t 
-	MEME_STDCALL MemeString_runeSize(MemeString_Const_t _s);
+	MEME_STDCALL MemeString_runeSize(mms_const_t _s);
+MEME_API MemeInteger_t
+	MEME_STDCALL MemeString_u16CharSize(mms_const_t _s);
 MEME_API MemeInteger_t 
 	MEME_STDCALL MemeString_availableByteCapacity(MemeString_Const_t _s);
 MEME_API MemeInteger_t
@@ -344,6 +355,9 @@ MEME_API MemeInteger_t
 		MemeInteger_t* MEGO_SYMBOL__RESTRICT _out_count,
 		MemeInteger_t* MEGO_SYMBOL__RESTRICT _search_index
 	);
+
+MEME_API MemeInteger_t
+MEME_STDCALL MemeString_writeU16Chars(mms_const_t _s, uint16_t* _out);
 
 MEME_API const MemeByte_t*
 	MEME_STDCALL MemeString_byteData(MemeString_Const_t _s);

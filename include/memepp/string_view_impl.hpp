@@ -167,6 +167,11 @@ namespace memepp {
         return MemeString_byteData(to_pointer(data_));
     }
 
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::u16char_size() const noexcept
+	{
+		return MemeString_u16CharSize(to_pointer(data_));
+	}
+
 	MEMEPP__IMPL_INLINE const_iterator string_view::begin() const noexcept
 	{
 		return const_iterator{ bytes() };

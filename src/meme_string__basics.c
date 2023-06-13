@@ -7,6 +7,7 @@
 #include "meme/impl/string_p__large.h"
 
 #include "meme/impl/algorithm.h"
+#include <meme/utf/converter.h>
 #include <mego/predef/symbol/likely.h>
 #include <mego/predef/endian.h>
 
@@ -49,7 +50,6 @@ MemeString_Storage_t MemeStringImpl_initSuggestType(
 	};
 	}
 
-	//return MemeString_StorageType_large;
 }
 
 int MemeStringImpl_isModifiableType(MemeString_Storage_t _type)
@@ -388,6 +388,18 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_byteSize(MemeString_Const_t _s)
 		return 0;
 	};
 	}
+}
+
+MEME_API MemeInteger_t
+MEME_STDCALL MemeString_runeSize(mms_const_t _s)
+{
+    return mmutf_u8rune_size(MemeString_byteData(_s), MemeString_byteSize(_s));
+}
+
+MEME_API MemeInteger_t
+MEME_STDCALL MemeString_u16CharSize(mms_const_t _s)
+{
+    return mmutf_char_size_u16from8(MemeString_byteData(_s), MemeString_byteSize(_s));
 }
 
 MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL MemeString_availableByteCapacity(MemeString_Const_t _s)
@@ -896,6 +908,12 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_split(
 			*_search_index = -1;
 		return 0;
 	}
+}
+
+MEME_API MemeInteger_t
+MEME_STDCALL MemeString_writeU16Chars(mms_const_t _s, uint16_t* _out)
+{
+    return mmutf_convert_u8to16(MemeString_byteData(_s), MemeString_byteSize(_s), _out);
 }
 
 MEME_API const MemeByte_t* MEME_STDCALL MemeString_byteData(MemeString_Const_t _s)

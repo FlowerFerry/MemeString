@@ -105,6 +105,26 @@ namespace memepp {
 
 };
 
+inline memepp::string mm_from(const rapidjson::GenericStringRef<char>& _s)
+{
+    return memepp::from(_s);
+}
+
+inline memepp::string mm_from(const rapidjson::StringBuffer& _s)
+{
+    return memepp::from(_s);
+}
+
+inline memepp::string mm_from(const rapidjson::Value& _v)
+{
+    return memepp::from(_v);
+}
+
+inline memepp::string mm_from(rapidjson::StringBuffer&& _buf)
+{
+    return memepp::from(std::move(_buf));
+}
+
 namespace rapidjson
 {
 	inline rapidjson::GenericStringRef<char> toStringRef(const memepp::string_view& _s)

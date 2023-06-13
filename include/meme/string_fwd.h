@@ -18,10 +18,10 @@ typedef const struct _MemeString_t* MemeString_Const_t;
 typedef struct _MemeString_t* mms_t;
 typedef const struct _MemeString_t* mms_const_t;
 
-typedef struct _MemeWordIndex_t {
+typedef struct _MemeRuneIndex_t {
 	MemeInteger_t size;
     const MemeByte_t * data;
-} MemeWordIndex_t;
+} MemeRuneIndex_t;
 
 typedef struct _MemeRune_t {
 	MemeByte_t byte[7];

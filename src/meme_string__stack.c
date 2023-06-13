@@ -8,8 +8,10 @@
 #include "meme/impl/string_p__medium.h"
 #include "meme/impl/string_p__large.h"
 #include "meme/variable_buffer.h"
+#include <meme/utf/converter.h>
 
 #include "meme/unsafe/string_view.h"
+#include <meme/std/string16.h>
 
 #include <ctype.h>
 #include <stdio.h>
@@ -146,6 +148,78 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByU8bytesAndType(
 
 	return MemeStringLarge_initByU8bytes((MemeStringLarge_t*)_out, _utf8, _len, NULL, NULL, 0, 0);
 }
+
+MEME_API int
+MEME_STDCALL MemeStringStack_initByU16bytes(
+	MemeStringStack_t* _out, size_t _object_size, const uint16_t* _buf, MemeInteger_t _len)
+{
+    return MemeStringStack_initByU16bytesAndType(
+        _out, _object_size, _buf, _len, MemeString_StorageType_none);
+}
+
+MEME_API int
+MEME_STDCALL MemeStringStack_initByU16bytesAndType(
+	mmsstk_t* _out, size_t _object_size, const uint16_t* _buf, MemeInteger_t _len,
+	MemeString_Storage_t _suggest)
+{
+	MemeInteger_t u8len = -1;
+	MemeString_Storage_t type;
+	
+    assert(_out && MemeStringStack_initByU16bytesAndType);
+    assert(_object_size != 0 && MemeStringStack_initByU16bytesAndType);
+	
+    if ((_buf == NULL))
+        return MMENO__POSIX_OFFSET(EINVAL);
+	
+    if (_len < 0)
+        _len = strlen16(_buf);
+	
+    u8len = mmutf_char_size_u8from16(_buf, _len);
+	type  = MemeStringImpl_initSuggestType(u8len, _suggest);
+	switch (type) {
+	case MemeString_StorageType_medium: {
+		MemeInteger_t pos = 0;
+		int result = MemeStringMedium_initWithCapacity((MemeStringMedium_t*)_out, u8len);
+		if (result)
+			return result;
+		result = MemeStringMedium_resizeWithByte((MemeStringMedium_t*)_out, u8len, 0);
+        if (result)
+            return result;
+		pos = mmutf_convert_u16to8(_buf, _len, MemeStringMedium_data((MemeStringMedium_t*)_out));
+        if (pos != u8len)
+			return MemeStringMedium_resizeWithByte((MemeStringMedium_t*)_out, pos, 0);
+		else 
+            return 0;
+	} break;
+	case MemeString_StorageType_small: {
+		MemeInteger_t pos = 0;
+		MemeStringStack_init((MemeStringStack_t*)_out, _object_size);
+		MemeStringSmall_resizeWithByte((MemeStringSmall_t*)_out, u8len, 0);
+		pos = mmutf_convert_u16to8(_buf, _len, MemeStringImpl_forcedData((MemeStringStack_t*)_out));
+        if (pos != u8len)
+			return MemeStringSmall_resizeWithByte((MemeStringSmall_t*)_out, pos, 0);
+        else
+            return 0;
+	} break;
+	default: {
+		MemeInteger_t pos = 0;
+		MemeVariableBufferStack_t vbuf;
+		int result = 0;
+		MemeVariableBufferStack_init(&vbuf, _object_size);
+		result = (int)MemeVariableBuffer_resize((MemeVariableBuffer_t)&vbuf, u8len);
+        if (result)
+            return result;
+        pos = mmutf_convert_u16to8(_buf, _len, MemeVariableBuffer_dataWithNotConst((MemeVariableBuffer_t)&vbuf));
+        result = (int)MemeVariableBuffer_resize((MemeVariableBuffer_t)&vbuf, pos);
+		if (result)
+			return result;
+
+		result = (int)MemeVariableBuffer_releaseToString((MemeVariableBuffer_t)&vbuf, _out, _object_size);
+        return result;
+	} break;
+	}
+}
+
 
 //MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByOtherAndType(
 //	MemeStringStack_t* _out, size_t _object_size,

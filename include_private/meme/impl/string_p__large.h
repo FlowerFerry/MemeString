@@ -12,14 +12,22 @@
 #include <assert.h>
 #include <errno.h>
 
-inline void MemeStringLarge_RefCount_init(volatile MemeStringLarge_RefCounted_t* _refcount);
-inline MemeInteger_t MemeStringLarge_RefCount_increment(volatile MemeStringLarge_RefCounted_t* _refcount);
-//inline MemeInteger_t MemeStringLarge_RefCount_decrement(volatile MemeStringLarge_RefCounted_t* _refcount);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+inline void MemeStringLarge_RefCount_init(
+	volatile MemeStringLarge_RefCounted_t* _refcount);
+inline MemeInteger_t MemeStringLarge_RefCount_increment(
+	volatile MemeStringLarge_RefCounted_t* _refcount);
+//inline MemeInteger_t MemeStringLarge_RefCount_decrement(
+//	volatile MemeStringLarge_RefCounted_t* _refcount);
 inline MemeInteger_t MemeStringLarge_RefCount_decrementAndDestruct(
 	volatile MemeStringLarge_RefCounted_t* _refcount);
 
 inline int MemeStringLarge_init (
-	MemeStringLarge_t* _s, MemeString_MallocFunction_t* _cfn, MemeString_FreeFunction_t* _dfn,
+	MemeStringLarge_t* _s, 
+	MemeString_MallocFunction_t* _cfn, MemeString_FreeFunction_t* _dfn,
 	uint8_t _front_capacity, size_t _capacity);
 inline int MemeStringLarge_initByOther(
 	MemeStringLarge_t* _s, const MemeStringLarge_t* _other);
@@ -51,7 +59,9 @@ inline MemeInteger_t MemeStringLarge_getSharedHeapByteSize (const MemeStringLarg
 inline MemeInteger_t MemeStringLarge_getPrivateHeapByteSize(const MemeStringLarge_t* _s);
 
 inline MemeInteger_t
-	MemeStringLarge_checkHeadTailMemory(const MemeStringLarge_t* _s);
+MemeStringLarge_checkHeadTailMemory(const MemeStringLarge_t* _s);
+
+
 
 inline void MemeStringLarge_RefCount_init(volatile MemeStringLarge_RefCounted_t * _refcount)
 {
@@ -321,5 +331,9 @@ inline MemeInteger_t MemeStringLarge_checkHeadTailMemory(const MemeStringLarge_t
 	return MemeCheck_calibrate(_s->ref_->real_);
 #endif
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // !MEME_IMPL_STRING_P_LARGE_H_INCLUDED

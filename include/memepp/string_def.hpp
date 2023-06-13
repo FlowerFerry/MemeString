@@ -47,6 +47,8 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE string(const_pointer _utf8);
 		MEMEPP__IMPL_INLINE string(const_pointer _utf8, size_type _size);
 		MEMEPP__IMPL_INLINE string(const_pointer _utf8, size_type _size, memepp::string_storage_type _suggest);
+		MEMEPP__IMPL_INLINE string(const uint16_t* _utf16, size_type _size);
+		MEMEPP__IMPL_INLINE string(const uint16_t* _utf16, size_type _size, memepp::string_storage_type _suggest);
 
 		MEMEPP__IMPL_INLINE string(const rune& _ch);
         MEMEPP__IMPL_INLINE string(const string_builder& _builder);
@@ -78,6 +80,8 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE bool empty() const noexcept;
 		//MEMEPP__IMPL_INLINE size_type max_size() const noexcept;
 		MEMEPP__IMPL_INLINE size_type capacity() const noexcept;
+		MEMEPP__IMPL_INLINE size_type rune_size() const noexcept;
+        MEMEPP__IMPL_INLINE size_type u16char_size() const noexcept;
 
 		MEMEPP__IMPL_INLINE const_iterator begin() const noexcept;
 		MEMEPP__IMPL_INLINE const_iterator cbegin() const noexcept;

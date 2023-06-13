@@ -166,6 +166,7 @@
     <ClInclude Include="..\..\..\include\memepp\convert\rapidjson.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\redis++.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\self.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\convert\std\u16string.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\std\vector.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\std\string.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\uvw.hpp" />
@@ -201,6 +202,7 @@
     <ClInclude Include="..\..\..\include\meme\buffer.h" />
     <ClInclude Include="..\..\..\include\meme\buffer_fwd.h" />
     <ClInclude Include="..\..\..\include\meme\common.h" />
+    <ClInclude Include="..\..\..\include\meme\std\string16.h" />
     <ClInclude Include="..\..\..\include\meme\string.h" />
     <ClInclude Include="..\..\..\include\meme\string_builder.h" />
     <ClInclude Include="..\..\..\include\meme\string_builder_fwd.h" />
@@ -209,6 +211,16 @@
     <ClInclude Include="..\..\..\include\meme\string_memory_fwd.h" />
     <ClInclude Include="..\..\..\include\meme\unsafe\buffer_view.h" />
     <ClInclude Include="..\..\..\include\meme\unsafe\string_view.h" />
+    <ClInclude Include="..\..\..\include\meme\utf\converter.h" />
+    <ClInclude Include="..\..\..\include\meme\utf\converter_fwd.h" />
+    <ClInclude Include="..\..\..\include\meme\utf\converter_list.h" />
+    <ClInclude Include="..\..\..\include\meme\utf\default_converter.h" />
+    <ClInclude Include="..\..\..\include\meme\utf\u16rune.h" />
+    <ClInclude Include="..\..\..\include\meme\utf\u16rune_fwd.h" />
+    <ClInclude Include="..\..\..\include\meme\utf\u32rune.h" />
+    <ClInclude Include="..\..\..\include\meme\utf\u32rune_fwd.h" />
+    <ClInclude Include="..\..\..\include\meme\utf\u8rune.h" />
+    <ClInclude Include="..\..\..\include\meme\utf\u8rune_fwd.h" />
     <ClInclude Include="..\..\..\include\meme\variable_buffer.h" />
     <ClInclude Include="..\..\..\include\meme\variable_buffer_fwd.h" />
     <ClInclude Include="..\..\..\include\meme\rune.h" />
@@ -223,12 +235,15 @@
     <ClInclude Include="..\..\..\include_private\meme\impl\string_p__medium.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\string_p__small.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\string_p__user.h" />
+    <ClInclude Include="..\..\..\include_private\meme\impl\utf\converter.h" />
+    <ClInclude Include="..\..\..\include_private\meme\impl\utf\converter_list.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\meme_buffer.c" />
     <ClCompile Include="..\..\..\src\meme_memory.c" />
     <ClCompile Include="..\..\..\src\meme_string_builder.c" />
+    <ClCompile Include="..\..\..\src\meme_utf_converter.c" />
     <ClCompile Include="..\..\..\src\meme_variable_buffer.c" />
     <ClCompile Include="..\..\..\src\meme_atomic__basics.c" />
     <ClCompile Include="..\..\..\src\meme_impl__algorithm.c" />

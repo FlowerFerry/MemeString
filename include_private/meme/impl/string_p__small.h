@@ -8,6 +8,10 @@
 #include <errno.h>
 #include <assert.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 inline int 
 MemeStringSmall_stackReset(MemeStringStack_t* _s);
 
@@ -36,10 +40,10 @@ MemeStringSmall_byteSize(const MemeStringSmall_t* _s);
 inline MemeInteger_t 
 MemeStringSmall_byteCapacity(const MemeStringSmall_t* _s);
 
-inline MemeInteger_t 
-MemeStringSmall_wordSize(const MemeStringSmall_t* _s);
+//inline MemeInteger_t 
+//MemeStringSmall_wordSize(const MemeStringSmall_t* _s);
 
-inline MemeWordIndex_t 
+inline MemeRuneIndex_t 
 MemeStringSmall_at(const MemeStringSmall_t* _s, size_t _index);
 
 inline int
@@ -59,6 +63,8 @@ MemeStringSmall_byteSizeOffsetAndSetZero(MemeStringSmall_t* _s, MemeInteger_t _o
 
 inline void
 MemeStringSmall_shrinkTailZero(MemeStringSmall_t* _s);
+
+
 
 inline int MemeStringSmall_initByU8bytes(
 	MemeStringSmall_t* _s, const MemeByte_t* _utf8, size_t _len)
@@ -217,5 +223,9 @@ inline int MemeStringSmall_insertWithBytes(
 
     return 0;
 }
+
+#ifdef __cplusplus
+}
+#endif // __cplusplus
 
 #endif // !MEME_IMPL_STRING_P_SMALL_H_INCLUDED

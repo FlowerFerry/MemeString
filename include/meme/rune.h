@@ -4,6 +4,7 @@
 
 #include "meme/string_fwd.h"
 #include "mego/predef/symbol/likely.h"
+#include <meme/utf/u8rune.h>
 
 #include <assert.h>
 #include <errno.h>
@@ -142,6 +143,16 @@ MemeRune_initByUtf8Bytes(MemeRune_t* _out, const MemeByte_t* _buf, MemeInteger_t
     memcpy(_out->byte, _buf, _len);
     _out->byte[MemeRune_size(_out)] = '\0';
     return 0;
+}
+
+static inline int
+MemeRune_byteSize(const MemeRune_t* _s)
+{
+    assert(_s != NULL);
+    if (MemeRune_size(_s) < 1)
+        return 0;
+    
+    return mmutf_u8rune_char_size(_s->byte[0]);
 }
 
 MEME_EXTERN_C_SCOPE_ENDED

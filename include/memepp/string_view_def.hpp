@@ -58,6 +58,7 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE bool empty() const noexcept;
 		inline size_t length() const noexcept { return static_cast<size_t>(size()); }
 		MEMEPP__IMPL_INLINE const_pointer bytes() const noexcept;
+		MEMEPP__IMPL_INLINE size_type u16char_size() const noexcept;
 
 		MEMEPP__IMPL_INLINE const_iterator begin() const noexcept;
 		MEMEPP__IMPL_INLINE const_iterator cbegin() const noexcept;

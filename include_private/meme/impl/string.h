@@ -16,8 +16,8 @@ MEME_EXTERN_C_SCOPE_START
 
 typedef struct _MemeStringLarge_RefCounted_t 
 {
-	MemeAtomicInteger_t count_;
-
+	volatile MemeAtomicInteger_t count_;
+	
 	//! point to the real buffer; 
 	//! In some cases, set aside a pre-buffer to avoid reallocation
 	MemeByte_t * real_;	
@@ -28,7 +28,7 @@ typedef struct _MemeStringLarge_RefCounted_t
 
 typedef struct _MemeStringUser_RefCounted_t
 {
-	MemeAtomicInteger_t count_;
+	volatile MemeAtomicInteger_t count_;
 
 	void* user_data_;
 	MemeString_UserObjectDestruct_t* destruct_fn_;

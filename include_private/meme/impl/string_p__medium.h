@@ -10,6 +10,10 @@
 #include <string.h>
 #include <errno.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 inline int 
 MemeStringMedium_canBeAppendIt(const MemeStringMedium_t* _s, MemeInteger_t _buflen);
 
@@ -350,5 +354,9 @@ inline MemeInteger_t MemeStringMedium_checkHeadTailMemory(const MemeStringMedium
 	return MemeCheck_calibrate(_s->real_);
 #endif
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // !MEME_IMPL_STRING_P_MEDIUM_H_INCLUDED

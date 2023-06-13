@@ -129,6 +129,23 @@ namespace memepp {
 #endif
 	}
 
+	MEMEPP__IMPL_INLINE string::string(const uint16_t* _utf16, size_type _size)
+	{
+        *errc() = MemeStringStack_initByU16bytes(&data_, MMS__OBJECT_SIZE, _utf16, _size);
+#if !MMOPT__EXCEPTION_DISABLED
+        throw_errc(*errc());
+#endif
+	}
+	
+	MEMEPP__IMPL_INLINE string::string(const uint16_t* _utf16, size_type _size, memepp::string_storage_type _suggest)
+	{
+        *errc() = MemeStringStack_initByU16bytesAndType(&data_, MMS__OBJECT_SIZE,
+            _utf16, _size, static_cast<MemeString_Storage_t>(_suggest));
+#if !MMOPT__EXCEPTION_DISABLED
+        throw_errc(*errc());
+#endif
+	}
+	
 	MEMEPP__IMPL_INLINE string::string(const rune& _ch)
 	{
 		*errc() = MemeStringStack_initByU8bytes(&data_, MEME_STRING__OBJECT_SIZE, _ch.data(), _ch.size());
@@ -218,6 +235,16 @@ namespace memepp {
 	MEMEPP__IMPL_INLINE string::size_type string::capacity() const noexcept
 	{
 		return MemeString_availableByteCapacity(to_pointer(data_));
+	}
+
+	MEMEPP__IMPL_INLINE string::size_type string::rune_size() const noexcept
+	{
+        return MemeString_runeSize(to_pointer(data_));
+	}
+	
+	MEMEPP__IMPL_INLINE string::size_type string::u16char_size() const noexcept
+	{
+        return MemeString_u16CharSize(to_pointer(data_));
 	}
 
 	MEMEPP__IMPL_INLINE const_iterator string::begin() const noexcept
