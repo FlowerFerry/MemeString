@@ -25,6 +25,7 @@ namespace util {
 
 		~scope_cleanup() { if (!canceled_) fn_(); }
 
+		inline constexpr void early_exec() noexcept { if (!canceled_) fn_(); canceled_ = true; }
         inline constexpr void cancel() noexcept { canceled_ = true; }
         inline constexpr bool is_cancel() const noexcept { return canceled_; }
 

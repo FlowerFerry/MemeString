@@ -1,9 +1,15 @@
 
+#include <errno.h>
+
 #include <meme/impl/utf/converter.h>
 #include <meme/impl/atomic.h>
 
 #include <meme/utf/default_converter.h>
 #include <mego/thrd/call_once.h>
+
+#if MEGO_THR__PTHREADS_AVAILABLE
+# include <pthread.h>
+#endif
 
 MEME_EXTERN_C_SCOPE_START
 

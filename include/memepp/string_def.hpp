@@ -76,6 +76,7 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE const_pointer bytes() const noexcept;
 
 		inline size_t length() const noexcept { return static_cast<size_t>(size()); }
+		inline size_t char_size() const noexcept { return static_cast<size_t>(size()); }
 		MEMEPP__IMPL_INLINE size_type size() const noexcept;
 		MEMEPP__IMPL_INLINE bool empty() const noexcept;
 		//MEMEPP__IMPL_INLINE size_type max_size() const noexcept;
@@ -122,9 +123,9 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE size_type index_of(const char* _utf8,
 			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
 
-		MEMEPP__IMPL_INLINE size_type index_of_with_strlen(
-			const char* _utf8, size_type _utf8_len,
-			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
+		//MEMEPP__IMPL_INLINE size_type index_of_with_strlen(
+		//	const char* _utf8, size_type _utf8_len,
+		//	case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
 
 		//! @brief Returns true if this string contains the given string.
 		//! @param _sv The string to search for.
@@ -178,6 +179,9 @@ namespace memepp {
 		//! @param _count The number of characters to copy.
 		//! @returns A substring of this string.
         MEMEPP__IMPL_INLINE string substr(size_type _pos = 0, size_type _count = npos) const noexcept;
+
+		template<typename _Func>
+		inline string mapping_convert(_Func&& _func) const;
 
 		template<class _Container>
 		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,

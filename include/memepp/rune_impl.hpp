@@ -16,6 +16,11 @@ namespace memepp {
         MemeRune_initByByte(&data_, _ch);
     }
 
+    MEMEPP__IMPL_INLINE rune::rune(const MemeRune_t& _rune)
+    {
+        data_ = _rune;
+    }
+
     MEMEPP__IMPL_INLINE rune::const_pointer rune::data() const noexcept
     {
         return MemeRune_data(&data_);

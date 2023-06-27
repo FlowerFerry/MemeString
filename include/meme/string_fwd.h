@@ -12,6 +12,9 @@ MEME_EXTERN_C_SCOPE_START
 typedef uint8_t  MemeByte_t;
 typedef intptr_t MemeInteger_t;
 
+typedef uint8_t  mmbyte_t;
+typedef intptr_t mmint_t;
+
 typedef struct _MemeString_t* MemeString_t;
 typedef const struct _MemeString_t* MemeString_Const_t;
 
@@ -61,9 +64,9 @@ enum _MemeFlag_SplitBehavior_t
 
 typedef int MemeString_MatchCondByteFunc_t(MemeByte_t _ch, void* _user_data);
 
-typedef int MemeString_MatchCondWordFunc_t(const MemeRune_t* _ch, void* _user_data);
+typedef int MemeString_MatchCondRuneFunc_t(const MemeRune_t* _ch, void* _user_data);
 
-typedef int MemeString_MappingConvertFunc_t(const MemeRune_t* _ch, void* _user_data);
+typedef int MemeString_MappingConvertFunc_t(MemeRune_t* _ch, void* _user_data);
 
 #ifdef MEME_STRING__OBJECT_SIZE
 #undef MEME_STRING__OBJECT_SIZE

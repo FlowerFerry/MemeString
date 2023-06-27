@@ -89,7 +89,9 @@ MemeStringBuilder_generateWithParts(mmsbldr_const_t _builder, mms_t _out)
     }
     result = (int)MemeVariableBuffer_releaseToString(
         vbp, (MemeStringStack_t*)_out, MMS__OBJECT_SIZE);
-    MemeVariableBufferStack_unInit(&vb, sizeof(vb));
+    if (result) {
+        MemeVariableBufferStack_unInit(&vb, sizeof(vb));
+    }
     return result;
 }
 

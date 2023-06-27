@@ -83,8 +83,8 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE size_type index_of(const char* _utf8,
 			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
 
-		MEMEPP__IMPL_INLINE size_type index_of_with_offset(const char* _utf8, size_type _offset,
-			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
+		//MEMEPP__IMPL_INLINE size_type index_of_with_offset(const char* _utf8, size_type _offset,
+		//	case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
 
 		MEMEPP__IMPL_INLINE bool contains(const string_view& _sv) const noexcept;
 		MEMEPP__IMPL_INLINE bool contains(const char* _utf8) const noexcept;

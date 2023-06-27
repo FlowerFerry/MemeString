@@ -371,12 +371,12 @@ namespace memepp {
 			to_pointer(native_handle()), 0, reinterpret_cast<const uint8_t*>(_utf8), -1, _cs);
 	}
 
-	MEMEPP__IMPL_INLINE string::size_type string::index_of_with_strlen(
-		const char* _utf8, size_type _utf8_len, case_sensitivity_t _cs) const noexcept
-	{
-		return MemeString_indexOfWithUtf8bytes(
-			to_pointer(native_handle()), 0, reinterpret_cast<const uint8_t*>(_utf8), _utf8_len, _cs);
-	}
+	//MEMEPP__IMPL_INLINE string::size_type string::index_of_with_strlen(
+	//	const char* _utf8, size_type _utf8_len, case_sensitivity_t _cs) const noexcept
+	//{
+	//	return MemeString_indexOfWithUtf8bytes(
+	//		to_pointer(native_handle()), 0, reinterpret_cast<const uint8_t*>(_utf8), _utf8_len, _cs);
+	//}
 
 	MEMEPP__IMPL_INLINE bool string::contains(const string_view& _sv) const noexcept
 	{

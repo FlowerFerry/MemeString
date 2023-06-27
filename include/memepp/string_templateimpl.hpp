@@ -4,9 +4,46 @@
 
 #include <memepp/string_def.hpp>
 #include <memepp/string_view_def.hpp>
+#include <memepp/rune_impl.hpp>
 
 namespace memepp {
     
+	template<typename _Func>
+	struct __string_mapping_convert_helper
+	{
+		inline __string_mapping_convert_helper(_Func&& _func) : func_(std::forward<_Func>(_func)) {}
+		
+		inline int call(memepp::rune& _ch)
+		{
+			//if (!func_)
+			//	return -1;
+            return func_(_ch);
+		}
+
+		inline static int callback(MemeRune_t* _ch, void* _user_data)
+		{
+            auto helper = reinterpret_cast<__string_mapping_convert_helper*>(_user_data);
+			memepp::rune r{ *_ch };
+			auto result = helper->call(r);
+            *_ch = r.native_handle();
+            return result;
+		}
+		
+	private:
+        _Func func_;
+	};
+
+	template<typename _Func>
+	inline string string::mapping_convert(_Func&& _func) const
+	{
+		__string_mapping_convert_helper<_Func> helper{std::forward<_Func>(_func)};
+        return MemeStringStack_mappingConvert(
+			&native_handle(),
+            MMS__OBJECT_SIZE, 
+			__string_mapping_convert_helper<_Func>::callback,
+			&helper);
+	}
+
 	template<class _Container>
 	inline MemeInteger_t string::split(string_view _key, split_behavior_t _behavior,
 		std::back_insert_iterator<_Container> _inserter) const

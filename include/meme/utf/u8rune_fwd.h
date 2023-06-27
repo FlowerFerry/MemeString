@@ -6,18 +6,18 @@
 
 MEME_EXTERN_C_SCOPE_START
 
-int
+inline int
 mmutf_u8rune_char_size(uint8_t _ch);
-int
+inline int
 mmutf_u8rune_valid(const MemeByte_t* _buf, MemeInteger_t _len);
-int
+inline int
 mmutf_u8char_size_from16(const uint16_t* _ch, MemeInteger_t _len, int* _ch_size);
-int
+inline int
 mmutf_u8char_size_from32(const uint32_t* _ch, MemeInteger_t _len, int* _ch_size);
-int
+inline int
 mmutf_u8rune_get_u32(
     const MemeByte_t* _buf, MemeInteger_t _len, uint32_t* _value);
-int
+inline int
 mmutf_u8rune_set_u32(
     MemeByte_t* _buf, MemeInteger_t _len, uint32_t _value);
 

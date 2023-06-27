@@ -716,7 +716,7 @@ MEME_API MemeInteger_t MEME_STDCALL
 MemeString_matchCountWithUtf8bytes(
 	MemeString_Const_t _s, MemeInteger_t _offset, const MemeByte_t* _needle, MemeInteger_t _needle_len, MemeFlag_CaseSensitivity_t _cs)
 {
-    const MemeByte_t* pointer = MemeString_byteData(_s);
+    //const MemeByte_t* pointer = MemeString_byteData(_s);
     MemeInteger_t count = MemeString_byteSize(_s);
     MemeInteger_t index = -1;
     MemeInteger_t match_count = 0;
