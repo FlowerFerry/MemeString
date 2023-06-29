@@ -126,6 +126,10 @@ MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_resizeWithByte(MemeVariableBuffer_t _s, MemeInteger_t _size, MemeByte_t _byte);
 
 MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_remove(
+    MemeVariableBuffer_t _s, MemeInteger_t _pos, MemeInteger_t _count);
+
+MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_releaseToBuffer(
 	MemeVariableBuffer_t _s, MemeBufferStack_t* _out, MemeInteger_t _objectSize);
 

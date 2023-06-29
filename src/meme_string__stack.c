@@ -33,7 +33,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_init(
 	obj = (mms_t)_out;
 	obj->small_.buffer_[0] = '\0';
 	obj->small_.type_ = MemeString_ImplType_small;
-	obj->small_.capacity_ = MEME_STRING__GET_SMALL_BUFFER_SIZE;
+	obj->small_.capacity_ = MMS__GET_SMALL_BUFFER_SIZE;
 	return 0;
 }
 
@@ -61,7 +61,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initTakeOverUserObject(
 	assert(_size_fn != NULL		&& "function is" && MemeStringStack_initTakeOverUserObject);
     
 	len = _size_fn(_user_data);
-	if (len <= MEME_STRING__GET_SMALL_BUFFER_SIZE)
+	if (len <= MMS__GET_SMALL_BUFFER_SIZE)
 	{
 		int result = MemeStringStack_initByU8bytes(
 			_out, _object_size, (const MemeByte_t*)_data_fn(_user_data), len);
@@ -84,7 +84,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_unInit(MemeStringStack_t
 	assert(obj && MemeStringStack_unInit);
 	assert(_object_size != 0 && MemeStringStack_unInit);
 
-	switch (MEME_STRING__GET_TYPE(obj)) {
+	switch (MMS__GET_TYPE(obj)) {
 	case MemeString_ImplType_small:
 	{
 		// do nothing
@@ -261,7 +261,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByOther(
 	if (((void*)_out == (void*)_other))
 		return MMENO__POSIX_OFFSET(ECANCELED);
 
-	switch (MEME_STRING__GET_TYPE(_other)) {
+	switch (MMS__GET_TYPE(_other)) {
 	case MemeString_StorageType_small: {
 		memcpy(_out, _other, MMS__OBJECT_SIZE);
 	} break;
@@ -304,7 +304,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByBuffer(
 	{
 		return MemeStringStack_init(_out, _object_size);
 	}
-	else if (length <= MEME_STRING__GET_SMALL_BUFFER_SIZE) 
+	else if (length <= MMS__GET_SMALL_BUFFER_SIZE) 
 	{
 		MemeStringSmall_initByU8bytes(
 			(MemeStringSmall_t*)_out, MemeBuffer_data(_other) + _offset, length);
@@ -312,7 +312,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByBuffer(
 		return 0;
 	}
 
-	switch (MEME_STRING__GET_TYPE((mms_t)_other))
+	switch (MMS__GET_TYPE((mms_t)_other))
 	{
 	case MemeString_StorageType_medium: {
 		int result = 0;
@@ -418,7 +418,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_reset(
 	assert(_object_size != 0);
 
 	obj = (mms_t)_out;
-	switch (MEME_STRING__GET_TYPE(obj)) {
+	switch (MMS__GET_TYPE(obj)) {
 	case MemeString_UnsafeStorageType_view:
 	case MemeString_ImplType_small:
 	{
@@ -454,7 +454,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_assign(
 	if (((void*)_s == (void*)_other))
 		return 0;
 
-	switch (MEME_STRING__GET_TYPE(_other))
+	switch (MMS__GET_TYPE(_other))
 	{
 	case MemeString_ImplType_small:
 	case MemeString_ImplType_medium:
@@ -471,7 +471,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_assign(
 	if ((result != 0))
 		return result;
 
-	switch (MEME_STRING__GET_TYPE(_other)) 
+	switch (MMS__GET_TYPE(_other)) 
 	{
 	case MemeString_ImplType_small: {
 		memcpy(_s, &(_other->small_), MEME_STRING__OBJECT_SIZE);
@@ -563,7 +563,7 @@ MemeStringStack_mid(
 			return MemeStringStack_getInitObject(_object_size);
 		MemeStringImpl_setDataOffset(&out, _offset);
     }
-	else if (MEME_STRING__GET_TYPE(obj) == MemeString_ImplType_view) 
+	else if (MMS__GET_TYPE(obj) == MemeString_ImplType_view) 
 	{
         MemeStringViewUnsafeStack_init(&out, _object_size,
             MemeString_byteData(obj) + _offset, _len);
@@ -934,7 +934,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringViewUnsafeStack_init(MemeStrin
 	if (_len < 0)
 		_len = strlen((const char*)_buf);
 
-	//if (_len <= MEME_STRING__GET_SMALL_BUFFER_SIZE)
+	//if (_len <= MMS__GET_SMALL_BUFFER_SIZE)
 	//	return MemeStringSmall_initByU8bytes((MemeStringSmall_t*)_s, _buf, _len);
 
 	p->data_   = _buf;
@@ -950,7 +950,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringViewUnsafeStack_initByOther(
 	assert(_s != NULL		&& MemeStringViewUnsafeStack_initByOther);
 	assert(_other != NULL	&& MemeStringViewUnsafeStack_initByOther);
 
-	if (MEME_STRING__GET_TYPE((mms_t)_other) == MemeString_ImplType_view)
+	if (MMS__GET_TYPE((mms_t)_other) == MemeString_ImplType_view)
 	{
 		memcpy(_s, _other, MEME_STRING__OBJECT_SIZE);
 		return 0;
@@ -973,7 +973,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringViewUnsafeStack_assignByOther(
 	assert(_s != NULL		&& MemeStringViewUnsafeStack_assignByOther);
 	assert(_other != NULL	&& MemeStringViewUnsafeStack_assignByOther);
 
-	if (MEME_STRING__GET_TYPE((mms_t)_other) == MemeString_ImplType_view)
+	if (MMS__GET_TYPE((mms_t)_other) == MemeString_ImplType_view)
 	{
 		int result = MemeStringStack_unInit(_s, sizeof(mmsstk_t));
 		if (result)

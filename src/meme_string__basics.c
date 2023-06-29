@@ -36,7 +36,7 @@ MemeString_Storage_t MemeStringImpl_initSuggestType(
 			return _user_suggest;
 
 
-		if (_len <= MEME_STRING__GET_SMALL_BUFFER_SIZE)
+		if (_len <= MMS__GET_SMALL_BUFFER_SIZE)
 			return MemeString_StorageType_small;
 
 		do {
@@ -69,7 +69,7 @@ MemeStringImpl_dumpToModifiable(const MemeStringStack_t* _s, MemeStringStack_t* 
 	assert(_s);
 	assert(_out);
 
-	switch (MEME_STRING__GET_TYPE((MemeString_t)_s))
+	switch (MMS__GET_TYPE((MemeString_t)_s))
 	{
 	case MemeString_StorageType_small:
 	{
@@ -135,7 +135,7 @@ int MemeStringImpl_capacityExpansionWithModifiable(
 	assert(_s != NULL && MemeStringImpl_capacityExpansionWithModifiable);
 	assert(_minSizeRequest > 0 && MemeStringImpl_capacityExpansionWithModifiable);
 
-	switch (MEME_STRING__GET_TYPE((MemeString_t)_s)) 
+	switch (MMS__GET_TYPE((MemeString_t)_s)) 
 	{
 	case MemeString_ImplType_small: {
 		return MemeStringImpl_capacityExpansionSmallToMedium(_s, _minSizeRequest);
@@ -153,7 +153,7 @@ int MemeStringImpl_capacityExpansionWithModifiable(
 
 void MemeStringImpl_setDataOffset(MemeStringStack_t* _s, MemeInteger_t _offset)
 {
-	switch (MEME_STRING__GET_TYPE((MemeString_t)_s)) {
+	switch (MMS__GET_TYPE((MemeString_t)_s)) {
 	case MemeString_ImplType_large: {
 		MemeStringLarge_setOffset((MemeStringLarge_t*)_s, _offset);
 	} break;
@@ -168,7 +168,7 @@ void MemeStringImpl_setDataOffset(MemeStringStack_t* _s, MemeInteger_t _offset)
 
 void MemeStringImpl_shrinkTailZero(MemeStringStack_t* _s)
 {
-	switch (MEME_STRING__GET_TYPE((MemeString_t)_s))
+	switch (MMS__GET_TYPE((MemeString_t)_s))
 	{
 	case MemeString_ImplType_small: {
 		MemeStringSmall_shrinkTailZero((MemeStringSmall_t*)_s);
@@ -196,7 +196,7 @@ MemeByte_t* MemeStringImpl_forcedData(MemeStringStack_t* _s)
 MEME_API MemeString_Storage_t MEME_STDCALL MemeString_storageType(MemeString_Const_t _s)
 {
 	assert(_s);
-    return MEME_STRING__GET_TYPE((MemeString_t)_s);
+    return MMS__GET_TYPE((MemeString_t)_s);
 }
 
 
@@ -213,7 +213,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_create(MemeString_t * _out)
 
 	memset(*_out, 0, sizeof(struct _MemeString_t));
 	(*_out)->small_.type_ = MemeString_ImplType_small;
-	(*_out)->small_.capacity_ = MEME_STRING__GET_SMALL_BUFFER_SIZE;
+	(*_out)->small_.capacity_ = MMS__GET_SMALL_BUFFER_SIZE;
 	return 0;
 }
 
@@ -248,10 +248,10 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_isNonempty(MemeString_Const_t
 {
 	assert(_s);
 
-	switch (MEME_STRING__GET_TYPE(_s)) {
+	switch (MMS__GET_TYPE(_s)) {
 	case MemeString_ImplType_small:
 	{
-		return (_s->small_.capacity_ == MEME_STRING__GET_SMALL_BUFFER_SIZE ? 0: 1);
+		return (_s->small_.capacity_ == MMS__GET_SMALL_BUFFER_SIZE ? 0: 1);
 	} break;
 	case MemeString_ImplType_medium:
 	{
@@ -291,10 +291,10 @@ MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL MemeString_maxByteCapacity(Mem
 {
 	assert(_s);
 	
-	switch (MEME_STRING__GET_TYPE(_s)) {
+	switch (MMS__GET_TYPE(_s)) {
 	case MemeString_ImplType_small:
 	{
-		return MEME_STRING__GET_SMALL_BUFFER_SIZE;
+		return MMS__GET_SMALL_BUFFER_SIZE;
 	};
 	case MemeString_ImplType_medium:
 	{
@@ -332,10 +332,10 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_maxByteSize(MemeString_Const_t _s
 {
 	assert(_s);
 
-	switch (MEME_STRING__GET_TYPE(_s)) {
+	switch (MMS__GET_TYPE(_s)) {
 	case MemeString_ImplType_small:
 	{
-		return MEME_STRING__GET_SMALL_BUFFER_SIZE;
+		return MMS__GET_SMALL_BUFFER_SIZE;
 	};
 	case MemeString_ImplType_medium:
 	{
@@ -363,10 +363,10 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_byteSize(MemeString_Const_t _s)
 {
 	assert(_s);
 
-	switch (MEME_STRING__GET_TYPE(_s)) {
+	switch (MMS__GET_TYPE(_s)) {
 	case MemeString_ImplType_small:
 	{
-		return (MemeInteger_t)(MEME_STRING__GET_SMALL_BUFFER_SIZE - _s->small_.capacity_);
+		return (MemeInteger_t)(MMS__GET_SMALL_BUFFER_SIZE - _s->small_.capacity_);
 	};
 	case MemeString_ImplType_medium:
 	{
@@ -406,7 +406,7 @@ MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL MemeString_availableByteCapaci
 {
 	assert(_s);
 
-	switch (MEME_STRING__GET_TYPE(_s)) {
+	switch (MMS__GET_TYPE(_s)) {
 	//case MemeString_ImplType_user:
 	//{
 	//	return 0;
@@ -540,7 +540,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringOption_setStorageMediumLimit(M
 	if (_value < 0)
 		return MMENO__POSIX_OFFSET(EINVAL);
 
-	if (_value <= MEME_STRING__GET_SMALL_BUFFER_SIZE) {
+	if (_value <= MMS__GET_SMALL_BUFFER_SIZE) {
 		*__MemeStringOption_storageMediumLimit() = 0;
 		return 0;
 	}
@@ -920,7 +920,7 @@ MEME_API const MemeByte_t* MEME_STDCALL MemeString_byteData(MemeString_Const_t _
 {
 	assert(_s != NULL && MemeString_byteData);
 
-	switch (MEME_STRING__GET_TYPE(_s)) {
+	switch (MMS__GET_TYPE(_s)) {
 	case MemeString_ImplType_user:
 	{
 		return MemeStringUser_constData(&(_s->user_));
@@ -951,7 +951,7 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_isSharedStorageTypes(MemeString_C
 {
 	assert(_s != NULL && MemeString_isSharedStorageTypes);
 
-	switch (MEME_STRING__GET_TYPE(_s)) {
+	switch (MMS__GET_TYPE(_s)) {
 	case MemeString_ImplType_user:
 	case MemeString_ImplType_large:
 	{
@@ -968,7 +968,7 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_getSharedHeapByteSize(MemeString_
 	if ((_s == NULL))
 		return 0;
     
-    switch (MEME_STRING__GET_TYPE(_s)) {
+    switch (MMS__GET_TYPE(_s)) {
     case MemeString_ImplType_user:
     {
         return MemeStringUser_getSharedHeapByteSize(&(_s->user_));
@@ -988,7 +988,7 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_getPrivateHeapByteSize(MemeString
     if ((_s == NULL))
         return 0;
 
-    switch (MEME_STRING__GET_TYPE(_s)) {
+    switch (MMS__GET_TYPE(_s)) {
     case MemeString_ImplType_large:
     {
         return MemeStringLarge_getPrivateHeapByteSize(&(_s->large_));
@@ -1015,7 +1015,7 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_checkHeadTailMemory(MemeString_Co
     if (_s == NULL)
         return 0;
 
-    switch (MEME_STRING__GET_TYPE(_s)) {
+    switch (MMS__GET_TYPE(_s)) {
 	case MemeString_ImplType_medium: 
 	{
         return MemeStringMedium_checkHeadTailMemory(&(_s->medium_));

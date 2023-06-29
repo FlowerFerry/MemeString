@@ -87,8 +87,8 @@ typedef struct _MemeStringMedium_t
 	};
 } MemeStringMedium_t;
 
-#ifndef MEME_STRING__GET_MEDIUM_FRONT_CAPACITY_MAX_SIZE
-#define MEME_STRING__GET_MEDIUM_FRONT_CAPACITY_MAX_SIZE \
+#ifndef MMS__GET_MEDIUM_FRONT_CAPACITY_MAX_VALUE
+#define MMS__GET_MEDIUM_FRONT_CAPACITY_MAX_VALUE \
 	((1 << sizeof(size_t)) - sizeof(size_t))
 #endif 
 
@@ -124,7 +124,7 @@ typedef struct _MemeStringSmall_t
 typedef struct _MemeStringSmall_t
 {
 	union {
-		uint8_t buffer_[MEME_STRING__OBJECT_SIZE];
+		uint8_t buffer_[MMS__OBJECT_SIZE];
 
 		struct {
 			size_t __occupy_a_seat_1__[2];
@@ -169,12 +169,12 @@ struct _MemeString_t
 	};
 };
 
-#ifndef MEME_STRING__GET_SMALL_BUFFER_SIZE
-#define MEME_STRING__GET_SMALL_BUFFER_SIZE (sizeof(((MemeStringSmall_t*)0)->buffer_) - 2)
+#ifndef MMS__GET_SMALL_BUFFER_SIZE
+#define MMS__GET_SMALL_BUFFER_SIZE (sizeof(((MemeStringSmall_t*)0)->buffer_) - 2)
 #endif
 
-#ifndef MEME_STRING__GET_TYPE
-#define MEME_STRING__GET_TYPE(S) ((S)->none_.type_)
+#ifndef MMS__GET_TYPE
+#define MMS__GET_TYPE(S) ((S)->none_.type_)
 #endif 
 
 

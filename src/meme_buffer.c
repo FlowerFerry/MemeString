@@ -217,7 +217,7 @@ MEME_STDCALL MemeBufferViewUnsafeStack_initByOther(
 	assert(_self != NULL  && MemeBufferViewUnsafeStack_initByOther);
 	assert(_other != NULL && MemeBufferViewUnsafeStack_initByOther);
 
-	if (MEME_STRING__GET_TYPE((MemeString_t)_other) == MemeString_ImplType_view)
+	if (MMS__GET_TYPE((MemeString_t)_other) == MemeString_ImplType_view)
 	{
 		memcpy(_self, _other, MEME_STRING__OBJECT_SIZE);
 		return 0;
@@ -266,7 +266,7 @@ MEME_STDCALL MemeBufferViewUnsafeStack_assignByOther(
 	assert(_self != NULL  && MemeStringViewUnsafeStack_assignByOther);
 	assert(_other != NULL && MemeStringViewUnsafeStack_assignByOther);
 
-	if (MEME_STRING__GET_TYPE((MemeString_t)_other) == MemeString_ImplType_view)
+	if (MMS__GET_TYPE((MemeString_t)_other) == MemeString_ImplType_view)
 	{
 		int result = MemeStringStack_unInit(s, sizeof(MemeStringStack_t));
 		if (result)

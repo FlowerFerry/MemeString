@@ -7,6 +7,7 @@
 #include "memepp/string_view_fwd.hpp"
 #include "memepp/variable_buffer_fwd.hpp"
 #include "memepp/buffer_fwd.hpp"
+#include <memepp/buffer_view_fwd.hpp>
 #include "megopp/predef/keyword/noexcept.h"
 #include "megopp/endian/byte_swap.h"
 
@@ -103,6 +104,8 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE variable_buffer& append(variable_buffer&& _other);
 		MEMEPP__IMPL_INLINE variable_buffer& append(const string& _other);
 		MEMEPP__IMPL_INLINE variable_buffer& append(const string_view& _other);
+        MEMEPP__IMPL_INLINE variable_buffer& append(const buffer& _other);
+        MEMEPP__IMPL_INLINE variable_buffer& append(const buffer_view& _other);
 		template<typename _Ty>
 		inline variable_buffer& append(const _Ty& _v, megopp::endian_t _endian);
 
@@ -116,6 +119,8 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE variable_buffer& insert(size_type _pos, const_pointer _buf, size_type _count);
 		template<typename _Ty>
 		inline variable_buffer& insert(size_type _pos, const _Ty& _v, megopp::endian_t _endian);
+
+        MEMEPP__IMPL_INLINE variable_buffer& remove(size_type _pos, size_type _count);
 
 		MEMEPP__IMPL_INLINE variable_buffer& resize(size_type _count);
 		MEMEPP__IMPL_INLINE variable_buffer& resize(size_type _count, value_type _value);
@@ -180,6 +185,7 @@ namespace memepp {
 #endif
         return insert(_pos, reinterpret_cast<const_pointer>(&_value), static_cast<size_type>(sizeof(_value)));
 	}
+
 };
 
 #endif // !MEMEPP_VARIABLE_BUFFER_DEF_HPP_INCLUDED
