@@ -147,6 +147,17 @@ namespace memepp {
 		return string_builder{} + *this + _other;
 	}
 
+	MEMEPP__IMPL_INLINE string_view::const_reference string_view::at(size_type _pos) const
+	{
+		auto p = MemeString_at(memepp::to_pointer(data_), _pos);
+#if !MMOPT__EXCEPTION_DISABLED
+		if (!p) {
+			throw std::out_of_range("string_view::at");
+		}
+#endif
+		return *p;
+	}
+
 	MEMEPP__IMPL_INLINE const char* string_view::data() const noexcept
 	{
 		return MemeString_cStr(to_pointer(data_));

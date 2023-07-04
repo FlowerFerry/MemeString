@@ -207,6 +207,17 @@ namespace memepp {
 		return static_cast<string_storage_type>(MemeString_storageType(to_pointer(data_)));
 	}
 
+	MEMEPP__IMPL_INLINE string::const_reference string::at(size_type _pos) const
+	{
+		auto p = MemeString_at(memepp::to_pointer(data_), _pos);
+#if !MMOPT__EXCEPTION_DISABLED
+		if (!p) {
+            throw std::out_of_range("string::at");
+		}
+#endif
+		return *p;
+	}
+
 	MEMEPP__IMPL_INLINE const char * string::data() const noexcept
 	{
 		return MemeString_cStr(to_pointer(data_));

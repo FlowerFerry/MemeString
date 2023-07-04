@@ -54,6 +54,8 @@ namespace memepp {
 		
 		MEMEPP__IMPL_INLINE buffer_storage_type storage_type() const MEGOPP__NOEXCEPT;
 
+		MEMEPP__IMPL_INLINE const_reference at(size_type _pos) const;
+
 		MEMEPP__IMPL_INLINE const_pointer data() const MEGOPP__NOEXCEPT;
 		MEMEPP__IMPL_INLINE size_type size() const MEGOPP__NOEXCEPT;
 		MEMEPP__IMPL_INLINE bool empty() const MEGOPP__NOEXCEPT;

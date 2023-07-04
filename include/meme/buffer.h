@@ -59,6 +59,9 @@ MEME_STDCALL MemeBuffer_isNonempty(MemeBuffer_Const_t _s);
 MEME_API int
 MEME_STDCALL MemeBuffer_isEmpty(MemeBuffer_Const_t _s);
 
+MEME_API const mmbyte_t*
+MEME_STDCALL MemeBuffer_at(mmbuf_const_t _s, mmint_t _pos);
+
 MEME_API const MemeByte_t*
 MEME_STDCALL MemeBuffer_data(MemeBuffer_Const_t _s);
 

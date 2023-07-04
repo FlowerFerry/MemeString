@@ -71,6 +71,8 @@ namespace memepp {
 
 		MEMEPP__IMPL_INLINE string_storage_type storage_type() const noexcept;
 
+		MEMEPP__IMPL_INLINE const_reference at(size_type _pos) const;
+
 		MEMEPP__IMPL_INLINE const char* data() const noexcept;
 		MEMEPP__IMPL_INLINE const char* c_str() const noexcept;
 		MEMEPP__IMPL_INLINE const_pointer bytes() const noexcept;

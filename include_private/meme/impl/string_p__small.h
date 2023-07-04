@@ -177,10 +177,7 @@ inline int MemeStringSmall_resizeWithByte(MemeStringSmall_t* _s, MemeInteger_t _
 inline int MemeStringSmall_appendWithByte(MemeStringSmall_t* _s, MemeInteger_t _count, MemeByte_t _byte)
 {
 	MemeByte_t* pointer = NULL;
-
-	//if (_count <= 0)
-	//	return 0;
-
+	
 	pointer = _s->buffer_ + MemeStringSmall_byteSize(_s);
 	MemeStringSmall_byteSizeOffsetAndSetZero(_s, _count);
 	for (; 0<= --_count; ) {
@@ -193,11 +190,7 @@ inline int MemeStringSmall_appendWithBytes(MemeStringSmall_t* _s, const MemeByte
 {
 	assert(_s);
 	assert(_buf);
-
-	//_buflen = MemeMath_Min(_s->capacity_, _buflen);
-	//if (_buflen <= 0)
-	//	return 0;
-
+	
 	memcpy(_s->buffer_ + MemeStringSmall_byteSize(_s), _buf, _buflen);
 	_s->capacity_ -= (uint8_t)_buflen;
 	_s->buffer_[MemeStringSmall_byteSize(_s)] = 0;
@@ -210,16 +203,7 @@ inline int MemeStringSmall_insertWithBytes(
 {
     assert(_s);
     assert(_buf);
-
-    //if (_pos < 0 || _pos > MemeStringSmall_byteSize(_s))
-    //    return MMENO__POSIX_OFFSET(EINVAL);
-
-    //if (_buflen <= 0)
-    //    return 0;
-
-    //if (_buflen > MemeStringSmall_byteCapacity(_s))
-    //    return MMENO__POSIX_OFFSET(E2BIG);
-
+	
     memmove(_s->buffer_ + _pos + _buflen, _s->buffer_ + _pos, MemeStringSmall_byteSize(_s) - _pos);
     memcpy (_s->buffer_ + _pos, _buf, _buflen);
     _s->capacity_ -= (uint8_t)_buflen;

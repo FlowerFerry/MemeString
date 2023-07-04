@@ -53,6 +53,8 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE string_builder operator+(const string_view& _other) const;
 		MEMEPP__IMPL_INLINE string_builder operator+(const char* _other) const;
 
+		MEMEPP__IMPL_INLINE const_reference at(size_type _pos) const;
+
 		MEMEPP__IMPL_INLINE const char* data() const noexcept;
 		MEMEPP__IMPL_INLINE size_type size() const noexcept;
 		MEMEPP__IMPL_INLINE bool empty() const noexcept;

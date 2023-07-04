@@ -114,6 +114,13 @@ namespace memepp {
         return static_cast<buffer_storage_type>(MemeBuffer_storageType(memepp::to_pointer(data_)));
 	}
 
+	MEMEPP__IMPL_INLINE buffer_view::const_reference buffer_view::at(size_type _pos) const
+	{
+		auto p = MemeBuffer_at(memepp::to_pointer(data_), _pos);
+		// TO_DO
+		return *p;
+	}
+
 	MEMEPP__IMPL_INLINE buffer_view::const_pointer buffer_view::data() const MEGOPP__NOEXCEPT
 	{
         return MemeBuffer_data(memepp::to_pointer(data_));
