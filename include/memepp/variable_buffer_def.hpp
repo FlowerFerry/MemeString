@@ -50,7 +50,7 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE variable_buffer& operator+=(const variable_buffer& _other);
 		MEMEPP__IMPL_INLINE variable_buffer& operator+=(variable_buffer&& _other);
 
-		MEMEPP__IMPL_INLINE buffer_storage_type storage_type() const MEGOPP__NOEXCEPT;
+		MEMEPP__IMPL_INLINE buffer_storage_t storage_type() const MEGOPP__NOEXCEPT;
 
 		MEMEPP__IMPL_INLINE reference front();
 		MEMEPP__IMPL_INLINE const_reference front() const;

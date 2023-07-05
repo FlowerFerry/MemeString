@@ -80,7 +80,7 @@ namespace memepp {
 		}
 		else {
 			MemeStringStack_init(&data_, MMS__OBJECT_SIZE);
-            memepp::string s{ _other.data(), _other.size(), memepp::string_storage_type::large };
+            memepp::string s{ _other.data(), _other.size(), memepp::string_storage_t::large };
             *this = memepp::string_view{ s };
 		}
 	}
@@ -102,9 +102,9 @@ namespace memepp {
 		MemeStringStack_unInit(&data_, MEME_STRING__OBJECT_SIZE);
 	}
 	
-	MEMEPP__IMPL_INLINE string_storage_type string_view::storage_type() const noexcept
+	MEMEPP__IMPL_INLINE string_storage_t string_view::storage_type() const noexcept
 	{
-		return static_cast<string_storage_type>(MemeString_storageType(to_pointer(data_)));
+		return static_cast<string_storage_t>(MemeString_storageType(to_pointer(data_)));
 	}
 
 	MEMEPP__IMPL_INLINE string_view& string_view::operator=(const string& _other)
@@ -216,8 +216,8 @@ namespace memepp {
 
 	MEMEPP__IMPL_INLINE string string_view::to_large() const noexcept
 	{
-        return storage_type() == string_storage_type::large ? 
-            to_string() : string{ data(), size(), string_storage_type::large };
+        return storage_type() == string_storage_t::large ?
+            to_string() : string{ data(), size(), string_storage_t::large };
 	}
     
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::find(

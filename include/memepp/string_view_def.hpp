@@ -43,7 +43,7 @@ namespace memepp {
 
 		MEMEPP__IMPL_INLINE ~string_view();
 
-		MEMEPP__IMPL_INLINE string_storage_type storage_type() const noexcept;
+		MEMEPP__IMPL_INLINE string_storage_t storage_type() const noexcept;
 
 		string_view& operator=(const string& _other);
 		string_view& operator=(const string_view& _other);

@@ -36,6 +36,7 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE buffer(const buffer& _other, size_type _pos, size_type _count);
 
 		MEMEPP__IMPL_INLINE buffer(const_pointer _utf8, size_type _size);
+		MEMEPP__IMPL_INLINE buffer(const_pointer _utf8, size_type _size, buffer_storage_t _suggest);
 		MEMEPP__IMPL_INLINE buffer(const_pointer _begin, const_pointer _end);
 
 		MEMEPP__IMPL_INLINE buffer(size_type _count, MemeByte_t _byte);
@@ -47,7 +48,7 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE buffer& operator=(buffer&& _other);
 		MEMEPP__IMPL_INLINE buffer& operator=(const buffer& _other);
 
-		MEMEPP__IMPL_INLINE buffer_storage_type storage_type() const MEGOPP__NOEXCEPT;
+		MEMEPP__IMPL_INLINE buffer_storage_t storage_type() const MEGOPP__NOEXCEPT;
 
 		MEMEPP__IMPL_INLINE const_reference at(size_type _pos) const;
 

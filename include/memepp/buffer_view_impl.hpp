@@ -42,7 +42,20 @@ namespace memepp {
         MemeBufferViewUnsafeStack_initByOther(&data_, MMS__OBJECT_SIZE, &_other.native_handle());
 	}
 	
-	//MEMEPP__IMPL_INLINE buffer_view::buffer_view(buffer&& _other) MEGOPP__NOEXCEPT
+	MEMEPP__IMPL_INLINE buffer_view::buffer_view(buffer&& _other) MEGOPP__NOEXCEPT
+	{
+		auto other = to_pointer(_other.native_handle());
+		if (MemeBuffer_isSharedStorageTypes(other) == 1)
+		{
+			MemeBufferStack_initByOther(&data_, MMS__OBJECT_SIZE, &_other.native_handle());
+		}
+		else {
+			MemeBufferStack_init(&data_, MMS__OBJECT_SIZE);
+			memepp::buffer b{ _other.data(), _other.size(), buffer_storage_t::large };
+			*this = memepp::buffer_view{ b };
+		}
+	}
+	
 	//MEMEPP__IMPL_INLINE buffer_view::buffer_view(string&& _other) MEGOPP__NOEXCEPT
 	//MEMEPP__IMPL_INLINE buffer_view::buffer_view(variable_buffer&& _other) MEGOPP__NOEXCEPT
 	MEMEPP__IMPL_INLINE buffer_view::buffer_view(string_view&& _other) MEGOPP__NOEXCEPT
@@ -109,9 +122,9 @@ namespace memepp {
         return *this;
 	}
 
-	MEMEPP__IMPL_INLINE buffer_storage_type buffer_view::storage_type() const MEGOPP__NOEXCEPT
+	MEMEPP__IMPL_INLINE buffer_storage_t buffer_view::storage_type() const MEGOPP__NOEXCEPT
 	{
-        return static_cast<buffer_storage_type>(MemeBuffer_storageType(memepp::to_pointer(data_)));
+        return static_cast<buffer_storage_t>(MemeBuffer_storageType(memepp::to_pointer(data_)));
 	}
 
 	MEMEPP__IMPL_INLINE buffer_view::const_reference buffer_view::at(size_type _pos) const

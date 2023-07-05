@@ -26,7 +26,7 @@ MEME_API int
 MEME_STDCALL MemeBufferStack_initByBytes(
 		MemeBufferStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len);
 
-MEME_API MEGO_SYMBOL__DEPRECATED int
+MEME_API int
 MEME_STDCALL MemeBufferStack_initByU8bytesAndType(
 		MemeBufferStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len,
 		MemeBuffer_Storage_t _suggest);
@@ -73,6 +73,9 @@ MEME_STDCALL MemeBuffer_isEqual(MemeBuffer_Const_t _s, const MemeByte_t* _buf, M
 
 MEME_API int
 MEME_STDCALL MemeBuffer_isEqualWithOther(MemeBuffer_Const_t _lhs, MemeBuffer_Const_t _rhs, int* _result);
+
+MEME_API mmint_t
+MEME_STDCALL MemeBuffer_isSharedStorageTypes(mmbuf_const_t _b);
 
 MEME_API MemeInteger_t
 MEME_STDCALL MemeBuffer_indexOfWithBytes(

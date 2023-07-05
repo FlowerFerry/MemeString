@@ -52,7 +52,7 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE buffer_view& operator=(const buffer_view& _other) MEGOPP__NOEXCEPT;
 		MEMEPP__IMPL_INLINE buffer_view& operator=(buffer_view&& _other) MEGOPP__NOEXCEPT;
 		
-		MEMEPP__IMPL_INLINE buffer_storage_type storage_type() const MEGOPP__NOEXCEPT;
+		MEMEPP__IMPL_INLINE buffer_storage_t storage_type() const MEGOPP__NOEXCEPT;
 
 		MEMEPP__IMPL_INLINE const_reference at(size_type _pos) const;
 

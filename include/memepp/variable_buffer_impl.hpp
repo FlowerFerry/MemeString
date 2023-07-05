@@ -101,9 +101,9 @@ namespace memepp {
 		return this->append(std::move(_other));
 	}
 
-	MEMEPP__IMPL_INLINE buffer_storage_type variable_buffer::storage_type() const MEGOPP__NOEXCEPT
+	MEMEPP__IMPL_INLINE buffer_storage_t variable_buffer::storage_type() const MEGOPP__NOEXCEPT
 	{
-		return static_cast<buffer_storage_type>(MemeVariableBuffer_storageType(to_pointer(data_)));
+		return static_cast<buffer_storage_t>(MemeVariableBuffer_storageType(to_pointer(data_)));
 	}
 
 	MEMEPP__IMPL_INLINE variable_buffer::reference variable_buffer::front()

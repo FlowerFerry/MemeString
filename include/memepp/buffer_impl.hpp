@@ -5,6 +5,7 @@
 #include "meme/buffer.h"
 #include "memepp/buffer_def.hpp"
 #include "memepp/string_def.hpp"
+#include <memepp/errc.hpp>
 
 #include <string.h>
 
@@ -46,6 +47,12 @@ namespace memepp {
 	{
 		MemeBufferStack_initByBytes(&data_, MEME_STRING__OBJECT_SIZE, _utf8, _size);
 	}
+	
+	MEMEPP__IMPL_INLINE buffer::buffer(const_pointer _utf8, size_type _size, buffer_storage_t _suggest)
+	{
+        MemeBufferStack_initByU8bytesAndType(&data_, MMS__OBJECT_SIZE, _utf8, _size, 
+			static_cast<mmbuf_storage_t>(_suggest));
+	}
 
 	MEMEPP__IMPL_INLINE memepp::buffer::buffer(const_pointer _begin, const_pointer _end)
 	{
@@ -78,9 +85,9 @@ namespace memepp {
 		return *this;
 	}
 
-	MEMEPP__IMPL_INLINE buffer_storage_type buffer::storage_type() const MEGOPP__NOEXCEPT
+	MEMEPP__IMPL_INLINE buffer_storage_t buffer::storage_type() const MEGOPP__NOEXCEPT
 	{
-		return static_cast<buffer_storage_type>(MemeBuffer_storageType(to_pointer(data_)));
+		return static_cast<buffer_storage_t>(MemeBuffer_storageType(to_pointer(data_)));
 	}
 
 	MEMEPP__IMPL_INLINE buffer::const_reference buffer::at(size_type _pos) const

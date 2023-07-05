@@ -18,12 +18,12 @@ namespace memepp {
 
 	class buffer;
 
-	enum class buffer_storage_type {
+	enum class buffer_storage_t {
 		small  = MemeBuffer_StorageType_small,
 		medium = MemeBuffer_StorageType_medium,
 		large  = MemeBuffer_StorageType_large,
 		user   = MemeBuffer_StorageType_user,
-		viewUnsafe = MemeBuffer_UnsafeStorageType_view,
+		view_unsafe = MemeBuffer_UnsafeStorageType_view,
 	};
 
 	inline MemeBuffer_t to_pointer(MemeBufferStack_t& _s) noexcept

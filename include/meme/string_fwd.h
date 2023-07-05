@@ -44,6 +44,7 @@ enum _MemeFlag_CaseSensitivity_t
 };
 
 typedef MemeInteger_t MemeString_Storage_t;
+typedef MemeString_Storage_t mms_storage_t;
 enum _MemeString_Storage_t {
 	MemeString_StorageType_none			= 0,
 	MemeString_StorageType_small		= 1,

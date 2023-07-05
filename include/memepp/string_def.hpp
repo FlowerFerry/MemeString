@@ -43,12 +43,12 @@ namespace memepp {
 
 		MEMEPP__IMPL_INLINE string(const char* _utf8);
 		MEMEPP__IMPL_INLINE string(const char* _utf8, size_type _size);
-		MEMEPP__IMPL_INLINE string(const char* _utf8, size_type _size, memepp::string_storage_type _suggest);
+		MEMEPP__IMPL_INLINE string(const char* _utf8, size_type _size, string_storage_t _suggest);
 		MEMEPP__IMPL_INLINE string(const_pointer _utf8);
 		MEMEPP__IMPL_INLINE string(const_pointer _utf8, size_type _size);
-		MEMEPP__IMPL_INLINE string(const_pointer _utf8, size_type _size, memepp::string_storage_type _suggest);
+		MEMEPP__IMPL_INLINE string(const_pointer _utf8, size_type _size, string_storage_t _suggest);
 		MEMEPP__IMPL_INLINE string(const uint16_t* _utf16, size_type _size);
-		MEMEPP__IMPL_INLINE string(const uint16_t* _utf16, size_type _size, memepp::string_storage_type _suggest);
+		MEMEPP__IMPL_INLINE string(const uint16_t* _utf16, size_type _size, string_storage_t _suggest);
 
 		MEMEPP__IMPL_INLINE string(const rune& _ch);
         MEMEPP__IMPL_INLINE string(const string_builder& _builder);
@@ -69,7 +69,7 @@ namespace memepp {
         MEMEPP__IMPL_INLINE string_builder operator+(const string_view& _other) const;
         MEMEPP__IMPL_INLINE string_builder operator+(const char* _other) const;
 
-		MEMEPP__IMPL_INLINE string_storage_type storage_type() const noexcept;
+		MEMEPP__IMPL_INLINE string_storage_t storage_type() const noexcept;
 
 		MEMEPP__IMPL_INLINE const_reference at(size_type _pos) const;
 

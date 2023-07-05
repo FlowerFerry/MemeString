@@ -19,7 +19,7 @@ namespace memepp {
 
 	class string;
 
-	enum class string_storage_type {
+	enum class string_storage_t {
 		small  = MemeString_StorageType_small,
 		medium = MemeString_StorageType_medium,
 		large  = MemeString_StorageType_large,

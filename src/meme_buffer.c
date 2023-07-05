@@ -33,10 +33,8 @@ MEME_API int
 MEME_STDCALL MemeBufferStack_initByU8bytesAndType(
 	MemeBufferStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len, MemeBuffer_Storage_t _suggest)
 {
-	//return MemeStringStack_initByU8bytesAndType(
-	//	(MemeStringStack_t*)_out, _object_size, _utf8, _len, _suggest);
-
-	return MMENO__POSIX_OFFSET(ENOTSUP);
+	return MemeStringStack_initByU8bytesAndType(
+		(mmsstk_t*)_out, _object_size, _utf8, _len, _suggest);
 }
 
 //MEME_API int 
@@ -121,6 +119,11 @@ MEME_STDCALL MemeBuffer_isEqualWithOther(
 {
 	return MemeString_isEqualWithOther(
 		(MemeString_Const_t)_lhs, (MemeString_Const_t)_rhs, _result);
+}
+
+MEME_API mmint_t MEME_STDCALL MemeBuffer_isSharedStorageTypes(mmbuf_const_t _b)
+{
+    return MemeString_isSharedStorageTypes((mms_const_t)_b);
 }
 
 MEME_API MemeInteger_t 
