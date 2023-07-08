@@ -57,7 +57,7 @@ namespace memepp {
 		else if (_buf.GetLength() < 16 * sizeof(intptr_t))
 		{
 			return memepp::string(_buf.GetString(), static_cast<MemeInteger_t>(_buf.GetLength()),
-				memepp::string_storage_type::medium);
+				memepp::string_storage_t::medium);
 		}
 
         memepp::string out;

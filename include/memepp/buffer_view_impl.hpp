@@ -56,7 +56,20 @@ namespace memepp {
 		}
 	}
 	
-	//MEMEPP__IMPL_INLINE buffer_view::buffer_view(string&& _other) MEGOPP__NOEXCEPT
+	MEMEPP__IMPL_INLINE buffer_view::buffer_view(string&& _other) MEGOPP__NOEXCEPT
+	{
+        auto other = to_pointer(_other.native_handle());
+        if (MemeString_isSharedStorageTypes(other) == 1)
+        {
+            MemeBufferStack_initByString(&data_, MMS__OBJECT_SIZE, other);
+        }
+        else {
+            MemeBufferStack_init(&data_, MMS__OBJECT_SIZE);
+            memepp::string s{ _other.data(), _other.size(), string_storage_t::large };
+            *this = memepp::buffer_view{ s };
+        }
+	}
+	
 	//MEMEPP__IMPL_INLINE buffer_view::buffer_view(variable_buffer&& _other) MEGOPP__NOEXCEPT
 	MEMEPP__IMPL_INLINE buffer_view::buffer_view(string_view&& _other) MEGOPP__NOEXCEPT
 	{

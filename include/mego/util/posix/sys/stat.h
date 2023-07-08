@@ -60,10 +60,10 @@ enum mgu_stat_mode {
 	mgu_stat_mode_ixoth = 00001,
 };
 
-static int mgu_get_stat(const char* _path, intptr_t _slen, struct mgu_stat* _buf);
+inline int mgu_get_stat(const char* _path, intptr_t _slen, struct mgu_stat* _buf);
 
 
-static int mgu_get_stat(const char* _path, intptr_t _slen, struct mgu_stat* _buf)
+inline int mgu_get_stat(const char* _path, intptr_t _slen, struct mgu_stat* _buf)
 {
 	if (_slen == 0)
 		return EINVAL;

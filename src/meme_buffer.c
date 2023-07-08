@@ -21,6 +21,12 @@ MEME_STDCALL MemeBufferStack_initByOther(
 	return MemeStringStack_initByOther((MemeStringStack_t*)_out, _object_size, (MemeString_Const_t)_other);
 }
 
+MEME_API int MEME_STDCALL MemeBufferStack_initByString(
+	MemeBufferStack_t* _out, size_t _object_size, mms_const_t _s)
+{
+    return MemeStringStack_initByOther((MemeStringStack_t*)_out, _object_size, _s);
+}
+
 MEME_API int 
 MEME_STDCALL MemeBufferStack_initByBytes(
 	MemeBufferStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len)
