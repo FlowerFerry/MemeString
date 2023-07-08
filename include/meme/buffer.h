@@ -8,7 +8,7 @@
 MEME_EXTERN_C_SCOPE_START
 
 MEME_API int
-MEME_STDCALL MemeBufferStack_init(MemeBufferStack_t* _out, size_t _object_size);
+MEME_STDCALL MemeBufferStack_init(mmbufstk_t* _out, size_t _object_size);
 
 //MEME_API int
 //MEME_STDCALL MemeBufferStack_initTakeOverUserObject(
@@ -20,19 +20,19 @@ MEME_STDCALL MemeBufferStack_init(MemeBufferStack_t* _out, size_t _object_size);
 
 MEME_API int
 MEME_STDCALL MemeBufferStack_initByOther(
-		MemeBufferStack_t* _out, size_t _object_size, const MemeBufferStack_t* _other);
+	mmbufstk_t* _out, size_t _object_size, const mmbufstk_t* _other);
 
 MEME_API int
 MEME_STDCALL MemeBufferStack_initByString(
-	MemeBufferStack_t* _out, size_t _object_size, mms_const_t _s);
+	mmbufstk_t* _out, size_t _object_size, mms_const_t _s);
 
 MEME_API int
 MEME_STDCALL MemeBufferStack_initByBytes(
-		MemeBufferStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len);
+	mmbufstk_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len);
 
 MEME_API int
 MEME_STDCALL MemeBufferStack_initByU8bytesAndType(
-		MemeBufferStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len,
+	mmbufstk_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len,
 		MemeBuffer_Storage_t _suggest);
 
 //MEME_API int
@@ -42,14 +42,14 @@ MEME_STDCALL MemeBufferStack_initByU8bytesAndType(
 //);
 
 MEME_API int
-MEME_STDCALL MemeBufferStack_unInit(MemeBufferStack_t* _out, size_t _object_size);
+MEME_STDCALL MemeBufferStack_unInit(mmbufstk_t* _out, size_t _object_size);
 
 MEME_API int
-MEME_STDCALL MemeBufferStack_reset(MemeBufferStack_t* _out, size_t _object_size);
+MEME_STDCALL MemeBufferStack_reset(mmbufstk_t* _out, size_t _object_size);
 
 MEME_API int
 MEME_STDCALL MemeBufferStack_assign(
-	MemeBufferStack_t* _s, size_t _object_size, const MemeBufferStack_t* _other);
+	mmbufstk_t* _s, size_t _object_size, const MemeBufferStack_t* _other);
 
 MEME_API MemeBuffer_Storage_t
 MEME_STDCALL MemeBuffer_storageType(MemeBuffer_Const_t _s);

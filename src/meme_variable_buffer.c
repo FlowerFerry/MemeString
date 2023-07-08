@@ -10,14 +10,14 @@
 #include <assert.h>
 
 MEME_API int 
-MEME_STDCALL MemeVariableBufferStack_init(MemeVariableBufferStack_t* _out, size_t _object_size)
+MEME_STDCALL MemeVariableBufferStack_init(mmvbstk_t* _out, size_t _object_size)
 {
 	return MemeStringStack_init((MemeStringStack_t*)_out, _object_size);
 }
 
 MEME_API int 
 MEME_STDCALL MemeVariableBufferStack_initByOther(
-	MemeVariableBufferStack_t* _out, size_t _object_size, const MemeVariableBufferStack_t* _other)
+	mmvbstk_t* _out, size_t _object_size, const mmvbstk_t* _other)
 {
 
 	assert(_out);
@@ -46,7 +46,7 @@ MEME_STDCALL MemeVariableBufferStack_initByOther(
 
 MEME_API int 
 MEME_STDCALL MemeVariableBufferStack_initByBytes(
-	MemeVariableBufferStack_t* _out, size_t _object_size, const MemeByte_t* _buf, MemeInteger_t _len)
+	mmvbstk_t* _out, size_t _object_size, const MemeByte_t* _buf, MemeInteger_t _len)
 {
 	assert(_len >= 0 && MemeVariableBufferStack_initByBytes);
 	assert(_out && MemeVariableBufferStack_initByBytes);
@@ -58,7 +58,7 @@ MEME_STDCALL MemeVariableBufferStack_initByBytes(
 
 MEME_API int 
 MEME_STDCALL MemeVariableBufferStack_initWithRepeatBytes(
-	MemeVariableBufferStack_t* _out, size_t _object_size, MemeInteger_t _count, MemeByte_t _byte)
+	mmvbstk_t* _out, size_t _object_size, MemeInteger_t _count, MemeByte_t _byte)
 {
 	assert(_count >= 0 && MemeVariableBufferStack_initWithRepeatBytes);
 	assert(_out && MemeVariableBufferStack_initWithRepeatBytes);
@@ -69,7 +69,7 @@ MEME_STDCALL MemeVariableBufferStack_initWithRepeatBytes(
 }
 
 MEME_API int 
-MEME_STDCALL MemeVariableBufferStack_unInit(MemeVariableBufferStack_t* _out, size_t _object_size)
+MEME_STDCALL MemeVariableBufferStack_unInit(mmvbstk_t* _out, size_t _object_size)
 {
 	return MemeStringStack_unInit((MemeStringStack_t*)_out, _object_size);
 }
@@ -82,7 +82,7 @@ MEME_STDCALL MemeVariableBufferStack_reset(MemeVariableBufferStack_t* _out, size
 
 MEME_API int 
 MEME_STDCALL MemeVariableBufferStack_assign(
-	MemeVariableBufferStack_t* _s, size_t _object_size, const MemeVariableBufferStack_t* _other)
+	mmvbstk_t* _s, size_t _object_size, const mmvbstk_t* _other)
 {
 	return MemeStringStack_assign((MemeStringStack_t*)_s, _object_size, (MemeString_Const_t)_other);
 }

@@ -7,29 +7,29 @@
 MEME_EXTERN_C_SCOPE_START
 
 MEME_API int
-MEME_STDCALL MemeVariableBufferStack_init(MemeVariableBufferStack_t* _out, size_t _object_size);
+MEME_STDCALL MemeVariableBufferStack_init(mmvbstk_t* _out, size_t _object_size);
 
 MEME_API int
 MEME_STDCALL MemeVariableBufferStack_initByOther(
-	MemeVariableBufferStack_t* _out, size_t _object_size, const MemeVariableBufferStack_t* _other);
+	mmvbstk_t* _out, size_t _object_size, const mmvbstk_t* _other);
 
 MEME_API int
 MEME_STDCALL MemeVariableBufferStack_initByBytes(
-	MemeVariableBufferStack_t* _out, size_t _object_size, const MemeByte_t* _buf, MemeInteger_t _len);
+	mmvbstk_t* _out, size_t _object_size, const MemeByte_t* _buf, MemeInteger_t _len);
 
 MEME_API int
 MEME_STDCALL MemeVariableBufferStack_initWithRepeatBytes(
-	MemeVariableBufferStack_t* _out, size_t _object_size, MemeInteger_t _count, MemeByte_t _byte);
+	mmvbstk_t* _out, size_t _object_size, MemeInteger_t _count, MemeByte_t _byte);
 
 MEME_API int
-MEME_STDCALL MemeVariableBufferStack_unInit(MemeVariableBufferStack_t* _out, size_t _object_size);
+MEME_STDCALL MemeVariableBufferStack_unInit(mmvbstk_t* _out, size_t _object_size);
 
 MEME_API int
 MEME_STDCALL MemeVariableBufferStack_reset(MemeVariableBufferStack_t* _out, size_t _object_size);
 
 MEME_API int
 MEME_STDCALL MemeVariableBufferStack_assign(
-	MemeVariableBufferStack_t* _s, size_t _object_size, const MemeVariableBufferStack_t* _other);
+	mmvbstk_t* _s, size_t _object_size, const mmvbstk_t* _other);
 
 MEME_API MemeVariableBuffer_Storage_t
 MEME_STDCALL MemeVariableBuffer_storageType(MemeVariableBuffer_Const_t _s);

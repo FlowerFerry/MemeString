@@ -23,14 +23,14 @@ MEME_API MemeInteger_t
 
 
 MEME_API int 
-	MEME_STDCALL MemeStringStack_init(MemeStringStack_t* _out, size_t _object_size);
+	MEME_STDCALL MemeStringStack_init(mmsstk_t* _out, size_t _object_size);
 
-MEME_API MemeStringStack_t
+MEME_API mmsstk_t
 	MEME_STDCALL MemeStringStack_getInitObject(size_t _object_size);
 
 MEME_API int
 	MEME_STDCALL MemeStringStack_initTakeOverUserObject(
-		MemeStringStack_t* _out, size_t _object_size,
+		mmsstk_t* _out, size_t _object_size,
 		void* _user_data, 
 		MemeString_UserObjectDestruct_t* _destruct_fn, 
 		MemeString_UserObjectData_t* _data_fn, 
@@ -38,11 +38,11 @@ MEME_API int
 
 MEME_API int
 	MEME_STDCALL MemeStringStack_initByOther(
-		MemeStringStack_t* _out, size_t _object_size, MemeString_Const_t _other);
+		mmsstk_t* _out, size_t _object_size, mms_const_t _other);
 
 MEME_API int
 MEME_STDCALL MemeStringStack_initByBuffer(
-	MemeStringStack_t* _out, size_t _object_size, MemeBuffer_Const_t _other, MemeInteger_t _offset);
+	mmsstk_t* _out, size_t _object_size, MemeBuffer_Const_t _other, MemeInteger_t _offset);
 
 MEME_API int
 	MEME_STDCALL MemeStringStack_initByRune(
@@ -50,16 +50,16 @@ MEME_API int
 
 MEME_API int
 	MEME_STDCALL MemeStringStack_initByU8bytes(
-		MemeStringStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len);
+		mmsstk_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len);
 
 MEME_API int
 	MEME_STDCALL MemeStringStack_initByU8bytesAndType(
-		MemeStringStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len,
+		mmsstk_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len,
 		MemeString_Storage_t _suggest);
 
 MEME_API int
 	MEME_STDCALL MemeStringStack_initByU16bytes(
-		MemeStringStack_t* _out, size_t _object_size, const uint16_t* _buf, MemeInteger_t _len);
+		mmsstk_t* _out, size_t _object_size, const uint16_t* _buf, MemeInteger_t _len);
 
 MEME_API int
 	MEME_STDCALL MemeStringStack_initByU16bytesAndType(
@@ -74,58 +74,58 @@ MEME_API int
 
 MEME_API int
 	MEME_STDCALL MemeStringStack_initWithHexadecimals(
-		MemeStringStack_t* _out, size_t _object_size, 
+		mmsstk_t* _out, size_t _object_size,
 		const MemeByte_t* _interval, MemeInteger_t _ivlen, const uint8_t* _hexs, MemeInteger_t _len);
 
 MEME_API int
-	MEME_STDCALL MemeStringStack_unInit(MemeStringStack_t* _out, size_t _object_size);
+	MEME_STDCALL MemeStringStack_unInit(mmsstk_t* _out, size_t _object_size);
 
 MEME_API int 
-	MEME_STDCALL MemeStringStack_reset (MemeStringStack_t* _out, size_t _object_size);
+	MEME_STDCALL MemeStringStack_reset (mmsstk_t* _out, size_t _object_size);
 
 MEME_API int
-	MEME_STDCALL MemeStringStack_assign(MemeStringStack_t* _s, size_t _object_size, MemeString_Const_t _other);
+	MEME_STDCALL MemeStringStack_assign(mmsstk_t* _s, size_t _object_size, MemeString_Const_t _other);
 
 MEME_API int
 MEME_STDCALL MemeStringStack_assignByU8bytes(
-	MemeStringStack_t* _s, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len);
+	mmsstk_t* _s, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len);
 
 MEME_API int
 MEME_STDCALL MemeStringStack_assignByBuffer(
-	MemeStringStack_t* _out, size_t _object_size, MemeBuffer_Const_t _other, MemeInteger_t _offset);
+	mmsstk_t* _out, size_t _object_size, MemeBuffer_Const_t _other, MemeInteger_t _offset);
 
-MEME_API MemeStringStack_t
+MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_mid(
-	const MemeStringStack_t* _s, size_t _object_size, MemeInteger_t _offset, MemeInteger_t _len);
+	const mmsstk_t* _s, size_t _object_size, MemeInteger_t _offset, MemeInteger_t _len);
 
-MEME_API MemeStringStack_t
+MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_toEnUpper(
-	const MemeStringStack_t* _s, size_t _object_size);
+	const mmsstk_t* _s, size_t _object_size);
 
-MEME_API MemeStringStack_t
+MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_toEnLower(
-	const MemeStringStack_t* _s, size_t _object_size);
+	const mmsstk_t* _s, size_t _object_size);
 
-MEME_API MemeStringStack_t
+MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_trimSpace(
-    const MemeStringStack_t* _s, size_t _object_size);
+    const mmsstk_t* _s, size_t _object_size);
 
-MEME_API MemeStringStack_t
+MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_trimLeftSpace(
-    const MemeStringStack_t* _s, size_t _object_size);
+    const mmsstk_t* _s, size_t _object_size);
 
-MEME_API MemeStringStack_t
+MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_trimRightSpace(
-    const MemeStringStack_t* _s, size_t _object_size);
+    const mmsstk_t* _s, size_t _object_size);
 
-MEME_API MemeStringStack_t
+MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_trimByCuts(
-    const MemeStringStack_t* _s, size_t _object_size, 
+    const mmsstk_t* _s, size_t _object_size,
 	const char* _cuts, MemeInteger_t _cuts_len);
 
-MEME_API MemeStringStack_t
+MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_trimByCondByteFunc(
-    const MemeStringStack_t* _s, size_t _object_size,
+    const mmsstk_t* _s, size_t _object_size,
 	MemeString_MatchCondByteFunc_t* _cond_func, void* _user_data);
 
 //! \code
@@ -142,13 +142,13 @@ MEME_STDCALL MemeStringStack_replace(
     const char* _from, MemeInteger_t _from_len,
     const char* _to, MemeInteger_t _to_len, MemeInteger_t _max_count);
 
-MEME_API MemeStringStack_t
+MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_toValidUtf8(
-    const MemeStringStack_t* _s, size_t _object_size);
+    const mmsstk_t* _s, size_t _object_size);
 
-MEME_API MemeStringStack_t
+MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_mappingConvert(
-    const MemeStringStack_t* _s, size_t _object_size, 
+    const mmsstk_t* _s, size_t _object_size,
     MemeString_MappingConvertFunc_t _mapping_fn, void* _user_data);
 
 MEME_API MemeStringStack_t 

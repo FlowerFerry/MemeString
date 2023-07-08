@@ -9,27 +9,27 @@
 #include <assert.h>
 
 MEME_API int 
-MEME_STDCALL MemeBufferStack_init(MemeBufferStack_t* _out, size_t _object_size)
+MEME_STDCALL MemeBufferStack_init(mmbufstk_t* _out, size_t _object_size)
 {
 	return MemeStringStack_init((MemeStringStack_t*)_out, _object_size);
 }
 
 MEME_API int 
 MEME_STDCALL MemeBufferStack_initByOther(
-	MemeBufferStack_t* _out, size_t _object_size, const MemeBufferStack_t* _other)
+	mmbufstk_t* _out, size_t _object_size, const mmbufstk_t* _other)
 {
 	return MemeStringStack_initByOther((MemeStringStack_t*)_out, _object_size, (MemeString_Const_t)_other);
 }
 
 MEME_API int MEME_STDCALL MemeBufferStack_initByString(
-	MemeBufferStack_t* _out, size_t _object_size, mms_const_t _s)
+	mmbufstk_t* _out, size_t _object_size, mms_const_t _s)
 {
     return MemeStringStack_initByOther((MemeStringStack_t*)_out, _object_size, _s);
 }
 
 MEME_API int 
 MEME_STDCALL MemeBufferStack_initByBytes(
-	MemeBufferStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len)
+	mmbufstk_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len)
 {
 	return MemeStringStack_initByU8bytesAndType(
 		(MemeStringStack_t*)_out, _object_size, _utf8, _len, MemeString_StorageType_large);
@@ -37,7 +37,7 @@ MEME_STDCALL MemeBufferStack_initByBytes(
 
 MEME_API int 
 MEME_STDCALL MemeBufferStack_initByU8bytesAndType(
-	MemeBufferStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len, MemeBuffer_Storage_t _suggest)
+	mmbufstk_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len, MemeBuffer_Storage_t _suggest)
 {
 	return MemeStringStack_initByU8bytesAndType(
 		(mmsstk_t*)_out, _object_size, _utf8, _len, _suggest);
@@ -52,21 +52,21 @@ MEME_STDCALL MemeBufferStack_initByU8bytesAndType(
 //}
 
 MEME_API int 
-MEME_STDCALL MemeBufferStack_unInit(MemeBufferStack_t* _out, size_t _object_size)
+MEME_STDCALL MemeBufferStack_unInit(mmbufstk_t* _out, size_t _object_size)
 {
 	return MemeStringStack_unInit((MemeStringStack_t*)_out, _object_size);
 }
 
 MEME_API int 
 MEME_STDCALL MemeBufferStack_reset(
-	MemeBufferStack_t* _out, size_t _object_size)
+	mmbufstk_t* _out, size_t _object_size)
 {
 	return MemeStringStack_reset((MemeStringStack_t*)_out, _object_size);
 }
 
 MEME_API int 
 MEME_STDCALL MemeBufferStack_assign(
-	MemeBufferStack_t* _s, size_t _object_size, const MemeBufferStack_t* _other)
+	mmbufstk_t* _s, size_t _object_size, const MemeBufferStack_t* _other)
 {
 	return MemeStringStack_assign((MemeStringStack_t*)_s, _object_size, (MemeString_Const_t)_other);
 }
