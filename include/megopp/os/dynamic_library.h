@@ -15,7 +15,7 @@
 
 //#include "utf8/unchecked.h"
 
-#ifndef MEGO_OS__WINDOWS__AVAILABLE
+#if !MEGO_OS__WINDOWS__AVAILABLE
 #	include <dlfcn.h>
 #endif
 
@@ -36,7 +36,7 @@ namespace os {
 		~dynamic_library()
 		{
 			if (handle_) {
-#ifdef MEGO_OS__WINDOWS__AVAILABLE
+#if MEGO_OS__WINDOWS__AVAILABLE
 				::FreeLibrary((HMODULE)handle_);
 #else
 				::dlclose(handle_);
@@ -52,7 +52,7 @@ namespace os {
 
 		inline static const memepp::string & file_name_suffix()
 		{
-#ifdef MEGO_OS__WINDOWS__AVAILABLE
+#if MEGO_OS__WINDOWS__AVAILABLE
 			static memepp::string suffix = "dll";
 #elif defined(macintosh) || defined(__APPLE__) || defined(__APPLE_CC__)
 			static memepp::string suffix = "dylib";
@@ -77,7 +77,7 @@ namespace os {
 
 		void * handle = NULL;
 
-#ifdef MEGO_OS__WINDOWS__AVAILABLE
+#if MEGO_OS__WINDOWS__AVAILABLE
 		static_assert(sizeof(wchar_t) == 2, "wchar_t is not two bytes");
 
 		std::wstring u16name;
@@ -118,7 +118,7 @@ namespace os {
 
 		auto cleanup = megopp::util::scope_cleanup__create([&] 
 		{
-#ifdef MEGO_OS__WINDOWS__AVAILABLE
+#if MEGO_OS__WINDOWS__AVAILABLE
 			::FreeLibrary((HMODULE)handle);
 #else
 			::dlclose(handle);
@@ -139,7 +139,7 @@ namespace os {
 		if (!handle_)
 			return NULL;
 
-#ifdef MEGO_OS__WINDOWS__AVAILABLE
+#if MEGO_OS__WINDOWS__AVAILABLE
 		return (_Fn *)::GetProcAddress((HMODULE)handle_, _symbol);
 #else
 		return (_Fn *)::dlsym(handle_, _symbol);

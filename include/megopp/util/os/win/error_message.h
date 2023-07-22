@@ -17,7 +17,7 @@ namespace win {
 
 	inline memepp::string errcode_as_string(uint32_t _errCode)
 	{
-#ifdef MEGO_OS__WINDOWS__AVAILABLE
+#if MEGO_OS__WINDOWS__AVAILABLE
 		if (_errCode == 0)
 			return memepp::string{}; //No error message has been recorded
 
@@ -44,7 +44,7 @@ namespace win {
 
 	inline std::wstring errcode_as_u16string(uint32_t _errCode)
 	{
-#ifdef MEGO_OS__WINDOWS__AVAILABLE
+#if MEGO_OS__WINDOWS__AVAILABLE
 		if (_errCode == 0)
 			return std::wstring{}; //No error message has been recorded
 
