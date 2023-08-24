@@ -149,6 +149,12 @@ namespace memepp {
 		return std::move(stack);
 	}
 
+	MEMEPP__IMPL_INLINE buffer buffer::to_large() const noexcept
+	{
+        return storage_type() == buffer_storage_t::large ?
+            *this : buffer{ data(), size(), buffer_storage_t::large };
+	}
+    
 	MEMEPP__IMPL_INLINE buffer::size_type buffer::index_of(
 		const buffer& _other) const MEGOPP__NOEXCEPT
 	{

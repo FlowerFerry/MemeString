@@ -25,7 +25,7 @@ extern "C" {
     } mgu_timespec_t;
 
 #ifdef TIME_UTC
-    static inline int mgu_timespec_get(mgu_timespec_t* _ts, int _base)
+    inline int mgu_timespec_get(mgu_timespec_t* _ts, int _base)
     {
         struct timespec ts;
         int ret = timespec_get(&ts, _base);
@@ -33,7 +33,7 @@ extern "C" {
         return ret;
     }
 #else   
-    static inline int mgu_timespec_get(mgu_timespec_t* _ts, int _base)
+    inline int mgu_timespec_get(mgu_timespec_t* _ts, int _base)
     {
         if (!_ts) return 0;
 
@@ -62,14 +62,14 @@ extern "C" {
     }
 #endif
 
-    static inline mgu_timestamp_t mgu_timestamp_get()
+    inline mgu_timestamp_t mgu_timestamp_get()
     {
         mgu_timespec_t ts;
         mgu_timespec_get(&ts, MGU_TIME_UTC);
         return (mgu_timestamp_t)ts.tv_sec * 1000LL + (mgu_timestamp_t)ts.tv_nsec / 1000000LL;
     }
 
-    static inline mgu_timeval_t mgu_timeval_get()
+    inline mgu_timeval_t mgu_timeval_get()
     {
         mgu_timespec_t ts;
         mgu_timespec_get(&ts, MGU_TIME_UTC);

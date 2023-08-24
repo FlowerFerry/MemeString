@@ -11,10 +11,10 @@ stdc = "c11"
 set_languages(stdc)
 
 add_includedirs(
-    "include",
     "include_private",
     "deps/include"
 )
+add_includedirs("include", {public = true})
 
 target("meme_string")
     add_defines("MEME_OPTION__BUILD_SHARED")
