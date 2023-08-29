@@ -57,7 +57,7 @@ namespace memepp {
 		else if (_buf.GetLength() < 16 * sizeof(intptr_t))
 		{
 			return memepp::string(_buf.GetString(), static_cast<MemeInteger_t>(_buf.GetLength()),
-				memepp::string_storage_type::medium);
+				memepp::string_storage_t::medium);
 		}
 
         memepp::string out;
@@ -104,6 +104,26 @@ namespace memepp {
 
 
 };
+
+inline memepp::string mm_from(const rapidjson::GenericStringRef<char>& _s)
+{
+    return memepp::from(_s);
+}
+
+inline memepp::string mm_from(const rapidjson::StringBuffer& _s)
+{
+    return memepp::from(_s);
+}
+
+inline memepp::string mm_from(const rapidjson::Value& _v)
+{
+    return memepp::from(_v);
+}
+
+inline memepp::string mm_from(rapidjson::StringBuffer&& _buf)
+{
+    return memepp::from(std::move(_buf));
+}
 
 namespace rapidjson
 {

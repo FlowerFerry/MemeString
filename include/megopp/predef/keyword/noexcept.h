@@ -28,7 +28,10 @@
 #if MEGO_COMP__CLANG__AVAILABLE
 
 #if !__has_feature(cxx_noexcept)
+#  undef  MEGOPP_CXX11__NOEXCEPT__AVAILABLE
 #  define MEGOPP_CXX11__NOEXCEPT__AVAILABLE (0)
+#else
+#  undef  MEGOPP_CXX11__NOEXCEPT__AVAILABLE
 #endif
 
 #endif 

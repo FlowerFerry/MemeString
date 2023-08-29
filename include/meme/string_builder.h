@@ -22,7 +22,7 @@ MEME_API int
 
 MEME_API int
 	MEME_STDCALL MemeStringBuilderStack_initByOther(
-		mmsbuilder_stack_t* _builder, size_t _builder_size, mmsbuilder_const_t _other);
+		mmsbldrstk_t* _builder, size_t _builder_size, mmsbldr_const_t _other);
 
 MEME_API int
 	MEME_STDCALL MemeStringBuilderStack_unInit(
@@ -30,7 +30,7 @@ MEME_API int
 
 MEME_API int
 	MEME_STDCALL MemeStringBuilderStack_assignByOther(
-		mmsbuilder_stack_t* _builder, size_t _builder_size, mmsbuilder_const_t _other);
+		mmsbldrstk_t* _builder, size_t _builder_size, mmsbldr_const_t _other);
 
 MEME_API int
 	MEME_STDCALL MemeStringBuilderStack_swap(
@@ -49,16 +49,16 @@ MEME_API int
 		const MemeStringBuilderStack_t* _builder, size_t _builder_size, MemeString_Const_t _rhs, int* _result);
 
 MEME_API int
-MEME_STDCALL MemeStringBuilder_generate(mmsbuilder_const_t _builder, mms_t _out);
+MEME_STDCALL MemeStringBuilder_generate(mmsbldr_const_t _builder, mms_t _out);
 
 MEME_API int
-MEME_STDCALL MemeStringBuilder_appendArgWithString(mmsbuilder_t _builder, mms_const_t _arg);
+MEME_STDCALL MemeStringBuilder_appendArgWithString(mmsbldr_t _builder, mms_const_t _arg);
 
 MEME_API int
-MEME_STDCALL MemeStringBuilder_appendArgByOther(mmsbuilder_t _builder, mmsbuilder_const_t _other);
+MEME_STDCALL MemeStringBuilder_appendArgByOther(mmsbldr_t _builder, mmsbldr_const_t _other);
 
 MEME_API int
-MEME_STDCALL MemeStringBuilder_prependArgWithString(mmsbuilder_t _builder, mms_const_t _arg);
+MEME_STDCALL MemeStringBuilder_prependArgWithString(mmsbldr_t _builder, mms_const_t _arg);
 
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_STRING_BUILDER_H_INCLUDED

@@ -5,6 +5,7 @@
 #include "meme/buffer.h"
 #include "memepp/buffer_def.hpp"
 #include "memepp/string_def.hpp"
+#include <memepp/errc.hpp>
 
 #include <string.h>
 
@@ -46,6 +47,12 @@ namespace memepp {
 	{
 		MemeBufferStack_initByBytes(&data_, MEME_STRING__OBJECT_SIZE, _utf8, _size);
 	}
+	
+	MEMEPP__IMPL_INLINE buffer::buffer(const_pointer _utf8, size_type _size, buffer_storage_t _suggest)
+	{
+        MemeBufferStack_initByU8bytesAndType(&data_, MMS__OBJECT_SIZE, _utf8, _size, 
+			static_cast<mmbuf_storage_t>(_suggest));
+	}
 
 	MEMEPP__IMPL_INLINE memepp::buffer::buffer(const_pointer _begin, const_pointer _end)
 	{
@@ -78,9 +85,16 @@ namespace memepp {
 		return *this;
 	}
 
-	MEMEPP__IMPL_INLINE buffer_storage_type buffer::storage_type() const MEGOPP__NOEXCEPT
+	MEMEPP__IMPL_INLINE buffer_storage_t buffer::storage_type() const MEGOPP__NOEXCEPT
 	{
-		return static_cast<buffer_storage_type>(MemeBuffer_storageType(to_pointer(data_)));
+		return static_cast<buffer_storage_t>(MemeBuffer_storageType(to_pointer(data_)));
+	}
+
+	MEMEPP__IMPL_INLINE buffer::const_reference buffer::at(size_type _pos) const
+	{
+		auto p = MemeBuffer_at(memepp::to_pointer(data_), _pos);
+		// TO_DO
+		return *p;
 	}
 
 	MEMEPP__IMPL_INLINE buffer::const_pointer buffer::data() const MEGOPP__NOEXCEPT
@@ -135,6 +149,12 @@ namespace memepp {
 		return std::move(stack);
 	}
 
+	MEMEPP__IMPL_INLINE buffer buffer::to_large() const noexcept
+	{
+        return storage_type() == buffer_storage_t::large ?
+            *this : buffer{ data(), size(), buffer_storage_t::large };
+	}
+    
 	MEMEPP__IMPL_INLINE buffer::size_type buffer::index_of(
 		const buffer& _other) const MEGOPP__NOEXCEPT
 	{
@@ -142,11 +162,21 @@ namespace memepp {
 			to_pointer(native_handle()), 0, to_pointer(_other.native_handle()));
 	}
 
-	MEMEPP__IMPL_INLINE buffer::size_type buffer::index_of_with_strlen(
-		const char* _utf8, size_type _utf8_len) const MEGOPP__NOEXCEPT
+	MEMEPP__IMPL_INLINE buffer::size_type buffer::index_of(
+		const_pointer _utf8, size_type _utf8_len) const MEGOPP__NOEXCEPT
 	{
 		return MemeBuffer_indexOfWithBytes(
 			to_pointer(native_handle()), 0, reinterpret_cast<const uint8_t*>(_utf8), _utf8_len);
+	}
+
+	MEMEPP__IMPL_INLINE bool buffer::contains(const buffer& _other) const MEGOPP__NOEXCEPT
+	{
+        return index_of(_other) != npos;
+	}
+
+	MEMEPP__IMPL_INLINE bool buffer::contains(const_pointer _utf8, size_type _count) const MEGOPP__NOEXCEPT
+	{
+        return index_of(_utf8, _count) != npos;
 	}
 
 	MEMEPP__IMPL_INLINE const buffer::native_handle_type& buffer::native_handle() const MEGOPP__NOEXCEPT

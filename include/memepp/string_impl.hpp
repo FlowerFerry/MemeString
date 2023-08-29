@@ -94,10 +94,10 @@ namespace memepp {
 	}
 
 	MEMEPP__IMPL_INLINE string::string(
-		const char* _utf8, size_type _size, memepp::string_storage_type _suggest)
+		const char* _utf8, size_type _size, string_storage_t _suggest)
 	{
 		*errc() = MemeStringStack_initByU8bytesAndType(&data_, MEME_STRING__OBJECT_SIZE,
-            reinterpret_cast<const uint8_t*>(_utf8), _size, static_cast<MemeString_Storage_t>(_suggest));
+            reinterpret_cast<const uint8_t*>(_utf8), _size, static_cast<mms_storage_t>(_suggest));
 #if !MMOPT__EXCEPTION_DISABLED
 		throw_errc(*errc());
 #endif
@@ -120,7 +120,7 @@ namespace memepp {
 	}
 
 	MEMEPP__IMPL_INLINE string::string(
-		const_pointer _utf8, size_type _size, memepp::string_storage_type _suggest)
+		const_pointer _utf8, size_type _size, string_storage_t _suggest)
 	{
 		*errc() = MemeStringStack_initByU8bytesAndType(&data_, MEME_STRING__OBJECT_SIZE,
             _utf8, _size, static_cast<MemeString_Storage_t>(_suggest));
@@ -129,6 +129,23 @@ namespace memepp {
 #endif
 	}
 
+	MEMEPP__IMPL_INLINE string::string(const uint16_t* _utf16, size_type _size)
+	{
+        *errc() = MemeStringStack_initByU16bytes(&data_, MMS__OBJECT_SIZE, _utf16, _size);
+#if !MMOPT__EXCEPTION_DISABLED
+        throw_errc(*errc());
+#endif
+	}
+	
+	MEMEPP__IMPL_INLINE string::string(const uint16_t* _utf16, size_type _size, string_storage_t _suggest)
+	{
+        *errc() = MemeStringStack_initByU16bytesAndType(&data_, MMS__OBJECT_SIZE,
+            _utf16, _size, static_cast<MemeString_Storage_t>(_suggest));
+#if !MMOPT__EXCEPTION_DISABLED
+        throw_errc(*errc());
+#endif
+	}
+	
 	MEMEPP__IMPL_INLINE string::string(const rune& _ch)
 	{
 		*errc() = MemeStringStack_initByU8bytes(&data_, MEME_STRING__OBJECT_SIZE, _ch.data(), _ch.size());
@@ -185,9 +202,20 @@ namespace memepp {
 		return string_builder{} + *this + _other;
 	}
 
-	MEMEPP__IMPL_INLINE string_storage_type string::storage_type() const noexcept
+	MEMEPP__IMPL_INLINE string_storage_t string::storage_type() const noexcept
 	{
-		return static_cast<string_storage_type>(MemeString_storageType(to_pointer(data_)));
+		return static_cast<string_storage_t>(MemeString_storageType(to_pointer(data_)));
+	}
+
+	MEMEPP__IMPL_INLINE string::const_reference string::at(size_type _pos) const
+	{
+		auto p = MemeString_at(memepp::to_pointer(data_), _pos);
+#if !MMOPT__EXCEPTION_DISABLED
+		if (!p) {
+            throw std::out_of_range("string::at");
+		}
+#endif
+		return *p;
 	}
 
 	MEMEPP__IMPL_INLINE const char * string::data() const noexcept
@@ -220,6 +248,16 @@ namespace memepp {
 		return MemeString_availableByteCapacity(to_pointer(data_));
 	}
 
+	MEMEPP__IMPL_INLINE string::size_type string::rune_size() const noexcept
+	{
+        return MemeString_runeSize(to_pointer(data_));
+	}
+	
+	MEMEPP__IMPL_INLINE string::size_type string::u16char_size() const noexcept
+	{
+        return MemeString_u16CharSize(to_pointer(data_));
+	}
+
 	MEMEPP__IMPL_INLINE const_iterator string::begin() const noexcept
 	{
 		return const_iterator(bytes());
@@ -239,6 +277,12 @@ namespace memepp {
     {
         return const_iterator(bytes() + size());
     }
+
+	MEMEPP__IMPL_INLINE string string::to_large() const noexcept
+	{
+        return storage_type() == string_storage_t::large ?
+            *this : string{ data(), size(), string_storage_t::large };
+	}
     
 	MEMEPP__IMPL_INLINE void string::swap(string& _other) noexcept
 	{
@@ -338,12 +382,12 @@ namespace memepp {
 			to_pointer(native_handle()), 0, reinterpret_cast<const uint8_t*>(_utf8), -1, _cs);
 	}
 
-	MEMEPP__IMPL_INLINE string::size_type string::index_of_with_strlen(
-		const char* _utf8, size_type _utf8_len, case_sensitivity_t _cs) const noexcept
-	{
-		return MemeString_indexOfWithUtf8bytes(
-			to_pointer(native_handle()), 0, reinterpret_cast<const uint8_t*>(_utf8), _utf8_len, _cs);
-	}
+	//MEMEPP__IMPL_INLINE string::size_type string::index_of_with_strlen(
+	//	const char* _utf8, size_type _utf8_len, case_sensitivity_t _cs) const noexcept
+	//{
+	//	return MemeString_indexOfWithUtf8bytes(
+	//		to_pointer(native_handle()), 0, reinterpret_cast<const uint8_t*>(_utf8), _utf8_len, _cs);
+	//}
 
 	MEMEPP__IMPL_INLINE bool string::contains(const string_view& _sv) const noexcept
 	{

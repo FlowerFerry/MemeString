@@ -3,7 +3,7 @@
 #define MEGO_UTIL_SYS_STAT_H_INCLUDED
 
 #include <mego/predef/os/linux.h>
-#include <mego/util/sys_types.h>
+#include <mego/util/posix/sys/types.h>
 
 #if MEGO_OS__LINUX__AVAILABLE
 #include <sys/stat.h>
@@ -17,53 +17,53 @@
 extern "C" {
 #endif
 
-struct MegoUtil_Stat
+struct mgu_stat
 {
-	MegoUtil_dev_t	st_dev;
-	MegoUtil_ino_t	st_ino;
+	mgu_dev_t		st_dev;
+	mgu_ino_t		st_ino;
 	uint32_t		st_mode;
 	int64_t			st_nlink;
 	int64_t			st_uid;
 	int64_t			st_gid;
-	MegoUtil_dev_t	st_rdev;
+	mgu_dev_t		st_rdev;
 	int64_t			st_size;
 	timespec		st_atim;
 	timespec		st_mtim;
 	timespec		st_ctim;
 };
 
-enum MegoUtil_StatMode {
-	MegoUtil_StatMode_ifmt   = 0xF000, // File type mask
-	MegoUtil_StatMode_ifsock = 0xC000, // socket
-	MegoUtil_StatMode_iflink = 0xA000, // symbolic link
-	MegoUtil_StatMode_ifreg  = 0x8000, // Regular
-	MegoUtil_StatMode_ifblk  = 0x6000, // block device
-	MegoUtil_StatMode_ifdir  = 0x4000, // Directory
-	MegoUtil_StatMode_ifchr  = 0x2000, // Character special
-	MegoUtil_StatMode_iffifo = 0x1000, // Pipe
+enum mgu_stat_mode {
+	mgu_stat_mode_ifmt   = 0xF000, // File type mask
+	mgu_stat_mode_ifsock = 0xC000, // socket
+	mgu_stat_mode_iflink = 0xA000, // symbolic link
+	mgu_stat_mode_ifreg  = 0x8000, // Regular
+	mgu_stat_mode_ifblk  = 0x6000, // block device
+	mgu_stat_mode_ifdir  = 0x4000, // Directory
+	mgu_stat_mode_ifchr  = 0x2000, // Character special
+	mgu_stat_mode_iffifo = 0x1000, // Pipe
 
-	MegoUtil_StatMode_isuid = 0004000,
-	MegoUtil_StatMode_isgid = 0002000,
-	MegoUtil_StatMode_isvtx = 0001000,
+	mgu_stat_mode_isuid = 0004000,
+	mgu_stat_mode_isgid = 0002000,
+	mgu_stat_mode_isvtx = 0001000,
 
-	MegoUtil_StatMode_irwxu = 00700,
-	MegoUtil_StatMode_irusr = 00400,
-	MegoUtil_StatMode_iwusr = 00200,
-	MegoUtil_StatMode_ixusr = 00100,
-	MegoUtil_StatMode_irwxg = 00070,
-	MegoUtil_StatMode_irgrp = 00040,
-	MegoUtil_StatMode_iwgrp = 00020,
-	MegoUtil_StatMode_ixgrp = 00010,
-	MegoUtil_StatMode_irwxo = 00007,
-	MegoUtil_StatMode_iroth = 00004,
-	MegoUtil_StatMode_iwoth = 00002,
-	MegoUtil_StatMode_ixoth = 00001,
+	mgu_stat_mode_irwxu = 00700,
+	mgu_stat_mode_irusr = 00400,
+	mgu_stat_mode_iwusr = 00200,
+	mgu_stat_mode_ixusr = 00100,
+	mgu_stat_mode_irwxg = 00070,
+	mgu_stat_mode_irgrp = 00040,
+	mgu_stat_mode_iwgrp = 00020,
+	mgu_stat_mode_ixgrp = 00010,
+	mgu_stat_mode_irwxo = 00007,
+	mgu_stat_mode_iroth = 00004,
+	mgu_stat_mode_iwoth = 00002,
+	mgu_stat_mode_ixoth = 00001,
 };
 
-static int MegoUtil_GetStat(const char* _path, intptr_t _slen, struct MegoUtil_Stat* _buf);
+inline int mgu_get_stat(const char* _path, intptr_t _slen, struct mgu_stat* _buf);
 
 
-static int MegoUtil_GetStat(const char* _path, intptr_t _slen, struct MegoUtil_Stat* _buf)
+inline int mgu_get_stat(const char* _path, intptr_t _slen, struct mgu_stat* _buf)
 {
 	if (_slen == 0)
 		return EINVAL;

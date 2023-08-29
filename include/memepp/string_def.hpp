@@ -3,7 +3,7 @@
 #define MEMEPP_STRING_DEF_HPP_INCLUDED
 
 #include "meme/string.h"
-#include "meme/unsafe/view.h"
+#include "meme/unsafe/string_view.h"
 #include "memepp/rune_fwd.hpp"
 #include "memepp/string_fwd.hpp"
 #include "memepp/buffer_fwd.hpp"
@@ -43,10 +43,12 @@ namespace memepp {
 
 		MEMEPP__IMPL_INLINE string(const char* _utf8);
 		MEMEPP__IMPL_INLINE string(const char* _utf8, size_type _size);
-		MEMEPP__IMPL_INLINE string(const char* _utf8, size_type _size, memepp::string_storage_type _suggest);
+		MEMEPP__IMPL_INLINE string(const char* _utf8, size_type _size, string_storage_t _suggest);
 		MEMEPP__IMPL_INLINE string(const_pointer _utf8);
 		MEMEPP__IMPL_INLINE string(const_pointer _utf8, size_type _size);
-		MEMEPP__IMPL_INLINE string(const_pointer _utf8, size_type _size, memepp::string_storage_type _suggest);
+		MEMEPP__IMPL_INLINE string(const_pointer _utf8, size_type _size, string_storage_t _suggest);
+		MEMEPP__IMPL_INLINE string(const uint16_t* _utf16, size_type _size);
+		MEMEPP__IMPL_INLINE string(const uint16_t* _utf16, size_type _size, string_storage_t _suggest);
 
 		MEMEPP__IMPL_INLINE string(const rune& _ch);
         MEMEPP__IMPL_INLINE string(const string_builder& _builder);
@@ -67,23 +69,30 @@ namespace memepp {
         MEMEPP__IMPL_INLINE string_builder operator+(const string_view& _other) const;
         MEMEPP__IMPL_INLINE string_builder operator+(const char* _other) const;
 
-		MEMEPP__IMPL_INLINE string_storage_type storage_type() const noexcept;
+		MEMEPP__IMPL_INLINE string_storage_t storage_type() const noexcept;
+
+		MEMEPP__IMPL_INLINE const_reference at(size_type _pos) const;
 
 		MEMEPP__IMPL_INLINE const char* data() const noexcept;
 		MEMEPP__IMPL_INLINE const char* c_str() const noexcept;
 		MEMEPP__IMPL_INLINE const_pointer bytes() const noexcept;
 
 		inline size_t length() const noexcept { return static_cast<size_t>(size()); }
+		inline size_t char_size() const noexcept { return static_cast<size_t>(size()); }
 		MEMEPP__IMPL_INLINE size_type size() const noexcept;
 		MEMEPP__IMPL_INLINE bool empty() const noexcept;
 		//MEMEPP__IMPL_INLINE size_type max_size() const noexcept;
 		MEMEPP__IMPL_INLINE size_type capacity() const noexcept;
+		MEMEPP__IMPL_INLINE size_type rune_size() const noexcept;
+        MEMEPP__IMPL_INLINE size_type u16char_size() const noexcept;
 
 		MEMEPP__IMPL_INLINE const_iterator begin() const noexcept;
 		MEMEPP__IMPL_INLINE const_iterator cbegin() const noexcept;
 
 		MEMEPP__IMPL_INLINE const_iterator end() const noexcept;
 		MEMEPP__IMPL_INLINE const_iterator cend() const noexcept;
+
+        MEMEPP__IMPL_INLINE string to_large() const noexcept;
 
 		MEMEPP__IMPL_INLINE void swap(string& _other) noexcept;
 
@@ -116,9 +125,9 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE size_type index_of(const char* _utf8,
 			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
 
-		MEMEPP__IMPL_INLINE size_type index_of_with_strlen(
-			const char* _utf8, size_type _utf8_len,
-			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
+		//MEMEPP__IMPL_INLINE size_type index_of_with_strlen(
+		//	const char* _utf8, size_type _utf8_len,
+		//	case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
 
 		//! @brief Returns true if this string contains the given string.
 		//! @param _sv The string to search for.
@@ -172,6 +181,9 @@ namespace memepp {
 		//! @param _count The number of characters to copy.
 		//! @returns A substring of this string.
         MEMEPP__IMPL_INLINE string substr(size_type _pos = 0, size_type _count = npos) const noexcept;
+
+		template<typename _Func>
+		inline string mapping_convert(_Func&& _func) const;
 
 		template<class _Container>
 		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,

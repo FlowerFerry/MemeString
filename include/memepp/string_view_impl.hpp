@@ -3,7 +3,7 @@
 #define MEMEPP_STRING_VIEW_IMPL_HPP_INCLUDED
 
 #include "meme/string.h"
-#include "meme/unsafe/view.h"
+#include "meme/unsafe/string_view.h"
 
 #include "memepp/string_def.hpp"
 #include "memepp/string_view_def.hpp"
@@ -80,7 +80,7 @@ namespace memepp {
 		}
 		else {
 			MemeStringStack_init(&data_, MMS__OBJECT_SIZE);
-            memepp::string s{ _other.data(), _other.size(), memepp::string_storage_type::large };
+            memepp::string s{ _other.data(), _other.size(), memepp::string_storage_t::large };
             *this = memepp::string_view{ s };
 		}
 	}
@@ -102,9 +102,9 @@ namespace memepp {
 		MemeStringStack_unInit(&data_, MEME_STRING__OBJECT_SIZE);
 	}
 	
-	MEMEPP__IMPL_INLINE string_storage_type string_view::storage_type() const noexcept
+	MEMEPP__IMPL_INLINE string_storage_t string_view::storage_type() const noexcept
 	{
-		return static_cast<string_storage_type>(MemeString_storageType(to_pointer(data_)));
+		return static_cast<string_storage_t>(MemeString_storageType(to_pointer(data_)));
 	}
 
 	MEMEPP__IMPL_INLINE string_view& string_view::operator=(const string& _other)
@@ -147,6 +147,17 @@ namespace memepp {
 		return string_builder{} + *this + _other;
 	}
 
+	MEMEPP__IMPL_INLINE string_view::const_reference string_view::at(size_type _pos) const
+	{
+		auto p = MemeString_at(memepp::to_pointer(data_), _pos);
+#if !MMOPT__EXCEPTION_DISABLED
+		if (!p) {
+			throw std::out_of_range("string_view::at");
+		}
+#endif
+		return *p;
+	}
+
 	MEMEPP__IMPL_INLINE const char* string_view::data() const noexcept
 	{
 		return MemeString_cStr(to_pointer(data_));
@@ -166,6 +177,11 @@ namespace memepp {
     {
         return MemeString_byteData(to_pointer(data_));
     }
+
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::u16char_size() const noexcept
+	{
+		return MemeString_u16CharSize(to_pointer(data_));
+	}
 
 	MEMEPP__IMPL_INLINE const_iterator string_view::begin() const noexcept
 	{
@@ -192,12 +208,18 @@ namespace memepp {
 		if (MemeString_storageType(to_pointer(data_)) == MemeString_UnsafeStorageType_view)
 			return string { data(), size() };
 
-		MemeStringStack_t stack;
+		mmsstk_t stack;
 		MemeStringStack_initByOther(
-			&stack, MEME_STRING__OBJECT_SIZE, to_pointer(data_));
+			&stack, MMS__OBJECT_SIZE, to_pointer(data_));
 		return string { reinterpret_cast<MemeStringStack_t&&>(stack) };
 	}
 
+	MEMEPP__IMPL_INLINE string string_view::to_large() const noexcept
+	{
+        return storage_type() == string_storage_t::large ?
+            to_string() : string{ data(), size(), string_storage_t::large };
+	}
+    
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::find(
 		const string_view& _other, size_type _pos) const noexcept
 	{
@@ -250,12 +272,12 @@ namespace memepp {
 			to_pointer(native_handle()), 0, reinterpret_cast<const uint8_t*>(_utf8), -1, _cs);
 	}
 
-	MEMEPP__IMPL_INLINE string_view::size_type string_view::index_of_with_offset(
-		const char* _utf8, size_type _offset, case_sensitivity_t _cs) const noexcept
-	{
-		return MemeString_indexOfWithUtf8bytes(
-			to_pointer(native_handle()), _offset, reinterpret_cast<const uint8_t*>(_utf8), -1, _cs);
-	}
+	//MEMEPP__IMPL_INLINE string_view::size_type string_view::index_of_with_offset(
+	//	const char* _utf8, size_type _offset, case_sensitivity_t _cs) const noexcept
+	//{
+	//	return MemeString_indexOfWithUtf8bytes(
+	//		to_pointer(native_handle()), _offset, reinterpret_cast<const uint8_t*>(_utf8), -1, _cs);
+	//}
 
 	MEMEPP__IMPL_INLINE bool string_view::contains(const string_view& _sv) const noexcept
 	{

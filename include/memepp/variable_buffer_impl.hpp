@@ -6,6 +6,7 @@
 #include "memepp/variable_buffer_def.hpp"
 #include "memepp/string_def.hpp"
 #include "memepp/buffer_def.hpp"
+#include "memepp/buffer_view_def.hpp"
 #include "memepp/string_view_def.hpp"
 #include <memepp/errc.hpp>
 
@@ -100,9 +101,9 @@ namespace memepp {
 		return this->append(std::move(_other));
 	}
 
-	MEMEPP__IMPL_INLINE buffer_storage_type variable_buffer::storage_type() const MEGOPP__NOEXCEPT
+	MEMEPP__IMPL_INLINE buffer_storage_t variable_buffer::storage_type() const MEGOPP__NOEXCEPT
 	{
-		return static_cast<buffer_storage_type>(MemeVariableBuffer_storageType(to_pointer(data_)));
+		return static_cast<buffer_storage_t>(MemeVariableBuffer_storageType(to_pointer(data_)));
 	}
 
 	MEMEPP__IMPL_INLINE variable_buffer::reference variable_buffer::front()
@@ -313,6 +314,26 @@ namespace memepp {
 		return *this;
 	}
 
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::append(const buffer& _other)
+	{
+        *errc() = static_cast<int>(MemeVariableBuffer_appendWithBytes(to_pointer(data_), 
+			_other.data(), _other.size()));
+#if !MMOPT__EXCEPTION_DISABLED
+        throw_errc(get_errc());
+#endif
+        return *this;
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::append(const buffer_view& _other)
+	{
+        *errc() = static_cast<int>(MemeVariableBuffer_appendWithBytes(to_pointer(data_),
+            _other.data(), _other.size()));
+#if !MMOPT__EXCEPTION_DISABLED
+        throw_errc(get_errc());
+#endif
+        return *this;
+	}
+
 	MEMEPP__IMPL_INLINE iterator variable_buffer::insert(
 		const_iterator _pos, const_pointer _buf, size_type _count)
 	{
@@ -332,6 +353,15 @@ namespace memepp {
         throw_errc(get_errc());
 #endif
         return *this;
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::remove(size_type _pos, size_type _count)
+	{
+        *errc() = static_cast<int>(MemeVariableBuffer_remove(to_pointer(data_), _pos, _count));
+#if !MMOPT__EXCEPTION_DISABLED
+        throw_errc(get_errc());
+#endif
+		return *this;
 	}
 
 	MEMEPP__IMPL_INLINE void variable_buffer::reserve(size_type _new_cap)

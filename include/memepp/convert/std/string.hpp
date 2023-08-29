@@ -17,7 +17,6 @@ namespace memepp {
 
 }; // namespace memepp
 
-
 namespace memepp {
 
 	inline memepp::string from(const std::string& _s)
@@ -51,7 +50,7 @@ namespace memepp {
         else if (_s.size() < 16 * sizeof(intptr_t))
         {
             return memepp::string(_s.data(), static_cast<MemeInteger_t>(_s.size()), 
-				memepp::string_storage_type::medium);
+				memepp::string_storage_t::medium);
         }
 
 		memepp::string out;
@@ -84,6 +83,16 @@ namespace memepp {
 	}
     
 }; // namespace memepp
+
+inline memepp::string mm_from(const std::string& _s)
+{
+	return memepp::from(_s);
+}
+
+inline memepp::string mm_from(std::string&& _s)
+{
+	return memepp::from(std::move(_s));
+}
 
 #include <memepp/convert/common.hpp>
 

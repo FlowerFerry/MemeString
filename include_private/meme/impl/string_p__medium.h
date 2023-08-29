@@ -7,7 +7,12 @@
 #include <meme/string_memory.h>
 #include <meme/impl/string_memory.h>
 #include <mego/predef/symbol/likely.h>
+#include <string.h>
 #include <errno.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 inline int 
 MemeStringMedium_canBeAppendIt(const MemeStringMedium_t* _s, MemeInteger_t _buflen);
@@ -33,6 +38,9 @@ MemeStringMedium_maxByteCapacity(const MemeStringMedium_t* _s);
 inline MemeInteger_t
 MemeStringMedium_availableByteCapacity(const MemeStringMedium_t* _s);
 
+inline mmint_t
+MemeStringMedium_usedByteFrontCapacity(const MemeStringMedium_t* _s);
+
 inline void
 MemeStringMedium_byteSizeOffset(MemeStringMedium_t* _s, MemeInteger_t _offset);
 
@@ -57,6 +65,10 @@ MemeStringMedium_initWithCapacity(
 
 inline int
 MemeStringMedium_assign(MemeStringMedium_t* _s, const MemeByte_t* _buf, MemeInteger_t _len);
+
+inline MemeInteger_t
+MemeStringMedium_remove(
+	MemeStringMedium_t* _s, MemeInteger_t _pos, MemeInteger_t _count);
 
 inline int
 MemeStringMedium_resizeWithByte(MemeStringMedium_t* _s, MemeInteger_t _size, MemeByte_t _byte);
@@ -129,6 +141,11 @@ MemeStringMedium_maxByteCapacity(const MemeStringMedium_t* _s)
 inline MemeInteger_t MemeStringMedium_availableByteCapacity(const MemeStringMedium_t* _s)
 {
 	return _s->capacity_ - 1;
+}
+
+inline mmint_t MemeStringMedium_usedByteFrontCapacity(const MemeStringMedium_t* _s)
+{
+    return MMS__GET_MEDIUM_FRONT_CAPACITY_MAX_VALUE - _s->front_capacity_;
 }
 
 inline void MemeStringMedium_byteSizeOffset(MemeStringMedium_t* _s, MemeInteger_t _offset)
@@ -221,8 +238,8 @@ MemeStringMedium_initWithCapacity(
 	_capacity = (_capacity % sizeof(size_t)) == 0 ?
 		(_capacity ? _capacity : sizeof(size_t)) : ((_capacity / sizeof(size_t) + 1) * sizeof(size_t));
 
-	if (front_capacity > MEME_STRING__GET_MEDIUM_FRONT_CAPACITY_MAX_SIZE)
-		front_capacity = MEME_STRING__GET_MEDIUM_FRONT_CAPACITY_MAX_SIZE;
+	if (front_capacity > MMS__GET_MEDIUM_FRONT_CAPACITY_MAX_VALUE)
+		front_capacity = MMS__GET_MEDIUM_FRONT_CAPACITY_MAX_VALUE;
 
 	_s->real_ = mmsmem_malloc(front_capacity + _capacity);
 	if (!(_s->real_))
@@ -257,6 +274,39 @@ MemeStringMedium_assign(MemeStringMedium_t* _s, const MemeByte_t* _buf, MemeInte
 	MemeStringMedium_data(_s)[_len] = '\0';
 	memcpy(MemeStringMedium_data(_s), _buf, _len);
 	MemeStringMedium_byteSizeOffset(_s, _len);
+	return 0;
+}
+
+inline MemeInteger_t
+MemeStringMedium_remove(
+	MemeStringMedium_t* _s, MemeInteger_t _pos, MemeInteger_t _count)
+{
+    if (_pos >= (MemeInteger_t)_s->size_)
+        return 0;
+	
+    if (_count < 0)
+        _count = _s->size_ - _pos;
+
+	if (_pos + _count > (MemeInteger_t)_s->size_)
+		_count = _s->size_ - _pos;
+
+	if (_pos == 0) {
+        if (_count > MemeStringMedium_usedByteFrontCapacity(_s))
+		{
+            memmove(MemeStringMedium_data(_s), MemeStringMedium_data(_s) + _count, _s->size_ - _count);
+            MemeStringMedium_byteSizeOffsetAndSetZero(_s, - _count);
+		}
+        else {
+            _s->front_capacity_ += _count;
+            _s->size_ -= _count;
+        }
+	}
+	else {
+
+        memmove(MemeStringMedium_data(_s) + _pos, MemeStringMedium_data(_s) + _pos + _count, _s->size_ - _pos - _count);
+        MemeStringMedium_byteSizeOffsetAndSetZero(_s, -_count);
+	}
+
 	return 0;
 }
 
@@ -349,5 +399,9 @@ inline MemeInteger_t MemeStringMedium_checkHeadTailMemory(const MemeStringMedium
 	return MemeCheck_calibrate(_s->real_);
 #endif
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // !MEME_IMPL_STRING_P_MEDIUM_H_INCLUDED

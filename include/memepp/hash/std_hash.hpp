@@ -4,6 +4,8 @@
 
 #include "memepp/string_def.hpp"
 #include "memepp/string_view_def.hpp"
+#include "memepp/buffer_def.hpp"
+#include "memepp/buffer_view_def.hpp"
 
 #include <type_traits>
 
@@ -70,6 +72,27 @@ namespace std {
 				reinterpret_cast<const uint8_t*>(_s.data()), _s.size());
 		}
 	};
+
+    template<>
+    struct hash<memepp::buffer>
+    {
+        inline size_t operator()(const memepp::buffer& _s) const
+        {
+            return memepp::hash::details::hash_value_with_bytes(
+                reinterpret_cast<const uint8_t*>(_s.data()), _s.size());
+        }
+    };
+	
+    template<>
+    struct hash<memepp::buffer_view>
+    {
+        inline size_t operator()(const memepp::buffer_view& _s) const
+        {
+            return memepp::hash::details::hash_value_with_bytes(
+                reinterpret_cast<const uint8_t*>(_s.data()), _s.size());
+        }
+    };
+	
 };
 
 #endif // !MEMEPP_HASH_STD_HPP_INCLUDED

@@ -3,7 +3,7 @@
 #define MEMEPP_STRING_VIEW_DEF_HPP_INCLUDED
 
 #include "meme/string.h"
-#include "meme/unsafe/view.h"
+#include "meme/unsafe/string_view.h"
 #include "memepp/string_fwd.hpp"
 #include "memepp/string_view_fwd.hpp"
 #include "memepp/string_builder_fwd.hpp"
@@ -43,7 +43,7 @@ namespace memepp {
 
 		MEMEPP__IMPL_INLINE ~string_view();
 
-		MEMEPP__IMPL_INLINE string_storage_type storage_type() const noexcept;
+		MEMEPP__IMPL_INLINE string_storage_t storage_type() const noexcept;
 
 		string_view& operator=(const string& _other);
 		string_view& operator=(const string_view& _other);
@@ -53,11 +53,14 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE string_builder operator+(const string_view& _other) const;
 		MEMEPP__IMPL_INLINE string_builder operator+(const char* _other) const;
 
+		MEMEPP__IMPL_INLINE const_reference at(size_type _pos) const;
+
 		MEMEPP__IMPL_INLINE const char* data() const noexcept;
 		MEMEPP__IMPL_INLINE size_type size() const noexcept;
 		MEMEPP__IMPL_INLINE bool empty() const noexcept;
 		inline size_t length() const noexcept { return static_cast<size_t>(size()); }
 		MEMEPP__IMPL_INLINE const_pointer bytes() const noexcept;
+		MEMEPP__IMPL_INLINE size_type u16char_size() const noexcept;
 
 		MEMEPP__IMPL_INLINE const_iterator begin() const noexcept;
 		MEMEPP__IMPL_INLINE const_iterator cbegin() const noexcept;
@@ -66,6 +69,7 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE const_iterator cend() const noexcept;
 
 		MEMEPP__IMPL_INLINE string to_string() const;
+        MEMEPP__IMPL_INLINE string to_large () const noexcept;
 
         MEMEPP__IMPL_INLINE size_type find(const string_view& _other, size_type _pos = 0) const noexcept;
         MEMEPP__IMPL_INLINE size_type find(const char* _utf8, size_type _pos = 0) const noexcept;
@@ -81,8 +85,8 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE size_type index_of(const char* _utf8,
 			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
 
-		MEMEPP__IMPL_INLINE size_type index_of_with_offset(const char* _utf8, size_type _offset,
-			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
+		//MEMEPP__IMPL_INLINE size_type index_of_with_offset(const char* _utf8, size_type _offset,
+		//	case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
 
 		MEMEPP__IMPL_INLINE bool contains(const string_view& _sv) const noexcept;
 		MEMEPP__IMPL_INLINE bool contains(const char* _utf8) const noexcept;

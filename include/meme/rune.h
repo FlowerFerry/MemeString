@@ -4,6 +4,7 @@
 
 #include "meme/string_fwd.h"
 #include "mego/predef/symbol/likely.h"
+#include <meme/utf/u8rune.h>
 
 #include <assert.h>
 #include <errno.h>
@@ -11,7 +12,7 @@
 
 MEME_EXTERN_C_SCOPE_START
 
-static inline MemeRune_t
+inline MemeRune_t
 MemeRune_getInitObject()
 {
     MemeRune_t w;
@@ -20,7 +21,7 @@ MemeRune_getInitObject()
     return w;
 }
 
-static inline int
+inline int
 MemeRune_initByOther(MemeRune_t* _out, const MemeRune_t* _other)
 {
     assert(_out != NULL && _other != NULL);
@@ -29,21 +30,22 @@ MemeRune_initByOther(MemeRune_t* _out, const MemeRune_t* _other)
     return 0;
 }
 
-static inline int
+inline int
 MemeRune_initByByte(MemeRune_t* _out, char _ch)
 {
     assert(_out != NULL);
 
     _out->attr.capacity = 6;
+    _out->attr.invalid  = 0;
     _out->byte[0] = _ch;
     _out->byte[1] = '\0';
     return 0;
 }
 
-static inline int
+inline int
 MemeRune_initByUtf8Bytes(MemeRune_t* _out, const MemeByte_t* _buf, MemeInteger_t _len);
 
-static inline int
+inline int
 MemeRune_reset(MemeRune_t* _out)
 {
     assert(_out != NULL);
@@ -53,7 +55,7 @@ MemeRune_reset(MemeRune_t* _out)
     return 0;
 }
 
-static inline int
+inline int
 MemeRune_assign(MemeRune_t* _s, const MemeRune_t* _other)
 {
     assert(_s != NULL && _other != NULL);
@@ -62,7 +64,7 @@ MemeRune_assign(MemeRune_t* _s, const MemeRune_t* _other)
     return 0;
 }
 
-static inline int
+inline int
 MemeRune_swap(MemeRune_t* _lhs, MemeRune_t* _rhs)
 {
     assert(_lhs != NULL && _rhs != NULL);
@@ -73,7 +75,7 @@ MemeRune_swap(MemeRune_t* _lhs, MemeRune_t* _rhs)
     return 0;
 }
 
-static inline int
+inline int
 MemeRune_isEmpty(const MemeRune_t* _s)
 {
     assert(_s != NULL);
@@ -81,19 +83,19 @@ MemeRune_isEmpty(const MemeRune_t* _s)
     return _s->attr.capacity == 7;
 }
 
-static inline const MemeByte_t*
+inline const MemeByte_t*
 MemeRune_data(const MemeRune_t* _s)
 {
     return _s->byte;
 }
 
-static inline MemeByte_t*
+inline MemeByte_t*
 MemeRune_dataNotConst(const MemeRune_t* _s)
 {
     return ((MemeRune_t*)_s)->byte;
 }
 
-static inline MemeInteger_t
+inline MemeInteger_t
 MemeRune_size(const MemeRune_t* _s)
 {
     assert(_s != NULL);
@@ -101,7 +103,7 @@ MemeRune_size(const MemeRune_t* _s)
     return 7 - _s->attr.capacity;
 }
 
-static inline int
+inline int
 MemeRune_isValid(const MemeRune_t* _s)
 {
     assert(_s != NULL);
@@ -109,7 +111,7 @@ MemeRune_isValid(const MemeRune_t* _s)
     return _s->attr.invalid == 0;
 }
 
-static inline int
+inline int
 MemeRune_resize(MemeRune_t* _s, uint8_t _count)
 {
     assert(_s != NULL);
@@ -122,7 +124,7 @@ MemeRune_resize(MemeRune_t* _s, uint8_t _count)
     return 0;
 }
 
-static inline int
+inline int
 MemeRune_isMulitChar(const MemeRune_t* _s)
 {
     assert(_s != NULL);
@@ -130,7 +132,7 @@ MemeRune_isMulitChar(const MemeRune_t* _s)
     return !!(_s->byte[0] & 0x80);
 }
 
-static inline int
+inline int
 MemeRune_initByUtf8Bytes(MemeRune_t* _out, const MemeByte_t* _buf, MemeInteger_t _len)
 {
     assert(_out != NULL && _buf != NULL);
@@ -138,10 +140,21 @@ MemeRune_initByUtf8Bytes(MemeRune_t* _out, const MemeByte_t* _buf, MemeInteger_t
     if ((_len < 0 || _len > 7))
         return MMENO__POSIX_OFFSET(EINVAL);
 
-    _out->attr.capacity = 7 - _len;
+    _out->attr.capacity = (mmbyte_t)(7 - _len);
+    _out->attr.invalid  = 0;
     memcpy(_out->byte, _buf, _len);
     _out->byte[MemeRune_size(_out)] = '\0';
     return 0;
+}
+
+inline int
+MemeRune_byteSize(const MemeRune_t* _s)
+{
+    assert(_s != NULL);
+    if (MemeRune_size(_s) < 1)
+        return 0;
+    
+    return mmutf_u8rune_char_size(_s->byte[0]);
 }
 
 MEME_EXTERN_C_SCOPE_ENDED

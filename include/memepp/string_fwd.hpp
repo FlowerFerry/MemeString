@@ -19,7 +19,7 @@ namespace memepp {
 
 	class string;
 
-	enum class string_storage_type {
+	enum class string_storage_t {
 		small  = MemeString_StorageType_small,
 		medium = MemeString_StorageType_medium,
 		large  = MemeString_StorageType_large,
@@ -49,14 +49,14 @@ namespace memepp {
 		return reinterpret_cast<MemeString_Const_t>(&_s);
 	}
 
-	inline mmsbuilder_t to_pointer(mmsbuilder_stack_t& _s) noexcept
+	inline mmsbldr_t to_pointer(mmsbldrstk_t& _s) noexcept
 	{
-		return reinterpret_cast<mmsbuilder_t>(&_s);
+		return reinterpret_cast<mmsbldr_t>(&_s);
 	}
 
-    inline mmsbuilder_const_t to_pointer(const mmsbuilder_stack_t& _s) noexcept
+    inline mmsbldr_const_t to_pointer(const mmsbldrstk_t& _s) noexcept
     {
-        return reinterpret_cast<mmsbuilder_const_t>(&_s);
+        return reinterpret_cast<mmsbldr_const_t>(&_s);
     }
 
 };

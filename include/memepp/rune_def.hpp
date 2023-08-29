@@ -23,6 +23,7 @@ namespace memepp {
 
 		MEMEPP__IMPL_INLINE rune();
 		MEMEPP__IMPL_INLINE rune(char _ch);
+		MEMEPP__IMPL_INLINE rune(const MemeRune_t&);
 
 		MEMEPP__IMPL_INLINE pointer data() noexcept;
 		MEMEPP__IMPL_INLINE const_pointer data() const noexcept;
@@ -44,6 +45,8 @@ namespace memepp {
 
         inline operator bool() const noexcept { return valid() && !empty(); }
 
+        inline MemeRune_t& native_handle() noexcept { return data_; }
+        inline const MemeRune_t& native_handle() const noexcept { return data_; }
 	private:
 		MemeRune_t data_;
 	};

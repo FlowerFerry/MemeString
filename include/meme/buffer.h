@@ -8,7 +8,7 @@
 MEME_EXTERN_C_SCOPE_START
 
 MEME_API int
-MEME_STDCALL MemeBufferStack_init(MemeBufferStack_t* _out, size_t _object_size);
+MEME_STDCALL MemeBufferStack_init(mmbufstk_t* _out, size_t _object_size);
 
 //MEME_API int
 //MEME_STDCALL MemeBufferStack_initTakeOverUserObject(
@@ -20,15 +20,19 @@ MEME_STDCALL MemeBufferStack_init(MemeBufferStack_t* _out, size_t _object_size);
 
 MEME_API int
 MEME_STDCALL MemeBufferStack_initByOther(
-		MemeBufferStack_t* _out, size_t _object_size, const MemeBufferStack_t* _other);
+	mmbufstk_t* _out, size_t _object_size, const mmbufstk_t* _other);
+
+MEME_API int
+MEME_STDCALL MemeBufferStack_initByString(
+	mmbufstk_t* _out, size_t _object_size, mms_const_t _s);
 
 MEME_API int
 MEME_STDCALL MemeBufferStack_initByBytes(
-		MemeBufferStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len);
+	mmbufstk_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len);
 
-MEME_API MEGO_SYMBOL__DEPRECATED int
+MEME_API int
 MEME_STDCALL MemeBufferStack_initByU8bytesAndType(
-		MemeBufferStack_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len,
+	mmbufstk_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len,
 		MemeBuffer_Storage_t _suggest);
 
 //MEME_API int
@@ -38,15 +42,14 @@ MEME_STDCALL MemeBufferStack_initByU8bytesAndType(
 //);
 
 MEME_API int
-MEME_STDCALL MemeBufferStack_unInit(MemeBufferStack_t* _out, size_t _object_size);
+MEME_STDCALL MemeBufferStack_unInit(mmbufstk_t* _out, size_t _object_size);
 
 MEME_API int
-MEME_STDCALL MemeBufferStack_reset(MemeBufferStack_t* _out, size_t _object_size);
+MEME_STDCALL MemeBufferStack_reset(mmbufstk_t* _out, size_t _object_size);
 
 MEME_API int
 MEME_STDCALL MemeBufferStack_assign(
-	MemeBufferStack_t* _s, size_t _object_size, const MemeBufferStack_t* _other);
-
+	mmbufstk_t* _s, size_t _object_size, const MemeBufferStack_t* _other);
 
 MEME_API MemeBuffer_Storage_t
 MEME_STDCALL MemeBuffer_storageType(MemeBuffer_Const_t _s);
@@ -60,6 +63,9 @@ MEME_STDCALL MemeBuffer_isNonempty(MemeBuffer_Const_t _s);
 MEME_API int
 MEME_STDCALL MemeBuffer_isEmpty(MemeBuffer_Const_t _s);
 
+MEME_API const mmbyte_t*
+MEME_STDCALL MemeBuffer_at(mmbuf_const_t _s, mmint_t _pos);
+
 MEME_API const MemeByte_t*
 MEME_STDCALL MemeBuffer_data(MemeBuffer_Const_t _s);
 
@@ -72,6 +78,9 @@ MEME_STDCALL MemeBuffer_isEqual(MemeBuffer_Const_t _s, const MemeByte_t* _buf, M
 MEME_API int
 MEME_STDCALL MemeBuffer_isEqualWithOther(MemeBuffer_Const_t _lhs, MemeBuffer_Const_t _rhs, int* _result);
 
+MEME_API mmint_t
+MEME_STDCALL MemeBuffer_isSharedStorageTypes(mmbuf_const_t _b);
+
 MEME_API MemeInteger_t
 MEME_STDCALL MemeBuffer_indexOfWithBytes(
 	MemeBuffer_Const_t _s, MemeInteger_t _offset,
@@ -79,8 +88,25 @@ MEME_STDCALL MemeBuffer_indexOfWithBytes(
 
 MEME_API MemeInteger_t
 MEME_STDCALL MemeBuffer_indexOfWithOther(
-	MemeBuffer_Const_t _s, MemeInteger_t _offset,
-	MemeBuffer_Const_t _other);
+	MemeBuffer_Const_t _s, MemeInteger_t _offset, MemeBuffer_Const_t _other);
+
+MEME_API MemeInteger_t
+MEME_STDCALL MemeBuffer_startsMatchWithBytes(
+	MemeBuffer_Const_t _s,
+	const MemeByte_t* _needle, MemeInteger_t _needle_len);
+
+MEME_API MemeInteger_t
+MEME_STDCALL MemeBuffer_startsMatchWithOther(
+	MemeBuffer_Const_t _s, MemeBuffer_Const_t _other);
+
+MEME_API MemeInteger_t
+MEME_STDCALL MemeBuffer_endsMatchWithBytes(
+	MemeBuffer_Const_t _s,
+	const MemeByte_t* _needle, MemeInteger_t _needle_len);
+
+MEME_API MemeInteger_t
+MEME_STDCALL MemeBuffer_endsMatchWithOther(
+	MemeBuffer_Const_t _s, MemeBuffer_Const_t _other);
 
 MEME_API MemeInteger_t
 MEME_STDCALL MemeBuffer_split(
