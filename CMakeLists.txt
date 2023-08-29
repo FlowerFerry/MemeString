@@ -7,7 +7,7 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # 添加 include 路径
-include_directories(include deps/include include_private)
+include_directories(include 3rdparty/cvector/include include_private)
 
 # 添加链接库
 find_package(Threads REQUIRED)

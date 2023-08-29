@@ -12,7 +12,7 @@ set_languages(stdc)
 
 add_includedirs(
     "include_private",
-    "deps/include"
+    "3rdparty/cvector/include"
 )
 add_includedirs("include", {public = true})
 
