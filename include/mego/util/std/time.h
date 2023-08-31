@@ -3,6 +3,11 @@
 #define MEGO_UTIL_STD_TIME_H_INCLUDED
 
 #include <time.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <mego/predef/symbol/restrict.h>
+#include <mego/predef/os/windows.h>
+#include <mego/err/ec.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -75,7 +80,65 @@ extern "C" {
         mgu_timespec_get(&ts, MGU_TIME_UTC);
         return (mgu_timeval_t)ts.tv_sec * 1000000LL + (mgu_timeval_t)ts.tv_nsec / 1000LL;
     }
-    
+        
+    inline mgec_t mgu_asctime_s(char *_buf, size_t _bufsz, const struct tm *_tm)
+    {
+    #if MG_OS__WIN_AVAIL
+        return asctime_s(_buf, _bufsz, _tm);
+    #else
+        if (!_buf || _tm) return MGEC__INVAL;
+        if (_bufsz < 26 || _bufsz > SIZE_MAX) return MGEC__INVAL;
+
+        errno = 0;
+        if (!asctime_r(_tm, _buf)) {
+            _buf[0] = '\0';
+        }
+        return errno;
+    #endif // COMM_WINDOWS
+    }
+
+    inline mgec_t mgu_ctime_s(char *_buf, mgu_time_t _bufsz, const mgu_time_t *_time)
+    {
+    #if MG_OS__WIN_AVAIL
+        return ctime_s(_buf, _bufsz, _time);
+    #else
+        if (!_buf || _time) return MGEC__INVAL;
+        if (_bufsz < 26 || _bufsz > SIZE_MAX) return MGEC__INVAL;
+
+        auto time = static_cast<time_t>(*_time);
+        errno = 0;
+        if (!ctime_r(&time, _buf)) {
+            _buf[0] = '\0';
+        }
+        return errno;
+    #endif // COMM_WINDOWS
+    }
+
+    inline struct tm *mgu_gmtime_s(const mgu_time_t * MEGO_SYMBOL__RESTRICT _time, struct tm * MEGO_SYMBOL__RESTRICT _result)
+    {
+        if (!_time) return NULL;
+
+        time_t time = *_time;
+    #if MG_OS__WIN_AVAIL
+        return gmtime_s( _result, &time) ? NULL : _result;
+    #else
+        return gmtime_r(&time, _result);
+    #endif
+
+    }
+
+    inline struct tm *mgu_localtime_s(const mgu_time_t * MEGO_SYMBOL__RESTRICT _time, struct tm * MEGO_SYMBOL__RESTRICT _result)
+    {	
+        if (!_time) return NULL;
+
+        time_t time = *_time;
+    #if MG_OS__WIN_AVAIL
+        return localtime_s(_result, &time) ? NULL : _result;
+    #else
+        return localtime_r(&time, _result);
+    #endif 
+    }
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus
