@@ -2,7 +2,7 @@
 #ifndef MEGO_ERROR_EC_IMPL_H_INCLUDED
 #define MEGO_ERROR_EC_IMPL_H_INCLUDED
 
-#include <mego/error/ec.h>
+#include <mego/err/ec.h>
 #include <mego/predef/os/windows.h>
 
 #include <errno.h>
