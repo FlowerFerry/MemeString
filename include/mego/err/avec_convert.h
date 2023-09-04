@@ -4,9 +4,13 @@
 
 #include <mego/err/ec.h>
 
+#ifdef __cplusplus
 extern "C" {
+#endif
 #include <libavutil/error.h>
+#ifdef __cplusplus
 }
+#endif
 
 inline mgec_t mgec__from_averr(int _err)
 {
