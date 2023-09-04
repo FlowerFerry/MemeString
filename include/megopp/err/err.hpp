@@ -2,7 +2,7 @@
 #ifndef MEGOPP_ERR_HPP_INCLUDED
 #define MEGOPP_ERR_HPP_INCLUDED
 
-#include <mego/err/ec.hpp>
+#include <mego/err/ec.h>
 
 #include <memepp/string.hpp>
 
