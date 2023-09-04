@@ -3,7 +3,10 @@
 #define MG_ERR_AVEC_CONVERT_H_INCLUDED
 
 #include <mego/err/ec.h>
+
+extern "C" {
 #include <libavutil/error.h>
+}
 
 inline mgec_t mgec__from_averr(int _err)
 {
