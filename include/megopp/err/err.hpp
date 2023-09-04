@@ -259,21 +259,21 @@ private:
     inline void err::set_message(const memepp::string &message)
     {
         auto err = copy();
-        err->message_ = message;
+        err.impl_->message_ = message;
         *this = err;
     }
 
     inline void err::set_solution(const memepp::string &solution)
     {
         auto err = copy();
-        err->solution_ = solution;
+        err.impl_->solution_ = solution;
         *this = err;
     }
 
     inline void err::set_user_data(const std::shared_ptr<void> &data)
     {
         auto err = copy();
-        err->data_ = data;
+        err.impl_->data_ = data;
         *this = err;
     }
 
