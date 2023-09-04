@@ -4,6 +4,7 @@
 
 #include <mego/err/ec.h>
 #include <mego/predef/os/windows.h>
+#include <mego/util/os/windows/windows_simplify.h>
 
 #include <errno.h>
 
@@ -13,7 +14,7 @@ inline mgec_t mgec__from_sys_err(int _sys_err)
 		return _sys_err;
     
 #if MG_OS__WIN_AVAIL
-    switch (_sys_ecode) {
+    switch (_sys_err) {
 	case ERROR_NOACCESS:                    return MGEC__ACCES;
 	case WSAEACCES:                         return MGEC__ACCES;
 	case ERROR_ELEVATION_REQUIRED:          return MGEC__ACCES;
@@ -96,8 +97,8 @@ inline mgec_t mgec__from_sys_err(int _sys_err)
 	case WSAENOTCONN:                       return MGEC__NOTCONN;
 	case ERROR_DIR_NOT_EMPTY:               return MGEC__NOTEMPTY;
 	case WSAENOTSOCK:                       return MGEC__NOTSOCK;
-	case ERROR_NOT_SUPPORTED:               return MGEC__NOTSUP;
-	case ERROR_BROKEN_PIPE:                 return MGEC__EOF;
+	case ERROR_NOT_SUPPORTED:               return MGEC__OPNOTSUPP;
+	// case ERROR_BROKEN_PIPE:                 return MGEC__EOF;
 	case ERROR_ACCESS_DENIED:               return MGEC__PERM;
 	case ERROR_PRIVILEGE_NOT_HELD:          return MGEC__PERM;
 	case ERROR_BAD_PIPE:                    return MGEC__PIPE;
@@ -224,7 +225,7 @@ inline mgec_t mgec__from_posix_err(int _posix_err)
 	case ENOTSOCK:          return MGEC__NOTSOCK;
 #endif
 #ifdef ENOTSUP
-	case ENOTSUP:           return MGEC__NOTSUP;
+	case ENOTSUP:           return MGEC__OPNOTSUPP;
 #endif
 #ifdef EPIPE
 	case EPIPE:             return MGEC__PIPE;
@@ -337,17 +338,11 @@ inline mgec_t mgec__from_posix_err(int _posix_err)
 #ifdef ETIME
 	case ETIME:             return MGEC__TIME;
 #endif
-#ifdef ETXTBSY
-	case ETXTBSY:           return MGEC__TXTBSY;
-#endif
 #ifdef EUNATCH
 	case EUNATCH:           return MGEC__UNATCH;
 #endif
 #ifdef EUSERS
 	case EUSERS:            return MGEC__USERS;
-#endif
-#ifdef EWOULDBLOCK
-	case EWOULDBLOCK:       return MGEC__WOULDBLOCK;
 #endif
 #ifdef EXFULL
 	case EXFULL:            return MGEC__XFULL;

@@ -152,6 +152,7 @@ inline mgec_t mgec__from_posix_err(int _posix_err);
 #define MGEC__NOTRECOVERABLE            (MGEC__POSIX_OFFSET_BEGIN - 131)    //< 状态不可恢复 State not recoverable
 #define MGEC__RFKILL                    (MGEC__POSIX_OFFSET_BEGIN - 132)    //< 被 RF 锁杀死 Operation not possible due to RF-kill
 #define MGEC__HWPOISON                  (MGEC__POSIX_OFFSET_BEGIN - 133)    //< 硬件错误 Memory page has hardware error
+#define MGEC__WOULDBLOCK                (MGEC__POSIX_OFFSET_BEGIN - 134)    //< 操作将阻塞 Operation would block
 
 #define MGEC__INVALID_FUNC              (MGEC__OFFSET1_BEGIN - 1)           //< 无效的函数 Invalid function
 #define MGEC__PATH_NOT_FOUND            (MGEC__OFFSET1_BEGIN - 3)           //< 路径不存在 
