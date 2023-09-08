@@ -187,7 +187,7 @@ public:
     void set_solution(const memepp::string &solution);
     void set_user_data(const std::shared_ptr<void> &data);
 
-    inline static err ok_result()
+    inline static err make_ok()
     {
         static err e;
         return e;
@@ -237,7 +237,7 @@ private:
     inline err err::next() const
     {
         auto next = next_;
-        return next ? err{ next } : ok_result();
+        return next ? err{ next } : make_ok();
     }
 
     inline bool err::ok() const noexcept
