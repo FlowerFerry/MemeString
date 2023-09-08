@@ -115,7 +115,7 @@ inline mgec_t mgec__from_sys_err(int _sys_err)
 	default:                                return MGEC__ERR;
 	}
 #else
-    return MEEC__ERR;
+    return MGEC__ERR;
 #endif
 }
 
@@ -224,7 +224,7 @@ inline mgec_t mgec__from_posix_err(int _posix_err)
 #ifdef ENOTSOCK
 	case ENOTSOCK:          return MGEC__NOTSOCK;
 #endif
-#ifdef ENOTSUP
+#if defined(ENOTSUP) && ENOTSUP != EOPNOTSUPP
 	case ENOTSUP:           return MGEC__OPNOTSUPP;
 #endif
 #ifdef EPIPE
@@ -299,7 +299,7 @@ inline mgec_t mgec__from_posix_err(int _posix_err)
 #ifdef ETXTBSY
 	case ETXTBSY:           return MGEC__TXTBSY;
 #endif
-#ifdef EWOULDBLOCK
+#if defined(EWOULDBLOCK) && EWOULDBLOCK != EAGAIN
 	case EWOULDBLOCK:       return MGEC__WOULDBLOCK;
 #endif
 #ifdef EDOM
@@ -384,7 +384,7 @@ inline mgec_t mgec__from_posix_err(int _posix_err)
 	case ENOTNAM:           return MGEC__NOTNAM;
 #endif
 #ifdef ENAVAIL
-	case ENAVAIL:           return MGEC__AVAIL;
+	case ENAVAIL:           return MGEC__NAVAIL;
 #endif
 #ifdef EISNAM
 	case EISNAM:            return MGEC__ISNAM;
