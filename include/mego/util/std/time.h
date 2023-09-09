@@ -175,9 +175,9 @@ extern "C" {
         if (mgu_gmtime_s(&nowt, &gtm) == NULL)
             return -1;
 
-        diff =  (ltm->tm_hour - gtm->tm_hour) * 60 * 60 +
-                (ltm->tm_min  - gtm->tm_min ) * 60 +
-                (ltm->tm_sec  - gtm->tm_sec );
+        diff =  (ltm.tm_hour - gtm.tm_hour) * 60 * 60 +
+                (ltm.tm_min  - gtm.tm_min ) * 60 +
+                (ltm.tm_sec  - gtm.tm_sec );
 
         if (diff < -12 * 60 * 60)
             diff += 24 * 60 * 60;
@@ -187,7 +187,7 @@ extern "C" {
         return diff / 60;
     }
 
-    inline mgu_time_t mgu_utc_mktime(struct tm * _tm)
+    inline mgu_time_t mgu_mktime_utc(struct tm * _tm)
     {
         mgu_time_t tv = -1;
         int tz = mgu_minute_timezone();
@@ -203,7 +203,7 @@ extern "C" {
         return tv - tz * 60;
     }
 
-    inline mgu_timestamp_t mgu_round_timestamp_to_minute(
+    inline mgu_timestamp_t mgu_timestamp_round_to_minute(
         mgu_timestamp_t _ts, int minute_interval, mgu_round_t _round) 
     {
         int remainder = 0;
@@ -236,7 +236,7 @@ extern "C" {
         return tv * 1000;
     }
 
-    inline mgu_timestamp_t mgu_round_timestamp_to_hour(
+    inline mgu_timestamp_t mgu_timestamp_round_to_hour(
         mgu_timestamp_t _ts, int _interval, mgu_round_t _round)
     {
         int remainder = 0;
@@ -270,7 +270,7 @@ extern "C" {
         return tv * 1000;
     }
 
-    inline mgu_timestamp_t mgu_round_timestamp_to_day(
+    inline mgu_timestamp_t mgu_timestamp_round_to_day(
         mgu_timestamp_t _ts, mgu_round_t _round)
     {
         struct tm gtm;
