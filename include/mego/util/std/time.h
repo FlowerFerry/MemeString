@@ -230,7 +230,7 @@ extern "C" {
         }
     
         gtm.tm_sec = 0;
-        tv = mgu_utc_mktime(&gtm);
+        tv = mgu_mktime_utc(&gtm);
         if (tv == -1)
             return _ts;
         return tv * 1000;
@@ -264,7 +264,7 @@ extern "C" {
     
         gtm.tm_min = 0;
         gtm.tm_sec = 0;
-        tv = mgu_utc_mktime(&gtm);
+        tv = mgu_mktime_utc(&gtm);
         if (tv == -1)
             return _ts;
         return tv * 1000;
@@ -282,7 +282,7 @@ extern "C" {
         gtm.tm_min  = 0;
         gtm.tm_sec  = 0;
         
-        tv = mgu_utc_mktime(&gtm);
+        tv = mgu_mktime_utc(&gtm);
         if (tv == -1)
             return _ts;
 
