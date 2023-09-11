@@ -10,22 +10,22 @@ inline mgec_t mgec__from_sqlite3_err(int _rc)
     switch (_rc)
     {
     case SQLITE_OK:         return MGEC__OK;
-    // case SQLITE_INTERNAL:   return mgec_sqlite3_internal;
+    case SQLITE_INTERNAL:   return MGEC__SQLITE_INTERNAL;
     case SQLITE_PERM:       return MGEC__PERM;
-    // case SQLITE_ABORT:      return mgec_sqlite3_abort;
-    case SQLITE_BUSY:       return MGEC__BUSY;
-    // case SQLITE_LOCKED:     return mgec_sqlite3_locked;
+    case SQLITE_ABORT:      return MGEC__CALLBACK_ABORTED;
+    case SQLITE_BUSY:       return MGEC__DATABASE_BUSY;
+    case SQLITE_LOCKED:     return MGEC__DATABASE_LOCKED;
     case SQLITE_NOMEM:      return MGEC__NOMEM;
-    // case SQLITE_READONLY:   return mgec_sqlite3_readonly;
-    // case SQLITE_INTERRUPT:  return MGEC__INTR;
-    // case SQLITE_IOERR:      return mgec_sqlite3_ioerr;
-    // case SQLITE_CORRUPT:    return mgec_sqlite3_corrupt;
-    // case SQLITE_NOTFOUND:   return mgec_sqlite3_notfound;
-    // case SQLITE_FULL:       return mgec_sqlite3_full;
-    // case SQLITE_CANTOPEN:   return mgec_sqlite3_cantopen;
+    case SQLITE_READONLY:   return MGEC__DATABASE_READONLY;
+    case SQLITE_INTERRUPT:  return MGEC__SQLITE_INTERRUPT;
+    case SQLITE_IOERR:      return MGEC__IO;
+    case SQLITE_CORRUPT:    return MGEC__DATABASE_CORRUPT;
+    case SQLITE_NOTFOUND:   return MGEC__SQLITE_NOTFOUND;
+    case SQLITE_FULL:       return MGEC__DATABASE_FULL;
+    case SQLITE_CANTOPEN:   return MGEC__SQLITE_CANTOPEN;
     case SQLITE_PROTOCOL:   return MGEC__PROTO;
-    // case SQLITE_EMPTY:      return mgec_sqlite3_empty;
-    // case SQLITE_SCHEMA:     return mgec_sqlite3_schema;
+    case SQLITE_EMPTY:      return MGEC__SQLITE_EMPTY;
+    case SQLITE_SCHEMA:     return MGEC__DATABASE_SCHEMA;
     // case SQLITE_TOOBIG:     return mgec_sqlite3_toobig;
     // case SQLITE_CONSTRAINT: return mgec_sqlite3_constraint;
     // case SQLITE_MISMATCH:   return mgec_sqlite3_mismatch;

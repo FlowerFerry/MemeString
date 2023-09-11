@@ -200,7 +200,7 @@ extern "C" {
         if (tv == -1)
             return -1;
     
-        return tv - tz * 60;
+        return tv + tz * 60;
     }
 
     inline mgu_timestamp_t mgu_timestamp_round_to_minute(
