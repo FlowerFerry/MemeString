@@ -19,7 +19,7 @@ inline mgec_t mgec__from_posix_err(int _posix_err);
 #define MGEC__OFFSET1_END          -299999
 
 #define MGEC__OFFSET2_BEGIN        -300000
-#define MGEC__OFFSET2_END          -399999
+#define MGEC__OFFSET2_END          -309999
 
 #define MGEC__OK          0      //< 成功 Success
 #define MGEC__ERR        -1      //< 未知错误 Unknown error
@@ -238,6 +238,18 @@ inline mgec_t mgec__from_posix_err(int _posix_err);
 #define MGEC__SQLITE_CANTOPEN           (MGEC__OFFSET2_BEGIN - 14)          //< 无法打开数据库 Unable to open the database file 
 #define MGEC__SQLITE_EMPTY              (MGEC__OFFSET2_BEGIN - 16)          //< Internal use only
 #define MGEC__DATABASE_SCHEMA           (MGEC__OFFSET2_BEGIN - 17)          //< 数据库模式已更改 Database schema has changed
+#define MGEC__SQLITE_TOOBIG             (MGEC__OFFSET2_BEGIN - 18)          //< 字符串或二进制数据太大 String or BLOB exceeds size limit
+#define MGEC__SQLITE_CONSTRAINT         (MGEC__OFFSET2_BEGIN - 19)          //< Abort due to constraint violation
+#define MGEC__SQLITE_MISMATCH           (MGEC__OFFSET2_BEGIN - 20)          //< Data type mismatch
+#define MGEC__SQLITE_MISUSE             (MGEC__OFFSET2_BEGIN - 21)          //< Library used incorrectly
+#define MGEC__SQLITE_NOLFS              (MGEC__OFFSET2_BEGIN - 22)          //< Uses OS features not supported on host
+#define MGEC__DATABASE_AUTH             (MGEC__OFFSET2_BEGIN - 23)          //< Authorization denied
+#define MGEC__SQLITE_FORMAT             (MGEC__OFFSET2_BEGIN - 24)          //< Auxiliary database format error
+#define MGEC__SQLITE_NOTADB             (MGEC__OFFSET2_BEGIN - 26)          //< File opened that is not a database file
+#define MGEC__SQLITE_NOTICE             (MGEC__OFFSET2_BEGIN - 27)          //< Notifications from sqlite3_log()
+#define MGEC__SQLITE_WARNING            (MGEC__OFFSET2_BEGIN - 28)          //< Warnings from sqlite3_log()
+#define MGEC__SQLITE_ROW                (MGEC__OFFSET2_BEGIN - 100)         //< sqlite3_step() has another row ready
+#define MGEC__SQLITE_DONE               (MGEC__OFFSET2_BEGIN - 101)         //< sqlite3_step() has finished executing
 
 
 #endif // !MEGO_ERROR_CODE_H_INCLUDED

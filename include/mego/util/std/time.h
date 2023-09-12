@@ -150,7 +150,7 @@ extern "C" {
         int tz = INT_MIN;
         struct tm ltm;
         struct tm gtm;
-        time_t nowt = time(NULL);
+        mgu_time_t nowt = time(NULL);
         if (mgu_localtime_s(&nowt, &ltm) == NULL)
             return -1;
         if (mgu_gmtime_s(&nowt, &gtm) == NULL)
@@ -169,7 +169,7 @@ extern "C" {
         int diff = 0;
         struct tm ltm;
         struct tm gtm;
-        time_t nowt = time(NULL);
+        mgu_time_t nowt = time(NULL);
         if (mgu_localtime_s(&nowt, &ltm) == NULL)
             return -1;
         if (mgu_gmtime_s(&nowt, &gtm) == NULL)

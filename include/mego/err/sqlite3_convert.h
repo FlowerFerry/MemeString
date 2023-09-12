@@ -26,19 +26,19 @@ inline mgec_t mgec__from_sqlite3_err(int _rc)
     case SQLITE_PROTOCOL:   return MGEC__PROTO;
     case SQLITE_EMPTY:      return MGEC__SQLITE_EMPTY;
     case SQLITE_SCHEMA:     return MGEC__DATABASE_SCHEMA;
-    // case SQLITE_TOOBIG:     return mgec_sqlite3_toobig;
-    // case SQLITE_CONSTRAINT: return mgec_sqlite3_constraint;
-    // case SQLITE_MISMATCH:   return mgec_sqlite3_mismatch;
-    // case SQLITE_MISUSE:     return mgec_sqlite3_misuse;
-    // case SQLITE_NOLFS:      return mgec_sqlite3_nolfs;
-    // case SQLITE_AUTH:       return mgec_sqlite3_auth;
-    // case SQLITE_FORMAT:     return mgec_sqlite3_format;
+    case SQLITE_TOOBIG:     return MGEC__SQLITE_TOOBIG;
+    case SQLITE_CONSTRAINT: return MGEC__SQLITE_CONSTRAINT;
+    case SQLITE_MISMATCH:   return MGEC__SQLITE_MISMATCH;
+    case SQLITE_MISUSE:     return MGEC__SQLITE_MISUSE;
+    case SQLITE_NOLFS:      return MGEC__SQLITE_NOLFS;
+    case SQLITE_AUTH:       return MGEC__DATABASE_AUTH;
+    case SQLITE_FORMAT:     return MGEC__SQLITE_FORMAT;
     case SQLITE_RANGE:      return MGEC__RANGE;
-    // case SQLITE_NOTADB:     return mgec_sqlite3_notadb;
-    // case SQLITE_NOTICE:     return mgec_sqlite3_notice;
-    // case SQLITE_WARNING:    return mgec_sqlite3_warning;
-    // case SQLITE_ROW:        return mgec_sqlite3_row;
-    // case SQLITE_DONE:       return mgec_sqlite3_done;
+    case SQLITE_NOTADB:     return MGEC__SQLITE_NOTADB;
+    case SQLITE_NOTICE:     return MGEC__SQLITE_NOTICE;
+    case SQLITE_WARNING:    return MGEC__SQLITE_WARNING;
+    case SQLITE_ROW:        return MGEC__SQLITE_ROW;
+    case SQLITE_DONE:       return MGEC__SQLITE_DONE;
     default:                return MGEC__ERR;
     }
 }
