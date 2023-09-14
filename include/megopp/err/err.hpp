@@ -190,7 +190,7 @@ public:
     memepp::string solution() const noexcept;
 
     bool has_func_info() const noexcept;
-    const func_info* func_info() const noexcept;
+    const func_info* get_func_info() const noexcept;
 
     std::shared_ptr<void> user_data() const noexcept;
     err copy() const;
@@ -246,7 +246,7 @@ private:
         return impl_->func_info_ != nullptr;
     }
 
-    inline const err::func_info* err::func_info() const noexcept
+    inline const err::func_info* err::get_func_info() const noexcept
     {
         return impl_->func_info_.get();
     }
