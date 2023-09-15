@@ -275,7 +275,7 @@ private:
 
     inline err::operator bool() const noexcept
     {
-        return ok();
+        return !ok();
     }
 
     inline void err::set_next(const err &e)
