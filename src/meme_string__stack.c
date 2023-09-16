@@ -860,13 +860,16 @@ MemeStringStack_vformatInCstyle_v2(
 	mmsstk_t out;
 	MemeByte_t* data = NULL;
 	MemeInteger_t len = 0;
+    va_list calc_args;
 
 	//assert(_format != NULL && MemeStringStack_vformatInCstyle);
 
 	if ((_format == NULL))
 		return MemeStringStack_getInitObject(_object_size);
 
-	len = vsnprintf(NULL, 0, _format, _args);
+	va_copy(calc_args, _args);
+	len = vsnprintf(NULL, 0, _format, calc_args);
+	va_end(calc_args);
 	if ((len <= 0))
 		return MemeStringStack_getInitObject(_object_size);
 
