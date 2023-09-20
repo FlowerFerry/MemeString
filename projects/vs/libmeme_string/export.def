@@ -181,4 +181,5 @@ EXPORTS
     ; Ã‘Ã≠
     MemeStringStack_formatInCstyle @177
     MemeString_checkHeadTailMemory @178
+    MemeString_compare @179
     

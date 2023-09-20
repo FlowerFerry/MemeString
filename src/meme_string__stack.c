@@ -229,27 +229,6 @@ MEME_STDCALL MemeStringStack_initByU16bytesAndType(
 	}
 }
 
-
-//MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByOtherAndType(
-//	MemeStringStack_t* _out, size_t _object_size,
-//	MemeString_Const_t _other, MemeString_Storage_t _suggest)
-//{
-//
-//	assert(_out);
-//	assert(_object_size != 0);
-//
-//	switch (_suggest) {
-//	case MemeString_ImplType_large:
-//	{
-//	} break;
-//
-//	default: {
-//
-//	};
-//	}
-//	return 0;
-//}
-
 MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByOther(
 	mmsstk_t* _out, size_t _object_size, mms_const_t _other)
 {

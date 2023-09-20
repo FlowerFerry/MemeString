@@ -628,6 +628,32 @@ MEME_API int MEME_STDCALL MemeString_isEqualWithOther(MemeString_Const_t _lhs,
 	return 0;
 }
 
+MEME_API int MEME_STDCALL MemeString_compare(mms_const_t _s, mms_const_t _other)
+{
+    const mmbyte_t* src = NULL;
+    const mmbyte_t* dst = NULL;
+    mmint_t srclen = 0;
+	mmint_t dstlen = 0;
+
+	assert(_s);
+	assert(_other);
+
+	if (MEGO_SYMBOL__UNLIKELY((void*)_s == (void*)_other))
+		return 0;
+
+    src = MemeString_byteData(_s);
+    dst = MemeString_byteData(_other);
+    srclen = MemeString_byteSize(_s);
+    dstlen = MemeString_byteSize(_other);
+
+    for (; srclen > 0 && dstlen > 0; --srclen, --dstlen, ++src, ++dst) 
+	{
+        if (*src != *dst)
+            return (*src < *dst ? -1 : 1);
+    }
+    return (srclen == dstlen ? 0 : (srclen < dstlen ? -1 : 1));
+}
+
 MEME_API MemeInteger_t MEME_STDCALL MemeString_indexOfWithUtf8bytes(
 	MemeString_Const_t _s, MemeInteger_t _offset,
 	const MemeByte_t* _needle, MemeInteger_t _needle_len,

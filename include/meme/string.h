@@ -66,12 +66,6 @@ MEME_API int
 		mmsstk_t* _out, size_t _object_size, const uint16_t* _buf, MemeInteger_t _len,
 		MemeString_Storage_t _suggest);
 
-//MEME_API int 
-//	MEME_STDCALL MemeStringStack_initByOtherAndType(
-//		MemeStringStack_t* _out, size_t _object_size, 
-//		MemeString_Const_t _other, MemeString_Storage_t _suggest
-//	);
-
 MEME_API int
 	MEME_STDCALL MemeStringStack_initWithHexadecimals(
 		mmsstk_t* _out, size_t _object_size,
@@ -254,6 +248,9 @@ MEME_API int
 	MEME_STDCALL MemeString_isEqual(MemeString_Const_t _s, const char* _str, MemeInteger_t _len, int* _result);
 MEME_API int
 	MEME_STDCALL MemeString_isEqualWithOther(MemeString_Const_t _lhs, MemeString_Const_t _rhs, int* _result);
+
+MEME_API int
+MEME_STDCALL MemeString_compare(mms_const_t _s, mms_const_t _other);
 
 MEME_API MemeInteger_t
 MEME_STDCALL MemeString_indexOfWithUtf8bytes(
