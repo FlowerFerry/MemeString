@@ -20,8 +20,6 @@ MEME_API int
 MEME_API MemeInteger_t
 	MEME_STDCALL MemeStringOption_getStorageMediumLimit();
 
-
-
 MEME_API int 
 	MEME_STDCALL MemeStringStack_init(mmsstk_t* _out, size_t _object_size);
 
