@@ -4,6 +4,7 @@
 
 #include <mego/predef/endian.h>
 #include <mego/util/endian/byte_swap.h>
+#include <mego/err/ec.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -259,7 +260,7 @@ int MemeStringMemory_allocFunctionSwitch(
 	if (*_out_malloc_fn == _in_malloc_fn)
 	{
 		if (_in_free_fn == NULL)
-			return MMENO__POSIX_OFFSET(EINVAL);
+			return (MGEC__INVAL);
 		*_out_free_fn = _in_free_fn;
 	}
 	else {

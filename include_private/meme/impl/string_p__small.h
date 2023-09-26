@@ -4,6 +4,7 @@
 
 #include <meme/impl/string.h>
 #include <meme/impl/algorithm.h>
+#include <mego/err/ec.h>
 #include <string.h>
 #include <errno.h>
 #include <assert.h>
@@ -140,7 +141,7 @@ inline int MemeStringSmall_canBeAppendIt(const MemeStringSmall_t* _s, MemeIntege
 {
 	assert(_s);
 	if (MemeStringSmall_byteCapacity(_s) < _buflen)
-		return MMENO__POSIX_OFFSET(E2BIG);
+		return (MGEC__2BIG);
 
 	return 0;
 }

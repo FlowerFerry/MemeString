@@ -37,7 +37,7 @@ MEME_STDCALL MemeVariableBufferStack_initByOther(
 			MemeString_byteData((MemeString_t)_other), MemeString_byteSize((MemeString_t)_other));
 	};
 	default: {
-		return MMENO__POSIX_OFFSET(ENOTSUP);
+		return (MGEC__OPNOTSUPP);
 	};
 	}
 
@@ -259,7 +259,7 @@ MEME_STDCALL MemeVariableBuffer_appendWithBytes(
 		return MemeStringMedium_appendWithBytes((MemeStringMedium_t*)s, _buf, _len);
 	};
 	default: {
-		return MMENO__POSIX_OFFSET(ENOTSUP);
+		return (MGEC__OPNOTSUPP);
 	} break;
 	}
 
@@ -299,7 +299,7 @@ MEME_STDCALL MemeVariableBuffer_appendWithRepeatBytes(
 		return MemeStringMedium_appendWithByte((MemeStringMedium_t*)s, _count, _byte);
 	};
 	default: {
-		return MMENO__POSIX_OFFSET(ENOTSUP);
+		return (MGEC__OPNOTSUPP);
 	} break;
 	}
 
@@ -351,7 +351,7 @@ MEME_STDCALL MemeVariableBuffer_appendWithOther(
 			(MemeStringMedium_t*)s, MemeVariableBuffer_data(_other), MemeVariableBuffer_size(_other));
 	} break;
 	default: {
-		return MMENO__POSIX_OFFSET(ENOTSUP);
+		return (MGEC__OPNOTSUPP);
 	} break;
 	}
 
@@ -371,10 +371,10 @@ MEME_STDCALL MemeVariableBuffer_insertWithBytes(
 	if ((_len < 0))
 		_len = strlen((const char*)_buf);
 	if ((_buf == NULL || _len == 0))
-		return MMENO__POSIX_OFFSET(EINVAL);
+		return (MGEC__INVAL);
     //if (_pos < 0 || _pos > MemeVariableBuffer_size(s))
 	if ((_pos & (MemeString_byteSize(s) - _pos)) & INTPTR_MIN)
-		return MMENO__POSIX_OFFSET(EINVAL);
+		return (MGEC__INVAL);
 	
     switch (MMS__GET_TYPE(s))
     {
@@ -397,7 +397,7 @@ MEME_STDCALL MemeVariableBuffer_insertWithBytes(
         return MemeStringMedium_insertWithBytes((MemeStringMedium_t*)s, _pos, _buf, _len);
     };
     default: {
-        return MMENO__POSIX_OFFSET(ENOTSUP);
+        return (MGEC__OPNOTSUPP);
     } break;
     }
 
@@ -422,7 +422,7 @@ MEME_STDCALL MemeVariableBuffer_clear(MemeVariableBuffer_t _s)
 		MemeStringMedium_clear(&(s->medium_));
 	} break;
 	default: {
-		return MMENO__POSIX_OFFSET(ENOTSUP);
+		return (MGEC__OPNOTSUPP);
 	} break;
 	}
 
@@ -463,7 +463,7 @@ MEME_STDCALL MemeVariableBuffer_resizeWithByte(MemeVariableBuffer_t _s, MemeInte
 		return MemeStringMedium_resizeWithByte((MemeStringMedium_t*)_s, _size, _byte);
 	} break;
 	default: {
-		return MMENO__POSIX_OFFSET(ENOTSUP);
+		return (MGEC__OPNOTSUPP);
 	} break;
 	}
 
@@ -495,7 +495,7 @@ MEME_STDCALL MemeVariableBuffer_remove(
         return MemeStringMedium_remove((MemeStringMedium_t*)_s, _pos, _count);
     } break;
     default: {
-        return MMENO__POSIX_OFFSET(ENOTSUP);
+        return (MGEC__OPNOTSUPP);
     } break;
     }
 
@@ -539,7 +539,7 @@ MEME_STDCALL MemeVariableBuffer_releaseToBuffer(
 	} break;
 	default:
 	{
-		return MMENO__POSIX_OFFSET(ENOTSUP);
+		return (MGEC__OPNOTSUPP);
 	} break;
 	}
 }
@@ -580,7 +580,7 @@ MEME_STDCALL MemeVariableBuffer_releaseToString(
 	} break;
 	default:
 	{
-		return MMENO__POSIX_OFFSET(ENOTSUP);
+		return (MGEC__OPNOTSUPP);
 	} break;
 	}
 	//return 0;
@@ -632,7 +632,7 @@ MEME_API MemeInteger_t MEME_STDCALL MemeVariableBuffer_selfChop(MemeVariableBuff
 		MemeStringMedium_byteSizeOffsetAndSetZero(&(((MemeString_t)_s)->medium_), _n);
 	} break;
 	default: {
-		return MMENO__POSIX_OFFSET(ENOTSUP);
+		return (MGEC__OPNOTSUPP);
 	} break;
 	}
 	return 0;

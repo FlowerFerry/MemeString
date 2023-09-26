@@ -63,7 +63,7 @@ inline int MemeStringUser_initTakeOver(MemeStringUser_t* _s,
 
 	refCount = (MemeStringUser_RefCounted_t*)c_func(sizeof(MemeStringUser_RefCounted_t));
 	if (!refCount)
-		return MMENO__POSIX_OFFSET(ENOMEM);
+		return (MGEC__NOMEM);
 	MemeStringUser_RefCount_init(refCount);
 	//refCount->malloc_fn_ = c_func;
 	//refCount->free_fn_   = d_func;

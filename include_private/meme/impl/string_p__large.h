@@ -7,6 +7,7 @@
 #include "meme/impl/atomic.h"
 #include <meme/impl/string_memory.h>
 #include "mego/predef/symbol/likely.h"
+#include <mego/err/ec.h>
 
 #include <string.h>
 #include <assert.h>
@@ -123,7 +124,7 @@ inline int MemeStringLarge_init (
 	c_func = (_cfn ? _cfn : mmsmem_get_malloc_func());
 	if (c_func == _cfn) {
 		if (_dfn == NULL)
-			return -EINVAL;
+			return MGEC__INVAL;
 		d_func = _dfn;
 	}
 	else {
@@ -132,14 +133,14 @@ inline int MemeStringLarge_init (
 
 	refCount = (MemeStringLarge_RefCounted_t*)c_func(sizeof(MemeStringLarge_RefCounted_t));
 	if (!refCount)
-		return MMENO__POSIX_OFFSET(ENOMEM);
+		return MGEC__NOMEM;
 	MemeStringLarge_RefCount_init(refCount);
 	//ref->malloc_fn_ = c_func;
 	//ref->free_fn_   = d_func;
 	refCount->real_ = (uint8_t*)c_func(_front_capacity + _capacity);
 	if (!refCount->real_) {
 		d_func(refCount);
-		return MMENO__POSIX_OFFSET(ENOMEM);
+		return MGEC__NOMEM;
 	}
 
 	if (_s->ref_) {
@@ -206,14 +207,14 @@ inline int MemeStringLarge_initByU8bytes(
 
 	refCount = (MemeStringLarge_RefCounted_t*)c_func(sizeof(MemeStringLarge_RefCounted_t));
 	if (!refCount)
-		return MMENO__POSIX_OFFSET(ENOMEM);
+		return (MGEC__NOMEM);
 	MemeStringLarge_RefCount_init(refCount);
 	//ref->malloc_fn_ = c_func;
 	//ref->free_fn_ = d_func;
 	refCount->real_ = (uint8_t*)c_func(total_length);
 	if (!refCount->real_) {
 		d_func(refCount);
-		return MMENO__POSIX_OFFSET(ENOMEM);
+		return (MGEC__NOMEM);
 	}
 
 
@@ -267,7 +268,7 @@ inline int MemeStringLarge_initAndTakeover(
 
 	refCount = (MemeStringLarge_RefCounted_t*)mmsmem_malloc(sizeof(MemeStringLarge_RefCounted_t));
 	if (!refCount)
-		return MMENO__POSIX_OFFSET(ENOMEM);
+		return (MGEC__NOMEM);
 	MemeStringLarge_RefCount_init(refCount);
 	refCount->real_ = _real;
 

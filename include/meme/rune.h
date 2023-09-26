@@ -5,6 +5,7 @@
 #include "meme/string_fwd.h"
 #include "mego/predef/symbol/likely.h"
 #include <meme/utf/u8rune.h>
+#include <mego/err/ec.h>
 
 #include <assert.h>
 #include <errno.h>
@@ -117,7 +118,7 @@ MemeRune_resize(MemeRune_t* _s, uint8_t _count)
     assert(_s != NULL);
 
     if ((_count > 7))
-        return MMENO__POSIX_OFFSET(EINVAL);
+        return MGEC__INVAL;
 
     _s->attr.capacity = 7 - _count;
     _s->byte[MemeRune_size(_s)] = '\0';
@@ -138,7 +139,7 @@ MemeRune_initByUtf8Bytes(MemeRune_t* _out, const MemeByte_t* _buf, MemeInteger_t
     assert(_out != NULL && _buf != NULL);
 
     if ((_len < 0 || _len > 7))
-        return MMENO__POSIX_OFFSET(EINVAL);
+        return MGEC__INVAL;
 
     _out->attr.capacity = (mmbyte_t)(7 - _len);
     _out->attr.invalid  = 0;

@@ -38,8 +38,8 @@ namespace memepp {
     class bad_alloc : public errc_except
     {
     public:
-        bad_alloc() noexcept : errc_except(MMENO__POSIX_OFFSET(ENOMEM), "bad_alloc") {}
-        bad_alloc(const char* _what) noexcept : errc_except(MMENO__POSIX_OFFSET(ENOMEM), _what) {}
+        bad_alloc() noexcept : errc_except(MGEC__NOMEM, "bad_alloc") {}
+        bad_alloc(const char* _what) noexcept : errc_except(MGEC__NOMEM, _what) {}
         virtual ~bad_alloc() noexcept {}
 
     };
@@ -49,7 +49,7 @@ namespace memepp {
         if (MEGO_SYMBOL__UNLIKELY(_code != 0))
         {
             switch (_code) {
-            case MMENO__POSIX_OFFSET(ENOMEM):
+            case MGEC__NOMEM:
                 throw bad_alloc();
             default:
                 throw errc_except(_code);
@@ -62,7 +62,7 @@ namespace memepp {
         if (MEGO_SYMBOL__UNLIKELY(_code != 0))
         {
             switch (_code) {
-            case MMENO__POSIX_OFFSET(ENOMEM):
+            case MGEC__NOMEM:
                 throw bad_alloc(_what);
             default:
                 throw errc_except(_code, _what);
