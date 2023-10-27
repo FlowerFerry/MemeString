@@ -3,7 +3,7 @@
 #define MEMEPP_ERRC_HPP_INCLUDED
 
 #include <mego/predef/symbol/likely.h>
-
+#include <mego/err/ec.h>
 #include <memepp/predef/macro_option.hpp>
 
 #if !MMOPT__EXCEPTION_DISABLED
