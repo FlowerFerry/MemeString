@@ -1,4 +1,5 @@
 
+
 #ifndef MEGO_HARDWARE_CPU_INSTRUCTION_H_INCLUDED
 #define MEGO_HARDWARE_CPU_INSTRUCTION_H_INCLUDED
 
@@ -27,6 +28,7 @@ typedef uint32_t mghw_simd_instruction_t;
 
 #if MEGO_ARCH__ARM && defined(__ARM_NEON)
 
+
 inline mghw_simd_instruction_t
 mghw_detect_supported_simd_instructions() {
     return MGHW_SIMD_INSTRUCTION__NEON;
@@ -42,6 +44,7 @@ mghw_detect_supported_simd_instructions()
 
 #elif 
 
+
 inline mghw_simd_instruction_t
 mghw_detect_supported_simd_instructions() {
     return MGHW_SIMD_INSTRUCTION__DEFAULT;
@@ -53,4 +56,6 @@ mghw_detect_supported_simd_instructions() {
 }
 #endif
 
+
 #endif // !MEGO_HARDWARE_CPU_INSTRUCTION_H_INCLUDED
+
