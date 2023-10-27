@@ -52,6 +52,8 @@
 
 #endif 
 
+#define MG_OS__BSD_AVAIL MEGO_OS__BSD__AVAILABLE
+
 #include "bsd/bsdi.h"
 #include "bsd/dragonfly.h"
 #include "bsd/free.h"
