@@ -176,9 +176,9 @@ EXPORTS
     mms_assign_by_buf @173
     MemeStringOption_getStorageMediumLimit @174
     MemeStringOption_setStorageMediumLimit @175
-    ; ÌÔÌ­
+    ; DEPRECATED
     MemeStringStack_vformatInCstyle @176
-    ; ÌÔÌ­
+    ; DEPRECATED
     MemeStringStack_formatInCstyle @177
     MemeString_checkHeadTailMemory @178
     MemeString_compare @179
