@@ -7,6 +7,7 @@
 #include <meme/string_memory.h>
 #include <meme/impl/string_memory.h>
 #include <mego/predef/symbol/likely.h>
+#include <mego/err/ec.h>
 #include <string.h>
 #include <errno.h>
 
@@ -101,7 +102,7 @@ MemeStringMedium_canBeAppendIt(const MemeStringMedium_t* _s, MemeInteger_t _bufl
 	assert(_s);
 
 	if (MemeStringMedium_availableByteCapacity(_s) < _buflen)
-		return MMENO__POSIX_OFFSET(E2BIG);
+		return (MGEC__2BIG);
 
 	return 0;
 }
@@ -243,7 +244,7 @@ MemeStringMedium_initWithCapacity(
 
 	_s->real_ = mmsmem_malloc(front_capacity + _capacity);
 	if (!(_s->real_))
-		return MMENO__POSIX_OFFSET(ENOMEM);
+		return (MGEC__NOMEM);
 
 	_s->size_ = 0;
 	_s->type_ = MemeString_StorageType_medium;
@@ -349,7 +350,7 @@ inline int MemeStringMedium_capacityExpansion(MemeStringMedium_t* _s, MemeIntege
 
 	new_pointer = mmsmem_realloc(_s->real_, dstlen);
 	if (new_pointer == NULL)
-		return MMENO__POSIX_OFFSET(ENOMEM);
+		return (MGEC__NOMEM);
 
 	_s->real_ = new_pointer;
 	_s->capacity_ = dstlen - _s->front_capacity_ - _s->size_;

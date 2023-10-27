@@ -17,6 +17,10 @@
 #	endif
 #endif 
 
+#if !MMOPT__EXCEPTION_DISABLED
+#	include <stdexcept>
+#endif
+
 namespace memepp {
 
 	MEMEPP__IMPL_INLINE string_view::string_view() noexcept

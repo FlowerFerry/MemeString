@@ -6,6 +6,8 @@
 #include <meme/impl/string_builder.h>
 #include <meme/impl/string_memory.h>
 
+#include <mego/err/ec.h>
+
 #include <assert.h>
 #include <string.h>
 #include <errno.h>
@@ -31,7 +33,7 @@ int MemeStringBuilderParts_checkInit(mmsbuilder_part_t** _part)
         cvector_set_elem_destructor(*_part, MemeStringBuilderPart_unInit);
     }
     if (*_part == NULL) {
-        result = MMENO__POSIX_OFFSET(ENOMEM);
+        result = (MGEC__NOMEM);
     }
     return result;
 }

@@ -10,6 +10,7 @@
 #include <meme/utf/converter.h>
 #include <mego/predef/symbol/likely.h>
 #include <mego/predef/endian.h>
+#include <mego/err/ec.h>
 
 #include <errno.h>
 #include <assert.h>
@@ -145,7 +146,7 @@ int MemeStringImpl_capacityExpansionWithModifiable(
 	} break;
 	default:
 	{
-		return MMENO__POSIX_OFFSET(ENOTSUP);
+		return (MGEC__OPNOTSUPP);
 	} break;
 	}
 
@@ -209,7 +210,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_create(MemeString_t * _out)
 	//c_func = MemeString_getMallocFunction();
 	*_out = (MemeString_t)(mmsmem_malloc(sizeof(struct _MemeString_t)));
 	if (!(*_out))
-		return MMENO__POSIX_OFFSET(ENOMEM);
+		return (MGEC__NOMEM);
 
 	memset(*_out, 0, sizeof(struct _MemeString_t));
 	(*_out)->small_.type_ = MemeString_ImplType_small;
@@ -270,7 +271,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_isNonempty(MemeString_Const_t
 		return (_s->user_.size_ == 0) ? 0 : 1;
 	}
 	default: {
-		return MMENO__POSIX_OFFSET(ENOTSUP);
+		return (MGEC__OPNOTSUPP);
 	} break;
 	}
 
@@ -538,7 +539,7 @@ static MemeInteger_t* __MemeStringOption_storageMediumLimit()
 MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringOption_setStorageMediumLimit(MemeInteger_t _value)
 {
 	if (_value < 0)
-		return MMENO__POSIX_OFFSET(EINVAL);
+		return (MGEC__INVAL);
 
 	if (_value <= MMS__GET_SMALL_BUFFER_SIZE) {
 		*__MemeStringOption_storageMediumLimit() = 0;
@@ -563,7 +564,7 @@ MEME_API int MEME_STDCALL MemeString_isEqual(MemeString_Const_t _s,
 	const char* src = NULL;
 
 	if ((!_result))
-		return MMENO__POSIX_OFFSET(EINVAL);
+		return (MGEC__INVAL);
 
 	src = MemeString_cStr(_s);
 	if (_len < 0) {
@@ -601,7 +602,7 @@ MEME_API int MEME_STDCALL MemeString_isEqualWithOther(MemeString_Const_t _lhs,
 	const char* rhs = NULL;
 
 	if ((!_result))
-		return MMENO__POSIX_OFFSET(EINVAL);
+		return (MGEC__INVAL);
 
 	lhslen = MemeString_byteSize(_lhs);
 	rhslen = MemeString_byteSize(_rhs);
@@ -626,6 +627,32 @@ MEME_API int MEME_STDCALL MemeString_isEqualWithOther(MemeString_Const_t _lhs,
 
 	*_result = (memcmp(lhs, rhs, lhslen) == 0 ? 1 : 0);
 	return 0;
+}
+
+MEME_API int MEME_STDCALL MemeString_compare(mms_const_t _s, mms_const_t _other)
+{
+    const mmbyte_t* src = NULL;
+    const mmbyte_t* dst = NULL;
+    mmint_t srclen = 0;
+	mmint_t dstlen = 0;
+
+	assert(_s);
+	assert(_other);
+
+	if (MEGO_SYMBOL__UNLIKELY((void*)_s == (void*)_other))
+		return 0;
+
+    src = MemeString_byteData(_s);
+    dst = MemeString_byteData(_other);
+    srclen = MemeString_byteSize(_s);
+    dstlen = MemeString_byteSize(_other);
+
+    for (; srclen > 0 && dstlen > 0; --srclen, --dstlen, ++src, ++dst) 
+	{
+        if (*src != *dst)
+            return (*src < *dst ? -1 : 1);
+    }
+    return (srclen == dstlen ? 0 : (srclen < dstlen ? -1 : 1));
 }
 
 MEME_API MemeInteger_t MEME_STDCALL MemeString_indexOfWithUtf8bytes(
@@ -687,7 +714,7 @@ MemeString_indexByCondByteFunc(
         if (result == 1)
             return index;
         else if (result == -1)
-            return MMENO__POSIX_OFFSET(ECANCELED);
+            return (MGEC__CANCELED);
     }
 	return -1;
 }
@@ -838,7 +865,7 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_split(
 	assert(_out_count != NULL		&& MemeString_split);
 
 	if (*_out_count < 1)
-		return MMENO__POSIX_OFFSET(EINVAL);
+		return (MGEC__INVAL);
 	if (_key_len < 0)
 		_key_len = strlen(_key);
 

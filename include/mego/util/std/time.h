@@ -3,6 +3,11 @@
 #define MEGO_UTIL_STD_TIME_H_INCLUDED
 
 #include <time.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <mego/predef/symbol/restrict.h>
+#include <mego/predef/os/windows.h>
+#include <mego/err/ec.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,6 +29,12 @@ extern "C" {
         long      tv_nsec;  // Nanoseconds - [0, 999999999]
     } mgu_timespec_t;
 
+    enum mgu_round_t
+    {
+        mgu_round_down = 0,
+        mgu_round_up = 1
+    };
+
 #ifdef TIME_UTC
     inline int mgu_timespec_get(mgu_timespec_t* _ts, int _base)
     {
@@ -37,7 +48,7 @@ extern "C" {
     {
         if (!_ts) return 0;
 
-        if (_base != COMM_TIME_UTC) {
+        if (_base != MGU_TIME_UTC) {
             return 0;
         }
 
@@ -75,7 +86,213 @@ extern "C" {
         mgu_timespec_get(&ts, MGU_TIME_UTC);
         return (mgu_timeval_t)ts.tv_sec * 1000000LL + (mgu_timeval_t)ts.tv_nsec / 1000LL;
     }
+        
+    inline mgec_t mgu_asctime_s(char *_buf, size_t _bufsz, const struct tm *_tm)
+    {
+    #if MG_OS__WIN_AVAIL
+        return asctime_s(_buf, _bufsz, _tm);
+    #else
+        if (!_buf || _tm) return MGEC__INVAL;
+        if (_bufsz < 26 || _bufsz > SIZE_MAX) return MGEC__INVAL;
+
+        errno = 0;
+        if (!asctime_r(_tm, _buf)) {
+            _buf[0] = '\0';
+        }
+        return errno;
+    #endif // COMM_WINDOWS
+    }
+
+    inline mgec_t mgu_ctime_s(char *_buf, mgu_time_t _bufsz, const mgu_time_t *_time)
+    {
+    #if MG_OS__WIN_AVAIL
+        return ctime_s(_buf, _bufsz, _time);
+    #else
+        if (!_buf || _time) return MGEC__INVAL;
+        if (_bufsz < 26 || _bufsz > SIZE_MAX) return MGEC__INVAL;
+
+        auto time = static_cast<time_t>(*_time);
+        errno = 0;
+        if (!ctime_r(&time, _buf)) {
+            _buf[0] = '\0';
+        }
+        return errno;
+    #endif // COMM_WINDOWS
+    }
+
+    inline struct tm *mgu_gmtime_s(const mgu_time_t * MEGO_SYMBOL__RESTRICT _time, struct tm * MEGO_SYMBOL__RESTRICT _result)
+    {
+        if (!_time) return NULL;
+
+        time_t time = *_time;
+    #if MG_OS__WIN_AVAIL
+        return gmtime_s( _result, &time) ? NULL : _result;
+    #else
+        return gmtime_r(&time, _result);
+    #endif
+
+    }
+
+    inline struct tm *mgu_localtime_s(const mgu_time_t * MEGO_SYMBOL__RESTRICT _time, struct tm * MEGO_SYMBOL__RESTRICT _result)
+    {	
+        if (!_time) return NULL;
+
+        time_t time = *_time;
+    #if MG_OS__WIN_AVAIL
+        return localtime_s(_result, &time) ? NULL : _result;
+    #else
+        return localtime_r(&time, _result);
+    #endif 
+    }
+
+    inline int mgu_hour_timezone()
+    {
+        int tz = INT_MIN;
+        struct tm ltm;
+        struct tm gtm;
+        mgu_time_t nowt = time(NULL);
+        if (mgu_localtime_s(&nowt, &ltm) == NULL)
+            return -1;
+        if (mgu_gmtime_s(&nowt, &gtm) == NULL)
+            return -1;
+        
+        tz = ltm.tm_hour - gtm.tm_hour;
+        if (tz < -12)
+            tz += 24;
+        if (tz >  12)
+            tz -= 24;
+        return tz;
+    }
+
+    inline int mgu_minute_timezone()
+    {
+        int diff = 0;
+        struct tm ltm;
+        struct tm gtm;
+        mgu_time_t nowt = time(NULL);
+        if (mgu_localtime_s(&nowt, &ltm) == NULL)
+            return -1;
+        if (mgu_gmtime_s(&nowt, &gtm) == NULL)
+            return -1;
+
+        diff =  (ltm.tm_hour - gtm.tm_hour) * 60 * 60 +
+                (ltm.tm_min  - gtm.tm_min ) * 60 +
+                (ltm.tm_sec  - gtm.tm_sec );
+
+        if (diff < -12 * 60 * 60)
+            diff += 24 * 60 * 60;
+        if (diff >  12 * 60 * 60)
+            diff -= 24 * 60 * 60;
+        
+        return diff / 60;
+    }
+
+    inline mgu_time_t mgu_mktime_utc(struct tm * _tm)
+    {
+        mgu_time_t tv = -1;
+        int tz = mgu_minute_timezone();
+        if (tz == INT_MIN)
+            return -1;
+        if (!_tm) 
+            return -1;
+            
+        tv = (mgu_time_t)mktime(_tm);
+        if (tv == -1)
+            return -1;
     
+        return tv + tz * 60;
+    }
+
+    inline mgu_timestamp_t mgu_timestamp_round_to_minute(
+        mgu_timestamp_t _ts, int minute_interval, mgu_round_t _round) 
+    {
+        int remainder = 0;
+        struct tm gtm;
+        mgu_time_t tv = (mgu_time_t)(_ts / 1000);
+        if (mgu_gmtime_s(&tv, &gtm) == NULL)
+            return _ts;
+        remainder = gtm.tm_min % minute_interval;
+    
+        switch (_round) {
+            case mgu_round_down:
+                gtm.tm_min -= remainder;
+                break;
+            case mgu_round_up:
+                if (remainder > 0) 
+                {
+                    gtm.tm_min += (minute_interval - remainder);
+                    if (gtm.tm_min >= 60) {
+                        gtm.tm_min -= 60;
+                        gtm.tm_hour += 1;
+                    }
+                }
+                break;
+        }
+    
+        gtm.tm_sec = 0;
+        tv = mgu_mktime_utc(&gtm);
+        if (tv == -1)
+            return _ts;
+        return tv * 1000;
+    }
+
+    inline mgu_timestamp_t mgu_timestamp_round_to_hour(
+        mgu_timestamp_t _ts, int _interval, mgu_round_t _round)
+    {
+        int remainder = 0;
+        struct tm gtm;
+        mgu_time_t tv = (mgu_time_t)(_ts / 1000);
+        if (mgu_gmtime_s(&tv, &gtm) == NULL)
+            return _ts;
+        remainder = gtm.tm_hour % _interval;
+    
+        switch (_round) {
+            case mgu_round_down:
+                gtm.tm_hour -= remainder;
+                break;
+            case mgu_round_up:
+                if (remainder > 0) 
+                {
+                    gtm.tm_hour += (_interval - remainder);
+                    if (gtm.tm_hour >= 24) {
+                        gtm.tm_hour -= 24;
+                        gtm.tm_mday += 1;
+                    }
+                }
+                break;
+        }
+    
+        gtm.tm_min = 0;
+        gtm.tm_sec = 0;
+        tv = mgu_mktime_utc(&gtm);
+        if (tv == -1)
+            return _ts;
+        return tv * 1000;
+    }
+
+    inline mgu_timestamp_t mgu_timestamp_round_to_day(
+        mgu_timestamp_t _ts, mgu_round_t _round)
+    {
+        struct tm gtm;
+        mgu_time_t tv = (mgu_time_t)(_ts / 1000);
+        if (mgu_gmtime_s(&tv, &gtm) == NULL)
+            return _ts;
+    
+        gtm.tm_hour = 0;
+        gtm.tm_min  = 0;
+        gtm.tm_sec  = 0;
+        
+        tv = mgu_mktime_utc(&gtm);
+        if (tv == -1)
+            return _ts;
+
+        if (_round == mgu_round_up) {
+            tv += 24 * 3600;
+        }
+        
+        return tv * 1000;
+    }
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus

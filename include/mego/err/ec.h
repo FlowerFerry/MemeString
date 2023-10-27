@@ -9,13 +9,17 @@ typedef int mgec_t;
 const char* mgec__name(mgec_t _ec);
 const char* mgec__desc(mgec_t _ec);
 
-mgec_t mgec__from_sys_err(int _sys_err);
+inline mgec_t mgec__from_sys_err(int _sys_err);
+inline mgec_t mgec__from_posix_err(int _posix_err);
 
 #define MGEC__POSIX_OFFSET_BEGIN  -100000
 #define MGEC__POSIX_OFFSET_END    -199999
 
 #define MGEC__OFFSET1_BEGIN        -200000
 #define MGEC__OFFSET1_END          -299999
+
+#define MGEC__OFFSET2_BEGIN        -300000
+#define MGEC__OFFSET2_END          -309999
 
 #define MGEC__OK          0      //< 成功 Success
 #define MGEC__ERR        -1      //< 未知错误 Unknown error
@@ -152,8 +156,11 @@ mgec_t mgec__from_sys_err(int _sys_err);
 #define MGEC__RFKILL                    (MGEC__POSIX_OFFSET_BEGIN - 132)    //< 被 RF 锁杀死 Operation not possible due to RF-kill
 #define MGEC__HWPOISON                  (MGEC__POSIX_OFFSET_BEGIN - 133)    //< 硬件错误 Memory page has hardware error
 
+#define MGEC__WOULDBLOCK                (MGEC__POSIX_OFFSET_BEGIN - 134)    //< 操作将阻塞 Operation would block
+
 #define MGEC__INVALID_FUNC              (MGEC__OFFSET1_BEGIN - 1)           //< 无效的函数 Invalid function
-#define MGEC__PATH_NOT_FOUND            (MGEC__OFFSET1_BEGIN - 3)           //< 路径不存在 
+#define MGEC__PATH_NOT_FOUND            (MGEC__OFFSET1_BEGIN - 3)           //< 路径不存在 The system cannot find the path specified
+
 #define MGEC__INVALID_HANDLE            (MGEC__OFFSET1_BEGIN - 6)           //< 无效的句柄 The handle is invalid
 #define MGEC__BAD_ENVIRONMENT           (MGEC__OFFSET1_BEGIN - 10)          //< 环境错误 The environment is incorrect
 #define MGEC__INVALID_DATA              (MGEC__OFFSET1_BEGIN - 13)          //< 数据无效 The data is invalid
@@ -164,6 +171,88 @@ mgec_t mgec__from_sys_err(int _sys_err);
 #define MGEC__CRC                       (MGEC__OFFSET1_BEGIN - 20)          //< CRC 错误 
 #define MGEC__SEEK                      (MGEC__OFFSET1_BEGIN - 25)          //< 寻找错误 The drive cannot locate a specific area or track on the disk
 #define MGEC__DISK_ACCESS_DENIED        (MGEC__OFFSET1_BEGIN - 26)          //< 磁盘访问被拒绝 Access to the specified drive is denied
+
+#define MGEC__SECTOR_NOT_FOUND          (MGEC__OFFSET1_BEGIN - 27)          //< 找不到扇区 The drive cannot find the sector requested
+#define MGEC__OUT_OF_PAPER              (MGEC__OFFSET1_BEGIN - 28)          //< 打印机缺纸 The printer is out of paper
+#define MGEC__WRITE_FAULT               (MGEC__OFFSET1_BEGIN - 29)          //< 写入错误 The system cannot write to the specified device
+#define MGEC__READ_FAULT                (MGEC__OFFSET1_BEGIN - 30)          //< 读取错误 The system cannot read from the specified device
+#define MGEC__GEN_FAILURE               (MGEC__OFFSET1_BEGIN - 31)          //< 设备未准备好 A device attached to the system is not functioning
+#define MGEC__SHARING_VIOLATION         (MGEC__OFFSET1_BEGIN - 32)          //< 进程无法访问文件，因为另一个进程正在使用该文件，或者某些共享访问权限已被拒绝 A process cannot access the file because another process has locked a portion of the file
+#define MGEC__LOCK_VIOLATION            (MGEC__OFFSET1_BEGIN - 33)          //< 进程无法访问文件，因为另一个进程已锁定文件的一部分 A process cannot access the file because another process has locked a portion of the file
+#define MGEC__WRONG_DISK                (MGEC__OFFSET1_BEGIN - 34)          //< 无法在驱动器上运行该命令 The wrong diskette is in the drive
+#define MGEC__SHARING_BUFFER_EXCEEDED   (MGEC__OFFSET1_BEGIN - 36)          //< 无法打开文件，因为共享缓冲区已满 Too many files opened for sharing
+#define MGEC__EOF                       (MGEC__OFFSET1_BEGIN - 38)          //< 文件已到达结尾 The end of the file was reached
+#define MGEC__DUP_NET_NAME              (MGEC__OFFSET1_BEGIN - 52)          //< 无法在网络上找到或使用指定的网络名称 The network name cannot be found
+#define MGEC__BAD_NETPATH               (MGEC__OFFSET1_BEGIN - 53)          //< 网络路径无效 The network path was not found
+#define MGEC__NET_BUSY                  (MGEC__OFFSET1_BEGIN - 54)          //< 网络忙 The network is busy
+#define MGEC__NETDEV_NOT_EXIST          (MGEC__OFFSET1_BEGIN - 55)          //< 指定的网络资源或设备不再可用 The specified network resource or device is no longer available
+#define MGEC__TOO_MANY_NETCMDS          (MGEC__OFFSET1_BEGIN - 56)          //< 网络 BIOS 命令限制已达到 The network BIOS command limit has been reached
+#define MGEC__NETADAP_HDW_ERR           (MGEC__OFFSET1_BEGIN - 57)          //< 网络适配器硬件发生错误 A network adapter hardware error occurred.
+#define MGEC__BAD_NET_RESP              (MGEC__OFFSET1_BEGIN - 58)          //< 指定的服务器无法执行请求的操作 The specified server cannot perform the requested operation
+#define MGEC__UNEXP_NET_ERR             (MGEC__OFFSET1_BEGIN - 59)          //< 意外的网络错误 An unexpected network error occurred
+#define MGEC__BAD_REM_ADAP              (MGEC__OFFSET1_BEGIN - 60)          //< 指定的网络适配器名称无效 The remote adapter is not compatible
+#define MGEC__PRINTQ_FULL               (MGEC__OFFSET1_BEGIN - 61)          //< 打印队列已满 The printer queue is full
+#define MGEC__NO_SPOOL_SPACE            (MGEC__OFFSET1_BEGIN - 62)          //< 服务器上没有可用空间来存储等待打印的文件 Space to store the file waiting to be printed is not available on the server.
+#define MGEC__PRINT_CANCELLED           (MGEC__OFFSET1_BEGIN - 63)          //< 您等待打印的文件已被删除 The file waiting to be printed was deleted
+#define MGEC__NETNAME_DELETED           (MGEC__OFFSET1_BEGIN - 64)          //< 指定的网络名称不再可用 The specified network name is no longer available
+#define MGEC__BAD_NETDEV_TYPE           (MGEC__OFFSET1_BEGIN - 66)          //< 网络资源类型不正确 The network resource type is not correct
+#define MGEC__BAD_NET_NAME              (MGEC__OFFSET1_BEGIN - 67)          //< 指定的网络名称无效 The specified network name is invalid
+#define MGEC__TOO_MANY_NET_NAMES        (MGEC__OFFSET1_BEGIN - 68)          //< 超出本地计算机网络适配器卡的名称限制 The name limit for the local computer network adapter card was exceeded
+#define MGEC__TOO_MANY_SESS             (MGEC__OFFSET1_BEGIN - 69)          //< 会话表已满 The network BIOS session limit was exceeded
+#define MGEC__SHARING_PAUSED            (MGEC__OFFSET1_BEGIN - 70)          //< 文件共享暂停 The remote server has been paused or is in the process of being started
+#define MGEC__REDIR_PAUSED              (MGEC__OFFSET1_BEGIN - 72)          //< 文件重定向暂停 The specified printer or disk device has been paused
+#define MGEC__CANNOT_MAKE               (MGEC__OFFSET1_BEGIN - 82)          //< 目录或文件无法创建 The directory or file cannot be created
+#define MGEC__FAIL_I24                  (MGEC__OFFSET1_BEGIN - 83)          //< INT 24 失败 An error occurred when opening or reading the configuration file
+#define MGEC__OUT_OF_STRUCTURES         (MGEC__OFFSET1_BEGIN - 84)          //< 处理此请求的存储不可用 Storage to process this request is not available
+#define MGEC__ALREADY_ASSIGNED          (MGEC__OFFSET1_BEGIN - 85)          //< 本地设备名称已在使用中 The local device name is already in use
+#define MGEC__INVALID_NET_PASSWORD      (MGEC__OFFSET1_BEGIN - 86)          //< 指定的网络密码无效 The specified network password is not correct
+#define MGEC__NET_WRITE_FAULT           (MGEC__OFFSET1_BEGIN - 88)          //< 网络写错误 A write fault occurred on the network
+#define MGEC__NO_PROC_SLOTS             (MGEC__OFFSET1_BEGIN - 89)          //< 系统进程表已满 The system cannot start another process at this time
+#define MGEC__TOO_MANY_SEMAPHORES       (MGEC__OFFSET1_BEGIN - 100)         //< 信号灯表已满 Cannot create another system semaphore
+#define MGEC__EXCL_SEM_ALREADY_OWNED    (MGEC__OFFSET1_BEGIN - 101)         //< 信号灯已经拥有 The exclusive semaphore is owned by another process
+#define MGEC__SEM_IS_SET                (MGEC__OFFSET1_BEGIN - 102)         //< 信号灯已设置 The semaphore is set and cannot be closed
+#define MGEC__TOO_MANY_SEM_REQUESTS     (MGEC__OFFSET1_BEGIN - 103)         //< 信号灯表已满 Cannot request exclusive semaphores at interrupt time
+#define MGEC__INVALID_AT_INTERRUPT_TIME (MGEC__OFFSET1_BEGIN - 104)         //< 信号灯不能在中断时间设置 Cannot request exclusive semaphores at interrupt time.
+#define MGEC__SEM_OWNER_DIED            (MGEC__OFFSET1_BEGIN - 105)         //< 信号灯拥有者已死 The previous ownership of this semaphore has ended.
+#define MGEC__SEM_USER_LIMIT            (MGEC__OFFSET1_BEGIN - 106)         //< 插入驱动器 %1 的软盘 Insert the diskette for drive %1
+#define MGEC__DISK_CHANGE               (MGEC__OFFSET1_BEGIN - 107)         //< 插入了磁盘 The program stopped because an alternate diskette was not inserted
+#define MGEC__DRIVE_LOCKED              (MGEC__OFFSET1_BEGIN - 108)         //< 磁盘被锁定 The disk is in use or locked by another process
+#define MGEC__BROKEN_PIPE               (MGEC__OFFSET1_BEGIN - 109)         //< 管道已结束 The pipe has been ended
+#define MGEC__OPEN_FAILED               (MGEC__OFFSET1_BEGIN - 110)         //< 打开设备或文件失败 Cannot open the device or file specified
+#define MGEC__DISK_FULL                 (MGEC__OFFSET1_BEGIN - 112)         //< 磁盘空间不足 There is not enough space on the disk
+#define MGEC__NO_MORE_SEARCH_HANDLES    (MGEC__OFFSET1_BEGIN - 113)         //< 无法创建更多的搜索句柄 No more internal file identifiers available
+#define MGEC__INVALID_TARGET_HANDLE     (MGEC__OFFSET1_BEGIN - 114)         //< 目标句柄不正确 The target internal file identifier is incorrect
+#define MGEC__INVALID_CATEGORY          (MGEC__OFFSET1_BEGIN - 117)         //< 无效的I/O类别 The IOCTL call made by the application program is not correct
+#define MGEC__INVALID_VERIFY_SWITCH     (MGEC__OFFSET1_BEGIN - 118)         //< 写入验证开关参数值不正确 The verify-on-write switch parameter value is not correct
+#define MGEC__BAD_DRIVER_LEVEL          (MGEC__OFFSET1_BEGIN - 119)         //< 系统调用级别错误 The system does not support the command requested
+#define MGEC__DATABASE_LOCKED           (MGEC__OFFSET1_BEGIN - 1055)        //< 数据库文件被锁定 Database file is locked
+#define MGEC__DATABASE_DOES_NOT_EXIST   (MGEC__OFFSET1_BEGIN - 1065)        //< 数据库文件不存在 Database file does not exist
+#define MGEC__DATABASE_FAILURE          (MGEC__OFFSET1_BEGIN - 4313)        //< 数据库操作失败 Database operation failed
+#define MGEC__DATABASE_FULL             (MGEC__OFFSET1_BEGIN - 4314)        //< 数据库已满 Database or disk is full
+#define MGEC__DATABASE_ERROR            (MGEC__OFFSET1_BEGIN - 8409)        //< 数据库错误 Internal database error
+
+#define MGEC__SQLITE_INTERNAL           (MGEC__OFFSET2_BEGIN - 2)           //< SQLite内部逻辑错误 Internal logic error in SQLite
+#define MGEC__CALLBACK_ABORTED          (MGEC__OFFSET2_BEGIN - 4)           //< 回调函数请求中止 Callback routine requested an abort
+#define MGEC__DATABASE_BUSY             (MGEC__OFFSET2_BEGIN - 5)           //< 数据库忙 Database is locked
+#define MGEC__DATABASE_READONLY         (MGEC__OFFSET2_BEGIN - 8)           //< 尝试写入只读数据库 Attempt to write a readonly database
+#define MGEC__SQLITE_INTERRUPT          (MGEC__OFFSET2_BEGIN - 9)           //< 操作被sqlite3_interrupt()中断 Operation terminated by sqlite3_interrupt()
+#define MGEC__DATABASE_CORRUPT          (MGEC__OFFSET2_BEGIN - 11)          //< 数据库文件已损坏 Database disk image is malformed
+#define MGEC__SQLITE_NOTFOUND           (MGEC__OFFSET2_BEGIN - 12)          //< sqlite3_file_control() 中的未知操作码 Unknown opcode in sqlite3_file_control()
+#define MGEC__SQLITE_CANTOPEN           (MGEC__OFFSET2_BEGIN - 14)          //< 无法打开数据库 Unable to open the database file 
+#define MGEC__SQLITE_EMPTY              (MGEC__OFFSET2_BEGIN - 16)          //< Internal use only
+#define MGEC__DATABASE_SCHEMA           (MGEC__OFFSET2_BEGIN - 17)          //< 数据库模式已更改 Database schema has changed
+#define MGEC__SQLITE_TOOBIG             (MGEC__OFFSET2_BEGIN - 18)          //< 字符串或二进制数据太大 String or BLOB exceeds size limit
+#define MGEC__SQLITE_CONSTRAINT         (MGEC__OFFSET2_BEGIN - 19)          //< Abort due to constraint violation
+#define MGEC__SQLITE_MISMATCH           (MGEC__OFFSET2_BEGIN - 20)          //< Data type mismatch
+#define MGEC__SQLITE_MISUSE             (MGEC__OFFSET2_BEGIN - 21)          //< Library used incorrectly
+#define MGEC__SQLITE_NOLFS              (MGEC__OFFSET2_BEGIN - 22)          //< Uses OS features not supported on host
+#define MGEC__DATABASE_AUTH             (MGEC__OFFSET2_BEGIN - 23)          //< Authorization denied
+#define MGEC__SQLITE_FORMAT             (MGEC__OFFSET2_BEGIN - 24)          //< Auxiliary database format error
+#define MGEC__SQLITE_NOTADB             (MGEC__OFFSET2_BEGIN - 26)          //< File opened that is not a database file
+#define MGEC__SQLITE_NOTICE             (MGEC__OFFSET2_BEGIN - 27)          //< Notifications from sqlite3_log()
+#define MGEC__SQLITE_WARNING            (MGEC__OFFSET2_BEGIN - 28)          //< Warnings from sqlite3_log()
+#define MGEC__SQLITE_ROW                (MGEC__OFFSET2_BEGIN - 100)         //< sqlite3_step() has another row ready
+#define MGEC__SQLITE_DONE               (MGEC__OFFSET2_BEGIN - 101)         //< sqlite3_step() has finished executing
 
 
 

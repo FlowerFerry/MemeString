@@ -6,6 +6,7 @@
 
 #include <meme/utf/default_converter.h>
 #include <mego/thrd/call_once.h>
+#include <mego/err/ec.h>
 
 #if MEGO_THR__PTHREADS_AVAILABLE
 # include <pthread.h>
@@ -82,7 +83,7 @@ MEME_STDCALL mmutf_set_converter(volatile mmutf_converter_t* _converter)
 {
     MemeInteger_t p;
     if (_converter == NULL) {
-        return MMENO__POSIX_OFFSET(EINVAL);
+        return (MGEC__INVAL);
     }
     p = (MemeInteger_t)_converter;
     MemeAtomicInteger_store(__mmutf_get_converter_pointer(), p);

@@ -91,6 +91,11 @@ extern "C" {
     
 #endif
     
+inline int mgu_get_executable_path(char* _out, int _capacity, int* _dirname_pos)
+{
+    return MegoUtil_GetExecutablePath(_out, _capacity, _dirname_pos);
+}
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus
