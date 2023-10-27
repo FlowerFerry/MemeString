@@ -2,6 +2,7 @@
 #ifndef MEGOPP_ERR_HPP_INCLUDED
 #define MEGOPP_ERR_HPP_INCLUDED
 
+
 #include <mego/err/ec.h>
 
 #include <memepp/string.hpp>
@@ -116,6 +117,7 @@ struct err
 class err : public std::exception 
 {
 public:
+
     using func_info = detail::err::func_info;
 
     err ():
@@ -187,6 +189,7 @@ public:
 
     mgec_t code() const noexcept;
     const memepp::string &message () const noexcept;
+
     memepp::string solution() const noexcept;
 
     bool has_func_info() const noexcept;
@@ -202,6 +205,7 @@ public:
     void set_next(const err &e);
     void set_message(const memepp::string &message);
     void set_solution(const memepp::string &solution);
+
     void set_func_info(const func_info &info);
     void set_user_data(const std::shared_ptr<void> &data);
 

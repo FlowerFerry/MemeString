@@ -155,10 +155,12 @@ inline mgec_t mgec__from_posix_err(int _posix_err);
 #define MGEC__NOTRECOVERABLE            (MGEC__POSIX_OFFSET_BEGIN - 131)    //< 状态不可恢复 State not recoverable
 #define MGEC__RFKILL                    (MGEC__POSIX_OFFSET_BEGIN - 132)    //< 被 RF 锁杀死 Operation not possible due to RF-kill
 #define MGEC__HWPOISON                  (MGEC__POSIX_OFFSET_BEGIN - 133)    //< 硬件错误 Memory page has hardware error
+
 #define MGEC__WOULDBLOCK                (MGEC__POSIX_OFFSET_BEGIN - 134)    //< 操作将阻塞 Operation would block
 
 #define MGEC__INVALID_FUNC              (MGEC__OFFSET1_BEGIN - 1)           //< 无效的函数 Invalid function
 #define MGEC__PATH_NOT_FOUND            (MGEC__OFFSET1_BEGIN - 3)           //< 路径不存在 The system cannot find the path specified
+
 #define MGEC__INVALID_HANDLE            (MGEC__OFFSET1_BEGIN - 6)           //< 无效的句柄 The handle is invalid
 #define MGEC__BAD_ENVIRONMENT           (MGEC__OFFSET1_BEGIN - 10)          //< 环境错误 The environment is incorrect
 #define MGEC__INVALID_DATA              (MGEC__OFFSET1_BEGIN - 13)          //< 数据无效 The data is invalid
@@ -169,6 +171,7 @@ inline mgec_t mgec__from_posix_err(int _posix_err);
 #define MGEC__CRC                       (MGEC__OFFSET1_BEGIN - 20)          //< CRC 错误 
 #define MGEC__SEEK                      (MGEC__OFFSET1_BEGIN - 25)          //< 寻找错误 The drive cannot locate a specific area or track on the disk
 #define MGEC__DISK_ACCESS_DENIED        (MGEC__OFFSET1_BEGIN - 26)          //< 磁盘访问被拒绝 Access to the specified drive is denied
+
 #define MGEC__SECTOR_NOT_FOUND          (MGEC__OFFSET1_BEGIN - 27)          //< 找不到扇区 The drive cannot find the sector requested
 #define MGEC__OUT_OF_PAPER              (MGEC__OFFSET1_BEGIN - 28)          //< 打印机缺纸 The printer is out of paper
 #define MGEC__WRITE_FAULT               (MGEC__OFFSET1_BEGIN - 29)          //< 写入错误 The system cannot write to the specified device
@@ -250,6 +253,7 @@ inline mgec_t mgec__from_posix_err(int _posix_err);
 #define MGEC__SQLITE_WARNING            (MGEC__OFFSET2_BEGIN - 28)          //< Warnings from sqlite3_log()
 #define MGEC__SQLITE_ROW                (MGEC__OFFSET2_BEGIN - 100)         //< sqlite3_step() has another row ready
 #define MGEC__SQLITE_DONE               (MGEC__OFFSET2_BEGIN - 101)         //< sqlite3_step() has finished executing
+
 
 
 #endif // !MEGO_ERROR_CODE_H_INCLUDED
