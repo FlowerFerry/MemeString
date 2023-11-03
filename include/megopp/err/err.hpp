@@ -110,6 +110,7 @@ struct err
     std::unique_ptr<memepp::string> solution_;
     std::unique_ptr<func_info> func_info_;
 
+    std::shared_ptr<detail::err> next_;
     std::shared_ptr<void> data_;
 };
 }; // namespace detail  
@@ -156,32 +157,27 @@ public:
         impl_{ impl }
     {}
 
-    err (const std::shared_ptr<detail::err> &impl, const std::shared_ptr<detail::err> &next):
-        impl_{ impl },
-        next_{ next }
-    {}
+    // err (const std::shared_ptr<detail::err> &impl, const std::shared_ptr<detail::err> &next):
+    //     impl_{ impl }
+    // {}
 
     err (const err &e):
-        impl_{ e.impl_ },
-        next_{ e.next_ }
+        impl_{ e.impl_ }
     {}
 
     err (err &&e) noexcept:
-        impl_{ std::move(e.impl_) },
-        next_{ std::move(e.next_) }
+        impl_{ std::move(e.impl_) }
     {}
 
     err &operator=(const err &e)
     {
         impl_ = e.impl_;
-        next_ = e.next_;
         return *this;
     }
 
     err &operator=(err &&e) noexcept
     {
         impl_ = std::move(e.impl_);
-        next_ = std::move(e.next_);
         return *this;
     }
 
@@ -202,7 +198,7 @@ public:
     bool ok() const noexcept;
     explicit operator bool() const noexcept;
 
-    void set_next(const err &e);
+    void set_last(const err &e);
     void set_message(const memepp::string &message);
     void set_solution(const memepp::string &solution);
 
@@ -222,7 +218,6 @@ public:
     }
 private:
     std::shared_ptr<detail::err> impl_;
-    std::shared_ptr<detail::err> next_;
 };
 
     inline const char* err::what() const noexcept
@@ -262,13 +257,14 @@ private:
 
     inline err err::copy() const
     {
-        auto impl = impl_;
-        return { std::make_shared<detail::err>(*impl), next_ };
+        auto impl = std::make_shared<detail::err>(*impl_);
+        impl->next_ = nullptr;
+        return { impl };
     }
     
     inline err err::next() const
     {
-        auto next = next_;
+        auto next = impl_->next_;
         return next ? err{ next } : make_ok();
     }
 
@@ -282,10 +278,20 @@ private:
         return !ok();
     }
 
-    inline void err::set_next(const err &e)
+    inline void err::set_last(const err &e)
     {
-        if (impl_ != e.impl_)
-            next_  = e.impl_;
+        auto inner = impl_;
+        if (inner == e.impl_) {
+            return;
+        }
+
+        while (inner->next_) {
+            if (inner->next_ == e.impl_) 
+                return;
+            
+            inner = inner->next_;
+        }
+        inner->next_ = e.impl_;
     }
 
     inline void err::set_message(const memepp::string &message)
