@@ -285,6 +285,11 @@ private:
             return;
         }
 
+        if (ok()) {
+            *this = e;
+            return;
+        }
+
         while (inner->next_) {
             if (inner->next_ == e.impl_) 
                 return;
