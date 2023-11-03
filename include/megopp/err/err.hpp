@@ -280,6 +280,10 @@ private:
 
     inline void err::set_last(const err &e)
     {
+        if (!e) {
+            return;
+        }
+
         auto inner = impl_;
         if (inner == e.impl_) {
             return;
