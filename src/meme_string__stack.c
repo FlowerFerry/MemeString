@@ -770,6 +770,9 @@ MEME_API mmsstk_t MEME_STDCALL MemeStringStack_getRepeat(
 		return stack;
 	}
 	
+	if (_len < 0)
+        _len = strlen(_s);
+
     for (; _count > 0; --_count) {
 		result = MemeVariableBuffer_appendWithBytes((mmvb_t)&vb, (const mmbyte_t*)_s, _len);
 		if (result) {
@@ -806,6 +809,11 @@ MEME_API mmsstk_t MEME_STDCALL MemeStringStack_replace(
 	//mmint_t pos = 0;
 
     assert(_s != NULL && MemeStringStack_replace);
+
+    if (_from_len < 0)
+        _from_len = strlen(_from);
+    if (_to_len < 0)
+        _to_len = strlen(_to);
 
     it = MemeString_byteData(s);
     end = it + MemeString_byteSize(s);
