@@ -257,6 +257,12 @@ MEME_STDCALL MemeString_indexOfWithUtf8bytes(
 		MemeFlag_CaseSensitivity_t _cs);
 
 MEME_API MemeInteger_t
+MEME_STDCALL MemeString_indexOfWithUtf8bytesAndSizeLimit(
+		mms_const_t _s, mmint_t _offset, mmint_t _limit,
+		const mmbyte_t* _needle, mmint_t _needle_len,
+		MemeFlag_CaseSensitivity_t _cs);
+
+MEME_API MemeInteger_t
 MEME_STDCALL MemeString_indexOfWithByte(
 	MemeString_Const_t _s, MemeInteger_t _offset, MemeByte_t _byte,
 	MemeFlag_CaseSensitivity_t _cs);

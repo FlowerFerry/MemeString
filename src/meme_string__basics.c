@@ -682,6 +682,32 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_indexOfWithUtf8bytes(
 	return index == -1 ? -1 : _offset + index;
 }
 
+MEME_API MemeInteger_t MEME_STDCALL MemeString_indexOfWithUtf8bytesAndSizeLimit(
+	mms_const_t _s, mmint_t _offset, mmint_t _limit, 
+	const mmbyte_t* _needle, mmint_t _needle_len, MemeFlag_CaseSensitivity_t _cs)
+{
+    const char* pointer;
+    mmint_t count;
+    mmint_t index = -1;
+
+    pointer = MemeString_cStr(_s);
+    count = MemeString_byteSize(_s);
+
+    if (_offset < 0)
+        _offset = 0;
+    if (_offset >= count)
+        return -1;
+
+    if (_limit < 0)
+        _limit = count - _offset;
+    if (_limit > count - _offset)
+        _limit = count - _offset;
+
+    index = MemeImpl_SearchByBoyerMooreWithSensitivity(
+        (const mmbyte_t*)(pointer + _offset), _limit, _needle, _needle_len, _cs);
+    return index == -1 ? -1 : _offset + index;
+}
+
 MEME_API MemeInteger_t MEME_STDCALL MemeString_indexOfWithOther(
 	MemeString_Const_t _s, MemeInteger_t _offset,
 	MemeString_Const_t _other, MemeFlag_CaseSensitivity_t _cs)

@@ -182,4 +182,8 @@ EXPORTS
     MemeStringStack_formatInCstyle @177
     MemeString_checkHeadTailMemory @178
     MemeString_compare @179
-    
+    MemeStringStack_initByRune @180
+    MemeStringStack_getRepeat @181
+    MemeStringStack_replace @182
+    MemeString_indexOfWithUtf8bytesAndSizeLimit @183
+    MemeString_splitByCondByteFunc @184
