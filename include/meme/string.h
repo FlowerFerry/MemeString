@@ -44,7 +44,7 @@ MEME_STDCALL MemeStringStack_initByBuffer(
 
 MEME_API int
 	MEME_STDCALL MemeStringStack_initByRune(
-		MemeStringStack_t* _out, size_t _object_size, MemeInteger_t _count, MemeRune_t _ch);
+		mmsstk_t* _out, size_t _object_size, mmint_t _count, MemeRune_t _ch);
 
 MEME_API int
 	MEME_STDCALL MemeStringStack_initByU8bytes(
@@ -124,15 +124,15 @@ MEME_STDCALL MemeStringStack_trimByCondByteFunc(
 //! MemeStringStack_t s = MemeStringStack_getRepeat(MEME_STRING__OBJECT_SIZE, 3, "abc", 3);
 //! // s is "abcabcabc";
 //! \endcode
-MEME_API MemeStringStack_t
+MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_getRepeat(
-	size_t _object_size, MemeInteger_t _count, const char* _s, MemeInteger_t _len);
+	size_t _object_size, mmint_t _count, const char* _s, mmint_t _len);
 
-MEME_API MemeStringStack_t
+MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_replace(
-    const MemeStringStack_t* _s, size_t _object_size,
-    const char* _from, MemeInteger_t _from_len,
-    const char* _to, MemeInteger_t _to_len, MemeInteger_t _max_count);
+    const mmsstk_t* _s, size_t _object_size,
+    const char* _from, mmint_t _from_len,
+    const char* _to, mmint_t _to_len, mmint_t _max_count);
 
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_toValidUtf8(
@@ -184,8 +184,8 @@ MEME_API MemeString_Storage_t
 MEME_API int 
 	MEME_STDCALL MemeString_create(MemeString_t* _out);
 
-MEME_API int 
-	MEME_STDCALL MemeString_createWithType(MemeString_t* _out, MemeString_Storage_t);
+//MEME_API int 
+//	MEME_STDCALL MemeString_createWithType(MemeString_t* _out, MemeString_Storage_t);
 
 MEME_API int 
 	MEME_STDCALL MemeString_createByOther(MemeString_t* _out, MemeString_Const_t _other);
@@ -341,14 +341,14 @@ MEME_API MemeInteger_t
 //! ...
 //! 
 //! \endcode
-MEME_API MemeInteger_t
+MEME_API mmint_t
 	MEME_STDCALL MemeString_splitByCondByteFunc
 	(
-		MemeString_Const_t _s,
+		mms_const_t _s,
 		MemeString_MatchCondByteFunc_t* _cond_func, void* _user_data,
-		MemeStringStack_t* MEGO_SYMBOL__RESTRICT _out, 
-		MemeInteger_t* MEGO_SYMBOL__RESTRICT _out_count,
-		MemeInteger_t* MEGO_SYMBOL__RESTRICT _search_index
+		mmsstk_t* MEGO_SYMBOL__RESTRICT _out,
+		mmint_t * MEGO_SYMBOL__RESTRICT _out_count,
+		mmint_t * MEGO_SYMBOL__RESTRICT _search_index
 	);
 
 MEME_API MemeInteger_t

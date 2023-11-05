@@ -232,6 +232,11 @@ MEME_API int MEME_STDCALL MemeString_destroy(MemeString_t* _out)
     return result;
 }
 
+MEME_API int MEME_STDCALL MemeString_assign(MemeString_t _s, MemeString_Const_t _other)
+{
+	return MemeStringStack_assign((mmsstk_t*)_s, MMS__OBJECT_SIZE, _other);
+}
+
 MEME_API int MEME_STDCALL MemeString_swap(MemeString_t _lhs, MemeString_t _rhs)
 {
 	assert(_lhs);
@@ -935,6 +940,76 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_split(
 			*_search_index = -1;
 		return 0;
 	}
+}
+
+MEME_API mmint_t MEME_STDCALL MemeString_splitByCondByteFunc(
+	mms_const_t _s, MemeString_MatchCondByteFunc_t* _cond_func, void* _user_data, 
+	mmsstk_t* MEGO_SYMBOL__RESTRICT _out, 
+	mmint_t* MEGO_SYMBOL__RESTRICT _out_count, 
+	mmint_t* MEGO_SYMBOL__RESTRICT _search_index)
+{
+    int result = 0;
+    mmint_t last_index = (_search_index == NULL ? 0 : *_search_index);
+    mmint_t curr_index = -1;
+    mmint_t output_index = 0;
+
+    assert(_s != NULL && MemeString_splitByCondByteFunc);
+    assert(_out != NULL && MemeString_splitByCondByteFunc);
+    assert(_out_count != NULL && MemeString_splitByCondByteFunc);
+
+    if (*_out_count < 1)
+        return (MGEC__INVAL);
+
+    while (output_index < *_out_count)
+    {
+        curr_index =
+            MemeString_indexByCondByteFunc(
+                _s, last_index, _cond_func, _user_data);
+        if (curr_index == -1) {
+            if (last_index < MemeString_byteSize(_s))
+            {
+                MemeStringStack_initByU8bytes(_out + output_index,
+                    MEME_STRING__OBJECT_SIZE, MemeString_byteData(_s) + last_index,
+                    MemeString_byteSize(_s) - last_index);
+                *_out_count = output_index + 1;
+            }
+            else {
+                *_out_count = output_index;
+            }
+            if (_search_index)
+                *_search_index = -1;
+            return 0;
+        }
+
+        if ((curr_index - last_index) == 0)
+        {
+            last_index += 1;
+            continue;
+        }
+
+        result = MemeStringStack_initByU8bytes(_out + output_index,
+            MEME_STRING__OBJECT_SIZE, MemeString_byteData(_s) + last_index, curr_index - last_index);
+        if (result != 0) {
+            for (mmint_t i = 0; i < output_index; ++i)
+                MemeStringStack_unInit(_out + i, MMS__OBJECT_SIZE);
+            return result;
+        }
+        last_index = curr_index + 1;
+        ++output_index;
+    }
+
+    *_out_count = output_index;
+    if (last_index < MemeString_byteSize(_s))
+    {
+        if (_search_index)
+            *_search_index = last_index;
+        return 0;
+    }
+    else {
+        if (_search_index)
+            *_search_index = -1;
+        return 0;
+    }
 }
 
 MEME_API MemeInteger_t
