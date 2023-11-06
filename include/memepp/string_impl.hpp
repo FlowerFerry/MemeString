@@ -301,11 +301,11 @@ namespace memepp {
             to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), -1, case_sensitivity_t::all_sensitive);
     }
 
-    //MEMEPP__IMPL_INLINE string::size_type string::find(const char* _utf8, size_type _pos, size_type _count) const noexcept
-    //{
-    //    return MemeString_indexOfWithUtf8bytes(
-    //        to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), -1, case_sensitivity_t::all_sensitive);
-    //}
+    MEMEPP__IMPL_INLINE string::size_type string::find(const char* _utf8, size_type _pos, size_type _count) const noexcept
+    {
+        return MemeString_indexOfWithUtf8bytes(
+            to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), _count, case_sensitivity_t::all_sensitive);
+    }
     
     MEMEPP__IMPL_INLINE string::size_type string::find(const_pointer _utf8, size_type _pos) const noexcept
     {
@@ -313,11 +313,11 @@ namespace memepp {
             to_pointer(native_handle()), _pos, _utf8, -1, case_sensitivity_t::all_sensitive);
     }
 
-    //MEMEPP__IMPL_INLINE string::size_type string::find(const_pointer _utf8, size_type _pos, size_type _count) const noexcept
-    //{
-    //    return MemeString_indexOfWithUtf8bytes(
-    //        to_pointer(native_handle()), _pos, _utf8, -1, case_sensitivity_t::all_sensitive);
-    //}
+    MEMEPP__IMPL_INLINE string::size_type string::find(const_pointer _utf8, size_type _pos, size_type _count) const noexcept
+    {
+        return MemeString_indexOfWithUtf8bytes(
+            to_pointer(native_handle()), _pos, _utf8, _count, case_sensitivity_t::all_sensitive);
+    }
     
 	MEMEPP__IMPL_INLINE string::size_type string::find(char _ch, size_type _pos) const noexcept
 	{
@@ -337,11 +337,11 @@ namespace memepp {
             to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), -1, case_sensitivity_t::all_sensitive);
 	}
 
-    //MEMEPP__IMPL_INLINE string::size_type string::rfind(const char* _utf8, size_type _pos, size_type _count) const noexcept
-    //{
-    //    return MemeString_lastIndexOfWithUtf8bytes(
-    //        to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), -1, case_sensitivity_t::all_sensitive);
-    //}
+    MEMEPP__IMPL_INLINE string::size_type string::rfind(const char* _utf8, size_type _pos, size_type _count) const noexcept
+    {
+        return MemeString_lastIndexOfWithUtf8bytes(
+            to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), _count, case_sensitivity_t::all_sensitive);
+    }
 
     MEMEPP__IMPL_INLINE string::size_type string::rfind(const_pointer _utf8, size_type _pos) const noexcept
     {
@@ -349,11 +349,11 @@ namespace memepp {
             to_pointer(native_handle()), _pos, _utf8, -1, case_sensitivity_t::all_sensitive);
     }
 
-    //MEMEPP__IMPL_INLINE string::size_type string::rfind(const_pointer _utf8, size_type _pos, size_type _count) const noexcept
-    //{
-    //    return MemeString_lastIndexOfWithUtf8bytes(
-    //        to_pointer(native_handle()), _pos, _utf8, -1, case_sensitivity_t::all_sensitive);
-    //}
+    MEMEPP__IMPL_INLINE string::size_type string::rfind(const_pointer _utf8, size_type _pos, size_type _count) const noexcept
+    {
+        return MemeString_lastIndexOfWithUtf8bytes(
+            to_pointer(native_handle()), _pos, _utf8, _count, case_sensitivity_t::all_sensitive);
+    }
     
     MEMEPP__IMPL_INLINE string::size_type string::rfind(const rune& _ch, size_type _pos) const noexcept
     {
