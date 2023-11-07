@@ -357,6 +357,9 @@ MEME_API mmint_t
 		mmint_t * MEGO_SYMBOL__RESTRICT _search_index
 	);
 
+MEME_API mmint_t
+MEME_STDCALL MemeString_writeBytes(mms_const_t _s, mmint_t _offset, mmint_t _count, mmbyte_t* _out);
+
 MEME_API MemeInteger_t
 MEME_STDCALL MemeString_writeU16Chars(mms_const_t _s, uint16_t* _out);
 

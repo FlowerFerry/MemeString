@@ -176,10 +176,11 @@
     <ClInclude Include="..\..\..\include\memepp\convert\uvw.hpp" />
     <ClInclude Include="..\..\..\include\memepp\errc.hpp" />
     <ClInclude Include="..\..\..\include\memepp\hash\std_hash.hpp" />
-    <ClInclude Include="..\..\..\include\memepp\iterator_basic.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\iterator.hpp" />
     <ClInclude Include="..\..\..\include\memepp\operation\std\string.hpp" />
     <ClInclude Include="..\..\..\include\memepp\operation\std\string_view.hpp" />
     <ClInclude Include="..\..\..\include\memepp\predef\macro_option.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\rune_iterator.hpp" />
     <ClInclude Include="..\..\..\include\memepp\split\self.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string_def.hpp" />

@@ -1038,6 +1038,25 @@ MEME_API mmint_t MEME_STDCALL MemeString_splitByCondByteFunc(
     }
 }
 
+MEME_API mmint_t MEME_STDCALL MemeString_writeBytes(
+	mms_const_t _s, mmint_t _offset, mmint_t _count, mmbyte_t* _out)
+{
+    assert(_s   != NULL && MemeString_writeBytes);
+    assert(_out != NULL && MemeString_writeBytes);
+
+	if (_offset < 0)
+        _offset = 0;
+	if (_offset >= MemeString_byteSize(_s))
+		return (MGEC__INVAL);
+    if (_count < 0)
+        _count = MemeString_byteSize(_s) - _offset;
+    if (_count + _offset > MemeString_byteSize(_s))
+        _count = MemeString_byteSize(_s) - _offset;
+
+    memcpy(_out, MemeString_byteData(_s) + _offset, _count);
+    return 0;
+}
+
 MEME_API MemeInteger_t
 MEME_STDCALL MemeString_writeU16Chars(mms_const_t _s, uint16_t* _out)
 {

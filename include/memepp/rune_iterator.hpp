@@ -146,12 +146,12 @@ namespace memepp {
             return !(*this == _other);
         }
 
-        MemeRuneIndex_t to_index() const noexcept
+        rune_index to_index() const noexcept
         {
             if (curr_size_ == invalid_size)
                 curr_size_ = mmutf_u8rune_valid(ptr_, end_ - ptr_);
             
-            return { curr_size_, ptr_ };
+            return { ptr_, curr_size_ };
         }
 
         rune to_rune() const noexcept

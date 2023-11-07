@@ -91,6 +91,12 @@ namespace memepp {
     { 
         return MemeRune_isMulitChar(&data_); 
     }
+
+    MEMEPP__IMPL_INLINE rune_index::rune_index(const_pointer _u8, size_type _size)
+    {
+        data_.data = _u8;
+        data_.size = _size;
+    }
 };
 
 #endif // !MEMEPP_RUNE_IMPL_HPP_INCLUDED

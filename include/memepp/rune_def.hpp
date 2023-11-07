@@ -52,6 +52,22 @@ namespace memepp {
 		MemeRune_t data_;
 	};
 
+	class rune_index
+	{
+	public:
+		using value_type = MemeByte_t;
+		using size_type = MemeInteger_t;
+		using difference_type = ptrdiff_t;
+		using reference = value_type&;
+		using const_reference = const value_type&;
+		using pointer = value_type*;
+		using const_pointer = const value_type*;
+		
+		MEMEPP__IMPL_INLINE rune_index(const_pointer _u8, size_type _size);
+
+	private:
+		MemeRuneIndex_t data_;
+	};
 };
 
 #endif // !MEMEPP_RUNE_DEF_HPP_INCLUDED
