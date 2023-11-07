@@ -42,7 +42,7 @@ namespace memepp {
         return MemeRune_size(&data_);
     }
 
-    MEMEPP__IMPL_INLINE size_t rune::length() const noexcept
+    MEMEPP__IMPL_INLINE size_t rune::char_size() const noexcept
     {
         return static_cast<size_t>(MemeRune_size(&data_));
     }
@@ -97,6 +97,17 @@ namespace memepp {
         data_.data = _u8;
         data_.size = _size;
     }
+
+    MEMEPP__IMPL_INLINE rune_index::const_pointer rune_index::data() const noexcept
+    {
+        return data_.data;
+    }
+
+    MEMEPP__IMPL_INLINE rune_index::size_type rune_index::size() const noexcept
+    {
+        return data_.size;
+    }
+
 };
 
 #endif // !MEMEPP_RUNE_IMPL_HPP_INCLUDED

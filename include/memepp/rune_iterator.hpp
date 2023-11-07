@@ -123,6 +123,9 @@ namespace memepp {
         
         bool operator==(const const_rune_iterator& _other) const noexcept
         {
+            assert(begin_ == _other.begin_);
+            assert(end_   == _other.end_);
+
             if (curr_size_ == invalid_code) 
             {
                 if (_other.curr_size_ == invalid_code)

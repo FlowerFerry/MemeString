@@ -29,7 +29,7 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE pointer data() noexcept;
 		MEMEPP__IMPL_INLINE const_pointer data() const noexcept;
 		MEMEPP__IMPL_INLINE size_type size() const noexcept;
-		MEMEPP__IMPL_INLINE size_t	length() const noexcept;
+		MEMEPP__IMPL_INLINE size_t	char_size() const noexcept;
 
 		MEMEPP__IMPL_INLINE bool empty() const noexcept;
 		MEMEPP__IMPL_INLINE bool valid() const noexcept;
@@ -65,6 +65,9 @@ namespace memepp {
 		
 		MEMEPP__IMPL_INLINE rune_index(const_pointer _u8, size_type _size);
 
+		MEMEPP__IMPL_INLINE const_pointer data() const noexcept;
+		MEMEPP__IMPL_INLINE size_type size() const noexcept;
+		
 	private:
 		MemeRuneIndex_t data_;
 	};
