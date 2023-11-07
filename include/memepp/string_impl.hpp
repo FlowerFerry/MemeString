@@ -278,6 +278,46 @@ namespace memepp {
         return const_iterator(bytes() + size());
     }
 
+	MEMEPP__IMPL_INLINE const_reverse_iterator string::rbegin() const noexcept
+	{
+        return const_reverse_iterator(bytes() + size() - 1);
+	}
+	
+	MEMEPP__IMPL_INLINE const_reverse_iterator string::crbegin() const noexcept
+	{
+        return const_reverse_iterator(bytes() + size() - 1);
+	}
+
+	MEMEPP__IMPL_INLINE const_reverse_iterator string::rend() const noexcept
+	{
+        return const_reverse_iterator(bytes() - 1);
+	}
+	
+	MEMEPP__IMPL_INLINE const_reverse_iterator string::crend() const noexcept
+	{
+        return const_reverse_iterator(bytes() - 1);
+	}
+
+	MEMEPP__IMPL_INLINE const_rune_iterator string::rune_begin() const noexcept
+	{
+		return const_rune_iterator{ bytes(), bytes() + size() };
+	}
+	
+	MEMEPP__IMPL_INLINE const_rune_iterator string::rune_cbegin() const noexcept
+	{
+		return const_rune_iterator{ bytes(), bytes() + size() };
+	}
+
+	MEMEPP__IMPL_INLINE const_rune_iterator string::rune_end() const noexcept
+	{
+		return const_rune_iterator{ bytes() + size(), bytes(), bytes() + size() };
+	}
+	
+	MEMEPP__IMPL_INLINE const_rune_iterator string::rune_cend() const noexcept
+	{
+		return const_rune_iterator{ bytes() + size(), bytes(), bytes() + size() };
+	}
+
 	MEMEPP__IMPL_INLINE string string::to_large() const noexcept
 	{
         return storage_type() == string_storage_t::large ?

@@ -16,6 +16,12 @@ namespace memepp {
         MemeRune_initByByte(&data_, _ch);
     }
 
+    MEMEPP__IMPL_INLINE rune::rune(const_pointer _u8, size_type _size)
+    {
+        data_ = MemeRune_getInitObject();
+        MemeRune_initByUtf8Bytes(&data_, _u8, _size);
+    }
+
     MEMEPP__IMPL_INLINE rune::rune(const MemeRune_t& _rune)
     {
         data_ = _rune;

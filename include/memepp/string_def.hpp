@@ -11,6 +11,7 @@
 #include "memepp/string_builder_fwd.hpp"
 
 #include "memepp/iterator.hpp"
+#include "memepp/rune_iterator.hpp"
 
 namespace memepp {
 
@@ -91,6 +92,18 @@ namespace memepp {
 
 		MEMEPP__IMPL_INLINE const_iterator end() const noexcept;
 		MEMEPP__IMPL_INLINE const_iterator cend() const noexcept;
+
+		MEMEPP__IMPL_INLINE const_reverse_iterator rbegin() const noexcept;
+		MEMEPP__IMPL_INLINE const_reverse_iterator crbegin() const noexcept;
+
+		MEMEPP__IMPL_INLINE const_reverse_iterator rend() const noexcept;
+		MEMEPP__IMPL_INLINE const_reverse_iterator crend() const noexcept;
+
+		MEMEPP__IMPL_INLINE const_rune_iterator rune_begin() const noexcept;
+		MEMEPP__IMPL_INLINE const_rune_iterator rune_cbegin() const noexcept;
+
+		MEMEPP__IMPL_INLINE const_rune_iterator rune_end() const noexcept;
+		MEMEPP__IMPL_INLINE const_rune_iterator rune_cend() const noexcept;
 
         MEMEPP__IMPL_INLINE string to_large() const noexcept;
 

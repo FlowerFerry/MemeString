@@ -23,6 +23,7 @@ namespace memepp {
 
 		MEMEPP__IMPL_INLINE rune();
 		MEMEPP__IMPL_INLINE rune(char _ch);
+        MEMEPP__IMPL_INLINE rune(const_pointer _u8, size_type _size);
 		MEMEPP__IMPL_INLINE rune(const MemeRune_t&);
 
 		MEMEPP__IMPL_INLINE pointer data() noexcept;

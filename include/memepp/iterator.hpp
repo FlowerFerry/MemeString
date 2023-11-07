@@ -137,8 +137,10 @@ namespace memepp {
     {
     public:
         using value_type = MemeByte_t;
-        using reference = const MemeByte_t&;
-        using pointer = const MemeByte_t*;
+        using reference = MemeByte_t&;
+        using pointer = MemeByte_t*;
+        using const_reference = const MemeByte_t&;
+        using const_pointer = const MemeByte_t*;
         using difference_type = MemeInteger_t;
         using iterator_category = std::random_access_iterator_tag;
 
@@ -149,7 +151,7 @@ namespace memepp {
         const_iterator& operator=(const_iterator&&) noexcept = default;
         ~const_iterator() noexcept = default;
 
-        const_iterator(pointer _ptr) noexcept
+        const_iterator(const_pointer _ptr) noexcept
             : p_(_ptr)
         {}
 
@@ -206,17 +208,17 @@ namespace memepp {
             return p_ - _rhs.p_;
         }
 
-        reference operator*() const noexcept
+        const_reference operator*() const noexcept
         {
             return *p_;
         }
 
-        pointer operator->() const noexcept
+        const_pointer operator->() const noexcept
         {
             return p_;
         }
 
-        reference operator[](difference_type _n) const noexcept
+        const_reference operator[](difference_type _n) const noexcept
         {
             return p_[_n];
         }
@@ -252,9 +254,254 @@ namespace memepp {
         }
 
     private:
+        const_pointer p_ = nullptr;
+    };
+
+    class reverse_iterator
+    {
+    public:
+        using value_type = MemeByte_t;
+        using reference = MemeByte_t&;
+        using pointer = MemeByte_t*;
+        using difference_type = MemeInteger_t;
+        using iterator_category = std::random_access_iterator_tag;
+
+        reverse_iterator() noexcept = default;
+        reverse_iterator(const reverse_iterator&) noexcept = default;
+        reverse_iterator(reverse_iterator&&) noexcept = default;
+        reverse_iterator& operator=(const reverse_iterator&) noexcept = default;
+        reverse_iterator& operator=(reverse_iterator&&) noexcept = default;
+        ~reverse_iterator() noexcept = default;
+
+        reverse_iterator(pointer _ptr) noexcept
+            : p_(_ptr)
+        {}
+
+        reverse_iterator& operator++() noexcept
+        {
+            --p_;
+            return *this;
+        }
+
+        reverse_iterator operator++(int) noexcept
+        {
+            reverse_iterator tmp(*this);
+            --p_;
+            return tmp;
+        }
+
+        reverse_iterator& operator--() noexcept
+        {
+            ++p_;
+            return *this;
+        }
+
+        reverse_iterator operator--(int) noexcept
+        {
+            reverse_iterator tmp(*this);
+            ++p_;
+            return tmp;
+        }
+
+        reverse_iterator& operator+=(difference_type _n) noexcept
+        {
+            p_ -= _n;
+            return *this;
+        }
+
+        reverse_iterator operator+(difference_type _n) const noexcept
+        {
+            return reverse_iterator(p_ - _n);
+        }
+
+        reverse_iterator& operator-=(difference_type _n) noexcept
+        {
+            p_ += _n;
+            return *this;
+        }
+
+        reverse_iterator operator-(difference_type _n) const noexcept
+        {
+            return reverse_iterator(p_ + _n);
+        }
+
+        difference_type operator-(const reverse_iterator& _rhs) const noexcept
+        {
+            return _rhs.p_ - p_;
+        }
+
+        reference operator*() const noexcept
+        {
+            return *p_;
+        }
+
+        pointer operator->() const noexcept
+        {
+            return p_;
+        }
+
+        reference operator[](difference_type _n) const noexcept
+        {
+            return p_[-_n];
+        }
+
+        bool operator==(const reverse_iterator& _other) const noexcept
+        {
+            return p_ == _other.p_;
+        }
+
+        bool operator!=(const reverse_iterator& _other) const noexcept
+        {
+            return p_ != _other.p_;
+        }
+
+        bool operator<(const reverse_iterator& _other) const noexcept
+        {
+            return p_ > _other.p_;
+        }
+        
+        bool operator<=(const reverse_iterator& _other) const noexcept
+        {
+            return p_ >= _other.p_;
+        }
+
+        bool operator>(const reverse_iterator& _other) const noexcept
+        {
+            return p_ < _other.p_;
+        }
+
+        bool operator>=(const reverse_iterator& _other) const noexcept
+        {
+            return p_ <= _other.p_;
+        }
+
+    private:
         pointer p_ = nullptr;
     };
 
+    class const_reverse_iterator
+    {
+    public:
+        using value_type = MemeByte_t;
+        using reference = MemeByte_t&;
+        using pointer = MemeByte_t*;
+        using const_reference = const MemeByte_t&;
+        using const_pointer = const MemeByte_t*;
+        using difference_type = MemeInteger_t;
+        using iterator_category = std::random_access_iterator_tag;
+
+        const_reverse_iterator() noexcept = default;
+        const_reverse_iterator(const const_reverse_iterator&) noexcept = default;
+        const_reverse_iterator(const_reverse_iterator&&) noexcept = default;
+        const_reverse_iterator& operator=(const const_reverse_iterator&) noexcept = default;
+        const_reverse_iterator& operator=(const_reverse_iterator&&) noexcept = default;
+        ~const_reverse_iterator() noexcept = default;
+
+        const_reverse_iterator(const_pointer _ptr) noexcept
+            : p_(_ptr)
+        {}
+
+        const_reverse_iterator& operator++() noexcept
+        {
+            --p_;
+            return *this;
+        }
+
+        const_reverse_iterator operator++(int) noexcept
+        {
+            const_reverse_iterator tmp(*this);
+            --p_;
+            return tmp;
+        }
+
+        const_reverse_iterator& operator--() noexcept
+        {
+            ++p_;
+            return *this;
+        }
+
+        const_reverse_iterator operator--(int) noexcept
+        {
+            const_reverse_iterator tmp(*this);
+            ++p_;
+            return tmp;
+        }
+
+        const_reverse_iterator& operator+=(difference_type _n) noexcept
+        {
+            p_ -= _n;
+            return *this;
+        }
+
+        const_reverse_iterator operator+(difference_type _n) const noexcept
+        {
+            return const_reverse_iterator(p_ - _n);
+        }
+
+        const_reverse_iterator& operator-=(difference_type _n) noexcept
+        {
+            p_ += _n;
+            return *this;
+        }
+
+        const_reverse_iterator operator-(difference_type _n) const noexcept
+        {
+            return const_reverse_iterator(p_ + _n);
+        }
+
+        difference_type operator-(const const_reverse_iterator& _rhs) const noexcept
+        {
+            return _rhs.p_ - p_;
+        }
+
+        const_reference operator*() const noexcept
+        {
+            return *p_;
+        }
+
+        const_pointer operator->() const noexcept
+        {
+            return p_;
+        }
+
+        const_reference operator[](difference_type _n) const noexcept
+        {
+            return p_[-_n];
+        }
+
+        bool operator==(const const_reverse_iterator& _other) const noexcept
+        {
+            return p_ == _other.p_;
+        }
+
+        bool operator!=(const const_reverse_iterator& _other) const noexcept
+        {
+            return p_ != _other.p_;
+        }
+
+        bool operator<(const const_reverse_iterator& _other) const noexcept
+        {
+            return p_ > _other.p_;
+        }
+
+        bool operator<=(const const_reverse_iterator& _other) const noexcept
+        {
+            return p_ >= _other.p_;
+        }
+
+        bool operator>(const const_reverse_iterator& _other) const noexcept
+        {
+            return p_ < _other.p_;
+        }
+
+        bool operator>=(const const_reverse_iterator& _other) const noexcept
+        {
+            return p_ <= _other.p_;
+        }
+
+    private:
+        const_pointer p_ = nullptr;
+    };
 }
 
 #endif // !MEMEPP_ITERATORBASIC_HPP_INCLUDED
