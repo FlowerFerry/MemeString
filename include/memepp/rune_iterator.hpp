@@ -35,7 +35,7 @@ namespace memepp {
             , end_(_end)
             , ptr_(_begin)
             , prev_size_(invalid_code)
-            , curr_size_(invalid_size)
+            , curr_size_(_begin < _end ? invalid_size : invalid_code)
         {
         }
         
@@ -43,8 +43,8 @@ namespace memepp {
             : begin_(_begin)
             , end_(_end)
             , ptr_(_ptr)
-            , prev_size_(invalid_size)
-            , curr_size_(_ptr != _end ? invalid_size : invalid_code)
+            , prev_size_((_ptr > _begin && _begin < _end) ? invalid_size : invalid_code)
+            , curr_size_((_ptr < _end   && _begin < _end) ? invalid_size : invalid_code)
         {
         }
 
@@ -89,18 +89,31 @@ namespace memepp {
                 return *this;
             }
             
-            if (prev_size_ == invalid_size) {
-                prev_size_ = get_prev_rune_size(begin_, ptr_);
+            //if (prev_size_ == invalid_code) {
+            //    return *this;
+            //}
+
+            const_pointer index = 0;
+            if (prev_size_ == invalid_size 
+                && (prev_size_ = get_prev_rune_size(begin_, ptr_, &index)) == invalid_code)
+            {
+                if (index) {
+                    ptr_ = index;
+                    curr_size_ = -1;
+                    prev_size_ = invalid_size;
+                }
             }
-
-            if (prev_size_ == invalid_code) {
-                return *this;
+            else {
+                ptr_ -= prev_size_;
+                curr_size_ = prev_size_;
+                const_pointer index = 0;
+                prev_size_ = get_prev_rune_size(begin_, ptr_, &index);
+                if (ptr_ > begin_ && prev_size_ == invalid_code)
+                {
+                    prev_size_ = invalid_size;
+                }
             }
-
-            ptr_ -= prev_size_;
-            curr_size_ = prev_size_;
-            prev_size_ = get_prev_rune_size(begin_, ptr_);
-
+            
             return *this;
         }
 
@@ -126,22 +139,30 @@ namespace memepp {
             assert(begin_ == _other.begin_);
             assert(end_   == _other.end_);
 
-            if (curr_size_ == invalid_code) 
-            {
-                if (_other.curr_size_ == invalid_code)
-                    return true;
-                else
-                    return end_ == _other.ptr_;
-            }
-            if (prev_size_ == invalid_code)
-            {
-                if (_other.prev_size_ == invalid_code)
-                    return true;
-                else
-                    return begin_ == _other.ptr_;
-            }
+            bool is_same = (ptr_ == _other.ptr_);
+            if (!is_same) {
 
-            return ptr_ == _other.ptr_;
+                if (curr_size_ == invalid_code)
+                {
+                    if (_other.curr_size_ == invalid_code)
+                        return true;
+                    else
+                        return end_ == _other.ptr_;
+                }
+                if (prev_size_ == invalid_code)
+                {
+                    if (_other.prev_size_ == invalid_code)
+                        return true;
+                    else
+                        return begin_ == _other.ptr_;
+                }
+                if (_other.curr_size_ == invalid_code)
+                    return ptr_ == _other.end_;
+                if (_other.prev_size_ == invalid_code)
+                    return ptr_ == _other.begin_;
+
+            }
+            return is_same;
         }
 
         bool operator!=(const const_rune_iterator& _other) const noexcept
@@ -149,6 +170,11 @@ namespace memepp {
             return !(*this == _other);
         }
 
+        bool is_valid() const noexcept
+        {
+            return curr_size_ != invalid_code;
+        }
+        
         rune_index to_index() const noexcept
         {
             if (curr_size_ == invalid_size)
@@ -166,23 +192,31 @@ namespace memepp {
         }
 
     private:
-        static int8_t get_prev_rune_size(const_pointer _begin, const_pointer _curr)
+        static int8_t get_prev_rune_size(
+            const_pointer _begin, const_pointer _curr, const_pointer* _prev = nullptr)
         {
             if (_curr <= _begin) {
                 return -1;
             }
-
-            for (auto index = _curr - 1; index >= _begin; --index)
+            
+            auto index = _curr - 1;
+            for (; index >= _begin; --index)
             {
                 if (mmutf_u8rune_char_size(*index) < 0)
                     continue;
                 
                 auto byte_size = mmutf_u8rune_valid(index, _curr - index);
-                if (byte_size < 0)
+                if (byte_size < 0) {
+                    if (_prev)
+                        *_prev = index;
                     break;
+                }
 
                 return byte_size;
             }
+
+            if (index < _begin && _prev)
+                *_prev = _begin;
 
             return -1;
         }
