@@ -6,7 +6,7 @@
 #include "memepp/variable_buffer_def.hpp"
 #include "memepp/string_def.hpp"
 #include "memepp/buffer_def.hpp"
-#include "memepp/buffer_view.hpp"
+#include "memepp/buffer_view_def.hpp"
 #include "memepp/string_view_def.hpp"
 #include <memepp/errc.hpp>
 
