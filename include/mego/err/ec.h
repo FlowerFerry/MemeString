@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEGO_ERROR_CODE_H_INCLUDED
 #define MEGO_ERROR_CODE_H_INCLUDED
 
