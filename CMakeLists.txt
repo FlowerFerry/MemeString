@@ -7,7 +7,9 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # 添加 include 路径
-include_directories(include 3rdparty/cvector/include include_private)
+include_directories(3rdparty/cvector/include include_private)
+
+target_include_directories(meme_string PUBLIC include)
 
 # 添加链接库
 find_package(Threads REQUIRED)
