@@ -8,6 +8,8 @@
 #include <mego/predef/symbol/restrict.h>
 #include <mego/predef/os/windows.h>
 #include <mego/err/ec.h>
+#include <errno.h>
+#include <limits.h>
 
 #ifdef __cplusplus
 extern "C" {
