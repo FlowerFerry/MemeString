@@ -42,8 +42,7 @@ mghw_detect_supported_simd_instructions()
     return MGHW_SIMD_INSTRUCTION__DEFAULT;
 }
 
-#elif 
-
+#else
 
 inline mghw_simd_instruction_t
 mghw_detect_supported_simd_instructions() {
