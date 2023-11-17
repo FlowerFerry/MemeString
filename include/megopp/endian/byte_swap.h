@@ -10,26 +10,11 @@
 
 #include <limits>
 #include <type_traits>
+
 #include "megopp/help/type_traits.h"
+#include "types.h"
 
 namespace megopp {
-
-	enum class endian_t
-	{
-		little_byte = 0,
-		big_byte = 1,
-		little_word = 2,
-		big_word = 3,
-#if   MEGO_ENDIAN__BIG_BYTE
-		native = big_byte
-#elif MEGO_ENDIAN__LITTLE_BYTE
-		native = little_byte
-#elif MEGO_ENDIAN__LITTLE_WORD
-		native = little_word
-#elif MEGO_ENDIAN__BIG_WORD
-		native = big_word
-#endif 
-	};
 
 namespace endian {
 
@@ -84,11 +69,6 @@ namespace endian {
 		memcpy(&value, &_value, sizeof(_value));
 		value = byte_swap_with_size<sizeof(_value)>::convert(value);
 		memcpy(&_value, &value, sizeof(_value));
-
-		//using convert_t = typename type_with_size<sizeof(_value)>::uint*;
-
-		//*(reinterpret_cast<convert_t>(&_value)) = 
-		//	byte_swap_with_size<sizeof(_value)>::convert(*(reinterpret_cast<convert_t>(&_value)));
 
 		return _value;
 	}

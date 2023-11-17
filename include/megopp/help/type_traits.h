@@ -7,10 +7,11 @@
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include <stdint.h>
+#include <type_traits>
 
 namespace megopp {
 
-	template<size_t _bits>
+	template<size_t _bytes>
 	struct type_with_size {};
 
 	template<>
@@ -42,6 +43,12 @@ namespace megopp {
 		typedef uint64_t uint;
 		typedef double   floating;
 	};
+
+	template<size_t _ByteSize>
+	using types_by_size = type_with_size<_ByteSize>;
+
+	template<size_t _BeginBit, size_t _BitSize>
+	using types_by_bit_size = type_with_size<(_BeginBit + _BitSize + 7) / 8>;
 
 } // namespace megopp
 

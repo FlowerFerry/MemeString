@@ -26,8 +26,14 @@ typedef uint32_t mghw_simd_instruction_t;
 #define MGHW_SIMD_INSTRUCTION__PCLMULQDQ (0x1000)
 #define MGHW_SIMD_INSTRUCTION__NEON      (0x2000)
 
-#if MEGO_ARCH__ARM && defined(__ARM_NEON)
+#if defined(__PPC64__)
 
+inline mghw_simd_instruction_t
+mghw_detect_supported_simd_instructions() {
+    return MGHW_SIMD_INSTRUCTION__ALTIVEC;
+}
+
+#elif MEGO_ARCH__ARM && defined(__ARM_NEON)
 
 inline mghw_simd_instruction_t
 mghw_detect_supported_simd_instructions() {
@@ -38,8 +44,49 @@ mghw_detect_supported_simd_instructions() {
 
 inline mghw_simd_instruction_t
 mghw_detect_supported_simd_instructions()
-{
-    return MGHW_SIMD_INSTRUCTION__DEFAULT;
+{ 
+    uint32_t eax;
+    uint32_t ebx = 0;
+    uint32_t ecx = 0;
+    uint32_t edx = 0;
+    uint32_t val = 0x0;
+
+  // EBX for EAX=0x1
+    eax = 0x1;
+    mghw_cpuid(&eax, &ebx, &ecx, &edx);
+
+    if (ecx & MGHW_CPUID_BIT__SSE42) {
+        val |= MGHW_SIMD_INSTRUCTION__SSE42;
+    }
+
+    if (ecx & MGHW_CPUID_BIT__PCLMULQDQ) {
+        val |= MGHW_SIMD_INSTRUCTION__PCLMULQDQ;
+    }
+
+    // ECX for EAX=0x7
+    eax = 0x7;
+    ecx = 0x0; // Sub-leaf = 0
+    mghw_cpuid(&eax, &ebx, &ecx, &edx);
+    if (ebx & MGHW_CPUID_BIT__EBX_AVX2) {
+        val |= MGHW_SIMD_INSTRUCTION__AVX2;
+    }
+    if (ebx & MGHW_CPUID_BIT__EBX_BMI1) {
+        val |= MGHW_SIMD_INSTRUCTION__BMI1;
+    }
+    if (ebx & MGHW_CPUID_BIT__EBX_BMI2) {
+        val |= MGHW_SIMD_INSTRUCTION__BMI2;
+    }
+    if (ebx & MGHW_CPUID_BIT__EBX_AVX512F) {
+        val |= MGHW_SIMD_INSTRUCTION__AVX512F;
+    }
+    if (ebx & MGHW_CPUID_BIT__EBX_AVX512BW) {
+        val |= MGHW_SIMD_INSTRUCTION__AVX512BW;
+    }
+    if (ebx & MGHW_CPUID_BIT__EBX_AVX512DQ) {
+        val |= MGHW_SIMD_INSTRUCTION__AVX512DQ;
+    }
+
+    return val;
 }
 
 #else
