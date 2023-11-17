@@ -222,7 +222,7 @@ namespace megopp {
         }
 
     protected:
-        bit_field_member_private<_BeginBit, _BitSize, _Type, _Endian> data_;
+        data_type data_;
     };
 
 }
