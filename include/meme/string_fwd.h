@@ -20,11 +20,14 @@ typedef const struct _MemeString_t* MemeString_Const_t;
 
 typedef struct _MemeString_t* mms_t;
 typedef const struct _MemeString_t* mms_const_t;
+typedef struct _MemeString_t* mmstr_t;
+typedef const struct _MemeString_t* mmstr_const_t;
 
 typedef struct _MemeRuneIndex_t {
 	MemeInteger_t size;
     const MemeByte_t * data;
 } MemeRuneIndex_t;
+typedef MemeRuneIndex_t mmrune_index_t;
 
 typedef struct _MemeRune_t {
 	MemeByte_t byte[7];
@@ -33,6 +36,7 @@ typedef struct _MemeRune_t {
 		MemeByte_t invalid  : 5;
 	} attr;
 } MemeRune_t;
+typedef MemeRune_t mmrune_t;
 
 typedef MemeInteger_t MemeFlag_CaseSensitivity_t;
 enum _MemeFlag_CaseSensitivity_t 
@@ -82,6 +86,7 @@ typedef struct _MemeStringStack_t {
 	MemeByte_t byte[MEME_STRING__OBJECT_SIZE];
 } MemeStringStack_t;
 typedef MemeStringStack_t mmsstk_t;
+typedef MemeStringStack_t mmstrstk_t;
 
 //#ifndef MMENO__OFFSET
 //#define MMENO__OFFSET (-100000)

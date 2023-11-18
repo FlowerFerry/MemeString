@@ -188,13 +188,13 @@ MEME_API int
 //	MEME_STDCALL MemeString_createWithType(MemeString_t* _out, MemeString_Storage_t);
 
 MEME_API int 
-	MEME_STDCALL MemeString_createByOther(MemeString_t* _out, MemeString_Const_t _other);
+	MEME_STDCALL MemeString_createByOther(mmstr_t* _out, mmstr_const_t _other);
 
 MEME_API int 
-	MEME_STDCALL MemeString_createByRune(MemeString_t* _out, size_t _len, MemeRune_t _ch);
+	MEME_STDCALL MemeString_createByRune(mmstr_t* _out, size_t _len, mmrune_t _ch);
 
 MEME_API int 
-	MEME_STDCALL MemeString_createByUtf8bytes(MemeString_t* _out, const MemeByte_t* _utf8, size_t _len);
+	MEME_STDCALL MemeString_createByUtf8bytes(mmstr_t* _out, const mmbyte_t* _utf8, mmint_t _len);
 
 MEME_API int 
 	MEME_STDCALL MemeString_destroy(MemeString_t* _out);

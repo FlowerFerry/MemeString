@@ -50,17 +50,19 @@ static volatile mmutf_converter_t* __mmutf_get_default_converter()
     return &c;
 }
 
-static volatile MemeAtomicInteger_t* __mmutf_get_converter_pointer()
+static volatile mmint_t* __mmutf_get_converter_pointer()
 {
-    static volatile MemeAtomicInteger_t pointer = 0;
+    static volatile mmint_t pointer = 0;
     return &pointer;
 }
 
 static void __mmutf_startup(void)
 {
-    MemeAtomicInteger_init(
-        __mmutf_get_converter_pointer(), 
-        (MemeInteger_t)__mmutf_get_default_converter());
+    *__mmutf_get_converter_pointer() = (mmint_t)__mmutf_get_default_converter();
+
+    //MemeAtomicInteger_init(
+    //    __mmutf_get_converter_pointer(), 
+    //    (MemeInteger_t)__mmutf_get_default_converter());
 }
 
 MEME_API volatile mmutf_converter_t*
@@ -69,7 +71,8 @@ MEME_STDCALL mmutf_get_best_converter()
     MemeInteger_t p;
     mgthrd_call_once(__mmutf_get_startup_once_flag(), __mmutf_startup);
     
-    p = MemeAtomicInteger_load(__mmutf_get_converter_pointer());
+    p = *__mmutf_get_converter_pointer();
+    //p = MemeAtomicInteger_load(__mmutf_get_converter_pointer());
     if (p == 0) {
         return __mmutf_get_default_converter();
     }
@@ -86,7 +89,8 @@ MEME_STDCALL mmutf_set_converter(volatile mmutf_converter_t* _converter)
         return (MGEC__INVAL);
     }
     p = (MemeInteger_t)_converter;
-    MemeAtomicInteger_store(__mmutf_get_converter_pointer(), p);
+    *__mmutf_get_converter_pointer() = p;
+    //MemeAtomicInteger_store(__mmutf_get_converter_pointer(), p);
     return 0;
 }
 
