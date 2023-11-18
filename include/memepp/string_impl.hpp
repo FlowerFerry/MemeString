@@ -97,7 +97,7 @@ namespace memepp {
 		const char* _utf8, size_type _size, string_storage_t _suggest)
 	{
 		*errc() = MemeStringStack_initByU8bytesAndType(&data_, MEME_STRING__OBJECT_SIZE,
-            reinterpret_cast<const uint8_t*>(_utf8), _size, static_cast<mms_storage_t>(_suggest));
+            reinterpret_cast<const uint8_t*>(_utf8), _size, static_cast<mmstr_strg_t>(_suggest));
 #if !MMOPT__EXCEPTION_DISABLED
 		throw_errc(*errc());
 #endif

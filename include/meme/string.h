@@ -67,7 +67,8 @@ MEME_API int
 MEME_API int
 	MEME_STDCALL MemeStringStack_initWithHexadecimals(
 		mmsstk_t* _out, size_t _object_size,
-		const MemeByte_t* _interval, MemeInteger_t _ivlen, const uint8_t* _hexs, MemeInteger_t _len);
+		const MemeByte_t* _interval, MemeInteger_t _ivlen, 
+		const uint8_t* _hexs, MemeInteger_t _len);
 
 MEME_API int
 	MEME_STDCALL MemeStringStack_unInit(mmsstk_t* _out, size_t _object_size);
@@ -76,7 +77,8 @@ MEME_API int
 	MEME_STDCALL MemeStringStack_reset (mmsstk_t* _out, size_t _object_size);
 
 MEME_API int
-	MEME_STDCALL MemeStringStack_assign(mmsstk_t* _s, size_t _object_size, MemeString_Const_t _other);
+	MEME_STDCALL MemeStringStack_assign(
+		mmsstk_t* _s, size_t _object_size, MemeString_Const_t _other);
 
 MEME_API int
 MEME_STDCALL MemeStringStack_assignByU8bytes(
@@ -194,7 +196,8 @@ MEME_API int
 	MEME_STDCALL MemeString_createByRune(mmstr_t* _out, size_t _len, mmrune_t _ch);
 
 MEME_API int 
-	MEME_STDCALL MemeString_createByUtf8bytes(mmstr_t* _out, const mmbyte_t* _utf8, mmint_t _len);
+	MEME_STDCALL MemeString_createByUtf8bytes(
+		mmstr_t* _out, const mmbyte_t* _utf8, mmint_t _len);
 
 MEME_API int 
 	MEME_STDCALL MemeString_destroy(MemeString_t* _out);
@@ -243,9 +246,11 @@ MEME_API const MemeByte_t*
 	MEME_STDCALL MemeString_at(MemeString_Const_t _s, MemeInteger_t _index);
 
 MEME_API int
-	MEME_STDCALL MemeString_isEqual(MemeString_Const_t _s, const char* _str, MemeInteger_t _len, int* _result);
+	MEME_STDCALL MemeString_isEqual(
+		MemeString_Const_t _s, const char* _str, MemeInteger_t _len, int* _result);
 MEME_API int
-	MEME_STDCALL MemeString_isEqualWithOther(MemeString_Const_t _lhs, MemeString_Const_t _rhs, int* _result);
+	MEME_STDCALL MemeString_isEqualWithOther(
+		MemeString_Const_t _lhs, MemeString_Const_t _rhs, int* _result);
 
 MEME_API int
 MEME_STDCALL MemeString_compare(mms_const_t _s, mms_const_t _other);
@@ -358,7 +363,8 @@ MEME_API mmint_t
 	);
 
 MEME_API mmint_t
-MEME_STDCALL MemeString_writeBytes(mms_const_t _s, mmint_t _offset, mmint_t _count, mmbyte_t* _out);
+MEME_STDCALL MemeString_writeBytes(
+	mms_const_t _s, mmint_t _offset, mmint_t _count, mmbyte_t* _out);
 
 MEME_API MemeInteger_t
 MEME_STDCALL MemeString_writeU16Chars(mms_const_t _s, uint16_t* _out);

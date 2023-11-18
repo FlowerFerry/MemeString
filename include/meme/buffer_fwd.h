@@ -25,6 +25,18 @@ enum _MemeBuffer_UnsafeStorage_t {
 	MemeBuffer_UnsafeStorageType_view = MemeString_UnsafeStorageType_view
 };
 
+typedef MemeBuffer_Storage_t mmbuf_strg_t;
+enum _mmbuf_strg_t {
+    mmbuf_strg_none    = MemeBuffer_StorageType_none,
+    mmbuf_strg_small   = MemeBuffer_StorageType_small,
+    mmbuf_strg_medium  = MemeBuffer_StorageType_medium,
+    mmbuf_strg_large   = MemeBuffer_StorageType_large,
+    mmbuf_strg_user    = MemeBuffer_StorageType_user
+};
+enum _mmbuf_usfstrg_t {
+    mmbuf_usfstrg_view = MemeBuffer_UnsafeStorageType_view
+};
+
 typedef struct _MemeBufferStack_t {
 	MemeByte_t byte[MEME_STRING__OBJECT_SIZE];
 } MemeBufferStack_t, mmbufstk_t;

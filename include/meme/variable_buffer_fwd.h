@@ -25,6 +25,18 @@ enum _MemeVariableBuffer_UnsafeStorage_t {
 	MemeVariableBuffer_UnsafeStorageType_view = MemeString_UnsafeStorageType_view
 };
 
+typedef MemeVariableBuffer_Storage_t mmvb_strg_t;
+enum _mmvb_strg_t {
+    mmvb_strg_none    = MemeVariableBuffer_StorageType_none,
+    mmvb_strg_small   = MemeVariableBuffer_StorageType_small,
+    mmvb_strg_medium  = MemeVariableBuffer_StorageType_medium,
+    mmvb_strg_large   = MemeVariableBuffer_StorageType_large,
+    mmvb_strg_user    = MemeVariableBuffer_StorageType_user
+};
+enum _mmvb_usfstrg_t {
+    mmvb_usfstrg_view = MemeVariableBuffer_UnsafeStorageType_view
+};
+
 typedef struct _MemeVariableBufferStack_t {
 	MemeByte_t byte[MEME_STRING__OBJECT_SIZE];
 } MemeVariableBufferStack_t;

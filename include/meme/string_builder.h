@@ -34,19 +34,23 @@ MEME_API int
 
 MEME_API int
 	MEME_STDCALL MemeStringBuilderStack_swap(
-		MemeStringBuilderStack_t* _builder, MemeStringBuilderStack_t* _other, size_t _builder_size);
+		MemeStringBuilderStack_t* _builder, 
+		MemeStringBuilderStack_t* _other, size_t _builder_size);
 
 MEME_API int
 	MEME_STDCALL MemeStringBuilderStack_release(
-		MemeStringBuilderStack_t* _builder, size_t _builder_size, MemeStringStack_t* _out, size_t _object_size);
+		MemeStringBuilderStack_t* _builder, size_t _builder_size, 
+		MemeStringStack_t* _out, size_t _object_size);
 
 MEME_API int
 	MEME_STDCALL MemeStringBuilderStack_isEqual(
-		const MemeStringBuilderStack_t* _builder, size_t _builder_size, const char* _str, MemeInteger_t _len, int* _result);
+		const MemeStringBuilderStack_t* _builder, size_t _builder_size, 
+		const char* _str, MemeInteger_t _len, int* _result);
 
 MEME_API int
 	MEME_STDCALL MemeStringBuilderStack_isEqualWithString(
-		const MemeStringBuilderStack_t* _builder, size_t _builder_size, MemeString_Const_t _rhs, int* _result);
+		const MemeStringBuilderStack_t* _builder, size_t _builder_size, 
+		MemeString_Const_t _rhs, int* _result);
 
 MEME_API int
 MEME_STDCALL MemeStringBuilder_generate(mmsbldr_const_t _builder, mms_t _out);

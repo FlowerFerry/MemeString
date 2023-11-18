@@ -47,6 +47,8 @@ enum _MemeFlag_CaseSensitivity_t
 	MemeFlag_AllSensitive	= 0xFFFFFFFF
 };
 
+typedef MemeFlag_CaseSensitivity_t mmflag_case_sensit_t;
+
 typedef MemeInteger_t MemeString_Storage_t;
 typedef MemeString_Storage_t mms_storage_t;
 enum _MemeString_Storage_t {
@@ -60,12 +62,26 @@ enum _MemeString_UnsafeStorage_t {
 	MemeString_UnsafeStorageType_view   = 9
 };
 
+typedef MemeString_Storage_t mmstr_strg_t;
+enum _mmstr_strg_t {
+    mmstr_strg_none    = MemeString_StorageType_none,
+    mmstr_strg_small   = MemeString_StorageType_small,
+    mmstr_strg_medium  = MemeString_StorageType_medium,
+    mmstr_strg_large   = MemeString_StorageType_large,
+    mmstr_strg_user    = MemeString_StorageType_user
+};
+enum _mmstr_usfstrg_t {
+    mmstr_usfstrg_view = MemeString_UnsafeStorageType_view
+};
+
 typedef MemeInteger_t MemeFlag_SplitBehavior_t;
 enum _MemeFlag_SplitBehavior_t 
 {
 	MemeFlag_KeepEmptyParts,
 	MemeFlag_SkipEmptyParts
 };
+
+typedef MemeFlag_SplitBehavior_t mmflag_split_behav_t;
 
 typedef int MemeString_MatchCondByteFunc_t(MemeByte_t _ch, void* _user_data);
 

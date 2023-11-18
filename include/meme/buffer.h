@@ -73,10 +73,12 @@ MEME_API MemeInteger_t
 MEME_STDCALL MemeBuffer_size(MemeBuffer_Const_t _s);
 
 MEME_API int
-MEME_STDCALL MemeBuffer_isEqual(MemeBuffer_Const_t _s, const MemeByte_t* _buf, MemeInteger_t _len, int* _result);
+MEME_STDCALL MemeBuffer_isEqual(
+	MemeBuffer_Const_t _s, const MemeByte_t* _buf, MemeInteger_t _len, int* _result);
 
 MEME_API int
-MEME_STDCALL MemeBuffer_isEqualWithOther(MemeBuffer_Const_t _lhs, MemeBuffer_Const_t _rhs, int* _result);
+MEME_STDCALL MemeBuffer_isEqualWithOther(
+	MemeBuffer_Const_t _lhs, MemeBuffer_Const_t _rhs, int* _result);
 
 MEME_API mmint_t
 MEME_STDCALL MemeBuffer_isSharedStorageTypes(mmbuf_const_t _b);

@@ -25,7 +25,8 @@ MEME_API int
 MEME_STDCALL MemeVariableBufferStack_unInit(mmvbstk_t* _out, size_t _object_size);
 
 MEME_API int
-MEME_STDCALL MemeVariableBufferStack_reset(MemeVariableBufferStack_t* _out, size_t _object_size);
+MEME_STDCALL MemeVariableBufferStack_reset(
+	MemeVariableBufferStack_t* _out, size_t _object_size);
 
 MEME_API int
 MEME_STDCALL MemeVariableBufferStack_assign(
@@ -123,7 +124,8 @@ MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_resize(MemeVariableBuffer_t _s, MemeInteger_t _size);
 
 MEME_API MemeInteger_t
-MEME_STDCALL MemeVariableBuffer_resizeWithByte(MemeVariableBuffer_t _s, MemeInteger_t _size, MemeByte_t _byte);
+MEME_STDCALL MemeVariableBuffer_resizeWithByte(
+	MemeVariableBuffer_t _s, MemeInteger_t _size, MemeByte_t _byte);
 
 MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_remove(
