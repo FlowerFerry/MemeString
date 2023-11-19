@@ -98,6 +98,10 @@ typedef int MemeString_MappingConvertFunc_t(MemeRune_t* _ch, void* _user_data);
 #define MMS__OBJECT_SIZE MEME_STRING__OBJECT_SIZE
 #endif
 
+#ifndef MMSTR__OBJ_SIZE
+#define MMSTR__OBJ_SIZE MEME_STRING__OBJECT_SIZE
+#endif
+
 typedef struct _MemeStringStack_t {
 	MemeByte_t byte[MEME_STRING__OBJECT_SIZE];
 } MemeStringStack_t;
