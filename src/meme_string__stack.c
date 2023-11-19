@@ -566,6 +566,42 @@ MemeStringStack_mid(
     return out;
 }
 
+MEME_API mmstrstk_t MEME_STDCALL MemeStringStack_concat(
+	const mmstrstk_t* _s, size_t _object_size, const mmstrstk_t* _other)
+{
+    mmstrstk_t out;
+    mmint_t result  = 0;
+    mmint_t rhsSize = 0;
+    mmint_t lhsSize = 0;
+	
+    assert(_s != NULL && MemeStringStack_concat);
+    assert(_object_size != 0 && MemeStringStack_concat);
+	assert(_other != NULL && MemeStringStack_concat);
+	
+    lhsSize = MemeString_byteSize((mmstr_const_t)_s);
+    rhsSize = MemeString_byteSize((mmstr_const_t)_other);
+	
+    if (lhsSize + rhsSize == 0)
+        return MemeStringStack_getInitObject(_object_size);
+
+	result = MemeStringMedium_initWithCapacity((MemeStringMedium_t*)&out, _object_size,
+		lhsSize + rhsSize);
+    if (result)
+        return MemeStringStack_getInitObject(_object_size);
+	
+	result = MemeVariableBuffer_appendWithBytes(
+		(mmvb_t)&out, MemeString_byteData((mmstr_const_t)_s), lhsSize);
+    if (result)
+        return MemeStringStack_getInitObject(_object_size);
+	
+	result = MemeVariableBuffer_appendWithBytes(
+		(mmvb_t)&out, MemeString_byteData((mmstr_const_t)_other), rhsSize);
+    if (result)
+        return MemeStringStack_getInitObject(_object_size);
+
+    return out;
+}
+
 MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL
 MemeStringStack_toEnUpper(
 	const mmsstk_t* _s, size_t _object_size)

@@ -187,21 +187,16 @@ namespace memepp {
         return *this;
 	}
 
-	MEMEPP__IMPL_INLINE string_builder string::operator+(const string& _other) const
+	MEMEPP__IMPL_INLINE string string::operator+(const string& _other) const
 	{
-		return string_builder{} + *this + _other;
+        return concat(_other);
 	}
 
-	MEMEPP__IMPL_INLINE string_builder string::operator+(const string_view& _other) const
+	MEMEPP__IMPL_INLINE string string::operator+(const string_view& _other) const
 	{
-		return string_builder{} + *this + _other;
+        return concat(_other);
 	}
 	
-	MEMEPP__IMPL_INLINE string_builder string::operator+(const char* _other) const
-	{
-		return string_builder{} + *this + _other;
-	}
-
 	MEMEPP__IMPL_INLINE string_storage_t string::storage_type() const noexcept
 	{
 		return static_cast<string_storage_t>(MemeString_storageType(to_pointer(data_)));
@@ -572,6 +567,22 @@ namespace memepp {
 	MEMEPP__IMPL_INLINE string string::substr(size_type _pos, size_type _count) const noexcept
 	{
         return string(MemeStringStack_mid(&native_handle(), sizeof(data_), _pos, _count));
+	}
+
+	MEMEPP__IMPL_INLINE string string::concat(const string& _other) const noexcept
+	{
+		return string{ MemeStringStack_concat(&native_handle(), sizeof(data_), &_other.native_handle()) };
+	}
+
+	MEMEPP__IMPL_INLINE string string::concat(const string_view& _other) const noexcept
+	{
+        return string{ MemeStringStack_concat(&native_handle(), sizeof(data_), &_other.native_handle()) };
+	}
+
+	MEMEPP__IMPL_INLINE string string::replace(const string_view& _from, const string_view& _to) const noexcept
+	{
+        return string{ MemeStringStack_replace(&native_handle(), sizeof(data_), 
+            _from.data(), _from.size(), _to.data(), _to.size(), -1) };
 	}
 
 	MEMEPP__IMPL_INLINE string string::to_en_upper() const noexcept

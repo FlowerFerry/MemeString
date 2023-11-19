@@ -92,6 +92,10 @@ MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_mid(
 	const mmsstk_t* _s, size_t _object_size, MemeInteger_t _offset, MemeInteger_t _len);
 
+MEME_API mmstrstk_t
+MEME_STDCALL MemeStringStack_concat(
+    const mmstrstk_t* _s, size_t _object_size, const mmstrstk_t* _other);
+
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_toEnUpper(
 	const mmsstk_t* _s, size_t _object_size);

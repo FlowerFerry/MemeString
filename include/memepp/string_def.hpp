@@ -66,9 +66,8 @@ namespace memepp {
 		MEMEPP__IMPL_INLINE string& operator=(const string& _other);
         MEMEPP__IMPL_INLINE string& operator=(const string_builder& _builder);
 
-        MEMEPP__IMPL_INLINE string_builder operator+(const string& _other) const;
-        MEMEPP__IMPL_INLINE string_builder operator+(const string_view& _other) const;
-        MEMEPP__IMPL_INLINE string_builder operator+(const char* _other) const;
+        MEMEPP__IMPL_INLINE string operator+(const string& _other) const;
+        MEMEPP__IMPL_INLINE string operator+(const string_view& _other) const;
 
 		MEMEPP__IMPL_INLINE string_storage_t storage_type() const noexcept;
 
@@ -195,6 +194,11 @@ namespace memepp {
 		//! @returns A substring of this string.
         MEMEPP__IMPL_INLINE string substr(size_type _pos = 0, size_type _count = npos) const noexcept;
 
+        MEMEPP__IMPL_INLINE string concat(const string& _other) const noexcept;
+        MEMEPP__IMPL_INLINE string concat(const string_view& _other) const noexcept;
+
+        MEMEPP__IMPL_INLINE string replace(const string_view& _from, const string_view& _to) const noexcept;
+		
 		template<typename _Func>
 		inline string mapping_convert(_Func&& _func) const;
 

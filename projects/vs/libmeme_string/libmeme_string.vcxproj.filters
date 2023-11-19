@@ -1,0 +1,380 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="头文件\meme">
+      <UniqueIdentifier>{9ae93585-8ba2-44ab-a5a7-c2f2ebba23dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\meme_private">
+      <UniqueIdentifier>{8a3c3573-7db5-479a-aa19-4725c9a40472}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\meme_private\impl">
+      <UniqueIdentifier>{8eca4c07-caaf-4778-8efa-e6cc791e6057}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\src">
+      <UniqueIdentifier>{86f0e6e6-0f9e-4208-81ea-933b479893c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\memepp">
+      <UniqueIdentifier>{b4e2d9a5-1181-49ce-8831-a24e65dd7992}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\memepp\predef">
+      <UniqueIdentifier>{e78d96cd-717a-435d-8172-bdb84e54fca2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\memepp\hash">
+      <UniqueIdentifier>{f60c8747-d3b7-4da8-af99-2922eadec682}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\memepp\convert">
+      <UniqueIdentifier>{8bcc95ef-cdfd-4e3d-bd16-5e45bf575af6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\memepp\convert\std">
+      <UniqueIdentifier>{046ddbba-bf26-40e1-9083-d395b6075227}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\meme\unsafe">
+      <UniqueIdentifier>{77d8220f-5022-4d6b-8971-30741a57ffbc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\memepp\split">
+      <UniqueIdentifier>{69c64013-6dd0-434b-bb10-92d9264dff78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\memepp\convert\qt">
+      <UniqueIdentifier>{05338d6a-c793-4570-b81a-eaffb8d6ae5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\memepp\buf">
+      <UniqueIdentifier>{a360eff5-fb39-4fbc-af6e-c3f805d5720d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\memepp\operation">
+      <UniqueIdentifier>{b8734100-8efc-4848-9621-18d1c4eb686e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\memepp\operation\std">
+      <UniqueIdentifier>{36b2ce1b-5fe0-4690-8210-cbf350170933}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\meme\utf">
+      <UniqueIdentifier>{ad6d18b6-90df-47be-a8f9-0e6b28595500}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\meme_private\impl\utf">
+      <UniqueIdentifier>{77f2be7b-05ba-4da6-86dd-f9d7309faf74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\meme\std">
+      <UniqueIdentifier>{0f2eaaf0-d20a-46db-aa0b-7df541099ae6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="targetver.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\string_fwd.h">
+      <Filter>头文件\meme</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\string_memory.h">
+      <Filter>头文件\meme</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\string_memory_fwd.h">
+      <Filter>头文件\meme</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\common.h">
+      <Filter>头文件\meme</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\string.h">
+      <Filter>头文件\meme</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include_private\meme\impl\string.h">
+      <Filter>头文件\meme_private\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include_private\meme\impl\atomic.h">
+      <Filter>头文件\meme_private\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include_private\meme\impl\atomic_fwd.h">
+      <Filter>头文件\meme_private\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include_private\meme\impl\string_memory.h">
+      <Filter>头文件\meme_private\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\string.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\string_fwd.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\string_impl.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\string_view.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\string_view_fwd.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\string_view_impl.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\string_def.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include_private\meme\impl\string_p__small.h">
+      <Filter>头文件\meme_private\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include_private\meme\impl\string_p__large.h">
+      <Filter>头文件\meme_private\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include_private\meme\impl\string_p__medium.h">
+      <Filter>头文件\meme_private\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\predef\macro_option.hpp">
+      <Filter>头文件\memepp\predef</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\hash\std_hash.hpp">
+      <Filter>头文件\memepp\hash</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include_private\meme\impl\string_p__user.h">
+      <Filter>头文件\meme_private\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\convert\std\vector.hpp">
+      <Filter>头文件\memepp\convert\std</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\convert\std\string.hpp">
+      <Filter>头文件\memepp\convert\std</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\convert\common.hpp">
+      <Filter>头文件\memepp\convert</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\convert\fmt.hpp">
+      <Filter>头文件\memepp\convert</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\unsafe\string_view.h">
+      <Filter>头文件\meme\unsafe</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\string_view_def.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\convert\exprtk_ex.hpp">
+      <Filter>头文件\memepp\convert</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\split\self.hpp">
+      <Filter>头文件\memepp\split</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\convert\qt\string.hpp">
+      <Filter>头文件\memepp\convert\qt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\convert\rapidjson.hpp">
+      <Filter>头文件\memepp\convert</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include_private\meme\impl\algorithm.h">
+      <Filter>头文件\meme_private\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\string_builder.h">
+      <Filter>头文件\meme</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\string_builder_fwd.h">
+      <Filter>头文件\meme</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\string_builder.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\string_builder_def.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\string_builder_fwd.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\string_builder_impl.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include_private\meme\impl\string_builder.h">
+      <Filter>头文件\meme_private\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include_private\meme\impl\buffer.h">
+      <Filter>头文件\meme_private\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\buffer.h">
+      <Filter>头文件\meme</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\buffer_fwd.h">
+      <Filter>头文件\meme</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\buffer.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\buffer_def.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\buffer_fwd.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\buffer_impl.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\variable_buffer.h">
+      <Filter>头文件\meme</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\variable_buffer_fwd.h">
+      <Filter>头文件\meme</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\convert\self.hpp">
+      <Filter>头文件\memepp\convert</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\convert\common_def.hpp">
+      <Filter>头文件\memepp\convert</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\variable_buffer_def.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\variable_buffer_fwd.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\variable_buffer_impl.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\variable_buffer.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\rune_def.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\rune_impl.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\rune_fwd.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\convert\uvw.hpp">
+      <Filter>头文件\memepp\convert</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\rune.h">
+      <Filter>头文件\meme</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\rune.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\errc.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\convert\redis++.hpp">
+      <Filter>头文件\memepp\convert</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\string_templateimpl.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\string_view_templateimpl.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\operation\std\string.hpp">
+      <Filter>头文件\memepp\operation\std</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\operation\std\string_view.hpp">
+      <Filter>头文件\memepp\operation\std</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\unsafe\buffer_view.h">
+      <Filter>头文件\meme\unsafe</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\buffer_view_fwd.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\buffer_view_impl.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\buffer_view_def.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\buffer_view.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\utf\converter.h">
+      <Filter>头文件\meme\utf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\utf\converter_list.h">
+      <Filter>头文件\meme\utf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include_private\meme\impl\utf\converter.h">
+      <Filter>头文件\meme_private\impl\utf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include_private\meme\impl\utf\converter_list.h">
+      <Filter>头文件\meme_private\impl\utf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\utf\converter_fwd.h">
+      <Filter>头文件\meme\utf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\utf\default_converter.h">
+      <Filter>头文件\meme\utf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\utf\u8rune.h">
+      <Filter>头文件\meme\utf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\utf\u16rune.h">
+      <Filter>头文件\meme\utf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\utf\u32rune.h">
+      <Filter>头文件\meme\utf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\utf\u8rune_fwd.h">
+      <Filter>头文件\meme\utf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\utf\u16rune_fwd.h">
+      <Filter>头文件\meme\utf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\utf\u32rune_fwd.h">
+      <Filter>头文件\meme\utf</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\std\string16.h">
+      <Filter>头文件\meme\std</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\convert\std\u16string.hpp">
+      <Filter>头文件\memepp\convert\std</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\rune_iterator.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\iterator.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\meme_string__basics.c">
+      <Filter>源文件\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\meme_atomic__basics.c">
+      <Filter>源文件\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\meme_string__stack.c">
+      <Filter>源文件\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\meme_impl__algorithm.c">
+      <Filter>源文件\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\meme_string_builder.c">
+      <Filter>源文件\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\meme_buffer.c">
+      <Filter>源文件\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\meme_variable_buffer.c">
+      <Filter>源文件\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\meme_rune.c">
+      <Filter>源文件\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\meme_memory.c">
+      <Filter>源文件\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\meme_utf_converter.c">
+      <Filter>源文件\src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="export.def">
+      <Filter>源文件</Filter>
+    </None>
+  </ItemGroup>
+</Project>
