@@ -9,6 +9,7 @@
 #include "megopp/help/type_traits.h"
 
 namespace megopp {
+namespace endian {
 
 	template<size_t _BeginBit, size_t _BitSize, typename _Type, endian_t _Endian>
 	struct bit_field_member_private
@@ -225,6 +226,7 @@ namespace megopp {
         data_type data_;
     };
 
+}    
 }
 
 #endif // !MEGOPP_ENDIAN_BIT_FIELD_MEMBER_H_INCLUDED
