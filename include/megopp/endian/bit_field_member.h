@@ -132,7 +132,7 @@ namespace endian {
             return data_.get_value() == static_cast<uint_type>(_value);
         }
 
-        inline constexpr bool operator!=(_Type _value) const noexcept
+        inline constexpr bool operator!=(const _Type& _value) const noexcept
         {
             return !(*this == _value);
         }
@@ -185,6 +185,31 @@ namespace endian {
             bit_field_member tmp = *this;
             --*this;
             return tmp;
+        }
+
+        inline _Type operator+(const _Type& _value) const noexcept
+        {
+            return data_.get_value() + _value;
+        }
+
+        inline _Type operator-(const _Type& _value) const noexcept
+        {
+            return data_.get_value() - _value;
+        }
+
+        inline _Type operator*(const _Type& _value) const noexcept
+        {
+            return data_.get_value() * _value;
+        }
+
+        inline _Type operator/(const _Type& _value) const noexcept
+        {
+            return data_.get_value() / _value;
+        }
+
+        inline _Type operator%(const _Type& _value) const noexcept
+        {
+            return data_.get_value() % _value;
         }
 
         inline constexpr bit_field_member& operator+=(const _Type& _value) noexcept
