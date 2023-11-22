@@ -124,6 +124,8 @@ namespace endian {
 
         type data_;
     };
+#else
+    #error "not support"
 #endif
 
     
