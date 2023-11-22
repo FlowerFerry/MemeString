@@ -13,8 +13,8 @@ namespace endian {
     {
         using type = _Ty;
 
-        arithmetic_member_private() noexcept {}
-        arithmetic_member_private(type _value) noexcept {}
+        // arithmetic_member_private() noexcept {}
+        // arithmetic_member_private(type _value) noexcept {}
         //arithmetic_member_private(const arithmetic_member_private&) noexcept {}
 
         //inline arithmetic_member_private& operator=(const arithmetic_member_private&) noexcept { return *this; }
@@ -45,15 +45,15 @@ namespace endian {
     {
         using type = _Ty;
 
-        arithmetic_member_private() noexcept :
-            data_(0)
-        {
-        }
+        // arithmetic_member_private() noexcept :
+        //     data_(0)
+        // {
+        // }
 
-        arithmetic_member_private(const type& _value) noexcept :
-            data_()
-        {
-        }
+        // arithmetic_member_private(const type& _value) noexcept :
+        //     data_()
+        // {
+        // }
 
         //arithmetic_member_private(const arithmetic_member_private& _other) noexcept :
         //    data_(_other.data_)
@@ -92,15 +92,15 @@ namespace endian {
         using type = _Ty;
         using uint_type = typename types_by_size<sizeof(_Ty)>::uint;
 
-        arithmetic_member_private() noexcept :
-            data_(0)
-        {
-        }
+        // arithmetic_member_private() noexcept :
+        //     data_(0)
+        // {
+        // }
         
-        arithmetic_member_private(const type& _value) noexcept :
-            data_(byte_swap(_value))
-        {
-        }
+        // arithmetic_member_private(const type& _value) noexcept :
+        //     data_(byte_swap(_value))
+        // {
+        // }
 
         //arithmetic_member_private(const arithmetic_member_private& _other) noexcept :
         //    data_(_other.data_)
@@ -134,11 +134,11 @@ namespace endian {
     {
         using type = _Ty;
         
-        arithmetic_member() noexcept {}
-        arithmetic_member(type _value) noexcept :
-            private_(_value)
-        {
-        }
+        // arithmetic_member() noexcept {}
+        // arithmetic_member(type _value) noexcept :
+        //     private_(_value)
+        // {
+        // }
         
         //arithmetic_member(const arithmetic_member& _other) noexcept :
         //    private_(_other.private_)
