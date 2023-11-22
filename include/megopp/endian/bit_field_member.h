@@ -132,7 +132,8 @@ namespace endian {
             return data_.get_value() == static_cast<uint_type>(_value);
         }
 
-        inline constexpr bool operator!=(const _Type& _value) const noexcept
+        template<typename _Ty>
+        inline constexpr bool operator!=(_Ty _value) const noexcept
         {
             return !(*this == _value);
         }
@@ -187,29 +188,79 @@ namespace endian {
             return tmp;
         }
 
-        inline _Type operator+(const _Type& _value) const noexcept
+        inline constexpr _Type operator+(const _Type& _value) const noexcept
         {
             return data_.get_value() + _value;
         }
 
-        inline _Type operator-(const _Type& _value) const noexcept
+        inline constexpr _Type operator-(const _Type& _value) const noexcept
         {
             return data_.get_value() - _value;
         }
 
-        inline _Type operator*(const _Type& _value) const noexcept
+        inline constexpr _Type operator*(const _Type& _value) const noexcept
         {
             return data_.get_value() * _value;
         }
 
-        inline _Type operator/(const _Type& _value) const noexcept
+        inline constexpr _Type operator/(const _Type& _value) const noexcept
         {
             return data_.get_value() / _value;
         }
 
-        inline _Type operator%(const _Type& _value) const noexcept
+        inline constexpr _Type operator%(const _Type& _value) const noexcept
         {
             return data_.get_value() % _value;
+        }
+
+        inline constexpr _Type operator&(const _Type& _value) const noexcept
+        {
+            return data_.get_value() & _value;
+        }
+
+        inline constexpr _Type operator|(const _Type& _value) const noexcept
+        {
+            return data_.get_value() | _value;
+        }
+
+        inline constexpr _Type operator^(const _Type& _value) const noexcept
+        {
+            return data_.get_value() ^ _value;
+        }
+
+        inline constexpr _Type operator<<(const _Type& _value) const noexcept
+        {
+            return data_.get_value() << _value;
+        }
+
+        inline constexpr _Type operator>>(const _Type& _value) const noexcept
+        {
+            return data_.get_value() >> _value;
+        }
+
+        inline constexpr _Type operator~() const noexcept
+        {
+            return ~ data_.get_value();
+        }
+
+        inline constexpr bool operator<(const _Type& _value) const noexcept
+        {
+            return data_.get_value() < _value;
+        }
+
+        inline constexpr bool operator>(const _Type& _value) const noexcept
+        {
+            return data_.get_value() > _value;
+        }
+
+        inline constexpr bool operator<=(const _Type& _value) const noexcept
+        {
+            return data_.get_value() <= _value;
+        }
+
+        inline constexpr bool operator>=(const _Type& _value) const noexcept
+        {
+            return data_.get_value() >= _value;
         }
 
         inline constexpr bit_field_member& operator+=(const _Type& _value) noexcept
@@ -242,6 +293,24 @@ namespace endian {
             return *this;
         }
 
+        inline constexpr bit_field_member& operator&=(const _Type& _value) noexcept
+        {
+            data_.set_value(data_.get_value() & _value);
+            return *this;
+        }
+
+        inline constexpr bit_field_member& operator|=(const _Type& _value) noexcept
+        {
+            data_.set_value(data_.get_value() | _value);
+            return *this;
+        }
+
+        inline constexpr bit_field_member& operator^=(const _Type& _value) noexcept
+        {
+            data_.set_value(data_.get_value() ^ _value);
+            return *this;
+        }
+
         inline constexpr void reset(uint_type _value = 0) noexcept
         {
             data_.set_value(_value);
@@ -250,6 +319,118 @@ namespace endian {
     protected:
         data_type data_;
     };
+
+    template<size_t _BeginBit, size_t _BitSize, endian_t _Endian, typename _Type>
+    inline constexpr _Type operator+(
+        const _Type& _value, const bit_field_member<_BeginBit, _BitSize, _Endian, _Type>& _member) noexcept
+    {
+        return _value + _member.get_value();
+    }
+
+    template<size_t _BeginBit, size_t _BitSize, endian_t _Endian, typename _Type>
+    inline constexpr _Type operator-(
+        const _Type& _value, const bit_field_member<_BeginBit, _BitSize, _Endian, _Type>& _member) noexcept
+    {
+        return _value - _member.get_value();
+    }
+
+    template<size_t _BeginBit, size_t _BitSize, endian_t _Endian, typename _Type>
+    inline constexpr _Type operator*(
+        const _Type& _value, const bit_field_member<_BeginBit, _BitSize, _Endian, _Type>& _member) noexcept
+    {
+        return _value * _member.get_value();
+    }
+
+    template<size_t _BeginBit, size_t _BitSize, endian_t _Endian, typename _Type>
+    inline constexpr _Type operator/(
+        const _Type& _value, const bit_field_member<_BeginBit, _BitSize, _Endian, _Type>& _member) noexcept
+    {
+        return _value / _member.get_value();
+    }
+
+    template<size_t _BeginBit, size_t _BitSize, endian_t _Endian, typename _Type>
+    inline constexpr _Type operator%(
+        const _Type& _value, const bit_field_member<_BeginBit, _BitSize, _Endian, _Type>& _member) noexcept
+    {
+        return _value % _member.get_value();
+    }
+
+    template<size_t _BeginBit, size_t _BitSize, endian_t _Endian, typename _Type>
+    inline constexpr _Type operator&(
+        const _Type& _value, const bit_field_member<_BeginBit, _BitSize, _Endian, _Type>& _member) noexcept
+    {
+        return _value & _member.get_value();
+    }
+
+    template<size_t _BeginBit, size_t _BitSize, endian_t _Endian, typename _Type>
+    inline constexpr _Type operator|(
+        const _Type& _value, const bit_field_member<_BeginBit, _BitSize, _Endian, _Type>& _member) noexcept
+    {
+        return _value | _member.get_value();
+    }
+
+    template<size_t _BeginBit, size_t _BitSize, endian_t _Endian, typename _Type>
+    inline constexpr _Type operator^(
+        const _Type& _value, const bit_field_member<_BeginBit, _BitSize, _Endian, _Type>& _member) noexcept
+    {
+        return _value ^ _member.get_value();
+    }
+
+    template<size_t _BeginBit, size_t _BitSize, endian_t _Endian, typename _Type>
+    inline constexpr _Type operator<<(
+        const _Type& _value, const bit_field_member<_BeginBit, _BitSize, _Endian, _Type>& _member) noexcept
+    {
+        return _value << _member.get_value();
+    }
+
+    template<size_t _BeginBit, size_t _BitSize, endian_t _Endian, typename _Type>
+    inline constexpr _Type operator>>(
+        const _Type& _value, const bit_field_member<_BeginBit, _BitSize, _Endian, _Type>& _member) noexcept
+    {
+        return _value >> _member.get_value();
+    }
+
+    template<size_t _BeginBit, size_t _BitSize, endian_t _Endian, typename _Type>
+    inline constexpr bool operator==(
+        const _Type& _value, const bit_field_member<_BeginBit, _BitSize, _Endian, _Type>& _member) noexcept
+    {
+        return _value == _member.get_value();
+    }
+
+    template<size_t _BeginBit, size_t _BitSize, endian_t _Endian, typename _Type>
+    inline constexpr bool operator!=(
+        const _Type& _value, const bit_field_member<_BeginBit, _BitSize, _Endian, _Type>& _member) noexcept
+    {
+        return _value != _member.get_value();
+    }
+
+    template<size_t _BeginBit, size_t _BitSize, endian_t _Endian, typename _Type>
+    inline constexpr bool operator<(
+        const _Type& _value, const bit_field_member<_BeginBit, _BitSize, _Endian, _Type>& _member) noexcept
+    {
+        return _value < _member.get_value();
+    }
+
+    template<size_t _BeginBit, size_t _BitSize, endian_t _Endian, typename _Type>
+    inline constexpr bool operator>(
+        const _Type& _value, const bit_field_member<_BeginBit, _BitSize, _Endian, _Type>& _member) noexcept
+    {
+        return _value > _member.get_value();
+    }
+
+    template<size_t _BeginBit, size_t _BitSize, endian_t _Endian, typename _Type>
+    inline constexpr bool operator<=(
+        const _Type& _value, const bit_field_member<_BeginBit, _BitSize, _Endian, _Type>& _member) noexcept
+    {
+        return _value <= _member.get_value();
+    }
+
+    template<size_t _BeginBit, size_t _BitSize, endian_t _Endian, typename _Type>
+    inline constexpr bool operator>=(
+        const _Type& _value, const bit_field_member<_BeginBit, _BitSize, _Endian, _Type>& _member) noexcept
+    {
+        return _value >= _member.get_value();
+    }
 
 }    
 }

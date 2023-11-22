@@ -61,7 +61,7 @@ namespace endian {
 	};
 
 	template<typename _Ty>
-	inline constexpr _Ty byte_swap(_Ty _value) noexcept
+	inline _Ty byte_swap(_Ty _value) noexcept
 	{
 		static_assert(std::is_arithmetic<_Ty>::value, "[megopp::endian::byte_swap] only supports arithmetic types");
 

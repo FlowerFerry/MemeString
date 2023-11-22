@@ -11,7 +11,7 @@ namespace megopp {
 namespace endian {
 
 	template<typename _Ty>
-	inline constexpr _Ty hton(_Ty _v) noexcept
+	inline _Ty hton(_Ty _v) noexcept
 	{
 #if	MEGO_ENDIAN__BIG_BYTE
 		return _v;
@@ -23,7 +23,7 @@ namespace endian {
 	}
 
 	template<typename _Ty>
-	inline constexpr _Ty ntoh(_Ty _v) noexcept
+	inline _Ty ntoh(_Ty _v) noexcept
 	{
 #if	MEGO_ENDIAN__BIG_BYTE
 		return _v;
