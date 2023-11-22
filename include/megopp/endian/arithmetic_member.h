@@ -199,6 +199,42 @@ namespace endian {
             return *this;
         }
         
+        inline arithmetic_member& operator&=(const type& _value) noexcept
+        {
+            set_value(get_value() & _value);
+            return *this;
+        }
+
+        inline arithmetic_member& operator|=(const type& _value) noexcept
+        {
+            set_value(get_value() | _value);
+            return *this;
+        }
+
+        inline arithmetic_member& operator^=(const type& _value) noexcept
+        {
+            set_value(get_value() ^ _value);
+            return *this;
+        }
+
+        inline arithmetic_member& operator<<=(const type& _value) noexcept
+        {
+            set_value(get_value() << _value);
+            return *this;
+        }
+
+        inline arithmetic_member& operator>>=(const type& _value) noexcept
+        {
+            set_value(get_value() >> _value);
+            return *this;
+        }
+
+        inline arithmetic_member& operator%=(const type& _value) noexcept
+        {
+            set_value(get_value() % _value);
+            return *this;
+        }
+
         inline arithmetic_member& operator++() noexcept
         {
             set_value(get_value() + 1);
@@ -243,6 +279,41 @@ namespace endian {
         inline type operator/(const type& _value) const noexcept
         {
             return get_value() / _value;
+        }
+
+        inline type operator%(const type& _value) const noexcept
+        {
+            return get_value() % _value;
+        }
+
+        inline type operator&(const type& _value) const noexcept
+        {
+            return get_value() & _value;
+        }
+
+        inline type operator|(const type& _value) const noexcept
+        {
+            return get_value() | _value;
+        }
+
+        inline type operator^(const type& _value) const noexcept
+        {
+            return get_value() ^ _value;
+        }
+
+        inline type operator~() const noexcept
+        {
+            return ~get_value();
+        }
+
+        inline type operator<<(const type& _value) noexcept
+        {
+            return get_value() << _value;
+        }
+
+        inline type operator>>(const type& _value) noexcept
+        {
+            return get_value() >> _value;
         }
 
         inline bool operator==(const type& _value) const noexcept
@@ -313,6 +384,30 @@ namespace endian {
     inline typename arithmetic_member<_Ty, _Endian>::type operator/(const typename arithmetic_member<_Ty, _Endian>::type& _value1, const arithmetic_member<_Ty, _Endian>& _value2) noexcept
     {
         return _value1 / _value2.get_value();
+    }
+
+    template<typename _Ty, endian_t _Endian>
+    inline typename arithmetic_member<_Ty, _Endian>::type operator%(const typename arithmetic_member<_Ty, _Endian>::type& _value1, const arithmetic_member<_Ty, _Endian>& _value2) noexcept
+    {
+        return _value1 % _value2.get_value();
+    }
+
+    template<typename _Ty, endian_t _Endian>
+    inline typename arithmetic_member<_Ty, _Endian>::type operator&(const typename arithmetic_member<_Ty, _Endian>::type& _value1, const arithmetic_member<_Ty, _Endian>& _value2) noexcept
+    {
+        return _value1 & _value2.get_value();
+    }
+
+    template<typename _Ty, endian_t _Endian>
+    inline typename arithmetic_member<_Ty, _Endian>::type operator|(const typename arithmetic_member<_Ty, _Endian>::type& _value1, const arithmetic_member<_Ty, _Endian>& _value2) noexcept
+    {
+        return _value1 | _value2.get_value();
+    }
+
+    template<typename _Ty, endian_t _Endian>
+    inline typename arithmetic_member<_Ty, _Endian>::type operator^(const typename arithmetic_member<_Ty, _Endian>::type& _value1, const arithmetic_member<_Ty, _Endian>& _value2) noexcept
+    {
+        return _value1 ^ _value2.get_value();
     }
 
     template<typename _Ty, endian_t _Endian>
