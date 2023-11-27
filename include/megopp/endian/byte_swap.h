@@ -54,7 +54,7 @@ namespace endian {
 		{
 			return
 				(static_cast<full_t>(
-					self_half_t::convert(_value & std::numeric_limits<half_t>::max())
+					self_half_t::convert(_value & ::std::numeric_limits<half_t>::max())
 					) << (halfByteSize * CHAR_BIT))
 				| static_cast<full_t>(self_half_t::convert(_value >> (halfByteSize * CHAR_BIT)));
 		}
