@@ -161,10 +161,10 @@ namespace endian {
             return private_.get_value() != 0;
         }
 
-        template<typename _Ty>
-        inline constexpr _Ty as() const noexcept
+        template<typename _Result>
+        inline constexpr _Result as() const noexcept
         {
-            return static_cast<_Ty>(private_.get_value());
+            return static_cast<_Result>(private_.get_value());
         }
         
         inline constexpr type get_value() const noexcept
