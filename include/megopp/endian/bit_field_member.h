@@ -149,13 +149,13 @@ namespace endian {
             return !(*this == _value);
         }
 
-        template<typename size_t _BeginBit2, size_t _BitSize2, endian_t _Endian2, typename _Type2>
+        template<size_t _BeginBit2, size_t _BitSize2, endian_t _Endian2, typename _Type2>
         inline constexpr bool operator==(const bit_field_member<_BeginBit2, _BitSize2, _Endian2, _Type2>& _other) const noexcept
         {
             return data_.get_value() == _other.data_.get_value();
         }
 
-        template<typename size_t _BeginBit2, size_t _BitSize2, endian_t _Endian2, typename _Type2>
+        template<size_t _BeginBit2, size_t _BitSize2, endian_t _Endian2, typename _Type2>
         inline constexpr bool operator!=(const bit_field_member<_BeginBit2, _BitSize2, _Endian2, _Type2>& _other) const noexcept
         {
             return data_.get_value() != _other.data_.get_value();
