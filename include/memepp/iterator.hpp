@@ -375,6 +375,11 @@ namespace memepp {
             return p_ <= _other.p_;
         }
 
+        iterator base() const noexcept
+        {
+            return iterator(p_ + 1);
+        }
+
     private:
         pointer p_ = nullptr;
     };
@@ -499,6 +504,11 @@ namespace memepp {
             return p_ <= _other.p_;
         }
 
+        const_iterator base() const noexcept
+        {
+            return const_iterator(p_ + 1);
+        }
+        
     private:
         const_pointer p_ = nullptr;
     };

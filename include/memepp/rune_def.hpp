@@ -21,27 +21,27 @@ namespace memepp {
 		using const_pointer = const value_type*;
 		static const size_type npos = static_cast<size_type>(-1);
 
-		MEMEPP__IMPL_INLINE rune();
-		MEMEPP__IMPL_INLINE rune(char _ch);
-        MEMEPP__IMPL_INLINE rune(const_pointer _u8, size_type _size);
-		MEMEPP__IMPL_INLINE rune(const MemeRune_t&);
+		rune();
+		rune(char _ch);
+        rune(const_pointer _u8, size_type _size);
+		rune(const MemeRune_t&);
 
-		MEMEPP__IMPL_INLINE pointer data() noexcept;
-		MEMEPP__IMPL_INLINE const_pointer data() const noexcept;
-		MEMEPP__IMPL_INLINE size_type size() const noexcept;
-		MEMEPP__IMPL_INLINE size_t	char_size() const noexcept;
+		pointer data() noexcept;
+		const_pointer data() const noexcept;
+		size_type size() const noexcept;
+		size_t	char_size() const noexcept;
 
-		MEMEPP__IMPL_INLINE bool empty() const noexcept;
-		MEMEPP__IMPL_INLINE bool valid() const noexcept;
+		bool empty() const noexcept;
+		bool valid() const noexcept;
         
-        MEMEPP__IMPL_INLINE iterator begin() noexcept;
-        MEMEPP__IMPL_INLINE const_iterator begin() const noexcept;
-        MEMEPP__IMPL_INLINE const_iterator cbegin() const noexcept;
-        MEMEPP__IMPL_INLINE iterator end() noexcept;
-        MEMEPP__IMPL_INLINE const_iterator end() const noexcept;
-        MEMEPP__IMPL_INLINE const_iterator cend() const noexcept;
+        iterator begin() noexcept;
+        const_iterator begin() const noexcept;
+        const_iterator cbegin() const noexcept;
+        iterator end() noexcept;
+        const_iterator end() const noexcept;
+        const_iterator cend() const noexcept;
 
-		MEMEPP__IMPL_INLINE bool is_multi() const noexcept;
+		bool is_multi() const noexcept;
 		inline bool is_english_char() const noexcept { return !is_multi(); }
 
         inline operator bool() const noexcept { return valid() && !empty(); }
@@ -63,10 +63,10 @@ namespace memepp {
 		using pointer = value_type*;
 		using const_pointer = const value_type*;
 		
-		MEMEPP__IMPL_INLINE rune_index(const_pointer _u8, size_type _size);
+		rune_index(const_pointer _u8, size_type _size);
 
-		MEMEPP__IMPL_INLINE const_pointer data() const noexcept;
-		MEMEPP__IMPL_INLINE size_type size() const noexcept;
+		const_pointer data() const noexcept;
+		size_type size() const noexcept;
 		
 	private:
 		MemeRuneIndex_t data_;

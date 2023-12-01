@@ -27,62 +27,62 @@ namespace memepp {
 
 		static const size_type npos = static_cast<size_type>(-1);
 
-		MEMEPP__IMPL_INLINE buffer() MEGOPP__NOEXCEPT;
-		MEMEPP__IMPL_INLINE buffer(native_handle_type&& _other);
+		buffer() MEGOPP__NOEXCEPT;
+		buffer(native_handle_type&& _other);
 
-		MEMEPP__IMPL_INLINE buffer(buffer&& _other);
-		MEMEPP__IMPL_INLINE buffer(const buffer& _other);
-		MEMEPP__IMPL_INLINE buffer(const buffer& _other, size_type _pos);
-		MEMEPP__IMPL_INLINE buffer(const buffer& _other, size_type _pos, size_type _count);
+		buffer(buffer&& _other);
+		buffer(const buffer& _other);
+		buffer(const buffer& _other, size_type _pos);
+		buffer(const buffer& _other, size_type _pos, size_type _count);
 
-		MEMEPP__IMPL_INLINE buffer(const_pointer _utf8, size_type _size);
-		MEMEPP__IMPL_INLINE buffer(const_pointer _utf8, size_type _size, buffer_storage_t _suggest);
-		MEMEPP__IMPL_INLINE buffer(const_pointer _begin, const_pointer _end);
+		buffer(const_pointer _utf8, size_type _size);
+		buffer(const_pointer _utf8, size_type _size, buffer_storage_t _suggest);
+		buffer(const_pointer _begin, const_pointer _end);
 
-		MEMEPP__IMPL_INLINE buffer(size_type _count, MemeByte_t _byte);
+		buffer(size_type _count, MemeByte_t _byte);
 
 		buffer(std::nullptr_t) = delete;
 
-		MEMEPP__IMPL_INLINE ~buffer();
+		~buffer();
 
-		MEMEPP__IMPL_INLINE buffer& operator=(buffer&& _other);
-		MEMEPP__IMPL_INLINE buffer& operator=(const buffer& _other);
+		buffer& operator=(buffer&& _other);
+		buffer& operator=(const buffer& _other);
 
-		MEMEPP__IMPL_INLINE buffer_storage_t storage_type() const MEGOPP__NOEXCEPT;
+		buffer_storage_t storage_type() const MEGOPP__NOEXCEPT;
 
-		MEMEPP__IMPL_INLINE const_reference at(size_type _pos) const;
+		const_reference at(size_type _pos) const;
 
-		MEMEPP__IMPL_INLINE const_pointer data() const MEGOPP__NOEXCEPT;
+		const_pointer data() const MEGOPP__NOEXCEPT;
 
-		MEMEPP__IMPL_INLINE size_type size() const MEGOPP__NOEXCEPT;
-		MEMEPP__IMPL_INLINE bool empty() const MEGOPP__NOEXCEPT;
-		MEMEPP__IMPL_INLINE size_type max_size() const MEGOPP__NOEXCEPT;
-		MEMEPP__IMPL_INLINE size_type capacity() const MEGOPP__NOEXCEPT;
+		size_type size() const MEGOPP__NOEXCEPT;
+		bool empty() const MEGOPP__NOEXCEPT;
+		size_type max_size() const MEGOPP__NOEXCEPT;
+		size_type capacity() const MEGOPP__NOEXCEPT;
 
-        MEMEPP__IMPL_INLINE const_iterator begin() const MEGOPP__NOEXCEPT;
-        MEMEPP__IMPL_INLINE const_iterator cbegin() const MEGOPP__NOEXCEPT;
+        const_iterator begin() const MEGOPP__NOEXCEPT;
+        const_iterator cbegin() const MEGOPP__NOEXCEPT;
         
-        MEMEPP__IMPL_INLINE const_iterator end() const MEGOPP__NOEXCEPT;
-        MEMEPP__IMPL_INLINE const_iterator cend() const MEGOPP__NOEXCEPT;
+        const_iterator end() const MEGOPP__NOEXCEPT;
+        const_iterator cend() const MEGOPP__NOEXCEPT;
 
-		MEMEPP__IMPL_INLINE void swap(buffer& _other) MEGOPP__NOEXCEPT;
-		MEMEPP__IMPL_INLINE string to_string(size_type _front_offset = 0) const;
-		MEMEPP__IMPL_INLINE buffer to_large() const noexcept;
+		void swap(buffer& _other) MEGOPP__NOEXCEPT;
+		string to_string(size_type _front_offset = 0) const;
+		buffer to_large() const noexcept;
 		
-		MEMEPP__IMPL_INLINE size_type index_of(const buffer& _other) const MEGOPP__NOEXCEPT;
-		MEMEPP__IMPL_INLINE size_type index_of(const_pointer _utf8, size_type _utf8_len) const MEGOPP__NOEXCEPT;
+		size_type index_of(const buffer& _other) const MEGOPP__NOEXCEPT;
+		size_type index_of(const_pointer _utf8, size_type _utf8_len) const MEGOPP__NOEXCEPT;
 
-		MEMEPP__IMPL_INLINE bool contains(const buffer& _other) const MEGOPP__NOEXCEPT;
-		MEMEPP__IMPL_INLINE bool contains(const_pointer _utf8, size_type _count) const MEGOPP__NOEXCEPT;
+		bool contains(const buffer& _other) const MEGOPP__NOEXCEPT;
+		bool contains(const_pointer _utf8, size_type _count) const MEGOPP__NOEXCEPT;
 
-		MEMEPP__IMPL_INLINE const native_handle_type& native_handle() const MEGOPP__NOEXCEPT;
+		const native_handle_type& native_handle() const MEGOPP__NOEXCEPT;
 
 	private:
 		native_handle_type data_;
 	};
 
-	MEMEPP__IMPL_INLINE bool operator==(const buffer& _lhs, const buffer& _rhs);
-	MEMEPP__IMPL_INLINE bool operator!=(const buffer& _lhs, const buffer& _rhs);
+	bool operator==(const buffer& _lhs, const buffer& _rhs);
+	bool operator!=(const buffer& _lhs, const buffer& _rhs);
 
 }; // namespace memepp
 
