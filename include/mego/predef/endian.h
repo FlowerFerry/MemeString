@@ -113,11 +113,11 @@
 #      include "mego/predef/architecture/ia64.h"
 #      include "mego/predef/architecture/z.h"
 #      include "mego/predef/architecture/m68k.h"
-#      include "mego/predef/architecture/psparc.h"
+#      include "mego/predef/architecture/parisc.h"
 #      include "mego/predef/architecture/sparc.h"
 #      include "mego/predef/architecture/sys370.h"
 #      include "mego/predef/architecture/sys390.h"
-#      include "mego/predef/architecture/balckfin.h"
+#      include "mego/predef/architecture/blackfin.h"
 
 #   if MEGO_ARCH__M68K   || \
        MEGO_ARCH__PARISC || \

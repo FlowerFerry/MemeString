@@ -12,6 +12,8 @@
 
 #endif 
 
+#endif
+
 #ifndef MEGO_ARCH__IA64
 #define MEGO_ARCH__IA64 (0)
 #endif

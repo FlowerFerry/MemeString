@@ -12,6 +12,8 @@
 
 #endif
 
+#endif
+
 #ifndef MEGO_ARCH__BLACKFIN
 #define MEGO_ARCH__BLACKFIN (0)
 #endif
