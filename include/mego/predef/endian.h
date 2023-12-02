@@ -138,7 +138,7 @@
 #		define MEGO_ENDIAN__STRING _MEGO_ENDIAN__LITTLE_BYTE_STRING
 #   endif
 
-#endif // !NCM_ENDIAN_STRING
+#endif // !MEGO_ENDIAN__STRING
 
 #if !defined(MEGO_ENDIAN__STRING)
 
