@@ -1,4 +1,6 @@
 
+#include "mego/predef/helper_macros.h"
+
 #if !defined(MEGO_ARCH__STRING)
 
 #if \
@@ -53,8 +55,8 @@
 
 #endif
 
-#ifndef MEGO_ARCH__ARM
-#define MEGO_ARCH__ARM (0)
 #endif
 
+#ifndef MEGO_ARCH__ARM
+#define MEGO_ARCH__ARM (0)
 #endif

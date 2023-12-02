@@ -46,6 +46,8 @@
 #  endif
 
 
+#endif
+
 #ifndef MEGO_ARCH__I386
 #define MEGO_ARCH__I386 (0)
 #endif
@@ -54,7 +56,10 @@
 #define MEGO_ARCH__AMD64 (0)
 #endif 
 
+#ifndef MEGO_ARCH__X86
 #define MEGO_ARCH__X86 MEGO_ARCH__I386
-#define MEGO_ARCH__X64 MEGO_ARCH__AMD64
+#endif
 
+#ifndef MEGO_ARCH__X64
+#define MEGO_ARCH__X64 MEGO_ARCH__AMD64
 #endif
