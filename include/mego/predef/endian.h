@@ -13,7 +13,7 @@
 //         on LITTLE_WORD : 0B 0A 0D 0C
 
 #define _MEGO_ENDIAN__BIG_BYTE_STRING "Byte-Swapped Big-Endian"
-#define _MEGO_ENDIAN__BIG_WORD_STRING "Word-Swapped Big-Endian"			// Honeywell 316
+#define _MEGO_ENDIAN__BIG_WORD_STRING "Word-Swapped Big-Endian"	    // Honeywell 316
 #define _MEGO_ENDIAN__LITTLE_BYTE_STRING "Byte-Swapped Little-Endian"
 #define _MEGO_ENDIAN__LITTLE_WORD_STRING "Word-Swapped Little-Endian"	    // DEC PDP-11
 
@@ -109,22 +109,30 @@
 #if !defined(MEGO_ENDIAN__STRING)
 
 #	include "mego/predef/architecture/arm.h"
-#	include "mego/predef/architecture/x86.h"
+#      include "mego/predef/architecture/x86.h"
+#      include "mego/predef/architecture/ia64.h"
+#      include "mego/predef/architecture/z.h"
+#      include "mego/predef/architecture/m68k.h"
+#      include "mego/predef/architecture/psparc.h"
+#      include "mego/predef/architecture/sparc.h"
+#      include "mego/predef/architecture/sys370.h"
+#      include "mego/predef/architecture/sys390.h"
+#      include "mego/predef/architecture/balckfin.h"
 
-#   if defined(MEGO_ARCH__M68K) || \
-       defined(MEGO_ARCH__PARISC) || \
-       defined(MEGO_ARCH__SPARC) || \
-       defined(MEGO_ARCH__SYS370) || \
-       defined(MEGO_ARCH__SYS390) || \
-       defined(MEGO_ARCH__Z)
+#   if MEGO_ARCH__M68K   || \
+       MEGO_ARCH__PARISC || \
+       MEGO_ARCH__SPARC  || \
+       MEGO_ARCH__SYS370 || \
+       MEGO_ARCH__SYS390 || \
+       MEGO_ARCH__Z
 
 #		define MEGO_ENDIAN__BIG_BYTE (1)
 #		define MEGO_ENDIAN__STRING _MEGO_ENDIAN__BIG_BYTE_STRING
 #   endif
-#   if defined(MEGO_ARCH__AMD64) || \
-       defined(MEGO_ARCH__IA64) || \
-       defined(MEGO_ARCH__I386) || \
-       defined(MEGO_ARCH__BLACKFIN)
+#   if MEGO_ARCH__AMD64 || \
+       MEGO_ARCH__IA64  || \
+       MEGO_ARCH__I386  || \
+       MEGO_ARCH__BLACKFIN
 
 #		define MEGO_ENDIAN__LITTLE_BYTE (1)
 #		define MEGO_ENDIAN__STRING _MEGO_ENDIAN__LITTLE_BYTE_STRING
