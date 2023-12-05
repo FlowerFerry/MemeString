@@ -62,19 +62,19 @@ inline int mghw_clock__get_first_rtc_path(
         "/dev/misc/rtc",
         NULL
     };
-    const char* rtc_path[] = rtc_paths;
-    while (*rtc_path) {
+
+    size_t index = 0;
+    for (; rtc_paths[index]; ++index) {
         struct stat st;
-        if (stat(*rtc_path, &st) == 0) {
+        if (stat(rtc_paths[index], &st) == 0) {
             if (S_ISCHR(st.st_mode)) {
                 ret = 0;
                 break;
             }
         }
-        ++rtc_path;
     }
     if (!ret) {
-        strncpy(_path, *rtc_path, _path_len);
+        strncpy(_path, rtc_paths[index], _path_len);
         _path[_path_len - 1] = '\0';
     }
     return ret;
