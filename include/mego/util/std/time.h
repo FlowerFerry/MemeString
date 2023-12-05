@@ -295,6 +295,14 @@ extern "C" {
         return tv * 1000;
     }
 
+    inline double 
+    mgu_sys_timeval_diff(
+        const struct timeval* _subtrahend, const struct timeval* _subtractor) 
+    {
+        return( (_subtrahend->tv_sec - _subtractor->tv_sec)
+            + (_subtrahend->tv_usec - _subtractor->tv_usec) / 1E6 );
+    }
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus

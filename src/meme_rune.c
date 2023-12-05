@@ -1,21 +1,24 @@
 
 #include "meme/string_fwd.h"
+#include <meme/utf/u8rune.h>
 #include <string.h>
 
 MEME_EXTERN_C_SCOPE_START
 
 int MemeRune_compare(const MemeRune_t* _lhs, const MemeRune_t* _rhs)
 {
-	uint8_t index = 0;
-	while (_lhs->byte[index] && _rhs->byte[index]) 
-	{
-		if(_lhs->byte[index] != _rhs->byte[index]) 
-		{
-			break;
-		}
-		++index;
-	}
-	return (int)_lhs->byte[index] - (int)_rhs->byte[index];
+    return memcmp(_lhs->byte, _rhs->byte, sizeof(_lhs->byte));
+	
+	//uint8_t index = 0;
+	//while (_lhs->byte[index] && _rhs->byte[index]) 
+	//{
+	//	if(_lhs->byte[index] != _rhs->byte[index]) 
+	//	{
+	//		break;
+	//	}
+	//	++index;
+	//}
+	//return (int)_lhs->byte[index] - (int)_rhs->byte[index];
 }
 
 int MemeRune_withinCjkUnifiedIdeographs(const MemeRune_t* _ch)
