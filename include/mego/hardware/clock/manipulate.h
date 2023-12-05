@@ -49,8 +49,7 @@ enum mghw_clock_access_t {
 };
 
 inline int mghw_clock__get_first_rtc_path(
-    char* _path, size_t _path_len);
-)
+    char* _path, size_t _path_len)
 {
 #if MG_OS__LINUX_AVAIL
     int ret = -1;
