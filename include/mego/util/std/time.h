@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <mego/predef/symbol/restrict.h>
 #include <mego/predef/os/windows.h>
+#include <mego/predef/os/linux.h>
 #include <mego/err/ec.h>
 #include <errno.h>
 #include <limits.h>
@@ -295,6 +296,7 @@ extern "C" {
         return tv * 1000;
     }
 
+#if MG_OS__LINUX_AVAIL
     inline double 
     mgu_sys_timeval_diff(
         const struct timeval* _subtrahend, const struct timeval* _subtractor) 
@@ -302,6 +304,7 @@ extern "C" {
         return( (_subtrahend->tv_sec - _subtractor->tv_sec)
             + (_subtrahend->tv_usec - _subtractor->tv_usec) / 1E6 );
     }
+#endif
 
 #ifdef __cplusplus
 }
