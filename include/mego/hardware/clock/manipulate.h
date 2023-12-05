@@ -216,11 +216,8 @@ mghw_clock__set_clock_by_rtc_ioctl(const struct tm* _new)
     int fd;
     char path[128];
     if (mghw_clock__get_first_rtc_path(path, sizeof(path)))
-    {
-        is_rtc_avail = 0;
-        break;
-    }
-
+        return -1;
+    
     fd = open(path, O_RDONLY);
     if (fd < 0) {
         return -1;
