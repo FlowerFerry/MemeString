@@ -18,6 +18,7 @@
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <linux/version.h>
+#include <linux/rtc.h>
 
 #if MEGO_ARCH__I386
 #include <asm/io.h>
@@ -26,7 +27,6 @@
 #endif // MG_OS__LINUX_AVAIL
 
 #if LINUX_VERSION_CODE >= 131072
-#include <linux/mc146818rtc.h>
 #include <linux/kd.h>
 #define MGHW_CLOCK__RTC_AVAIL (1)
 #else
@@ -170,7 +170,7 @@ inline int
 mghw_clock__set_clock_by_rtc_ioctl(const struct tm* _new)
 {
 
-#if MG_OS__LINUX_AVAIL
+#if MGHW_CLOCK__RTC_AVAIL
     int rc = 0;
     int fd = open("/dev/rtc", O_RDONLY);
     if (fd < 0) {
