@@ -14,7 +14,6 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <time.h>
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <linux/version.h>
@@ -49,6 +48,40 @@ enum mghw_clock_access_t {
     mghw_clock_access__kd
 };
 
+inline int mghw_clock__get_first_rtc_path(
+    char* _path, size_t _path_len);
+)
+{
+#if MG_OS__LINUX_AVAIL
+    int ret = -1;
+    const char* rtc_paths[] = {
+        "/dev/rtc0",
+        "/dev/rtc",
+        "/dev/rtc/rtc0",
+        "/dev/rtc/rtc",
+        "/dev/misc/rtc0",
+        "/dev/misc/rtc",
+        NULL
+    };
+    const char* rtc_path[] = rtc_paths;
+    while (*rtc_path) {
+        struct stat st;
+        if (stat(*rtc_path, &st) == 0) {
+            if (S_ISCHR(st.st_mode)) {
+                ret = 0;
+                break;
+            }
+        }
+        ++rtc_path;
+    }
+    if (!ret) {
+        strncpy(_path, *rtc_path, _path_len);
+        _path[_path_len - 1] = '\0';
+    }
+    return ret;
+#endif
+}
+
 inline mghw_clock_access_t
 mghw_clock__determine_access()
 {
@@ -56,7 +89,15 @@ mghw_clock__determine_access()
     int is_rtc_avail = 0;
 #if MGHW_CLOCK__RTC_AVAIL
     do {
-        int fd = open("/dev/rtc", O_RDONLY);
+        int fd;
+        char path[128];
+        if (mghw_clock__get_first_rtc_path(path, sizeof(path)))
+        {
+            is_rtc_avail = 0;
+            break;
+        }
+        
+        fd = open(path, O_RDONLY);
         if (fd >= 0) {
             is_rtc_avail = 1;
             close(fd);
@@ -172,7 +213,15 @@ mghw_clock__set_clock_by_rtc_ioctl(const struct tm* _new)
 
 #if MGHW_CLOCK__RTC_AVAIL
     int rc = 0;
-    int fd = open("/dev/rtc", O_RDONLY);
+    int fd;
+    char path[128];
+    if (mghw_clock__get_first_rtc_path(path, sizeof(path)))
+    {
+        is_rtc_avail = 0;
+        break;
+    }
+
+    fd = open(path, O_RDONLY);
     if (fd < 0) {
         return -1;
     }
@@ -214,10 +263,8 @@ mghw_clock__set_clock_by_kd(const struct tm* _new)
     }
 
     close(fd);
-    return 0;
-#else
-    return 0;
 #endif
+    return 0;
 }
 
 inline int
