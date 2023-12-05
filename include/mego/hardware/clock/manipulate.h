@@ -166,6 +166,8 @@ mghw_clock__set_clock_by_isa(const struct tm* _new)
 inline int
 mghw_clock__set_clock_by_rtc_ioctl(const struct tm* _new)
 {
+
+#if MG_OS__LINUX_AVAIL
     int rc = 0;
     int fd = open("/dev/rtc", O_RDONLY);
     if (fd < 0) {
@@ -179,6 +181,7 @@ mghw_clock__set_clock_by_rtc_ioctl(const struct tm* _new)
     }
 
     close(fd);
+#endif
     return 0;
 }
 
@@ -218,6 +221,8 @@ inline int
 mghw_clock__set_clock(
     const enum mghw_clock_access_t _access, time_t _newtime, int _universal)
 {
+    
+#if MG_OS__LINUX_AVAIL
     struct tm tm;
     if (_universal) {
         if (gmtime_r(&_newtime, &tm) == NULL) 
@@ -243,7 +248,9 @@ mghw_clock__set_clock(
     default:
         return -1;
     }
-
+#else
+    return 0;
+#endif
 }
 
 int mghw_clock__set_clock_exact_blocked(
