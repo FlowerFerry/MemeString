@@ -17,9 +17,13 @@
 #include <time.h>
 #include <sys/time.h>
 #include <sys/stat.h>
-#include <asm/io.h>
 #include <shhopt.h>
 #include <linux/version.h>
+
+#if MEGO_ARCH__I386
+#include <asm/io.h>
+#endif
+
 #endif // MG_OS__LINUX_AVAIL
 
 #if LINUX_VERSION_CODE >= 131072

@@ -6,9 +6,7 @@
 #include <meme/utf/u8rune_fwd.h>
 #include <meme/utf/u16rune_fwd.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+MEME_EXTERN_C_SCOPE_START
     
 inline int
 mmutf_u16rune_char_size(uint16_t _ch)
@@ -167,9 +165,7 @@ mmutf_u16rune_set_u32(
     return -1;
 }
 
-#ifdef __cplusplus
-}
-#endif
+MEME_EXTERN_C_SCOPE_ENDED
 
 #endif // !MEGO_UTF_U16RUNE_H_INCLUDED
 
