@@ -253,7 +253,7 @@ int mghw_clock__set_clock_exact_blocked(
     mgu_time_t newtime;
     struct timeval now_tv;
     gettimeofday(&now_tv, NULL);
-    newtime = (double)(_settime + mgu_sys_timeval_diff(&now_tv, &_reftime) + 1);
+    newtime = (mgu_time_t)(_settime + mgu_sys_timeval_diff(&now_tv, &_reftime) + 1);
 
     do {
         gettimeofday(&now_tv, NULL);
