@@ -17,7 +17,6 @@
 #include <time.h>
 #include <sys/time.h>
 #include <sys/stat.h>
-#include <shhopt.h>
 #include <linux/version.h>
 
 #if MEGO_ARCH__I386
