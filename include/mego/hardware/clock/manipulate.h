@@ -78,6 +78,8 @@ inline int mghw_clock__get_first_rtc_path(
         _path[_path_len - 1] = '\0';
     }
     return ret;
+#else
+    return -1;
 #endif
 }
 
