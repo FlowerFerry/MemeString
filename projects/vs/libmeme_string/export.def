@@ -189,5 +189,7 @@ EXPORTS
     MemeString_splitByCondByteFunc @184
     MemeString_writeBytes @185
     MemeStringStack_concat @186
+    MemeString_containsOnlyAscii @187
+    
     
     

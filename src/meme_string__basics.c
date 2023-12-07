@@ -606,7 +606,7 @@ MEME_API int MEME_STDCALL MemeString_isEqualWithOther(MemeString_Const_t _lhs,
 	const char* lhs = NULL;
 	const char* rhs = NULL;
 
-	if ((!_result))
+	if (MEGO_SYMBOL__UNLIKELY(_result == NULL))
 		return (MGEC__INVAL);
 
 	lhslen = MemeString_byteSize(_lhs);
@@ -632,6 +632,28 @@ MEME_API int MEME_STDCALL MemeString_isEqualWithOther(MemeString_Const_t _lhs,
 
 	*_result = (memcmp(lhs, rhs, lhslen) == 0 ? 1 : 0);
 	return 0;
+}
+
+MEME_API int MEME_STDCALL MemeString_containsOnlyAscii(mmstr_const_t _s, int* _result)
+{
+    const mmbyte_t* src = NULL;
+    mmint_t len = 0;
+
+    if (MEGO_SYMBOL__UNLIKELY(_result == NULL))
+        return (MGEC__INVAL);
+
+    src = MemeString_byteData(_s);
+    len = MemeString_byteSize(_s);
+
+    for (; len > 0; --len, ++src) {
+        if (*src > 127) {
+            *_result = 0;
+            return 0;
+        }
+    }
+
+    *_result = 1;
+    return 0;
 }
 
 MEME_API int MEME_STDCALL MemeString_compare(mms_const_t _s, mms_const_t _other)

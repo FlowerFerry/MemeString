@@ -15,10 +15,10 @@ extern "C" {
 #endif // __cppplusplus
 
 #if MEGO_OS__WINDOWS__AVAILABLE
-    static int MegoUtilImpl_GetModulePath(
+    inline int MegoUtilImpl_GetModulePath(
         HMODULE _module, char* _out, int _capacity, int* _dirname_pos);
 
-    static int MegoUtilImpl_GetModulePath(
+    inline int MegoUtilImpl_GetModulePath(
         HMODULE _module, char* _out, int _capacity, int* _dirname_pos)
     {
         wchar_t buf[MAX_PATH] = { 0 };

@@ -257,6 +257,9 @@ MEME_API int
 		MemeString_Const_t _lhs, MemeString_Const_t _rhs, int* _result);
 
 MEME_API int
+	MEME_STDCALL MemeString_containsOnlyAscii(mmstr_const_t _s, int* _result);
+
+MEME_API int
 MEME_STDCALL MemeString_compare(mms_const_t _s, mms_const_t _other);
 
 MEME_API MemeInteger_t
