@@ -459,6 +459,13 @@ namespace memepp {
         return find(_ch) != npos;
     }
 
+	MEMEPP__IMPL_INLINE bool string::contains_only_ascii() const noexcept
+	{
+        int result = 0;
+        MemeString_containsOnlyAscii(to_pointer(native_handle()), &result);
+        return result != 0;
+	}
+
 	MEMEPP__IMPL_INLINE bool string::starts_with(const string_view& _sv) const noexcept
 	{
         return MemeString_startsMatchWithOther(

@@ -153,6 +153,8 @@ namespace memepp {
         bool contains(char _ch) const noexcept;
         bool contains(const rune& _ch) const noexcept;
 
+        bool contains_only_ascii() const noexcept;
+
 		//! @brief Returns true if this string starts with the given string.
 		//! @param _sv The string to search for.
 		//! @returns True if this string starts with the given string.
