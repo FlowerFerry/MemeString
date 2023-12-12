@@ -584,7 +584,7 @@ MEME_API mmstrstk_t MEME_STDCALL MemeStringStack_concat(
     if (lhsSize + rhsSize == 0)
         return MemeStringStack_getInitObject(_object_size);
 
-	result = MemeStringMedium_initWithCapacity((MemeStringMedium_t*)&out, _object_size,
+	result = MemeStringMedium_initWithCapacity((MemeStringMedium_t*)&out, 
 		lhsSize + rhsSize);
     if (result)
         return MemeStringStack_getInitObject(_object_size);
