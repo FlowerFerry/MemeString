@@ -29,9 +29,11 @@ target("meme_string")
 
     if (string.find(get_config("arch"), "x64") ~= nil or string.find(get_config("arch"), "x86_64") ~= nil or string.find(get_config("arch"), "amd64") ~= nil) 
     then
-        if (string.find(get_config("cxx"), "g++") ~= nil or string.find(get_config("cc"), "gcc") ~= nil) 
+        local xxComp = get_config("cxx")
+        local ccComp = get_config("cc")
+        if ((xxComp ~= nil and string.find(xxComp, "g++") ~= nil) or (ccComp ~= nil and string.find(ccComp, "gcc") ~= nil)) 
         then
-            add_cxflags("-fasm")
-            add_ldflags("-fasm")
+            add_cxflags("-fasm-blocks")
+            add_ldflags("-fasm-blocks")
         end
     end
