@@ -11,8 +11,15 @@
 
 #if MEGO_COMP__MSVC__AVAILABLE
 #include <intrin.h>
-#elif defined(HAVE_GCC_GET_CPUID) && defined(USE_GCC_GET_CPUID)
+#elif defined(__has_include) && __has_include(<cpuid.h>)
+#define MGOPT__USE_GCC_GET_CPUID (1)
 #include <cpuid.h>
+#elif MGOPT__USE_GCC_GET_CPUID
+#include <cpuid.h>
+#endif
+
+#ifndef MGOPT__USE_GCC_GET_CPUID
+#define MGOPT__USE_GCC_GET_CPUID (0)
 #endif
 
 #define MGHW_CPUID_BIT__NONE                   ((uint32_t) 0x0000)
@@ -45,7 +52,7 @@ inline void mghw_cpuid(uint32_t *_eax, uint32_t *_ebx, uint32_t *_ecx, uint32_t 
   *_ebx = cpu_info[1];
   *_ecx = cpu_info[2];
   *_edx = cpu_info[3];
-#elif defined(HAVE_GCC_GET_CPUID) && defined(USE_GCC_GET_CPUID)
+#elif MGOPT__USE_GCC_GET_CPUID
   uint32_t level = *_eax;
   __get_cpuid(level, _eax, _ebx, _ecx, _edx);
 #else
