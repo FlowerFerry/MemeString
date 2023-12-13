@@ -42,7 +42,7 @@ mghw_detect_supported_simd_instructions() {
 
 #elif MEGO_ARCH__AMD64
 
-inline mghw_simd_instruction_t
+static inline mghw_simd_instruction_t
 mghw_detect_supported_simd_instructions()
 { 
     uint32_t eax;
