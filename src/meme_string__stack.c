@@ -151,7 +151,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByU8bytesAndType(
 	return MemeStringLarge_initByU8bytes((MemeStringLarge_t*)_out, _utf8, _len, NULL, NULL, 0, 0);
 }
 
-MEME_API int
+MEME_EXTERN_C MEME_API int
 MEME_STDCALL MemeStringStack_initByU16bytes(
 	mmsstk_t* _out, size_t _object_size, const uint16_t* _buf, MemeInteger_t _len)
 {
@@ -159,7 +159,7 @@ MEME_STDCALL MemeStringStack_initByU16bytes(
         _out, _object_size, _buf, _len, MemeString_StorageType_none);
 }
 
-MEME_API int
+MEME_EXTERN_C MEME_API int
 MEME_STDCALL MemeStringStack_initByU16bytesAndType(
 	mmsstk_t* _out, size_t _object_size, const uint16_t* _buf, MemeInteger_t _len,
 	MemeString_Storage_t _suggest)
@@ -524,7 +524,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_assignByBuffer(
 	return MemeStringStack_initByBuffer(_s, sizeof(mmsstk_t), _other, _offset);
 }
 
-MEME_API mmsstk_t MEME_STDCALL
+MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL
 MemeStringStack_mid(
 	const mmsstk_t* _s, size_t _object_size, MemeInteger_t _offset, MemeInteger_t _len)
 {
@@ -566,7 +566,7 @@ MemeStringStack_mid(
     return out;
 }
 
-MEME_API mmstrstk_t MEME_STDCALL MemeStringStack_concat(
+MEME_EXTERN_C MEME_API mmstrstk_t MEME_STDCALL MemeStringStack_concat(
 	const mmstrstk_t* _s, size_t _object_size, const mmstrstk_t* _other)
 {
     mmstrstk_t out;
@@ -658,7 +658,7 @@ MemeStringStack_toEnLower(
 	return stack;
 }
 
-MEME_API mmsstk_t MEME_STDCALL
+MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL
 MemeStringStack_trimSpace(const mmsstk_t* _s, size_t _object_size)
 {
 	int result = 0;
@@ -686,7 +686,7 @@ MemeStringStack_trimSpace(const mmsstk_t* _s, size_t _object_size)
     return stack;
 }
 
-MEME_API mmsstk_t MEME_STDCALL
+MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL
 MemeStringStack_trimLeftSpace(const mmsstk_t* _s, size_t _object_size)
 {
     int result = 0;
@@ -709,7 +709,7 @@ MemeStringStack_trimLeftSpace(const mmsstk_t* _s, size_t _object_size)
     return stack;
 }
 
-MEME_API mmsstk_t MEME_STDCALL
+MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL
 MemeStringStack_trimRightSpace(const mmsstk_t* _s, size_t _object_size)
 {
     int result = 0;
@@ -733,7 +733,7 @@ MemeStringStack_trimRightSpace(const mmsstk_t* _s, size_t _object_size)
     return stack;
 }
 
-MEME_API mmsstk_t MEME_STDCALL
+MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL
 MemeStringStack_trimByCuts(
 	const mmsstk_t* _s, size_t _object_size, const char* _cuts, MemeInteger_t _cuts_len)
 {
@@ -762,7 +762,7 @@ MemeStringStack_trimByCuts(
     return stack;
 }
 
-MEME_API mmsstk_t MEME_STDCALL
+MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL
 MemeStringStack_trimByCondByteFunc(
 	const mmsstk_t* _s, size_t _object_size,
 	MemeString_MatchCondByteFunc_t* _cond_func, void* _user_data)
@@ -792,7 +792,7 @@ MemeStringStack_trimByCondByteFunc(
     return stack;
 }
 
-MEME_API mmsstk_t MEME_STDCALL MemeStringStack_getRepeat(
+MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL MemeStringStack_getRepeat(
 	size_t _object_size, mmint_t _count, const char* _s, mmint_t _len)
 {
 	mmint_t result = 0;
@@ -825,7 +825,7 @@ MEME_API mmsstk_t MEME_STDCALL MemeStringStack_getRepeat(
     return stack;
 }
 
-MEME_API mmsstk_t MEME_STDCALL MemeStringStack_replace(
+MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL MemeStringStack_replace(
 	const mmsstk_t* _s, size_t _object_size, 
 	const char* _from, mmint_t _from_len, 
 	const char* _to, mmint_t _to_len, mmint_t _max_count)
@@ -921,7 +921,7 @@ MEME_API mmsstk_t MEME_STDCALL MemeStringStack_replace(
     return stack;
 }
 
-MEME_API mmsstk_t
+MEME_EXTERN_C MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_toValidUtf8(const mmsstk_t* _s, size_t _object_size)
 {
 	MemeInteger_t pos = 0;
@@ -937,7 +937,7 @@ MEME_STDCALL MemeStringStack_toValidUtf8(const mmsstk_t* _s, size_t _object_size
     return MemeStringStack_mid(_s, _object_size, 0, pos);
 }
 
-MEME_API mmsstk_t MEME_STDCALL MemeStringStack_mappingConvert(
+MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL MemeStringStack_mappingConvert(
 	const mmsstk_t* _s, size_t _object_size, MemeString_MappingConvertFunc_t _mapping_fn, void* _user_data)
 {
 	mms_const_t s = (mms_const_t)_s;
@@ -982,14 +982,14 @@ MEME_API mmsstk_t MEME_STDCALL MemeStringStack_mappingConvert(
     return stack;
 }
 
-MEME_API MemeStringStack_t 
+MEME_EXTERN_C MEME_API MemeStringStack_t
 MemeStringStack_vformatInCstyle(
 	size_t _object_size, const char* _format, MemeInteger_t _size_limit, va_list _args)
 {
     return MemeStringStack_vformatInCstyle_v2(_object_size, _size_limit, _format, _args);
 }
 
-MEME_API MemeStringStack_t 
+MEME_EXTERN_C MEME_API MemeStringStack_t
 MemeStringStack_formatInCstyle(size_t _object_size, const char* _format, MemeInteger_t _size_limit, ...)
 {
     va_list args;
@@ -1002,7 +1002,7 @@ MemeStringStack_formatInCstyle(size_t _object_size, const char* _format, MemeInt
     return out;
 }
 
-MEME_API mmsstk_t MEME_STDCALL
+MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL
 MemeStringStack_vformatInCstyle_v2(
 	size_t _object_size,
 	MemeInteger_t _size_limit,
@@ -1060,7 +1060,7 @@ MemeStringStack_vformatInCstyle_v2(
 	return out;
 }
 
-MEME_API mmsstk_t
+MEME_EXTERN_C MEME_API mmsstk_t
 MemeStringStack_formatInCstyle_v2(
 	size_t _object_size,
 	MemeInteger_t _size_limit,
@@ -1078,7 +1078,7 @@ MemeStringStack_formatInCstyle_v2(
 }
 
 
-MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringViewUnsafeStack_init(MemeStringStack_t* _s, size_t _object_size,
+MEME_EXTERN_C MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringViewUnsafeStack_init(MemeStringStack_t* _s, size_t _object_size,
 	const uint8_t* _buf, MemeInteger_t _len)
 {
 	MemeStringViewUnsafe_t* p = (MemeStringViewUnsafe_t*)_s;
@@ -1153,7 +1153,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringViewUnsafeStack_assignByOther(
 	}
 }
 
-MEME_API MemeInteger_t MEME_STDCALL 
+MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL
 MemeStringViewUnsafe_split(
 	MemeString_Const_t _s, const char* _key, MemeInteger_t _key_len,
 	MemeFlag_SplitBehavior_t _behavior, MemeFlag_CaseSensitivity_t _sensitivity,
@@ -1235,14 +1235,14 @@ MemeStringViewUnsafe_split(
 	}
 }
 
-MEME_API int MEME_STDCALL mmsstk_init(mmsstk_t* _out, size_t _object_size)
+MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init(mmsstk_t* _out, size_t _object_size)
 {
     if (_out == NULL)
         return (MGEC__INVAL);
     return MemeStringStack_init(_out, _object_size);
 }
 
-MEME_API int MEME_STDCALL mmsstk_init_by_other(mmsstk_t* _out, size_t _object_size, mms_const_t _other)
+MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_other(mmsstk_t* _out, size_t _object_size, mms_const_t _other)
 {
     if (_out == NULL)
         return (MGEC__INVAL);
@@ -1251,7 +1251,7 @@ MEME_API int MEME_STDCALL mmsstk_init_by_other(mmsstk_t* _out, size_t _object_si
     return MemeStringStack_initByOther(_out, _object_size, _other);
 }
 
-MEME_API int MEME_STDCALL mmsstk_init_by_buf(
+MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_buf(
 	mmsstk_t* _out, size_t _object_size, mmbuf_const_t _other, mmint_t _offset)
 {
     if (_out == NULL)
@@ -1261,7 +1261,7 @@ MEME_API int MEME_STDCALL mmsstk_init_by_buf(
     return MemeStringStack_initByBuffer(_out, _object_size, _other, _offset);
 }
 
-MEME_API int MEME_STDCALL mmsstk_init_by_utf8(
+MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_utf8(
 	mmsstk_t* _out, size_t _object_size, const mmbyte_t* _utf8, mmint_t _len)
 {
     if (_out == NULL)
@@ -1271,7 +1271,7 @@ MEME_API int MEME_STDCALL mmsstk_init_by_utf8(
     return MemeStringStack_initByU8bytes(_out, _object_size, _utf8, _len);
 }
 
-MEME_API int MEME_STDCALL mmsstk_init_by_utf8_v2(
+MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_utf8_v2(
 	mmsstk_t* _out, size_t _object_size,
 	const mmbyte_t* _utf8, mmint_t _len, MemeString_Storage_t _suggest)
 {
@@ -1282,7 +1282,7 @@ MEME_API int MEME_STDCALL mmsstk_init_by_utf8_v2(
     return MemeStringStack_initByU8bytesAndType(_out, _object_size, _utf8, _len, _suggest);
 }
 
-MEME_API int MEME_STDCALL mmsstk_init_by_hexs(
+MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_hexs(
 	mmsstk_t* _out, size_t _object_size, const mmbyte_t* _interval, mmint_t _ivlen, const uint8_t* _hexs, mmint_t _len)
 {
     if (_out == NULL)
@@ -1292,7 +1292,7 @@ MEME_API int MEME_STDCALL mmsstk_init_by_hexs(
     return MemeStringStack_initWithHexadecimals(_out, _object_size, _interval, _ivlen, _hexs, _len);
 }
 
-MEME_API int MEME_STDCALL mmsstk_init_by_user(
+MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_user(
 	mmsstk_t* _out, size_t _object_size, void* _user_data,
 	MemeString_UserObjectDestruct_t* _destruct_fn, 
 	MemeString_UserObjectData_t* _data_fn, 
@@ -1309,21 +1309,21 @@ MEME_API int MEME_STDCALL mmsstk_init_by_user(
 		_out, _object_size, _user_data, _destruct_fn, _data_fn, _size_fn);
 }
 
-MEME_API int MEME_STDCALL mmsstk_uninit(mmsstk_t* _out, size_t _object_size)
+MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_uninit(mmsstk_t* _out, size_t _object_size)
 {
     if (_out == NULL)
         return (MGEC__INVAL);
     return MemeStringStack_unInit(_out, _object_size);
 }
 
-MEME_API int MEME_STDCALL mmsstk_reset(mmsstk_t* _out, size_t _object_size)
+MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_reset(mmsstk_t* _out, size_t _object_size)
 {
     if (_out == NULL)
         return (MGEC__INVAL);
     return MemeStringStack_reset(_out, _object_size);
 }
 
-MEME_API int MEME_STDCALL mms_assign(mms_t _s, mms_const_t _other)
+MEME_EXTERN_C MEME_API int MEME_STDCALL mms_assign(mms_t _s, mms_const_t _other)
 {
     if (_s == NULL)
         return (MGEC__INVAL);
@@ -1332,7 +1332,7 @@ MEME_API int MEME_STDCALL mms_assign(mms_t _s, mms_const_t _other)
     return MemeStringStack_assign((mmsstk_t*)_s, sizeof(*_s), _other);
 }
 
-MEME_API int MEME_STDCALL mms_assign_by_utf8(
+MEME_EXTERN_C MEME_API int MEME_STDCALL mms_assign_by_utf8(
 	mms_t _s, const mmbyte_t* _utf8, mmint_t _len)
 {
     if (_s == NULL)
@@ -1342,7 +1342,7 @@ MEME_API int MEME_STDCALL mms_assign_by_utf8(
     return MemeStringStack_assignByU8bytes((mmsstk_t*)_s, sizeof(*_s), _utf8, _len);
 }
 
-MEME_API int MEME_STDCALL mms_assign_by_buf(
+MEME_EXTERN_C MEME_API int MEME_STDCALL mms_assign_by_buf(
 	mms_t _out, mmbuf_const_t _other, mmint_t _offset)
 {
     if (_out == NULL)
