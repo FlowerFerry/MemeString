@@ -26,3 +26,8 @@ target("meme_string")
     -- if is_plat("cross", "linux") then
     --     add_ldflags("-Wl,-rpath,$ORIGIN", {force = true})
     -- end
+
+    if string.find(get_config("cxx"), "g++") or string.find(get_config("cc"), "gcc") then
+        add_cxflags("-fasm")
+        add_ldflags("-fasm")
+    end
