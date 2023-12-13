@@ -27,8 +27,10 @@ target("meme_string")
     --     add_ldflags("-Wl,-rpath,$ORIGIN", {force = true})
     -- end
 
-    if string.find(get_config("arch"), "x64") ~= nil or string.find(get_config("arch"), "x86_64") ~= nil or string.find(get_config("arch"), "amd64") ~= nil then
-        if string.find(get_config("cxx"), "g++") ~= nil or string.find(get_config("cc"), "gcc") ~= nil then
+    if (string.find(get_config("arch"), "x64") ~= nil or string.find(get_config("arch"), "x86_64") ~= nil or string.find(get_config("arch"), "amd64") ~= nil) 
+    then
+        if (string.find(get_config("cxx"), "g++") ~= nil or string.find(get_config("cc"), "gcc") ~= nil) 
+        then
             add_cxflags("-fasm")
             add_ldflags("-fasm")
         end
