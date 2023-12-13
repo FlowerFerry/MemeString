@@ -33,7 +33,7 @@ target("meme_string")
         local ccComp = get_config("cc")
         if ((xxComp ~= nil and string.find(xxComp, "g++") ~= nil) or (ccComp ~= nil and string.find(ccComp, "gcc") ~= nil)) 
         then
-            add_cflags("-fasm")
-            add_ldflags("-fasm")
+            add_cflags("-S")
+            add_ldflags("-S")
         end
     end
