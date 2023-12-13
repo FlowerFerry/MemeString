@@ -15,7 +15,7 @@ extern "C" {
 #endif // __cppplusplus
 
 #if MEGO_OS__WINDOWS__AVAILABLE
-    inline int MegoUtilImpl_GetModulePath(
+    int MegoUtilImpl_GetModulePath(
         HMODULE _module, char* _out, int _capacity, int* _dirname_pos);
 
     inline int MegoUtilImpl_GetModulePath(
