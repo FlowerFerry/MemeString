@@ -5,6 +5,9 @@
 #include <stdint.h>
 #include <mego/predef/compiler/visualc.h>
 #include <mego/predef/architecture/x86.h>
+#include <mego/predef/os/linux.h>
+
+
 
 #if MEGO_COMP__MSVC__AVAILABLE
 #include <intrin.h>
@@ -47,7 +50,7 @@ inline void mghw_cpuid(uint32_t *_eax, uint32_t *_ebx, uint32_t *_ecx, uint32_t 
   __get_cpuid(level, _eax, _ebx, _ecx, _edx);
 #else
   uint32_t a = *_eax, b, c = *_ecx, d;
-  asm volatile("cpuid\n\t" : "+a"(a), "=b"(b), "+c"(c), "=d"(d));
+  __asm volatile("cpuid\n\t" : "+a"(a), "=b"(b), "+c"(c), "=d"(d));
   *_eax = a;
   *_ebx = b;
   *_ecx = c;
