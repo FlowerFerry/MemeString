@@ -9,8 +9,8 @@ typedef int mgec_t;
 const char* mgec__name(mgec_t _ec);
 const char* mgec__desc(mgec_t _ec);
 
-inline mgec_t mgec__from_sys_err(int _sys_err);
-inline mgec_t mgec__from_posix_err(int _posix_err);
+mgec_t mgec__from_sys_err(int _sys_err);
+mgec_t mgec__from_posix_err(int _posix_err);
 
 #define MGEC__POSIX_OFFSET_BEGIN  -100000
 #define MGEC__POSIX_OFFSET_END    -199999
