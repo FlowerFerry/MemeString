@@ -7,6 +7,7 @@
 
 #include <errno.h>
 #include <assert.h>
+#include <string.h>
 
 MEME_API int 
 MEME_STDCALL MemeBufferStack_init(mmbufstk_t* _out, size_t _object_size)
