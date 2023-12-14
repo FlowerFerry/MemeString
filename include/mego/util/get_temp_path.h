@@ -39,10 +39,15 @@ extern "C" {
         if (result + 1 > _capacity)
             return -1;
         
-        result = mmutf_convert_u16to8((const uint16_t*)wpath, wcslen(wpath), _out);
+        result = mmutf_convert_u16to8((const uint16_t*)wpath, wcslen(wpath), (mmbyte_t*)_out);
         if (result < 0)
             return -1;
         
+        for (int i = 0; i < result; ++i)
+        {
+            if (_out[i] == '\\')
+                _out[i] = '/';
+        }
         _out[result] = '\0';
 #else
         const char* tmp_path = "/tmp/";
