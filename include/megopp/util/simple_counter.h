@@ -162,12 +162,14 @@ namespace util {
 
         inline ref_counter& operator++()
         {
-            return increment(megopp::auxiliary::null_mutex{});
+            auto mtx = megopp::auxiliary::null_mutex{};
+            return increment(mtx);
         }
 
         inline ref_counter& operator--()
         {
-            return decrement(megopp::auxiliary::null_mutex{});
+            auto mtx = megopp::auxiliary::null_mutex{};
+            return decrement(mtx);
         }
 
 
