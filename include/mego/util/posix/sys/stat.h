@@ -2,8 +2,10 @@
 #ifndef MEGO_UTIL_SYS_STAT_H_INCLUDED
 #define MEGO_UTIL_SYS_STAT_H_INCLUDED
 
+#include <mego/err/ec.h>
 #include <mego/predef/os/linux.h>
 #include <mego/util/posix/sys/types.h>
+#include <meme/utf/converter.h>
 
 #include <sys/stat.h>
 #if MEGO_OS__LINUX__AVAILABLE
@@ -65,41 +67,59 @@ int mgu_get_stat(const char* _path, intptr_t _slen, struct mgu_stat* _buf);
 
 inline int mgu_get_stat(const char* _path, intptr_t _slen, struct mgu_stat* _buf)
 {
-	if (_slen == 0)
-		return EINVAL;
-    
-#if MEGO_OS__LINUX__AVAILABLE
+#if MG_OS__LINUX_AVAIL
+    char* path = NULL;
 	struct stat buffer;
 #else
+    mmint_t u16len = 0;
+	wchar_t* path = NULL;
 	struct _stat64 buffer;
 #endif
-	if (_slen < 0) {
-#if MEGO_OS__LINUX__AVAILABLE
-		if (stat(_path, &buffer) != 0) {
-#else
-		if (_stat64(_path, &buffer) != 0) {
-#endif
-			return errno;
-		}
-	}
-	else {
-		char* p = (char*)malloc(_slen + 1);
-        if (p == NULL)
-            return ENOMEM;
-        memcpy(p, _path, _slen);
-        p[_slen] = 0;
 
-#if MEGO_OS__LINUX__AVAILABLE
-        if (stat(p, &buffer) != 0) {
-#else
-        if (_stat64(p, &buffer) != 0) {
-#endif
-            free(p);
-            return errno;
-        }
-        free(p);
-	}
+	if (_slen < 0)
+		_slen = strlen(_path);
     
+#if MG_OS__LINUX_AVAIL
+	if (_path[_slen] == '\0')
+		path = (char*)_path;
+	else {
+		path = (char*)malloc(sizeof(char) * (_slen + 1));
+		if (path == NULL)
+			return ENOMEM;
+		memcpy(path, _path, _slen);
+		path[_slen] = '\0';
+	}
+	if (stat(path, &buffer) != 0) {
+		if (path != _path)
+			free(path);
+		return errno;
+	}
+
+	if (path != _path)
+		free(path);
+#else
+    u16len = mmutf_char_size_u16from8((const uint8_t*)_path, _slen);
+    if (u16len < 1)
+        return EINVAL;
+		
+    path = (wchar_t*)malloc(sizeof(wchar_t) * (u16len + 1));
+    if (!path)
+        return ENOMEM;
+	if (mmutf_convert_u8to16((const uint8_t*)_path, _slen, (uint16_t*)path) == 0)
+    {
+        free(path);
+        return EINVAL;
+    }
+    path[u16len] = L'\0';
+
+	if (_wstat64(path, &buffer) != 0) {
+		free(path);
+		return errno;
+	}
+
+	free(path);
+#endif
+
 #ifdef st_atime
 	_buf->st_atime = buffer.st_atime;
 #else
