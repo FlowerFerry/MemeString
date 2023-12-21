@@ -5,13 +5,13 @@
 #include <mego/predef/os/linux.h>
 #include <mego/util/posix/sys/types.h>
 
-#if MEGO_OS__LINUX__AVAILABLE
 #include <sys/stat.h>
+#if MEGO_OS__LINUX__AVAILABLE
 #include <sys/types.h>
 #endif
 
 #include <string.h>
-#include <time.h>
+#include <mego/util/std/time.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,9 +27,9 @@ struct mgu_stat
 	int64_t			st_gid;
 	mgu_dev_t		st_rdev;
 	int64_t			st_size;
-	timespec		st_atim;
-	timespec		st_mtim;
-	timespec		st_ctim;
+	mgu_timespec_t	st_atim;
+	mgu_timespec_t	st_mtim;
+	mgu_timespec_t	st_ctim;
 };
 
 enum mgu_stat_mode {
@@ -60,7 +60,7 @@ enum mgu_stat_mode {
 	mgu_stat_mode_ixoth = 00001,
 };
 
-inline int mgu_get_stat(const char* _path, intptr_t _slen, struct mgu_stat* _buf);
+int mgu_get_stat(const char* _path, intptr_t _slen, struct mgu_stat* _buf);
 
 
 inline int mgu_get_stat(const char* _path, intptr_t _slen, struct mgu_stat* _buf)
@@ -71,13 +71,13 @@ inline int mgu_get_stat(const char* _path, intptr_t _slen, struct mgu_stat* _buf
 #if MEGO_OS__LINUX__AVAILABLE
 	struct stat buffer;
 #else
-	struct _stat buffer;
+	struct _stat64 buffer;
 #endif
 	if (_slen < 0) {
 #if MEGO_OS__LINUX__AVAILABLE
 		if (stat(_path, &buffer) != 0) {
 #else
-		if (_stat(_path, &buffer) != 0) {
+		if (_stat64(_path, &buffer) != 0) {
 #endif
 			return errno;
 		}
@@ -92,7 +92,7 @@ inline int mgu_get_stat(const char* _path, intptr_t _slen, struct mgu_stat* _buf
 #if MEGO_OS__LINUX__AVAILABLE
         if (stat(p, &buffer) != 0) {
 #else
-        if (_stat(p, &buffer) != 0) {
+        if (_stat64(p, &buffer) != 0) {
 #endif
             free(p);
             return errno;
@@ -103,32 +103,32 @@ inline int mgu_get_stat(const char* _path, intptr_t _slen, struct mgu_stat* _buf
 #ifdef st_atime
 	_buf->st_atime = buffer.st_atime;
 #else
-	_buf->st_atim.tv_sec = buffer.st_atime;
+	_buf->st_atim.tv_sec  = buffer.st_atime;
 	_buf->st_atim.tv_nsec = 0;
 #endif
 
 #ifdef st_ctime
 	_buf->st_ctime = buffer.st_ctime;
 #else
-	_buf->st_ctim.tv_sec = buffer.st_ctime;
+	_buf->st_ctim.tv_sec  = buffer.st_ctime;
 	_buf->st_ctim.tv_nsec = 0;
 #endif
 
 #ifdef st_mtime	
 	_buf->st_mtime = buffer.st_mtime;
 #else
-	_buf->st_mtim.tv_sec = buffer.st_mtime;
+	_buf->st_mtim.tv_sec  = buffer.st_mtime;
 	_buf->st_mtim.tv_nsec = 0;
 #endif 
 
-	_buf->st_dev = buffer.st_dev;
-	_buf->st_gid = buffer.st_gid;
-	_buf->st_ino = buffer.st_ino;
-	_buf->st_mode = buffer.st_mode;
+	_buf->st_dev   = buffer.st_dev;
+	_buf->st_gid   = buffer.st_gid;
+	_buf->st_ino   = buffer.st_ino;
+	_buf->st_mode  = buffer.st_mode;
 	_buf->st_nlink = buffer.st_nlink;
-	_buf->st_rdev = buffer.st_rdev;
-	_buf->st_size = buffer.st_size;
-	_buf->st_uid = buffer.st_uid;
+	_buf->st_rdev  = buffer.st_rdev;
+	_buf->st_size  = buffer.st_size;
+	_buf->st_uid   = buffer.st_uid;
 	return 0;
 }
 
