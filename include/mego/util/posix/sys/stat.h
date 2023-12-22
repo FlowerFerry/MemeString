@@ -5,6 +5,7 @@
 #include <mego/err/ec.h>
 #include <mego/predef/os/linux.h>
 #include <mego/util/posix/sys/types.h>
+#include <mego/util/conv_to_native_c_str.h>
 #include <meme/utf/converter.h>
 #include <meme/native.h>
 
