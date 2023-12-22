@@ -27,13 +27,14 @@ mgec_t mgfs__check_and_create_dirs_if_needed(
 inline mgec_t mgfs__check_and_create_w_dirs_if_needed(
     const wchar_t *_path, size_t _slen, int _create_if_needed, int _path_allow_modified)
 {
+    size_t path_len = 0;
     wchar_t *path = NULL;
     mgec_t ec = 0;
     if (MEGO_SYMBOL__UNLIKELY(_path == NULL))
         return MGEC__INVAL;
     
     ec = mgu_w__conv_to_native_c_str(
-        _path, _slen, &path, NULL, _create_if_needed && !_path_allow_modified ? 1 : 0);
+        _path, _slen, &path, &path_len, _create_if_needed && !_path_allow_modified ? 1 : 0);
     if (MEGO_SYMBOL__UNLIKELY(ec != 0))
         return ec;
 
@@ -44,18 +45,20 @@ inline mgec_t mgfs__check_and_create_w_dirs_if_needed(
         else
             p = (wchar_t*)path;
         
-        for (; *p != L'\0'; ++p) {
-            if (*p == L'\\' || *p == L'/') 
+        for (size_t index = 1; index < path_len; ++index) 
+        {
+            if (p[index] == L'\\' || p[index] == L'/') 
             {
-                wchar_t c = *p;
-                *p = L'\0';
+                wchar_t ch = p[index];
+                p[index] = L'\0';
                 if (_wmkdir(p) != 0) {
                     if (errno != EEXIST) {
+                        p[index] = ch;
                         mgu_w__free_native_c_str(_path, path);
                         return mgec__from_posix_err(errno);
                     }
                 }
-                *p = c;
+                p[index] = ch;
             }
         }
         if (_wmkdir(path) != 0) {
@@ -70,11 +73,10 @@ inline mgec_t mgfs__check_and_create_w_dirs_if_needed(
     }
     else {
         struct mgu_stat st;
-        
-        if (mgu_get_w_stat(path, _slen, &st) != 0) 
-        {
+        int eno = mgu_get_w_stat(path, path_len, &st);
+        if (eno != 0) {
             mgu_w__free_native_c_str(_path, path);
-            return MGEC__PATH_NOT_FOUND;
+            return mgec__from_posix_err(eno);
         }
         if (!MGU__S_ISDIR(st.st_mode)) {
             mgu_w__free_native_c_str(_path, path);
@@ -114,18 +116,20 @@ inline mgec_t mgfs__check_and_create_dirs_if_needed(
         else
             p = (char*)path;
         
-        for (; *p != '\0'; ++p) {
-            if (*p == '\\' || *p == '/') 
+        for (size_t index = 1; index < path_len; ++index) 
+        {
+            if (p[index] == '\\' || p[index] == '/') 
             {
-                char c = *p;
-                *p = '\0';
+                char ch = p[index];
+                p[index] = '\0';
                 if (mkdir(p) != 0) {
                     if (errno != EEXIST) {
+                        p[index] = ch;
                         mgu__free_native_c_str(_path, path);
                         return mgec__from_posix_err(errno);
                     }
                 }
-                *p = c;
+                p[index] = ch;
             }
         }
         if (mkdir(path) != 0) {
@@ -140,11 +144,10 @@ inline mgec_t mgfs__check_and_create_dirs_if_needed(
     }
     else {
         struct mgu_stat st;
-        
-        if (mgu_get_stat(path, _slen, &st) != 0) 
-        {
+        int eno = mgu_get_stat(path, path_len, &st);
+        if (eno != 0) {
             mgu__free_native_c_str(_path, path);
-            return MGEC__PATH_NOT_FOUND;
+            return mgec__from_posix_err(eno);
         }
         if (!MGU__S_ISDIR(st.st_mode)) {
             mgu__free_native_c_str(_path, path);

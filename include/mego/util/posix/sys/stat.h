@@ -157,7 +157,6 @@ inline int mgu_get_stat(const char* _path, intptr_t _slen, struct mgu_stat* _buf
 	}
 
 	mgu__free_native_c_str(_path, path);
-
 	
 #ifdef st_atime
 	_buf->st_atime = buffer.st_atime;
