@@ -108,13 +108,14 @@ typedef struct _MemeStringStack_t {
 typedef MemeStringStack_t mmsstk_t;
 typedef MemeStringStack_t mmstrstk_t;
 
-//#ifndef MMENO__OFFSET
-//#define MMENO__OFFSET (-100000)
-//#endif
 
-//#ifndef MMENO__POSIX_OFFSET
-//#define MMENO__POSIX_OFFSET(VALUE) (-100000-(VALUE))
-//#endif
+#ifndef MMINT_MAX
+#define MMINT_MAX INTPTR_MAX
+#endif
+
+#ifndef MMINT_MIN
+#define MMINT_MIN INTPTR_MIN
+#endif
 
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_STRING_FWD_H_INCLUDED

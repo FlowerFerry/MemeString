@@ -4,6 +4,7 @@
 
 #include <meme/utf/converter.h>
 #include <mego/predef/os/windows.h>
+#include <mego/util/conv_to_native_c_str.h>
 
 #include <string.h>
 #include <stdio.h>
@@ -12,96 +13,58 @@
 extern "C" {
 #endif // __cplusplus
 
+#if MG_OS__WIN_AVAIL
+inline FILE* mgu_w_fopen(
+    const wchar_t* _path, mmint_t _slen, const wchar_t* _mode, mmint_t _mlen)
+{
+    FILE* fp = NULL;
+    mmn_char_cptr_t path = NULL;
+    mmn_char_cptr_t mode = NULL;
+    mgec_t ec = 0;
+    
+    ec = mgu_w__conv_to_native_c_str(_path, _slen, &path, NULL, 0);
+    if (MEGO_SYMBOL__UNLIKELY(ec != 0))
+        return NULL;
+
+    ec = mgu_w__conv_to_native_c_str(_mode, _mlen, &mode, NULL, 0);
+    if (MEGO_SYMBOL__UNLIKELY(ec != 0)) {
+        mgu_w__free_native_c_str(_path, path);
+        return NULL;
+    }
+
+    fp = _wfopen(path, mode);
+    mgu_w__free_native_c_str(_path, path);
+    mgu_w__free_native_c_str(_mode, mode);
+    return fp;
+}
+#endif
+
 inline FILE* mgu_fopen(
     const char* _path, mmint_t _slen, const char* _mode, mmint_t _mlen)
 {
     FILE* fp = NULL;
-#if MEGO_OS__WINDOWS__AVAILABLE
-    mmint_t u16len = 0;
-    wchar_t* path = NULL;
-    wchar_t* mode = NULL;
-#else
-    char* path = NULL;
-    char* mode = NULL;
-#endif
-
-    if (_slen < 0)
-        _slen = strlen(_path);
-
-    if (_mlen < 0)
-        _mlen = strlen(_mode);
-
-#if MEGO_OS__WINDOWS__AVAILABLE
-    u16len = mmutf_char_size_u16from8((const uint8_t*)_path, _slen);
-    if (u16len < 1)
-        return NULL;
+    mmn_char_cptr_t path = NULL;
+    mmn_char_cptr_t mode = NULL;
+    mgec_t ec = 0;
     
-    path = (wchar_t*)malloc(sizeof(wchar_t) * (u16len + 1));
-    if (!path)
+    ec = mgu__conv_to_native_c_str(_path, _slen, &path, NULL, 0);
+    if (MEGO_SYMBOL__UNLIKELY(ec != 0))
         return NULL;
-    
-    if (mmutf_convert_u8to16((const uint8_t*)_path, _slen, (uint16_t*)path) == 0)
-    {
-        free(path);
-        return NULL;
-    }
-    path[u16len] = L'\0';
 
-    u16len = mmutf_char_size_u16from8((const uint8_t*)_mode, _mlen);
-    if (u16len < 1) {
-        free(path);
+    ec = mgu__conv_to_native_c_str(_mode, _mlen, &mode, NULL, 0);
+    if (MEGO_SYMBOL__UNLIKELY(ec != 0)) {
+        mgu__free_native_c_str(_path, path);
         return NULL;
     }
 
-    mode = (wchar_t*)malloc(sizeof(wchar_t) * (u16len + 1));
-    if (!mode) {
-        free(path);
-        return NULL;
-    }
-
-    if (mmutf_convert_u8to16((const uint8_t*)_mode, _mlen, (uint16_t*)mode) == 0) 
-    {
-        free(path);
-        free(mode);
-        return NULL;
-    }
-    mode[u16len] = L'\0';
-
+#if MG_OS__WIN_AVAIL
     fp = _wfopen(path, mode);
-    free(path);
-    free(mode);
-    return fp;
 #else
-    if (_path[_slen] == '\0')
-        path = (char*)_path;
-    else {
-        path = (char*)malloc(sizeof(char) * (_slen + 1));
-        if (!path)
-            return NULL;
-        memcpy((void*)path, (const void*)_path, _slen);
-        path[_slen] = '\0';
-    }
-
-    if (_mode[_mlen] == '\0')
-        mode = (char*)_mode;
-    else {
-        mode = (char*)malloc(sizeof(char) * (_mlen + 1));
-        if (!mode) {
-            if (path != _path)
-                free(path);
-            return NULL;
-        }
-        memcpy((void*)mode, (const void*)_mode, _mlen);
-        mode[_mlen] = '\0';
-    }
-
     fp = fopen(path, mode);
-    if (path != _path)
-        free(path);
-    if (mode != _mode)
-        free(mode);
-    return fp;
 #endif
+    mgu__free_native_c_str(_path, path);
+    mgu__free_native_c_str(_mode, mode);
+    return fp;
 }
 
 #ifdef __cplusplus
