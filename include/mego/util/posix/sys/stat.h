@@ -88,7 +88,7 @@ int mgu_get_stat(const char* _path, intptr_t _slen, struct mgu_stat* _buf);
 inline int mgu_get_w_stat(const wchar_t* _path, intptr_t _slen, struct mgu_stat* _buf)
 {
 	struct _stat64 buffer;
-	wchar_t* path = NULL;
+	const wchar_t* path = NULL;
 	mgec_t ec = mgu_w__conv_to_native_c_str(_path, _slen, &path, NULL, 0);
 	if (MEGO_SYMBOL__UNLIKELY(ec != 0))
 		return ec;
