@@ -142,7 +142,7 @@ inline void mgu_w__free_converted_native_string(const wchar_t *_src, mmn_char_cp
 #else
 
 inline mgec_t mgu__to_converted_native_string(
-    const char *_src, size_t _slen, mmn_char_cptr_t *_out, int _must_alloc)
+    const char *_src, size_t _slen, mmn_char_cptr_t *_out, size_t *_out_slen, int _must_alloc)
 {
     char * path = NULL;
 

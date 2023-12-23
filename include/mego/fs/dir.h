@@ -18,10 +18,17 @@ extern "C" {
 #if MG_OS__WIN_AVAIL
 mgec_t mgfs__check_and_create_w_dirs_if_needed(
     const wchar_t *_path, size_t _slen, int _create_if_needed, int _path_allow_modified);
+
+int mgfs__is_exist_w_dir(
+    const wchar_t *_path, size_t _slen);
+
 #endif
 
 mgec_t mgfs__check_and_create_dirs_if_needed(
     const char *_path, size_t _slen, int _create_if_needed, int _path_allow_modified);
+
+int mgfs__is_exist_dir(
+    const char *_path, size_t _slen);
 
 #if MG_OS__WIN_AVAIL
 inline mgec_t mgfs__check_and_create_w_dirs_if_needed(
@@ -86,6 +93,9 @@ inline mgec_t mgfs__check_and_create_w_dirs_if_needed(
         return 0;
     }
 }
+
+
+
 #endif
 
 inline mgec_t mgfs__check_and_create_dirs_if_needed(
