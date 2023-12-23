@@ -5,7 +5,7 @@
 #include <mego/err/ec_impl.h>
 #include <mego/predef/symbol/likely.h>
 #include <mego/predef/os/windows.h>
-#include <mego/util/conv_to_native_c_str.h>
+#include <mego/util/converted_native_string.h>
 #include <mego/util/posix/sys/stat.h>
 
 #include <string.h>
@@ -33,7 +33,7 @@ inline mgec_t mgfs__check_and_create_w_dirs_if_needed(
     if (MEGO_SYMBOL__UNLIKELY(_path == NULL))
         return MGEC__INVAL;
     
-    ec = mgu_w__conv_to_native_c_str(
+    ec = mgu_w__to_cns(
         _path, _slen, &path, &path_len, _create_if_needed && !_path_allow_modified ? 1 : 0);
     if (MEGO_SYMBOL__UNLIKELY(ec != 0))
         return ec;
@@ -54,7 +54,7 @@ inline mgec_t mgfs__check_and_create_w_dirs_if_needed(
                 if (_wmkdir(p) != 0) {
                     if (errno != EEXIST) {
                         p[index] = ch;
-                        mgu_w__free_native_c_str(_path, path);
+                        mgu_w__free_cns(_path, path);
                         return mgec__from_posix_err(errno);
                     }
                 }
@@ -63,26 +63,26 @@ inline mgec_t mgfs__check_and_create_w_dirs_if_needed(
         }
         if (_wmkdir(path) != 0) {
             if (errno != EEXIST) {
-                mgu_w__free_native_c_str(_path, path);
+                mgu_w__free_cns(_path, path);
                 return mgec__from_posix_err(errno);
             }
         }
 
-        mgu_w__free_native_c_str(_path, path);
+        mgu_w__free_cns(_path, path);
         return 0;
     }
     else {
         struct mgu_stat st;
         int eno = mgu_get_w_stat(path, path_len, &st);
         if (eno != 0) {
-            mgu_w__free_native_c_str(_path, path);
+            mgu_w__free_cns(_path, path);
             return mgec__from_posix_err(eno);
         }
         if (!MGU__S_ISDIR(st.st_mode)) {
-            mgu_w__free_native_c_str(_path, path);
+            mgu_w__free_cns(_path, path);
             return MGEC__NOTDIR;
         }
-        mgu_w__free_native_c_str(_path, path);
+        mgu_w__free_cns(_path, path);
         return 0;
     }
 }
@@ -98,7 +98,7 @@ inline mgec_t mgfs__check_and_create_dirs_if_needed(
     if (MEGO_SYMBOL__UNLIKELY(_path == NULL))
         return MGEC__INVAL;
 
-    ec = mgu__conv_to_native_c_str(
+    ec = mgu__to_cns(
         _path, _slen, &path, &path_len, _create_if_needed && !_path_allow_modified ? 1 : 0);
     if (MEGO_SYMBOL__UNLIKELY(ec != 0))
         return ec;
@@ -106,7 +106,7 @@ inline mgec_t mgfs__check_and_create_dirs_if_needed(
 #if MG_OS__WIN_AVAIL
     ec = mgfs__check_and_create_w_dirs_if_needed(
         (const wchar_t*)path, path_len, _create_if_needed, 1);
-    mgu__free_native_c_str(_path, path);
+    mgu__free_cns(_path, path);
     return ec;
 #else
     if (_create_if_needed) {
@@ -125,7 +125,7 @@ inline mgec_t mgfs__check_and_create_dirs_if_needed(
                 if (mkdir(p) != 0) {
                     if (errno != EEXIST) {
                         p[index] = ch;
-                        mgu__free_native_c_str(_path, path);
+                        mgu__free_cns(_path, path);
                         return mgec__from_posix_err(errno);
                     }
                 }
@@ -134,26 +134,26 @@ inline mgec_t mgfs__check_and_create_dirs_if_needed(
         }
         if (mkdir(path) != 0) {
             if (errno != EEXIST) {
-                mgu__free_native_c_str(_path, path);
+                mgu__free_cns(_path, path);
                 return mgec__from_posix_err(errno);
             }
         }
 
-        mgu__free_native_c_str(_path, path);
+        mgu__free_cns(_path, path);
         return 0;
     }
     else {
         struct mgu_stat st;
         int eno = mgu_get_stat(path, path_len, &st);
         if (eno != 0) {
-            mgu__free_native_c_str(_path, path);
+            mgu__free_cns(_path, path);
             return mgec__from_posix_err(eno);
         }
         if (!MGU__S_ISDIR(st.st_mode)) {
-            mgu__free_native_c_str(_path, path);
+            mgu__free_cns(_path, path);
             return MGEC__NOTDIR;
         }
-        mgu__free_native_c_str(_path, path);
+        mgu__free_cns(_path, path);
         return 0;
     }
 #endif 

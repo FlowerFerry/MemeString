@@ -5,7 +5,7 @@
 #include <mego/err/ec.h>
 #include <mego/predef/os/linux.h>
 #include <mego/util/posix/sys/types.h>
-#include <mego/util/conv_to_native_c_str.h>
+#include <mego/util/converted_native_string.h>
 #include <meme/utf/converter.h>
 #include <meme/native.h>
 
@@ -89,16 +89,16 @@ inline int mgu_get_w_stat(const wchar_t* _path, intptr_t _slen, struct mgu_stat*
 {
 	struct _stat64 buffer;
 	const wchar_t* path = NULL;
-	mgec_t ec = mgu_w__conv_to_native_c_str(_path, _slen, &path, NULL, 0);
+	mgec_t ec = mgu_w__to_cns(_path, _slen, &path, NULL, 0);
 	if (MEGO_SYMBOL__UNLIKELY(ec != 0))
 		return ec;
 	
 	if (_wstat64(path, &buffer) != 0) {
-		mgu_w__free_native_c_str(_path, path);
+		mgu_w__free_cns(_path, path);
 		return errno;
 	}
 
-	mgu_w__free_native_c_str(_path, path);
+	mgu_w__free_cns(_path, path);
 
 #ifdef st_atime
 	_buf->st_atime = buffer.st_atime;
@@ -140,23 +140,23 @@ inline int mgu_get_stat(const char* _path, intptr_t _slen, struct mgu_stat* _buf
 #endif
 	mmn_char_cptr_t path = NULL;
 	size_t path_len = 0;
-	mgec_t ec = mgu__conv_to_native_c_str(_path, _slen, &path, &path_len, 0);
+	mgec_t ec = mgu__to_cns(_path, _slen, &path, &path_len, 0);
 	if (MEGO_SYMBOL__UNLIKELY(ec != 0))
 		return ec;
 	
 #if MG_OS__WIN_AVAIL
 	ec = mgu_get_w_stat(path, path_len, _buf);
-	mgu__free_native_c_str(_path, path);
+	mgu__free_cns(_path, path);
 	return ec;
 #endif 
 
 #if MG_OS__LINUX_AVAIL
 	if (stat(path, &buffer) != 0) {
-		mgu__free_native_c_str(_path, path);
+		mgu__free_cns(_path, path);
 		return errno;
 	}
 
-	mgu__free_native_c_str(_path, path);
+	mgu__free_cns(_path, path);
 	
 #ifdef st_atime
 	_buf->st_atime = buffer.st_atime;

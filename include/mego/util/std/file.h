@@ -4,7 +4,7 @@
 
 #include <meme/utf/converter.h>
 #include <mego/predef/os/windows.h>
-#include <mego/util/conv_to_native_c_str.h>
+#include <mego/util/converted_native_string.h>
 
 #include <string.h>
 #include <stdio.h>
@@ -22,19 +22,19 @@ inline FILE* mgu_w_fopen(
     mmn_char_cptr_t mode = NULL;
     mgec_t ec = 0;
     
-    ec = mgu_w__conv_to_native_c_str(_path, _slen, &path, NULL, 0);
+    ec = mgu_w__to_cns(_path, _slen, &path, NULL, 0);
     if (MEGO_SYMBOL__UNLIKELY(ec != 0))
         return NULL;
 
-    ec = mgu_w__conv_to_native_c_str(_mode, _mlen, &mode, NULL, 0);
+    ec = mgu_w__to_cns(_mode, _mlen, &mode, NULL, 0);
     if (MEGO_SYMBOL__UNLIKELY(ec != 0)) {
-        mgu_w__free_native_c_str(_path, path);
+        mgu_w__free_cns(_path, path);
         return NULL;
     }
 
     fp = _wfopen(path, mode);
-    mgu_w__free_native_c_str(_path, path);
-    mgu_w__free_native_c_str(_mode, mode);
+    mgu_w__free_cns(_path, path);
+    mgu_w__free_cns(_mode, mode);
     return fp;
 }
 #endif
@@ -47,13 +47,13 @@ inline FILE* mgu_fopen(
     mmn_char_cptr_t mode = NULL;
     mgec_t ec = 0;
     
-    ec = mgu__conv_to_native_c_str(_path, _slen, &path, NULL, 0);
+    ec = mgu__to_cns(_path, _slen, &path, NULL, 0);
     if (MEGO_SYMBOL__UNLIKELY(ec != 0))
         return NULL;
 
-    ec = mgu__conv_to_native_c_str(_mode, _mlen, &mode, NULL, 0);
+    ec = mgu__to_cns(_mode, _mlen, &mode, NULL, 0);
     if (MEGO_SYMBOL__UNLIKELY(ec != 0)) {
-        mgu__free_native_c_str(_path, path);
+        mgu__free_cns(_path, path);
         return NULL;
     }
 
@@ -62,8 +62,8 @@ inline FILE* mgu_fopen(
 #else
     fp = fopen(path, mode);
 #endif
-    mgu__free_native_c_str(_path, path);
-    mgu__free_native_c_str(_mode, mode);
+    mgu__free_cns(_path, path);
+    mgu__free_cns(_mode, mode);
     return fp;
 }
 
