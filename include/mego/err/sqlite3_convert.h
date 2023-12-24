@@ -3,7 +3,7 @@
 #define MEGO_ERR_SQLITE3_CONVERT_H_INCLUDED
 
 #include <mego/err/ec.h>
-#include <sqlite3/sqlite3.h>
+#include <sqlite3.h>
 
 inline mgec_t mgec__from_sqlite3_err(int _rc)
 {

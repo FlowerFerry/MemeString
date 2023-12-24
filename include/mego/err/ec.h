@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 typedef int mgec_t;
+typedef int mgrc_t;
 
 const char* mgec__name(mgec_t _ec);
 const char* mgec__desc(mgec_t _ec);
