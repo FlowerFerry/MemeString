@@ -44,7 +44,7 @@ MemeRune_initByByte(MemeRune_t* _out, char _ch)
     return 0;
 }
 
-inline int
+int
 MemeRune_initByUtf8Bytes(MemeRune_t* _out, const MemeByte_t* _buf, MemeInteger_t _len);
 
 inline int

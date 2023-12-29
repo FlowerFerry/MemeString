@@ -15,82 +15,82 @@
 extern "C" {
 #endif
 
-inline int 
+int 
 MemeStringMedium_canBeAppendIt(const MemeStringMedium_t* _s, MemeInteger_t _buflen);
 
-inline const uint8_t*
+const uint8_t*
 MemeStringMedium_constData(const MemeStringMedium_t* _s);
 
-inline uint8_t*
+uint8_t*
 MemeStringMedium_data(MemeStringMedium_t* _s);
 
-inline uint8_t*
+uint8_t*
 MemeStringMedium_iteratorEnd(MemeStringMedium_t* _s);
 
-inline MemeInteger_t
+MemeInteger_t
 MemeStringMedium_maxByteSize(const MemeStringMedium_t* _s);
 
-inline MemeInteger_t
+MemeInteger_t
 MemeStringMedium_realByteSize(const MemeStringMedium_t* _s);
 
-inline MemeInteger_t
+MemeInteger_t
 MemeStringMedium_maxByteCapacity(const MemeStringMedium_t* _s);
 
-inline MemeInteger_t
+MemeInteger_t
 MemeStringMedium_availableByteCapacity(const MemeStringMedium_t* _s);
 
-inline mmint_t
+mmint_t
 MemeStringMedium_usedByteFrontCapacity(const MemeStringMedium_t* _s);
 
-inline void
+void
 MemeStringMedium_byteSizeOffset(MemeStringMedium_t* _s, MemeInteger_t _offset);
 
-inline void
+void
 MemeStringMedium_byteSizeOffsetAndSetZero(MemeStringMedium_t* _s, MemeInteger_t _offset);
 
-inline int
+int
 MemeStringMedium_appendWithByte(
 	MemeStringMedium_t* _s, MemeInteger_t _count, MemeByte_t _byte);
 
-inline int
+int
 MemeStringMedium_appendWithBytes(
 	MemeStringMedium_t* _s, const MemeByte_t* _buf, MemeInteger_t _buflen);
 
-inline int 
+int 
 MemeStringMedium_insertWithBytes(
     MemeStringMedium_t* _s, MemeInteger_t _pos, const MemeByte_t* _buf, MemeInteger_t _buflen);
 
-inline int
+int
 MemeStringMedium_initWithCapacity(
 	MemeStringMedium_t* _s, MemeInteger_t _capacity);
 
-inline int
+int
 MemeStringMedium_assign(MemeStringMedium_t* _s, const MemeByte_t* _buf, MemeInteger_t _len);
 
-inline MemeInteger_t
+MemeInteger_t
 MemeStringMedium_remove(
 	MemeStringMedium_t* _s, MemeInteger_t _pos, MemeInteger_t _count);
 
-inline int
+int
 MemeStringMedium_resizeWithByte(MemeStringMedium_t* _s, MemeInteger_t _size, MemeByte_t _byte);
 
-inline int
+int
 MemeStringMedium_capacityExpansion(
 	MemeStringMedium_t* _s, MemeInteger_t _minSizeRequest);
 
-inline int
+int
 MemeStringMedium_clear(MemeStringMedium_t* _s);
 
-inline int
+int
 MemeStringMedium_unInit(MemeStringMedium_t* _s);
 
-inline int
+int
 MemeStringMedium_reset(MemeStringMedium_t* _s);
 
-inline void 
+void 
 MemeStringMedium_shrinkTailZero(MemeStringMedium_t* _s);
 
-inline MemeInteger_t
+MemeInteger_t
 MemeStringMedium_checkHeadTailMemory(const MemeStringMedium_t* _s);
 
 

@@ -28,6 +28,11 @@ namespace memepp {
 		MemeStringStack_init(&data_, MEME_STRING__OBJECT_SIZE);
 	}
 
+	MEMEPP__IMPL_INLINE string_view::string_view(mmstr_const_t _other)
+	{
+        MemeStringStack_initByOther(&data_, MMSTR__OBJ_SIZE, _other);
+	}
+
 	MEMEPP__IMPL_INLINE string_view::string_view(const MemeStringStack_t& _stack)
 	{
 		auto other = to_pointer(_stack);

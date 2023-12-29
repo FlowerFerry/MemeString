@@ -34,6 +34,7 @@ namespace memepp {
 		static const size_type npos = static_cast<size_type>(-1);
         
 		string() noexcept;
+		string(mmstr_const_t _other);
 		string(native_handle_type&& _other);
 		string(const native_handle_type& _other);
 

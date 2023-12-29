@@ -62,7 +62,7 @@ namespace memepp {
             }
 
             if (curr_size_ == invalid_size)
-                curr_size_ = mmutf_u8rune_valid(ptr_, end_ - ptr_);
+                curr_size_ = static_cast<int8_t>(mmutf_u8rune_valid(ptr_, end_ - ptr_));
 
             if (curr_size_ == invalid_code) {
                 return *this;
@@ -70,7 +70,7 @@ namespace memepp {
             
             ptr_ += curr_size_;
             prev_size_ = curr_size_;
-            curr_size_ = mmutf_u8rune_valid(ptr_, end_ - ptr_);
+            curr_size_ = static_cast<int8_t>(mmutf_u8rune_valid(ptr_, end_ - ptr_));
 
             return *this;
         }
@@ -106,7 +106,7 @@ namespace memepp {
             else {
                 ptr_ -= prev_size_;
                 curr_size_ = prev_size_;
-                const_pointer index = 0;
+                index = 0;
                 prev_size_ = get_prev_rune_size(begin_, ptr_, &index);
                 if (ptr_ > begin_ && prev_size_ == invalid_code)
                 {
@@ -178,7 +178,7 @@ namespace memepp {
         rune_index to_index() const noexcept
         {
             if (curr_size_ == invalid_size)
-                curr_size_ = mmutf_u8rune_valid(ptr_, end_ - ptr_);
+                curr_size_ = static_cast<int8_t>(mmutf_u8rune_valid(ptr_, end_ - ptr_));
             
             return { ptr_, curr_size_ };
         }
@@ -186,7 +186,7 @@ namespace memepp {
         rune to_rune() const noexcept
         {
             if (curr_size_ == invalid_size)
-                curr_size_ = mmutf_u8rune_valid(ptr_, end_ - ptr_);
+                curr_size_ = static_cast<int8_t>(mmutf_u8rune_valid(ptr_, end_ - ptr_));
 
             return rune{ ptr_, curr_size_ };
         }
@@ -212,7 +212,7 @@ namespace memepp {
                     break;
                 }
 
-                return byte_size;
+                return static_cast<int8_t>(byte_size);
             }
 
             if (index < _begin && _prev)

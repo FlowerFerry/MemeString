@@ -14,28 +14,28 @@
 extern "C" {
 #endif
 
-inline void MemeStringUser_RefCount_init(volatile MemeStringUser_RefCounted_t* _refcount);
-inline MemeInteger_t MemeStringUser_RefCount_increment(volatile MemeStringUser_RefCounted_t* _refcount);
-inline MemeInteger_t MemeStringUser_RefCount_decrementAndDestruct(
+void MemeStringUser_RefCount_init(volatile MemeStringUser_RefCounted_t* _refcount);
+MemeInteger_t MemeStringUser_RefCount_increment(volatile MemeStringUser_RefCounted_t* _refcount);
+MemeInteger_t MemeStringUser_RefCount_decrementAndDestruct(
 	volatile MemeStringUser_RefCounted_t* _refcount);
 
-inline int MemeStringUser_initTakeOver(MemeStringUser_t* _s,
+int MemeStringUser_initTakeOver(MemeStringUser_t* _s,
 	MemeString_MallocFunction_t* _cfn, MemeString_FreeFunction_t* _dfn,
 	void* _user_data,
 	size_t _strlen,
 	MemeString_UserObjectDestruct_t* _destruct_fn,
 	MemeString_UserObjectData_t* _data_fn);
-inline int MemeStringUser_initByOther(MemeStringUser_t* _s, const MemeStringUser_t* _other);
-inline int MemeStringUser_unInit(MemeStringUser_t* _s);
-inline int MemeStringUser_reset (MemeStringUser_t* _s);
-inline const MemeByte_t* MemeStringUser_constData(const MemeStringUser_t* _s);
-inline void MemeStringUser_setOffset(MemeStringUser_t* _s, MemeInteger_t _offset);
-inline void MemeStringUser_shrinkTailZero(MemeStringUser_t* _s);
+int MemeStringUser_initByOther(MemeStringUser_t* _s, const MemeStringUser_t* _other);
+int MemeStringUser_unInit(MemeStringUser_t* _s);
+int MemeStringUser_reset (MemeStringUser_t* _s);
+const MemeByte_t* MemeStringUser_constData(const MemeStringUser_t* _s);
+void MemeStringUser_setOffset(MemeStringUser_t* _s, MemeInteger_t _offset);
+void MemeStringUser_shrinkTailZero(MemeStringUser_t* _s);
 
-inline MemeInteger_t MemeStringUser_getSharedHeapByteSize (const MemeStringUser_t* _s);
-inline MemeInteger_t MemeStringUser_getPrivateHeapByteSize(const MemeStringUser_t* _s);
+MemeInteger_t MemeStringUser_getSharedHeapByteSize (const MemeStringUser_t* _s);
+MemeInteger_t MemeStringUser_getPrivateHeapByteSize(const MemeStringUser_t* _s);
 
-inline MemeInteger_t
+MemeInteger_t
 MemeStringUser_checkHeadTailMemory(const MemeStringUser_t* _s);
 
 inline int MemeStringUser_initTakeOver(MemeStringUser_t* _s,

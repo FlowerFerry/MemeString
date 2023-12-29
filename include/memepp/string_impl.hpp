@@ -20,6 +20,14 @@ namespace memepp {
 		MemeStringStack_init(&data_, MEME_STRING__OBJECT_SIZE);
 	}
 
+	MEMEPP__IMPL_INLINE string::string(mmstr_const_t _other)
+	{
+        *errc() = MemeStringStack_initByOther(&data_, MMSTR__OBJ_SIZE, _other);
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(*errc());
+#endif
+	}
+
 	MEMEPP__IMPL_INLINE string::string(native_handle_type&& _other)
 	{
 		auto other = to_pointer(_other);
