@@ -9,7 +9,11 @@
 #include <mego/util/posix/sys/stat.h>
 
 #include <string.h>
+#if MG_OS__WIN_AVAIL
 #include <direct.h>
+#else
+#include <sys/stat.h>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
