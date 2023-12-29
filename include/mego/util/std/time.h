@@ -296,6 +296,39 @@ extern "C" {
         return tv * 1000;
     }
 
+    inline mgu_time_t mgu_timestamp_to_time(mgu_timestamp_t _ts)
+    {
+        return (mgu_time_t)(_ts / 1000);
+    }
+
+    inline mgu_timestamp_t mgu_time_to_ts(mgu_time_t _time)
+    {
+        return (mgu_timestamp_t)(_time * 1000);
+    }
+
+    inline int mgu_timestamp_get_ms(mgu_timestamp_t _ts)
+    {
+        return (int)(_ts % 1000);
+    }
+
+    inline struct tm *mgu_gmtime_from_ts(mgu_timestamp_t _ts, struct tm * _result, int* _ms)
+    {
+        mgu_time_t tv = (mgu_time_t)(_ts / 1000);
+        if (mgu_gmtime_s(&tv, _result) == NULL)
+            return NULL;
+        if (_ms) *_ms = (int)(_ts % 1000);
+        return _result;
+    }
+
+    inline struct tm *mgu_localtime_from_ts(mgu_timestamp_t _ts, struct tm * _result, int* _ms)
+    {
+        mgu_time_t tv = (mgu_time_t)(_ts / 1000);
+        if (mgu_localtime_s(&tv, _result) == NULL)
+            return NULL;
+        if (_ms) *_ms = (int)(_ts % 1000);
+        return _result;
+    }
+
 #if MG_OS__LINUX_AVAIL
     inline double 
     mgu_sys_timeval_diff(
