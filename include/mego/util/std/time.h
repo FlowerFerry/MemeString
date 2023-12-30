@@ -26,6 +26,12 @@ extern "C" {
     typedef int64_t mgu_timestamp_t;
     typedef int64_t mgu_timeval_t;
 
+    typedef struct mgu_timestamp_pair_t
+    {
+        mgu_timestamp_t begin;
+        mgu_timestamp_t end;
+    } mgu_timestamp_pair_t;
+
     typedef struct mgu_timespec_t
     {
         mgu_time_t tv_sec;  // Seconds - >= 0
@@ -328,6 +334,8 @@ extern "C" {
         if (_ms) *_ms = (int)(_ts % 1000);
         return _result;
     }
+
+    
 
 #if MG_OS__LINUX_AVAIL
     inline double 
