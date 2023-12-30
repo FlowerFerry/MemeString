@@ -207,14 +207,14 @@ extern "C" {
     }
 
     inline mgu_timestamp_t mgu_timestamp_round_to_minute(
-        mgu_timestamp_t _ts, int minute_interval, mgu_round_t _round) 
+        mgu_timestamp_t _ts, int _min_interval, mgu_round_t _round) 
     {
         int remainder = 0;
         struct tm gtm;
         mgu_time_t tv = (mgu_time_t)(_ts / 1000);
         if (mgu_gmtime_s(&tv, &gtm) == NULL)
             return _ts;
-        remainder = gtm.tm_min % minute_interval;
+        remainder = gtm.tm_min % _min_interval;
     
         switch (_round) {
             case mgu_round_down:
@@ -223,7 +223,7 @@ extern "C" {
             case mgu_round_up:
                 if (remainder > 0) 
                 {
-                    gtm.tm_min += (minute_interval - remainder);
+                    gtm.tm_min += (_min_interval - remainder);
                     if (gtm.tm_min >= 60) {
                         gtm.tm_min -= 60;
                         gtm.tm_hour += 1;
@@ -311,7 +311,7 @@ extern "C" {
         return (int)(_ts % 1000);
     }
 
-    inline struct tm *mgu_gmtime_from_ts(mgu_timestamp_t _ts, struct tm * _result, int* _ms)
+    inline struct tm *mgu_gmtime_from_timestamp(mgu_timestamp_t _ts, struct tm * _result, int* _ms)
     {
         mgu_time_t tv = (mgu_time_t)(_ts / 1000);
         if (mgu_gmtime_s(&tv, _result) == NULL)
@@ -320,7 +320,7 @@ extern "C" {
         return _result;
     }
 
-    inline struct tm *mgu_localtime_from_ts(mgu_timestamp_t _ts, struct tm * _result, int* _ms)
+    inline struct tm *mgu_localtime_from_timestamp(mgu_timestamp_t _ts, struct tm * _result, int* _ms)
     {
         mgu_time_t tv = (mgu_time_t)(_ts / 1000);
         if (mgu_localtime_s(&tv, _result) == NULL)
