@@ -18,7 +18,7 @@ namespace memepp {
     //! \brief A string class.
     //! \details This class is a wrapper of MemeStringStack_t.
 	//! \note This class is not Thread-safe.
-	class string final
+	class string
 	{
 	public:
 		using value_type = MemeByte_t;

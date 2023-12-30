@@ -15,7 +15,7 @@
 
 namespace memepp {
 
-    class buffer_view final
+    class buffer_view
 	{
     public:
 		using value_type = MemeByte_t;

@@ -12,7 +12,7 @@
 
 namespace memepp {
 
-	class string_view final
+	class string_view
 	{
         string_view& operator=(string&& _other) = delete;
         

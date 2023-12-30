@@ -12,7 +12,7 @@
 
 namespace memepp {
 
-	class buffer final
+	class buffer
 	{
 	public:
 		using value_type = MemeByte_t;
