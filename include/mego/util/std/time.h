@@ -335,7 +335,21 @@ extern "C" {
         return _result;
     }
 
-    
+    inline mgu_timestamp_t mgu_timestamp_from_gmtime(struct tm * _tm, int _ms)
+    {
+        mgu_time_t tv = mgu_mktime_utc(_tm);
+        if (tv == -1)
+            return -1;
+        return (mgu_timestamp_t)tv * 1000 + _ms % 1000;
+    }
+
+    inline mgu_timestamp_t mgu_timestamp_from_localtime(struct tm * _tm, int _ms)
+    {
+        mgu_time_t tv = mktime(_tm);
+        if (tv == -1)
+            return -1;
+        return (mgu_timestamp_t)tv * 1000 + _ms % 1000;
+    }
 
 #if MG_OS__LINUX_AVAIL
     inline double 
