@@ -8,7 +8,7 @@
 
 MEME_EXTERN_C_SCOPE_START
 
-static inline int
+inline int
 mmutf_u8rune_char_size(uint8_t _ch)
 {
     if (_ch < 0x80) // 0XXXXXXX
