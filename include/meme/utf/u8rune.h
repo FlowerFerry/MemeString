@@ -4,7 +4,7 @@
 
 #include <meme/string_fwd.h>
 #include <meme/utf/u8rune_fwd.h>
-#include <meme/utf/u16rune_fwd.h>
+#include <meme/utf/u16rune.h>
 
 MEME_EXTERN_C_SCOPE_START
 
