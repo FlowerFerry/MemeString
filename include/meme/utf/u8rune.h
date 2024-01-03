@@ -123,8 +123,10 @@ mmutf_u8char_size_from16(const uint16_t* _ch, MemeInteger_t _len, int* _ch_size)
 }
 
 inline int
-mmutf_u8char_size_from32(const uint32_t* _ch, MemeInteger_t , int* _ch_size)
+mmutf_u8char_size_from32(const uint32_t* _ch, MemeInteger_t _len, int* _ch_size)
 {
+    (void*)_len;
+
     if (*_ch < 0x80) {  // 0XXXXXXX
         if (_ch_size)
             *_ch_size = 1;
