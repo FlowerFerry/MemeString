@@ -1,6 +1,6 @@
 
 #include "meme/string_fwd.h"
-#include <meme/utf/u8rune.h>
+#include <meme/utf/u8rune_fwd.h>
 #include <string.h>
 
 MEME_EXTERN_C_SCOPE_START

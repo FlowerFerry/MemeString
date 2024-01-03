@@ -190,6 +190,21 @@ EXPORTS
     MemeString_writeBytes @185
     MemeStringStack_concat @186
     MemeString_containsOnlyAscii @187
-    
-    
-    
+    mmutf_u8rune_char_size @188
+    mmutf_u8rune_valid @189
+    mmutf_u8char_size_from16 @190
+    mmutf_u8char_size_from32 @191
+    mmutf_u8rune_get_u32 @192
+    mmutf_u8rune_set_u32 @193
+    mmutf_u16rune_char_size @194
+    mmutf_u16rune_valid @195
+    mmutf_u16char_size_from8 @196
+    mmutf_u16char_size_from32 @197
+    mmutf_u16rune_get_u32 @198
+    mmutf_u16rune_set_u32 @199
+    mmutf_u32rune_char_size @200
+    mmutf_u32rune_valid @201
+    mmutf_u32char_size_from8 @202
+    mmutf_u32char_size_from16 @203
+    mmutf_u32rune_get_u32 @204
+    mmutf_u32rune_set_u32 @205

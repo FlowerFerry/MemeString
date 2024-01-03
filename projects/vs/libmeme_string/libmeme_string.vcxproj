@@ -246,9 +246,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\meme_buffer.c" />
+    <ClCompile Include="..\..\..\src\meme_impl__string_large.c" />
+    <ClCompile Include="..\..\..\src\meme_impl__string_medium.c" />
+    <ClCompile Include="..\..\..\src\meme_impl__string_small.c" />
+    <ClCompile Include="..\..\..\src\meme_impl__string_user.c" />
     <ClCompile Include="..\..\..\src\meme_memory.c" />
     <ClCompile Include="..\..\..\src\meme_string_builder.c" />
     <ClCompile Include="..\..\..\src\meme_utf_converter.c" />
+    <ClCompile Include="..\..\..\src\meme_utf_u16rune.c" />
+    <ClCompile Include="..\..\..\src\meme_utf_u32rune.c" />
+    <ClCompile Include="..\..\..\src\meme_utf_u8rune.c" />
     <ClCompile Include="..\..\..\src\meme_variable_buffer.c" />
     <ClCompile Include="..\..\..\src\meme_atomic__basics.c" />
     <ClCompile Include="..\..\..\src\meme_impl__algorithm.c" />

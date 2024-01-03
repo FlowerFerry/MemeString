@@ -371,6 +371,27 @@
     <ClCompile Include="..\..\..\src\meme_utf_converter.c">
       <Filter>源文件\src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\meme_impl__string_medium.c">
+      <Filter>源文件\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\meme_impl__string_small.c">
+      <Filter>源文件\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\meme_impl__string_large.c">
+      <Filter>源文件\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\meme_impl__string_user.c">
+      <Filter>源文件\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\meme_utf_u16rune.c">
+      <Filter>源文件\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\meme_utf_u32rune.c">
+      <Filter>源文件\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\meme_utf_u8rune.c">
+      <Filter>源文件\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="export.def">
