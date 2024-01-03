@@ -8,6 +8,9 @@
 
 MEME_EXTERN_C_SCOPE_START
 
+int
+mmutf_u8rune_char_size(uint8_t _ch);
+
 inline int
 mmutf_u8rune_char_size(uint8_t _ch)
 {
@@ -120,7 +123,7 @@ mmutf_u8char_size_from16(const uint16_t* _ch, MemeInteger_t _len, int* _ch_size)
 }
 
 inline int
-mmutf_u8char_size_from32(const uint32_t* _ch, MemeInteger_t _len, int* _ch_size)
+mmutf_u8char_size_from32(const uint32_t* _ch, MemeInteger_t , int* _ch_size)
 {
     if (*_ch < 0x80) {  // 0XXXXXXX
         if (_ch_size)

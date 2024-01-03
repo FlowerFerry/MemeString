@@ -256,7 +256,7 @@ namespace memepp {
     }
 
     MEMEPP__IMPL_INLINE string_view::size_type string_view::find(
-		const_pointer _utf8, size_type _pos, size_type _size) const noexcept
+		const_pointer _utf8, size_type _pos, size_type ) const noexcept
     {
         return MemeString_indexOfWithUtf8bytes(
             to_pointer(native_handle()), _pos, _utf8, -1, case_sensitivity_t::all_sensitive);
