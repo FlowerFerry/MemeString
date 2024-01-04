@@ -154,7 +154,7 @@ public:
     {}
 
     err (const std::shared_ptr<detail::err> &impl):
-        impl_{ impl }
+        impl_{ impl ? impl : std::make_shared<detail::err>() }
     {}
 
     // err (const std::shared_ptr<detail::err> &impl, const std::shared_ptr<detail::err> &next):
