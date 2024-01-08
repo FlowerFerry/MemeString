@@ -33,9 +33,9 @@
 #endif
 
 #if defined(__cplusplus)
-#  define MGCAPI_INLINE MG_INLINE
+#  define MG_CAPI_INLINE MG_INLINE
 #else
-#  define MGCAPI_INLINE static MG_INLINE
+#  define MG_CAPI_INLINE static MG_INLINE
 #endif
 
 #endif // !MEGO_PREDEF_INLINE_H_INCLUDED
