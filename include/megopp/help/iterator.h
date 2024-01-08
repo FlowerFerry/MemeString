@@ -8,13 +8,13 @@ namespace mgpp {
 namespace help {
     
 template <typename T, typename U>
-inline U & iter_get_val(std::pair<T, U> & pair) 
+inline U & iter_value(std::pair<T, U> & pair) 
 {
     return pair.second;
 }
 
 template <typename T>
-inline T & iter_get_val(T & val) 
+inline T & iter_value(T & val) 
 {
     return val;
 }

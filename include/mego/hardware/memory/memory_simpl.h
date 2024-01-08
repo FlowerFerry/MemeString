@@ -12,7 +12,7 @@ extern "C" {
 
 inline int mghw_get_memory_status(struct mghw_memory_status *status)
 {
-    #if MEGO_OS__WINDOWS__AVAILABLE
+#if MEGO_OS__WINDOWS__AVAILABLE
     MEMORYSTATUSEX memstat = { sizeof(MEMORYSTATUSEX), 0 };
     int ret = GlobalMemoryStatusEx(&memstat);
     if (ret == 0)
