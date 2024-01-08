@@ -10,7 +10,7 @@
 
 namespace memepp {
 
-inline memepp::string from(const yyjson_val *value) 
+inline memepp::string from(yyjson_val *value) 
 {
     if (MEGO_SYMBOL__UNLIKELY(!yyjson_is_str(value))) 
     {
@@ -19,7 +19,7 @@ inline memepp::string from(const yyjson_val *value)
     return { yyjson_get_str(value), yyjson_get_len(value) };
 }
 
-inline memepp::string_view view(const yyjson_val *value) 
+inline memepp::string_view view(yyjson_val *value) 
 {
     if (MEGO_SYMBOL__UNLIKELY(!yyjson_is_str(value))) 
     {
@@ -28,9 +28,9 @@ inline memepp::string_view view(const yyjson_val *value)
     return { yyjson_get_str(value), yyjson_get_len(value) };
 }
 
-inline memepp::string from(const yyjson_val* value, const memepp::string_view& key, const memepp::string_view& default_value) 
+inline memepp::string from(yyjson_val* value, const memepp::string_view& key, const memepp::string_view& default_value) 
 {
-    const yyjson_val* val = yyjson_obj_getn(value, key.data(), static_cast<size_t>(key.size()));
+    yyjson_val* val = yyjson_obj_getn(value, key.data(), static_cast<size_t>(key.size()));
     if (MEGO_SYMBOL__UNLIKELY(!val)) 
     {
         return default_value.to_string();
