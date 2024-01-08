@@ -14,7 +14,7 @@ extern "C" {
 #endif // __cplusplus
 
 #if MG_OS__WIN_AVAIL
-inline FILE* mgu_w_fopen(
+MG_CAPI_INLINE FILE* mgu_w_fopen(
     const wchar_t* _path, mmint_t _slen, const wchar_t* _mode, mmint_t _mlen)
 {
     FILE* fp = NULL;
@@ -39,7 +39,7 @@ inline FILE* mgu_w_fopen(
 }
 #endif
 
-inline FILE* mgu_fopen(
+MG_CAPI_INLINE FILE* mgu_fopen(
     const char* _path, mmint_t _slen, const char* _mode, mmint_t _mlen)
 {
     FILE* fp = NULL;

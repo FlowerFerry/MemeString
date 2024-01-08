@@ -62,7 +62,7 @@ extern "C" {
             return 0;
         }
 
-#if defined(COMM_WINDOWS)
+#if MG_OS__WIN_AVAIL
         struct _timeb tb;
         _ftime_s(&tb);
         _ts->tv_sec = (time_t)tb.time;
@@ -83,21 +83,21 @@ extern "C" {
     }
 #endif
 
-    inline mgu_timestamp_t mgu_timestamp_get()
+    MG_CAPI_INLINE mgu_timestamp_t mgu_timestamp_get()
     {
         mgu_timespec_t ts;
         mgu_timespec_get(&ts, MGU_TIME_UTC);
         return (mgu_timestamp_t)ts.tv_sec * 1000LL + (mgu_timestamp_t)ts.tv_nsec / 1000000LL;
     }
 
-    inline mgu_timeval_t mgu_timeval_get()
+    MG_CAPI_INLINE mgu_timeval_t mgu_timeval_get()
     {
         mgu_timespec_t ts;
         mgu_timespec_get(&ts, MGU_TIME_UTC);
         return (mgu_timeval_t)ts.tv_sec * 1000000LL + (mgu_timeval_t)ts.tv_nsec / 1000LL;
     }
         
-    inline mgec_t mgu_asctime_s(char *_buf, size_t _bufsz, const struct tm *_tm)
+    MG_CAPI_INLINE mgec_t mgu_asctime_s(char *_buf, size_t _bufsz, const struct tm *_tm)
     {
     #if MG_OS__WIN_AVAIL
         return asctime_s(_buf, _bufsz, _tm);
@@ -110,10 +110,10 @@ extern "C" {
             _buf[0] = '\0';
         }
         return errno;
-    #endif // COMM_WINDOWS
+    #endif
     }
 
-    inline mgec_t mgu_ctime_s(char *_buf, mgu_time_t _bufsz, const mgu_time_t *_time)
+    MG_CAPI_INLINE mgec_t mgu_ctime_s(char *_buf, mgu_time_t _bufsz, const mgu_time_t *_time)
     {
     #if MG_OS__WIN_AVAIL
         return ctime_s(_buf, _bufsz, _time);
@@ -127,10 +127,10 @@ extern "C" {
             _buf[0] = '\0';
         }
         return errno;
-    #endif // COMM_WINDOWS
+    #endif
     }
 
-    inline struct tm *mgu_gmtime_s(const mgu_time_t * MEGO_SYMBOL__RESTRICT _time, struct tm * MEGO_SYMBOL__RESTRICT _result)
+    MG_CAPI_INLINE struct tm *mgu_gmtime_s(const mgu_time_t * MEGO_SYMBOL__RESTRICT _time, struct tm * MEGO_SYMBOL__RESTRICT _result)
     {
         if (!_time) return NULL;
 
@@ -143,7 +143,7 @@ extern "C" {
 
     }
 
-    inline struct tm *mgu_localtime_s(const mgu_time_t * MEGO_SYMBOL__RESTRICT _time, struct tm * MEGO_SYMBOL__RESTRICT _result)
+    MG_CAPI_INLINE struct tm *mgu_localtime_s(const mgu_time_t * MEGO_SYMBOL__RESTRICT _time, struct tm * MEGO_SYMBOL__RESTRICT _result)
     {	
         if (!_time) return NULL;
 
@@ -155,7 +155,7 @@ extern "C" {
     #endif 
     }
 
-    inline int mgu_hour_timezone()
+    MG_CAPI_INLINE int mgu_hour_timezone()
     {
         int tz = INT_MIN;
         struct tm ltm;
@@ -174,7 +174,7 @@ extern "C" {
         return tz;
     }
 
-    inline int mgu_minute_timezone()
+    MG_CAPI_INLINE int mgu_minute_timezone()
     {
         int diff = 0;
         struct tm ltm;
@@ -197,7 +197,7 @@ extern "C" {
         return diff / 60;
     }
 
-    inline mgu_time_t mgu_mktime_utc(struct tm * _tm)
+    MG_CAPI_INLINE mgu_time_t mgu_mktime_utc(struct tm * _tm)
     {
         mgu_time_t tv = -1;
         int tz = mgu_minute_timezone();
@@ -213,7 +213,7 @@ extern "C" {
         return tv + tz * 60;
     }
 
-    inline mgu_timestamp_t mgu_timestamp_round_to_minute(
+    MG_CAPI_INLINE mgu_timestamp_t mgu_timestamp_round_to_minute(
         mgu_timestamp_t _ts, int _min_interval, mgu_round_t _round) 
     {
         int remainder = 0;
@@ -246,7 +246,7 @@ extern "C" {
         return tv * 1000;
     }
 
-    inline mgu_timestamp_t mgu_timestamp_round_to_hour(
+    MG_CAPI_INLINE mgu_timestamp_t mgu_timestamp_round_to_hour(
         mgu_timestamp_t _ts, int _interval, mgu_round_t _round)
     {
         int remainder = 0;
@@ -280,7 +280,7 @@ extern "C" {
         return tv * 1000;
     }
 
-    inline mgu_timestamp_t mgu_timestamp_round_to_day(
+    MG_CAPI_INLINE mgu_timestamp_t mgu_timestamp_round_to_day(
         mgu_timestamp_t _ts, mgu_round_t _round)
     {
         struct tm gtm;
@@ -303,22 +303,22 @@ extern "C" {
         return tv * 1000;
     }
 
-    inline mgu_time_t mgu_timestamp_to_time(mgu_timestamp_t _ts)
+    MG_CAPI_INLINE mgu_time_t mgu_timestamp_to_time(mgu_timestamp_t _ts)
     {
         return (mgu_time_t)(_ts / 1000);
     }
 
-    inline mgu_timestamp_t mgu_time_to_ts(mgu_time_t _time)
+    MG_CAPI_INLINE mgu_timestamp_t mgu_time_to_ts(mgu_time_t _time)
     {
         return (mgu_timestamp_t)(_time * 1000);
     }
 
-    inline int mgu_timestamp_get_ms(mgu_timestamp_t _ts)
+    MG_CAPI_INLINE int mgu_timestamp_get_ms(mgu_timestamp_t _ts)
     {
         return (int)(_ts % 1000);
     }
 
-    inline struct tm *mgu_gmtime_from_timestamp(mgu_timestamp_t _ts, struct tm * _result, int* _ms)
+    MG_CAPI_INLINE struct tm *mgu_gmtime_from_timestamp(mgu_timestamp_t _ts, struct tm * _result, int* _ms)
     {
         mgu_time_t tv = (mgu_time_t)(_ts / 1000);
         if (mgu_gmtime_s(&tv, _result) == NULL)
@@ -327,7 +327,7 @@ extern "C" {
         return _result;
     }
 
-    inline struct tm *mgu_localtime_from_timestamp(mgu_timestamp_t _ts, struct tm * _result, int* _ms)
+    MG_CAPI_INLINE struct tm *mgu_localtime_from_timestamp(mgu_timestamp_t _ts, struct tm * _result, int* _ms)
     {
         mgu_time_t tv = (mgu_time_t)(_ts / 1000);
         if (mgu_localtime_s(&tv, _result) == NULL)
@@ -336,7 +336,7 @@ extern "C" {
         return _result;
     }
 
-    inline mgu_timestamp_t mgu_timestamp_from_gmtime(struct tm * _tm, int _ms)
+    MG_CAPI_INLINE mgu_timestamp_t mgu_timestamp_from_gmtime(struct tm * _tm, int _ms)
     {
         mgu_time_t tv = mgu_mktime_utc(_tm);
         if (tv == -1)
@@ -344,7 +344,7 @@ extern "C" {
         return (mgu_timestamp_t)tv * 1000 + _ms % 1000;
     }
 
-    inline mgu_timestamp_t mgu_timestamp_from_localtime(struct tm * _tm, int _ms)
+    MG_CAPI_INLINE mgu_timestamp_t mgu_timestamp_from_localtime(struct tm * _tm, int _ms)
     {
         mgu_time_t tv = mktime(_tm);
         if (tv == -1)
@@ -353,7 +353,7 @@ extern "C" {
     }
 
 #if MG_OS__LINUX_AVAIL
-    inline double 
+    MG_CAPI_INLINE double 
     mgu_sys_timeval_diff(
         const struct timeval* _subtrahend, const struct timeval* _subtractor) 
     {
