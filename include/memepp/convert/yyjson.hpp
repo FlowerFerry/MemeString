@@ -16,7 +16,7 @@ inline memepp::string from(yyjson_val *value)
     {
         return {};
     }
-    return { yyjson_get_str(value), yyjson_get_len(value) };
+    return { yyjson_get_str(value), static_cast<mmint_t>(yyjson_get_len(value)) };
 }
 
 inline memepp::string_view view(yyjson_val *value) 
@@ -25,7 +25,7 @@ inline memepp::string_view view(yyjson_val *value)
     {
         return {};
     }
-    return { yyjson_get_str(value), yyjson_get_len(value) };
+    return { yyjson_get_str(value), static_cast<mmint_t>(yyjson_get_len(value)) };
 }
 
 inline memepp::string from(yyjson_val* value, const memepp::string_view& key, const memepp::string_view& default_value) 
@@ -39,7 +39,7 @@ inline memepp::string from(yyjson_val* value, const memepp::string_view& key, co
     {
         return default_value.to_string();
     }
-    return { yyjson_get_str(val), yyjson_get_len(val) };
+    return { yyjson_get_str(val), static_cast<mmint_t>(yyjson_get_len(val)) };
 } 
 
 };
