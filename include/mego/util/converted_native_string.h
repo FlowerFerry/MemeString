@@ -4,6 +4,7 @@
 
 #include <mego/err/ec.h>
 #include <mego/predef/symbol/likely.h>
+#include <mego/predef/symbol/inline.h>
 #include <mego/predef/os/windows.h>
 
 #include <meme/utf/converter.h>
