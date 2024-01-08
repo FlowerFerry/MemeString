@@ -4,10 +4,11 @@
 
 #include <uchar.h>
 #include <meme/string_fwd.h>
+#include <mego/predef/symbol/inline.h>
 
 MEME_EXTERN_C_SCOPE_START
 
-static inline int strlen16(const char16_t* _s)
+MG_CAPI_INLINE int strlen16(const char16_t* _s)
 {
     if (!_s)
         return -1; //strarg is NULL pointer

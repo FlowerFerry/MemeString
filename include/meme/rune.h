@@ -4,6 +4,7 @@
 
 #include "meme/string_fwd.h"
 #include "mego/predef/symbol/likely.h"
+#include "mego/predef/symbol/inline.h"
 #include <meme/utf/u8rune.h>
 
 #include <mego/err/ec.h>
@@ -14,8 +15,8 @@
 
 MEME_EXTERN_C_SCOPE_START
 
-inline MemeRune_t
-MemeRune_getInitObject()
+MG_CAPI_INLINE MemeRune_t
+    MemeRune_getInitObject()
 {
     MemeRune_t w;
     memset(&w, 0, sizeof(w));
@@ -23,8 +24,16 @@ MemeRune_getInitObject()
     return w;
 }
 
-inline int
-MemeRune_initByOther(MemeRune_t* _out, const MemeRune_t* _other)
+MG_CAPI_INLINE MemeInteger_t
+    MemeRune_size(const MemeRune_t* _s)
+{
+    assert(_s != NULL);
+
+    return 7 - _s->attr.capacity;
+}
+
+MG_CAPI_INLINE int
+    MemeRune_initByOther(MemeRune_t* _out, const MemeRune_t* _other)
 {
     assert(_out != NULL && _other != NULL);
 
@@ -32,8 +41,8 @@ MemeRune_initByOther(MemeRune_t* _out, const MemeRune_t* _other)
     return 0;
 }
 
-inline int
-MemeRune_initByByte(MemeRune_t* _out, char _ch)
+MG_CAPI_INLINE int
+    MemeRune_initByByte(MemeRune_t* _out, char _ch)
 {
     assert(_out != NULL);
 
@@ -44,98 +53,8 @@ MemeRune_initByByte(MemeRune_t* _out, char _ch)
     return 0;
 }
 
-int
-MemeRune_initByUtf8Bytes(MemeRune_t* _out, const MemeByte_t* _buf, MemeInteger_t _len);
-
-inline int
-MemeRune_reset(MemeRune_t* _out)
-{
-    assert(_out != NULL);
-
-    memset(_out, 0, sizeof(*_out));
-    _out->attr.capacity = 7;
-    return 0;
-}
-
-inline int
-MemeRune_assign(MemeRune_t* _s, const MemeRune_t* _other)
-{
-    assert(_s != NULL && _other != NULL);
-
-    *_s = *_other;
-    return 0;
-}
-
-inline int
-MemeRune_swap(MemeRune_t* _lhs, MemeRune_t* _rhs)
-{
-    assert(_lhs != NULL && _rhs != NULL);
-
-    MemeRune_t tmp = *_lhs;
-    *_lhs = *_rhs;
-    *_rhs = tmp;
-    return 0;
-}
-
-inline int
-MemeRune_isEmpty(const MemeRune_t* _s)
-{
-    assert(_s != NULL);
-
-    return _s->attr.capacity == 7;
-}
-
-inline const MemeByte_t*
-MemeRune_data(const MemeRune_t* _s)
-{
-    return _s->byte;
-}
-
-inline MemeByte_t*
-MemeRune_dataNotConst(const MemeRune_t* _s)
-{
-    return ((MemeRune_t*)_s)->byte;
-}
-
-inline MemeInteger_t
-MemeRune_size(const MemeRune_t* _s)
-{
-    assert(_s != NULL);
-
-    return 7 - _s->attr.capacity;
-}
-
-inline int
-MemeRune_isValid(const MemeRune_t* _s)
-{
-    assert(_s != NULL);
-
-    return _s->attr.invalid == 0;
-}
-
-inline int
-MemeRune_resize(MemeRune_t* _s, uint8_t _count)
-{
-    assert(_s != NULL);
-
-    if ((_count > 7))
-        return MGEC__INVAL;
-
-    _s->attr.capacity = 7 - _count;
-    _s->byte[MemeRune_size(_s)] = '\0';
-    return 0;
-}
-
-inline int
-MemeRune_isMulitChar(const MemeRune_t* _s)
-{
-    assert(_s != NULL);
-
-    return !!(_s->byte[0] & 0x80);
-}
-
-inline int
-MemeRune_initByUtf8Bytes(MemeRune_t* _out, const MemeByte_t* _buf, MemeInteger_t _len)
+MG_CAPI_INLINE int
+    MemeRune_initByUtf8Bytes(MemeRune_t* _out, const MemeByte_t* _buf, MemeInteger_t _len)
 {
     assert(_out != NULL && _buf != NULL);
 
@@ -149,8 +68,87 @@ MemeRune_initByUtf8Bytes(MemeRune_t* _out, const MemeByte_t* _buf, MemeInteger_t
     return 0;
 }
 
-inline int
-MemeRune_byteSize(const MemeRune_t* _s)
+MG_CAPI_INLINE int
+    MemeRune_reset(MemeRune_t* _out)
+{
+    assert(_out != NULL);
+
+    memset(_out, 0, sizeof(*_out));
+    _out->attr.capacity = 7;
+    return 0;
+}
+
+MG_CAPI_INLINE int
+    MemeRune_assign(MemeRune_t* _s, const MemeRune_t* _other)
+{
+    assert(_s != NULL && _other != NULL);
+
+    *_s = *_other;
+    return 0;
+}
+
+MG_CAPI_INLINE int
+    MemeRune_swap(MemeRune_t* _lhs, MemeRune_t* _rhs)
+{
+    assert(_lhs != NULL && _rhs != NULL);
+
+    MemeRune_t tmp = *_lhs;
+    *_lhs = *_rhs;
+    *_rhs = tmp;
+    return 0;
+}
+
+MG_CAPI_INLINE int
+    MemeRune_isEmpty(const MemeRune_t* _s)
+{
+    assert(_s != NULL);
+
+    return _s->attr.capacity == 7;
+}
+
+MG_CAPI_INLINE const MemeByte_t*
+    MemeRune_data(const MemeRune_t* _s)
+{
+    return _s->byte;
+}
+
+MG_CAPI_INLINE MemeByte_t*
+    MemeRune_dataNotConst(const MemeRune_t* _s)
+{
+    return ((MemeRune_t*)_s)->byte;
+}
+
+MG_CAPI_INLINE int
+    MemeRune_isValid(const MemeRune_t* _s)
+{
+    assert(_s != NULL);
+
+    return _s->attr.invalid == 0;
+}
+
+MG_CAPI_INLINE int
+    MemeRune_resize(MemeRune_t* _s, uint8_t _count)
+{
+    assert(_s != NULL);
+
+    if ((_count > 7))
+        return MGEC__INVAL;
+
+    _s->attr.capacity = 7 - _count;
+    _s->byte[MemeRune_size(_s)] = '\0';
+    return 0;
+}
+
+MG_CAPI_INLINE int
+    MemeRune_isMulitChar(const MemeRune_t* _s)
+{
+    assert(_s != NULL);
+
+    return !!(_s->byte[0] & 0x80);
+}
+
+MG_CAPI_INLINE int
+    MemeRune_byteSize(const MemeRune_t* _s)
 {
     assert(_s != NULL);
     if (MemeRune_size(_s) < 1)
