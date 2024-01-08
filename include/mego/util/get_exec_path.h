@@ -48,16 +48,16 @@ extern "C" {
 #endif // __cppplusplus
 
     
-    inline int MegoUtil_GetExecutablePath(char* _out, int _capacity, int* _dirname_pos);
+    // inline int MegoUtil_GetExecutablePath(char* _out, int _capacity, int* _dirname_pos);
 
 
 #if MEGO_OS__WINDOWS__AVAILABLE
-    inline int MegoUtil_GetExecutablePath(char* _out, int _capacity, int* _dirname_pos)
+    MG_CAPI_INLINE int MegoUtil_GetExecutablePath(char* _out, int _capacity, int* _dirname_pos)
     {
         return MegoUtilImpl_GetModulePath(NULL, _out, _capacity, _dirname_pos);
     }
 #elif defined(__linux__) || defined(__CYGWIN__) || defined(__sun)
-    inline int MegoUtil_GetExecutablePath(char* _out, int _capacity, int* _dirname_pos)
+    MG_CAPI_INLINE int MegoUtil_GetExecutablePath(char* _out, int _capacity, int* _dirname_pos)
     {
         char buffer[PATH_MAX] = { 0 };
         int  length = -1;
@@ -91,7 +91,7 @@ extern "C" {
     
 #endif
     
-inline int mgu_get_executable_path(char* _out, int _capacity, int* _dirname_pos)
+MG_CAPI_INLINE int mgu_get_executable_path(char* _out, int _capacity, int* _dirname_pos)
 {
     return MegoUtil_GetExecutablePath(_out, _capacity, _dirname_pos);
 }

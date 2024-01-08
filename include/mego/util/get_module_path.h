@@ -3,6 +3,7 @@
 #define MEGO_UTIL_GET_MODULE_PATH_H_INCLUDED
 
 #include <mego/predef/os/windows.h>
+#include <mego/predef/symbol/inline.h>
 
 #if MEGO_OS__WINDOWS__AVAILABLE
 #   include <mego/util/os/windows/windows_simplify.h>
@@ -15,10 +16,10 @@ extern "C" {
 #endif // __cppplusplus
 
 #if MEGO_OS__WINDOWS__AVAILABLE
-    int MegoUtilImpl_GetModulePath(
-        HMODULE _module, char* _out, int _capacity, int* _dirname_pos);
+    // int MegoUtilImpl_GetModulePath(
+    //     HMODULE _module, char* _out, int _capacity, int* _dirname_pos);
 
-    inline int MegoUtilImpl_GetModulePath(
+    MG_CAPI_INLINE int MegoUtilImpl_GetModulePath(
         HMODULE _module, char* _out, int _capacity, int* _dirname_pos)
     {
         wchar_t buf[MAX_PATH] = { 0 };

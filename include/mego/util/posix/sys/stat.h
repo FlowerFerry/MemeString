@@ -77,15 +77,15 @@ enum mgu_stat_mode {
 	mgu_stat_mode_ixoth = 00001,
 };
 
+// #if MG_OS__WIN_AVAIL
+// int mgu_get_w_stat(const wchar_t* _path, intptr_t _slen, struct mgu_stat* _buf);
+// #endif
+
+// int mgu_get_stat(const char* _path, intptr_t _slen, struct mgu_stat* _buf);
+
+
 #if MG_OS__WIN_AVAIL
-int mgu_get_w_stat(const wchar_t* _path, intptr_t _slen, struct mgu_stat* _buf);
-#endif
-
-int mgu_get_stat(const char* _path, intptr_t _slen, struct mgu_stat* _buf);
-
-
-#if MG_OS__WIN_AVAIL
-inline int mgu_get_w_stat(const wchar_t* _path, intptr_t _slen, struct mgu_stat* _buf)
+MG_CAPI_INLINE int mgu_get_w_stat(const wchar_t* _path, intptr_t _slen, struct mgu_stat* _buf)
 {
 	struct _stat64 buffer;
 	const wchar_t* path = NULL;
@@ -133,7 +133,7 @@ inline int mgu_get_w_stat(const wchar_t* _path, intptr_t _slen, struct mgu_stat*
 };
 #endif
 
-inline int mgu_get_stat(const char* _path, intptr_t _slen, struct mgu_stat* _buf)
+MG_CAPI_INLINE int mgu_get_stat(const char* _path, intptr_t _slen, struct mgu_stat* _buf)
 {
 #if MG_OS__LINUX_AVAIL
 	struct stat buffer;

@@ -3,6 +3,7 @@
 #define MEGO_UTIL_GETTEMPPATH_H_INCLUDED
 
 #include <mego/predef/os/windows.h>
+#include <mego/predef/symbol/inline.h>
 #include <mego/util/os/windows/windows_simplify.h>
 #include <meme/utf/converter.h>
 
@@ -13,9 +14,9 @@ extern "C" {
 #endif // __cppplusplus
     
     
-    int mgu_get_temp_path(char* _out, int _capacity);
+    // int mgu_get_temp_path(char* _out, int _capacity);
 
-    inline int mgu_get_temp_path(char* _out, int _capacity)
+    MG_CAPI_INLINE int mgu_get_temp_path(char* _out, int _capacity)
     {
 #if MG_OS__WIN_AVAIL
         mmint_t result = 0;
