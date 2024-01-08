@@ -5,6 +5,7 @@
 
 #include <mego/predef/architecture/arm.h>
 #include <mego/predef/architecture/x86.h>
+#include <mego/predef/symbol/inline.h>
 
 #include "id.h"
 
@@ -28,21 +29,21 @@ typedef uint32_t mghw_simd_instruction_t;
 
 #if defined(__PPC64__)
 
-inline mghw_simd_instruction_t
+MG_CAPI_INLINE mghw_simd_instruction_t
 mghw_detect_supported_simd_instructions() {
     return MGHW_SIMD_INSTRUCTION__ALTIVEC;
 }
 
 #elif MEGO_ARCH__ARM && defined(__ARM_NEON)
 
-inline mghw_simd_instruction_t
+MG_CAPI_INLINE mghw_simd_instruction_t
 mghw_detect_supported_simd_instructions() {
     return MGHW_SIMD_INSTRUCTION__NEON;
 }
 
 #elif MEGO_ARCH__AMD64
 
-static inline mghw_simd_instruction_t
+MG_CAPI_INLINE mghw_simd_instruction_t
 mghw_detect_supported_simd_instructions()
 { 
     uint32_t eax;
@@ -91,7 +92,7 @@ mghw_detect_supported_simd_instructions()
 
 #else
 
-inline mghw_simd_instruction_t
+MG_CAPI_INLINE mghw_simd_instruction_t
 mghw_detect_supported_simd_instructions() {
     return MGHW_SIMD_INSTRUCTION__DEFAULT;
 }

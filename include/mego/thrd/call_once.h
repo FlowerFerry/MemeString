@@ -3,6 +3,7 @@
 #define MEGO_THRD_CALL_ONCE_H_INCLUDED
 
 #include "mego/predef/threads.h"
+#include <mego/predef/symbol/inline.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -16,10 +17,10 @@ typedef struct {
 } mgthrd_once_flag;
 
 # define MGTHRD_ONCE_FLAG_INIT { 0, }
-static inline void
-mgthrd_call_once(mgthrd_once_flag* _flag, void(*_func)(void));
+// static inline void
+// mgthrd_call_once(mgthrd_once_flag* _flag, void(*_func)(void));
 
-static inline void
+MG_CAPI_INLINE void
 mgthrd_call_once(mgthrd_once_flag* _flag, void(*_func)(void))
 {
 	assert(_flag);

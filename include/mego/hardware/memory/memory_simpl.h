@@ -5,12 +5,13 @@
 #include "memory_def.h"
 #include <mego/util/os/windows/windows_simplify.h>
 #include <mego/predef/os/linux.h>
+#include <mego/predef/symbol/inline.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif // __cppplusplus
 
-inline int mghw_get_memory_status(struct mghw_memory_status *status)
+MG_CAPI_INLINE int mghw_get_memory_status(struct mghw_memory_status *status)
 {
 #if MEGO_OS__WINDOWS__AVAILABLE
     MEMORYSTATUSEX memstat = { sizeof(MEMORYSTATUSEX), 0 };

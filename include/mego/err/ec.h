@@ -4,14 +4,22 @@
 
 #include <stdint.h>
 
+#if defined(__cplusplus)
+extern "C" {
+#endif // defined(__cplusplus)
+
 typedef int mgec_t;
 typedef int mgrc_t;
 
-const char* mgec__name(mgec_t _ec);
-const char* mgec__desc(mgec_t _ec);
+// const char* mgec__name(mgec_t _ec);
+// const char* mgec__desc(mgec_t _ec);
 
-mgec_t mgec__from_sys_err(int _sys_err);
-mgec_t mgec__from_posix_err(int _posix_err);
+// mgec_t mgec__from_sys_err  (int _sys_err);
+// mgec_t mgec__from_posix_err(int _posix_err);
+
+#if defined(__cplusplus)
+}
+#endif 
 
 #define MGEC__POSIX_OFFSET_BEGIN  -100000
 #define MGEC__POSIX_OFFSET_END    -199999

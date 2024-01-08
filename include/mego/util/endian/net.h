@@ -7,7 +7,7 @@
 #include "mego/predef/endian.h"
 #include "byte_swap.h"
 
-inline uint16_t MegoEndian_hton16(uint16_t _v)
+MG_CAPI_INLINE uint16_t MegoEndian_hton16(uint16_t _v)
 {
 #if	MEGO_ENDIAN__BIG_BYTE
 	return _v;
@@ -18,7 +18,7 @@ inline uint16_t MegoEndian_hton16(uint16_t _v)
 #endif
 }
 
-inline uint32_t MegoEndian_hton32(uint32_t _v)
+MG_CAPI_INLINE uint32_t MegoEndian_hton32(uint32_t _v)
 {
 #if	MEGO_ENDIAN__BIG_BYTE
 	return _v;
@@ -29,7 +29,7 @@ inline uint32_t MegoEndian_hton32(uint32_t _v)
 #endif
 }
 
-inline uint64_t MegoEndian_hton64(uint64_t _v)
+MG_CAPI_INLINE uint64_t MegoEndian_hton64(uint64_t _v)
 {
 #if	MEGO_ENDIAN__BIG_BYTE
 	return _v;
@@ -40,7 +40,7 @@ inline uint64_t MegoEndian_hton64(uint64_t _v)
 #endif
 }
 
-inline uint16_t MegoEndian_ntoh16(uint16_t _v)
+MG_CAPI_INLINE uint16_t MegoEndian_ntoh16(uint16_t _v)
 {
 #if	MEGO_ENDIAN__BIG_BYTE
 	return _v;
@@ -51,7 +51,7 @@ inline uint16_t MegoEndian_ntoh16(uint16_t _v)
 #endif
 }
 
-inline uint32_t MegoEndian_ntoh32(uint32_t _v)
+MG_CAPI_INLINE uint32_t MegoEndian_ntoh32(uint32_t _v)
 {
 #if	MEGO_ENDIAN__BIG_BYTE
 	return _v;
@@ -62,7 +62,7 @@ inline uint32_t MegoEndian_ntoh32(uint32_t _v)
 #endif
 }
 
-inline uint64_t MegoEndian_ntoh64(uint64_t _v)
+MG_CAPI_INLINE uint64_t MegoEndian_ntoh64(uint64_t _v)
 {
 #if	MEGO_ENDIAN__BIG_BYTE
 	return _v;

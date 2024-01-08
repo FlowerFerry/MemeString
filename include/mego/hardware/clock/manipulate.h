@@ -3,6 +3,7 @@
 #define MGHW_CLOCK_MANIPULATE_H_INCLUDED
 
 #include <mego/predef/os/linux.h>
+#include <mego/predef/symbol/inline.h>
 #include <mego/util/std/time.h>
 #include <mego/predef/architecture/x86.h>
 
@@ -48,7 +49,7 @@ enum mghw_clock_access_t {
     mghw_clock_access__kd
 };
 
-inline int mghw_clock__get_first_rtc_path(
+MG_CAPI_INLINE int mghw_clock__get_first_rtc_path(
     char* _path, size_t _path_len)
 {
 #if MG_OS__LINUX_AVAIL
@@ -83,8 +84,8 @@ inline int mghw_clock__get_first_rtc_path(
 #endif
 }
 
-inline mghw_clock_access_t
-mghw_clock__determine_access()
+MG_CAPI_INLINE mghw_clock_access_t
+    mghw_clock__determine_access()
 {
     mghw_clock_access_t access = mghw_clock_access__isa;
     int is_rtc_avail = 0;
@@ -144,8 +145,8 @@ mghw_clock__determine_access()
     return access;
 }
 
-inline uint8_t
-mghw_clock__x86_read_reg(uint8_t _reg)
+MG_CAPI_INLINE uint8_t
+    mghw_clock__x86_read_reg(uint8_t _reg)
 {
 #if MEGO_ARCH__I386
     register uint8_t val;
@@ -161,8 +162,8 @@ mghw_clock__x86_read_reg(uint8_t _reg)
 #endif
 }
 
-inline void 
-mghw_clock__x86_write(uint8_t _reg, uint8_t _val) 
+MG_CAPI_INLINE void 
+    mghw_clock__x86_write(uint8_t _reg, uint8_t _val) 
 {
 #if MEGO_ARCH__I386
 
@@ -172,14 +173,14 @@ mghw_clock__x86_write(uint8_t _reg, uint8_t _val)
 #endif
 }
 
-inline void 
-mghw_clock__x86_write_bcd(int _addr, int _value) 
+MG_CAPI_INLINE void 
+    mghw_clock__x86_write_bcd(int _addr, int _value) 
 {
     mghw_clock__x86_write(_addr, ((_value / 10) << 4) + _value % 10);
 }
 
-inline int
-mghw_clock__set_clock_by_isa(const struct tm* _new)
+MG_CAPI_INLINE int
+    mghw_clock__set_clock_by_isa(const struct tm* _new)
 {
     uint8_t save_control, save_freq_select;
 #if MEGO_ARCH__I386
@@ -208,8 +209,8 @@ mghw_clock__set_clock_by_isa(const struct tm* _new)
     return 0;
 }
 
-inline int
-mghw_clock__set_clock_by_rtc_ioctl(const struct tm* _new)
+MG_CAPI_INLINE int
+    mghw_clock__set_clock_by_rtc_ioctl(const struct tm* _new)
 {
 
 #if MGHW_CLOCK__RTC_AVAIL
@@ -235,8 +236,8 @@ mghw_clock__set_clock_by_rtc_ioctl(const struct tm* _new)
     return 0;
 }
 
-inline int
-mghw_clock__set_clock_by_kd(const struct tm* _new)
+MG_CAPI_INLINE int
+    mghw_clock__set_clock_by_kd(const struct tm* _new)
 {
 #ifdef KDSHWCLK
     int rc = 0;
@@ -265,9 +266,9 @@ mghw_clock__set_clock_by_kd(const struct tm* _new)
     return 0;
 }
 
-inline int
-mghw_clock__set_clock(
-    const enum mghw_clock_access_t _access, time_t _newtime, int _universal)
+MG_CAPI_INLINE int
+    mghw_clock__set_clock(
+        const enum mghw_clock_access_t _access, time_t _newtime, int _universal)
 {
     
 #if MG_OS__LINUX_AVAIL
@@ -301,7 +302,7 @@ mghw_clock__set_clock(
 #endif
 }
 
-int mghw_clock__set_clock_exact_blocked(
+MG_CAPI_INLINE int mghw_clock__set_clock_exact_blocked(
     time_t _settime, const struct timeval* _reftime, mghw_clock_access_t _access, int _universal)
 {
 #if MG_OS__LINUX_AVAIL

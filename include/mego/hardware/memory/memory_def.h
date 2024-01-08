@@ -18,7 +18,7 @@ struct mghw_memory_status
     uint64_t available_virtual;
 };
 
-inline int mghw_get_memory_status(struct mghw_memory_status *status);
+// inline int mghw_get_memory_status(struct mghw_memory_status *status);
 
 #ifdef __cplusplus
 }

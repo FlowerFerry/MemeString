@@ -6,6 +6,7 @@
 #include <meme/unsafe/string_view.h>
 #include <mego/predef/os/linux.h>
 #include <mego/predef/os/windows.h>
+#include <mego/predef/symbol/inline.h>
 #include <mego/util/get_exec_path.h>
 #include <mego/util/posix/sys/stat.h>
 
@@ -31,15 +32,15 @@ struct mghw_harddisk_freespace
     uint64_t avail;
 };
 
-mmstrstk_t mghw_get_harddisk_path_by_path(const char* _filepath, size_t _len);
+// mmstrstk_t mghw_get_harddisk_path_by_path(const char* _filepath, size_t _len);
 
-mmstrstk_t mghw_get_harddisk_mountpoint_by_path(const char* _filepath, size_t _len);
+// mmstrstk_t mghw_get_harddisk_mountpoint_by_path(const char* _filepath, size_t _len);
 
-int mghw_get_harddisk_freespace_by_path(
-    const char* _filepath, size_t _len, mghw_harddisk_freespace* _freespace);
+// int mghw_get_harddisk_freespace_by_path(
+//     const char* _filepath, size_t _len, mghw_harddisk_freespace* _freespace);
 
 
-inline mmstrstk_t mghw_get_harddisk_path_by_path(const char* _filepath, size_t _len)
+MG_CAPI_INLINE mmstrstk_t mghw_get_harddisk_path_by_path(const char* _filepath, size_t _len)
 {
     mmstrstk_t s;
 #if MEGO_OS__LINUX__AVAILABLE
@@ -137,7 +138,7 @@ inline mmstrstk_t mghw_get_harddisk_path_by_path(const char* _filepath, size_t _
 #endif // MEGO_OS__Linux__AVAILABLE
 }
 
-inline mmstrstk_t mghw_get_harddisk_mountpoint_by_path(const char* _filepath, size_t _len)
+MG_CAPI_INLINE mmstrstk_t mghw_get_harddisk_mountpoint_by_path(const char* _filepath, size_t _len)
 {
     mmstrstk_t s;
 #if MEGO_OS__LINUX__AVAILABLE
@@ -204,7 +205,7 @@ inline mmstrstk_t mghw_get_harddisk_mountpoint_by_path(const char* _filepath, si
 #endif // MEGO_OS__Linux__AVAILABLE
 }
 
-inline int mghw_get_harddisk_freespace_by_path(
+MG_CAPI_INLINE int mghw_get_harddisk_freespace_by_path(
     const char* _filepath, size_t _len, mghw_harddisk_freespace* _freespace)
 {
     mmstrstk_t mountpoint = mghw_get_harddisk_mountpoint_by_path(_filepath, _len);

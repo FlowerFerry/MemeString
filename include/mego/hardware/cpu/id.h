@@ -6,7 +6,7 @@
 #include <mego/predef/compiler/visualc.h>
 #include <mego/predef/architecture/x86.h>
 #include <mego/predef/os/linux.h>
-
+#include <mego/predef/symbol/inline.h>
 
 
 #if MEGO_COMP__MSVC__AVAILABLE
@@ -43,7 +43,7 @@
 
 #if MEGO_ARCH__AMD64
 
-static inline void mghw_cpuid(uint32_t *_eax, uint32_t *_ebx, uint32_t *_ecx, uint32_t *_edx) 
+MG_CAPI_INLINE void mghw_cpuid(uint32_t *_eax, uint32_t *_ebx, uint32_t *_ecx, uint32_t *_edx) 
 {
 #if MEGO_COMP__MSVC__AVAILABLE
   int cpu_info[4];

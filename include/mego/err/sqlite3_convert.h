@@ -3,9 +3,10 @@
 #define MEGO_ERR_SQLITE3_CONVERT_H_INCLUDED
 
 #include <mego/err/ec.h>
+#include <mego/predef/symbol/inline.h>
 #include <sqlite3.h>
 
-inline mgec_t mgec__from_sqlite3_err(int _rc)
+MG_CAPI_INLINE mgec_t mgec__from_sqlite3_err(int _rc)
 {
     switch (_rc)
     {

@@ -3,16 +3,15 @@
 #define MGEC_ERR_LMDB_CONVERT_H_INCLUDED
 
 #include <mego/err/ec.h>
+#include <mego/predef/symbol/inline.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include <liblmdb/lmdb.h>
-#ifdef __cplusplus
-}
-#endif
 
-inline mgec_t mgec__from_lmdb_err(int _err)
+#include <liblmdb/lmdb.h>
+
+MG_CAPI_INLINE mgec_t mgec__from_lmdb_err(int _err)
 {
     switch(_err) {
         case MDB_SUCCESS: return MGEC__OK;
@@ -40,5 +39,9 @@ inline mgec_t mgec__from_lmdb_err(int _err)
         default: return MGEC__ERR;
     }
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // !MGEC_ERR_LMDB_CONVERT_H_INCLUDED

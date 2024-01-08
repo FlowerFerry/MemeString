@@ -5,12 +5,12 @@
 
 #include <mego/err/ec.h>
 #include <mego/predef/os/windows.h>
+#include <mego/predef/symbol/inline.h>
 #include <mego/util/os/windows/windows_simplify.h>
 
 #include <errno.h>
 
-
-inline mgec_t mgec__from_sys_err(int _sys_err)
+MG_CAPI_INLINE mgec_t mgec__from_sys_err(int _sys_err)
 {	
     if (_sys_err <= 0)
 		return _sys_err;
@@ -126,7 +126,7 @@ inline mgec_t mgec__from_sys_err(int _sys_err)
 #endif
 }
 
-inline mgec_t mgec__from_posix_err(int _posix_err)
+MG_CAPI_INLINE mgec_t mgec__from_posix_err(int _posix_err)
 {
 	if (_posix_err == 0)
 		return 0;
