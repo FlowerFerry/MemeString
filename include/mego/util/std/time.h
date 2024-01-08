@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <mego/predef/symbol/restrict.h>
+#include <mego/predef/symbol/inline.h>
 #include <mego/predef/os/windows.h>
 #include <mego/predef/os/linux.h>
 #include <mego/err/ec.h>
@@ -45,7 +46,7 @@ extern "C" {
     };
 
 #ifdef TIME_UTC
-    inline int mgu_timespec_get(mgu_timespec_t* _ts, int _base)
+    MG_CAPI_INLINE int mgu_timespec_get(mgu_timespec_t* _ts, int _base)
     {
         struct timespec ts;
         int ret = timespec_get(&ts, _base);
@@ -53,7 +54,7 @@ extern "C" {
         return ret;
     }
 #else   
-    inline int mgu_timespec_get(mgu_timespec_t* _ts, int _base)
+    MG_CAPI_INLINE int mgu_timespec_get(mgu_timespec_t* _ts, int _base)
     {
         if (!_ts) return 0;
 
