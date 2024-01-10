@@ -54,11 +54,11 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initTakeOverUserObject(
 	size_t len = 0;
 	//int result = 0;
 
-	assert(_out != NULL			&& "function is" && MemeStringStack_initTakeOverUserObject);
-	assert(_user_data != NULL	&& "function is" && MemeStringStack_initTakeOverUserObject);
-	assert(_destruct_fn != NULL && "function is" && MemeStringStack_initTakeOverUserObject);
-	assert(_data_fn != NULL		&& "function is" && MemeStringStack_initTakeOverUserObject);
-	assert(_size_fn != NULL		&& "function is" && MemeStringStack_initTakeOverUserObject);
+	assert(_out != NULL			&& MemeStringStack_initTakeOverUserObject != NULL);
+	assert(_user_data != NULL	&& MemeStringStack_initTakeOverUserObject != NULL);
+	assert(_destruct_fn != NULL && MemeStringStack_initTakeOverUserObject != NULL);
+	assert(_data_fn != NULL		&& MemeStringStack_initTakeOverUserObject != NULL);
+	assert(_size_fn != NULL		&& MemeStringStack_initTakeOverUserObject != NULL);
     
 	len = _size_fn(_user_data);
 	if (len <= MMS__GET_SMALL_BUFFER_SIZE)
@@ -81,8 +81,8 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_unInit(mmsstk_t* _out, s
 {
 	mms_t obj = (mms_t)_out;
 
-	assert(obj && MemeStringStack_unInit);
-	assert(_object_size != 0 && MemeStringStack_unInit);
+	assert(obj && MemeStringStack_unInit != NULL);
+	assert(_object_size != 0 && MemeStringStack_unInit != NULL);
 
 	switch (MMS__GET_TYPE(obj)) {
 	case MemeString_ImplType_small:
@@ -118,8 +118,8 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByU8bytesAndType(
 {
 	MemeString_Storage_t type;
 
-	assert(_out && MemeStringStack_initByU8bytesAndType);
-	assert(_object_size != 0 && MemeStringStack_initByU8bytesAndType);
+	assert(_out && MemeStringStack_initByU8bytesAndType != NULL);
+	assert(_object_size != 0 && MemeStringStack_initByU8bytesAndType != NULL);
 
     if ((_utf8 == NULL))
         return (MGEC__INVAL);
@@ -167,8 +167,8 @@ MEME_STDCALL MemeStringStack_initByU16bytesAndType(
 	MemeInteger_t u8len = -1;
 	MemeString_Storage_t type;
 	
-    assert(_out && MemeStringStack_initByU16bytesAndType);
-    assert(_object_size != 0 && MemeStringStack_initByU16bytesAndType);
+    assert(_out && MemeStringStack_initByU16bytesAndType != NULL);
+    assert(_object_size != 0 && MemeStringStack_initByU16bytesAndType != NULL);
 	
     if ((_buf == NULL))
         return (MGEC__INVAL);
@@ -348,7 +348,7 @@ MEME_STDCALL MemeStringStack_initWithHexadecimals(
 	MemeInteger_t result = 0;
 	MemeByte_t* index = NULL;
 	
-	assert(_out  != NULL && MemeStringStack_initWithHexadecimals);
+	assert(_out  != NULL && MemeStringStack_initWithHexadecimals != NULL);
 
 	if ((_hexs == NULL))
 		return (MGEC__INVAL);
@@ -437,8 +437,8 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_assign(
 {
 	int result = 0;
 
-	assert(_s != NULL		&& MemeStringStack_assign);
-	assert(_other != NULL	&& MemeStringStack_assign);
+	assert(_s != NULL		&& MemeStringStack_assign != NULL);
+	assert(_other != NULL	&& MemeStringStack_assign != NULL);
 
 	if (((void*)_s == (void*)_other))
 		return 0;
@@ -495,7 +495,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_assignByU8bytes(
 {
 	int result = 0;
 
-	assert(_s != NULL    && MemeStringStack_assignByU8bytes);
+	assert(_s != NULL    && MemeStringStack_assignByU8bytes != NULL);
     
 	if ((MemeString_byteData((mms_t)_s) == _utf8))
 		return 0;
@@ -512,8 +512,8 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_assignByBuffer(
 {
 	int result = 0;
 
-	assert(_s != NULL		&& MemeStringStack_assignByBuffer);
-	assert(_other != NULL   && MemeStringStack_assignByBuffer);
+	assert(_s != NULL		&& MemeStringStack_assignByBuffer != NULL);
+	assert(_other != NULL   && MemeStringStack_assignByBuffer != NULL);
 
 	if (((void*)_s == (void*)_other))
 		return 0;
@@ -532,8 +532,8 @@ MemeStringStack_mid(
     mms_t obj = NULL;
 	MemeInteger_t srcSize = 0;
 
-    assert(_s != NULL && MemeStringStack_mid);
-    assert(_object_size != 0 && MemeStringStack_mid);
+    assert(_s != NULL && MemeStringStack_mid != NULL);
+    assert(_object_size != 0 && MemeStringStack_mid != NULL);
 
     obj = (mms_t)_s;
     srcSize = MemeString_byteSize(obj);
@@ -574,9 +574,9 @@ MEME_EXTERN_C MEME_API mmstrstk_t MEME_STDCALL MemeStringStack_concat(
     mmint_t rhsSize = 0;
     mmint_t lhsSize = 0;
 	
-    assert(_s != NULL && MemeStringStack_concat);
-    assert(_object_size != 0 && MemeStringStack_concat);
-	assert(_other != NULL && MemeStringStack_concat);
+    assert(_s != NULL && MemeStringStack_concat != NULL);
+    assert(_object_size != 0 && MemeStringStack_concat != NULL);
+	assert(_other != NULL && MemeStringStack_concat != NULL);
 	
     lhsSize = MemeString_byteSize((mmstr_const_t)_s);
     rhsSize = MemeString_byteSize((mmstr_const_t)_other);
@@ -612,7 +612,7 @@ MemeStringStack_toEnUpper(
 	MemeByte_t* it  = NULL;
 	MemeByte_t* end = NULL;
 
-	assert(_s != NULL && MemeStringStack_toEnUpper);
+	assert(_s != NULL && MemeStringStack_toEnUpper != NULL);
 
 	result = MemeStringStack_initByU8bytes(&stack, sizeof(stack),
 		MemeString_byteData(s), MemeString_byteSize(s));
@@ -640,7 +640,7 @@ MemeStringStack_toEnLower(
 	MemeByte_t* it  = NULL;
 	MemeByte_t* end = NULL;
 
-	assert(_s != NULL && MemeStringStack_toEnLower);
+	assert(_s != NULL && MemeStringStack_toEnLower != NULL);
 
 	result = MemeStringStack_initByU8bytes(&stack, sizeof(stack),
 		MemeString_byteData(s), MemeString_byteSize(s));
@@ -667,7 +667,7 @@ MemeStringStack_trimSpace(const mmsstk_t* _s, size_t _object_size)
 	const MemeByte_t* it = NULL;
 	const MemeByte_t* end = NULL;
 
-	assert(_s != NULL && MemeStringStack_trimSpace);
+	assert(_s != NULL && MemeStringStack_trimSpace != NULL);
 
 	it = MemeString_byteData(s);
 	end = it + MemeString_byteSize(s);
@@ -696,7 +696,7 @@ MemeStringStack_trimLeftSpace(const mmsstk_t* _s, size_t _object_size)
 	const MemeByte_t* begin = NULL;
 	const MemeByte_t* end = NULL;
 
-    assert(_s != NULL && MemeStringStack_trimLeftSpace);
+    assert(_s != NULL && MemeStringStack_trimLeftSpace != NULL);
 
 	begin = it = MemeString_byteData(s);
     end = it + MemeString_byteSize(s);
@@ -718,7 +718,7 @@ MemeStringStack_trimRightSpace(const mmsstk_t* _s, size_t _object_size)
 	const MemeByte_t* it = NULL;
 	const MemeByte_t* end = NULL;
 
-    assert(_s != NULL && MemeStringStack_trimRightSpace);
+    assert(_s != NULL && MemeStringStack_trimRightSpace != NULL);
 
     it = MemeString_byteData(s);
     end = it + MemeString_byteSize(s);
@@ -743,7 +743,7 @@ MemeStringStack_trimByCuts(
     const MemeByte_t* it = NULL;
     const MemeByte_t* end = NULL;
 
-    assert(_s != NULL && MemeStringStack_trimByCuts);
+    assert(_s != NULL && MemeStringStack_trimByCuts != NULL);
 
     it = MemeString_byteData(s);
     end = it + MemeString_byteSize(s);
@@ -773,7 +773,7 @@ MemeStringStack_trimByCondByteFunc(
     const MemeByte_t* it = NULL;
     const MemeByte_t* end = NULL;
 
-    assert(_s != NULL && MemeStringStack_trimByCondByteFunc);
+    assert(_s != NULL && MemeStringStack_trimByCondByteFunc != NULL);
 
     it = MemeString_byteData(s);
     end = it + MemeString_byteSize(s);
@@ -798,7 +798,7 @@ MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL MemeStringStack_getRepeat(
 	mmint_t result = 0;
     mmsstk_t stack;
     mmvbstk_t vb;
-    assert(_s != NULL && MemeStringStack_getRepeat);
+    assert(_s != NULL && MemeStringStack_getRepeat != NULL);
 	
 	result = MemeVariableBufferStack_init(&vb, _object_size);
     if (result) {
@@ -844,7 +844,7 @@ MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL MemeStringStack_replace(
 	mmint_t size = 0;
 	//mmint_t pos = 0;
 
-    assert(_s != NULL && MemeStringStack_replace);
+    assert(_s != NULL && MemeStringStack_replace != NULL);
 
     if (_from_len < 0)
         _from_len = strlen(_from);
@@ -926,7 +926,7 @@ MEME_STDCALL MemeStringStack_toValidUtf8(const mmsstk_t* _s, size_t _object_size
 {
 	MemeInteger_t pos = 0;
 
-    assert(_s != NULL && MemeStringStack_toValidUtf8);
+    assert(_s != NULL && MemeStringStack_toValidUtf8 != NULL);
     pos = mmutf_u8valid(MemeString_byteData((mms_t)_s), MemeString_byteSize((mms_t)_s));
 	if (pos == MemeString_byteSize((mms_t)_s))
 	{
@@ -948,7 +948,7 @@ MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL MemeStringStack_mappingConvert(
     mmsstk_t stack;
     mmvbstk_t vb;
 
-    assert(_s != NULL && MemeStringStack_mappingConvert);
+    assert(_s != NULL && MemeStringStack_mappingConvert != NULL);
 	
     MemeVariableBufferStack_init(&vb, MMS__OBJECT_SIZE);
 	
@@ -1016,7 +1016,7 @@ MemeStringStack_vformatInCstyle_v2(
 	MemeInteger_t len = 0;
     va_list calc_args;
 
-	//assert(_format != NULL && MemeStringStack_vformatInCstyle);
+	//assert(_format != NULL && MemeStringStack_vformatInCstyle != NULL);
 
 	if ((_format == NULL))
 		return MemeStringStack_getInitObject(_object_size);
@@ -1083,7 +1083,7 @@ MEME_EXTERN_C MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringViewUnsafeStack_
 {
 	MemeStringViewUnsafe_t* p = (MemeStringViewUnsafe_t*)_s;
 
-	assert(_s != NULL		&& MemeStringViewUnsafeStack_init);
+	assert(_s != NULL		&& MemeStringViewUnsafeStack_init != NULL);
 
     if ((_buf == NULL))
         return (MGEC__INVAL);
@@ -1104,8 +1104,8 @@ MEME_EXTERN_C MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringViewUnsafeStack_
 MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringViewUnsafeStack_initByOther(
 	MemeStringStack_t* _s, size_t _object_size, const MemeStringStack_t* _other)
 {
-	assert(_s != NULL		&& MemeStringViewUnsafeStack_initByOther);
-	assert(_other != NULL	&& MemeStringViewUnsafeStack_initByOther);
+	assert(_s != NULL		&& MemeStringViewUnsafeStack_initByOther != NULL);
+	assert(_other != NULL	&& MemeStringViewUnsafeStack_initByOther != NULL);
 
 	if (MMS__GET_TYPE((mms_t)_other) == MemeString_ImplType_view)
 	{
@@ -1127,8 +1127,8 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringViewUnsafeStack_initByOther(
 MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringViewUnsafeStack_assignByOther(
 	MemeStringStack_t* _s, size_t _object_size, const MemeStringStack_t* _other)
 {
-	assert(_s != NULL		&& MemeStringViewUnsafeStack_assignByOther);
-	assert(_other != NULL	&& MemeStringViewUnsafeStack_assignByOther);
+	assert(_s != NULL		&& MemeStringViewUnsafeStack_assignByOther != NULL);
+	assert(_other != NULL	&& MemeStringViewUnsafeStack_assignByOther != NULL);
 
 	if (MMS__GET_TYPE((mms_t)_other) == MemeString_ImplType_view)
 	{
@@ -1163,9 +1163,9 @@ MemeStringViewUnsafe_split(
 	MemeInteger_t curr_index = -1;
 	MemeInteger_t output_index = 0;
 
-	assert(_s != NULL && MemeString_split);
-	assert(_out != NULL && MemeString_split);
-	assert(_out_count != NULL && MemeString_split);
+	assert(_s != NULL && MemeString_split != NULL);
+	assert(_out != NULL && MemeString_split != NULL);
+	assert(_out_count != NULL && MemeString_split != NULL);
 
 	if (*_out_count < 1)
 		return (MGEC__INVAL);
