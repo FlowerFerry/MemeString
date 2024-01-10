@@ -11,6 +11,7 @@
 #include <mego/predef/symbol/compiler/msvc/format.h>
 #include <mego/predef/symbol/restrict.h>
 #include <mego/predef/symbol/inline.h>
+#include <mego/predef/symbol/likely.h>
 
 #include <stdarg.h>
 #include <assert.h>
@@ -431,7 +432,7 @@ mmstrstk_init_by_utf8(
     assert(_out != NULL && mmstrstk_init_by_utf8);
     if (MEGO_SYMBOL__UNLIKELY(_utf8 == NULL))
         return MemeStringStack_init(_out, _object_size);
-    return MemeStringStack_initByU8bytes(_out, _object_size, _utf8, _utf8_len);
+    return MemeStringStack_initByU8bytes(_out, _object_size, (const mmbyte_t*)_utf8, _utf8_len);
 }
 
 MG_CAPI_INLINE int
@@ -442,7 +443,7 @@ mmstrstk_init_by_utf8_v2(
     assert(_out != NULL && mmstrstk_init_by_utf8_v2);
     if (MEGO_SYMBOL__UNLIKELY(_utf8 == NULL))
         return MemeStringStack_init(_out, _object_size);
-    return MemeStringStack_initByU8bytesAndType(_out, _object_size, _utf8, _utf8_len, _suggest);
+    return MemeStringStack_initByU8bytesAndType(_out, _object_size, (const mmbyte_t*)_utf8, _utf8_len, _suggest);
 }
 
 MG_CAPI_INLINE int
@@ -493,8 +494,8 @@ mmstr_assign(mmstr_t _s, mmstr_const_t _other)
 {
     assert(_s != NULL && mmstr_assign);
 	if (_other == NULL)
-		return MemeStringStack_reset((mmstrstk_t*)_s, sizeof(*_s));
-	return MemeStringStack_assign((mmstrstk_t*)_s, sizeof(*_s), _other);
+		return MemeStringStack_reset((mmstrstk_t*)_s, MMSTR__OBJ_SIZE);
+	return MemeString_assign(_s, _other);
 }
 
 MG_CAPI_INLINE int
@@ -502,8 +503,8 @@ mmstr_assign_by_utf8(mmstr_t _s, const mmbyte_t* _utf8, mmint_t _len)
 {
     assert(_s != NULL && mmstr_assign_by_utf8);
 	if (_utf8 == NULL)
-		return MemeStringStack_reset((mmstrstk_t*)_s, sizeof(*_s));
-	return MemeStringStack_assignByU8bytes((mmstrstk_t*)_s, sizeof(*_s), _utf8, _len);
+		return MemeStringStack_reset((mmstrstk_t*)_s, MMSTR__OBJ_SIZE);
+	return MemeStringStack_assignByU8bytes((mmstrstk_t*)_s, MMSTR__OBJ_SIZE, _utf8, _len);
 }
 
 MG_CAPI_INLINE int
@@ -511,8 +512,8 @@ mmstr_assign_by_buf(mmstr_t _out, mmbuf_const_t _other, mmint_t _offset)
 {
     assert(_out != NULL && mmstr_assign_by_buf);
 	if (_other == NULL)
-		return MemeStringStack_reset((mmstrstk_t*)_out, sizeof(*_out));
-	return MemeStringStack_assignByBuffer((mmstrstk_t*)_out, sizeof(*_out), _other, _offset);
+		return MemeStringStack_reset((mmstrstk_t*)_out, MMSTR__OBJ_SIZE);
+	return MemeStringStack_assignByBuffer((mmstrstk_t*)_out, MMSTR__OBJ_SIZE, _other, _offset);
 }
 
 //MEME_API int 
