@@ -6,11 +6,14 @@
 #include "meme/string_fwd.h"
 #include "meme/string_memory_fwd.h"
 #include "meme/buffer_fwd.h"
+#include <mego/err/ec.h>
 #include <mego/predef/symbol/compiler/gcc/format.h>
 #include <mego/predef/symbol/compiler/msvc/format.h>
 #include <mego/predef/symbol/restrict.h>
+#include <mego/predef/symbol/inline.h>
 
 #include <stdarg.h>
+#include <assert.h>
 
 MEME_EXTERN_C_SCOPE_START
 
@@ -394,7 +397,123 @@ MEME_API MemeInteger_t
 
 
 //****************************************************************************/
-// The following functions will check the parameters
+
+MG_CAPI_INLINE int 
+mmstrstk_init(mmstrstk_t* _out, size_t _object_size) 
+{
+	assert(_out != NULL && mmstrstk_init);
+	return MemeStringStack_init(_out, _object_size);
+}
+
+MG_CAPI_INLINE int 
+mmstrstk_init_by_other(mmstrstk_t* _out, size_t _object_size, mmstr_const_t _other)
+{
+    assert(_out != NULL && mmstrstk_init_by_other);
+	if (MEGO_SYMBOL__UNLIKELY(_other == NULL))
+		return MemeStringStack_init(_out, _object_size);
+    return MemeStringStack_initByOther(_out, _object_size, _other);
+}
+
+MG_CAPI_INLINE int 
+mmstrstk_init_by_buf(
+	mmstrstk_t* _out, size_t _object_size, mmbuf_const_t _other, mmint_t _offset)
+{
+    assert(_out != NULL && mmstrstk_init_by_buf);
+    if (MEGO_SYMBOL__UNLIKELY(_other == NULL))
+        return MemeStringStack_init(_out, _object_size);
+    return MemeStringStack_initByBuffer(_out, _object_size, _other, _offset);
+}
+
+MG_CAPI_INLINE int
+mmstrstk_init_by_utf8(
+    mmstrstk_t* _out, size_t _object_size, const char* _utf8, mmint_t _utf8_len)
+{
+    assert(_out != NULL && mmstrstk_init_by_utf8);
+    if (MEGO_SYMBOL__UNLIKELY(_utf8 == NULL))
+        return MemeStringStack_init(_out, _object_size);
+    return MemeStringStack_initByU8bytes(_out, _object_size, _utf8, _utf8_len);
+}
+
+MG_CAPI_INLINE int
+mmstrstk_init_by_utf8_v2(
+    mmstrstk_t* _out, size_t _object_size, 
+	const char* _utf8, mmint_t _utf8_len, mmstr_strg_t _suggest)
+{
+    assert(_out != NULL && mmstrstk_init_by_utf8_v2);
+    if (MEGO_SYMBOL__UNLIKELY(_utf8 == NULL))
+        return MemeStringStack_init(_out, _object_size);
+    return MemeStringStack_initByU8bytesAndType(_out, _object_size, _utf8, _utf8_len, _suggest);
+}
+
+MG_CAPI_INLINE int
+mmstrstk_init_by_hexs(
+	mmstrstk_t* _out, size_t _object_size,
+	const mmbyte_t* _interval, mmint_t _ivlen, const uint8_t* _hexs, mmint_t _len)
+{
+    assert(_out != NULL && mmstrstk_init_by_hexs);
+	if (_hexs == NULL)
+		return MemeStringStack_init(_out, _object_size);
+	return MemeStringStack_initWithHexadecimals(_out, _object_size, _interval, _ivlen, _hexs, _len);
+}
+
+MG_CAPI_INLINE int
+mmstrstk_init_by_user(
+	mmstrstk_t* _out, size_t _object_size,
+	void* _user_data,
+	MemeString_UserObjectDestruct_t* _destruct_fn,
+	MemeString_UserObjectData_t* _data_fn,
+	MemeString_UserObjectSize_t* _size_fn)
+{
+    assert(_out != NULL && mmstrstk_init_by_user);
+	if (_user_data == NULL
+		|| _destruct_fn == NULL
+		|| _data_fn == NULL
+		|| _size_fn == NULL)
+		return MemeStringStack_init(_out, _object_size);
+	return MemeStringStack_initTakeOverUserObject(
+		_out, _object_size, _user_data, _destruct_fn, _data_fn, _size_fn);
+}
+
+MG_CAPI_INLINE int
+mmstrstk_uninit(mmstrstk_t* _out, size_t _object_size)
+{
+    assert(_out != NULL && mmstrstk_uninit);
+	return MemeStringStack_unInit(_out, _object_size);
+}
+
+MG_CAPI_INLINE int
+mmstrstk_reset(mmstrstk_t* _out, size_t _object_size)
+{
+    assert(_out != NULL && mmstrstk_reset);
+	return MemeStringStack_reset(_out, _object_size);
+}
+
+MG_CAPI_INLINE int
+mmstr_assign(mmstr_t _s, mmstr_const_t _other)
+{
+    assert(_s != NULL && mmstr_assign);
+	if (_other == NULL)
+		return MemeStringStack_reset((mmstrstk_t*)_s, sizeof(*_s));
+	return MemeStringStack_assign((mmstrstk_t*)_s, sizeof(*_s), _other);
+}
+
+MG_CAPI_INLINE int
+mmstr_assign_by_utf8(mmstr_t _s, const mmbyte_t* _utf8, mmint_t _len)
+{
+    assert(_s != NULL && mmstr_assign_by_utf8);
+	if (_utf8 == NULL)
+		return MemeStringStack_reset((mmstrstk_t*)_s, sizeof(*_s));
+	return MemeStringStack_assignByU8bytes((mmstrstk_t*)_s, sizeof(*_s), _utf8, _len);
+}
+
+MG_CAPI_INLINE int
+mmstr_assign_by_buf(mmstr_t _out, mmbuf_const_t _other, mmint_t _offset)
+{
+    assert(_out != NULL && mmstr_assign_by_buf);
+	if (_other == NULL)
+		return MemeStringStack_reset((mmstrstk_t*)_out, sizeof(*_out));
+	return MemeStringStack_assignByBuffer((mmstrstk_t*)_out, sizeof(*_out), _other, _offset);
+}
 
 //MEME_API int 
 //MEME_STDCALL mmsstk_init(mmsstk_t* _out, size_t _object_size);
