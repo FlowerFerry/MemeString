@@ -402,14 +402,14 @@ MEME_API MemeInteger_t
 MG_CAPI_INLINE int 
 mmstrstk_init(mmstrstk_t* _out, size_t _object_size) 
 {
-	assert(_out != NULL && mmstrstk_init);
+	assert(_out != NULL && mmstrstk_init != NULL);
 	return MemeStringStack_init(_out, _object_size);
 }
 
 MG_CAPI_INLINE int 
 mmstrstk_init_by_other(mmstrstk_t* _out, size_t _object_size, mmstr_const_t _other)
 {
-    assert(_out != NULL && mmstrstk_init_by_other);
+    assert(_out != NULL && mmstrstk_init_by_other != NULL);
 	if (MEGO_SYMBOL__UNLIKELY(_other == NULL))
 		return MemeStringStack_init(_out, _object_size);
     return MemeStringStack_initByOther(_out, _object_size, _other);
@@ -419,7 +419,7 @@ MG_CAPI_INLINE int
 mmstrstk_init_by_buf(
 	mmstrstk_t* _out, size_t _object_size, mmbuf_const_t _other, mmint_t _offset)
 {
-    assert(_out != NULL && mmstrstk_init_by_buf);
+    assert(_out != NULL && mmstrstk_init_by_buf != NULL);
     if (MEGO_SYMBOL__UNLIKELY(_other == NULL))
         return MemeStringStack_init(_out, _object_size);
     return MemeStringStack_initByBuffer(_out, _object_size, _other, _offset);
@@ -429,7 +429,7 @@ MG_CAPI_INLINE int
 mmstrstk_init_by_utf8(
     mmstrstk_t* _out, size_t _object_size, const char* _utf8, mmint_t _utf8_len)
 {
-    assert(_out != NULL && mmstrstk_init_by_utf8);
+    assert(_out != NULL && mmstrstk_init_by_utf8 != NULL);
     if (MEGO_SYMBOL__UNLIKELY(_utf8 == NULL))
         return MemeStringStack_init(_out, _object_size);
     return MemeStringStack_initByU8bytes(_out, _object_size, (const mmbyte_t*)_utf8, _utf8_len);
@@ -440,7 +440,7 @@ mmstrstk_init_by_utf8_v2(
     mmstrstk_t* _out, size_t _object_size, 
 	const char* _utf8, mmint_t _utf8_len, mmstr_strg_t _suggest)
 {
-    assert(_out != NULL && mmstrstk_init_by_utf8_v2);
+    assert(_out != NULL && mmstrstk_init_by_utf8_v2 != NULL);
     if (MEGO_SYMBOL__UNLIKELY(_utf8 == NULL))
         return MemeStringStack_init(_out, _object_size);
     return MemeStringStack_initByU8bytesAndType(_out, _object_size, (const mmbyte_t*)_utf8, _utf8_len, _suggest);
@@ -451,7 +451,7 @@ mmstrstk_init_by_hexs(
 	mmstrstk_t* _out, size_t _object_size,
 	const mmbyte_t* _interval, mmint_t _ivlen, const uint8_t* _hexs, mmint_t _len)
 {
-    assert(_out != NULL && mmstrstk_init_by_hexs);
+    assert(_out != NULL && mmstrstk_init_by_hexs != NULL);
 	if (_hexs == NULL)
 		return MemeStringStack_init(_out, _object_size);
 	return MemeStringStack_initWithHexadecimals(_out, _object_size, _interval, _ivlen, _hexs, _len);
@@ -465,7 +465,7 @@ mmstrstk_init_by_user(
 	MemeString_UserObjectData_t* _data_fn,
 	MemeString_UserObjectSize_t* _size_fn)
 {
-    assert(_out != NULL && mmstrstk_init_by_user);
+    assert(_out != NULL && mmstrstk_init_by_user != NULL);
 	if (_user_data == NULL
 		|| _destruct_fn == NULL
 		|| _data_fn == NULL
@@ -478,21 +478,21 @@ mmstrstk_init_by_user(
 MG_CAPI_INLINE int
 mmstrstk_uninit(mmstrstk_t* _out, size_t _object_size)
 {
-    assert(_out != NULL && mmstrstk_uninit);
+    assert(_out != NULL && mmstrstk_uninit != NULL);
 	return MemeStringStack_unInit(_out, _object_size);
 }
 
 MG_CAPI_INLINE int
 mmstrstk_reset(mmstrstk_t* _out, size_t _object_size)
 {
-    assert(_out != NULL && mmstrstk_reset);
+    assert(_out != NULL && mmstrstk_reset != NULL);
 	return MemeStringStack_reset(_out, _object_size);
 }
 
 MG_CAPI_INLINE int
 mmstr_assign(mmstr_t _s, mmstr_const_t _other)
 {
-    assert(_s != NULL && mmstr_assign);
+    assert(_s != NULL && mmstr_assign != NULL);
 	if (_other == NULL)
 		return MemeStringStack_reset((mmstrstk_t*)_s, MMSTR__OBJ_SIZE);
 	return MemeString_assign(_s, _other);
@@ -501,7 +501,7 @@ mmstr_assign(mmstr_t _s, mmstr_const_t _other)
 MG_CAPI_INLINE int
 mmstr_assign_by_utf8(mmstr_t _s, const mmbyte_t* _utf8, mmint_t _len)
 {
-    assert(_s != NULL && mmstr_assign_by_utf8);
+    assert(_s != NULL && mmstr_assign_by_utf8 != NULL);
 	if (_utf8 == NULL)
 		return MemeStringStack_reset((mmstrstk_t*)_s, MMSTR__OBJ_SIZE);
 	return MemeStringStack_assignByU8bytes((mmstrstk_t*)_s, MMSTR__OBJ_SIZE, _utf8, _len);
@@ -510,7 +510,7 @@ mmstr_assign_by_utf8(mmstr_t _s, const mmbyte_t* _utf8, mmint_t _len)
 MG_CAPI_INLINE int
 mmstr_assign_by_buf(mmstr_t _out, mmbuf_const_t _other, mmint_t _offset)
 {
-    assert(_out != NULL && mmstr_assign_by_buf);
+    assert(_out != NULL && mmstr_assign_by_buf != NULL);
 	if (_other == NULL)
 		return MemeStringStack_reset((mmstrstk_t*)_out, MMSTR__OBJ_SIZE);
 	return MemeStringStack_assignByBuffer((mmstrstk_t*)_out, MMSTR__OBJ_SIZE, _other, _offset);
