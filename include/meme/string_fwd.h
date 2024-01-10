@@ -12,17 +12,14 @@ MEME_EXTERN_C_SCOPE_START
 typedef uint8_t  MemeByte_t;
 typedef uint8_t  mmbyte_t;
 
-#if   INTPTR_MAX == INT16_MAX
-typedef int16_t MemeInteger_t;
-typedef int16_t mmint_t;
-#elif INTPTR_MAX == INT32_MAX
+#if   INTPTR_MAX == INT32_MAX
 typedef int32_t MemeInteger_t;
 typedef int32_t mmint_t;
 #elif INTPTR_MAX == INT64_MAX
 typedef int64_t MemeInteger_t;
 typedef int64_t mmint_t;
 #else
-# error "Environment not 16, 32, or 64-bit."
+# error "Environment not 32, or 64-bit."
 #endif
 
 typedef struct _MemeString_t* MemeString_t;
