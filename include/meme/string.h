@@ -396,54 +396,54 @@ MEME_API MemeInteger_t
 //****************************************************************************/
 // The following functions will check the parameters
 
-MEME_API int 
-MEME_STDCALL mmsstk_init(mmsstk_t* _out, size_t _object_size);
-
-MEME_API int
-MEME_STDCALL mmsstk_init_by_other(mmsstk_t* _out, size_t _object_size, mms_const_t _other);
-
-MEME_API int
-MEME_STDCALL mmsstk_init_by_buf(
-	mmsstk_t* _out, size_t _object_size, mmbuf_const_t _other, mmint_t _offset);
-
-MEME_API int
-MEME_STDCALL mmsstk_init_by_utf8(
-	mmsstk_t* _out, size_t _object_size, const mmbyte_t* _utf8, mmint_t _len);
-
-MEME_API int
-MEME_STDCALL mmsstk_init_by_utf8_v2(
-	mmsstk_t* _out, size_t _object_size, const mmbyte_t* _utf8, mmint_t _len,
-	MemeString_Storage_t _suggest);
-
-MEME_API int
-MEME_STDCALL mmsstk_init_by_hexs(
-	mmsstk_t* _out, size_t _object_size,
-	const mmbyte_t* _interval, mmint_t _ivlen, const uint8_t* _hexs, mmint_t _len);
-
-MEME_API int
-MEME_STDCALL mmsstk_init_by_user(
-	mmsstk_t* _out, size_t _object_size,
-	void* _user_data,
-	MemeString_UserObjectDestruct_t* _destruct_fn,
-	MemeString_UserObjectData_t* _data_fn,
-	MemeString_UserObjectSize_t* _size_fn);
-
-MEME_API int
-MEME_STDCALL mmsstk_uninit(mmsstk_t* _out, size_t _object_size);
-
-MEME_API int
-MEME_STDCALL mmsstk_reset(mmsstk_t* _out, size_t _object_size);
-
-MEME_API int
-MEME_STDCALL mms_assign(mms_t _s, mms_const_t _other);
-
-MEME_API int
-MEME_STDCALL mms_assign_by_utf8(
-	mms_t _s, const mmbyte_t* _utf8, mmint_t _len);
-
-MEME_API int
-MEME_STDCALL mms_assign_by_buf(
-	mms_t _out, mmbuf_const_t _other, mmint_t _offset);
+//MEME_API int 
+//MEME_STDCALL mmsstk_init(mmsstk_t* _out, size_t _object_size);
+//
+//MEME_API int
+//MEME_STDCALL mmsstk_init_by_other(mmsstk_t* _out, size_t _object_size, mms_const_t _other);
+//
+//MEME_API int
+//MEME_STDCALL mmsstk_init_by_buf(
+//	mmsstk_t* _out, size_t _object_size, mmbuf_const_t _other, mmint_t _offset);
+//
+//MEME_API int
+//MEME_STDCALL mmsstk_init_by_utf8(
+//	mmsstk_t* _out, size_t _object_size, const mmbyte_t* _utf8, mmint_t _len);
+//
+//MEME_API int
+//MEME_STDCALL mmsstk_init_by_utf8_v2(
+//	mmsstk_t* _out, size_t _object_size, const mmbyte_t* _utf8, mmint_t _len,
+//	MemeString_Storage_t _suggest);
+//
+//MEME_API int
+//MEME_STDCALL mmsstk_init_by_hexs(
+//	mmsstk_t* _out, size_t _object_size,
+//	const mmbyte_t* _interval, mmint_t _ivlen, const uint8_t* _hexs, mmint_t _len);
+//
+//MEME_API int
+//MEME_STDCALL mmsstk_init_by_user(
+//	mmsstk_t* _out, size_t _object_size,
+//	void* _user_data,
+//	MemeString_UserObjectDestruct_t* _destruct_fn,
+//	MemeString_UserObjectData_t* _data_fn,
+//	MemeString_UserObjectSize_t* _size_fn);
+//
+//MEME_API int
+//MEME_STDCALL mmsstk_uninit(mmsstk_t* _out, size_t _object_size);
+//
+//MEME_API int
+//MEME_STDCALL mmsstk_reset(mmsstk_t* _out, size_t _object_size);
+//
+//MEME_API int
+//MEME_STDCALL mms_assign(mms_t _s, mms_const_t _other);
+//
+//MEME_API int
+//MEME_STDCALL mms_assign_by_utf8(
+//	mms_t _s, const mmbyte_t* _utf8, mmint_t _len);
+//
+//MEME_API int
+//MEME_STDCALL mms_assign_by_buf(
+//	mms_t _out, mmbuf_const_t _other, mmint_t _offset);
 
 
 MEME_EXTERN_C_SCOPE_ENDED
