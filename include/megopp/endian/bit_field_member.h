@@ -7,6 +7,7 @@
 #include <type_traits>
 #include "types.h"
 #include "megopp/help/type_traits.h"
+#include <megopp/endian/byte_swap.h>
 
 namespace megopp {
 namespace endian {
@@ -85,17 +86,28 @@ namespace endian {
         static constexpr uint_type begin_byte_index = begin_bit_index / CHAR_BIT;
         static constexpr uint_type end_byte_index   = (end_bit_index + CHAR_BIT - 1) / CHAR_BIT;
         static constexpr uint_type byte_size        = end_byte_index - begin_byte_index;
+        static constexpr uint_type rbegin_bit_index = _BeginBit;
+        static constexpr uint_type rend_bit_index   = _BeginBit + _BitSize;
 
         inline constexpr uint_type get_value() const noexcept
         {
-            return (data_ >> begin_bit_index) & mask;
+            if constexpr ((_BeginBit + _BitSize) / 8 == 0)
+            {
+                return ((data_ >> (total_bit_size - CHAR_BIT)) >> rbegin_bit_index) & mask;
+            }
+            else {
+                uint_type value = megopp::endian::byte_swap(data_);
+                return (value >> rbegin_bit_index) & mask;
+            }
         }
 
         inline constexpr void set_value(uint_type _value) noexcept
         {
-            data_ = (data_ & ~(mask << begin_bit_index)) | ((_value & mask) << begin_bit_index);
+            _value = (_value & mask) << rbegin_bit_index;
+            _value = megopp::endian::byte_swap(_value);
+            data_  = (data_ & ~(mask << begin_bit_index)) | _value;
         }
-        
+
         uint_type data_;
     };
 #else
@@ -339,7 +351,7 @@ namespace endian {
             data_.set_value(_value);
         }
 
-    protected:
+    private:
         data_type data_;
     };
 
