@@ -23,42 +23,89 @@ struct err
     };
 
     err():
-        code_{ MGEC__OK }
+        code_{ MGEC__OK },
+        user_code_{ 0 }
     {}
 
     err(mgec_t code):
-        code_{ code }
+        code_{ code },
+        user_code_{ 0 }
     {}
 
     err(mgec_t code, const memepp::string &message):
         code_{ code },
+        user_code_{ 0 },
         message_{ message }
     {}
 
     err(mgec_t code, const memepp::string &message, const memepp::string &solution):
         code_{ code },
+        user_code_{ 0 },
         message_{ message },
         solution_{ std::make_unique<memepp::string>(solution) }
     {}
     
+    err(mgec_t code, int user_code):
+        code_{ code },
+        user_code_{ user_code }
+    {}
+
+    err(mgec_t code, int user_code, const memepp::string &message):
+        code_{ code },
+        user_code_{ user_code },
+        message_{ message }
+    {}
+
+    err(mgec_t code, int user_code, const memepp::string &message, const memepp::string &solution):
+        code_{ code },
+        user_code_{ user_code },
+        message_{ message },
+        solution_{ std::make_unique<memepp::string>(solution) }
+    {}
+
     err(const std::shared_ptr<void> &data):
         code_{ MGEC__OK },
+        user_code_{ 0 },
         data_{ data }
     {}
 
     err(mgec_t code, const std::shared_ptr<void> &data):
         code_{ code },
+        user_code_{ 0 },
         data_{ data }
     {}
 
     err(mgec_t code, const memepp::string &message, const std::shared_ptr<void> &data):
         code_{ code },
+        user_code_{ 0 },
         message_{ message },
         data_{ data }
     {}
 
     err(mgec_t code, const memepp::string &message, const memepp::string &solution, const std::shared_ptr<void> &data):
         code_{ code },
+        user_code_{ 0 },
+        message_{ message },
+        solution_{ std::make_unique<memepp::string>(solution) },
+        data_{ data }
+    {}
+
+    err(mgec_t code, int user_code, const std::shared_ptr<void> &data):
+        code_{ code },
+        user_code_{ user_code },
+        data_{ data }
+    {}
+
+    err(mgec_t code, int user_code, const memepp::string &message, const std::shared_ptr<void> &data):
+        code_{ code },
+        user_code_{ user_code },
+        message_{ message },
+        data_{ data }
+    {}
+
+    err(mgec_t code, int user_code, const memepp::string &message, const memepp::string &solution, const std::shared_ptr<void> &data):
+        code_{ code },
+        user_code_{ user_code },
         message_{ message },
         solution_{ std::make_unique<memepp::string>(solution) },
         data_{ data }
@@ -66,6 +113,7 @@ struct err
 
     err(const err &e):
         code_{ e.code_ },
+        user_code_{ e.user_code_ },
         message_{ e.message_ },
         solution_{ e.solution_ ? std::make_unique<memepp::string>(*e.solution_) : nullptr },
         data_{ e.data_ },
@@ -75,6 +123,7 @@ struct err
 
     err(err &&e) noexcept:
         code_{ e.code_ },
+        user_code_{ e.user_code_ },
         message_{ std::move(e.message_) },
         solution_{ std::move(e.solution_) },
         data_{ std::move(e.data_) },
@@ -85,6 +134,7 @@ struct err
     err &operator=(const err &e)
     {
         code_       = e.code_;
+        user_code_  = e.user_code_;
         message_    = e.message_;
         solution_   = (e.solution_ ? std::make_unique<memepp::string>(*e.solution_) : nullptr);
         data_       = e.data_;
@@ -95,6 +145,7 @@ struct err
     err &operator=(err &&e) noexcept
     {
         code_       = e.code_;
+        user_code_  = e.user_code_;
         message_    = std::move(e.message_);
         solution_   = std::move(e.solution_);
         data_       = std::move(e.data_);
@@ -106,6 +157,7 @@ struct err
     }
 
     mgec_t code_;
+    int user_code_;
     memepp::string message_;
     std::unique_ptr<memepp::string> solution_;
     std::unique_ptr<func_info> func_info_;
@@ -136,6 +188,18 @@ public:
     err (mgec_t code, const memepp::string &message, const memepp::string &solution):
         impl_{ std::make_shared<detail::err>(code, message, solution) }
     {}
+    
+    err (mgec_t code, int user_code):
+        impl_{ std::make_shared<detail::err>(code, user_code) }
+    {}
+
+    err (mgec_t code, int user_code, const memepp::string &message):
+        impl_{ std::make_shared<detail::err>(code, user_code, message) }
+    {}
+
+    err (mgec_t code, int user_code, const memepp::string &message, const memepp::string &solution):
+        impl_{ std::make_shared<detail::err>(code, user_code, message, solution) }
+    {}
 
     err (const std::shared_ptr<void> &data):
         impl_{ std::make_shared<detail::err>(data) }
@@ -151,6 +215,18 @@ public:
 
     err (mgec_t code, const memepp::string &message, const memepp::string &solution, const std::shared_ptr<void> &data):
         impl_{ std::make_shared<detail::err>(code, message, solution, data) }
+    {}
+
+    err (mgec_t code, int user_code, const std::shared_ptr<void> &data):
+        impl_{ std::make_shared<detail::err>(code, user_code, data) }
+    {}
+
+    err (mgec_t code, int user_code, const memepp::string &message, const std::shared_ptr<void> &data):
+        impl_{ std::make_shared<detail::err>(code, user_code, message, data) }
+    {}
+
+    err (mgec_t code, int user_code, const memepp::string &message, const memepp::string &solution, const std::shared_ptr<void> &data):
+        impl_{ std::make_shared<detail::err>(code, user_code, message, solution, data) }
     {}
 
     err (const std::shared_ptr<detail::err> &impl):
@@ -184,6 +260,7 @@ public:
     const char* what() const noexcept override;
 
     mgec_t code() const noexcept;
+    int user_code() const noexcept;
     const memepp::string &message () const noexcept;
 
     memepp::string solution() const noexcept;
@@ -228,6 +305,11 @@ private:
     inline mgec_t err::code() const noexcept
     {
         return impl_->code_;
+    }
+
+    inline int err::user_code() const noexcept
+    {
+        return impl_->user_code_;
     }
 
     inline const memepp::string &err::message() const noexcept
