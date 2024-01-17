@@ -16,6 +16,43 @@ struct hashable_weak_ptr {
         return hash_;
     }
 
+    inline std::shared_ptr<T> lock() const noexcept {
+        return ptr_.lock();
+    }
+
+    inline bool expired() const noexcept {
+        return ptr_.expired();
+    }
+
+    inline std::weak_ptr<T> weak_ptr() const noexcept {
+        return ptr_;
+    }
+
+    inline void reset() noexcept {
+        ptr_.reset();
+        hash_ = 0;
+    }
+
+    inline void reset(const std::shared_ptr<T>& _ptr) noexcept {
+        ptr_.reset(_ptr);
+        hash_ = std::hash<std::shared_ptr<T>>()(_ptr);
+    }
+
+    inline hashable_weak_ptr<T>& operator=(const std::shared_ptr<T>& _ptr) noexcept {
+        reset(_ptr);
+        return *this;
+    }
+
+    inline hashable_weak_ptr<T>& operator=(const hashable_weak_ptr<T>& _other) noexcept {
+        reset(_other.lock());
+        return *this;
+    }
+
+    inline hashable_weak_ptr<T>& operator=(const std::weak_ptr<T>& _other) noexcept {
+        reset(_other.lock());
+        return *this;
+    }
+
     inline bool operator<(const hashable_weak_ptr<T>& _other) const noexcept 
     {
         return ptr_.owner_before(_other.ptr_);
