@@ -10,7 +10,9 @@ namespace mem {
 template <typename T>
 struct hashable_weak_ptr {
     hashable_weak_ptr(): hash_(0) {}
+    hashable_weak_ptr(const hashable_weak_ptr<T>& _other): ptr_(_other.lock()), hash_(_other.hash_) {}
     hashable_weak_ptr(const std::shared_ptr<T>& _ptr): ptr_(_ptr), hash_(std::hash<std::shared_ptr<T>>()(_ptr)) {}
+    hashable_weak_ptr(const std::weak_ptr<T>& _other): ptr_(_other), hash_(std::hash<std::weak_ptr<T>>()(_other)) {}
 
     inline constexpr size_t hash_value() const noexcept {
         return hash_;
