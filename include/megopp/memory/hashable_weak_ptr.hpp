@@ -3,6 +3,7 @@
 #define MGPP_MEM_HASHABLE_WEAK_PTR_HPP_INCLUDED
 
 #include <memory>
+#include <functional>
 
 namespace mgpp {
 namespace mem {
