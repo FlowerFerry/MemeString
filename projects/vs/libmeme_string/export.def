@@ -208,3 +208,4 @@ EXPORTS
     mmutf_u32char_size_from16 @203
     mmutf_u32rune_get_u32 @204
     mmutf_u32rune_set_u32 @205
+    

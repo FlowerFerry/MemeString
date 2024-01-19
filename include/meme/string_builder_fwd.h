@@ -17,12 +17,12 @@ typedef const struct _MemeStringBuilder_t* mmsbldr_const_t;
 #endif
 #define MEME_STRING_BUILDER__OBJECT_SIZE (sizeof(intptr_t) * 4)
 
-#ifndef MMSB__OBJECT_SIZE
-#define MMSBUILDER__OBJECT_SIZE MEME_STRING_BUILDER__OBJECT_SIZE
+#ifndef MMSBLDR__OBJ_SIZE
+#define MMSBLDR__OBJ_SIZE MEME_STRING_BUILDER__OBJECT_SIZE
 #endif
 
 typedef struct _MemeStringBuilderStack_t {
-	MemeByte_t byte[MMSBUILDER__OBJECT_SIZE];
+	MemeByte_t byte[MMSBLDR__OBJ_SIZE];
 } MemeStringBuilderStack_t;
 typedef MemeStringBuilderStack_t mmsbldrstk_t;
 

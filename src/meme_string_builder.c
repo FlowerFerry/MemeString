@@ -12,20 +12,20 @@
 #include <string.h>
 #include <errno.h>
 
-int MemeStringBuilderPart_init(mmsbuilder_part_t* _part)
+int MemeStringBuilderPart_init(mmsbldr_part_t* _part)
 {
     int result = 0;
-    result = mmsstk_init(&(_part->str), MMS__OBJECT_SIZE);
+    result = mmstrstk_init(&(_part->str), MMSTR__OBJ_SIZE);
     return result;
 }
 
 void MemeStringBuilderPart_unInit(void* _part)
 {
-    mmsbuilder_part_t* part = (mmsbuilder_part_t*)_part;
-    mmsstk_uninit(&part->str, MMS__OBJECT_SIZE);
+    mmsbldr_part_t* part = (mmsbldr_part_t*)_part;
+    mmstrstk_uninit(&part->str, MMSTR__OBJ_SIZE);
 }
 
-int MemeStringBuilderParts_checkInit(mmsbuilder_part_t** _part)
+int MemeStringBuilderParts_checkInit(mmsbldr_part_t** _part)
 {
     int result = 0;
     if (*_part == NULL) {
@@ -39,7 +39,7 @@ int MemeStringBuilderParts_checkInit(mmsbuilder_part_t** _part)
 }
 
 int 
-MemeStringBuilderFormat_destroy(mmsbuilder_format_t** _fmt)
+MemeStringBuilderFormat_destroy(mmsbldr_fmt_t** _fmt)
 {
     int result = 0;
     
@@ -55,7 +55,7 @@ MemeStringBuilderFormat_destroy(mmsbuilder_format_t** _fmt)
 }
 
 int
-MemeStringBuilder_generateWithParts(mmsbldr_const_t _builder, mms_t _out)
+MemeStringBuilder_generateWithParts(mmsbldr_const_t _builder, mmstr_t _out)
 {
     size_t totalSize = 0;
     int result = 0;
@@ -143,7 +143,7 @@ MemeStringBuilderStack_initByOther(
 
     for (size_t index = 0; index < cvector_size(_other->parts_); ++index)
     {
-        mmsbuilder_part_t part;
+        mmsbldr_part_t part;
         result = MemeStringBuilderPart_init(&part);
         if (result != 0)
             return result;
@@ -207,9 +207,9 @@ MEME_API int MEME_STDCALL MemeStringBuilderStack_swap(
 	assert(_other	&& MemeStringBuilderStack_swap);
 
 	MemeStringBuilderStack_t temp;
-	memcpy(&temp, _editor,  MMSBUILDER__OBJECT_SIZE);
-	memcpy(_editor, _other, MMSBUILDER__OBJECT_SIZE);
-	memcpy(_other, &temp,   MMSBUILDER__OBJECT_SIZE);
+	memcpy(&temp, _editor,  MMSBLDR__OBJ_SIZE);
+	memcpy(_editor, _other, MMSBLDR__OBJ_SIZE);
+	memcpy(_other, &temp,   MMSBLDR__OBJ_SIZE);
 	return 0;
 }
 
@@ -231,7 +231,7 @@ MEME_API int MEME_STDCALL
 MemeStringBuilder_appendArgWithString(mmsbldr_t _builder, mms_const_t _arg)
 {
     int result = 0;
-    mmsbuilder_part_t part;
+    mmsbldr_part_t part;
     result = MemeStringBuilderPart_init(&part);
     if (result != 0)
         return result;
@@ -253,7 +253,7 @@ MEME_API int MEME_STDCALL
 MemeStringBuilder_prependArgWithString(mmsbldr_t _builder, mms_const_t _arg)
 {
     int result = 0;
-    mmsbuilder_part_t part;
+    mmsbldr_part_t part;
     result = MemeStringBuilderPart_init(&part);
     if (result != 0)
         return result;

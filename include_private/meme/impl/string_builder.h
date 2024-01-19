@@ -27,40 +27,42 @@
 typedef struct _MemeStringBuilder_Part_t
 {
     //mmsbuilder_merge_type_t merge_type;
-    mmsstk_t str;
-} MemeStringBuilder_Part_t, mmsbuilder_part_t;
+    mmstrstk_t str;
+} MemeStringBuilder_Part_t, mmsbldr_part_t;
 
 typedef struct _MemeStringBuilder_Format_t
 {
-    mmsstk_t fmt;
-} MemeStringBuilder_Format_t, mmsbuilder_format_t;
+    mmstrstk_t fmt;
+} MemeStringBuilder_Format_t, mmsbldr_fmt_t;
 
 struct _MemeStringBuilder_t 
 {
-    cvector_vector_type(mmsbuilder_part_t) parts_;
+    cvector_vector_type(mmsbldr_part_t) parts_;
     struct {
         size_t flag_   : (sizeof(size_t) * CHAR_BIT / 2);
         size_t __res__ : (sizeof(size_t) * CHAR_BIT / 2);
     };
-    mmsbuilder_format_t* fmt_;
-    mms_t out_;
+    mmsbldr_fmt_t* fmt_;
+    mmstr_t out_;
 };
 
-static_assert(sizeof(struct _MemeStringBuilder_t) == MMSBUILDER__OBJECT_SIZE, 
+static_assert(sizeof(struct _MemeStringBuilder_t) == MMSBLDR__OBJ_SIZE,
     "MemeStringBuilder_t size is not equal to MMSBUILDER__OBJECT_SIZE");
 
 int 
-MemeStringBuilderPart_init(mmsbuilder_part_t* _part);
+MemeStringBuilderPart_init(mmsbldr_part_t* _part);
+
 void 
 MemeStringBuilderPart_unInit(void* _part);
+
 int
-MemeStringBuilderParts_checkInit(mmsbuilder_part_t** _parts);
+MemeStringBuilderParts_checkInit(mmsbldr_part_t** _parts);
 
 
 int
-MemeStringBuilderFormat_destroy(mmsbuilder_format_t** _fmt);
+MemeStringBuilderFormat_destroy(mmsbldr_fmt_t** _fmt);
 
 int
-MemeStringBuilder_generateWithParts(mmsbldr_const_t _builder, mms_t _out);
+MemeStringBuilder_generateWithParts(mmsbldr_const_t _builder, mmstr_t _out);
 
 #endif // MEME_IMPL_STRING_BUILDER_H_INCLUDED
