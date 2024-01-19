@@ -11,13 +11,13 @@ namespace memepp {
 
 	MEMEPP__IMPL_INLINE string_builder::string_builder()
 	{
-		MemeStringBuilderStack_init(&data_, MMSBUILDER__OBJECT_SIZE);
+		MemeStringBuilderStack_init(&data_, MMSBLDR__OBJ_SIZE);
 	}
 
 	MEMEPP__IMPL_INLINE string_builder::string_builder(string_builder& _other)
 	{
-		MemeStringBuilderStack_init(&data_, MMSBUILDER__OBJECT_SIZE);
-		MemeStringBuilderStack_swap(&data_, &(_other.data_), MMSBUILDER__OBJECT_SIZE);
+		MemeStringBuilderStack_init(&data_, MMSBLDR__OBJ_SIZE);
+		MemeStringBuilderStack_swap(&data_, &(_other.data_), MMSBLDR__OBJ_SIZE);
 	}
 	
 	//MEMEPP__IMPL_INLINE string_builder::string_builder(const string& _in)
@@ -93,7 +93,7 @@ namespace memepp {
 	//{
  //       string_builder result;
  //       MemeStringBuilderStack_assignByOther(
- //           &result.data_, MMSBUILDER__OBJECT_SIZE, memepp::to_pointer(data_));
+ //           &result.data_, MMSBLDR__OBJ_SIZE, memepp::to_pointer(data_));
 
  //       MemeStringBuilder_appendArgByOther(
  //           memepp::to_pointer(result.data_),
