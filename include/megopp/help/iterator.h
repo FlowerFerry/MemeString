@@ -32,7 +32,7 @@ inline U & iter_key(std::pair<T, U> & pair)
 }
 
 template <typename T, typename U>
-inline const U & iter_key(const std::pair<T, U> & pair) 
+inline const T & iter_key(const std::pair<T, U> & pair) 
 {
     return pair.first;
 }
