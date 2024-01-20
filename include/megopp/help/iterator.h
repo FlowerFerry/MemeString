@@ -19,6 +19,18 @@ inline T & iter_value(T & val)
     return val;
 }
 
+template <typename T, typename U>
+inline U & iter_key(std::pair<T, U> & pair) 
+{
+    return pair.first;
+}
+
+template <typename T>
+inline T & iter_key(T & val) 
+{
+    return val;
+}
+
 }
 }; // namespace mgpp
 
