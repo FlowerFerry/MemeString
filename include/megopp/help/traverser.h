@@ -40,7 +40,7 @@ namespace help {
         if (_begin.has_value()) {
             auto& container = const_cast<_Container&>(_container);
             it = container.find(mgpp::help::iter_key(*_begin));
-            if (it == container.end())
+            if (it == container.cend())
             {
                 _out = std::nullopt;
                 return;
@@ -48,14 +48,12 @@ namespace help {
             
         }
         else {
-            it = _container.begin();
+            it = _container.cbegin();
         }
-        auto end = it;
-        std::advance(end, _count);
-        for (; it != end; ++it)
+        for (; it != _container.cend() && _count --> 0; ++it)
         {
             if (!_pred(*it)) {
-                if (++it == _container.end())
+                if (++it == _container.cend())
                 {
                     _out = std::nullopt;
                     return;
@@ -70,16 +68,16 @@ namespace help {
             }
         }
 
-        if (end == _container.end())
+        if (it == _container.cend())
         {
             _out = std::nullopt;
             return;
         }
         
         if constexpr (std::is_same<_Ty, typename _Container::key_type>::value)
-            _out = end->first;
+            _out = it->first;
         else
-            _out = std::make_pair(end->first, end->second);
+            _out = std::make_pair(it->first, it->second);
     }
 
 }
