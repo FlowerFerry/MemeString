@@ -13,6 +13,12 @@ inline U & iter_value(std::pair<T, U> & pair)
     return pair.second;
 }
 
+template <typename T, typename U>
+inline const U & iter_value(const std::pair<T, U> & pair) 
+{
+    return pair.second;
+}
+
 template <typename T>
 inline T & iter_value(T & val) 
 {
@@ -21,6 +27,12 @@ inline T & iter_value(T & val)
 
 template <typename T, typename U>
 inline U & iter_key(std::pair<T, U> & pair) 
+{
+    return pair.first;
+}
+
+template <typename T, typename U>
+inline const U & iter_key(const std::pair<T, U> & pair) 
 {
     return pair.first;
 }
