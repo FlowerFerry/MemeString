@@ -36,7 +36,7 @@ namespace help {
 
         if (!has_lock)
             _locker.lock();
-        _Container::const_iterator it;
+        typename _Container::const_iterator it;
         if (_begin.has_value()) {
             auto& container = const_cast<_Container&>(_container);
             it = container.find(mgpp::help::iter_key(*_begin));
