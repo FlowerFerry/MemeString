@@ -21,7 +21,7 @@ struct physical_address
         static const char xdigits[] = "0123456789ABCDEF";
 
         char buf[sizeof(data_) * 3] = { 0 };
-        auto len = (std::min)(len_, sizeof(data_));
+        auto len = (std::min)(size_t(len_), sizeof(data_));
         for (uint8_t i = 0; i < len_; ++i)
         {
             if (i != 0)
@@ -30,12 +30,12 @@ struct physical_address
             buf[i * 3 + 0] = xdigits[data_[i] / 16];
             buf[i * 3 + 1] = xdigits[data_[i] % 16];
         }
-        return { buf, length_ * 3 };
+        return { buf, len_ * 3 };
     }
 
     inline void assign(const uint8_t* _data, uint8_t _len)
     {
-        len_ = (std::min)(_len, sizeof(data_));
+        len_ = (std::min)(size_t(_len), sizeof(data_));
         memcpy(data_, _data, len_);
     }
 
