@@ -40,7 +40,7 @@ struct c_wrap_smart_ptr
     inline _CStruct into_struct() const noexcept
     {
         typename _CStruct st{};
-        *((c_wrap_smart_ptr*)st) = *this;
+        *(reinterpret_cast<c_wrap_smart_ptr*>(&st)) = *this;
         return st;
     }
 
