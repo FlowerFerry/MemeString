@@ -37,6 +37,12 @@ struct c_wrap_smart_ptr
         return ptr_.get();
     }
 
+    inline void reset(const std::shared_ptr<_Ty>& _ptr = nullptr)
+    {
+        ptr_ = _ptr;
+        has_ref_ = _ptr ? 1 : 0;
+    }
+
     std::shared_ptr<_Ty> ptr_;
     size_t __reserve__ : (sizeof(void*) * 8 - 1);
     size_t has_ref_    : 1;
