@@ -40,6 +40,11 @@ struct c_wrap_smart_ptr
         return ptr_.get();
     }
 
+    inline const std::shared_ptr<_Ty>& get_ptr() const noexcept
+    {
+        return ptr_;
+    }
+
     inline _CStruct into_struct() const noexcept
     {
         _CStruct st{};
@@ -61,6 +66,18 @@ struct c_wrap_smart_ptr
     static inline _CStruct wrap_struct(const std::shared_ptr<_Ty>& _ptr) noexcept
     {
         return c_wrap_smart_ptr{_ptr}.into_struct();
+    }
+
+    static inline const std::shared_ptr<_Ty>& unwrap_struct(const _CStruct* _st) noexcept
+    {
+        if (MEGO_SYMBOL__UNLIKELY(_st == nullptr))
+            return nullptr;
+
+        auto ptr = reinterpret_cast<const c_wrap_smart_ptr*>(_st);
+        if (MEGO_SYMBOL__UNLIKELY(ptr->is_null()))
+            return nullptr;
+
+        return ptr->get_ptr();
     }
 
     static inline _CStruct ref_struct(const _CStruct* _st) noexcept
