@@ -60,7 +60,7 @@ struct phy_addr_info
         return ifname_;
     }
 
-    inline const phy_addr& phy_addr() const noexcept
+    inline const phy_addr& phyaddr() const noexcept
     {
         return phy_addr_;
     }
