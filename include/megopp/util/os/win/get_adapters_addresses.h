@@ -49,8 +49,8 @@ inline mgpp::err get_adapters_addresses(_Fn&& _fn)
 
     IP_ADAPTER_ADDRESSES *p = (IP_ADAPTER_ADDRESSES*)buf.data();
 
-    auto index = p;
-    while (index) {
+    for (auto index = p; index; index = index->Next) 
+    {
         if constexpr (std::is_same_v<std::invoke_result_t<_Fn, const IP_ADAPTER_ADDRESSES*>, bool>) 
         {
             if (!_fn(index))
@@ -60,7 +60,6 @@ inline mgpp::err get_adapters_addresses(_Fn&& _fn)
             _fn(index);
         }
         
-        index = index->Next;
     }
     
     return mgpp::err{};

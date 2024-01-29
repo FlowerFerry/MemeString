@@ -49,6 +49,27 @@ using phy_addr = physical_address;
 
 struct phy_addr_info
 {
+
+    phy_addr_info()
+        : ifindex_(-1)
+    {
+    }
+
+    inline const memepp::string& ifname() const noexcept
+    {
+        return ifname_;
+    }
+
+    inline const phy_addr& phy_addr() const noexcept
+    {
+        return phy_addr_;
+    }
+
+    inline int ifindex() const noexcept
+    {
+        return ifindex_;
+    }
+
     int ifindex_;
     memepp::string ifname_;
     phy_addr phy_addr_;
