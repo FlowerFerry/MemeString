@@ -61,7 +61,7 @@ struct c_wrap_smart_ptr
         return c_wrap_smart_ptr{_ptr}.into_struct();
     }
 
-    static inline _CStruct copy_struct(const _CStruct* _st) noexcept
+    static inline _CStruct ref_struct(const _CStruct* _st) noexcept
     {
         if (MEGO_SYMBOL__UNLIKELY(_st == nullptr))
             return null_struct();
@@ -73,7 +73,7 @@ struct c_wrap_smart_ptr
         return ptr->into_struct();
     }
 
-    static inline void reset_struct(_CStruct* _st, const std::shared_ptr<_Ty>& _ptr = nullptr) noexcept
+    static inline void unref_struct(_CStruct* _st, const std::shared_ptr<_Ty>& _ptr = nullptr) noexcept
     {
         if (MEGO_SYMBOL__UNLIKELY(_st == nullptr))
             return;
