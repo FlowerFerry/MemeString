@@ -15,7 +15,9 @@ struct c_wrap_smart_ptr
         : ptr_(nullptr)
         , __reserve__(0)
         , has_ref_(0)
-    {}
+    {
+        static_assert(sizeof(_CStruct) == sizeof(*this), "In mgpp::util::c_wrap_smart_ptr, _CStruct size error");
+    }
 
     c_wrap_smart_ptr(const std::shared_ptr<_Ty>& _ptr)
         : ptr_(_ptr)
