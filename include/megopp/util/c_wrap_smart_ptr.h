@@ -37,10 +37,22 @@ struct c_wrap_smart_ptr
         return ptr_.get();
     }
 
+    inline _CStruct into_struct() const noexcept
+    {
+        _CStruct st;
+        *(reinterpret_cast<c_wrap_smart_ptr*>(st)) = *this;
+        return st;
+    }
+
     inline void reset(const std::shared_ptr<_Ty>& _ptr = nullptr)
     {
         ptr_ = _ptr;
         has_ref_ = _ptr ? 1 : 0;
+    }
+
+    static inline _CStruct null() noexcept
+    {
+        return c_wrap_smart_ptr{}.into_struct();
     }
 
     std::shared_ptr<_Ty> ptr_;
