@@ -33,13 +33,13 @@ namespace hw {
 namespace netif {
 
 
-inline mgpp::err get_phy_addr_infos(std::map<int, phy_addr_info>& _infos)
+inline mgpp::err get_phy_addr_infos(std::map<int, mgpp::netif::phy_addr_info>& _infos)
 {
     _infos.clear();
 #if MG_OS__WIN_AVAIL
     auto err = mgpp::os::win::get_adapters_addresses([&](const IP_ADAPTER_ADDRESSES* _addr) 
     {
-        phy_addr_info info;
+        mgpp::netif::phy_addr_info info;
 
         info.ifindex_ = _addr->IfIndex;
         info.ifname_  = _addr->AdapterName;
@@ -53,9 +53,12 @@ inline mgpp::err get_phy_addr_infos(std::map<int, phy_addr_info>& _infos)
 #elif MG_OS__LINUX_AVAIL
     auto err = mgpp::os::linux::getifaddrs([&](const ifaddrs* _addr)
     {
+        if (!_addr->ifa_name)
+            return true;
+
         if (_addr->ifa_addr->sa_family == AF_PACKET)
         {
-            phy_addr_info info;
+            mgpp::netif::phy_addr_info info;
 
             info.ifindex_ = if_nametoindex(_addr->ifa_name);
             info.ifname_  = _addr->ifa_name;
