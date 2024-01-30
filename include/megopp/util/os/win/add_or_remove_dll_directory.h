@@ -38,7 +38,7 @@ struct dll_directory_cookies
     inline DLL_DIRECTORY_COOKIE add(const memepp::string_view& _path)
     {
 #if MG_OS__WIN_AVAIL
-        auto path = _path.to_string();
+        auto path = _path.replace("/", "\\");
         auto it = cookies_.find(path);
         if (it != cookies_.end())
             return it->second;
