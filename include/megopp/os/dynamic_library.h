@@ -98,12 +98,12 @@ namespace os {
 		}
 		else
 			handle = ::LoadLibraryW(u16name.c_str());
-			
+
 		if (!handle) {
 			DWORD errorCode = ::GetLastError();
 
 			char buffer[1024] = { 0 };
-			snprintf(buffer, sizeof(buffer) -1, "comm::dynamic_library::load function error, "
+			snprintf(buffer, sizeof(buffer) -1, "megopp::os::dynamic_library::load function error, "
 				"path(%s), error(<%lu>%s)", _path.data(),
 				errorCode, megopp::os::win::errcode_as_string(errorCode).data());
 			_errorString = buffer;
