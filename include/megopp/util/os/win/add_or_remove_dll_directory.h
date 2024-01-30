@@ -5,6 +5,7 @@
 #include <mego/util/os/windows/windows_simplify.h>
 
 #include <memepp/string.hpp>
+#include <memepp/string_view.hpp>
 #include <memepp/convert/std/wstring.hpp>
 #include <memepp/convert/std/string.hpp>
 #include <memepp/native.hpp>
@@ -30,7 +31,7 @@ struct dll_directory_cookies
 #endif
     }
 
-    inline DLL_DIRECTORY_COOKIE add(const memepp::string& _path)
+    inline DLL_DIRECTORY_COOKIE add(const memepp::string_view& _path)
     {
 #if MG_OS__WIN_AVAIL
         auto it = cookies_.find(_path);
