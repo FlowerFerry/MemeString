@@ -122,6 +122,7 @@ namespace memepp {
 
         string_view substr(size_type _pos = 0, size_type _count = npos) const noexcept;
 
+		string replace(const string_view& _from, const string_view& _to) const noexcept;
 
 		template<class _Container>
 		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,

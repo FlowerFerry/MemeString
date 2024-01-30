@@ -416,6 +416,12 @@ namespace memepp {
         return string_view(data() + _pos, _count);
 	}
 
+	MEMEPP__IMPL_INLINE string string_view::replace(const string_view& _from, const string_view& _to) const noexcept
+	{
+		return string{ MemeStringStack_replace(&native_handle(), sizeof(data_),
+			_from.data(), _from.size(), _to.data(), _to.size(), -1) };
+	}
+
 	MEMEPP__IMPL_INLINE const string_view::native_handle_type& 
 		string_view::native_handle() const noexcept
 	{
