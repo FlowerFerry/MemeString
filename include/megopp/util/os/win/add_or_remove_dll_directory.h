@@ -18,6 +18,9 @@ namespace win {
 
 struct dll_directory_cookies
 {
+#if !MG_OS__WIN_AVAIL
+    using DLL_DIRECTORY_COOKIE = void*;
+#endif
 
     dll_directory_cookies() = default;
     dll_directory_cookies(const dll_directory_cookies&) = delete;
@@ -34,16 +37,17 @@ struct dll_directory_cookies
     inline DLL_DIRECTORY_COOKIE add(const memepp::string_view& _path)
     {
 #if MG_OS__WIN_AVAIL
-        auto it = cookies_.find(_path);
+        auto path = _path.to_string();
+        auto it = cookies_.find(path);
         if (it != cookies_.end())
             return it->second;
 
-        auto path = mm_to<memepp::native_string>(_path);
-        auto cookie = ::AddDllDirectory(path.data());
+        auto u16path = mm_to<memepp::native_string>(path);
+        auto cookie = ::AddDllDirectory(u16path.data());
         if (cookie == NULL)
             return NULL;
 
-        cookies_[_path] = cookie;
+        cookies_[path] = cookie;
         return cookie;
 #else
         return NULL;
