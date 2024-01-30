@@ -17,6 +17,8 @@
 
 #if !MEGO_OS__WINDOWS__AVAILABLE
 #	include <dlfcn.h>
+#else
+#	include <VersionHelpers.h>
 #endif
 
 namespace megopp {
@@ -85,11 +87,18 @@ namespace os {
         ww898::utf::conv<ww898::utf::utf8, ww898::utf::utfw>(
 			_path.cbegin(), _path.cend(), std::back_inserter(u16name));
 		
-		if (_dependentLibraryMode)
+		if (_dependentLibraryMode && IsWindows8OrGreater())
+		{	
 			handle = ::LoadLibraryExW(u16name.c_str(), NULL,
-				LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
+				LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | 
+				LOAD_LIBRARY_SEARCH_DEFAULT_DIRS | 
+				LOAD_LIBRARY_SEARCH_APPLICATION_DIR |
+				LOAD_LIBRARY_SEARCH_SYSTEM32 | 
+				LOAD_LIBRARY_SEARCH_USER_DIRS);
+		}
 		else
 			handle = ::LoadLibraryW(u16name.c_str());
+			
 		if (!handle) {
 			DWORD errorCode = ::GetLastError();
 
