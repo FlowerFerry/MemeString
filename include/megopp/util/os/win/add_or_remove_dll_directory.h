@@ -9,6 +9,7 @@
 #include <memepp/convert/std/wstring.hpp>
 #include <memepp/convert/std/string.hpp>
 #include <memepp/native.hpp>
+#include <memepp/hash/std_hash.hpp>
 
 #include <unordered_map>
 
@@ -42,8 +43,8 @@ struct dll_directory_cookies
         if (it != cookies_.end())
             return it->second;
 
-        auto u16path = mm_to<memepp::native_string>(path);
-        auto cookie = ::AddDllDirectory(u16path.data());
+        auto native = mm_to<memepp::native_string>(path);
+        auto cookie = ::AddDllDirectory(native.data());
         if (cookie == NULL)
             return NULL;
 
