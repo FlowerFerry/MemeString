@@ -32,7 +32,7 @@ set_target_properties(meme_string PROPERTIES
 
 # 设置版本号
 string(TIMESTAMP BUILD_DATE "%Y%m%d%H%M")
-set_target_properties(meme_string PROPERTIES VERSION ${PROJECT_VERSION}.${BUILD_DATE})
+set_target_properties(meme_string PROPERTIES VERSION "" SOVERSION "")
 
 install(TARGETS meme_string
     RUNTIME DESTINATION bin
