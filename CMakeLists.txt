@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(meme_string VERSION 0.0.1 LANGUAGES C)
+if (WIN32)
+  set (PROJECT_NAME libmeme_string)
+else()
+  set (PROJECT_NAME meme_string)
+endif()
+
+project(${PROJECT_NAME} VERSION 0.0.1 LANGUAGES C)
 
 # 设置 C 语言标准
 set(CMAKE_C_STANDARD 11)
@@ -20,21 +26,22 @@ set(CMAKE_C_VISIBILITY_PRESET hidden)
 
 # 生成 shared 库
 file(GLOB SRC_FILES "src/*.c")
-add_library(meme_string SHARED ${SRC_FILES})
-target_compile_definitions(meme_string PRIVATE MEME_OPTION__BUILD_SHARED)
-target_link_libraries(meme_string PRIVATE ${LINK_LIBS})
-target_include_directories(meme_string PUBLIC include 3rdparty/cvector/include include_private)
+add_library(${PROJECT_NAME} SHARED ${SRC_FILES})
+target_compile_definitions(${PROJECT_NAME} PRIVATE MEME_OPTION__BUILD_SHARED)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${LINK_LIBS})
+target_include_directories(${PROJECT_NAME} PUBLIC include 3rdparty/cvector/include include_private)
 
 # 设置 rpath
-set_target_properties(meme_string PROPERTIES
+set_target_properties(${PROJECT_NAME} PROPERTIES
     BUILD_WITH_INSTALL_RPATH TRUE
     INSTALL_RPATH "$ORIGIN")
 
 # 设置版本号
 string(TIMESTAMP BUILD_DATE "%Y%m%d%H%M")
-set_target_properties(meme_string PROPERTIES VERSION "" SOVERSION "")
 
-install(TARGETS meme_string
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
+
+install(TARGETS ${PROJECT_NAME}
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
