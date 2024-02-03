@@ -10,8 +10,10 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 include_directories(3rdparty/cvector/include include_private)
 
 # 添加链接库
+if (NOT WIN32)
 find_package(Threads REQUIRED)
 set(LINK_LIBS Threads::Threads ${CMAKE_DL_LIBS} rt)
+endif()
 
 # 设置编译选项
 set(CMAKE_C_VISIBILITY_PRESET hidden)
