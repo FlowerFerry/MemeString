@@ -2,10 +2,13 @@
 #ifndef MEME_ATOMIC_FWD_H_INCLUDED
 #define MEME_ATOMIC_FWD_H_INCLUDED
 
+#include <meme/common.h>
 #include <meme/string_fwd.h>
 
 #include <mego/util/os/windows/windows_simplify.h>
 #include <mego/predef/compiler/visualc.h>
+
+MEME_EXTERN_C_SCOPE_START
 
 #if MEGO_OS__WINDOWS__AVAILABLE
 #	if INTPTR_MAX == INT32_MAX
@@ -30,5 +33,7 @@ typedef MemeInteger_t MemeAtomicInteger_t;
 #elif !defined(__STDC_NO_ATOMICS__)
 typedef atomic_intptr_t MemeAtomicInteger_t;
 #endif
+
+MEME_EXTERN_C_SCOPE_ENDED
 
 #endif // !MEME_ATOMIC_FWD_H_INCLUDED
