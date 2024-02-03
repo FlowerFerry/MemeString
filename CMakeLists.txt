@@ -36,5 +36,5 @@ set_target_properties(meme_string PROPERTIES VERSION ${PROJECT_VERSION}.${BUILD_
 
 install(TARGETS meme_string
     LIBRARY DESTINATION lib
-    DIRECTORY include/ DESTINATION include
     )
+install(DIRECTORY include/ DESTINATION include)
