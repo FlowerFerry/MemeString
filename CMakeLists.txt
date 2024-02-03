@@ -35,7 +35,7 @@ string(TIMESTAMP BUILD_DATE "%Y%m%d%H%M")
 set_target_properties(meme_string PROPERTIES VERSION ${PROJECT_VERSION}.${BUILD_DATE})
 
 install(TARGETS meme_string
-    LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
     PUBLIC_HEADER DESTINATION include
+    LIBRARY DESTINATION lib
     )
