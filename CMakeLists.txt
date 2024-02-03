@@ -7,7 +7,7 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
 # 添加 include 路径
-include_directories(3rdparty/cvector/include include include_private)
+# include_directories(3rdparty/cvector/include include include_private)
 
 # 添加链接库
 if (NOT WIN32)
@@ -23,7 +23,7 @@ file(GLOB SRC_FILES "src/*.c")
 add_library(meme_string SHARED ${SRC_FILES})
 target_compile_definitions(meme_string PRIVATE MEME_OPTION__BUILD_SHARED)
 target_link_libraries(meme_string PRIVATE ${LINK_LIBS})
-target_include_directories(meme_string PUBLIC include)
+target_include_directories(meme_string PUBLIC include 3rdparty/cvector/include include_private)
 
 # 设置 rpath
 set_target_properties(meme_string PROPERTIES
