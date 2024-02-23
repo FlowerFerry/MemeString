@@ -24,7 +24,7 @@ MEME_STDCALL MemeBufferStack_initByOther(
 
 MEME_API int
 MEME_STDCALL MemeBufferStack_initByString(
-	mmbufstk_t* _out, size_t _object_size, mms_const_t _s);
+	mmbufstk_t* _out, size_t _object_size, mmstr_cptr_t _s);
 
 MEME_API int
 MEME_STDCALL MemeBufferStack_initByBytes(
@@ -64,7 +64,7 @@ MEME_API int
 MEME_STDCALL MemeBuffer_isEmpty(MemeBuffer_Const_t _s);
 
 MEME_API const mmbyte_t*
-MEME_STDCALL MemeBuffer_at(mmbuf_const_t _s, mmint_t _pos);
+MEME_STDCALL MemeBuffer_at(mmbuf_cptr_t _s, mmint_t _pos);
 
 MEME_API const MemeByte_t*
 MEME_STDCALL MemeBuffer_data(MemeBuffer_Const_t _s);

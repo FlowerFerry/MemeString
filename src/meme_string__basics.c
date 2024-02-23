@@ -397,13 +397,13 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_byteSize(MemeString_Const_t _s)
 }
 
 MEME_API MemeInteger_t
-MEME_STDCALL MemeString_runeSize(mms_const_t _s)
+MEME_STDCALL MemeString_runeSize(mmstr_cptr_t _s)
 {
     return mmutf_u8rune_size(MemeString_byteData(_s), MemeString_byteSize(_s));
 }
 
 MEME_API MemeInteger_t
-MEME_STDCALL MemeString_u16CharSize(mms_const_t _s)
+MEME_STDCALL MemeString_u16CharSize(mmstr_cptr_t _s)
 {
     return mmutf_char_size_u16from8(MemeString_byteData(_s), MemeString_byteSize(_s));
 }
@@ -634,7 +634,7 @@ MEME_API int MEME_STDCALL MemeString_isEqualWithOther(MemeString_Const_t _lhs,
 	return 0;
 }
 
-MEME_API int MEME_STDCALL MemeString_containsOnlyAscii(mmstr_const_t _s, int* _result)
+MEME_API int MEME_STDCALL MemeString_containsOnlyAscii(mmstr_cptr_t _s, int* _result)
 {
     const mmbyte_t* src = NULL;
     mmint_t len = 0;
@@ -656,7 +656,7 @@ MEME_API int MEME_STDCALL MemeString_containsOnlyAscii(mmstr_const_t _s, int* _r
     return 0;
 }
 
-MEME_API int MEME_STDCALL MemeString_compare(mms_const_t _s, mms_const_t _other)
+MEME_API int MEME_STDCALL MemeString_compare(mmstr_cptr_t _s, mmstr_cptr_t _other)
 {
     const mmbyte_t* src = NULL;
     const mmbyte_t* dst = NULL;
@@ -705,7 +705,7 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_indexOfWithUtf8bytes(
 }
 
 MEME_API MemeInteger_t MEME_STDCALL MemeString_indexOfWithUtf8bytesAndSizeLimit(
-	mms_const_t _s, mmint_t _offset, mmint_t _limit, 
+	mmstr_cptr_t _s, mmint_t _offset, mmint_t _limit,
 	const mmbyte_t* _needle, mmint_t _needle_len, MemeFlag_CaseSensitivity_t _cs)
 {
     const char* pointer;
@@ -991,8 +991,8 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_split(
 }
 
 MEME_API mmint_t MEME_STDCALL MemeString_splitByCondByteFunc(
-	mms_const_t _s, MemeString_MatchCondByteFunc_t* _cond_func, void* _user_data, 
-	mmsstk_t* MEGO_SYMBOL__RESTRICT _out, 
+	mmstr_cptr_t _s, MemeString_MatchCondByteFunc_t* _cond_func, void* _user_data,
+	mmstrstk_t* MEGO_SYMBOL__RESTRICT _out, 
 	mmint_t* MEGO_SYMBOL__RESTRICT _out_count, 
 	mmint_t* MEGO_SYMBOL__RESTRICT _search_index)
 {
@@ -1061,7 +1061,7 @@ MEME_API mmint_t MEME_STDCALL MemeString_splitByCondByteFunc(
 }
 
 MEME_API mmint_t MEME_STDCALL MemeString_writeBytes(
-	mms_const_t _s, mmint_t _offset, mmint_t _count, mmbyte_t* _out)
+	mmstr_cptr_t _s, mmint_t _offset, mmint_t _count, mmbyte_t* _out)
 {
     assert(_s   != NULL && MemeString_writeBytes);
     assert(_out != NULL && MemeString_writeBytes);
@@ -1080,7 +1080,7 @@ MEME_API mmint_t MEME_STDCALL MemeString_writeBytes(
 }
 
 MEME_API MemeInteger_t
-MEME_STDCALL MemeString_writeU16Chars(mms_const_t _s, uint16_t* _out)
+MEME_STDCALL MemeString_writeU16Chars(mmstr_cptr_t _s, uint16_t* _out)
 {
     return mmutf_convert_u8to16(MemeString_byteData(_s), MemeString_byteSize(_s), _out);
 }

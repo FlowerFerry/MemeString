@@ -230,7 +230,7 @@ MEME_STDCALL MemeStringStack_initByU16bytesAndType(
 }
 
 MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByOther(
-	mmsstk_t* _out, size_t _object_size, mms_const_t _other)
+	mmstrstk_t* _out, size_t _object_size, mmstr_cptr_t _other)
 {
 
 	assert(_out);

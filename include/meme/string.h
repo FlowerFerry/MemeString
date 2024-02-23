@@ -40,7 +40,7 @@ MEME_API int
 
 MEME_API int
 	MEME_STDCALL MemeStringStack_initByOther(
-		mmsstk_t* _out, size_t _object_size, mms_const_t _other);
+		mmstrstk_t* _out, size_t _object_size, mmstr_cptr_t _other);
 
 MEME_API int
 MEME_STDCALL MemeStringStack_initByBuffer(
@@ -198,14 +198,14 @@ MEME_API int
 //	MEME_STDCALL MemeString_createWithType(MemeString_t* _out, MemeString_Storage_t);
 
 MEME_API int 
-	MEME_STDCALL MemeString_createByOther(mmstr_t* _out, mmstr_const_t _other);
+	MEME_STDCALL MemeString_createByOther(mmstr_ptr_t* _out, mmstr_cptr_t _other);
 
 MEME_API int 
-	MEME_STDCALL MemeString_createByRune(mmstr_t* _out, size_t _len, mmrune_t _ch);
+	MEME_STDCALL MemeString_createByRune(mmstr_ptr_t* _out, size_t _len, mmrune_t _ch);
 
 MEME_API int 
 	MEME_STDCALL MemeString_createByUtf8bytes(
-		mmstr_t* _out, const mmbyte_t* _utf8, mmint_t _len);
+		mmstr_ptr_t* _out, const mmbyte_t* _utf8, mmint_t _len);
 
 MEME_API int 
 	MEME_STDCALL MemeString_destroy(MemeString_t* _out);
@@ -235,9 +235,9 @@ MEME_API MemeInteger_t
 //! @return The length of the string in words.
 //! @note The length of the string in words is not necessarily equal to the length of the string in bytes.
 MEME_API MemeInteger_t 
-	MEME_STDCALL MemeString_runeSize(mms_const_t _s);
+	MEME_STDCALL MemeString_runeSize(mmstr_cptr_t _s);
 MEME_API MemeInteger_t
-	MEME_STDCALL MemeString_u16CharSize(mms_const_t _s);
+	MEME_STDCALL MemeString_u16CharSize(mmstr_cptr_t _s);
 MEME_API MemeInteger_t 
 	MEME_STDCALL MemeString_availableByteCapacity(MemeString_Const_t _s);
 MEME_API MemeInteger_t
@@ -261,20 +261,20 @@ MEME_API int
 		MemeString_Const_t _lhs, MemeString_Const_t _rhs, int* _result);
 
 MEME_API int
-	MEME_STDCALL MemeString_containsOnlyAscii(mmstr_const_t _s, int* _result);
+	MEME_STDCALL MemeString_containsOnlyAscii(mmstr_cptr_t _s, int* _result);
 
 MEME_API int
-MEME_STDCALL MemeString_compare(mms_const_t _s, mms_const_t _other);
+MEME_STDCALL MemeString_compare(mmstr_cptr_t _s, mmstr_cptr_t _other);
 
 MEME_API MemeInteger_t
-MEME_STDCALL MemeString_indexOfWithUtf8bytes(
+	MEME_STDCALL MemeString_indexOfWithUtf8bytes(
 		MemeString_Const_t _s, MemeInteger_t _offset,
 		const MemeByte_t* _needle, MemeInteger_t _needle_len,
 		MemeFlag_CaseSensitivity_t _cs);
 
 MEME_API MemeInteger_t
-MEME_STDCALL MemeString_indexOfWithUtf8bytesAndSizeLimit(
-		mms_const_t _s, mmint_t _offset, mmint_t _limit,
+	MEME_STDCALL MemeString_indexOfWithUtf8bytesAndSizeLimit(
+		mmstr_cptr_t _s, mmint_t _offset, mmint_t _limit,
 		const mmbyte_t* _needle, mmint_t _needle_len,
 		MemeFlag_CaseSensitivity_t _cs);
 
@@ -366,19 +366,19 @@ MEME_API MemeInteger_t
 MEME_API mmint_t
 	MEME_STDCALL MemeString_splitByCondByteFunc
 	(
-		mms_const_t _s,
+		mmstr_cptr_t _s,
 		MemeString_MatchCondByteFunc_t* _cond_func, void* _user_data,
-		mmsstk_t* MEGO_SYMBOL__RESTRICT _out,
+		mmstrstk_t* MEGO_SYMBOL__RESTRICT _out,
 		mmint_t * MEGO_SYMBOL__RESTRICT _out_count,
 		mmint_t * MEGO_SYMBOL__RESTRICT _search_index
 	);
 
 MEME_API mmint_t
 MEME_STDCALL MemeString_writeBytes(
-	mms_const_t _s, mmint_t _offset, mmint_t _count, mmbyte_t* _out);
+	mmstr_cptr_t _s, mmint_t _offset, mmint_t _count, mmbyte_t* _out);
 
 MEME_API MemeInteger_t
-MEME_STDCALL MemeString_writeU16Chars(mms_const_t _s, uint16_t* _out);
+MEME_STDCALL MemeString_writeU16Chars(mmstr_cptr_t _s, uint16_t* _out);
 
 MEME_API const MemeByte_t*
 	MEME_STDCALL MemeString_byteData(MemeString_Const_t _s);
@@ -407,7 +407,7 @@ mmstrstk_init(mmstrstk_t* _out, size_t _object_size)
 }
 
 MG_CAPI_INLINE int 
-mmstrstk_init_by_other(mmstrstk_t* _out, size_t _object_size, mmstr_const_t _other)
+mmstrstk_init_by_other(mmstrstk_t* _out, size_t _object_size, mmstr_cptr_t _other)
 {
     assert(_out != NULL && mmstrstk_init_by_other != NULL);
 	if (MEGO_SYMBOL__UNLIKELY(_other == NULL))
@@ -417,7 +417,7 @@ mmstrstk_init_by_other(mmstrstk_t* _out, size_t _object_size, mmstr_const_t _oth
 
 MG_CAPI_INLINE int 
 mmstrstk_init_by_buf(
-	mmstrstk_t* _out, size_t _object_size, mmbuf_const_t _other, mmint_t _offset)
+	mmstrstk_t* _out, size_t _object_size, mmbuf_cptr_t _other, mmint_t _offset)
 {
     assert(_out != NULL && mmstrstk_init_by_buf != NULL);
     if (MEGO_SYMBOL__UNLIKELY(_other == NULL))
@@ -490,7 +490,7 @@ mmstrstk_reset(mmstrstk_t* _out, size_t _object_size)
 }
 
 MG_CAPI_INLINE int
-mmstr_assign(mmstr_t _s, mmstr_const_t _other)
+mmstr_assign(mmstr_ptr_t _s, mmstr_cptr_t _other)
 {
     assert(_s != NULL && mmstr_assign != NULL);
 	if (_other == NULL)
@@ -499,7 +499,7 @@ mmstr_assign(mmstr_t _s, mmstr_const_t _other)
 }
 
 MG_CAPI_INLINE int
-mmstr_assign_by_utf8(mmstr_t _s, const mmbyte_t* _utf8, mmint_t _len)
+mmstr_assign_by_utf8(mmstr_ptr_t _s, const mmbyte_t* _utf8, mmint_t _len)
 {
     assert(_s != NULL && mmstr_assign_by_utf8 != NULL);
 	if (_utf8 == NULL)
@@ -508,7 +508,7 @@ mmstr_assign_by_utf8(mmstr_t _s, const mmbyte_t* _utf8, mmint_t _len)
 }
 
 MG_CAPI_INLINE int
-mmstr_assign_by_buf(mmstr_t _out, mmbuf_const_t _other, mmint_t _offset)
+mmstr_assign_by_buf(mmstr_ptr_t _out, mmbuf_cptr_t _other, mmint_t _offset)
 {
     assert(_out != NULL && mmstr_assign_by_buf != NULL);
 	if (_other == NULL)
@@ -517,53 +517,53 @@ mmstr_assign_by_buf(mmstr_t _out, mmbuf_const_t _other, mmint_t _offset)
 }
 
 //MEME_API int 
-//MEME_STDCALL mmsstk_init(mmsstk_t* _out, size_t _object_size);
+//MEME_STDCALL mmsstk_init(mmstrstk_t* _out, size_t _object_size);
 //
 //MEME_API int
-//MEME_STDCALL mmsstk_init_by_other(mmsstk_t* _out, size_t _object_size, mms_const_t _other);
+//MEME_STDCALL mmsstk_init_by_other(mmstrstk_t* _out, size_t _object_size, mmstr_cptr_t _other);
 //
 //MEME_API int
 //MEME_STDCALL mmsstk_init_by_buf(
-//	mmsstk_t* _out, size_t _object_size, mmbuf_const_t _other, mmint_t _offset);
+//	mmstrstk_t* _out, size_t _object_size, mmbuf_cptr_t _other, mmint_t _offset);
 //
 //MEME_API int
 //MEME_STDCALL mmsstk_init_by_utf8(
-//	mmsstk_t* _out, size_t _object_size, const mmbyte_t* _utf8, mmint_t _len);
+//	mmstrstk_t* _out, size_t _object_size, const mmbyte_t* _utf8, mmint_t _len);
 //
 //MEME_API int
 //MEME_STDCALL mmsstk_init_by_utf8_v2(
-//	mmsstk_t* _out, size_t _object_size, const mmbyte_t* _utf8, mmint_t _len,
+//	mmstrstk_t* _out, size_t _object_size, const mmbyte_t* _utf8, mmint_t _len,
 //	MemeString_Storage_t _suggest);
 //
 //MEME_API int
 //MEME_STDCALL mmsstk_init_by_hexs(
-//	mmsstk_t* _out, size_t _object_size,
+//	mmstrstk_t* _out, size_t _object_size,
 //	const mmbyte_t* _interval, mmint_t _ivlen, const uint8_t* _hexs, mmint_t _len);
 //
 //MEME_API int
 //MEME_STDCALL mmsstk_init_by_user(
-//	mmsstk_t* _out, size_t _object_size,
+//	mmstrstk_t* _out, size_t _object_size,
 //	void* _user_data,
 //	MemeString_UserObjectDestruct_t* _destruct_fn,
 //	MemeString_UserObjectData_t* _data_fn,
 //	MemeString_UserObjectSize_t* _size_fn);
 //
 //MEME_API int
-//MEME_STDCALL mmsstk_uninit(mmsstk_t* _out, size_t _object_size);
+//MEME_STDCALL mmsstk_uninit(mmstrstk_t* _out, size_t _object_size);
 //
 //MEME_API int
-//MEME_STDCALL mmsstk_reset(mmsstk_t* _out, size_t _object_size);
+//MEME_STDCALL mmsstk_reset(mmstrstk_t* _out, size_t _object_size);
 //
 //MEME_API int
-//MEME_STDCALL mms_assign(mms_t _s, mms_const_t _other);
+//MEME_STDCALL mms_assign(mmstr_ptr_t _s, mmstr_cptr_t _other);
 //
 //MEME_API int
 //MEME_STDCALL mms_assign_by_utf8(
-//	mms_t _s, const mmbyte_t* _utf8, mmint_t _len);
+//	mmstr_ptr_t _s, const mmbyte_t* _utf8, mmint_t _len);
 //
 //MEME_API int
 //MEME_STDCALL mms_assign_by_buf(
-//	mms_t _out, mmbuf_const_t _other, mmint_t _offset);
+//	mmstr_ptr_t _out, mmbuf_cptr_t _other, mmint_t _offset);
 
 
 MEME_EXTERN_C_SCOPE_ENDED
