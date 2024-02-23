@@ -209,6 +209,7 @@
     <ClInclude Include="..\..\..\include\memepp\variant_def.hpp" />
     <ClInclude Include="..\..\..\include\memepp\variant_fwd.hpp" />
     <ClInclude Include="..\..\..\include\memepp\variant_srcimpl.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\variant_tmpimpl.hpp" />
     <ClInclude Include="..\..\..\include\meme\buffer.h" />
     <ClInclude Include="..\..\..\include\meme\buffer_fwd.h" />
     <ClInclude Include="..\..\..\include\meme\common.h" />

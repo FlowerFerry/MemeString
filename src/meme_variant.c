@@ -467,7 +467,7 @@ MEME_API int MEME_STDCALL
 
 MEME_API int MEME_STDCALL
     MemeVariantStack_isUser(
-        mmvarstk_t* _obj, size_t _object_size)
+        const mmvarstk_t* _obj, size_t _object_size)
 {
     mmvar_cptr_t obj = (mmvar_cptr_t)_obj;
 
@@ -478,7 +478,7 @@ MEME_API int MEME_STDCALL
 
 MEME_API int MEME_STDCALL
     MemeVariantStack_isType(
-        mmvarstk_t* _obj, size_t _object_size, MemeMetaTypeId_t _type)
+        const mmvarstk_t* _obj, size_t _object_size, MemeMetaTypeId_t _type)
 {
     mmvar_cptr_t obj = (mmvar_cptr_t)_obj;
 

@@ -357,6 +357,9 @@
     <ClInclude Include="..\..\..\include\meme\variant_fwd.h">
       <Filter>头文件\meme</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\variant_tmpimpl.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
