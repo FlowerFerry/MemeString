@@ -12,6 +12,9 @@ typedef const struct _MemeVariableBuffer_t* MemeVariableBuffer_Const_t;
 typedef struct _MemeVariableBuffer_t* mmvb_t;
 typedef const struct _MemeVariableBuffer_t* mmvb_const_t;
 
+typedef struct _MemeVariableBuffer_t* mmvb_ptr_t;
+typedef const struct _MemeVariableBuffer_t* mmvb_cptr_t;
+
 typedef MemeInteger_t MemeVariableBuffer_Storage_t;
 enum _MemeVariableBuffer_Storage_t {
 	MemeVariableBuffer_StorageType_none   = MemeString_StorageType_none,

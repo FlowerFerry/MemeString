@@ -177,6 +177,7 @@
     <ClInclude Include="..\..\..\include\memepp\errc.hpp" />
     <ClInclude Include="..\..\..\include\memepp\hash\std_hash.hpp" />
     <ClInclude Include="..\..\..\include\memepp\iterator.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\metatype_fwd.hpp" />
     <ClInclude Include="..\..\..\include\memepp\operation\std\string.hpp" />
     <ClInclude Include="..\..\..\include\memepp\operation\std\string_view.hpp" />
     <ClInclude Include="..\..\..\include\memepp\predef\macro_option.hpp" />
@@ -204,6 +205,10 @@
     <ClInclude Include="..\..\..\include\memepp\rune_def.hpp" />
     <ClInclude Include="..\..\..\include\memepp\rune_fwd.hpp" />
     <ClInclude Include="..\..\..\include\memepp\rune_impl.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\variant.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\variant_def.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\variant_fwd.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\variant_srcimpl.hpp" />
     <ClInclude Include="..\..\..\include\meme\buffer.h" />
     <ClInclude Include="..\..\..\include\meme\buffer_fwd.h" />
     <ClInclude Include="..\..\..\include\meme\common.h" />
@@ -229,6 +234,8 @@
     <ClInclude Include="..\..\..\include\meme\variable_buffer.h" />
     <ClInclude Include="..\..\..\include\meme\variable_buffer_fwd.h" />
     <ClInclude Include="..\..\..\include\meme\rune.h" />
+    <ClInclude Include="..\..\..\include\meme\variant.h" />
+    <ClInclude Include="..\..\..\include\meme\variant_fwd.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\algorithm.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\atomic.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\atomic_fwd.h" />
@@ -262,6 +269,7 @@
     <ClCompile Include="..\..\..\src\meme_string__basics.c" />
     <ClCompile Include="..\..\..\src\meme_string__stack.c" />
     <ClCompile Include="..\..\..\src\meme_rune.c" />
+    <ClCompile Include="..\..\..\src\meme_variant.c" />
     <ClCompile Include="dllmain.cpp" />
   </ItemGroup>
   <ItemGroup>

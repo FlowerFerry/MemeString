@@ -29,6 +29,8 @@ typedef struct _MemeString_t* mms_t;
 typedef const struct _MemeString_t* mms_const_t;
 typedef struct _MemeString_t* mmstr_t;
 typedef const struct _MemeString_t* mmstr_const_t;
+typedef struct _MemeString_t* mmstr_ptr_t;
+typedef const struct _MemeString_t* mmstr_cptr_t;
 
 typedef struct _MemeRuneIndex_t {
 	MemeInteger_t size;

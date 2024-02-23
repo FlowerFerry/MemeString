@@ -336,6 +336,27 @@
     <ClInclude Include="..\..\..\include\memepp\iterator.hpp">
       <Filter>头文件\memepp</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\metatype_fwd.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\variant.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\variant_def.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\variant_fwd.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\variant_srcimpl.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\variant.h">
+      <Filter>头文件\meme</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\variant_fwd.h">
+      <Filter>头文件\meme</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -390,6 +411,9 @@
       <Filter>源文件\src</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\meme_utf_u8rune.c">
+      <Filter>源文件\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\meme_variant.c">
       <Filter>源文件\src</Filter>
     </ClCompile>
   </ItemGroup>

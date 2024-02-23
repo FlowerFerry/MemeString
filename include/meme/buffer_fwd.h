@@ -12,6 +12,9 @@ typedef const struct _MemeBuffer_t* MemeBuffer_Const_t;
 typedef struct _MemeBuffer_t* mmbuf_t;
 typedef const struct _MemeBuffer_t* mmbuf_const_t;
 
+typedef struct _MemeBuffer_t* mmbuf_ptr_t;
+typedef const struct _MemeBuffer_t* mmbuf_cptr_t;
+
 typedef MemeInteger_t MemeBuffer_Storage_t;
 typedef MemeBuffer_Storage_t mmbuf_storage_t;
 enum _MemeBuffer_Storage_t {
