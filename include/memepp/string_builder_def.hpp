@@ -18,11 +18,11 @@ namespace memepp {
 
 		string_builder();
 		string_builder(string_builder& _other);
-		string_builder(string_builder&& _other);
+		string_builder(string_builder&& _other) noexcept;
 
 		~string_builder();
 
-		string_builder& operator=(string_builder&& _other);
+		string_builder& operator=(string_builder&& _other) noexcept;
 		string_builder& operator=(string_builder& _other);
 		//string_builder& operator=(const string& _other);
 		//string_builder& operator=(const string_view& _other);

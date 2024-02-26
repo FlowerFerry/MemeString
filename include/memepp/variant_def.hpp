@@ -27,7 +27,7 @@ namespace memepp {
         variant(const native_handle_type& _other);
 
         variant(const variant& _other);
-        variant(variant&& _other);
+        variant(variant&& _other) noexcept;
 
         variant(mmbyte_t _v) noexcept;
         variant(char _v) noexcept;
@@ -43,7 +43,7 @@ namespace memepp {
         ~variant();
 
         variant& operator=(const variant& _other);
-        variant& operator=(variant&& _other);
+        variant& operator=(variant&& _other) noexcept;
 
         variant& operator=(mmbyte_t _v);
         variant& operator=(char _v);

@@ -38,7 +38,7 @@ namespace memepp {
 		string(native_handle_type&& _other);
 		string(const native_handle_type& _other);
 
-		string(string&& _other);
+		string(string&& _other) noexcept;
 		string(const string& _other);
 		//string(const string& _other, size_type _pos);
 		//string(const string& _other, size_type _pos, size_type _count);
@@ -63,7 +63,7 @@ namespace memepp {
 
 		~string();
 
-		string& operator=(string && _other);
+		string& operator=(string && _other) noexcept;
 		string& operator=(const string& _other);
         string& operator=(const string_builder& _builder);
 

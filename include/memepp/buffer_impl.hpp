@@ -31,7 +31,7 @@ namespace memepp {
 		MemeBufferStack_unInit(&_other, MEME_STRING__OBJECT_SIZE);
 	}
 
-	MEMEPP__IMPL_INLINE buffer::buffer(buffer&& _other)
+	MEMEPP__IMPL_INLINE buffer::buffer(buffer&& _other) MEGOPP__NOEXCEPT
 	{
 		MemeBufferStack_init(&data_, MEME_STRING__OBJECT_SIZE);
 		MemeBuffer_swap(to_pointer(data_), to_pointer(_other.data_));
@@ -73,7 +73,7 @@ namespace memepp {
 		MemeBufferStack_unInit(&data_, MEME_STRING__OBJECT_SIZE);
 	}
 
-	MEMEPP__IMPL_INLINE buffer& buffer::operator=(buffer&& _other)
+	MEMEPP__IMPL_INLINE buffer& buffer::operator=(buffer&& _other) MEGOPP__NOEXCEPT
 	{
 		MemeBuffer_swap(to_pointer(data_), to_pointer(_other.data_));
 		return *this;

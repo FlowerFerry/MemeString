@@ -36,7 +36,7 @@ namespace memepp {
         MemeVariantStack_initByOther(&data_, MMVAR__OBJ_SIZE, memepp::to_pointer(_other.data_));
     }
 
-    MEMEPP__IMPL_INLINE variant::variant(variant&& _other)
+    MEMEPP__IMPL_INLINE variant::variant(variant&& _other) noexcept
     {
         MemeVariantStack_initByMove(&data_, MMVAR__OBJ_SIZE, &(_other.data_));
     }
@@ -102,7 +102,7 @@ namespace memepp {
         return *this;
     }
 
-    MEMEPP__IMPL_INLINE variant& variant::operator=(variant&& _other)
+    MEMEPP__IMPL_INLINE variant& variant::operator=(variant&& _other) noexcept
     {
         swap(_other);
         return *this;

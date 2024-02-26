@@ -38,7 +38,7 @@ namespace memepp {
 	//	);
 	//}
 
-	MEMEPP__IMPL_INLINE string_builder::string_builder(string_builder&& _other)
+	MEMEPP__IMPL_INLINE string_builder::string_builder(string_builder&& _other) noexcept
 	{
 		MemeStringBuilderStack_init(&data_, MEME_STRING_BUILDER__OBJECT_SIZE);
 		MemeStringBuilderStack_swap(&data_, &(_other.data_), MEME_STRING_BUILDER__OBJECT_SIZE);
@@ -49,7 +49,7 @@ namespace memepp {
 		MemeStringBuilderStack_unInit(&data_, MEME_STRING_BUILDER__OBJECT_SIZE);
 	}
 
-	MEMEPP__IMPL_INLINE string_builder& string_builder::operator=(string_builder&& _other)
+	MEMEPP__IMPL_INLINE string_builder& string_builder::operator=(string_builder&& _other) noexcept
 	{
 		MemeStringBuilderStack_swap(&data_, &(_other.data_), MEME_STRING_BUILDER__OBJECT_SIZE);
 		return *this;

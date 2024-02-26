@@ -68,7 +68,7 @@ namespace memepp {
 	//		&data_, MEME_STRING__OBJECT_SIZE, static_cast<MemeString_Storage_t>(_suggest));
 	//}
 
-	MEMEPP__IMPL_INLINE string::string(string && _other)
+	MEMEPP__IMPL_INLINE string::string(string && _other) noexcept
 	{
 		MemeStringStack_init(&data_, MEME_STRING__OBJECT_SIZE);
 		MemeString_swap(to_pointer(data_), to_pointer(_other.data_));
@@ -174,7 +174,7 @@ namespace memepp {
 		MemeStringStack_unInit(&data_, MEME_STRING__OBJECT_SIZE);
 	}
 
-	MEMEPP__IMPL_INLINE string & string::operator=(string && _other)
+	MEMEPP__IMPL_INLINE string & string::operator=(string && _other) noexcept
 	{
 		MemeString_swap(to_pointer(data_), to_pointer(_other.data_));
 		return *this;

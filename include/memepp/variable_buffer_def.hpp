@@ -35,14 +35,14 @@ namespace memepp {
 		variable_buffer(size_type _count, value_type _value);
 
 		variable_buffer(const variable_buffer& _other);
-		variable_buffer(variable_buffer&& _other);
+		variable_buffer(variable_buffer&& _other) noexcept;
 
 		~variable_buffer();
 
 		variable_buffer& operator=(const string& _other);
 		variable_buffer& operator=(const string_view& _other);
 		variable_buffer& operator=(const variable_buffer& _other);
-		variable_buffer& operator=(variable_buffer&& _other);
+		variable_buffer& operator=(variable_buffer&& _other) noexcept;
 
 		const_reference operator[](size_type _pos) const;
 		reference operator[](size_type _pos);

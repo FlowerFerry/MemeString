@@ -40,7 +40,7 @@ namespace memepp {
 		string_view(const string& _other);
 		string_view(string&& _other);
 		string_view(const string_view& _other);
-		string_view(string_view&& _other);
+		string_view(string_view&& _other) noexcept;
 
 		~string_view();
 
@@ -48,7 +48,7 @@ namespace memepp {
 
 		string_view& operator=(const string& _other);
 		string_view& operator=(const string_view& _other);
-		string_view& operator=(string_view&& _other);
+		string_view& operator=(string_view&& _other) noexcept;
 
 		string_builder operator+(const string& _other) const;
 		string_builder operator+(const string_view& _other) const;

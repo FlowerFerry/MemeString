@@ -100,7 +100,7 @@ namespace memepp {
 			&data_, MEME_STRING__OBJECT_SIZE, &_other.data_);
 	}
 
-	MEMEPP__IMPL_INLINE string_view::string_view(string_view&& _other)
+	MEMEPP__IMPL_INLINE string_view::string_view(string_view&& _other) noexcept
 	{
 		MemeStringStack_init(&data_, MEME_STRING__OBJECT_SIZE);
 		MemeString_swap(to_pointer(data_), to_pointer(_other.data_));
@@ -135,7 +135,7 @@ namespace memepp {
 		return *this;
 	}
 
-	MEMEPP__IMPL_INLINE string_view& string_view::operator=(string_view&& _other)
+	MEMEPP__IMPL_INLINE string_view& string_view::operator=(string_view&& _other) noexcept
 	{
 		MemeString_swap(to_pointer(data_), to_pointer(_other.data_));
 		return *this;

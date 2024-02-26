@@ -30,7 +30,7 @@ namespace memepp {
 		buffer() MEGOPP__NOEXCEPT;
 		buffer(native_handle_type&& _other);
 
-		buffer(buffer&& _other);
+		buffer(buffer&& _other) MEGOPP__NOEXCEPT;
 		buffer(const buffer& _other);
 		buffer(const buffer& _other, size_type _pos);
 		buffer(const buffer& _other, size_type _pos, size_type _count);
@@ -45,7 +45,7 @@ namespace memepp {
 
 		~buffer();
 
-		buffer& operator=(buffer&& _other);
+		buffer& operator=(buffer&& _other) MEGOPP__NOEXCEPT;
 		buffer& operator=(const buffer& _other);
 
 		buffer_storage_t storage_type() const MEGOPP__NOEXCEPT;

@@ -53,7 +53,7 @@ namespace memepp {
 #endif
 	}
 
-	MEMEPP__IMPL_INLINE variable_buffer::variable_buffer(variable_buffer&& _other)
+	MEMEPP__IMPL_INLINE variable_buffer::variable_buffer(variable_buffer&& _other) noexcept
 	{
 		MemeVariableBufferStack_init(&data_, MEME_STRING__OBJECT_SIZE);
 		MemeVariableBuffer_swap(to_pointer(data_), to_pointer(_other.data_));
@@ -85,7 +85,7 @@ namespace memepp {
 		return *p;
 	}
 
-	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::operator=(variable_buffer&& _other)
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::operator=(variable_buffer&& _other) noexcept
 	{
 		MemeVariableBuffer_swap(to_pointer(data_), to_pointer(_other.data_));
 		return *this;
