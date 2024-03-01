@@ -262,4 +262,5 @@ EXPORTS
     MemeVariantStack_getRune @257
     MemeVariantStack_getStringView @258
     MemeVariantStack_getBufferView @259
+    MemeString_assign @260
     
