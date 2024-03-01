@@ -35,35 +35,35 @@ namespace memepp {
 	//! the allocated memepp::string is passed to the parent process and its life cycle is longer than the life cycle of the dynamic library, which will cause problems.
     //! @param _s std::string to convert
     //! @return memepp::string
-	inline memepp::string fromUnsafe(std::string&& _s)
-	{
-		static const auto destruct_func = [](void* _object) { delete reinterpret_cast<std::string*>(_object); };
-		static const auto data_func = [](const void* _object) { return reinterpret_cast<const std::string*>(_object)->data(); };
-		static const auto size_func = [](const void* _object) { return reinterpret_cast<const std::string*>(_object)->size(); };
-		
-		if (_s.empty())
-			return {};
-		else if (_s.size() < MEME_STRING__OBJECT_SIZE)
-		{
-			return memepp::string(_s.data(), static_cast<MemeInteger_t>(_s.size()));
-		}
-        else if (_s.size() < 16 * sizeof(intptr_t))
-        {
-            return memepp::string(_s.data(), static_cast<MemeInteger_t>(_s.size()), 
-				memepp::string_storage_t::medium);
-        }
+	//inline memepp::string fromUnsafe(std::string&& _s)
+	//{
+	//	static const auto destruct_func = [](void* _object) { delete reinterpret_cast<std::string*>(_object); };
+	//	static const auto data_func = [](const void* _object) { return reinterpret_cast<const std::string*>(_object)->data(); };
+	//	static const auto size_func = [](const void* _object) { return reinterpret_cast<const std::string*>(_object)->size(); };
+	//	
+	//	if (_s.empty())
+	//		return {};
+	//	else if (_s.size() < MEME_STRING__OBJECT_SIZE)
+	//	{
+	//		return memepp::string(_s.data(), static_cast<MemeInteger_t>(_s.size()));
+	//	}
+ //       else if (_s.size() < 16 * sizeof(intptr_t))
+ //       {
+ //           return memepp::string(_s.data(), static_cast<MemeInteger_t>(_s.size()), 
+	//			memepp::string_storage_t::medium);
+ //       }
 
-		memepp::string out;
-		auto obj = new std::string(std::move(_s));
-		auto ret = MemeStringStack_initTakeOverUserObject(
-			const_cast<MemeStringStack_t*>(&(out.native_handle())), MEME_STRING__OBJECT_SIZE,
-			obj, destruct_func, data_func, size_func);
-		if (ret) {
-			destruct_func(obj);
-			return {};
-		}
-		return out;
-	}
+	//	memepp::string out;
+	//	auto obj = new std::string(std::move(_s));
+	//	auto ret = MemeStringStack_initTakeOverUserObject(
+	//		const_cast<MemeStringStack_t*>(&(out.native_handle())), MEME_STRING__OBJECT_SIZE,
+	//		obj, destruct_func, data_func, size_func);
+	//	if (ret) {
+	//		destruct_func(obj);
+	//		return {};
+	//	}
+	//	return out;
+	//}
 
 	inline memepp::string_view view(const std::string& _s)
 	{
