@@ -39,23 +39,5 @@ inline memepp::string_view mm_view(const _Ty& _s)
 {
 	return memepp::view(_s);
 }
-//
-//template<typename _Ty>
-//inline memepp::string mm_from(_Ty _s)
-//{
-//	return memepp::from(std::forward<_Ty>(_s));
-//}
-
-//template<typename _Ty>
-//inline memepp::string mm_from(_Ty& _s)
-//{
-//	return memepp::from(_s);
-//}
-
-//template<typename _Ty>
-//inline memepp::string mm_from(_Ty&& _s)
-//{
-//	return memepp::from(std::move(_s));
-//}
 
 #endif // !MEMEPP_CONVERT_COMMON_HPP_INCLUDED

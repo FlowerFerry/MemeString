@@ -212,5 +212,5 @@ namespace memepp {
 
 #endif // !MEMEPP_STRING_VIEW_DEF_HPP_INCLUDED
 
-#include <memepp/string_view_templateimpl.hpp>
+#include <memepp/string_view_tmpimpl.hpp>
     

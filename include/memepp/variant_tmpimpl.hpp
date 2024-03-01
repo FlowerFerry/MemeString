@@ -4,6 +4,7 @@
 
 #include <meme/variant.h>
 
+#include <memepp/convert/common_def.hpp>
 #include <memepp/variant_def.hpp>
 #include <memepp/rune_def.hpp>
 #include <memepp/string_def.hpp>
@@ -165,7 +166,29 @@ namespace memepp {
     {
         return MemeVariantStack_setRune(&data_, MMVAR__OBJ_SIZE, &_v.native_handle());
     }
+    
+    //template<>
+    //inline variant import_from_dll(const mmvarstk_t& _obj)
+    //{
+    //    ;
+    //}
 
+    template<>
+    inline mmvarstk_t export_into_dll(const variant& _obj)
+    {
+        mmvarstk_t result;
+        MemeVariantStack_init  (&result, MMVAR__OBJ_SIZE);
+        MemeVariantStack_assign(&result, MMVAR__OBJ_SIZE, memepp::to_pointer(_obj.native_handle()));
+        return result;
+    }
+    
+    template<>
+    inline mmvarstk_t export_into_dll(variant&& _obj)
+    {
+        mmvarstk_t result;
+        MemeVariantStack_initByMove(&result, MMVAR__OBJ_SIZE, const_cast<mmvarstk_t*>(&_obj.native_handle()));
+        return result;
+    }
 }
 
 #endif // !MEMEPP_VARIANT_TMPIMPL_HPP_INCLUDED

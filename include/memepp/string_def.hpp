@@ -324,4 +324,5 @@ namespace memepp {
 
 #endif // !MEMEPP_STRING_DEF_HPP_INCLUDED
 
-#include <memepp/string_templateimpl.hpp>
+#include <memepp/string_tmpimpl.hpp>
+	

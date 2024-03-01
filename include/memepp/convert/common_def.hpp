@@ -17,13 +17,6 @@ inline _Ty mm_to(const memepp::string_view& _s);
 template<typename _Ty>
 inline memepp::string_view mm_view(const _Ty& _s);
 
-//template<typename _Ty>
-//inline memepp::string mm_from(_Ty _s);
-//template<typename _Ty>
-//inline memepp::string mm_from(_Ty& _s);
-//template<typename _Ty>
-//inline memepp::string mm_from(_Ty&& _s);
-
 namespace memepp {
 	
 	template<typename _Ty>
@@ -38,6 +31,19 @@ namespace memepp {
 	inline memepp::string from(memepp::string&& _sv);
 	inline memepp::string from(const memepp::string& _sv);
 	inline memepp::string from(const memepp::string_view& _sv);
+
+
+	template<typename _Ty, typename _Result>
+	inline _Result import_from_dll(_Ty _obj)
+	{
+		return _Result{};
+	}
+
+	template<typename _Ty, typename _Result>
+	inline _Result export_into_dll(_Ty _obj)
+	{
+		return _Result{};
+	}
 
 };
 
