@@ -2,9 +2,10 @@
 #ifndef MEMEPP_CONVERT_COMMON_DEF_HPP_INCLUDED
 #define MEMEPP_CONVERT_COMMON_DEF_HPP_INCLUDED
 
-#include "meme/string.h"
-#include "memepp/string.hpp"
-#include "memepp/string_view.hpp"
+#include "meme/string_fwd.h"
+
+#include "memepp/string_fwd.hpp"
+#include "memepp/string_view_fwd.hpp"
 
 #include <utility>
 
@@ -32,18 +33,6 @@ namespace memepp {
 	inline memepp::string from(const memepp::string& _sv);
 	inline memepp::string from(const memepp::string_view& _sv);
 
-
-	template<typename _Ty, typename _Result>
-	inline _Result import_from_dll(_Ty _obj)
-	{
-		return _Result{};
-	}
-
-	template<typename _Ty, typename _Result>
-	inline _Result export_into_dll(_Ty _obj)
-	{
-		return _Result{};
-	}
 
 };
 

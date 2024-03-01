@@ -35,6 +35,7 @@ namespace memepp {
 		{
 			*errc() = MemeStringStack_initByU8bytes(&data_, MEME_STRING__OBJECT_SIZE,
 				MemeString_byteData(other), MemeString_byteSize(other));
+			MemeStringStack_unInit(&_other, MEME_STRING__OBJECT_SIZE);
 #if !MMOPT__EXCEPTION_DISABLED
             throw_errc(*errc());
 #endif
@@ -42,8 +43,8 @@ namespace memepp {
 		else {
 			MemeStringStack_init(&data_, MEME_STRING__OBJECT_SIZE);
 			MemeString_swap(to_pointer(data_), other);
+			MemeStringStack_unInit(&_other, MEME_STRING__OBJECT_SIZE);
 		}
-		MemeStringStack_unInit(&_other, MEME_STRING__OBJECT_SIZE);
 	}
 
 	MEMEPP__IMPL_INLINE string::string(const native_handle_type& _other)
