@@ -191,12 +191,12 @@
     <ClInclude Include="..\..\..\include\memepp\string_builder_impl.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string_fwd.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string_impl.hpp" />
-    <ClInclude Include="..\..\..\include\memepp\string_templateimpl.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\string_tmpimpl.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string_view.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string_view_def.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string_view_fwd.hpp" />
     <ClInclude Include="..\..\..\include\memepp\string_view_impl.hpp" />
-    <ClInclude Include="..\..\..\include\memepp\string_view_templateimpl.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\string_view_tmpimpl.hpp" />
     <ClInclude Include="..\..\..\include\memepp\variable_buffer.hpp" />
     <ClInclude Include="..\..\..\include\memepp\variable_buffer_def.hpp" />
     <ClInclude Include="..\..\..\include\memepp\variable_buffer_fwd.hpp" />

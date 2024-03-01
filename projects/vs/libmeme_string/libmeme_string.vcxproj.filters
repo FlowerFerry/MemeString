@@ -261,12 +261,6 @@
     <ClInclude Include="..\..\..\include\memepp\convert\redis++.hpp">
       <Filter>头文件\memepp\convert</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\include\memepp\string_templateimpl.hpp">
-      <Filter>头文件\memepp</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\include\memepp\string_view_templateimpl.hpp">
-      <Filter>头文件\memepp</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\include\memepp\operation\std\string.hpp">
       <Filter>头文件\memepp\operation\std</Filter>
     </ClInclude>
@@ -358,6 +352,12 @@
       <Filter>头文件\meme</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\include\memepp\variant_tmpimpl.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\string_tmpimpl.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\string_view_tmpimpl.hpp">
       <Filter>头文件\memepp</Filter>
     </ClInclude>
   </ItemGroup>
