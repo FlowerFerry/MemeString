@@ -23,10 +23,29 @@ namespace memepp {
 	{
 		return memepp::string(_s.data(), static_cast<MemeInteger_t>(_s.size()));
 	}
-
+	
 	inline memepp::string from(std::string&& _s)
 	{
-        return memepp::string(_s.data(), static_cast<MemeInteger_t>(_s.size()));
+		static const auto destruct_func = [](void* _object) { delete reinterpret_cast<std::string*>(_object); };
+		static const auto data_func = [](const void* _object) { return reinterpret_cast<const std::string*>(_object)->data(); };
+		static const auto size_func = [](const void* _object) { return reinterpret_cast<const std::string*>(_object)->size(); };
+	
+		if (static_cast<mmint_t>(_s.size()) < MemeStringOption_getStorageMediumLimit())
+        {
+			return memepp::string{ _s.data(), static_cast<mmint_t>(_s.size()) };
+        }
+        else {
+			memepp::string out;
+			auto obj = new std::string{ std::move(_s) };
+			auto ret = MemeStringStack_initTakeOverUserObject(
+				const_cast<MemeStringStack_t*>(&(out.native_handle())), MMSTR__OBJ_SIZE,
+				obj, destruct_func, data_func, size_func);
+			if (ret) {
+				destruct_func(obj);
+				return {};
+			}
+			return out;
+        }
 	}
 
     //! @brief Convert memepp::string to std::string.

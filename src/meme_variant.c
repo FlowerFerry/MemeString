@@ -39,17 +39,17 @@ MEME_API mgec_t MEME_STDCALL
     case MMMETA_TYPID__STRING:
     {
         return MemeVariantStack_initByString(
-            _obj, _object_size, (mmstr_cptr_t)&(_var->d.str));
+            _obj, _object_size, (mmstr_cptr_t)(&(_var->d.str)));
     };
     case MMMETA_TYPID__BUFFER:
     {
         return MemeVariantStack_initByBuffer(
-            _obj, _object_size, (mmbuf_cptr_t)&(_var->d.buf));
+            _obj, _object_size, (mmbuf_cptr_t)(&(_var->d.buf)));
     };
     case MMMETA_TYPID__VARBUF:
     {
         return MemeVariantStack_initByVariableBuffer(
-            _obj, _object_size, (mmvb_cptr_t)&(_var->d.vb));
+            _obj, _object_size, (mmvb_cptr_t)(&(_var->d.vb)));
     };
     }
 
@@ -242,6 +242,60 @@ MEME_API mgec_t MEME_STDCALL
     return MGEC__OK;
 }
 
+MEME_API int MEME_STDCALL
+MemeVariantStack_initAndConditionalConvert(
+    mmvarstk_t* _out, size_t _object_size, mmvar_cptr_t _other)
+{
+    mgec_t result = MGEC__OK;
+
+    assert(_out != NULL && MemeVariantStack_initAndConditionalConvert != NULL);
+
+    if (MEGO_SYMBOL__UNLIKELY(_other == NULL))
+    {
+        MemeVariantStack_init(_out, _object_size);
+        return MGEC__INVAL;
+    }
+
+    switch (_other->type)
+    {
+    case MMMETA_TYPID__STRING:
+    {
+        mmvar_ptr_t var = (mmvar_ptr_t)_out;
+        mgec_t   result = MemeStringStack_initAndConditionalConvert(
+            &(var->d.str), _object_size, (mmstr_cptr_t)(&(_other->d.str)));
+        if (MEGO_SYMBOL__UNLIKELY(result != MGEC__OK))
+            return result;
+        
+        var->type     = MMMETA_TYPID__STRING;
+        var->non_null = 1;
+        return MGEC__OK;
+    };
+    case MMMETA_TYPID__BUFFER:
+    {
+        mmvar_ptr_t var = (mmvar_ptr_t)_out;
+        mgec_t   result = MemeBufferStack_initAndConditionalConvert(
+            &(var->d.buf), _object_size, (mmbuf_cptr_t)(&(_other->d.buf)));
+        if (MEGO_SYMBOL__UNLIKELY(result != MGEC__OK))
+            return result;
+        
+        var->type     = MMMETA_TYPID__BUFFER;
+        var->non_null = 1;
+        return MGEC__OK;
+    };
+    case MMMETA_TYPID__VARBUF:
+    {
+        return MemeVariantStack_initByVariableBuffer(
+            _out, _object_size, (mmvb_cptr_t)(&(_other->d.vb)));
+    };
+    }
+
+    if (_other->type > MMMETA_TYPID__USER)
+        return MGEC__OPNOTSUPP;
+
+    memcpy(_out, _other, _object_size);
+    return MGEC__OK;
+}
+
 MEME_API mgec_t MEME_STDCALL
     MemeVariantStack_unInit(
         mmvarstk_t* _obj, size_t _object_size)
@@ -288,15 +342,15 @@ MEME_API mgec_t MEME_STDCALL
     {
     case MMMETA_TYPID__STRING:
     {
-        return MemeVariantStack_initByString(_obj, _object_size, (mmstr_cptr_t)&(_var->d.str));
+        return MemeVariantStack_initByString(_obj, _object_size, (mmstr_cptr_t)(&(_var->d.str)));
     };
     case MMMETA_TYPID__BUFFER:
     {
-        return MemeVariantStack_initByBuffer(_obj, _object_size, (mmbuf_cptr_t)&(_var->d.buf));
+        return MemeVariantStack_initByBuffer(_obj, _object_size, (mmbuf_cptr_t)(&(_var->d.buf)));
     };
     case MMMETA_TYPID__VARBUF:
     {
-        return MemeVariantStack_initByVariableBuffer(_obj, _object_size, (mmvb_cptr_t)&(_var->d.vb));
+        return MemeVariantStack_initByVariableBuffer(_obj, _object_size, (mmvb_cptr_t)(&(_var->d.vb)));
     };
     }
 

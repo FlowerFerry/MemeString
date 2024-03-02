@@ -398,6 +398,28 @@ MEME_STDCALL MemeStringStack_initWithHexadecimals(
 	return (int)result;
 }
 
+MEME_API int
+MEME_STDCALL MemeStringStack_initAndConditionalConvert(
+	mmstrstk_t* _out, size_t _object_size, mmstr_cptr_t _other)
+{
+    assert(_out != NULL);
+	
+    if (_other == NULL) {
+        MemeStringStack_init(_out, _object_size);
+        return 0;
+    }
+
+    if (MemeString_storageType(_other) == MemeString_StorageType_user 
+	 || MemeString_storageType(_other) == MemeString_UnsafeStorageType_view)
+	{
+        return MemeStringStack_initByU8bytes(
+			_out, _object_size, MemeString_byteData(_other), MemeString_byteSize(_other));
+    }
+    else {
+        return MemeStringStack_initByOther(_out, _object_size, _other);
+    }
+}
+
 MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_reset(
 	mmsstk_t* _out, size_t _object_size)
 {

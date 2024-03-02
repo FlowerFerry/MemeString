@@ -166,12 +166,29 @@ namespace memepp {
     {
         return MemeVariantStack_setRune(&data_, MMVAR__OBJ_SIZE, &_v.native_handle());
     }
-    
-    //template<>
-    //inline variant import_from_dll(const mmvarstk_t& _obj)
-    //{
-    //    ;
-    //}
+
+    template<>
+    inline memepp::variant import_from_dll(const mmvarstk_t& _obj, mmint_t _struct_size)
+    {
+        mmvarstk_t stk;
+        auto result = MemeVariantStack_initAndConditionalConvert(&stk, _struct_size, memepp::to_pointer(_obj));
+        if (result)
+            return {};
+
+        return memepp::variant{ std::move(stk) };
+    }
+
+    template<>
+    inline memepp::variant import_from_dll(mmvarstk_t&& _obj, mmint_t _struct_size)
+    {
+        mmvarstk_t stk;
+        auto result = MemeVariantStack_initAndConditionalConvert(&stk, _struct_size, memepp::to_pointer(_obj));
+        MemeVariantStack_unInit(&_obj, _struct_size);
+        if (result)
+            return {};
+
+        return memepp::variant{ std::move(stk) };
+    }
 
     template<>
     inline mmvarstk_t export_into_dll(const variant& _obj, mmint_t _struct_size)

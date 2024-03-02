@@ -35,11 +35,9 @@ MEME_STDCALL MemeBufferStack_initByU8bytesAndType(
 	mmbufstk_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len,
 		MemeBuffer_Storage_t _suggest);
 
-//MEME_API int
-//MEME_STDCALL MemeBufferStack_initByOtherAndType(
-//	MemeBufferStack_t* _out, size_t _object_size,
-//	const MemeBufferStack_t* _other, MemeBuffer_Storage_t _suggest
-//);
+MEME_API int
+MEME_STDCALL MemeBufferStack_initAndConditionalConvert(
+	mmbufstk_t* _out, size_t _object_size, mmbuf_cptr_t _other);
 
 MEME_API int
 MEME_STDCALL MemeBufferStack_unInit(mmbufstk_t* _out, size_t _object_size);

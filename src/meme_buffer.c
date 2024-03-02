@@ -44,13 +44,13 @@ MEME_STDCALL MemeBufferStack_initByU8bytesAndType(
 		(mmsstk_t*)_out, _object_size, _utf8, _len, _suggest);
 }
 
-//MEME_API int 
-//MEME_STDCALL MemeBufferStack_initByOtherAndType(
-//	MemeBufferStack_t* _out, size_t _object_size, const MemeBufferStack_t* _other, MemeBuffer_Storage_t _suggest)
-//{
-//	return MemeStringStack_initByOtherAndType(
-//		(MemeStringStack_t*)_out, _object_size, (MemeString_Const_t)_other, _suggest);
-//}
+MEME_API int
+MEME_STDCALL MemeBufferStack_initAndConditionalConvert(
+	mmbufstk_t* _out, size_t _object_size, mmbuf_cptr_t _other)
+{
+    return MemeStringStack_initAndConditionalConvert(
+		(mmstrstk_t*)_out, _object_size, (mmstr_cptr_t)_other);
+}
 
 MEME_API int 
 MEME_STDCALL MemeBufferStack_unInit(mmbufstk_t* _out, size_t _object_size)

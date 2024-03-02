@@ -178,28 +178,26 @@ namespace memepp {
 	}
 
 	template<>
-	inline memepp::string import_from_dll(const mmstrstk_t& _obj, mmint_t )
+	inline memepp::string import_from_dll(const mmstrstk_t& _obj, mmint_t _struct_size)
 	{
-		auto strg_type = MemeString_storageType(memepp::to_pointer(_obj));
-		if (strg_type == mmstr_strg_user || strg_type == mmstr_usfstrg_view)
-            return memepp::string{ MemeString_byteData(memepp::to_pointer(_obj)), MemeString_byteSize(memepp::to_pointer(_obj)) };
-        else
-            return memepp::string{ _obj };
+		mmstrstk_t str;
+        auto result = MemeStringStack_initAndConditionalConvert(&str, _struct_size, memepp::to_pointer(_obj));
+        if (result)
+			return {};
+		
+        return memepp::string{ std::move(str) };
 	}
 
     template<>
 	inline memepp::string import_from_dll(mmstrstk_t&& _obj, mmint_t _struct_size)
     {
-		memepp::string s;
-        auto strg_type = MemeString_storageType(memepp::to_pointer(_obj));
-        if (strg_type == mmstr_strg_user || strg_type == mmstr_usfstrg_view)
-		{
-			s = memepp::string{ MemeString_byteData(memepp::to_pointer(_obj)), MemeString_byteSize(memepp::to_pointer(_obj)) };
-			mmstrstk_uninit(&_obj, _struct_size);
-		}
-        else
-            s = memepp::string{ std::move(_obj) };
-        return s;
+		mmstrstk_t str;
+		auto result = MemeStringStack_initAndConditionalConvert(&str, _struct_size, memepp::to_pointer(_obj));
+		mmstrstk_uninit(&_obj, _struct_size);
+		if (result)
+			return {};
+
+        return memepp::string{ std::move(str) };
     }
 
 	template<>

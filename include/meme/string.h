@@ -75,6 +75,10 @@ MEME_API int
 		const uint8_t* _hexs, MemeInteger_t _len);
 
 MEME_API int
+	MEME_STDCALL MemeStringStack_initAndConditionalConvert(
+        mmstrstk_t* _out, size_t _object_size, mmstr_cptr_t _other);
+
+MEME_API int
 	MEME_STDCALL MemeStringStack_unInit(mmsstk_t* _out, size_t _object_size);
 
 MEME_API int 

@@ -162,17 +162,29 @@ EXPORTS
     mmsmem_calloc @159
     mmsmem_realloc @160
     mmsmem_free @161
+    ; DEPRECATED
     mmsstk_init @162
+    ; DEPRECATED
     mmsstk_init_by_other @163
+    ; DEPRECATED
     mmsstk_init_by_buf @164
+    ; DEPRECATED
     mmsstk_init_by_utf8 @165
+    ; DEPRECATED
     mmsstk_init_by_utf8_v2 @166
+    ; DEPRECATED
     mmsstk_init_by_hexs @167
+    ; DEPRECATED
     mmsstk_init_by_user @168
+    ; DEPRECATED
     mmsstk_uninit @169
+    ; DEPRECATED
     mmsstk_reset @170
+    ; DEPRECATED
     mms_assign @171
+    ; DEPRECATED
     mms_assign_by_utf8 @172
+    ; DEPRECATED
     mms_assign_by_buf @173
     MemeStringOption_getStorageMediumLimit @174
     MemeStringOption_setStorageMediumLimit @175
@@ -263,4 +275,6 @@ EXPORTS
     MemeVariantStack_getStringView @258
     MemeVariantStack_getBufferView @259
     MemeString_assign @260
-    
+    MemeStringStack_initAndConditionalConvert @261
+    MemeBufferStack_initAndConditionalConvert @262
+    MemeVariantStack_initAndConditionalConvert @263

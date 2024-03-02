@@ -15,8 +15,36 @@ namespace memepp {
 namespace memepp {
 
 	inline memepp::string from(std::vector<uint8_t>&& _v)
-	{
-        return memepp::string(_v.data(), static_cast<MemeInteger_t>(_v.size()));
+	{	
+		static const auto destruct_func = [](void* _object) { 
+			delete reinterpret_cast<std::vector<uint8_t>*>(_object);
+		};
+		static const auto data_func = [](const void* _object) { 
+			return reinterpret_cast<const char*>(reinterpret_cast<const std::vector<uint8_t>*>(_object)->data()); 
+		};
+		static const auto size_func = [](const void* _object) { 
+			return reinterpret_cast<const std::vector<uint8_t>*>(_object)->size() - 1; 
+		};
+		
+		if (static_cast<mmint_t>(_v.size()) < MemeStringOption_getStorageMediumLimit())
+		{
+			return memepp::string{ _v.data(), static_cast<mmint_t>(_v.size()) };
+		}
+		else {
+			if (_v.back() != 0)
+                _v.push_back(0);
+
+			memepp::string out;
+			auto obj = new std::vector<uint8_t>{ std::move(_v) };
+			auto ret = MemeStringStack_initTakeOverUserObject(
+				const_cast<MemeStringStack_t*>(&(out.native_handle())), MMSTR__OBJ_SIZE,
+				obj, destruct_func, data_func, size_func);
+			if (ret) {
+				destruct_func(obj);
+				return {};
+			}
+			return out;
+		}
 	}
 
     //! @brief Convert std::vector<uint8_t> to memepp::string.
