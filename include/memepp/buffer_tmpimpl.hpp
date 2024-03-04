@@ -2,6 +2,8 @@
 #ifndef MEMEPP_BUFFER_TMPIMPL_HPP_INCLUDED
 #define MEMEPP_BUFFER_TMPIMPL_HPP_INCLUDED
 
+#include <meme/buffer.h>
+
 #include <memepp/dll.hpp>
 #include <memepp/buffer_def.hpp>
 
