@@ -30,7 +30,7 @@ namespace memepp {
 		static const auto data_func = [](const void* _object) { return reinterpret_cast<const std::string*>(_object)->data(); };
 		static const auto size_func = [](const void* _object) { return reinterpret_cast<const std::string*>(_object)->size(); };
 	
-		if (static_cast<mmint_t>(_s.size()) < MemeStringOption_getStorageMediumLimit())
+		if (_s.size() < MemeStringOption_getStorageMediumLimit() + MMSTR__OBJ_SIZE)
         {
 			return memepp::string{ _s.data(), static_cast<mmint_t>(_s.size()) };
         }

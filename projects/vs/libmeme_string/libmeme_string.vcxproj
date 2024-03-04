@@ -158,6 +158,7 @@
     <ClInclude Include="..\..\..\include\memepp\buffer_def.hpp" />
     <ClInclude Include="..\..\..\include\memepp\buffer_fwd.hpp" />
     <ClInclude Include="..\..\..\include\memepp\buffer_impl.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\buffer_tmpimpl.hpp" />
     <ClInclude Include="..\..\..\include\memepp\buffer_view.hpp" />
     <ClInclude Include="..\..\..\include\memepp\buffer_view_def.hpp" />
     <ClInclude Include="..\..\..\include\memepp\buffer_view_fwd.hpp" />
@@ -174,6 +175,7 @@
     <ClInclude Include="..\..\..\include\memepp\convert\std\vector.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\std\string.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\uvw.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\convert\yyjson.hpp" />
     <ClInclude Include="..\..\..\include\memepp\errc.hpp" />
     <ClInclude Include="..\..\..\include\memepp\hash\std_hash.hpp" />
     <ClInclude Include="..\..\..\include\memepp\iterator.hpp" />

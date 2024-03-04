@@ -43,7 +43,7 @@ struct _MemeStringBuilder_t
         size_t __res__ : (sizeof(size_t) * CHAR_BIT / 2);
     };
     mmsbldr_fmt_t* fmt_;
-    mmstr_t out_;
+    mmstr_ptr_t out_;
 };
 
 static_assert(sizeof(struct _MemeStringBuilder_t) == MMSBLDR__OBJ_SIZE,
@@ -51,6 +51,9 @@ static_assert(sizeof(struct _MemeStringBuilder_t) == MMSBLDR__OBJ_SIZE,
 
 int 
 MemeStringBuilderPart_init(mmsbldr_part_t* _part);
+
+int 
+MemeStringBuilderPart_initByOther(mmsbldr_part_t* _part, const mmsbldr_part_t* _other);
 
 void 
 MemeStringBuilderPart_unInit(void* _part);
@@ -60,9 +63,15 @@ MemeStringBuilderParts_checkInit(mmsbldr_part_t** _parts);
 
 
 int
-MemeStringBuilderFormat_destroy(mmsbldr_fmt_t** _fmt);
+MemeStringBuilderFormat_init(mmsbldr_fmt_t** _fmt);
 
 int
-MemeStringBuilder_generateWithParts(mmsbldr_const_t _builder, mmstr_t _out);
+MemeStringBuilderFormat_initByOther(mmsbldr_fmt_t** _fmt, const mmsbldr_fmt_t* _other);
+
+int
+MemeStringBuilderFormat_unInit(mmsbldr_fmt_t** _fmt);
+
+int
+MemeStringBuilder_generateWithParts(mmsbldr_cptr_t _builder, mmstr_ptr_t _out);
 
 #endif // MEME_IMPL_STRING_BUILDER_H_INCLUDED

@@ -19,6 +19,14 @@ int MemeStringBuilderPart_init(mmsbldr_part_t* _part)
     return result;
 }
 
+int
+MemeStringBuilderPart_initByOther(mmsbldr_part_t* _part, const mmsbldr_part_t* _other)
+{
+    int result = 0;
+    result = MemeStringStack_initByOther(&(_part->str), MMSTR__OBJ_SIZE, (mmstr_cptr_t)&(_other->str));
+    return result;
+}
+
 void MemeStringBuilderPart_unInit(void* _part)
 {
     mmsbldr_part_t* part = (mmsbldr_part_t*)_part;
@@ -38,12 +46,42 @@ int MemeStringBuilderParts_checkInit(mmsbldr_part_t** _part)
     return result;
 }
 
+int
+MemeStringBuilderFormat_init(mmsbldr_fmt_t** _fmt)
+{
+    // nothing to do
+    return 0;
+}
+
+int
+MemeStringBuilderFormat_initByOther(mmsbldr_fmt_t** _fmt, const mmsbldr_fmt_t* _other)
+{
+    mgec_t result = 0;
+
+    if (_other == NULL) {
+        *_fmt = NULL;
+        return 0;
+    }
+
+    *_fmt = (mmsbldr_fmt_t*)mmsmem_malloc(sizeof(mmsbldr_fmt_t));
+    if (*_fmt == NULL) {
+        return (MGEC__NOMEM);
+    }
+    
+    result = MemeStringStack_initByOther(&((*_fmt)->fmt), MMS__OBJECT_SIZE, (mmstr_cptr_t)&(_other->fmt));
+    if (result != 0) {
+        mmsmem_free(*_fmt);
+        *_fmt = NULL;
+    }
+    return result;
+}
+
 int 
-MemeStringBuilderFormat_destroy(mmsbldr_fmt_t** _fmt)
+MemeStringBuilderFormat_unInit(mmsbldr_fmt_t** _fmt)
 {
     int result = 0;
     
-    assert(_fmt != NULL && MemeStringBuilderFormat_destroy);
+    assert(_fmt != NULL && MemeStringBuilderFormat_unInit);
 
     if (*_fmt == NULL)
         return 0;
@@ -55,7 +93,7 @@ MemeStringBuilderFormat_destroy(mmsbldr_fmt_t** _fmt)
 }
 
 int
-MemeStringBuilder_generateWithParts(mmsbldr_const_t _builder, mmstr_t _out)
+MemeStringBuilder_generateWithParts(mmsbldr_cptr_t _builder, mmstr_ptr_t _out)
 {
     size_t totalSize = 0;
     int result = 0;
@@ -100,14 +138,23 @@ MemeStringBuilder_generateWithParts(mmsbldr_const_t _builder, mmstr_t _out)
 MEME_API int MEME_STDCALL 
 MemeStringBuilderStack_init(MemeStringBuilderStack_t* _builder, size_t _builder_size)
 {
+    mgec_t result = 0;
+
     mmsbldr_t builder = (mmsbldr_t)_builder;
 
     assert(_builder != NULL && MemeStringBuilderStack_init);
     assert(_builder_size <= sizeof(MemeStringBuilderStack_t) && MemeStringBuilderStack_init);
 
     memset(builder, 0 , _builder_size);
-    return MemeStringBuilderParts_checkInit(&builder->parts_);
-
+    result = MemeStringBuilderFormat_init(&(builder->fmt_));
+    if (result != 0)
+        return result;
+    result = MemeStringBuilderParts_checkInit(&builder->parts_);
+    if (result != 0)
+    {
+        MemeStringBuilderFormat_unInit(&(builder->fmt_));
+    }
+    return result;
 }
 
 MEME_API int MEME_STDCALL 
@@ -127,32 +174,28 @@ MemeStringBuilderStack_initByOther(
     
     builder->flag_ = _other->flag_;
 
-    if (_other->out_) {
-        result = MemeString_create(&builder->out_);
-        if (result != 0)
-            return result;
-        result = MemeStringStack_assign(
-            (mmsstk_t*)builder->out_, MMS__OBJECT_SIZE, _other->out_);
-        if (result != 0)
-            return result;
-    }
+    //if (_other->out_) {
+    //    result = MemeString_create(&builder->out_);
+    //    if (result != 0)
+    //        return result;
+    //    result = MemeStringStack_assign(
+    //        (mmsstk_t*)builder->out_, MMS__OBJECT_SIZE, _other->out_);
+    //    if (result != 0)
+    //        return result;
+    //}
 
     if (_other->fmt_) {
-        // TO_DO
+        result = MemeStringBuilderFormat_initByOther(&(builder->fmt_), _other->fmt_);
+        if (result != 0)
+            return result;
     }
 
     for (size_t index = 0; index < cvector_size(_other->parts_); ++index)
     {
         mmsbldr_part_t part;
-        result = MemeStringBuilderPart_init(&part);
+        result = MemeStringBuilderPart_initByOther(&part, &(_other->parts_[index]));
         if (result != 0)
             return result;
-        result = MemeStringStack_initByOther(
-            &part.str, MMS__OBJECT_SIZE, (mms_const_t)&(_other->parts_[index].str));
-        if (result != 0) {
-            MemeStringBuilderPart_unInit(&part);
-            return result;
-        }
         
         cvector_push_back(builder->parts_, part);
     }
@@ -169,17 +212,17 @@ MemeStringBuilderStack_unInit(MemeStringBuilderStack_t* _builder, size_t _builde
     assert(_builder != NULL && MemeStringBuilderStack_unInit);
     assert(_builder_size >= sizeof(MemeStringBuilderStack_t) && MemeStringBuilderStack_unInit);
 
-    if (builder->out_ != NULL) {
-        MemeStringBuilder_generate(builder, builder->out_);
-        MemeString_destroy(&builder->out_);
-    }
+    //if (builder->out_ != NULL) {
+    //    MemeStringBuilder_generate(builder, builder->out_);
+    //    MemeString_destroy(&builder->out_);
+    //}
     
     if (builder->parts_ != NULL) {
         cvector_free(builder->parts_);
         builder->parts_ = NULL;
     }
     
-    MemeStringBuilderFormat_destroy(&(builder->fmt_));
+    MemeStringBuilderFormat_unInit(&(builder->fmt_));
     return result;
 }
 
@@ -223,6 +266,7 @@ MemeStringBuilder_generate(mmsbldr_const_t _builder, mms_t _out)
         return MemeStringBuilder_generateWithParts(_builder, _out);
     }
     else {
+        // TO_DO
         return 0;
     }
 }
@@ -244,10 +288,22 @@ MemeStringBuilder_appendArgWithString(mmsbldr_t _builder, mms_const_t _arg)
     return result;
 }
 
-//MEME_API int MEME_STDCALL 
-//MemeStringBuilder_appendArgByOther(mmsbuilder_t _builder, mmsbldr_const_t _other)
-//{
-//}
+MEME_API int MEME_STDCALL 
+MemeStringBuilder_appendArgByOther(mmsbldr_ptr_t _builder, mmsbldr_cptr_t _other)
+{
+    mgec_t result = 0;
+    mmstrstk_t str;
+    mmstrstk_init(&str, MMSTR__OBJ_SIZE);
+    result = MemeStringBuilder_generate(_other, (mmstr_ptr_t)&str);
+    if (result) {
+        mmstrstk_uninit(&str, MMSTR__OBJ_SIZE);
+        return result;
+    }
+    
+    result = MemeStringBuilder_appendArgWithString(_builder, (mmstr_cptr_t)&str);
+    mmstrstk_uninit(&str, MMSTR__OBJ_SIZE);
+    return result;
+}
 
 MEME_API int MEME_STDCALL 
 MemeStringBuilder_prependArgWithString(mmsbldr_t _builder, mms_const_t _arg)

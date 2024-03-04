@@ -26,7 +26,7 @@ namespace memepp {
 			return reinterpret_cast<const std::vector<uint8_t>*>(_object)->size() - 1; 
 		};
 		
-		if (static_cast<mmint_t>(_v.size()) < MemeStringOption_getStorageMediumLimit())
+		if (_v.size() < MemeStringOption_getStorageMediumLimit() + MMSTR__OBJ_SIZE)
 		{
 			return memepp::string{ _v.data(), static_cast<mmint_t>(_v.size()) };
 		}

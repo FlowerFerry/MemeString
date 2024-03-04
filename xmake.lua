@@ -20,7 +20,7 @@ target("meme_string")
         "3rdparty/cvector/include"
     )
     add_files("src/*.c")
-    add_syslinks("pthread", "dl", )
+    add_syslinks("pthread", "dl")
     if is_os("windows") != true then
         add_syslinks("rt")
     end

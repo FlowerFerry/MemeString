@@ -86,5 +86,6 @@ namespace memepp {
 
 }; // namespace memepp
 
+#include <memepp/buffer_tmpimpl.hpp>
 
 #endif // !MEMEPP_BUFFER_DEF_HPP_INCLUDED

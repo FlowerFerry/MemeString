@@ -278,3 +278,4 @@ EXPORTS
     MemeStringStack_initAndConditionalConvert @261
     MemeBufferStack_initAndConditionalConvert @262
     MemeVariantStack_initAndConditionalConvert @263
+    MemeStringBuilder_appendArgByOther @264

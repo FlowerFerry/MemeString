@@ -11,6 +11,8 @@ typedef const struct _MemeStringBuilder_t* MemeStringBuilder_Const_t;
 
 typedef struct _MemeStringBuilder_t* mmsbldr_t;
 typedef const struct _MemeStringBuilder_t* mmsbldr_const_t;
+typedef struct _MemeStringBuilder_t* mmsbldr_ptr_t;
+typedef const struct _MemeStringBuilder_t* mmsbldr_cptr_t;
 
 #ifdef MEME_STRING_BUILDER__OBJECT_SIZE
 #undef MEME_STRING_BUILDER__OBJECT_SIZE

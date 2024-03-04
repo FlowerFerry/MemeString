@@ -360,6 +360,12 @@
     <ClInclude Include="..\..\..\include\memepp\string_view_tmpimpl.hpp">
       <Filter>头文件\memepp</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\buffer_tmpimpl.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\convert\yyjson.hpp">
+      <Filter>头文件\memepp\convert</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

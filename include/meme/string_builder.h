@@ -59,7 +59,7 @@ MEME_API int
 MEME_STDCALL MemeStringBuilder_appendArgWithString(mmsbldr_t _builder, mms_const_t _arg);
 
 MEME_API int
-MEME_STDCALL MemeStringBuilder_appendArgByOther(mmsbldr_t _builder, mmsbldr_const_t _other);
+MEME_STDCALL MemeStringBuilder_appendArgByOther(mmsbldr_ptr_t _builder, mmsbldr_cptr_t _other);
 
 MEME_API int
 MEME_STDCALL MemeStringBuilder_prependArgWithString(mmsbldr_t _builder, mms_const_t _arg);

@@ -35,6 +35,18 @@ inline _Ty mm_to(const memepp::string_view& _s)
 }
 
 template<typename _Ty>
+inline _Ty mm_into(const memepp::string& _s)
+{
+	return memepp::to<_Ty>(_s);
+}
+
+template<typename _Ty>
+inline _Ty mm_into(const memepp::string_view& _s)
+{
+	return memepp::to<_Ty>(_s);
+}
+
+template<typename _Ty>
 inline memepp::string_view mm_view(const _Ty& _s)
 {
 	return memepp::view(_s);
