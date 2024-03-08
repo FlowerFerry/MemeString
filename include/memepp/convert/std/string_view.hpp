@@ -22,13 +22,13 @@ namespace memepp {
 	}
 
 	template<>
-	inline std::string to<std::string_view>(const memepp::string& _s)
+	inline std::string_view to<std::string_view>(const memepp::string& _s)
 	{
 		return std::string{ _s.data(), static_cast<size_t>(_s.size()) };
 	}
 
 	template<>
-	inline std::string to<std::string_view>(const memepp::string_view& _sv)
+	inline std::string_view to<std::string_view>(const memepp::string_view& _sv)
 	{
 		return std::string{ _sv.data(), static_cast<size_t>(_sv.size()) };
 	}
