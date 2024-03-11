@@ -133,7 +133,6 @@ MG_CAPI_INLINE int
     assert(_s != NULL);
     
     switch (MemeRune_size(_s)) {
-    case 1: return ispunct(_s->byte[0]);
     case 2: return (_s->byte[0] == 0xC2 && _s->byte[1] == 0xB7) ? 1: 0;
     case 3: {
         if (_s->byte[0] == 0xE3 && _s->byte[1] == 0x80) 
