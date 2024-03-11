@@ -104,6 +104,9 @@ namespace memepp {
 
 		const_rune_iterator rune_end() const noexcept;
 		const_rune_iterator rune_cend() const noexcept;
+		
+        const_rune_iterator to_rune_iterator(size_type _pos) const noexcept;
+        const_rune_iterator to_rune_iterator(const const_iterator& _it) const noexcept;
 
         string to_large() const noexcept;
 

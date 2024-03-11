@@ -231,6 +231,22 @@ namespace memepp {
 	{
 		return const_rune_iterator{ bytes() + size(), bytes(), bytes() + size() };
 	}
+	
+	MEMEPP__IMPL_INLINE const_rune_iterator string_view::to_rune_iterator(size_type _pos) const noexcept
+	{
+		if (_pos > size())
+			return rune_end();
+
+		if (_pos < 0)
+			return rune_begin();
+
+		return const_rune_iterator{ bytes() + _pos, bytes(), bytes() + size() };
+	}
+
+	MEMEPP__IMPL_INLINE const_rune_iterator string_view::to_rune_iterator(const const_iterator& _it) const noexcept
+	{
+		return const_rune_iterator{ _it.operator->(), bytes(), bytes() + size() };
+	}
 
 	MEMEPP__IMPL_INLINE string string_view::to_string() const
 	{
