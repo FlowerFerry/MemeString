@@ -44,6 +44,9 @@ namespace memepp {
 		bool is_multi() const noexcept;
 		inline bool is_english_char() const noexcept { return !is_multi(); }
 
+        bool is_ch_punct() const noexcept;
+        bool is_en_punct() const noexcept;
+
         inline operator bool() const noexcept { return valid() && !empty(); }
 
         inline MemeRune_t& native_handle() noexcept { return data_; }

@@ -92,6 +92,19 @@ namespace memepp {
         return MemeRune_isMulitChar(&data_); 
     }
 
+    MEMEPP__IMPL_INLINE bool rune::is_ch_punct() const noexcept
+    {
+        return MemeRune_isChPunct(&data_);
+    }
+    
+    MEMEPP__IMPL_INLINE bool rune::is_en_punct() const noexcept
+    {
+        if (size() == 1) {
+            return ispunct(*data());
+        }
+        return false;
+    }
+
     MEMEPP__IMPL_INLINE rune_index::rune_index(const_pointer _u8, size_type _size)
     {
         data_.data = _u8;
