@@ -328,7 +328,7 @@ namespace memepp {
             return rune_end();
 		
         if (_pos < 0)
-            return rune_begin();
+            return rune_end();
 		
         return const_rune_iterator{ bytes() + _pos, bytes(), bytes() + size() };
 	}
