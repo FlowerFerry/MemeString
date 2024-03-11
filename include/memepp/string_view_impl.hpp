@@ -212,6 +212,26 @@ namespace memepp {
         return const_iterator{ bytes() + size() };
     }
 
+	MEMEPP__IMPL_INLINE const_rune_iterator string_view::rune_begin() const noexcept
+	{
+		return const_rune_iterator{ bytes(), bytes() + size() };
+	}
+
+	MEMEPP__IMPL_INLINE const_rune_iterator string_view::rune_cbegin() const noexcept
+	{
+		return const_rune_iterator{ bytes(), bytes() + size() };
+	}
+
+	MEMEPP__IMPL_INLINE const_rune_iterator string_view::rune_end() const noexcept
+	{
+		return const_rune_iterator{ bytes() + size(), bytes(), bytes() + size() };
+	}
+
+	MEMEPP__IMPL_INLINE const_rune_iterator string_view::rune_cend() const noexcept
+	{
+		return const_rune_iterator{ bytes() + size(), bytes(), bytes() + size() };
+	}
+
 	MEMEPP__IMPL_INLINE string string_view::to_string() const
 	{
 		if (MemeString_storageType(to_pointer(data_)) == MemeString_UnsafeStorageType_view)

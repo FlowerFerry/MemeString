@@ -68,6 +68,12 @@ namespace memepp {
         
 		const_iterator end() const noexcept;
 		const_iterator cend() const noexcept;
+		
+		const_rune_iterator rune_begin() const noexcept;
+		const_rune_iterator rune_cbegin() const noexcept;
+
+		const_rune_iterator rune_end() const noexcept;
+		const_rune_iterator rune_cend() const noexcept;
 
 		string to_string() const;
         string to_large () const noexcept;
