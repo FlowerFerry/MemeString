@@ -39,12 +39,16 @@ MEME_API int
 MEME_STDCALL MemeBufferStack_initAndConditionalConvert(
 	mmbufstk_t* _out, size_t _object_size, mmbuf_cptr_t _other);
 
+//! @param _out must be initialized
 MEME_API int
 MEME_STDCALL MemeBufferStack_unInit(mmbufstk_t* _out, size_t _object_size);
 
+//! @param _out must be initialized
 MEME_API int
 MEME_STDCALL MemeBufferStack_reset(mmbufstk_t* _out, size_t _object_size);
 
+//! @param _s     must be initialized
+//! @param _other must be initialized
 MEME_API int
 MEME_STDCALL MemeBufferStack_assign(
 	mmbufstk_t* _s, size_t _object_size, const MemeBufferStack_t* _other);

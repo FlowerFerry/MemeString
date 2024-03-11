@@ -78,57 +78,72 @@ MEME_API int
 	MEME_STDCALL MemeStringStack_initAndConditionalConvert(
         mmstrstk_t* _out, size_t _object_size, mmstr_cptr_t _other);
 
+//! @param _s The string stack object, must be initialized.
 MEME_API int
 	MEME_STDCALL MemeStringStack_unInit(mmsstk_t* _out, size_t _object_size);
 
+//! @param _s The string stack object, must be initialized.
 MEME_API int 
 	MEME_STDCALL MemeStringStack_reset (mmsstk_t* _out, size_t _object_size);
 
+//! @param _s The string stack object, must be initialized.
 MEME_API int
 	MEME_STDCALL MemeStringStack_assign(
 		mmsstk_t* _s, size_t _object_size, MemeString_Const_t _other);
 
+//! @param _s The string stack object, must be initialized.
 MEME_API int
 MEME_STDCALL MemeStringStack_assignByU8bytes(
 	mmsstk_t* _s, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len);
 
+//! @param _s The string stack object, must be initialized.
 MEME_API int
 MEME_STDCALL MemeStringStack_assignByBuffer(
 	mmsstk_t* _out, size_t _object_size, MemeBuffer_Const_t _other, MemeInteger_t _offset);
 
+//! @param _s The string stack object, must be initialized.
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_mid(
 	const mmsstk_t* _s, size_t _object_size, MemeInteger_t _offset, MemeInteger_t _len);
 
+//! @param _s The string stack object, must be initialized.
+//! @param _other The string stack object, must be initialized.
 MEME_API mmstrstk_t
 MEME_STDCALL MemeStringStack_concat(
     const mmstrstk_t* _s, size_t _object_size, const mmstrstk_t* _other);
 
+//! @param _s The string stack object, must be initialized.
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_toEnUpper(
 	const mmsstk_t* _s, size_t _object_size);
 
+//! @param _s The string stack object, must be initialized.
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_toEnLower(
 	const mmsstk_t* _s, size_t _object_size);
 
+//! @param _s The string stack object, must be initialized.
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_trimSpace(
     const mmsstk_t* _s, size_t _object_size);
 
+//! @param _s The string stack object, must be initialized.
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_trimLeftSpace(
     const mmsstk_t* _s, size_t _object_size);
 
+//! @param _s The string stack object, must be initialized.
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_trimRightSpace(
     const mmsstk_t* _s, size_t _object_size);
 
+//! @param _s The string stack object, must be initialized.
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_trimByCuts(
     const mmsstk_t* _s, size_t _object_size,
 	const char* _cuts, MemeInteger_t _cuts_len);
 
+//! @param _s The string stack object, must be initialized.
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_trimByCondByteFunc(
     const mmsstk_t* _s, size_t _object_size,
@@ -138,20 +153,60 @@ MEME_STDCALL MemeStringStack_trimByCondByteFunc(
 //! MemeStringStack_t s = MemeStringStack_getRepeat(MEME_STRING__OBJECT_SIZE, 3, "abc", 3);
 //! // s is "abcabcabc";
 //! \endcode
+//! @param _s The string stack object, must be initialized.
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_getRepeat(
 	size_t _object_size, mmint_t _count, const char* _s, mmint_t _len);
 
+//! @param _s The string stack object, must be initialized.
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_replace(
     const mmsstk_t* _s, size_t _object_size,
     const char* _from, mmint_t _from_len,
     const char* _to, mmint_t _to_len, mmint_t _max_count);
 
+//! @param _s The string stack object, must be initialized.
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_toValidUtf8(
     const mmsstk_t* _s, size_t _object_size);
 
+MEME_API mmstrstk_t
+MEME_STDCALL MemeStringStack_fromInt(
+    size_t _object_size, mmint_t _value, int _radix);
+
+MEME_API mmstrstk_t
+MEME_STDCALL MemeStringStack_fromInt16(
+    size_t _object_size, int16_t _value, int _radix);
+
+MEME_API mmstrstk_t
+MEME_STDCALL MemeStringStack_fromInt32(
+    size_t _object_size, int32_t _value, int _radix);
+
+MEME_API mmstrstk_t
+MEME_STDCALL MemeStringStack_fromInt64(
+    size_t _object_size, int64_t _value, int _radix);
+
+MEME_API mmstrstk_t
+MEME_STDCALL MemeStringStack_fromUInt16(
+    size_t _object_size, uint16_t _value, int _radix);
+
+MEME_API mmstrstk_t
+MEME_STDCALL MemeStringStack_fromUInt32(
+    size_t _object_size, uint32_t _value, int _radix);
+
+MEME_API mmstrstk_t
+MEME_STDCALL MemeStringStack_fromUInt64(
+    size_t _object_size, uint64_t _value, int _radix);
+
+//MEME_API mmstrstk_t
+//MEME_STDCALL MemeStringStack_fromFloat(
+//    size_t _object_size, float _value, int _radix);
+//
+//MEME_API mmstrstk_t
+//MEME_STDCALL MemeStringStack_fromDouble(
+//    size_t _object_size, double _value, int _radix);
+
+//! @param _s The string stack object, must be initialized.
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_mappingConvert(
     const mmsstk_t* _s, size_t _object_size,
@@ -169,6 +224,7 @@ MemeStringStack_formatInCstyle(
 	const char* _format,
 	MemeInteger_t _size_limit, ...);
 
+//! @param _s The string stack object, must be initialized.
 MEME_API mmsstk_t MEME_STDCALL
 MemeStringStack_vformatInCstyle_v2(
 	size_t _object_size,
@@ -176,6 +232,7 @@ MemeStringStack_vformatInCstyle_v2(
 	MEGO_SYMBOL__MSVC_FORMAT_STRING(const char* _format),
 	va_list _args);
 
+//! @param _s The string stack object, must be initialized.
 MEME_API mmsstk_t
 MemeStringStack_formatInCstyle_v2(
 	size_t _object_size,

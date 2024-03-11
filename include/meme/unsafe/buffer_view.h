@@ -15,6 +15,7 @@ MEME_STDCALL MemeBufferViewUnsafeStack_init(
 	const MemeByte_t* _buf, MemeInteger_t _len
 );
 
+//! @param _other must be initialized
 MEME_API int
 MEME_STDCALL MemeBufferViewUnsafeStack_initByOther(
     mmbufstk_t* _self,
@@ -22,6 +23,7 @@ MEME_STDCALL MemeBufferViewUnsafeStack_initByOther(
     const mmbufstk_t* _other
 );
 
+//! @param _other must be initialized
 MEME_API int
 MEME_STDCALL MemeBufferViewUnsafeStack_initByString(
     mmbufstk_t* _self,
@@ -29,6 +31,7 @@ MEME_STDCALL MemeBufferViewUnsafeStack_initByString(
     const mmsstk_t* _other
 );
 
+//! @param _other must be initialized
 MEME_API int
 MEME_STDCALL MemeBufferViewUnsafeStack_initByVariableBuffer(
     mmbufstk_t* _self,
@@ -36,6 +39,8 @@ MEME_STDCALL MemeBufferViewUnsafeStack_initByVariableBuffer(
     const mmvbstk_t* _other
 );
 
+//! @param _self  must be initialized
+//! @param _other must be initialized
 MEME_API int
 MEME_STDCALL MemeBufferViewUnsafeStack_assignByOther(
     mmbufstk_t* _self,
@@ -43,6 +48,8 @@ MEME_STDCALL MemeBufferViewUnsafeStack_assignByOther(
     const mmbufstk_t* _other
 );
 
+//! @param _self  must be initialized
+//! @param _other must be initialized
 MEME_API int
 MEME_STDCALL MemeBufferViewUnsafeStack_assignByString(
     mmbufstk_t* _self,
@@ -50,6 +57,8 @@ MEME_STDCALL MemeBufferViewUnsafeStack_assignByString(
     const mmsstk_t* _other
 );
 
+//! @param _self  must be initialized
+//! @param _other must be initialized
 MEME_API int
 MEME_STDCALL MemeBufferViewUnsafeStack_assignByVariableBuffer(
     mmbufstk_t* _self,

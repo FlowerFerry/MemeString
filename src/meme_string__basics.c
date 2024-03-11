@@ -64,41 +64,41 @@ int MemeStringImpl_isModifiableType(MemeString_Storage_t _type)
 	}
 }
 
-int
-MemeStringImpl_dumpToModifiable(const MemeStringStack_t* _s, MemeStringStack_t* _out)
-{
-	assert(_s);
-	assert(_out);
-
-	switch (MMS__GET_TYPE((MemeString_t)_s))
-	{
-	case MemeString_StorageType_small:
-	{
-		memcpy(_out, _s, MEME_STRING__OBJECT_SIZE);
-	} break;
-	case MemeString_StorageType_medium:
-	{
-
-	} break;
-	case MemeString_StorageType_large:
-	{
-
-	} break;
-	case MemeString_UnsafeStorageType_view:
-	{
-
-	} break;
-	case MemeString_StorageType_user:
-	{
-
-	} break;
-	default: {
-
-	} break;
-	}
-
-	return 0;
-}
+//int
+//MemeStringImpl_dumpToModifiable(const MemeStringStack_t* _s, MemeStringStack_t* _out)
+//{
+//	assert(_s);
+//	assert(_out);
+//
+//	switch (MMS__GET_TYPE((MemeString_t)_s))
+//	{
+//	case MemeString_StorageType_small:
+//	{
+//		memcpy(_out, _s, MEME_STRING__OBJECT_SIZE);
+//	} break;
+//	case MemeString_StorageType_medium:
+//	{
+//
+//	} break;
+//	case MemeString_StorageType_large:
+//	{
+//
+//	} break;
+//	case MemeString_UnsafeStorageType_view:
+//	{
+//
+//	} break;
+//	case MemeString_StorageType_user:
+//	{
+//
+//	} break;
+//	default: {
+//
+//	} break;
+//	}
+//
+//	return 0;
+//}
 
 int MemeStringImpl_capacityExpansionSmallToMedium(MemeStringStack_t* _s, MemeInteger_t _minSizeRequest)
 {

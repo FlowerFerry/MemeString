@@ -126,6 +126,75 @@ MG_CAPI_INLINE int
     return _s->attr.invalid == 0;
 }
 
+//!  ¡££¿£¡£¬¡¢£»£º¡°¡±¡®¡¯¡º¡»¡¸¡¹£¨£©¡²¡³¡¾¡¿©¤¡­¡¶¡·¡´¡µ¡¤
+MG_CAPI_INLINE int
+    MemeRune_isChPunct(const MemeRune_t* _s)
+{
+    assert(_s != NULL);
+    
+    switch (MemeRune_size(_s)) {
+    case 1: return ispunct(_s->byte[0]);
+    case 2: return (_s->byte[0] == 0xC2 && _s->byte[1] == 0xB7) ? 1: 0;
+    case 3: {
+        if (_s->byte[0] == 0xE3 && _s->byte[1] == 0x80) 
+        {
+            switch (_s->byte[2]) {
+            case 0x81: 
+            case 0x82:
+            case 0x88:
+            case 0x89:
+            case 0x8A:
+            case 0x8B:
+            case 0x8C:
+            case 0x8D:
+            case 0x8E:
+            case 0x8F:
+            case 0x90:
+            case 0x91:
+            case 0x94:
+            case 0x95:
+                return 1;
+            default: 
+                return 0;
+            }
+        }
+        else if (_s->byte[0] == 0xEF && _s->byte[1] == 0xBC) 
+        {
+            switch (_s->byte[2]) {
+            case 0x81:
+            case 0x88:
+            case 0x89:
+            case 0x8C:
+            case 0x9A:
+            case 0x9B:
+            case 0x9F:
+                return 1;
+            default:
+                return 0;
+            }
+        }
+        else if (_s->byte[0] == 0xE2 && _s->byte[1] == 0x80)
+        {
+            switch (_s->byte[2]) {
+            case 0x80:
+            case 0x98:
+            case 0x99:
+            case 0x9C:
+            case 0x9D:
+            case 0xA6:
+                return 1;
+            default:
+                return 0;
+            }
+        }
+        else {
+            return (_s->byte[0] == 0xE2 && _s->byte[1] == 0x94 && _s->byte[2] == 0x80) ? 1: 0;
+        }
+    }
+    default: return 0;
+    }
+}
+
 MG_CAPI_INLINE int
     MemeRune_resize(MemeRune_t* _s, uint8_t _count)
 {

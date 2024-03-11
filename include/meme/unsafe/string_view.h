@@ -14,10 +14,13 @@ MEME_API int
 MEME_STDCALL MemeStringViewUnsafeStack_initByOther(MemeStringStack_t* _s, size_t _object_size,
 	const MemeStringStack_t* _other);
 
+//! @param _s     must be initialized
+//! @param _other must be initialized
 MEME_API int
 MEME_STDCALL MemeStringViewUnsafeStack_assignByOther(MemeStringStack_t* _s, size_t _object_size,
 	const MemeStringStack_t* _other);
 
+//! @param _out do not initialize
 MEME_API MemeInteger_t
 MEME_STDCALL MemeStringViewUnsafe_split(
 	MemeString_Const_t _s,

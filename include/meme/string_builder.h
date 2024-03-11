@@ -24,14 +24,18 @@ MEME_API int
 	MEME_STDCALL MemeStringBuilderStack_initByOther(
 		mmsbldrstk_t* _builder, size_t _builder_size, mmsbldr_const_t _other);
 
+//! @param _builder must be initialized
 MEME_API int
 	MEME_STDCALL MemeStringBuilderStack_unInit(
 		MemeStringBuilderStack_t* _builder, size_t _builder_size);
 
+//! @param _builder must be initialized
 MEME_API int
 	MEME_STDCALL MemeStringBuilderStack_assignByOther(
 		mmsbldrstk_t* _builder, size_t _builder_size, mmsbldr_const_t _other);
 
+//! @param _builder must be initialized
+//! @param _other   must be initialized
 MEME_API int
 	MEME_STDCALL MemeStringBuilderStack_swap(
 		MemeStringBuilderStack_t* _builder, 
@@ -52,15 +56,23 @@ MEME_API int
 		const MemeStringBuilderStack_t* _builder, size_t _builder_size, 
 		MemeString_Const_t _rhs, int* _result);
 
+//! @param _builder must be initialized
+//! @param _out     must be initialized
 MEME_API int
 MEME_STDCALL MemeStringBuilder_generate(mmsbldr_const_t _builder, mms_t _out);
 
+//! @param _builder must be initialized
+//! @param _arg     must be initialized
 MEME_API int
 MEME_STDCALL MemeStringBuilder_appendArgWithString(mmsbldr_t _builder, mms_const_t _arg);
 
+//! @param _builder must be initialized
+//! @param _other   must be initialized
 MEME_API int
 MEME_STDCALL MemeStringBuilder_appendArgByOther(mmsbldr_ptr_t _builder, mmsbldr_cptr_t _other);
 
+//! @param _builder must be initialized
+//! @param _arg     must be initialized
 MEME_API int
 MEME_STDCALL MemeStringBuilder_prependArgWithString(mmsbldr_t _builder, mms_const_t _arg);
 

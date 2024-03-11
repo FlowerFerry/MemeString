@@ -189,22 +189,28 @@ MemeStringImpl_initSuggestType(
 int 
 MemeStringImpl_isModifiableType(MemeString_Storage_t _type);
 
-int
-MemeStringImpl_dumpToModifiable(const MemeStringStack_t* _s, MemeStringStack_t* _out);
+//int
+//MemeStringImpl_dumpToModifiable(const MemeStringStack_t* _s, MemeStringStack_t* _out);
 
+//! @param _s must be initialized
 int
 MemeStringImpl_capacityExpansionSmallToMedium(MemeStringStack_t* _s, MemeInteger_t _minSizeRequest);
 
+//! @param _s must be initialized
 int
 MemeStringImpl_capacityExpansionWithModifiable(MemeStringStack_t* _s, MemeInteger_t _minSizeRequest);
 
+//! @param _s must be initialized
 void
 MemeStringImpl_setDataOffset(MemeStringStack_t* _s, MemeInteger_t _offset);
 
+//! @param _s must be initialized
 void
 MemeStringImpl_shrinkTailZero(MemeStringStack_t* _s);
 
-MemeByte_t* MemeStringImpl_forcedData(MemeStringStack_t* _s);
+//! @param _s must be initialized
+MemeByte_t* 
+MemeStringImpl_forcedData(MemeStringStack_t* _s);
 
 
 

@@ -21,13 +21,17 @@ MEME_API int
 MEME_STDCALL MemeVariableBufferStack_initWithRepeatBytes(
 	mmvbstk_t* _out, size_t _object_size, MemeInteger_t _count, MemeByte_t _byte);
 
+//! @param _out  must be initialized
 MEME_API int
 MEME_STDCALL MemeVariableBufferStack_unInit(mmvbstk_t* _out, size_t _object_size);
 
+//! @param _out  must be initialized
 MEME_API int
 MEME_STDCALL MemeVariableBufferStack_reset(
 	MemeVariableBufferStack_t* _out, size_t _object_size);
 
+//! @param _s     must be initialized
+//! @param _other must be initialized
 MEME_API int
 MEME_STDCALL MemeVariableBufferStack_assign(
 	mmvbstk_t* _s, size_t _object_size, const mmvbstk_t* _other);

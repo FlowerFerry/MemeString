@@ -366,6 +366,9 @@
     <ClInclude Include="..\..\..\include\memepp\convert\yyjson.hpp">
       <Filter>头文件\memepp\convert</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\convert\std\string_view.hpp">
+      <Filter>头文件\memepp\convert\std</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
