@@ -105,6 +105,11 @@ namespace memepp {
         return false;
     }
 
+    MEMEPP__IMPL_INLINE bool rune::is_space() const noexcept
+    {
+        return MemeRune_isSpace(&data_);
+    }
+
     MEMEPP__IMPL_INLINE rune_index::rune_index(const_pointer _u8, size_type _size)
     {
         data_.data = _u8;

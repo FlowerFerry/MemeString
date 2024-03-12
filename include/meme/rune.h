@@ -126,6 +126,22 @@ MG_CAPI_INLINE int
     return _s->attr.invalid == 0;
 }
 
+MG_CAPI_INLINE int
+    MemeRune_isSpace(const MemeRune_t* _s)
+{
+    assert(_s != NULL);
+    switch (MemeRune_size(_s)) {
+    case 1: 
+        return isspace(_s->byte[0]) ? 1 : 0;
+    case 2:
+        return (_s->byte[0] == 0xC2 && _s->byte[1] == 0xA0) ? 1 : 0;
+    case 3:
+        return (_s->byte[0] == 0xE3 && _s->byte[1] == 0x80 && _s->byte[2] == 0x80) ? 1 : 0;
+    default:
+        return 0;
+    }
+}
+
 //!  ¡££¿£¡£¬¡¢£»£º¡°¡±¡®¡¯¡º¡»¡¸¡¹£¨£©¡²¡³¡¾¡¿©¤¡­¡¶¡·¡´¡µ¡¤
 MG_CAPI_INLINE int
     MemeRune_isChPunct(const MemeRune_t* _s)
@@ -161,16 +177,27 @@ MG_CAPI_INLINE int
         {
             switch (_s->byte[2]) {
             case 0x81:
+            case 0x83: // is #
+            case 0x85: // is %
             case 0x88:
             case 0x89:
+            case 0x8A: // is *
+            case 0x8B: // is +
             case 0x8C:
+            case 0x8D: // is -
+            case 0x8F: // is /
             case 0x9A:
             case 0x9B:
+            case 0x9D: // is = 
             case 0x9F:
                 return 1;
             default:
                 return 0;
             }
+        }
+        else if (_s->byte[0] == 0xEF && _s->byte[1] == 0xBD)
+        {
+            return (_s->byte[2] == 0x9E) ? 1 : 0;
         }
         else if (_s->byte[0] == 0xE2 && _s->byte[1] == 0x80)
         {
