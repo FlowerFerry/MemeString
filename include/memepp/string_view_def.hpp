@@ -9,6 +9,7 @@
 #include "memepp/string_builder_fwd.hpp"
 
 #include "memepp/iterator.hpp"
+#include "memepp/rune_iterator.hpp"
 
 namespace memepp {
 
