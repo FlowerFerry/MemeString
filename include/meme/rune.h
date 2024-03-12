@@ -143,7 +143,8 @@ MG_CAPI_INLINE int
     }
 }
 
-//!  。？！，、；：“”‘’『』「」（）〔〕【】─…《》〈〉·
+//! 使用国家标准GB/T15834-2011出现的标点符号进行判断
+//! 
 MG_CAPI_INLINE int
     MemeRune_isChPunct(const MemeRune_t* _s)
 {
@@ -233,6 +234,40 @@ MG_CAPI_INLINE int
             case 0x9C: // is “
             case 0x9D: // is ”
             case 0xA6: // is …
+                return 1;
+            default:
+                return 0;
+            }
+        }
+        else if (_s->byte[0] == 0xEF && _s->byte[1] == 0xB8)
+        {
+            switch (_s->byte[2]) {
+            case 0xB5: // is ︵
+            case 0xB6: // is ︶
+            case 0xB7: // is ︷
+            case 0xB8: // is ︸
+            case 0xB9: // is ︹
+            case 0xBA: // is ︺
+            case 0xBB: // is ︻
+            case 0xBC: // is ︼
+            case 0xBD: // is ︽
+            case 0xBE: // is ︾
+            case 0xBF: // is ︿
+                return 1;
+            default:
+                return 0;
+            }
+        }
+        else if (_s->byte[0] == 0xEF && _s->byte[1] == 0xB9)
+        {
+            switch (_s->byte[2]) {
+            case 0x80: // is ﹀
+            case 0x81: // is ﹁
+            case 0x82: // is ﹂
+            case 0x83: // is ﹃
+            case 0x84: // is ﹄
+            case 0x87: // is ﹇
+            case 0x88: // is ﹈
                 return 1;
             default:
                 return 0;
