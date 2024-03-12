@@ -12,6 +12,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <string.h>
+#include <ctype.h>
 
 MEME_EXTERN_C_SCOPE_START
 
@@ -176,7 +177,7 @@ MG_CAPI_INLINE int
         else if (_s->byte[0] == 0xEF && _s->byte[1] == 0xBC) 
         {
             switch (_s->byte[2]) {
-            case 0x81:
+            case 0x81: // is £¡
             case 0x83: // is #
             case 0x85: // is %
             case 0x88:
