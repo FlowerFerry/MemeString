@@ -153,14 +153,16 @@ MG_CAPI_INLINE int
             case 0x84: // 三分之一EM空格
             case 0x85: // 四分之一EM空格
             case 0x86: // 六分之一EM空格
-            case 0x87: // 数字字符空格
-            case 0x88: // 标点符号空格
+            case 0x87: // 数字空格
+            case 0x88: // 标点空格
             case 0x89: // 窄空格
-            case 0x8A: // 发际空格
+            case 0x8A: // 发宽空格
             case 0x8B: // 零宽空格
+            case 0x8C: // 零宽不连字（Zero Width Non Joiner，简称“ZWNJ”）
+            case 0x8D: // 零宽连字（Zero Width Joiner，简称“ZWJ”）
             case 0xA8: // 行分隔符（Line Separator）
             case 0xA9: // 段分隔符（Paragraph Separator）
-            case 0xAF: // 窄不间断空格
+            case 0xAF: // 窄式不换行空格（Narrow No-Break Space）
                 return 1;
             default:
                 return 0;
@@ -168,15 +170,18 @@ MG_CAPI_INLINE int
         }
         else if (_s->byte[0] == 0xE2 && _s->byte[1] == 0x81)
         {
-            if (_s->byte[2] == 0x9F)
-                return 1; // 单位分隔符
-            else
+            switch (_s->byte[2]) {
+            case 0x9F: // 中数学空格（Medium Mathematical Space，简称“MMSP”）
+            case 0xA0: // 文字连接符（Word Joiner）
+                return 1;
+            default:
                 return 0;
+            }
         }
         else if (_s->byte[0] == 0xE1)
         {
             if (_s->byte[1] == 0x9A && _s->byte[2] == 0x80)
-                return 1; // 欧甘文空格
+                return 1; // 欧甘空格（Ogham Space Mark）
             else if (_s->byte[1] == 0xA0 && _s->byte[2] == 0x8E)
                 return 1; // 蒙古语元音分隔符
             else
