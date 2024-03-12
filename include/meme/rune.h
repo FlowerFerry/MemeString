@@ -1,4 +1,4 @@
-
+Ôªø
 #ifndef MEME_RUNE_H_INCLUDED
 #define MEME_RUNE_H_INCLUDED
 
@@ -143,7 +143,7 @@ MG_CAPI_INLINE int
     }
 }
 
-//!  °££ø£°£¨°¢£ª£∫°∞°±°Æ°Ø°∫°ª°∏°π£®£©°≤°≥°æ°ø©§°≠°∂°∑°¥°µ°§
+//!  „ÄÇÔºüÔºÅÔºå„ÄÅÔºõÔºö‚Äú‚Äù‚Äò‚Äô„Äé„Äè„Äå„ÄçÔºàÔºâ„Äî„Äï„Äê„Äë‚îÄ‚Ä¶„Ää„Äã„Äà„Äâ¬∑
 MG_CAPI_INLINE int
     MemeRune_isChPunct(const MemeRune_t* _s)
 {
@@ -177,7 +177,7 @@ MG_CAPI_INLINE int
         else if (_s->byte[0] == 0xEF && _s->byte[1] == 0xBC) 
         {
             switch (_s->byte[2]) {
-            case 0x81: // is £°
+            case 0x81: // is ÔºÅ
             case 0x83: // is #
             case 0x85: // is %
             case 0x88:
