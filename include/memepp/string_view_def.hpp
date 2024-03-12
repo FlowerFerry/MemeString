@@ -83,11 +83,17 @@ namespace memepp {
 
         size_type find(const string_view& _other, size_type _pos = 0) const noexcept;
         size_type find(const char* _utf8, size_type _pos = 0) const noexcept;
-        size_type find(const char* _utf8, size_type _pos, size_type _count) const noexcept;
+        size_type find(const char* _utf8, size_type _pos, size_type _substr_count) const noexcept;
         size_type find(const_pointer _utf8, size_type _pos = 0) const noexcept;
-        size_type find(const_pointer _utf8, size_type _pos, size_type _count) const noexcept;
+        size_type find(const_pointer _utf8, size_type _pos, size_type _substr_count) const noexcept;
 		size_type find(char _ch, size_type _pos = 0) const noexcept;
-		//size_type find(const word& _ch, size_type _pos = 0) const noexcept;
+		size_type find(const rune& _ch, size_type _pos = 0) const noexcept;
+
+		size_type rfind(const char* _utf8, size_type _pos = npos) const noexcept;
+		size_type rfind(const char* _utf8, size_type _pos, size_type _substr_count) const noexcept;
+		size_type rfind(const_pointer _utf8, size_type _pos = npos) const noexcept;
+		size_type rfind(const_pointer _utf8, size_type _pos, size_type _substr_count) const noexcept;
+		size_type rfind(const rune& _ch, size_type _pos = npos) const noexcept;
 
 		size_type index_of(const string_view& _other,
 			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;

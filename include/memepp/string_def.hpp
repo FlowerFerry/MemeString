@@ -118,17 +118,17 @@ namespace memepp {
 		//! \return The position of the first occurrence of the character in the string, or npos if not found.
         size_type find(const string& _other, size_type _pos = 0) const noexcept;
         size_type find(const char* _utf8, size_type _pos = 0) const noexcept;
-        size_type find(const char* _utf8, size_type _pos, size_type _count) const noexcept;
+        size_type find(const char* _utf8, size_type _pos, size_type _substr_count) const noexcept;
         size_type find(const_pointer _utf8, size_type _pos = 0) const noexcept;
-        size_type find(const_pointer _utf8, size_type _pos, size_type _count) const noexcept;
+        size_type find(const_pointer _utf8, size_type _pos, size_type _substr_count) const noexcept;
 		size_type find(char _ch, size_type _pos = 0) const noexcept;
         size_type find(const rune& _ch, size_type _pos = 0) const noexcept;
 
         //size_type rfind(const string& _other, size_type _pos = npos) const noexcept;
         size_type rfind(const char* _utf8, size_type _pos = npos) const noexcept;
-        size_type rfind(const char* _utf8, size_type _pos, size_type _count) const noexcept;
+        size_type rfind(const char* _utf8, size_type _pos, size_type _substr_count) const noexcept;
         size_type rfind(const_pointer _utf8, size_type _pos = npos) const noexcept;
-        size_type rfind(const_pointer _utf8, size_type _pos, size_type _count) const noexcept;
+        size_type rfind(const_pointer _utf8, size_type _pos, size_type _substr_count) const noexcept;
         //size_type rfind(char _ch, size_type _pos = npos) const noexcept;
         size_type rfind(const rune& _ch, size_type _pos = npos) const noexcept;
         

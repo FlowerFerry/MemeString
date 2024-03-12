@@ -25,11 +25,13 @@ namespace memepp {
 		large  = MemeString_StorageType_large,
 		user   = MemeString_StorageType_user,
 	};
+    using str_strg_t = string_storage_t;
 
 	enum class split_behavior_t {
 		keep_empty_parts = MemeFlag_KeepEmptyParts,
 		skip_empty_parts = MemeFlag_SkipEmptyParts
 	};
+    using split_behav_t = split_behavior_t;
 
 	enum case_sensitivity_t
 	{
@@ -38,6 +40,7 @@ namespace memepp {
 	 	simplified_traditional_sensitive = MemeFlag_SimplifiedTraditionalSensitive,
 		all_sensitive   = MemeFlag_AllSensitive
 	};
+    using case_sensit_t = case_sensitivity_t;
 
 	inline MemeString_t to_pointer(MemeStringStack_t& _s) noexcept
 	{

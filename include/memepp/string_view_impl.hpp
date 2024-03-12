@@ -304,6 +304,42 @@ namespace memepp {
             to_pointer(native_handle()), _pos, _ch, case_sensitivity_t::all_sensitive);
 	}
     
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::find(const rune& _ch, size_type _pos) const noexcept
+	{
+        return MemeString_indexOfWithUtf8bytes(
+            to_pointer(native_handle()), _pos, _ch.data(), _ch.size(), case_sensitivity_t::all_sensitive);
+	}
+
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::rfind(const char* _utf8, size_type _pos) const noexcept
+	{
+        return MemeString_lastIndexOfWithUtf8bytes(
+            to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), -1, case_sensitivity_t::all_sensitive);
+	}
+
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::rfind(const char* _utf8, size_type _pos, size_type _substr_count) const noexcept
+	{
+        return MemeString_lastIndexOfWithUtf8bytes(
+            to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), _substr_count, case_sensitivity_t::all_sensitive);
+	}
+
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::rfind(const_pointer _utf8, size_type _pos) const noexcept
+	{
+        return MemeString_lastIndexOfWithUtf8bytes(
+            to_pointer(native_handle()), _pos, _utf8, -1, case_sensitivity_t::all_sensitive);
+	}
+	
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::rfind(const_pointer _utf8, size_type _pos, size_type _substr_count) const noexcept
+	{
+        return MemeString_lastIndexOfWithUtf8bytes(
+            to_pointer(native_handle()), _pos, _utf8, _substr_count, case_sensitivity_t::all_sensitive);
+	}
+	
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::rfind(const rune& _ch, size_type _pos) const noexcept
+	{
+        return MemeString_lastIndexOfWithUtf8bytes(
+            to_pointer(native_handle()), _pos, _ch.data(), _ch.size(), case_sensitivity_t::all_sensitive);
+	}
+
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::index_of(const string_view& _other, case_sensitivity_t _cs) const noexcept
 	{
         return MemeString_indexOfWithOther(
