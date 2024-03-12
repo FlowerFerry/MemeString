@@ -134,9 +134,21 @@ MG_CAPI_INLINE int
     switch (MemeRune_size(_s)) {
     case 1: 
         return isspace(_s->byte[0]) ? 1 : 0;
-    case 2:
-        // 不间断空格（Non-Breaking Space）
-        return (_s->byte[0] == 0xC2 && _s->byte[1] == 0xA0) ? 1 : 0;
+    case 2: {
+        if (_s->byte[0] == 0xC2)
+        {
+            switch (_s->byte[1]) {
+            case 0x85: // 下一行 (NEL)
+            case 0xA0: // 不间断空格
+                return 1;
+            default:
+                return 0;
+            }
+        }
+        else {
+            return 0;
+        }
+    }
     case 3: {
         if (_s->byte[0] == 0xE3 && _s->byte[1] == 0x80 && _s->byte[2] == 0x80)
         {
