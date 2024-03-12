@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <stdlib.h>
 
 MEME_EXTERN_C_SCOPE_START
 
@@ -32,17 +33,19 @@ typedef const struct _MemeString_t* mmstr_const_t;
 typedef struct _MemeString_t* mmstr_ptr_t;
 typedef const struct _MemeString_t* mmstr_cptr_t;
 
-typedef struct _MemeRuneIndex_t {
-	MemeInteger_t size;
+typedef struct _MemeRuneIndex_t 
+{
     const MemeByte_t * data;
+	uint8_t size;
+    uint8_t __res__[sizeof(mmint_t) - sizeof(uint8_t)];
 } MemeRuneIndex_t;
 typedef MemeRuneIndex_t mmrune_index_t;
 
 typedef struct _MemeRune_t {
 	MemeByte_t byte[7];
 	struct {
-		MemeByte_t capacity : 3;
-		MemeByte_t invalid  : 5;
+		MemeByte_t capacity : (3);
+		MemeByte_t invalid  : (CHAR_BIT - 3);
 	} attr;
 } MemeRune_t;
 typedef MemeRune_t mmrune_t;
