@@ -36,7 +36,7 @@ typedef const struct _MemeString_t* mmstr_cptr_t;
 typedef struct _MemeRuneIndex_t 
 {
     const MemeByte_t * data;
-	uint8_t size;
+	int8_t size;
     uint8_t __res__[sizeof(mmint_t) - sizeof(uint8_t)];
 } MemeRuneIndex_t;
 typedef MemeRuneIndex_t mmrune_index_t;
