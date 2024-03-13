@@ -246,7 +246,7 @@ MEME_API int MEME_STDCALL
 MemeVariantStack_initAndConditionalConvert(
     mmvarstk_t* _out, size_t _object_size, mmvar_cptr_t _other)
 {
-    mgec_t result = MGEC__OK;
+    //mgec_t result = MGEC__OK;
 
     assert(_out != NULL && MemeVariantStack_initAndConditionalConvert != NULL);
 

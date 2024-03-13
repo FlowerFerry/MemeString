@@ -686,7 +686,7 @@ MemeStringStack_trimSpace(const mmsstk_t* _s, size_t _object_size)
 	int result = 0;
 	mmsstk_t stack;
 	mms_t s = (mms_t)_s;
-	const MemeByte_t* it = NULL;
+	const MemeByte_t* it  = NULL;
 	const MemeByte_t* end = NULL;
 
 	assert(_s != NULL && MemeStringStack_trimSpace != NULL);
@@ -694,17 +694,31 @@ MemeStringStack_trimSpace(const mmsstk_t* _s, size_t _object_size)
 	it = MemeString_byteData(s);
 	end = it + MemeString_byteSize(s);
 
-	for (; it != end; ++it)
-		if (!isspace(*it))
+	for (int runeSize = -1; it != end; it += runeSize)
+	{
+		runeSize = mmutf_u8rune_char_size(*it);
+		if (runeSize < 0) {
 			break;
+		}
+		else {
+			if (!MemeRuneIndex_isSpace(it, runeSize))
+				break;
+		}
+	}
 	
-	if (it != end)
-		--end;
-	for (; it - 1 != end; --end)
-        if (!isspace(*end))
+	for (int runeSize = -1; it != end; end -= runeSize)
+	{
+        runeSize = mmutf_u8rune_prev_char_size(it, end);
+        if (runeSize < 0) {
             break;
+        }
+        else {
+            if (!MemeRuneIndex_isSpace(end - runeSize, runeSize))
+                break;
+        }
+	}
     
-    stack = MemeStringStack_mid(_s, _object_size, it - MemeString_byteData(s), end - it + 1);
+    stack = MemeStringStack_mid(_s, _object_size, it - MemeString_byteData(s), end - it);
     return stack;
 }
 
@@ -721,11 +735,19 @@ MemeStringStack_trimLeftSpace(const mmsstk_t* _s, size_t _object_size)
     assert(_s != NULL && MemeStringStack_trimLeftSpace != NULL);
 
 	begin = it = MemeString_byteData(s);
-    end = it + MemeString_byteSize(s);
+    end   = it + MemeString_byteSize(s);
 
-    for (; it != end; ++it)
-        if (!isspace(*it))
-            break;
+    for (int runeSize = -1; it != end; it += runeSize)
+	{
+        runeSize = mmutf_u8rune_char_size(*it);
+		if (runeSize < 0) {
+			break;
+		}
+		else {
+			if (!MemeRuneIndex_isSpace(it, runeSize))
+				break;
+		}
+	}
 
     stack = MemeStringStack_mid(_s, _object_size, it - begin, -1);
     return stack;
@@ -737,7 +759,7 @@ MemeStringStack_trimRightSpace(const mmsstk_t* _s, size_t _object_size)
     int result = 0;
 	mmsstk_t stack;
     mms_t s = (mms_t)_s;
-	const MemeByte_t* it = NULL;
+	const MemeByte_t* it  = NULL;
 	const MemeByte_t* end = NULL;
 
     assert(_s != NULL && MemeStringStack_trimRightSpace != NULL);
@@ -745,13 +767,19 @@ MemeStringStack_trimRightSpace(const mmsstk_t* _s, size_t _object_size)
     it = MemeString_byteData(s);
     end = it + MemeString_byteSize(s);
 
-    if (it != end)
-        --end;
-    for (; it - 1 != end; --end)
-        if (!isspace(*end))
-            break;
+	for (int runeSize = -1; it != end; end -= runeSize)
+	{
+		runeSize = mmutf_u8rune_prev_char_size(it, end);
+		if (runeSize < 0) {
+			break;
+		}
+		else {
+			if (!MemeRuneIndex_isSpace(end - runeSize, runeSize))
+				break;
+		}
+	}
     
-    stack = MemeStringStack_mid(_s, _object_size, 0, end - it + 1);
+    stack = MemeStringStack_mid(_s, _object_size, 0, end - it);
     return stack;
 }
 
@@ -762,7 +790,7 @@ MemeStringStack_trimByCuts(
     int result = 0;
 	mmsstk_t stack;
     mms_t s = (mms_t)_s;
-    const MemeByte_t* it = NULL;
+    const MemeByte_t* it  = NULL;
     const MemeByte_t* end = NULL;
 
     assert(_s != NULL && MemeStringStack_trimByCuts != NULL);

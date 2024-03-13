@@ -22,6 +22,9 @@ MEME_API int MEME_STDCALL
 mmutf_u8rune_set_u32(
     MemeByte_t* _buf, MemeInteger_t _len, uint32_t _value);
 
+MEME_API int MEME_STDCALL
+mmutf_u8rune_prev_char_size(const mmbyte_t* _first, const mmbyte_t* _last);
+
 MEME_EXTERN_C_SCOPE_ENDED
 
 #endif // !MEGO_UTF_U8RUNE_H_INCLUDED

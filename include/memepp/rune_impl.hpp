@@ -113,7 +113,7 @@ namespace memepp {
     MEMEPP__IMPL_INLINE rune_index::rune_index(const_pointer _u8, size_type _size)
     {
         data_.data = _u8;
-        data_.size = _size;
+        data_.size = (int8_t)_size;
     }
 
     MEMEPP__IMPL_INLINE rune_index::const_pointer rune_index::data() const noexcept

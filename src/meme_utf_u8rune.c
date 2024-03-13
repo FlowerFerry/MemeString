@@ -300,3 +300,28 @@ mmutf_u8rune_set_u32(
 
     return byteSize;
 }
+
+MEME_API int MEME_STDCALL
+mmutf_u8rune_prev_char_size(const mmbyte_t* _first, const mmbyte_t* _last)
+{
+    int count = 0;
+    
+    if (_first == _last)
+        return -1;
+
+    --_last;
+    while (_last >= _first) {
+        ++count;
+        if ((*_last & 0xC0) != 0x80)
+            break;
+        if ((*_last & 0xC0) == 0xC0)
+            break;
+        
+        --_last;
+    }
+    
+    if (count != mmutf_u8rune_char_size(*_last))
+        return -1;
+
+    return count;
+}

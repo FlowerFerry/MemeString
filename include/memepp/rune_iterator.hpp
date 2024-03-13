@@ -89,25 +89,17 @@ namespace memepp {
                 return *this;
             }
             
-            //if (prev_size_ == invalid_code) {
-            //    return *this;
-            //}
-
-            const_pointer index = 0;
             if (prev_size_ == invalid_size 
-                && (prev_size_ = get_prev_rune_size(begin_, ptr_, &index)) == invalid_code)
+                && (prev_size_ = mmutf_u8rune_prev_char_size(begin_, ptr_)) == invalid_code)
             {
-                if (index) {
-                    ptr_ = index;
-                    curr_size_ = -1;
-                    prev_size_ = invalid_size;
-                }
+                ptr_ -= 1;
+                curr_size_ = -1;
+                prev_size_ = invalid_size;
             }
             else {
                 ptr_ -= prev_size_;
                 curr_size_ = prev_size_;
-                index = 0;
-                prev_size_ = get_prev_rune_size(begin_, ptr_, &index);
+                prev_size_ = mmutf_u8rune_prev_char_size(begin_, ptr_);
                 if (ptr_ > begin_ && prev_size_ == invalid_code)
                 {
                     prev_size_ = invalid_size;
@@ -192,34 +184,6 @@ namespace memepp {
         }
 
     private:
-        static int8_t get_prev_rune_size(
-            const_pointer _begin, const_pointer _curr, const_pointer* _prev = nullptr)
-        {
-            if (_curr <= _begin) {
-                return -1;
-            }
-            
-            auto index = _curr - 1;
-            for (; index >= _begin; --index)
-            {
-                if (mmutf_u8rune_char_size(*index) < 0)
-                    continue;
-                
-                auto byte_size = mmutf_u8rune_valid(index, _curr - index);
-                if (byte_size < 0) {
-                    if (_prev)
-                        *_prev = index;
-                    break;
-                }
-
-                return static_cast<int8_t>(byte_size);
-            }
-
-            if (index < _begin && _prev)
-                *_prev = _begin;
-
-            return -1;
-        }
         
         const_pointer begin_;
         const_pointer end_;

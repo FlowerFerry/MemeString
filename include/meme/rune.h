@@ -16,6 +16,96 @@
 
 MEME_EXTERN_C_SCOPE_START
 
+MG_CAPI_INLINE int
+    MemeRuneIndex_isSpace(const mmbyte_t* _buf, int _size)
+{
+    assert(_buf != NULL);
+
+    if (_size < 0)
+        _size = mmutf_u8rune_char_size(_buf[0]);
+
+    switch (_size) {
+    case 1:
+        return isspace(_buf[0]) ? 1 : 0;
+    case 2: {
+        if (_buf[0] == 0xC2)
+        {
+            switch (_buf[1]) {
+            case 0x85: // 下一行 (NEL)
+            case 0xA0: // 不间断空格
+                return 1;
+            default:
+                return 0;
+            }
+        }
+        else {
+            return 0;
+        }
+    }
+    case 3: {
+        if (_buf[0] == 0xE3 && _buf[1] == 0x80 && _buf[2] == 0x80)
+        {
+            // 中文全角空格
+            return 1;
+        }
+        else if (_buf[0] == 0xE2 && _buf[1] == 0x80)
+        {
+            switch (_buf[2]) {
+            case 0x80: // EN空隔符
+            case 0x81: // EM空隔符
+            case 0x82: // EN空格 (nut)
+            case 0x83: // EM空格 (mutton)
+            case 0x84: // 三分之一EM空格
+            case 0x85: // 四分之一EM空格
+            case 0x86: // 六分之一EM空格
+            case 0x87: // 数字空格
+            case 0x88: // 标点空格
+            case 0x89: // 窄空格
+            case 0x8A: // 发宽空格
+            case 0x8B: // 零宽空格
+            case 0x8C: // 零宽不连字（Zero Width Non Joiner，简称“ZWNJ”）
+            case 0x8D: // 零宽连字（Zero Width Joiner，简称“ZWJ”）
+            case 0xA8: // 行分隔符（Line Separator）
+            case 0xA9: // 段分隔符（Paragraph Separator）
+            case 0xAF: // 窄式不换行空格（Narrow No-Break Space）
+                return 1;
+            default:
+                return 0;
+            }
+        }
+        else if (_buf[0] == 0xE2 && _buf[1] == 0x81)
+        {
+            switch (_buf[2]) {
+            case 0x9F: // 中数学空格（Medium Mathematical Space，简称“MMSP”）
+            case 0xA0: // 文字连接符（Word Joiner）
+                return 1;
+            default:
+                return 0;
+            }
+        }
+        else if (_buf[0] == 0xE1)
+        {
+            if (_buf[1] == 0x9A && _buf[2] == 0x80)
+                return 1; // 欧甘空格（Ogham Space Mark）
+            else if (_buf[1] == 0xA0 && _buf[2] == 0x8E)
+                return 1; // 蒙古语元音分隔符
+            else
+                return 0;
+        }
+        else if (_buf[0] == 0xEF && _buf[1] == 0xBB && _buf[2] == 0xBF)
+        {
+            // UTF-8 BOM
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
+    default:
+        return 0;
+    }
+}
+
 MG_CAPI_INLINE MemeRune_t
     MemeRune_getInitObject()
 {
@@ -59,8 +149,10 @@ MG_CAPI_INLINE int
 {
     assert(_out != NULL && _buf != NULL);
 
-    if ((_len < 0 || _len > 7))
+    if ((_len > 7))
         return MGEC__INVAL;
+    if (_len < 0)
+        _len = mmutf_u8rune_char_size(_buf[0]);
 
     _out->attr.capacity = (mmbyte_t)(7 - _len);
     _out->attr.invalid  = 0;
@@ -131,86 +223,8 @@ MG_CAPI_INLINE int
     MemeRune_isSpace(const MemeRune_t* _s)
 {
     assert(_s != NULL);
-    switch (MemeRune_size(_s)) {
-    case 1: 
-        return isspace(_s->byte[0]) ? 1 : 0;
-    case 2: {
-        if (_s->byte[0] == 0xC2)
-        {
-            switch (_s->byte[1]) {
-            case 0x85: // 下一行 (NEL)
-            case 0xA0: // 不间断空格
-                return 1;
-            default:
-                return 0;
-            }
-        }
-        else {
-            return 0;
-        }
-    }
-    case 3: {
-        if (_s->byte[0] == 0xE3 && _s->byte[1] == 0x80 && _s->byte[2] == 0x80)
-        {
-            // 中文全角空格
-            return 1;
-        }
-        else if (_s->byte[0] == 0xE2 && _s->byte[1] == 0x80) 
-        {
-            switch (_s->byte[2]) {
-            case 0x80: // EN空隔符
-            case 0x81: // EM空隔符
-            case 0x82: // EN空格 (nut)
-            case 0x83: // EM空格 (mutton)
-            case 0x84: // 三分之一EM空格
-            case 0x85: // 四分之一EM空格
-            case 0x86: // 六分之一EM空格
-            case 0x87: // 数字空格
-            case 0x88: // 标点空格
-            case 0x89: // 窄空格
-            case 0x8A: // 发宽空格
-            case 0x8B: // 零宽空格
-            case 0x8C: // 零宽不连字（Zero Width Non Joiner，简称“ZWNJ”）
-            case 0x8D: // 零宽连字（Zero Width Joiner，简称“ZWJ”）
-            case 0xA8: // 行分隔符（Line Separator）
-            case 0xA9: // 段分隔符（Paragraph Separator）
-            case 0xAF: // 窄式不换行空格（Narrow No-Break Space）
-                return 1;
-            default:
-                return 0;
-            }
-        }
-        else if (_s->byte[0] == 0xE2 && _s->byte[1] == 0x81)
-        {
-            switch (_s->byte[2]) {
-            case 0x9F: // 中数学空格（Medium Mathematical Space，简称“MMSP”）
-            case 0xA0: // 文字连接符（Word Joiner）
-                return 1;
-            default:
-                return 0;
-            }
-        }
-        else if (_s->byte[0] == 0xE1)
-        {
-            if (_s->byte[1] == 0x9A && _s->byte[2] == 0x80)
-                return 1; // 欧甘空格（Ogham Space Mark）
-            else if (_s->byte[1] == 0xA0 && _s->byte[2] == 0x8E)
-                return 1; // 蒙古语元音分隔符
-            else
-                return 0;
-        }
-        else if (_s->byte[0] == 0xEF && _s->byte[1] == 0xBB && _s->byte[2] == 0xBF)
-        {
-            // UTF-8 BOM
-            return 1;
-        }
-        else {
-            return 0;
-        }
-    }
-    default:
-        return 0;
-    }
+    
+    return MemeRuneIndex_isSpace(MemeRune_data(_s), (int)MemeRune_size(_s)) == 0 ? 0 : 1;
 }
 
 //! 使用国家标准GB/T15834-2011出现的标点符号进行判断
@@ -373,15 +387,15 @@ MG_CAPI_INLINE int
     return !!(_s->byte[0] & 0x80);
 }
 
-MG_CAPI_INLINE int
-    MemeRune_byteSize(const MemeRune_t* _s)
-{
-    assert(_s != NULL);
-    if (MemeRune_size(_s) < 1)
-        return 0;
-    
-    return mmutf_u8rune_char_size(_s->byte[0]);
-}
+//MG_CAPI_INLINE int
+//    MemeRune_byteSize(const MemeRune_t* _s)
+//{
+//    assert(_s != NULL);
+//    if (MemeRune_size(_s) < 1)
+//        return 0;
+//    
+//    return mmutf_u8rune_char_size(_s->byte[0]);
+//}
 
 MEME_EXTERN_C_SCOPE_ENDED
 
