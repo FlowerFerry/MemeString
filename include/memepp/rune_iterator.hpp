@@ -90,7 +90,7 @@ namespace memepp {
             }
             
             if (prev_size_ == invalid_size 
-                && (prev_size_ = mmutf_u8rune_prev_char_size(begin_, ptr_)) == invalid_code)
+                && (prev_size_ = (int8_t)mmutf_u8rune_prev_char_size(begin_, ptr_)) == invalid_code)
             {
                 ptr_ -= 1;
                 curr_size_ = -1;
@@ -99,7 +99,7 @@ namespace memepp {
             else {
                 ptr_ -= prev_size_;
                 curr_size_ = prev_size_;
-                prev_size_ = mmutf_u8rune_prev_char_size(begin_, ptr_);
+                prev_size_ = (int8_t)mmutf_u8rune_prev_char_size(begin_, ptr_);
                 if (ptr_ > begin_ && prev_size_ == invalid_code)
                 {
                     prev_size_ = invalid_size;
