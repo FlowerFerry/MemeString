@@ -39,7 +39,7 @@ typedef struct _MemeRuneIndex_t
 	int8_t size;
     uint8_t __res__[sizeof(mmint_t) - sizeof(uint8_t)];
 } MemeRuneIndex_t;
-typedef MemeRuneIndex_t mmrune_index_t;
+typedef MemeRuneIndex_t mmrune_idx_t;
 
 typedef struct _MemeRune_t {
 	MemeByte_t byte[7];
