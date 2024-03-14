@@ -177,6 +177,9 @@ struct _MemeString_t
 #define MMS__GET_TYPE(S) ((S)->none_.type_)
 #endif 
 
+static_assert(sizeof(struct _MemeString_t) == MMSTR__OBJ_SIZE, "MemeString_t size mismatch");
+static_assert(sizeof(MemeRune_t) == 8, "MemeRune_t size is mismatch");
+static_assert(sizeof(MemeRuneIndex_t) == (sizeof(void*) * 2), "MemeRuneIndex_t size mismatch");
 
 const uint8_t* 
 MemeStringImpl_default();

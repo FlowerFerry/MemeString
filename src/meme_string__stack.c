@@ -79,7 +79,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initTakeOverUserObject(
 
 MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_unInit(mmsstk_t* _out, size_t _object_size)
 {
-	mms_t obj = (mms_t)_out;
+	mmstr_t obj = (mmstr_t)_out;
 
 	assert(obj && MemeStringStack_unInit != NULL);
 	assert(_object_size != 0 && MemeStringStack_unInit != NULL);

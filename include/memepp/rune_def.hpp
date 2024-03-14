@@ -73,6 +73,8 @@ namespace memepp {
 		const_pointer data() const noexcept;
 		size_type size() const noexcept;
 		
+		bool is_space() const noexcept;
+		
 	private:
 		MemeRuneIndex_t data_;
 	};

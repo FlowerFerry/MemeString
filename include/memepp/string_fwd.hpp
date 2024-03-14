@@ -62,6 +62,7 @@ namespace memepp {
         return reinterpret_cast<mmsbldr_const_t>(&_s);
     }
 
+    static_assert(sizeof(mmstrstk_t) == MMSTR__OBJ_SIZE, "mmstrstk_t size mismatch");
 };
 
 #endif // !MEMEPP_STRING_FWD_HPP_INCLUDED

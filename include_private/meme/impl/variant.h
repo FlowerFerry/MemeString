@@ -35,5 +35,7 @@ typedef struct _MemeVariant_t
     };
 } MemeVariant_t;
 
+static_assert(sizeof(MemeVariant_t) == MMVAR__OBJ_SIZE, "MemeVariant_t size mismatch");
+
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_IMPL_VARIANT_H_INCLUDED

@@ -18,6 +18,7 @@ namespace memepp {
 		return reinterpret_cast<mmvar_cptr_t>(&_s);
 	}
 
+    static_assert(sizeof(mmvarstk_t) == MMVAR__OBJ_SIZE, "mmvarstk_t size mismatch");
 }
 
 #endif // !MEMEPP_VARIANT_FWD_HPP_INCLUDED
