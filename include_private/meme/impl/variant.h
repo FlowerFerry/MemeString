@@ -14,6 +14,9 @@
 
 MEME_EXTERN_C_SCOPE_START
 
+#if INTPTR_MAX == INT32_MAX
+#pragma pack(push, 4)
+#endif
 typedef union _MemeVariantData_t 
 {
     mmbyte_t    b;
@@ -28,6 +31,9 @@ typedef union _MemeVariantData_t
     mmrune_t    r;
     void*       p;
 } MemeVariantData_t;
+#if INTPTR_MAX == INT32_MAX
+#pragma pack(pop)
+#endif
 
 typedef struct _MemeVariant_t
 {
@@ -35,7 +41,7 @@ typedef struct _MemeVariant_t
     struct {
         mmint_t type: 16;
         mmint_t non_null: 1;
-        //mmint_t __res__: (sizeof(mmint_t) * CHAR_BIT - 17);
+        mmint_t __res__: (sizeof(mmint_t) * CHAR_BIT - 17);
     };
 } MemeVariant_t;
 
