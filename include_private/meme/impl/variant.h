@@ -35,7 +35,7 @@ typedef struct _MemeVariant_t
     struct {
         mmint_t type: 16;
         mmint_t non_null: 1;
-        mmint_t __res__: (sizeof(mmint_t) * CHAR_BIT - 17);
+        //mmint_t __res__: (sizeof(mmint_t) * CHAR_BIT - 17);
     };
 } MemeVariant_t;
 
