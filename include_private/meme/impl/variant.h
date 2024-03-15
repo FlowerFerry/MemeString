@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 #include <limits.h>
+#include <assert.h>
 
 MEME_EXTERN_C_SCOPE_START
 
@@ -36,6 +37,7 @@ typedef struct _MemeVariant_t
 } MemeVariant_t;
 
 static_assert(sizeof(MemeVariant_t) == MMVAR__OBJ_SIZE, "MemeVariant_t size mismatch");
+static_assert(sizeof(MemeVariantData_t) == MMSTR__OBJ_SIZE, "MemeVariantData_t size mismatch");
 
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_IMPL_VARIANT_H_INCLUDED
