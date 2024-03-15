@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 #include <limits.h>
+#include <assert.h>
 
 #if INTPTR_MAX == INT16_MAX
 #error "16-bit system not supported"
