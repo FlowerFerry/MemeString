@@ -4,6 +4,9 @@
 
 #include <meme/common.h>
 #include <meme/variant_fwd.h>
+#include <meme/string_fwd.h>
+#include <meme/buffer_fwd.h>
+#include <meme/variable_buffer_fwd.h>
 
 #include <stdint.h>
 #include <limits.h>
