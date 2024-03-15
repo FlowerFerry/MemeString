@@ -17,7 +17,7 @@ typedef const struct _MemeStringBuilder_t* mmsbldr_cptr_t;
 #ifdef MEME_STRING_BUILDER__OBJECT_SIZE
 #undef MEME_STRING_BUILDER__OBJECT_SIZE
 #endif
-#define MEME_STRING_BUILDER__OBJECT_SIZE (sizeof(intptr_t) * 4)
+#define MEME_STRING_BUILDER__OBJECT_SIZE (sizeof(mmint_t) * 4)
 
 #ifndef MMSBLDR__OBJ_SIZE
 #define MMSBLDR__OBJ_SIZE MEME_STRING_BUILDER__OBJECT_SIZE

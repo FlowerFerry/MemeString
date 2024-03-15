@@ -104,7 +104,7 @@ typedef int MemeString_MappingConvertFunc_t(MemeRune_t* _ch, void* _user_data);
 #ifdef MEME_STRING__OBJECT_SIZE
 #undef MEME_STRING__OBJECT_SIZE
 #endif
-#define MEME_STRING__OBJECT_SIZE (sizeof(intptr_t) * 3)
+#define MEME_STRING__OBJECT_SIZE (sizeof(mmint_t) * 3)
 
 #ifndef MMS__OBJECT_SIZE
 #define MMS__OBJECT_SIZE MEME_STRING__OBJECT_SIZE
