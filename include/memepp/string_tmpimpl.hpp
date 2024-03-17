@@ -102,7 +102,7 @@ namespace memepp {
 	template<template<class> class _Container>
 	inline MemeInteger_t string::split(
 		string_view _key, split_behavior_t _behavior,
-		std::back_insert_iterator<_Container<string_view>> _inserter) const
+		std::back_insert_iterator<_Container<string_view>> _inserter) const MEGOPP__NOEXCEPT
 	{
 		MemeStringStack_t stacks[4];
 		MemeInteger_t stacksCount = 0;
@@ -154,7 +154,7 @@ namespace memepp {
 	template<template<class, class...> class _Container, class... _Arg>
 	inline MemeInteger_t string::split(
 		string_view _key, split_behavior_t _behavior,
-		std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const
+		std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const MEGOPP__NOEXCEPT
 	{
 		MemeStringStack_t stacks[4];
 		MemeInteger_t stacksCount = 0;

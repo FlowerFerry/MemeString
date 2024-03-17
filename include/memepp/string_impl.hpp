@@ -155,12 +155,12 @@ namespace memepp {
 #endif
 	}
 	
-	MEMEPP__IMPL_INLINE string::string(const rune& _ch)
+	MEMEPP__IMPL_INLINE string::string(const rune& _ch) noexcept
 	{
 		*errc() = MemeStringStack_initByU8bytes(&data_, MEME_STRING__OBJECT_SIZE, _ch.data(), _ch.size());
-#if !MMOPT__EXCEPTION_DISABLED
-		throw_errc(*errc());
-#endif
+//#if !MMOPT__EXCEPTION_DISABLED
+//		throw_errc(*errc());
+//#endif
 	}
 
 
@@ -484,10 +484,10 @@ namespace memepp {
         return find(_ch) != npos;
     }
 
-	MEMEPP__IMPL_INLINE bool string::contains_only_ascii() const noexcept
+	MEMEPP__IMPL_INLINE bool string::is_only_ascii() const noexcept
 	{
         int result = 0;
-        MemeString_containsOnlyAscii(to_pointer(native_handle()), &result);
+		MemeString_isOnlyAscii(to_pointer(native_handle()), &result);
         return result != 0;
 	}
 

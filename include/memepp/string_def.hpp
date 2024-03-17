@@ -9,6 +9,7 @@
 #include "memepp/buffer_fwd.hpp"
 #include "memepp/string_view_fwd.hpp"
 #include "memepp/string_builder_fwd.hpp"
+#include "megopp/predef/keyword/noexcept.h"
 
 #include "memepp/iterator.hpp"
 #include "memepp/rune_iterator.hpp"
@@ -52,7 +53,7 @@ namespace memepp {
 		string(const uint16_t* _utf16, size_type _size);
 		string(const uint16_t* _utf16, size_type _size, string_storage_t _suggest);
 
-		string(const rune& _ch);
+		string(const rune& _ch) noexcept;
         string(const string_builder& _builder);
 		//string(size_type _count, char _ch);
 
@@ -157,7 +158,7 @@ namespace memepp {
         bool contains(char _ch) const noexcept;
         bool contains(const rune& _ch) const noexcept;
 
-        bool contains_only_ascii() const noexcept;
+        bool is_only_ascii() const noexcept;
 
 		//! @brief Returns true if this string starts with the given string.
 		//! @param _sv The string to search for.
@@ -241,7 +242,7 @@ namespace memepp {
 		//! \return The error code.
 		template<template<class> class _Container>
 		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,
-			std::back_insert_iterator<_Container<string_view>> _inserter) const;
+			std::back_insert_iterator<_Container<string_view>> _inserter) const MEGOPP__NOEXCEPT;
 
 		template<template<class> class _Container>
 		inline MemeInteger_t split(string_view _key, 
@@ -270,7 +271,7 @@ namespace memepp {
 		template<template<class, class...> class _Container, class... _Arg>
 		inline MemeInteger_t split(
 			string_view _key, split_behavior_t _behavior,
-			std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const;
+			std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const MEGOPP__NOEXCEPT;
 		
 		template<template<class, class...> class _Container, class... _Arg>
 		inline MemeInteger_t split(

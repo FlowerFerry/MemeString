@@ -280,3 +280,5 @@ EXPORTS
     MemeVariantStack_initAndConditionalConvert @263
     MemeStringBuilder_appendArgByOther @264
     mmutf_u8rune_prev_char_size @265
+    MemeString_isOnlyAscii @266
+    

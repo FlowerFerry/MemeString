@@ -31,16 +31,16 @@ namespace memepp {
 		static const size_type npos = static_cast<size_type>(-1);
 
 		string_view() noexcept;
-		string_view(mmstr_const_t _other);
-		string_view(const MemeStringStack_t& _stack);
-		string_view(const char* _utf8);
-		string_view(const char* _utf8, size_type _size);
-		string_view(const_pointer _utf8);
-		string_view(const_pointer _utf8, size_type _size);
+		string_view(mmstr_const_t _other) noexcept;
+		string_view(const MemeStringStack_t& _stack) noexcept;
+		string_view(const char* _utf8) noexcept;
+		string_view(const char* _utf8, size_type _size) noexcept;
+		string_view(const_pointer _utf8) noexcept;
+		string_view(const_pointer _utf8, size_type _size) noexcept;
 
-		string_view(const string& _other);
+		string_view(const string& _other) noexcept;
 		string_view(string&& _other);
-		string_view(const string_view& _other);
+		string_view(const string_view& _other) noexcept;
 		string_view(string_view&& _other) noexcept;
 
 		~string_view();

@@ -36,9 +36,9 @@ namespace memepp {
 		buffer_view(const variable_buffer& _other) MEGOPP__NOEXCEPT;
 		buffer_view(const string_view& _other) MEGOPP__NOEXCEPT;
 		buffer_view(const buffer_view& _other) MEGOPP__NOEXCEPT;
-		buffer_view(buffer&& _other) MEGOPP__NOEXCEPT;
-		buffer_view(string&& _other) MEGOPP__NOEXCEPT;
-		buffer_view(variable_buffer&& _other) MEGOPP__NOEXCEPT;
+		buffer_view(buffer&& _other);
+		buffer_view(string&& _other);
+		buffer_view(variable_buffer&& _other) = delete;
 		buffer_view(string_view&& _other) MEGOPP__NOEXCEPT;
 		buffer_view(buffer_view&& _other) MEGOPP__NOEXCEPT;
 		buffer_view(const_pointer _data, size_type _size) MEGOPP__NOEXCEPT;
@@ -85,16 +85,16 @@ namespace memepp {
 		bool ends_with(const buffer_view& _other) const MEGOPP__NOEXCEPT;
 		bool ends_with(const_pointer _utf8, size_type _count) const MEGOPP__NOEXCEPT;
 
-        buffer_view slice(size_type _pos = 0, size_type _count = npos) const;
-
+        buffer_view slice(size_type _pos = 0, size_type _count = npos) const MEGOPP__NOEXCEPT;
+		
 		const native_handle_type& native_handle() const MEGOPP__NOEXCEPT;
 
 	private:
 		native_handle_type data_;
     };
 
-	bool operator==(const buffer_view& _lhs, const buffer_view& _rhs);
-	bool operator!=(const buffer_view& _lhs, const buffer_view& _rhs);
+	bool operator==(const buffer_view& _lhs, const buffer_view& _rhs) MEGOPP__NOEXCEPT;
+	bool operator!=(const buffer_view& _lhs, const buffer_view& _rhs) MEGOPP__NOEXCEPT;
 	
 };
 

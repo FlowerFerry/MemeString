@@ -28,12 +28,19 @@ namespace memepp {
 		MemeStringStack_init(&data_, MEME_STRING__OBJECT_SIZE);
 	}
 
-	MEMEPP__IMPL_INLINE string_view::string_view(mmstr_const_t _other)
+	MEMEPP__IMPL_INLINE string_view::string_view(mmstr_const_t _other) noexcept
 	{
-        MemeStringStack_initByOther(&data_, MMSTR__OBJ_SIZE, _other);
+		if (MemeString_isSharedStorageTypes(_other) == 1)
+		{
+			MemeStringStack_initByOther(&data_, MMSTR__OBJ_SIZE, _other);
+		}
+		else {
+			MemeStringViewUnsafeStack_init(&data_, MMSTR__OBJ_SIZE,
+				MemeString_byteData(_other), MemeString_byteSize(_other));
+		}
 	}
 
-	MEMEPP__IMPL_INLINE string_view::string_view(const MemeStringStack_t& _stack)
+	MEMEPP__IMPL_INLINE string_view::string_view(const MemeStringStack_t& _stack) noexcept
 	{
 		auto other = to_pointer(_stack);
 		if (MemeString_isSharedStorageTypes(other) == 1)
@@ -46,29 +53,29 @@ namespace memepp {
 		}
 	}
 
-	MEMEPP__IMPL_INLINE string_view::string_view(const char* _utf8)
+	MEMEPP__IMPL_INLINE string_view::string_view(const char* _utf8) noexcept
 	{
 		MemeStringViewUnsafeStack_init(&data_, MEME_STRING__OBJECT_SIZE,
 			reinterpret_cast<const uint8_t*>(_utf8), -1);
 	}
 
-	MEMEPP__IMPL_INLINE string_view::string_view(const char* _utf8, size_type _size)
+	MEMEPP__IMPL_INLINE string_view::string_view(const char* _utf8, size_type _size) noexcept
 	{
 		MemeStringViewUnsafeStack_init(&data_, MEME_STRING__OBJECT_SIZE, 
 			reinterpret_cast<const uint8_t*>(_utf8), _size);
 	}
 
-	MEMEPP__IMPL_INLINE string_view::string_view(const_pointer _utf8)
+	MEMEPP__IMPL_INLINE string_view::string_view(const_pointer _utf8) noexcept
 	{
 		MemeStringViewUnsafeStack_init(&data_, MEME_STRING__OBJECT_SIZE, _utf8, -1);
 	}
 
-	MEMEPP__IMPL_INLINE string_view::string_view(const_pointer _utf8, size_type _size)
+	MEMEPP__IMPL_INLINE string_view::string_view(const_pointer _utf8, size_type _size) noexcept
 	{
 		MemeStringViewUnsafeStack_init(&data_, MEME_STRING__OBJECT_SIZE, _utf8, _size);
 	}
 
-	MEMEPP__IMPL_INLINE string_view::string_view(const string& _other)
+	MEMEPP__IMPL_INLINE string_view::string_view(const string& _other) noexcept
 	{
 		auto other = to_pointer(_other.native_handle());
 		if (MemeString_isSharedStorageTypes(other) == 1)
@@ -94,7 +101,7 @@ namespace memepp {
 		}
 	}
 
-	MEMEPP__IMPL_INLINE string_view::string_view(const string_view& _other)
+	MEMEPP__IMPL_INLINE string_view::string_view(const string_view& _other) noexcept
 	{
 		MemeStringViewUnsafeStack_initByOther(
 			&data_, MEME_STRING__OBJECT_SIZE, &_other.data_);
@@ -256,6 +263,7 @@ namespace memepp {
 		mmsstk_t stack;
 		MemeStringStack_initByOther(
 			&stack, MMS__OBJECT_SIZE, to_pointer(data_));
+		// TO_DO
 		return string { reinterpret_cast<MemeStringStack_t&&>(stack) };
 	}
 

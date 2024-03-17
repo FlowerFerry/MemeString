@@ -42,7 +42,7 @@ namespace memepp {
         MemeBufferViewUnsafeStack_initByOther(&data_, MMS__OBJECT_SIZE, &_other.native_handle());
 	}
 	
-	MEMEPP__IMPL_INLINE buffer_view::buffer_view(buffer&& _other) MEGOPP__NOEXCEPT
+	MEMEPP__IMPL_INLINE buffer_view::buffer_view(buffer&& _other)
 	{
 		auto other = to_pointer(_other.native_handle());
 		if (MemeBuffer_isSharedStorageTypes(other) == 1)
@@ -56,7 +56,7 @@ namespace memepp {
 		}
 	}
 	
-	MEMEPP__IMPL_INLINE buffer_view::buffer_view(string&& _other) MEGOPP__NOEXCEPT
+	MEMEPP__IMPL_INLINE buffer_view::buffer_view(string&& _other)
 	{
         auto other = to_pointer(_other.native_handle());
         if (MemeString_isSharedStorageTypes(other) == 1)
@@ -240,7 +240,7 @@ namespace memepp {
         return data_;
 	}
 
-	MEMEPP__IMPL_INLINE bool operator==(const buffer_view& _lhs, const buffer_view& _rhs)
+	MEMEPP__IMPL_INLINE bool operator==(const buffer_view& _lhs, const buffer_view& _rhs) MEGOPP__NOEXCEPT
 	{
 		int result = 0;
 		MemeBuffer_isEqualWithOther(
@@ -249,7 +249,7 @@ namespace memepp {
 		return result;
 	}
 	
-	MEMEPP__IMPL_INLINE bool operator!=(const buffer_view& _lhs, const buffer_view& _rhs)
+	MEMEPP__IMPL_INLINE bool operator!=(const buffer_view& _lhs, const buffer_view& _rhs) MEGOPP__NOEXCEPT
 	{
 		return !(_lhs == _rhs);
 	}

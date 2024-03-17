@@ -321,8 +321,12 @@ MEME_API int
 	MEME_STDCALL MemeString_isEqualWithOther(
 		MemeString_Const_t _lhs, MemeString_Const_t _rhs, int* _result);
 
+//! deprecated
 MEME_API int
 	MEME_STDCALL MemeString_containsOnlyAscii(mmstr_cptr_t _s, int* _result);
+
+MEME_API int
+	MEME_STDCALL MemeString_isOnlyAscii(mmstr_cptr_t _s, int* _result);
 
 MEME_API int
 MEME_STDCALL MemeString_compare(mmstr_cptr_t _s, mmstr_cptr_t _other);
@@ -402,7 +406,7 @@ MEME_API MemeInteger_t
 	MemeInteger_t* MEGO_SYMBOL__RESTRICT _search_index
 );
 
-//! This is an example of how to use MemeString_splitByConditionWordFunction.
+//! This is an example of how to use MemeString_splitByCondByteFunc.
 //! \code 
 //! int notalpha_func(void*, MemeByte_t _byte) {
 //!     return !isalpha(_byte);

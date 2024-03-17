@@ -636,24 +636,30 @@ MEME_API int MEME_STDCALL MemeString_isEqualWithOther(MemeString_Const_t _lhs,
 
 MEME_API int MEME_STDCALL MemeString_containsOnlyAscii(mmstr_cptr_t _s, int* _result)
 {
-    const mmbyte_t* src = NULL;
-    mmint_t len = 0;
+    return MemeString_isOnlyAscii(_s, _result);
+}
 
-    if (MEGO_SYMBOL__UNLIKELY(_result == NULL))
-        return (MGEC__INVAL);
+MEME_API int
+MEME_STDCALL MemeString_isOnlyAscii(mmstr_cptr_t _s, int* _result)
+{
+	const mmbyte_t* src = NULL;
+	mmint_t len = 0;
 
-    src = MemeString_byteData(_s);
-    len = MemeString_byteSize(_s);
+	if (MEGO_SYMBOL__UNLIKELY(_result == NULL))
+		return (MGEC__INVAL);
 
-    for (; len > 0; --len, ++src) {
-        if (*src > 127) {
-            *_result = 0;
-            return 0;
-        }
-    }
+	src = MemeString_byteData(_s);
+	len = MemeString_byteSize(_s);
 
-    *_result = 1;
-    return 0;
+	for (; len > 0; --len, ++src) {
+		if (*src > 127) {
+			*_result = 0;
+			return 0;
+		}
+	}
+
+	*_result = 1;
+	return 0;
 }
 
 MEME_API int MEME_STDCALL MemeString_compare(mmstr_cptr_t _s, mmstr_cptr_t _other)

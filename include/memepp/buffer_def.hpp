@@ -67,7 +67,7 @@ namespace memepp {
 
 		void swap(buffer& _other) MEGOPP__NOEXCEPT;
 		string to_string(size_type _front_offset = 0) const;
-		buffer to_large() const noexcept;
+		buffer to_large() const;
 		
 		size_type index_of(const buffer& _other) const MEGOPP__NOEXCEPT;
 		size_type index_of(const_pointer _utf8, size_type _utf8_len) const MEGOPP__NOEXCEPT;
