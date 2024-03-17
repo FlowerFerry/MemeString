@@ -352,94 +352,109 @@ namespace memepp {
 	MEMEPP__IMPL_INLINE string::size_type string::find(const string& _other, size_type _pos) const noexcept
 	{
 		return MemeString_indexOfWithOther(
-			to_pointer(native_handle()), _pos, to_pointer(_other.native_handle()), case_sensitivity_t::all_sensitive);
+			to_pointer(native_handle()), _pos, to_pointer(_other.native_handle()), 
+			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
 	}
 
     MEMEPP__IMPL_INLINE string::size_type string::find(const char* _utf8, size_type _pos) const noexcept
     {
         return MemeString_indexOfWithUtf8bytes(
-            to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), -1, case_sensitivity_t::all_sensitive);
+            to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), -1, 
+			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
     }
 
     MEMEPP__IMPL_INLINE string::size_type string::find(const char* _utf8, size_type _pos, size_type _count) const noexcept
     {
         return MemeString_indexOfWithUtf8bytes(
-            to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), _count, case_sensitivity_t::all_sensitive);
+            to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), _count, 
+			static_cast<mmflag_case_sensit_t>(case_sensitivity_t::all_sensitive));
     }
     
     MEMEPP__IMPL_INLINE string::size_type string::find(const_pointer _utf8, size_type _pos) const noexcept
     {
         return MemeString_indexOfWithUtf8bytes(
-            to_pointer(native_handle()), _pos, _utf8, -1, case_sensitivity_t::all_sensitive);
+            to_pointer(native_handle()), _pos, _utf8, -1, 
+			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
     }
 
     MEMEPP__IMPL_INLINE string::size_type string::find(const_pointer _utf8, size_type _pos, size_type _count) const noexcept
     {
         return MemeString_indexOfWithUtf8bytes(
-            to_pointer(native_handle()), _pos, _utf8, _count, case_sensitivity_t::all_sensitive);
+            to_pointer(native_handle()), _pos, _utf8, _count, 
+			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
     }
     
 	MEMEPP__IMPL_INLINE string::size_type string::find(char _ch, size_type _pos) const noexcept
 	{
         return MemeString_indexOfWithByte(
-            to_pointer(native_handle()), _pos, _ch, case_sensitivity_t::all_sensitive);
+            to_pointer(native_handle()), _pos, _ch, 
+			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
 	}
 
     MEMEPP__IMPL_INLINE string::size_type string::find(const rune& _ch, size_type _pos) const noexcept
     {
         return MemeString_indexOfWithUtf8bytes(
-            to_pointer(native_handle()), _pos, _ch.data(), _ch.size(), case_sensitivity_t::all_sensitive);
+            to_pointer(native_handle()), _pos, _ch.data(), _ch.size(), 
+			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
     }
 
 	MEMEPP__IMPL_INLINE string::size_type string::rfind(const char* _utf8, size_type _pos) const noexcept
 	{
         return MemeString_lastIndexOfWithUtf8bytes(
-            to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), -1, case_sensitivity_t::all_sensitive);
+            to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), -1, 
+			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
 	}
 
     MEMEPP__IMPL_INLINE string::size_type string::rfind(const char* _utf8, size_type _pos, size_type _count) const noexcept
     {
         return MemeString_lastIndexOfWithUtf8bytes(
-            to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), _count, case_sensitivity_t::all_sensitive);
+            to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), _count, 
+			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
     }
 
     MEMEPP__IMPL_INLINE string::size_type string::rfind(const_pointer _utf8, size_type _pos) const noexcept
     {
         return MemeString_lastIndexOfWithUtf8bytes(
-            to_pointer(native_handle()), _pos, _utf8, -1, case_sensitivity_t::all_sensitive);
+            to_pointer(native_handle()), _pos, _utf8, -1, 
+			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
     }
 
     MEMEPP__IMPL_INLINE string::size_type string::rfind(const_pointer _utf8, size_type _pos, size_type _count) const noexcept
     {
         return MemeString_lastIndexOfWithUtf8bytes(
-            to_pointer(native_handle()), _pos, _utf8, _count, case_sensitivity_t::all_sensitive);
+            to_pointer(native_handle()), _pos, _utf8, _count, 
+			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
     }
     
     MEMEPP__IMPL_INLINE string::size_type string::rfind(const rune& _ch, size_type _pos) const noexcept
     {
         return MemeString_lastIndexOfWithUtf8bytes(
-            to_pointer(native_handle()), _pos, _ch.data(), _ch.size(), case_sensitivity_t::all_sensitive);
+            to_pointer(native_handle()), _pos, _ch.data(), _ch.size(), 
+			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
     }
 
 	MEMEPP__IMPL_INLINE string::size_type string::index_of(
 		const string& _other, case_sensitivity_t _cs) const noexcept
 	{
 		return MemeString_indexOfWithOther(
-			to_pointer(native_handle()), 0, to_pointer(_other.native_handle()), _cs);
+			to_pointer(native_handle()), 0, to_pointer(_other.native_handle()), 
+			static_cast<mmflag_case_sensit_t>(_cs));
 	}
 
 	MEMEPP__IMPL_INLINE string::size_type string::index_of(
 		const string_view& _other, case_sensitivity_t _cs) const noexcept
 	{
 		return MemeString_indexOfWithOther(
-			to_pointer(native_handle()), 0, to_pointer(_other.native_handle()), _cs);
+			to_pointer(native_handle()), 0, to_pointer(_other.native_handle()), 
+			static_cast<mmflag_case_sensit_t>(_cs));
 	}
 
 	MEMEPP__IMPL_INLINE string::size_type string::index_of(
 		const char* _utf8, case_sensitivity_t _cs) const noexcept
 	{
 		return MemeString_indexOfWithUtf8bytes(
-			to_pointer(native_handle()), 0, reinterpret_cast<const uint8_t*>(_utf8), -1, _cs);
+			to_pointer(native_handle()), 0, reinterpret_cast<const uint8_t*>(_utf8), -1, 
+			static_cast<mmflag_case_sensit_t>(_cs));
 	}
 
 	//MEMEPP__IMPL_INLINE string::size_type string::index_of_with_strlen(
@@ -494,7 +509,8 @@ namespace memepp {
 	MEMEPP__IMPL_INLINE bool string::starts_with(const string_view& _sv) const noexcept
 	{
         return MemeString_startsMatchWithOther(
-            to_pointer(native_handle()), to_pointer(_sv.native_handle()), case_sensitivity_t::all_sensitive);
+            to_pointer(native_handle()), to_pointer(_sv.native_handle()), 
+			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
 	}
 
     MEMEPP__IMPL_INLINE bool string::starts_with(const char* _utf8) const noexcept
@@ -505,7 +521,8 @@ namespace memepp {
     MEMEPP__IMPL_INLINE bool string::starts_with(const char* _utf8, size_type _count) const noexcept
     {
         return MemeString_startsMatchWithUtf8bytes(
-            to_pointer(native_handle()), reinterpret_cast<const uint8_t*>(_utf8), _count, case_sensitivity_t::all_sensitive);
+            to_pointer(native_handle()), reinterpret_cast<const uint8_t*>(_utf8), _count, 
+			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
     }
 
     MEMEPP__IMPL_INLINE bool string::starts_with(const_pointer _utf8) const noexcept
@@ -516,7 +533,8 @@ namespace memepp {
     MEMEPP__IMPL_INLINE bool string::starts_with(const_pointer _utf8, size_type _count) const noexcept
     {
         return MemeString_startsMatchWithUtf8bytes(
-            to_pointer(native_handle()), _utf8, _count, case_sensitivity_t::all_sensitive);
+            to_pointer(native_handle()), _utf8, _count, 
+			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
     }
 
     //MEMEPP__IMPL_INLINE bool string::starts_with(char _ch) const noexcept
@@ -528,13 +546,15 @@ namespace memepp {
     MEMEPP__IMPL_INLINE bool string::starts_with(const rune& _ch) const noexcept
     {
         return MemeString_startsMatchWithUtf8bytes(
-            to_pointer(native_handle()), _ch.data(), _ch.size(), case_sensitivity_t::all_sensitive);
+            to_pointer(native_handle()), _ch.data(), _ch.size(), 
+			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
     }
 
 	MEMEPP__IMPL_INLINE bool string::ends_with(const string_view& _sv) const noexcept
 	{
         return MemeString_endsMatchWithOther(
-            to_pointer(native_handle()), to_pointer(_sv.native_handle()), case_sensitivity_t::all_sensitive);
+            to_pointer(native_handle()), to_pointer(_sv.native_handle()), 
+			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
     }
 
     MEMEPP__IMPL_INLINE bool string::ends_with(const char* _utf8) const noexcept
@@ -545,7 +565,8 @@ namespace memepp {
     MEMEPP__IMPL_INLINE bool string::ends_with(const char* _utf8, size_type _count) const noexcept
     {
         return MemeString_endsMatchWithUtf8bytes(
-            to_pointer(native_handle()), reinterpret_cast<const uint8_t*>(_utf8), _count, case_sensitivity_t::all_sensitive);
+            to_pointer(native_handle()), reinterpret_cast<const uint8_t*>(_utf8), _count, 
+			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
     }
 
     MEMEPP__IMPL_INLINE bool string::ends_with(const_pointer _utf8) const noexcept
@@ -556,7 +577,8 @@ namespace memepp {
     MEMEPP__IMPL_INLINE bool string::ends_with(const_pointer _utf8, size_type _count) const noexcept
     {
         return MemeString_endsMatchWithUtf8bytes(
-            to_pointer(native_handle()), _utf8, _count, case_sensitivity_t::all_sensitive);
+            to_pointer(native_handle()), _utf8, _count, 
+			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
     }
 
     //MEMEPP__IMPL_INLINE bool string::ends_with(char _ch) const noexcept
@@ -568,7 +590,8 @@ namespace memepp {
     MEMEPP__IMPL_INLINE bool string::ends_with(const rune& _ch) const noexcept
     {
         return MemeString_endsMatchWithUtf8bytes(
-            to_pointer(native_handle()), _ch.data(), _ch.size(), case_sensitivity_t::all_sensitive);
+            to_pointer(native_handle()), _ch.data(), _ch.size(), 
+			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
     }
     
     MEMEPP__IMPL_INLINE string string::left (size_type _count) const noexcept

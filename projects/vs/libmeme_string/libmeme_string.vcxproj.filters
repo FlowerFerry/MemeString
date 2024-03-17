@@ -369,6 +369,24 @@
     <ClInclude Include="..\..\..\include\memepp\convert\std\string_view.hpp">
       <Filter>头文件\memepp\convert\std</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\include\meme\varts_fwd.h">
+      <Filter>头文件\meme</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\varts.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\varts_def.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\varts_fwd.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\varts_srcimpl.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\memepp\varts_tmpimpl.hpp">
+      <Filter>头文件\memepp</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

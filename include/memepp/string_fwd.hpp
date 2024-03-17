@@ -33,7 +33,7 @@ namespace memepp {
 	};
     using split_behav_t = split_behavior_t;
 
-	enum case_sensitivity_t
+	enum class case_sensitivity_t
 	{
 		all_insensitive = MemeFlag_AllInsensitive,
 		case_sensitive  = MemeFlag_CaseSensitive,
@@ -41,6 +41,41 @@ namespace memepp {
 		all_sensitive   = MemeFlag_AllSensitive
 	};
     using case_sensit_t = case_sensitivity_t;
+
+    inline constexpr case_sensit_t operator|(case_sensit_t _a, case_sensit_t _b) noexcept
+    {
+        return static_cast<case_sensit_t>(static_cast<int>(_a) | static_cast<int>(_b));
+    }
+	
+    inline constexpr case_sensit_t operator&(case_sensit_t _a, case_sensit_t _b) noexcept
+    {
+        return static_cast<case_sensit_t>(static_cast<int>(_a) & static_cast<int>(_b));
+    }
+
+    inline constexpr case_sensit_t operator^(case_sensit_t _a, case_sensit_t _b) noexcept
+    {
+        return static_cast<case_sensit_t>(static_cast<int>(_a) ^ static_cast<int>(_b));
+    }
+
+    inline constexpr case_sensit_t operator~(case_sensit_t _a) noexcept
+    {
+        return static_cast<case_sensit_t>(~static_cast<int>(_a));
+    }
+
+    inline constexpr case_sensit_t& operator|=(case_sensit_t& _a, case_sensit_t _b) noexcept
+    {
+        return _a = _a | _b;
+    }
+
+    inline constexpr case_sensit_t& operator&=(case_sensit_t& _a, case_sensit_t _b) noexcept
+    {
+        return _a = _a & _b;
+    }
+
+    inline constexpr case_sensit_t& operator^=(case_sensit_t& _a, case_sensit_t _b) noexcept
+    {
+        return _a = _a ^ _b;
+    }
 
 	inline MemeString_t to_pointer(MemeStringStack_t& _s) noexcept
 	{

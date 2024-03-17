@@ -213,6 +213,11 @@
     <ClInclude Include="..\..\..\include\memepp\variant_fwd.hpp" />
     <ClInclude Include="..\..\..\include\memepp\variant_srcimpl.hpp" />
     <ClInclude Include="..\..\..\include\memepp\variant_tmpimpl.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\varts.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\varts_def.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\varts_fwd.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\varts_srcimpl.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\varts_tmpimpl.hpp" />
     <ClInclude Include="..\..\..\include\meme\buffer.h" />
     <ClInclude Include="..\..\..\include\meme\buffer_fwd.h" />
     <ClInclude Include="..\..\..\include\meme\common.h" />
@@ -240,6 +245,7 @@
     <ClInclude Include="..\..\..\include\meme\rune.h" />
     <ClInclude Include="..\..\..\include\meme\variant.h" />
     <ClInclude Include="..\..\..\include\meme\variant_fwd.h" />
+    <ClInclude Include="..\..\..\include\meme\varts_fwd.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\algorithm.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\atomic.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\atomic_fwd.h" />
