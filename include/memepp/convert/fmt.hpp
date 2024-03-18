@@ -32,12 +32,12 @@ namespace convert {
 	template<>
 	struct into<::fmt::string_view>
 	{
-		static _Ty into_object(const memepp::string& _v)
+		static ::fmt::string_view into_object(const memepp::string& _v)
 		{
 			return fmt::string_view{ _v.data(), static_cast<size_t>(_v.size()) };
 		}
 		
-		static _Ty into_object(const memepp::string_view& _v)
+		static ::fmt::string_view into_object(const memepp::string_view& _v)
 		{
             return fmt::string_view{ _v.data(), static_cast<size_t>(_v.size()) };
 		}
