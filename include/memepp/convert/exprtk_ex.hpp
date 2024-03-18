@@ -7,6 +7,8 @@
 #include "memepp/string.hpp"
 #include "memepp/string_view.hpp"
 
+#include <memepp/convert/common_def.hpp>
+
 namespace memepp {
 	
 	inline string from(const exprtk::type_store<float>& _other)

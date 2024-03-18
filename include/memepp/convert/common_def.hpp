@@ -2,8 +2,6 @@
 #ifndef MEMEPP_CONVERT_COMMON_DEF_HPP_INCLUDED
 #define MEMEPP_CONVERT_COMMON_DEF_HPP_INCLUDED
 
-#include "meme/string_fwd.h"
-
 #include "memepp/string_def.hpp"
 #include "memepp/string_view_def.hpp"
 
