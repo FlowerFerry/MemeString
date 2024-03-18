@@ -8,27 +8,68 @@
 #include <memepp/string.hpp>
 #include <memepp/string_view.hpp>
 
-namespace memepp {
+#include <memepp/convert/common_def.hpp>
 
-inline memepp::string from(yyjson_val *value) 
-{
-    if (MEGO_SYMBOL__UNLIKELY(!yyjson_is_str(value))) 
-    {
-        return {};
-    }
-    return { yyjson_get_str(value), static_cast<mmint_t>(yyjson_get_len(value)) };
+namespace memepp  {
+namespace convert {
+
+	template<>
+	struct from<yyjson_val*>
+	{
+		static memepp::string from_object(const yyjson_val* & _v)
+		{
+            if (MEGO_SYMBOL__UNLIKELY(!yyjson_is_str(value)))
+            {
+                return {};
+            }
+            return { yyjson_get_str(value), static_cast<mmint_t>(yyjson_get_len(value)) };
+		}
+		static memepp::string from_object(yyjson_val* && _v)
+		{
+            if (MEGO_SYMBOL__UNLIKELY(!yyjson_is_str(value)))
+            {
+                return {};
+            }
+            return { yyjson_get_str(value), static_cast<mmint_t>(yyjson_get_len(value)) };
+		}
+	};
+
+	template<>
+	struct view<yyjson_val*>
+	{
+		static memepp::string_view view_object(const yyjson_val* & _v)
+		{
+            if (MEGO_SYMBOL__UNLIKELY(!yyjson_is_str(value)))
+            {
+                return {};
+            }
+            return { yyjson_get_str(value), static_cast<mmint_t>(yyjson_get_len(value)) };
+		}
+	};
+    
+
+
 }
 
-inline memepp::string_view view(yyjson_val *value) 
-{
-    if (MEGO_SYMBOL__UNLIKELY(!yyjson_is_str(value))) 
-    {
-        return {};
-    }
-    return { yyjson_get_str(value), static_cast<mmint_t>(yyjson_get_len(value)) };
-}
+//inline memepp::string from(yyjson_val *value) 
+//{
+//    if (MEGO_SYMBOL__UNLIKELY(!yyjson_is_str(value))) 
+//    {
+//        return {};
+//    }
+//    return { yyjson_get_str(value), static_cast<mmint_t>(yyjson_get_len(value)) };
+//}
+//
+//inline memepp::string_view view(yyjson_val *value) 
+//{
+//    if (MEGO_SYMBOL__UNLIKELY(!yyjson_is_str(value))) 
+//    {
+//        return {};
+//    }
+//    return { yyjson_get_str(value), static_cast<mmint_t>(yyjson_get_len(value)) };
+//}
 
-inline memepp::string from(yyjson_val* value, const memepp::string_view& key, const memepp::string_view& default_value) 
+inline memepp::string from_yyjson_value(yyjson_val* value, const memepp::string_view& key, const memepp::string_view& default_value)
 {
     yyjson_val* val = yyjson_obj_getn(value, key.data(), static_cast<size_t>(key.size()));
     if (MEGO_SYMBOL__UNLIKELY(!val)) 
