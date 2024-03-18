@@ -59,6 +59,7 @@ namespace memepp {
 	{
 		return memepp::string_view{ _other.begin(), static_cast<MemeInteger_t>(_other.size()) };
 	}
+	
 };
 
 template<typename _Ty>
