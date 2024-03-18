@@ -4,8 +4,8 @@
 
 #include "meme/string_fwd.h"
 
-#include "memepp/string_fwd.hpp"
-#include "memepp/string_view_fwd.hpp"
+#include "memepp/string_def.hpp"
+#include "memepp/string_view_def.hpp"
 
 #include <utility>
 
