@@ -33,7 +33,7 @@ namespace memepp {
 	};
     using split_behav_t = split_behavior_t;
 
-	enum class case_sensitivity_t
+	enum class case_sensitivity_t : mmint_t
 	{
 		all_insensitive = MemeFlag_AllInsensitive,
 		case_sensitive  = MemeFlag_CaseSensitive,
