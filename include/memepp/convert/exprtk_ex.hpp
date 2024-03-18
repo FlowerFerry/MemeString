@@ -8,18 +8,40 @@
 #include "memepp/string_view.hpp"
 
 namespace memepp {
-
-	template<typename _Ty>
-	inline string from(const exprtk::type_store<_Ty>& _other)
+	
+	inline string from(const exprtk::type_store<float>& _other)
 	{
-		typename exprtk::type_store<_Ty>::string_view sv(_other);
+		typename exprtk::type_store<float>::string_view sv(_other);
 		return memepp::string{ sv.begin(), static_cast<MemeInteger_t>(sv.size()) };
 	}
-
-	template<typename _Ty>
-	inline string_view view(const exprtk::type_store<_Ty>& _other)
+	
+	inline string from(const exprtk::type_store<double>& _other)
 	{
-		typename exprtk::type_store<_Ty>::string_view sv(_other);
+		typename exprtk::type_store<double>::string_view sv(_other);
+		return memepp::string{ sv.begin(), static_cast<MemeInteger_t>(sv.size()) };
+	}
+	
+	inline string from(const exprtk::type_store<long double>& _other)
+	{
+		typename exprtk::type_store<long double>::string_view sv(_other);
+		return memepp::string{ sv.begin(), static_cast<MemeInteger_t>(sv.size()) };
+	}
+	
+	inline string_view view(const exprtk::type_store<float>& _other)
+	{
+		typename exprtk::type_store<float>::string_view sv(_other);
+		return memepp::string_view{ sv.begin(), static_cast<MemeInteger_t>(sv.size()) };
+	}
+	
+	inline string_view view(const exprtk::type_store<double>& _other)
+	{
+		typename exprtk::type_store<double>::string_view sv(_other);
+		return memepp::string_view{ sv.begin(), static_cast<MemeInteger_t>(sv.size()) };
+	}
+	
+	inline string_view view(const exprtk::type_store<long double>& _other)
+	{
+		typename exprtk::type_store<long double>::string_view sv(_other);
 		return memepp::string_view{ sv.begin(), static_cast<MemeInteger_t>(sv.size()) };
 	}
 
