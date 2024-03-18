@@ -17,7 +17,7 @@ namespace convert {
 	{
 		static memepp::string from_object(const exprtk::type_store<_Ty>& _v)
 		{
-			typename exprtk::type_store<float>::string_view sv(_other);
+			typename exprtk::type_store<float>::string_view sv(_v);
 			return memepp::string{ sv.begin(), static_cast<MemeInteger_t>(sv.size()) };
 		}
 	};
