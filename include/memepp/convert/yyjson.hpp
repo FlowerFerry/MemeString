@@ -18,11 +18,11 @@ namespace convert {
 	{
 		static memepp::string from_object(const yyjson_val* & _v)
 		{
-            if (MEGO_SYMBOL__UNLIKELY(!yyjson_is_str(value)))
+            if (MEGO_SYMBOL__UNLIKELY(!yyjson_is_str(_v)))
             {
                 return {};
             }
-            return { yyjson_get_str(value), static_cast<mmint_t>(yyjson_get_len(value)) };
+            return { yyjson_get_str(_v), static_cast<mmint_t>(yyjson_get_len(_v)) };
 		}
 		static memepp::string from_object(yyjson_val* && _v)
 		{
@@ -30,7 +30,7 @@ namespace convert {
             {
                 return {};
             }
-            return { yyjson_get_str(value), static_cast<mmint_t>(yyjson_get_len(value)) };
+            return { yyjson_get_str(_v), static_cast<mmint_t>(yyjson_get_len(_v)) };
 		}
 	};
 
@@ -39,11 +39,11 @@ namespace convert {
 	{
 		static memepp::string_view view_object(const yyjson_val* & _v)
 		{
-            if (MEGO_SYMBOL__UNLIKELY(!yyjson_is_str(value)))
+            if (MEGO_SYMBOL__UNLIKELY(!yyjson_is_str(_v)))
             {
                 return {};
             }
-            return { yyjson_get_str(value), static_cast<mmint_t>(yyjson_get_len(value)) };
+            return { yyjson_get_str(_v), static_cast<mmint_t>(yyjson_get_len(_v)) };
 		}
 	};
     

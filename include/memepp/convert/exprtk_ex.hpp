@@ -25,9 +25,9 @@ namespace convert {
 	template<typename _Ty>
 	struct view<exprtk::type_store<_Ty>>
 	{
-		static memepp::string_view view_object(const <exprtk::type_store<_Ty>>& _v)
+		static memepp::string_view view_object(const exprtk::type_store<_Ty>& _v)
 		{
-			typename exprtk::type_store<double>::string_view sv(_other);
+			typename exprtk::type_store<double>::string_view sv(_v);
 			return memepp::string_view{ sv.begin(), static_cast<MemeInteger_t>(sv.size()) };
 		}
 	};
@@ -38,7 +38,7 @@ namespace convert {
 	{
 		static memepp::string_view view_object(const exprtk::type_store<float>::string_view& _v)
 		{
-			return memepp::string_view{ _other.begin(), static_cast<mmint_t>(_other.size()) };
+			return memepp::string_view{ _v.begin(), static_cast<mmint_t>(_v.size()) };
 		}
 	};
 	
@@ -47,7 +47,7 @@ namespace convert {
 	{
 		static memepp::string_view view_object(const exprtk::type_store<double>::string_view& _v)
 		{
-			return memepp::string_view{ _other.begin(), static_cast<mmint_t>(_other.size()) };
+			return memepp::string_view{ _v.begin(), static_cast<mmint_t>(_v.size()) };
 		}
 	};
 	
@@ -56,7 +56,7 @@ namespace convert {
 	{
 		static memepp::string_view view_object(const exprtk::type_store<long double>::string_view& _v)
 		{
-			return memepp::string_view{ _other.begin(), static_cast<mmint_t>(_other.size()) };
+			return memepp::string_view{ _v.begin(), static_cast<mmint_t>(_v.size()) };
 		}
 	};
 	

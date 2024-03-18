@@ -15,12 +15,12 @@ namespace convert {
 	template<>
 	struct from<rapidjson::GenericStringRef<char>>
 	{
-		static memepp::string from_object(const rapidjson::GenericStringRef<char>& _v)
+		static memepp::string from_object(const rapidjson::GenericStringRef<char>& _s)
 		{
 			return memepp::string{ _s.s, static_cast<MemeInteger_t>(_s.length) };
 		}
 		
-		static memepp::string from_object(rapidjson::GenericStringRef<char>&& _v)
+		static memepp::string from_object(rapidjson::GenericStringRef<char>&& _s)
 		{
 			return memepp::string{ _s.s, static_cast<MemeInteger_t>(_s.length) };
 		}
@@ -29,7 +29,7 @@ namespace convert {
 	template<>
 	struct view<rapidjson::GenericStringRef<char>>
 	{
-		static memepp::string_view view_object(const rapidjson::GenericStringRef<char>& _v)
+		static memepp::string_view view_object(const rapidjson::GenericStringRef<char>& _s)
 		{
 			return memepp::string_view{ _s.s, static_cast<MemeInteger_t>(_s.length) };
 		}
@@ -38,12 +38,12 @@ namespace convert {
 	template<>
 	struct into<rapidjson::GenericStringRef<char>>
 	{
-		static rapidjson::GenericStringRef<char> into_object(const memepp::string& _v)
+		static rapidjson::GenericStringRef<char> into_object(const memepp::string& _s)
 		{
 			return rapidjson::GenericStringRef<char>{ _s.data(), static_cast<rapidjson::SizeType>(_s.size()) };
 		}
 		
-		static rapidjson::GenericStringRef<char> into_object(const memepp::string_view& _v)
+		static rapidjson::GenericStringRef<char> into_object(const memepp::string_view& _s)
 		{
 			return rapidjson::GenericStringRef<char>{ _s.data(), static_cast<rapidjson::SizeType>(_s.size()) };
 		}
@@ -54,12 +54,12 @@ namespace convert {
 	template<>
 	struct from<rapidjson::StringBuffer>
 	{
-		static memepp::string from_object(const rapidjson::StringBuffer& _v)
+		static memepp::string from_object(const rapidjson::StringBuffer& _s)
 		{
 			return memepp::string{ _s.GetString(), static_cast<MemeInteger_t>(_s.GetLength()) };
 		}
 		
-		static memepp::string from_object(rapidjson::StringBuffer&& _v)
+		static memepp::string from_object(rapidjson::StringBuffer&& _buf)
 		{
 			static const auto destruct_func = [](void* _object) {
 				delete reinterpret_cast<rapidjson::StringBuffer*>(_object); };
@@ -96,7 +96,7 @@ namespace convert {
 	template<>
 	struct view<rapidjson::StringBuffer>
 	{
-		static memepp::string_view view_object(const rapidjson::StringBuffer& _v)
+		static memepp::string_view view_object(const rapidjson::StringBuffer& _s)
 		{
 			return memepp::string_view{ _s.GetString(), static_cast<MemeInteger_t>(_s.GetLength()) };
 		}
