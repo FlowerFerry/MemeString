@@ -70,4 +70,5 @@ inline memepp::string mm_from(const exprtk::type_store<_Ty>& _other)
     return memepp::from(_other);
 }
 
+#include <memepp/convert/common.hpp>
 #endif // !MEMEPP_CONVERT_EXPRTK_HPP_INCLUDED

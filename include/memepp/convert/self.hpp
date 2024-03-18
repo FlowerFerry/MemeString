@@ -85,4 +85,5 @@ inline memepp::string mm_from(const memepp::string_view& _s)
     return _s.to_string();
 }
 
+#include <memepp/convert/common.hpp>
 #endif // !MEMEPP_CONVERT_SELF_HPP_INCLUDED

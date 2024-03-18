@@ -96,4 +96,5 @@ inline memepp::string mm_from(std::vector<uint8_t>&& _list)
     return memepp::from(std::move(_list));
 }
 
+#include <memepp/convert/common.hpp>
 #endif // !MEMEPP_CONVERT_STD_INITIALIZER_LIST_HPP_INCLUDED
