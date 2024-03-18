@@ -40,6 +40,5 @@ inline memepp::string mm_from(const std::string_view& _s)
 	return memepp::from(_s);
 }
 
-#include <memepp/convert/common.hpp>
 
 #endif // !MEMEPP_CONVERT_STRING_VIEW_HPP_INCLUDED

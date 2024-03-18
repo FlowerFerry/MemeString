@@ -113,5 +113,5 @@ inline memepp::string mm_from(std::string&& _s)
 	return memepp::from(std::move(_s));
 }
 
-#include <memepp/convert/common.hpp>
+
 #endif // !MEMEPP_CONVERT_STD_STRING_HPP_INCLUDED

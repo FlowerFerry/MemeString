@@ -62,6 +62,5 @@ inline memepp::string mm_from(std::u16string&& _s)
     return memepp::from(std::move(_s));
 }
 
-#include <memepp/convert/common.hpp>
 
 #endif // !MEMEPP_CONVERT_STD_U16STRING_HPP_INCLUDED
