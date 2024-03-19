@@ -7,40 +7,40 @@
 #define MemeMath_Max(a, b) (((a) > (b)) ? (a) : (b))
 #define MemeMath_Min(a, b) (((a) < (b)) ? (a) : (b))
 
-MemeInteger_t MemeImpl_SearchByViolenceWithSensitivity(
-	const uint8_t* _source, MemeInteger_t _source_len, uint8_t _key, 
-	MemeFlag_CaseSensitivity_t _cs
+mmint_t MemeImpl_SearchByViolenceWithSensitivity(
+	const uint8_t* _source, mmint_t _source_len, uint8_t _key, 
+	mmflag_case_sensit_t _cs
 );
 
-MemeInteger_t MemeImpl_ReverseSearchByViolenceWithSensitivity(
-	const uint8_t* _source, MemeInteger_t _source_len, uint8_t _key,
-	MemeFlag_CaseSensitivity_t _cs
+mmint_t MemeImpl_ReverseSearchByViolenceWithSensitivity(
+	const uint8_t* _source, mmint_t _source_len, uint8_t _key,
+	mmflag_case_sensit_t _cs
 );
 
-MemeInteger_t MemeImpl_SearchByBoyerMoore
+mmint_t MemeImpl_SearchByBoyerMoore
 (
-	const uint8_t* _haystack, MemeInteger_t _haystack_len,
-	const uint8_t* _needle, MemeInteger_t _needle_len
+	const uint8_t* _haystack, mmint_t _haystack_len,
+	const uint8_t* _needle, mmint_t _needle_len
 );
 
-MemeInteger_t MemeImpl_ReverseSearchByBoyerMoore
+mmint_t MemeImpl_ReverseSearchByBoyerMoore
 (
-	const uint8_t* _haystack, MemeInteger_t _haystack_len,
-	const uint8_t* _needle, MemeInteger_t _needle_len
+	const uint8_t* _haystack, mmint_t _haystack_len,
+	const uint8_t* _needle, mmint_t _needle_len
 );
 
-MemeInteger_t MemeImpl_SearchByBoyerMooreWithSensitivity
+mmint_t MemeImpl_SearchByBoyerMooreWithSensitivity
 (
-	const uint8_t* _haystack, MemeInteger_t _haystack_len,
-	const uint8_t* _needle, MemeInteger_t _needle_len,
-	MemeFlag_CaseSensitivity_t _cs
+	const uint8_t* _haystack, mmint_t _haystack_len,
+	const uint8_t* _needle, mmint_t _needle_len,
+	mmflag_case_sensit_t _cs
 );
 
-MemeInteger_t MemeImpl_ReverseSearchByBoyerMooreWithSensitivity
+mmint_t MemeImpl_ReverseSearchByBoyerMooreWithSensitivity
 (
-	const uint8_t* _haystack, MemeInteger_t _haystack_len,
-	const uint8_t* _needle, MemeInteger_t _needle_len,
-	MemeFlag_CaseSensitivity_t _cs
+	const uint8_t* _haystack, mmint_t _haystack_len,
+	const uint8_t* _needle, mmint_t _needle_len,
+	mmflag_case_sensit_t _cs
 );
 
 

@@ -106,6 +106,146 @@ MG_CAPI_INLINE int
     }
 }
 
+MG_CAPI_INLINE int
+MemeRuneIndex_isChPunct(const mmbyte_t* _buf, int _size)
+{
+    assert(_buf != NULL);
+
+    if (_size < 0)
+        _size = mmutf_u8rune_char_size(_buf[0]);
+
+    switch (_size) {
+    case 2:
+        // is ·
+        return (_buf[0] == 0xC2 && _buf[1] == 0xB7) ? 1 : 0;
+    case 3: {
+        if (_buf[0] == 0xE3 && _buf[1] == 0x80)
+        {
+            switch (_buf[2]) {
+            case 0x81: // is 、
+            case 0x82: // is 。
+            case 0x88: // is 〈
+            case 0x89: // is 〉
+            case 0x8A: // is 《
+            case 0x8B: // is 》
+            case 0x8C: // is 「
+            case 0x8D: // is 」
+            case 0x8E: // is 『
+            case 0x8F: // is 』
+            case 0x90: // is 【
+            case 0x91: // is 】
+            case 0x94: // is 〔
+            case 0x95: // is 〕
+                return 1;
+            default:
+                return 0;
+            }
+        }
+        else if (_buf[0] == 0xEF && _buf[1] == 0xBC)
+        {
+            switch (_buf[2]) {
+            case 0x81: // is ！
+            case 0x82: // is ＂
+            case 0x83: // is ＃
+            case 0x84: // is ＄
+            case 0x85: // is ％
+            case 0x86: // is ＆
+            case 0x87: // is ＇
+            case 0x88: // is （
+            case 0x89: // is ）
+            case 0x8A: // is ＊
+            case 0x8B: // is ＋
+            case 0x8C: // is ，
+            case 0x8D: // is －
+            case 0x8E: // is ．
+            case 0x8F: // is ／
+            case 0x9A: // is ：
+            case 0x9B: // is ；
+            case 0x9C: // is ＜
+            case 0x9D: // is ＝
+            case 0x9E: // is ＞
+            case 0x9F: // is ？
+            case 0xA0: // is ＠
+            case 0xBB: // is ［
+            case 0xBC: // is ＼
+            case 0xBD: // is ］
+            case 0xBE: // is ＾
+            case 0xBF: // is ＿
+            case 0xC0: // is ｀
+                return 1;
+            default:
+                return 0;
+            }
+        }
+        else if (_buf[0] == 0xEF && _buf[1] == 0xBD)
+        {
+            switch (_buf[2]) {
+            case 0x9B: // is ｛
+            case 0x9C: // is ｜
+            case 0x9D: // is ｝
+            case 0x9E: // is ～
+                return 1;
+            default:
+                return 0;
+            }
+        }
+        else if (_buf[0] == 0xE2 && _buf[1] == 0x80)
+        {
+            switch (_buf[2]) {
+            case 0x80:
+            case 0x98: // is ‘
+            case 0x99: // is ’
+            case 0x9C: // is “
+            case 0x9D: // is ”
+            case 0xA6: // is …
+                return 1;
+            default:
+                return 0;
+            }
+        }
+        else if (_buf[0] == 0xEF && _buf[1] == 0xB8)
+        {
+            switch (_buf[2]) {
+            case 0xB5: // is ︵
+            case 0xB6: // is ︶
+            case 0xB7: // is ︷
+            case 0xB8: // is ︸
+            case 0xB9: // is ︹
+            case 0xBA: // is ︺
+            case 0xBB: // is ︻
+            case 0xBC: // is ︼
+            case 0xBD: // is ︽
+            case 0xBE: // is ︾
+            case 0xBF: // is ︿
+                return 1;
+            default:
+                return 0;
+            }
+        }
+        else if (_buf[0] == 0xEF && _buf[1] == 0xB9)
+        {
+            switch (_buf[2]) {
+            case 0x80: // is ﹀
+            case 0x81: // is ﹁
+            case 0x82: // is ﹂
+            case 0x83: // is ﹃
+            case 0x84: // is ﹄
+            case 0x87: // is ﹇
+            case 0x88: // is ﹈
+                return 1;
+            default:
+                return 0;
+            }
+        }
+        else {
+            // is ─
+            return (_buf[0] == 0xE2 && _buf[1] == 0x94 && _buf[2] == 0x80) ? 1 : 0;
+        }
+    }
+    default: return 0;
+    }
+}
+
 MG_CAPI_INLINE MemeRune_t
     MemeRune_getInitObject()
 {
@@ -234,136 +374,7 @@ MG_CAPI_INLINE int
 {
     assert(_s != NULL);
     
-    switch (MemeRune_size(_s)) {
-    case 2: 
-        // is ·
-        return (_s->byte[0] == 0xC2 && _s->byte[1] == 0xB7) ? 1: 0;
-    case 3: {
-        if (_s->byte[0] == 0xE3 && _s->byte[1] == 0x80) 
-        {
-            switch (_s->byte[2]) {
-            case 0x81: // is 、
-            case 0x82: // is 。
-            case 0x88: // is 〈
-            case 0x89: // is 〉
-            case 0x8A: // is 《
-            case 0x8B: // is 》
-            case 0x8C: // is 「
-            case 0x8D: // is 」
-            case 0x8E: // is 『
-            case 0x8F: // is 』
-            case 0x90: // is 【
-            case 0x91: // is 】
-            case 0x94: // is 〔
-            case 0x95: // is 〕
-                return 1;
-            default: 
-                return 0;
-            }
-        }
-        else if (_s->byte[0] == 0xEF && _s->byte[1] == 0xBC) 
-        {
-            switch (_s->byte[2]) {
-            case 0x81: // is ！
-            case 0x82: // is ＂
-            case 0x83: // is ＃
-            case 0x84: // is ＄
-            case 0x85: // is ％
-            case 0x86: // is ＆
-            case 0x87: // is ＇
-            case 0x88: // is （
-            case 0x89: // is ）
-            case 0x8A: // is ＊
-            case 0x8B: // is ＋
-            case 0x8C: // is ，
-            case 0x8D: // is －
-            case 0x8E: // is ．
-            case 0x8F: // is ／
-            case 0x9A: // is ：
-            case 0x9B: // is ；
-            case 0x9C: // is ＜
-            case 0x9D: // is ＝
-            case 0x9E: // is ＞
-            case 0x9F: // is ？
-            case 0xA0: // is ＠
-            case 0xBB: // is ［
-            case 0xBC: // is ＼
-            case 0xBD: // is ］
-            case 0xBE: // is ＾
-            case 0xBF: // is ＿
-            case 0xC0: // is ｀
-                return 1;
-            default:
-                return 0;
-            }
-        }
-        else if (_s->byte[0] == 0xEF && _s->byte[1] == 0xBD)
-        {
-            switch (_s->byte[2]) {
-            case 0x9B: // is ｛
-            case 0x9C: // is ｜
-            case 0x9D: // is ｝
-            case 0x9E: // is ～
-                return 1;
-            default:
-                return 0;
-            }
-        }
-        else if (_s->byte[0] == 0xE2 && _s->byte[1] == 0x80)
-        {
-            switch (_s->byte[2]) {
-            case 0x80:
-            case 0x98: // is ‘
-            case 0x99: // is ’
-            case 0x9C: // is “
-            case 0x9D: // is ”
-            case 0xA6: // is …
-                return 1;
-            default:
-                return 0;
-            }
-        }
-        else if (_s->byte[0] == 0xEF && _s->byte[1] == 0xB8)
-        {
-            switch (_s->byte[2]) {
-            case 0xB5: // is ︵
-            case 0xB6: // is ︶
-            case 0xB7: // is ︷
-            case 0xB8: // is ︸
-            case 0xB9: // is ︹
-            case 0xBA: // is ︺
-            case 0xBB: // is ︻
-            case 0xBC: // is ︼
-            case 0xBD: // is ︽
-            case 0xBE: // is ︾
-            case 0xBF: // is ︿
-                return 1;
-            default:
-                return 0;
-            }
-        }
-        else if (_s->byte[0] == 0xEF && _s->byte[1] == 0xB9)
-        {
-            switch (_s->byte[2]) {
-            case 0x80: // is ﹀
-            case 0x81: // is ﹁
-            case 0x82: // is ﹂
-            case 0x83: // is ﹃
-            case 0x84: // is ﹄
-            case 0x87: // is ﹇
-            case 0x88: // is ﹈
-                return 1;
-            default:
-                return 0;
-            }
-        }
-        else {
-            // is ─
-            return (_s->byte[0] == 0xE2 && _s->byte[1] == 0x94 && _s->byte[2] == 0x80) ? 1: 0;
-        }
-    }
-    default: return 0;
-    }
+    return MemeRuneIndex_isChPunct(MemeRune_data(_s), (int)MemeRune_size(_s)) == 0 ? 0 : 1;
 }
 
 MG_CAPI_INLINE int

@@ -48,5 +48,11 @@ typedef struct _MemeVariant_t
 static_assert(sizeof(MemeVariant_t) == MMVAR__OBJ_SIZE, "MemeVariant_t size mismatch");
 static_assert(sizeof(MemeVariantData_t) == MMSTR__OBJ_SIZE, "MemeVariantData_t size mismatch");
 
+mmint_t MemeVariantImpl_basicNumberToInt (const MemeVariant_t* _var);
+size_t  MemeVariantImpl_basicNumberToUInt(const MemeVariant_t* _var);
+
+int64_t  MemeVariantImpl_basicNumberToInt64 (const MemeVariant_t* _var);
+uint64_t MemeVariantImpl_basicNumberToUInt64(const MemeVariant_t* _var);
+
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_IMPL_VARIANT_H_INCLUDED

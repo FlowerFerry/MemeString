@@ -343,6 +343,12 @@ MEME_API MemeInteger_t
 		const mmbyte_t* _needle, mmint_t _needle_len,
 		MemeFlag_CaseSensitivity_t _cs);
 
+MEME_API mmint_t
+	MEME_STDCALL MemeString_indexOfUtf8bytes(
+		mmstr_cptr_t _str, mmint_t _offset, mmint_t _limit,
+		const mmbyte_t* _needle, mmint_t _needle_len,
+		int _full_match, mmflag_case_sensit_t _cs);
+
 MEME_API MemeInteger_t
 MEME_STDCALL MemeString_indexOfWithByte(
 	MemeString_Const_t _s, MemeInteger_t _offset, MemeByte_t _byte,
@@ -353,6 +359,11 @@ MEME_API MemeInteger_t
 		MemeString_Const_t _s, MemeInteger_t _offset,
 		MemeString_Const_t _other, MemeFlag_CaseSensitivity_t _cs);
 
+MEME_API mmint_t
+	MEME_STDCALL MemeString_indexOfOther(
+		mmstr_cptr_t _str, mmint_t _offset, mmint_t _limit,
+		mmstr_cptr_t _other, mmint_t _count, int _full_match, mmflag_case_sensit_t _cs);
+
 MEME_API MemeInteger_t
 MEME_STDCALL MemeString_indexByCondByteFunc(
     MemeString_Const_t _s, MemeInteger_t _offset,
@@ -360,9 +371,20 @@ MEME_STDCALL MemeString_indexByCondByteFunc(
 
 MEME_API MemeInteger_t
 MEME_STDCALL MemeString_lastIndexOfWithUtf8bytes(
-    MemeString_Const_t _s, MemeInteger_t _offset,
+    MemeString_Const_t _s, MemeInteger_t _limit,
     const MemeByte_t* _needle, MemeInteger_t _needle_len,
     MemeFlag_CaseSensitivity_t _cs);
+
+MEME_API mmint_t
+MEME_STDCALL MemeString_lastIndexOfUtf8bytes(
+	mmstr_cptr_t _s, mmint_t _offset, mmint_t _limit,
+    const mmbyte_t* _needle, mmint_t _needle_len, 
+	int _full_match, mmflag_case_sensit_t _cs);
+
+MEME_API mmint_t
+MEME_STDCALL MemeString_lastIndexOfOther(
+	mmstr_cptr_t _s, mmint_t _offset, mmint_t _limit, 
+	mmstr_cptr_t _other, mmint_t _count, int _full_match, mmflag_case_sensit_t _cs);
 
 MEME_API MemeInteger_t
 MEME_STDCALL MemeString_matchCountWithUtf8bytes(

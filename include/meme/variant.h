@@ -159,6 +159,11 @@ MEME_API int MEME_STDCALL
     MemeVariantStack_isType(
         const mmvarstk_t* _obj, size_t _object_size, MemeMetaTypeId_t _type);
 
+////! @param _obj must be initialized
+//MEME_API int MEME_STDCALL
+//    MemeVariantStack_isEqual(
+//        const mmvarstk_t* _lhs, const mmvarstk_t* _rhs, size_t _object_size);
+
 MEME_API mgec_t MEME_STDCALL
     MemeVariantStack_convToByte(
         mmvarstk_t* _obj, size_t _object_size, mmbyte_t* _out);

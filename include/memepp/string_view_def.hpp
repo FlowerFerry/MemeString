@@ -98,12 +98,22 @@ namespace memepp {
 
 		size_type index_of(const string_view& _other,
 			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
+		
+        size_type index_of(const string_view& _other, bool _full_match,
+			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
 
 		size_type index_of(const char* _utf8,
 			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
+		
+		size_type index_of(const char* _utf8, bool _full_match,
+			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
 
-		//size_type index_of_with_offset(const char* _utf8, size_type _offset,
-		//	case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
+		size_type last_index_of(const char* _utf8, bool _full_match,
+			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
+
+		size_type last_index_of(const char* _utf8, size_type _u8len,
+			size_type _offset, size_type _limit, bool _full_match,
+			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
 
 		bool contains(const string_view& _sv) const noexcept;
 		bool contains(const char* _utf8) const noexcept;

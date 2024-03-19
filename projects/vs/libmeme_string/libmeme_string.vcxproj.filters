@@ -387,6 +387,9 @@
     <ClInclude Include="..\..\..\include\memepp\varts_tmpimpl.hpp">
       <Filter>头文件\memepp</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\include_private\meme\impl\variant.h">
+      <Filter>头文件\meme_private\impl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

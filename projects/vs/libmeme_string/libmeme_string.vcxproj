@@ -259,6 +259,7 @@
     <ClInclude Include="..\..\..\include_private\meme\impl\string_p__user.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\utf\converter.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\utf\converter_list.h" />
+    <ClInclude Include="..\..\..\include_private\meme\impl\variant.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>

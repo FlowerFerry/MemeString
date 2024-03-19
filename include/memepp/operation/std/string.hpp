@@ -5,7 +5,7 @@
 #include "memepp/string.hpp"
 #include "memepp/string_view.hpp"
 #include "memepp/string_builder.hpp"
-#include "memepp/convert/common_def.hpp"
+#include "memepp/convert/std/string.hpp"
 
 #include <string>
 

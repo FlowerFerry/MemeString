@@ -1,5 +1,7 @@
 
 #include "meme/string.h"
+#include <meme/utf/u8rune.h>
+#include <meme/rune.h>
 #include "meme/impl/string.h"
 #include "meme/impl/string_p__user.h"
 #include "meme/impl/string_p__small.h"
@@ -736,6 +738,71 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_indexOfWithUtf8bytesAndSizeLimit(
     return index == -1 ? -1 : _offset + index;
 }
 
+MEME_API mmint_t
+MEME_STDCALL MemeString_indexOfUtf8bytes(
+	mmstr_cptr_t _str, mmint_t _offset, mmint_t _limit,
+	const mmbyte_t* _needle, mmint_t _needle_len,
+	int _full_match, mmflag_case_sensit_t _cs)
+{
+	const mmbyte_t* srcPointer = MemeString_byteData(_str);
+	mmint_t srcCount = MemeString_byteSize(_str);
+	mmint_t index = -1;
+
+	assert(_str != NULL && _needle != NULL && MemeString_indexOfUtf8bytes != NULL);
+
+	if (_offset < 0)
+		_offset = 0;
+	if (_offset >= srcCount)
+		return -1;
+
+	if (_limit < 0 || _limit > srcCount - _offset)
+		_limit = srcCount - _offset;
+
+	if (_needle_len < 0)
+		_needle_len = strlen((const char*)_needle);
+
+	if (_full_match == 0) {
+		index = MemeImpl_SearchByBoyerMooreWithSensitivity(
+			srcPointer + _offset, _limit, _needle, _needle_len, _cs);
+		return index == -1 ? -1 : _offset + index;
+	}
+
+	index = _offset;
+	for (; index < _limit; index += _needle_len)
+	{
+		const mmbyte_t* currPtr = srcPointer + _offset + index;
+		mmint_t pos = MemeImpl_SearchByBoyerMooreWithSensitivity(
+			currPtr, _limit - index, _needle, _needle_len, _cs);
+		if (pos == -1)
+			return -1;
+		
+		index   += pos;
+        currPtr += pos;
+
+		if (pos != 0 || _offset != 0) {
+			// Check the previous rune
+			int chSize = mmutf_u8rune_prev_char_size(srcPointer - _offset, currPtr);
+			if (chSize != -1 && !ispunct(currPtr[ - chSize])
+				&& !MemeRuneIndex_isSpace(currPtr - chSize, chSize)
+				&& !MemeRuneIndex_isChPunct(currPtr - chSize, chSize))
+				continue;
+		}
+
+		if (index + _needle_len < _limit) {
+			// Check the next rune
+            const mmbyte_t* runePtr = currPtr + _needle_len;
+            int chSize = mmutf_u8rune_valid(runePtr, _limit - index - _needle_len);
+			if (chSize != -1 && !ispunct(*runePtr)
+				&& !MemeRuneIndex_isSpace(runePtr, chSize)
+				&& !MemeRuneIndex_isChPunct(runePtr, chSize))
+				continue;
+		}
+
+        return _offset + index;
+	}
+	return -1;
+}
+
 MEME_API MemeInteger_t MEME_STDCALL MemeString_indexOfWithOther(
 	MemeString_Const_t _s, MemeInteger_t _offset,
 	MemeString_Const_t _other, MemeFlag_CaseSensitivity_t _cs)
@@ -753,6 +820,24 @@ MEME_API MemeInteger_t MEME_STDCALL MemeString_indexOfWithOther(
 		pointer + _offset, count - _offset,
 		MemeString_byteData(_other), MemeString_byteSize(_other), _cs);
 	return index == -1 ? -1 : _offset + index;
+}
+
+MEME_API mmint_t
+MEME_STDCALL MemeString_indexOfOther(
+	mmstr_cptr_t _str, mmint_t _offset, mmint_t _limit,
+	mmstr_cptr_t _other, mmint_t _count, int _full_match, mmflag_case_sensit_t _cs)
+{
+    mmint_t dstCount = MemeString_byteSize(_other);
+
+	assert(_str != NULL && _other != NULL && MemeString_indexOfOther != NULL);
+
+	if (_count < 0)
+		_count = dstCount;
+    if (_count > dstCount)
+        _count = dstCount;
+
+	return MemeString_indexOfUtf8bytes(
+		_str, _offset, _limit, MemeString_byteData(_other), _count, _full_match, _cs);
 }
 
 MEME_API MemeInteger_t MEME_STDCALL 
@@ -780,22 +865,104 @@ MemeString_indexByCondByteFunc(
 
 MEME_API MemeInteger_t MEME_STDCALL 
 MemeString_lastIndexOfWithUtf8bytes(
-	MemeString_Const_t _s, MemeInteger_t _offset, 
+	MemeString_Const_t _s, MemeInteger_t _limit,
 	const MemeByte_t* _needle, MemeInteger_t _needle_len, MemeFlag_CaseSensitivity_t _cs)
 {
     const MemeByte_t* pointer = MemeString_byteData(_s);
     MemeInteger_t count = MemeString_byteSize(_s);
     MemeInteger_t index = -1;
 
-	if ((_offset < 0))
-		_offset = count;
-    
-	if ((_offset > count - 1))
-		_offset = count - 1;
+	if (_limit < 0)
+		_limit = count;    
+	if (_limit > count)
+		_limit = count;
 
     index = MemeImpl_ReverseSearchByBoyerMooreWithSensitivity(
-        pointer, _offset + 1, _needle, _needle_len, _cs);
+        pointer, _limit, _needle, _needle_len, _cs);
 	return index == -1 ? -1 : index;
+}
+
+MEME_API mmint_t
+MEME_STDCALL MemeString_lastIndexOfUtf8bytes(
+	mmstr_cptr_t _s, mmint_t _offset, mmint_t _limit,
+	const mmbyte_t* _needle, mmint_t _needle_len,
+	int _full_match, mmflag_case_sensit_t _cs)
+{
+	const MemeByte_t* pointer = MemeString_byteData(_s);
+    mmint_t count = MemeString_byteSize(_s);
+    mmint_t index = -1;
+
+    assert(_s != NULL && _needle != NULL && MemeString_lastIndexOfUtf8bytes != NULL);
+
+    if (_offset < 0)
+        _offset = 0;
+	if (_offset >= count)
+		return -1;
+	
+	if (_limit < 0)
+		_limit = count - _offset;
+    if (_limit > count - _offset)
+        _limit = count - _offset;
+
+	if (_needle_len < 0)
+        _needle_len = strlen((const char*)_needle);
+
+	if (_full_match == 0) {
+		index = MemeImpl_ReverseSearchByBoyerMooreWithSensitivity(
+			pointer + _offset, _limit, _needle, _needle_len, _cs);
+        return index == -1 ? -1 : index + _offset;
+	}
+	
+	index = _limit;
+    pointer += _offset;
+	while (index >= 0) {
+		index = MemeImpl_ReverseSearchByBoyerMooreWithSensitivity(
+			pointer, index, _needle, _needle_len, _cs);
+        if (index == -1)
+            return -1;
+
+		if (index != 0 || _offset != 0) {
+			// Check the previous rune
+			const mmbyte_t* runePtr = pointer + index;
+			int chSize = mmutf_u8rune_prev_char_size(pointer - _offset, runePtr);
+			if (chSize != -1 && !ispunct(runePtr[-chSize])
+				&& !MemeRuneIndex_isSpace(runePtr - chSize, chSize)
+				&& !MemeRuneIndex_isChPunct(runePtr - chSize, chSize))
+				continue;
+		}
+
+		if (index + _needle_len < _limit) {
+			// Check the next rune
+			const mmbyte_t* runePtr = pointer + index + _needle_len;
+			int chSize = mmutf_u8rune_valid(runePtr, _limit - index - _needle_len);
+			if (chSize != -1 && !ispunct(*runePtr)
+				&& !MemeRuneIndex_isSpace(runePtr, chSize)
+				&& !MemeRuneIndex_isChPunct(runePtr, chSize))
+				continue;
+		}
+
+		return _offset + index;
+	}
+	
+	return -1;
+}
+
+MEME_API mmint_t
+MEME_STDCALL MemeString_lastIndexOfOther(
+	mmstr_cptr_t _s, mmint_t _offset, mmint_t _limit,
+	mmstr_cptr_t _other, mmint_t _count, int _full_match, mmflag_case_sensit_t _cs)
+{
+	mmint_t dstCount = MemeString_byteSize(_other);
+
+	assert(_s != NULL && _other != NULL && MemeString_lastIndexOfOther != NULL);
+
+	if (_count < 0)
+		_count = dstCount;
+	if (_count > dstCount)
+		_count = dstCount;
+
+    return MemeString_lastIndexOfUtf8bytes(
+		_s, _offset, _limit, MemeString_byteData(_other), _count, _full_match, _cs);
 }
 
 MEME_API MemeInteger_t MEME_STDCALL 

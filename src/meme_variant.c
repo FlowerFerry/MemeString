@@ -10,6 +10,71 @@
 
 MEME_EXTERN_C_SCOPE_START
 
+
+mmint_t MemeVariantImpl_basicNumberToInt (const MemeVariant_t* _var)
+{
+    switch (_var->type) {
+    case MMMETA_TYPID__BYTE:   return (mmint_t)_var->d.b;
+    case MMMETA_TYPID__CHAR:   return (mmint_t)_var->d.c;
+    case MMMETA_TYPID__WCHAR:  return (mmint_t)_var->d.wc;
+    case MMMETA_TYPID__INT64:  return (mmint_t)_var->d.i64;
+    case MMMETA_TYPID__UINT64: return (mmint_t)_var->d.u64;
+    case MMMETA_TYPID__DOUBLE: return (mmint_t)_var->d.d;
+    default: {
+        assert(0);
+        return 0; 
+    }
+    }
+}
+
+size_t  MemeVariantImpl_basicNumberToUInt(const MemeVariant_t* _var)
+{
+    switch (_var->type) {
+    case MMMETA_TYPID__BYTE:   return (size_t)_var->d.b;
+    case MMMETA_TYPID__CHAR:   return (size_t)_var->d.c;
+    case MMMETA_TYPID__WCHAR:  return (size_t)_var->d.wc;
+    case MMMETA_TYPID__INT64:  return (size_t)_var->d.i64;
+    case MMMETA_TYPID__UINT64: return (size_t)_var->d.u64;
+    case MMMETA_TYPID__DOUBLE: return (size_t)_var->d.d;
+    default: {
+        assert(0);
+        return 0;
+    }
+    }
+}
+
+int64_t  MemeVariantImpl_basicNumberToInt64(const MemeVariant_t * _var)
+{
+    switch (_var->type) {
+    case MMMETA_TYPID__BYTE:   return (int64_t)_var->d.b;
+    case MMMETA_TYPID__CHAR:   return (int64_t)_var->d.c;
+    case MMMETA_TYPID__WCHAR:  return (int64_t)_var->d.wc;
+    case MMMETA_TYPID__INT64:  return (int64_t)_var->d.i64;
+    case MMMETA_TYPID__UINT64: return (int64_t)_var->d.u64;
+    case MMMETA_TYPID__DOUBLE: return (int64_t)_var->d.d;
+    default: {
+        assert(0);
+        return 0;
+    }
+    }
+}
+
+uint64_t MemeVariantImpl_basicNumberToUInt64(const MemeVariant_t* _var)
+{
+    switch (_var->type) {
+    case MMMETA_TYPID__BYTE:   return (uint64_t)_var->d.b;
+    case MMMETA_TYPID__CHAR:   return (uint64_t)_var->d.c;
+    case MMMETA_TYPID__WCHAR:  return (uint64_t)_var->d.wc;
+    case MMMETA_TYPID__INT64:  return (uint64_t)_var->d.i64;
+    case MMMETA_TYPID__UINT64: return (uint64_t)_var->d.u64;
+    case MMMETA_TYPID__DOUBLE: return (uint64_t)_var->d.d;
+    default: {
+        assert(0);
+        return 0;
+    }
+    }
+}
+
 MEME_API mgec_t MEME_STDCALL
     MemeVariantStack_init(
         mmvarstk_t* _obj, size_t _object_size)
@@ -542,6 +607,40 @@ MEME_API int MEME_STDCALL
         return 0;
     return (obj->type == _type) ? 1 : 0;
 }
+
+//MEME_API int MEME_STDCALL
+//    MemeVariantStack_isEqual(
+//        const mmvarstk_t* _lhs, const mmvarstk_t* _rhs, size_t _object_size)
+//{
+//    mmvar_cptr_t lhs = (mmvar_cptr_t)_lhs;
+//    mmvar_cptr_t rhs = (mmvar_cptr_t)_rhs;
+//
+//    assert(_lhs != NULL && _rhs != NULL && MemeVariantStack_isEqual != NULL);
+//    
+//    //switch (lhs->type) {
+//    //case MMMETA_TYPID__NULL:
+//    //    return (rhs->type == MMMETA_TYPID__NULL) ? 1 : 0;
+//    //case MMMETA_TYPID__CHAR:
+//    //case MMMETA_TYPID__WCHAR:
+//    //{
+//    //    MemeVariantImpl_basicNumberToInt(lhs);
+//    //    switch (rhs->type) {
+//    //    case MMMETA_TYPID__CHAR:
+//    //    }
+//    //}
+//    //case MMMETA_TYPID__INT64:
+//    //{
+//    //}
+//    //case MMMETA_TYPID__BYTE:
+//    //{
+//    //    MemeVariantImpl_basicNumberToUInt(lhs);
+//    //}
+//    //case MMMETA_TYPID__UINT64:
+//    //{}
+//    //}
+//
+//    return 0;
+//}
 
 MEME_API mgec_t MEME_STDCALL
     MemeVariantStack_setNull(

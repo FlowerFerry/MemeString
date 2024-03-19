@@ -281,4 +281,7 @@ EXPORTS
     MemeStringBuilder_appendArgByOther @264
     mmutf_u8rune_prev_char_size @265
     MemeString_isOnlyAscii @266
-    
+    MemeString_indexOfUtf8bytes @267
+    MemeString_indexOfOther @268
+    MemeString_lastIndexOfUtf8bytes @269
+    MemeString_lastIndexOfOther @270

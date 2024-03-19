@@ -139,13 +139,25 @@ namespace memepp {
 		size_type index_of(const string_view& _other,
 			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
 
-		size_type index_of(const char* _utf8,
+		size_type index_of(const string_view& _other, bool _full_match,
 			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
 
-		//size_type index_of_with_strlen(
-		//	const char* _utf8, size_type _utf8_len,
-		//	case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
-
+		size_type index_of(const char* _utf8,
+			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
+		
+		size_type index_of(const char* _utf8, bool _full_match,
+			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
+		
+		size_type index_of(const char* _utf8, size_type _u8len, size_type _offset, bool _full_match,
+			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
+		
+		size_type last_index_of(const char* _utf8, bool _full_match,
+			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
+		
+		size_type last_index_of(const char* _utf8, size_type _u8len, 
+			size_type _offset, size_type _limit, bool _full_match,
+			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
+		
 		//! @brief Returns true if this string contains the given string.
 		//! @param _sv The string to search for.
 		//! @returns True if this string contains the given string.
