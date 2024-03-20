@@ -101,6 +101,10 @@ namespace memepp {
 		
         size_type index_of(const string_view& _other, bool _full_match,
 			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
+		
+        size_type index_of(const string_view& _other, 
+			size_type _offset, size_type _limit, bool _full_match,
+			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
 
 		size_type index_of(const char* _utf8,
 			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;

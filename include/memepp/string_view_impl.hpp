@@ -376,6 +376,15 @@ namespace memepp {
             static_cast<mmflag_case_sensit_t>(_cs));
 	}
 
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::index_of(const string_view& _other,
+		size_type _offset, size_type _limit, bool _full_match, case_sensitivity_t _cs) const noexcept
+	{
+        return MemeString_indexOfOther(
+            to_pointer(native_handle()), _offset, _limit,
+            to_pointer(_other.native_handle()), -1, (_full_match ? 1 : 0),
+            static_cast<mmflag_case_sensit_t>(_cs));
+	}
+
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::index_of(
 		const char* _utf8, case_sensitivity_t _cs) const noexcept
 	{

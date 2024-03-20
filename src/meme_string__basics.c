@@ -686,7 +686,7 @@ MEME_API int MEME_STDCALL MemeString_compare(mmstr_cptr_t _s, mmstr_cptr_t _othe
 
 	rlen = memcmp(src, dst, rlen);
 	if (rlen)
-		return rlen;
+		return (int)rlen;
 
     if (srclen == dstlen)
         return 0;
