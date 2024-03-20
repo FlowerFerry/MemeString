@@ -670,6 +670,7 @@ MEME_API int MEME_STDCALL MemeString_compare(mmstr_cptr_t _s, mmstr_cptr_t _othe
     const mmbyte_t* dst = NULL;
     mmint_t srclen = 0;
 	mmint_t dstlen = 0;
+	mmint_t rlen = 0;
 
 	assert(_s);
 	assert(_other);
@@ -681,13 +682,25 @@ MEME_API int MEME_STDCALL MemeString_compare(mmstr_cptr_t _s, mmstr_cptr_t _othe
     dst = MemeString_byteData(_other);
     srclen = MemeString_byteSize(_s);
     dstlen = MemeString_byteSize(_other);
+    rlen = MemeMath_Min(srclen, dstlen);
 
-    for (; srclen > 0 && dstlen > 0; --srclen, --dstlen, ++src, ++dst) 
-	{
-        if (*src != *dst)
-            return (*src < *dst ? -1 : 1);
-    }
-    return (srclen == dstlen ? 0 : (srclen < dstlen ? -1 : 1));
+	rlen = memcmp(src, dst, rlen);
+	if (rlen)
+		return rlen;
+
+    if (srclen == dstlen)
+        return 0;
+    if (srclen < dstlen)
+        return -1;
+	else
+		return 1;
+
+ //   for (; srclen > 0 && dstlen > 0; --srclen, --dstlen, ++src, ++dst) 
+	//{
+ //       if (*src != *dst)
+ //           return (*src < *dst ? -1 : 1);
+ //   }
+ //   return (srclen == dstlen ? 0 : (srclen < dstlen ? -1 : 1));
 }
 
 MEME_API MemeInteger_t MEME_STDCALL MemeString_indexOfWithUtf8bytes(
