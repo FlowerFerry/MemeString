@@ -651,8 +651,8 @@ MEME_API mgec_t MEME_STDCALL MemeVariantStack_convToDouble(const mmvarstk_t* _ob
     case MMMETA_TYPID__STRING: {
         // The string class is not a view mode
         
-        const char* ptr = (const mmbyte_t*)MemeString_byteData((mmstr_cptr_t)&(obj->d.str));
-        const char* end = NULL;
+        const char* ptr = MemeString_cStr((mmstr_cptr_t)&(obj->d.str));
+        char* end = NULL;
         *_out = strtod(ptr, &end);
         if (ptr == end) {
             *_out = nan("");
