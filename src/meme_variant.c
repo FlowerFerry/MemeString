@@ -638,16 +638,19 @@ MEME_API mgec_t MEME_STDCALL MemeVariantStack_convToDouble(const mmvarstk_t* _ob
         return MGEC__INVAL;
 
     switch (obj->type) {
-    case MMMETA_TYPID__NULL:
-        return MGEC__OPNOTSUPP;
+    case MMMETA_TYPID__NULL: {
+        *_out = nan("");
+        return MGEC__OPNOTSUPP; 
+    }
     case MMMETA_TYPID__BYTE:
     case MMMETA_TYPID__CHAR:
     case MMMETA_TYPID__WCHAR:
     case MMMETA_TYPID__INT64:
     case MMMETA_TYPID__UINT64:
-    case MMMETA_TYPID__DOUBLE:
+    case MMMETA_TYPID__DOUBLE: {
         *_out = MemeVariantImpl_basicNumberToDouble(obj);
-        return MGEC__OK;
+        return MGEC__OK; 
+    }
     case MMMETA_TYPID__STRING: {
         // The string class is not a view mode
         
