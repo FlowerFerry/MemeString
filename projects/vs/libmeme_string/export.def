@@ -285,3 +285,7 @@ EXPORTS
     MemeString_indexOfOther @268
     MemeString_lastIndexOfUtf8bytes @269
     MemeString_lastIndexOfOther @270
+    MemeRuneIndex_isSpace @271
+    MemeRuneIndex_isFullWidthDigit @272
+    MemeRuneIndex_isChineseDigit @273
+    MemeVariantStack_convToDouble @274

@@ -99,6 +99,18 @@ namespace memepp {
     }
 
     template<typename _Ty>
+    inline mgec_t variant::try_convert(_Ty& _out) const noexcept
+    {
+        return MGEC__OPNOTSUPP;
+    }
+
+    template<>
+    inline mgec_t variant::try_convert<double>(double& _out) const noexcept
+    {
+        return MemeVariantStack_convToDouble(&data_, MMVAR__OBJ_SIZE, &_out);
+    }
+
+    template<typename _Ty>
     inline mgec_t variant::set(const _Ty& _v) noexcept
     {
         return MGEC__OPNOTSUPP;

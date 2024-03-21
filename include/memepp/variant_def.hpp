@@ -68,6 +68,27 @@ namespace memepp {
             return _default;
         }
         
+        template<typename _Ty>
+        mgec_t try_convert(_Ty& _out) const noexcept;
+
+        template<typename _Ty>
+        inline _Ty convert_or(const _Ty& _default = {}) const noexcept
+        {
+            _Ty _out = {};
+            if (try_convert(_out) == 0)
+                return _out;
+            return _default;
+        }
+
+        template<typename _Ty>
+        inline _Ty to() const noexcept
+        {
+            _Ty _out = {};
+            if (try_convert(_out) == 0)
+                return _out;
+            return {};
+        }
+
         bool is_null() const noexcept;
         bool is_type(meta::typid _type) const noexcept;
 

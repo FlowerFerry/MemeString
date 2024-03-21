@@ -8,6 +8,10 @@
 #include <meme/unsafe/buffer_view.h>
 #include <meme/impl/variant.h>
 
+#include <stdlib.h>
+#include <float.h>
+#include <math.h>
+
 MEME_EXTERN_C_SCOPE_START
 
 
@@ -68,6 +72,22 @@ uint64_t MemeVariantImpl_basicNumberToUInt64(const MemeVariant_t* _var)
     case MMMETA_TYPID__INT64:  return (uint64_t)_var->d.i64;
     case MMMETA_TYPID__UINT64: return (uint64_t)_var->d.u64;
     case MMMETA_TYPID__DOUBLE: return (uint64_t)_var->d.d;
+    default: {
+        assert(0);
+        return 0;
+    }
+    }
+}
+
+double  MemeVariantImpl_basicNumberToDouble(const MemeVariant_t* _var)
+{
+    switch (_var->type) {
+    case MMMETA_TYPID__BYTE:   return (double)_var->d.b;
+    case MMMETA_TYPID__CHAR:   return (double)_var->d.c;
+    case MMMETA_TYPID__WCHAR:  return (double)_var->d.wc;
+    case MMMETA_TYPID__INT64:  return (double)_var->d.i64;
+    case MMMETA_TYPID__UINT64: return (double)_var->d.u64;
+    case MMMETA_TYPID__DOUBLE: return (double)_var->d.d;
     default: {
         assert(0);
         return 0;
@@ -606,6 +626,49 @@ MEME_API int MEME_STDCALL
     if (_type == MMMETA_TYPID__USER)
         return 0;
     return (obj->type == _type) ? 1 : 0;
+}
+
+MEME_API mgec_t MEME_STDCALL MemeVariantStack_convToDouble(const mmvarstk_t* _obj, size_t _object_size, double* _out)
+{
+    mmvar_cptr_t obj = (mmvar_cptr_t)_obj;
+
+    assert(_obj != NULL && MemeVariantStack_convToDouble != NULL);
+
+    if (!_out)
+        return MGEC__INVAL;
+
+    switch (obj->type) {
+    case MMMETA_TYPID__NULL:
+        return MGEC__OPNOTSUPP;
+    case MMMETA_TYPID__BYTE:
+    case MMMETA_TYPID__CHAR:
+    case MMMETA_TYPID__WCHAR:
+    case MMMETA_TYPID__INT64:
+    case MMMETA_TYPID__UINT64:
+    case MMMETA_TYPID__DOUBLE:
+        *_out = MemeVariantImpl_basicNumberToDouble(obj);
+        return MGEC__OK;
+    case MMMETA_TYPID__STRING: {
+        // The string class is not a view mode
+        
+        const char* ptr = (const mmbyte_t*)MemeString_byteData((mmstr_cptr_t)&(obj->d.str));
+        const char* end = NULL;
+        *_out = strtod(ptr, &end);
+        if (ptr == end) {
+            *_out = nan("");
+            return MGEC__INVAL;
+        }
+        if (errno == ERANGE) {
+            return MGEC__RANGE;
+        }
+        return MGEC__OK;
+    }
+    //case MMMETA_TYPID__RUNE: {
+
+    //}
+    default:
+        return MGEC__OPNOTSUPP;
+    }
 }
 
 //MEME_API int MEME_STDCALL

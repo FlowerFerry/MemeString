@@ -9,6 +9,8 @@
 #include <meme/rune.h>
 #include <mego/err/ec.h>
 
+#include <stddef.h>
+
 MEME_EXTERN_C_SCOPE_START
 
 MEME_API mgec_t MEME_STDCALL
@@ -186,7 +188,7 @@ MEME_API mgec_t MEME_STDCALL
 
 MEME_API mgec_t MEME_STDCALL
     MemeVariantStack_convToDouble(
-        mmvarstk_t* _obj, size_t _object_size, double* _out);
+        const mmvarstk_t* _obj, size_t _object_size, double* _out);
 
 MEME_API mgec_t MEME_STDCALL
     MemeVariantStack_convToString(

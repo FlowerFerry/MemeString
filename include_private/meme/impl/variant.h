@@ -54,5 +54,7 @@ size_t  MemeVariantImpl_basicNumberToUInt(const MemeVariant_t* _var);
 int64_t  MemeVariantImpl_basicNumberToInt64 (const MemeVariant_t* _var);
 uint64_t MemeVariantImpl_basicNumberToUInt64(const MemeVariant_t* _var);
 
+double  MemeVariantImpl_basicNumberToDouble(const MemeVariant_t* _var);
+
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_IMPL_VARIANT_H_INCLUDED

@@ -43,7 +43,8 @@ inline mgpp::err get_phy_addr_infos(std::map<int, mgpp::netif::phy_addr_info>& _
 
         info.ifindex_ = _addr->IfIndex;
         info.ifname_  = _addr->AdapterName;
-        info.phy_addr_.assign(_addr->PhysicalAddress, _addr->PhysicalAddressLength);
+        info.phy_addr_.assign(
+            _addr->PhysicalAddress, static_cast<uint8_t>(_addr->PhysicalAddressLength));
 
         _infos[info.ifindex_] = info;
         return true;
