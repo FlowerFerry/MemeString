@@ -56,6 +56,9 @@ inline mgpp::err get_phy_addr_infos(std::map<int, mgpp::netif::phy_addr_info>& _
         if (!_addr->ifa_name)
             return true;
 
+        if (!_addr->ifa_addr)
+            return true;
+
         if (_addr->ifa_addr->sa_family == AF_PACKET)
         {
             mgpp::netif::phy_addr_info info;
