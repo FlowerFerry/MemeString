@@ -127,6 +127,30 @@ namespace memepp {
         return MemeVariantStack_convToUInt(&data_, MMVAR__OBJ_SIZE, &_out);
     }
     
+#if INTPTR_MAX != INT32_MAX
+    template<>
+    inline mgec_t variant::try_convert<int32_t>(int32_t& _out) const noexcept
+    {
+        mmint_t value;
+        mgec_t ec = MemeVariantStack_convToInt(&data_, MMVAR__OBJ_SIZE, &value);
+        if (ec != 0)
+            return ec;
+        _out = static_cast<int32_t>(value);
+        return 0;
+    }
+    
+    template<>
+    inline mgec_t variant::try_convert<uint32_t>(uint32_t& _out) const noexcept
+    {
+        size_t value;
+        mgec_t ec = MemeVariantStack_convToUInt(&data_, MMVAR__OBJ_SIZE, &value);
+        if (ec != 0)
+            return ec;
+        _out = static_cast<uint32_t>(value);
+        return 0;
+    }
+#endif
+    
     template<>
     inline mgec_t variant::try_convert<double>(double& _out) const noexcept
     {
@@ -138,7 +162,13 @@ namespace memepp {
     {
         return MGEC__OPNOTSUPP;
     }
-    
+
+    template<>
+    inline mgec_t variant::set(const bool& _v) noexcept
+    {
+        return MemeVariantStack_setInt(&data_, MMVAR__OBJ_SIZE, _v ? 1 : 0);
+    }
+
     template<>
     inline mgec_t variant::set(const mmbyte_t& _v) noexcept
     {
@@ -158,6 +188,45 @@ namespace memepp {
     }
 
     template<>
+    inline mgec_t variant::set(const int16_t& _v) noexcept
+    {
+        return MemeVariantStack_setInt(&data_, MMVAR__OBJ_SIZE, _v);
+    }
+    
+    template<>
+    inline mgec_t variant::set(const uint16_t& _v) noexcept
+    {
+        return MemeVariantStack_setUInt(&data_, MMVAR__OBJ_SIZE, _v);
+    }
+    
+    template<>
+    inline mgec_t variant::set(const mmint_t& _v) noexcept
+    {
+        return MemeVariantStack_setInt(&data_, MMVAR__OBJ_SIZE, _v);
+    }
+
+    template<>
+    inline mgec_t variant::set(const size_t& _v) noexcept
+    {
+        return MemeVariantStack_setUInt(&data_, MMVAR__OBJ_SIZE, _v);
+    }
+    
+#if INTPTR_MAX != INT32_MAX
+    template<>
+    inline mgec_t variant::set(const int32_t& _v) noexcept
+    {
+        return MemeVariantStack_setInt(&data_, MMVAR__OBJ_SIZE, _v);
+    }
+
+    template<>
+    inline mgec_t variant::set(const uint32_t& _v) noexcept
+    {
+        return MemeVariantStack_setUInt(&data_, MMVAR__OBJ_SIZE, _v);
+    }
+#endif
+    
+#if INTPTR_MAX != INT64_MAX
+    template<>
     inline mgec_t variant::set(const int64_t& _v) noexcept
     {
         return MemeVariantStack_setInt64(&data_, MMVAR__OBJ_SIZE, _v);
@@ -168,7 +237,14 @@ namespace memepp {
     {
         return MemeVariantStack_setUInt64(&data_, MMVAR__OBJ_SIZE, _v);
     }
+#endif
 
+    template<>
+    inline mgec_t variant::set(const float& _v) noexcept
+    {
+        return MemeVariantStack_setDouble(&data_, MMVAR__OBJ_SIZE, _v);
+    }
+    
     template<>
     inline mgec_t variant::set(const double& _v) noexcept
     {

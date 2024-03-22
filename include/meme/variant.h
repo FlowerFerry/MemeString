@@ -236,6 +236,16 @@ MEME_API mgec_t MEME_STDCALL
 
 //! @param _obj must be initialized
 MEME_API mgec_t MEME_STDCALL
+    MemeVariantStack_setInt(
+        mmvarstk_t* _obj, size_t _object_size, mmint_t _val);
+
+//! @param _obj must be initialized
+MEME_API mgec_t MEME_STDCALL
+    MemeVariantStack_setUInt(
+        mmvarstk_t* _obj, size_t _object_size, size_t _val);
+
+//! @param _obj must be initialized
+MEME_API mgec_t MEME_STDCALL
     MemeVariantStack_setInt64(
         mmvarstk_t* _obj, size_t _object_size, int64_t _val);
 

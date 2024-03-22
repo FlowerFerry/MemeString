@@ -854,6 +854,40 @@ MEME_API mgec_t MEME_STDCALL
     return MemeVariantStack_initByWChar(_obj, _object_size, _val);
 }
 
+//! @param _obj must be initialized
+MEME_API mgec_t MEME_STDCALL
+MemeVariantStack_setInt(
+    mmvarstk_t* _obj, size_t _object_size, mmint_t _val)
+{
+    mgec_t result = MGEC__OK;
+    mmvar_ptr_t obj = (mmvar_ptr_t)_obj;
+
+    assert(_obj != NULL && MemeVariantStack_setInt != NULL);
+
+    result = MemeVariantStack_unInit(_obj, _object_size);
+    if (MEGO_SYMBOL__UNLIKELY(result != MGEC__OK))
+        return result;
+
+    return MemeVariantStack_initByInt64(_obj, _object_size, _val);
+}
+
+//! @param _obj must be initialized
+MEME_API mgec_t MEME_STDCALL
+MemeVariantStack_setUInt(
+    mmvarstk_t* _obj, size_t _object_size, size_t _val)
+{
+    mgec_t result = MGEC__OK;
+    mmvar_ptr_t obj = (mmvar_ptr_t)_obj;
+
+    assert(_obj != NULL && MemeVariantStack_setUInt != NULL);
+
+    result = MemeVariantStack_unInit(_obj, _object_size);
+    if (MEGO_SYMBOL__UNLIKELY(result != MGEC__OK))
+        return result;
+
+    return MemeVariantStack_initByUInt64(_obj, _object_size, _val);
+}
+
 MEME_API mgec_t MEME_STDCALL
     MemeVariantStack_setInt64(
         mmvarstk_t* _obj, size_t _object_size, int64_t _val)

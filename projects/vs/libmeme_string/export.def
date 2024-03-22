@@ -291,3 +291,5 @@ EXPORTS
     MemeVariantStack_convToDouble @274
     MemeVariantStack_convToInt @275
     MemeVariantStack_convToUInt @276
+    MemeVariantStack_setInt @277
+    MemeVariantStack_setUInt @278
