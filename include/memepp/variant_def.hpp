@@ -80,14 +80,14 @@ namespace memepp {
             return _default;
         }
 
-        template<typename _Ty>
-        inline _Ty to() const noexcept
-        {
-            _Ty _out = {};
-            if (try_convert(_out) == 0)
-                return _out;
-            return {};
-        }
+        //template<typename _Ty>
+        //inline _Ty to() const noexcept
+        //{
+        //    _Ty _out = {};
+        //    if (try_convert(_out) == 0)
+        //        return _out;
+        //    return {};
+        //}
 
         bool is_null() const noexcept;
         bool is_type(meta::typid _type) const noexcept;

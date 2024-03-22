@@ -220,7 +220,9 @@ MemeRuneIndex_isChineseDigit(const mmbyte_t* _buf, int _size)
 
 int MemeRune_compare(const MemeRune_t* _lhs, const MemeRune_t* _rhs)
 {
-    return memcmp(_lhs->byte, _rhs->byte, sizeof(_lhs->byte));
+    mmint_t lsize = MemeRune_size(_lhs);
+    mmint_t rsize = MemeRune_size(_rhs);
+    return memcmp(_lhs->byte, _rhs->byte, MemeMath_Min(lsize, rsize));
 	
 	//uint8_t index = 0;
 	//while (_lhs->byte[index] && _rhs->byte[index]) 

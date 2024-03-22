@@ -168,23 +168,31 @@ MEME_API int MEME_STDCALL
 
 MEME_API mgec_t MEME_STDCALL
     MemeVariantStack_convToByte(
-        mmvarstk_t* _obj, size_t _object_size, mmbyte_t* _out);
+        const mmvarstk_t* _obj, size_t _object_size, mmbyte_t* _out);
 
 MEME_API mgec_t MEME_STDCALL
     MemeVariantStack_convToChar(
-        mmvarstk_t* _obj, size_t _object_size, char* _out);
+        const mmvarstk_t* _obj, size_t _object_size, char* _out);
 
 MEME_API mgec_t MEME_STDCALL
     MemeVariantStack_convToWChar(
-        mmvarstk_t* _obj, size_t _object_size, wchar_t* _out);
+        const mmvarstk_t* _obj, size_t _object_size, wchar_t* _out);
+
+MEME_API mgec_t MEME_STDCALL
+    MemeVariantStack_convToInt(
+        const mmvarstk_t* _obj, size_t _object_size, mmint_t* _out);
+
+MEME_API mgec_t MEME_STDCALL
+    MemeVariantStack_convToUInt(
+        const mmvarstk_t* _obj, size_t _object_size, size_t* _out);
 
 MEME_API mgec_t MEME_STDCALL
     MemeVariantStack_convToInt64(
-        mmvarstk_t* _obj, size_t _object_size, int64_t* _out);
+        const mmvarstk_t* _obj, size_t _object_size, int64_t* _out);
 
 MEME_API mgec_t MEME_STDCALL
     MemeVariantStack_convToUInt64(
-        mmvarstk_t* _obj, size_t _object_size, uint64_t* _out);
+        const mmvarstk_t* _obj, size_t _object_size, uint64_t* _out);
 
 MEME_API mgec_t MEME_STDCALL
     MemeVariantStack_convToDouble(
@@ -192,19 +200,19 @@ MEME_API mgec_t MEME_STDCALL
 
 MEME_API mgec_t MEME_STDCALL
     MemeVariantStack_convToString(
-        mmvarstk_t* _obj, size_t _object_size, mmstrstk_t* _out);
+        const mmvarstk_t* _obj, size_t _object_size, mmstrstk_t* _out);
 
 MEME_API mgec_t MEME_STDCALL
     MemeVariantStack_convToBuffer(
-        mmvarstk_t* _obj, size_t _object_size, mmbufstk_t* _out);
+        const mmvarstk_t* _obj, size_t _object_size, mmbufstk_t* _out);
 
 MEME_API mgec_t MEME_STDCALL
     MemeVariantStack_convToVariableBuffer(
-        mmvarstk_t* _obj, size_t _object_size, mmvbstk_t* _out);
+        const mmvarstk_t* _obj, size_t _object_size, mmvbstk_t* _out);
 
 MEME_API mgec_t MEME_STDCALL
     MemeVariantStack_convToRune(
-        mmvarstk_t* _obj, size_t _object_size, mmrune_t* _out);
+        const mmvarstk_t* _obj, size_t _object_size, mmrune_t* _out);
 
 //! @param _obj must be initialized
 MEME_API mgec_t MEME_STDCALL

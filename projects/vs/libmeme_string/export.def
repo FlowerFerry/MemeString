@@ -289,3 +289,5 @@ EXPORTS
     MemeRuneIndex_isFullWidthDigit @272
     MemeRuneIndex_isChineseDigit @273
     MemeVariantStack_convToDouble @274
+    MemeVariantStack_convToInt @275
+    MemeVariantStack_convToUInt @276

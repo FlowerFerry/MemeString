@@ -860,20 +860,20 @@ MemeString_indexByCondByteFunc(
     const MemeByte_t* pointer = MemeString_byteData(_s);
     MemeInteger_t count = MemeString_byteSize(_s);
 
-    if ((_offset < 0))
+    if (MEGO_SYMBOL__UNLIKELY(_offset < 0))
         _offset = 0;
-    if ((_offset >= count))
-        return -1;
+	if (MEGO_SYMBOL__UNLIKELY(_offset >= count))
+		return MGEC__INVAL;
 
     for (MemeInteger_t index = _offset, result = 0; index < count; ++index)
     {
         result = _cond_func(pointer[index], _arg);
         if (result == 1)
             return index;
-        else if (result == -1)
-            return (MGEC__CANCELED);
+        else if (result < 0)
+            return result;
     }
-	return -1;
+	return MGEC__RANGE;
 }
 
 MEME_API MemeInteger_t MEME_STDCALL 
@@ -1087,6 +1087,39 @@ MemeString_endsMatchWithUtf8bytes(
     return memcmp(pointer + count - _needle_len, _needle, _needle_len) == 0 ? 1 : 0;
 }
 
+MEME_API mmint_t
+MEME_STDCALL MemeString_foreach(
+	mmstr_cptr_t _str, mmstr_foreach_rune_cb_t* _cb, void* _user_data)
+{
+    assert(_str != NULL && _cb != NULL && MemeString_foreach != NULL);
+
+    const mmbyte_t* pointer = MemeString_byteData(_str);
+    mmint_t count = MemeString_byteSize(_str);
+
+    for (mmint_t index = 0; index < count; )
+    {
+		mmflag_cbproc_t cbResult = mmflag_cbproc_continue;
+		mmrune_t r;
+		int runeSize = mmutf_u8rune_char_size(pointer[index]);
+		if (runeSize < 0) {
+			++index;
+            continue;
+		}
+		if (runeSize + index >= count)
+			break;
+		
+        MemeRune_initByUtf8Bytes(&r, pointer + index, runeSize);
+		cbResult = _cb(&r, _user_data);
+		if (cbResult == mmflag_cbproc_break)
+			return index;
+		else if (cbResult < 0)
+			return cbResult;
+		
+        index += runeSize;
+    }
+    return 0;
+}
+
 MEME_API MemeInteger_t MEME_STDCALL MemeString_split(
 	MemeString_Const_t _s, const char* _key, MemeInteger_t _key_len, 
 	MemeFlag_SplitBehavior_t _behavior, MemeFlag_CaseSensitivity_t _sensitivity,
@@ -1199,7 +1232,7 @@ MEME_API mmint_t MEME_STDCALL MemeString_splitByCondByteFunc(
         curr_index =
             MemeString_indexByCondByteFunc(
                 _s, last_index, _cond_func, _user_data);
-        if (curr_index == -1) {
+        if (curr_index < 0) {
             if (last_index < MemeString_byteSize(_s))
             {
                 MemeStringStack_initByU8bytes(_out + output_index,

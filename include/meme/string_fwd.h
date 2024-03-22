@@ -95,11 +95,30 @@ enum _MemeFlag_SplitBehavior_t
 
 typedef MemeFlag_SplitBehavior_t mmflag_split_behav_t;
 
+typedef mmint_t MemeFlag_CallbackProcess_t;
+typedef MemeFlag_CallbackProcess_t mmflag_cbproc_t;
+enum _MemeFlag_CallbackProcess_t
+{
+    MemeFlag_CallbackProcess_Continue,
+    MemeFlag_CallbackProcess_Break
+};
+enum _mmflag_cbproc_t
+{
+    mmflag_cbproc_continue = MemeFlag_CallbackProcess_Continue,
+    mmflag_cbproc_break    = MemeFlag_CallbackProcess_Break
+};
+
 typedef int MemeString_MatchCondByteFunc_t(MemeByte_t _ch, void* _user_data);
+typedef MemeString_MatchCondByteFunc_t mmstr_match_cond_byte_cb_t;
 
 typedef int MemeString_MatchCondRuneFunc_t(const MemeRune_t* _ch, void* _user_data);
+typedef MemeString_MatchCondRuneFunc_t mmstr_match_cond_rune_cb_t;
 
 typedef int MemeString_MappingConvertFunc_t(MemeRune_t* _ch, void* _user_data);
+typedef MemeString_MappingConvertFunc_t mmstr_mapping_conv_cb_t;
+
+typedef mmflag_cbproc_t MemeString_ForEachRuneFunc_t(const mmrune_t* _ch, void* _user_data);
+typedef MemeString_ForEachRuneFunc_t mmstr_foreach_rune_cb_t;
 
 #ifdef MEME_STRING__OBJECT_SIZE
 #undef MEME_STRING__OBJECT_SIZE

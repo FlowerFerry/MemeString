@@ -105,6 +105,29 @@ namespace memepp {
     }
 
     template<>
+    inline mgec_t variant::try_convert<bool>(bool& _out) const noexcept
+    {
+        mmint_t value;
+        mgec_t ec = MemeVariantStack_convToInt(&data_, MMVAR__OBJ_SIZE, &value);
+        if (ec != 0)
+            return ec;
+        _out = (value != 0);
+        return 0;
+    }
+    
+    template<>
+    inline mgec_t variant::try_convert<mmint_t>(mmint_t& _out) const noexcept
+    {
+        return MemeVariantStack_convToInt(&data_, MMVAR__OBJ_SIZE, &_out);
+    }
+    
+    template<>
+    inline mgec_t variant::try_convert<size_t>(size_t& _out) const noexcept
+    {
+        return MemeVariantStack_convToUInt(&data_, MMVAR__OBJ_SIZE, &_out);
+    }
+    
+    template<>
     inline mgec_t variant::try_convert<double>(double& _out) const noexcept
     {
         return MemeVariantStack_convToDouble(&data_, MMVAR__OBJ_SIZE, &_out);

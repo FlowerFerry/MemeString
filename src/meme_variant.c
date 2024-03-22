@@ -628,6 +628,95 @@ MEME_API int MEME_STDCALL
     return (obj->type == _type) ? 1 : 0;
 }
 
+
+MEME_API mgec_t MEME_STDCALL
+MemeVariantStack_convToInt(
+    const mmvarstk_t* _obj, size_t _object_size, mmint_t* _out)
+{
+    mmvar_cptr_t obj = (mmvar_cptr_t)_obj;
+    assert(_obj != NULL && MemeVariantStack_convToInt != NULL);
+
+    if (!_out)
+        return MGEC__INVAL;
+
+    switch (obj->type) {
+    case MMMETA_TYPID__NULL: {
+        return MGEC__OPNOTSUPP;
+    }
+    case MMMETA_TYPID__BYTE:
+    case MMMETA_TYPID__CHAR:
+    case MMMETA_TYPID__WCHAR:
+    case MMMETA_TYPID__INT64:
+    case MMMETA_TYPID__UINT64:
+    case MMMETA_TYPID__DOUBLE: {
+        *_out = MemeVariantImpl_basicNumberToInt(obj);
+        return MGEC__OK;
+    }
+    case MMMETA_TYPID__STRING: {
+        // The string class is not a view mode
+
+        const char* ptr = MemeString_cStr((mmstr_cptr_t) & (obj->d.str));
+        char* end = NULL;
+        *_out = strtoll(ptr, &end, 0);
+        if (ptr == end) {
+            return MGEC__INVAL;
+        }
+        if (errno == ERANGE) {
+            return MGEC__RANGE;
+        }
+        return MGEC__OK;
+    }
+    //case MMMETA_TYPID__RUNE: {
+
+    //}
+    default:
+        return MGEC__OPNOTSUPP;
+    }
+        
+}
+
+MEME_API mgec_t MEME_STDCALL
+MemeVariantStack_convToUInt(
+    const mmvarstk_t* _obj, size_t _object_size, size_t * _out)
+{
+    mmvar_cptr_t obj = (mmvar_cptr_t)_obj;
+    assert(_obj != NULL && MemeVariantStack_convToUInt != NULL);
+
+    if (!_out)
+        return MGEC__INVAL;
+
+    switch (obj->type) {
+    case MMMETA_TYPID__NULL: {
+        return MGEC__OPNOTSUPP;
+    }
+    case MMMETA_TYPID__BYTE:
+    case MMMETA_TYPID__CHAR:
+    case MMMETA_TYPID__WCHAR:
+    case MMMETA_TYPID__INT64:
+    case MMMETA_TYPID__UINT64:
+    case MMMETA_TYPID__DOUBLE: {
+        *_out = MemeVariantImpl_basicNumberToUInt(obj);
+        return MGEC__OK;
+    }
+    case MMMETA_TYPID__STRING: {
+        // The string class is not a view mode
+
+        const char* ptr = MemeString_cStr((mmstr_cptr_t) & (obj->d.str));
+        char* end = NULL;
+        *_out = strtoull(ptr, &end, 0);
+        if (ptr == end) {
+            return MGEC__INVAL;
+        }
+        if (errno == ERANGE) {
+            return MGEC__RANGE;
+        }
+        return MGEC__OK;
+    }
+    default:
+        return MGEC__OPNOTSUPP;
+    }
+}
+
 MEME_API mgec_t MEME_STDCALL MemeVariantStack_convToDouble(const mmvarstk_t* _obj, size_t _object_size, double* _out)
 {
     mmvar_cptr_t obj = (mmvar_cptr_t)_obj;
@@ -670,6 +759,7 @@ MEME_API mgec_t MEME_STDCALL MemeVariantStack_convToDouble(const mmvarstk_t* _ob
 
     //}
     default:
+        *_out = nan("");
         return MGEC__OPNOTSUPP;
     }
 }

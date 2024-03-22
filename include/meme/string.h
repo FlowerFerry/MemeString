@@ -144,6 +144,7 @@ MEME_STDCALL MemeStringStack_trimByCuts(
 	const char* _cuts, MemeInteger_t _cuts_len);
 
 //! @param _s The string stack object, must be initialized.
+//! @param _cond_func The condition function; if the function returns true, the byte will be skipped.
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_trimByCondByteFunc(
     const mmsstk_t* _s, size_t _object_size,
@@ -207,6 +208,7 @@ MEME_STDCALL MemeStringStack_fromUInt64(
 //    size_t _object_size, double _value, int _radix);
 
 //! @param _s The string stack object, must be initialized.
+//! @param _mapping_fn The mapping function; if the function returns less than 0, the rune will be convert.
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_mappingConvert(
     const mmsstk_t* _s, size_t _object_size,
@@ -364,6 +366,7 @@ MEME_API mmint_t
 		mmstr_cptr_t _str, mmint_t _offset, mmint_t _limit,
 		mmstr_cptr_t _other, mmint_t _count, int _full_match, mmflag_case_sensit_t _cs);
 
+//! param _cond_func The function to determine whether the byte at the specified index meets the condition; return type is mmflag_cbproc_t.
 MEME_API MemeInteger_t
 MEME_STDCALL MemeString_indexByCondByteFunc(
     MemeString_Const_t _s, MemeInteger_t _offset,
@@ -409,6 +412,10 @@ MEME_API MemeInteger_t
 MEME_STDCALL MemeString_endsMatchWithUtf8bytes(
 	MemeString_Const_t _s, 
 	const MemeByte_t* _needle, MemeInteger_t _needle_len, MemeFlag_CaseSensitivity_t _cs);
+
+MEME_API mmint_t
+MEME_STDCALL MemeString_foreach(
+    mmstr_cptr_t _str, mmstr_foreach_rune_cb_t* _cb, void* _user_data);
 
 //! @brief Split the string into substrings.
 //! @param _s The string.
