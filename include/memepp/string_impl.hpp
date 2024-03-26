@@ -196,6 +196,14 @@ namespace memepp {
         return *this;
 	}
 
+	MEMEPP__IMPL_INLINE string string::operator+(const char* _utf8) const
+	{
+		if (!_utf8)
+			return *this;
+		
+		return concat(memepp::string_view{ _utf8 });
+	}
+
 	MEMEPP__IMPL_INLINE string string::operator+(const string& _other) const
 	{
         return concat(_other);

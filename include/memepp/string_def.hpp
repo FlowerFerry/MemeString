@@ -68,6 +68,7 @@ namespace memepp {
 		string& operator=(const string& _other);
         string& operator=(const string_builder& _builder);
 
+        string operator+(const char* _utf8) const;
         string operator+(const string& _other) const;
         string operator+(const string_view& _other) const;
 

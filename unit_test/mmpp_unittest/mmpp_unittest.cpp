@@ -1337,14 +1337,14 @@ TEST_CASE("memepp::string - 24", "string_builder append & prepend")
 	memepp::string s4 = u8"klmnopqrst";
 	memepp::string_view sv4 = s4;
 
-	auto sb11 = s1 + s2;
-	REQUIRE(sb11 == u8"1234567890abcdefghij");
+	auto s11 = s1 + s2;
+	REQUIRE(s11 == u8"1234567890abcdefghij");
 
-    auto sb12 = s2 + s1;
-    REQUIRE(sb12 == u8"abcdefghij1234567890");
+    auto s12 = s2 + s1;
+    REQUIRE(s12 == u8"abcdefghij1234567890");
 
-    auto sb13 = s1 + u8"1234567890";
-    REQUIRE(sb13 == u8"12345678901234567890");
+    auto s13 = s1 + u8"1234567890";
+    REQUIRE(s13 == u8"12345678901234567890");
 	
     auto sb14 = u8"1234567890" + s1;
     REQUIRE(sb14 == u8"12345678901234567890");
@@ -1368,8 +1368,8 @@ TEST_CASE("memepp::string - 24", "string_builder append & prepend")
 	memepp::string s81 = sb81;
     REQUIRE(s81 == u8"1234567890abcdefghijabcdefghij12345678901234567890");
 	
-	auto s11 = memepp::string(s1 + u8"1234567890" + s2 + u8"abcdefghij" + s1 + u8"1234567890");
-    REQUIRE(s11 == u8"12345678901234567890abcdefghijabcdefghij12345678901234567890");
+	auto s14 = memepp::string(s1 + u8"1234567890" + s2 + u8"abcdefghij" + s1 + u8"1234567890");
+    REQUIRE(s14 == u8"12345678901234567890abcdefghijabcdefghij12345678901234567890");
 
     auto sb21 = s1 + s2 + s3;
     REQUIRE(sb21 == u8"1234567890abcdefghij0987654321");
