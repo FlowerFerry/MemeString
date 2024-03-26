@@ -38,7 +38,7 @@ namespace memepp {
 		all_insensitive = MemeFlag_AllInsensitive,
 		case_sensitive  = MemeFlag_CaseSensitive,
 	 	simplified_traditional_sensitive = MemeFlag_SimplifiedTraditionalSensitive,
-		all_sensitive   = MemeFlag_AllSensitive
+        all_sensitive   = mmint_t{ MemeFlag_AllSensitive }
 	};
     using case_sensit_t = case_sensitivity_t;
 

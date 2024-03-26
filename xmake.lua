@@ -19,9 +19,6 @@ option_end()
 add_includedirs("include", {public = true})
 
 target("meme_string")
-    on_load(function (target)
-        target::set("enabled", true)
-    end)
     add_defines("MEME_OPTION__BUILD_SHARED")
     set_languages("c11")
     add_includedirs(
@@ -45,11 +42,13 @@ target("mmpp_unittest")
         "3rdparty/catch2/include"
     )
     add_files("unit_test/mmpp_unittest/*.cpp")
-    add_deps("meme_string")
-    add_links("meme_string")
     add_syslinks("pthread", "dl")
     if is_os("windows") ~= true then
         add_syslinks("rt")
+    end
+    if has_config("test_enable") then
+        add_deps("meme_string")
+        add_links("meme_string")
     end
     on_load(function (target)
         if has_config("test_enable") then
