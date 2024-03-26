@@ -39,5 +39,8 @@ target("mmpp_unittest")
     add_deps("meme_string")
     add_links("meme_string")
     add_syslinks("pthread", "dl")
+    if is_os("windows") ~= true then
+        add_syslinks("rt")
+    end
     add_rpathdirs("$ORIGIN")
 target_end()

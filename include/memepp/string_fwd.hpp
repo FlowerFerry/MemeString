@@ -64,7 +64,9 @@ namespace memepp {
 
     inline constexpr case_sensit_t& operator|=(case_sensit_t& _a, case_sensit_t _b) noexcept
     {
-        return _a = _a | _b;
+        auto c = static_cast<case_sensit_t>(static_cast<int>(_a) | static_cast<int>(_b));
+        _a = c;
+        return _a;
     }
 
     inline constexpr case_sensit_t& operator&=(case_sensit_t& _a, case_sensit_t _b) noexcept
