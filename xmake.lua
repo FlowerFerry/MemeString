@@ -27,3 +27,17 @@ target("meme_string")
     set_kind("shared")
     set_symbols("hidden")
     add_rpathdirs("$ORIGIN")
+target_end()
+
+target("mmpp_unittest")
+    set_kind("binary")
+    set_languages("c11", "cxx11")
+    add_includedirs(
+        "3rdparty/include"
+    )
+    add_files("unittest/mmpp_unittest/*.cpp")
+    add_deps("meme_string")
+    add_links("meme_string")
+    add_syslinks("pthread", "dl")
+    add_rpathdirs("$ORIGIN")
+target_end()
