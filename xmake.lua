@@ -19,6 +19,9 @@ option_end()
 add_includedirs("include", {public = true})
 
 target("meme_string")
+    on_load(function (target)
+        target::set("enabled", true)
+    end)
     add_defines("MEME_OPTION__BUILD_SHARED")
     set_languages("c11")
     add_includedirs(
