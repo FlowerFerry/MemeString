@@ -62,19 +62,17 @@ namespace memepp {
         return static_cast<case_sensit_t>(~static_cast<int>(_a));
     }
 
-    inline constexpr case_sensit_t& operator|=(case_sensit_t& _a, case_sensit_t _b) noexcept
+    inline case_sensit_t& operator|=(case_sensit_t& _a, case_sensit_t _b) noexcept
     {
-        auto c = static_cast<case_sensit_t>(static_cast<int>(_a) | static_cast<int>(_b));
-        _a = c;
-        return _a;
+        return _a = _a | _b;
     }
 
-    inline constexpr case_sensit_t& operator&=(case_sensit_t& _a, case_sensit_t _b) noexcept
+    inline case_sensit_t& operator&=(case_sensit_t& _a, case_sensit_t _b) noexcept
     {
         return _a = _a & _b;
     }
 
-    inline constexpr case_sensit_t& operator^=(case_sensit_t& _a, case_sensit_t _b) noexcept
+    inline case_sensit_t& operator^=(case_sensit_t& _a, case_sensit_t _b) noexcept
     {
         return _a = _a ^ _b;
     }
