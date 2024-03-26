@@ -1337,28 +1337,28 @@ TEST_CASE("memepp::string - 24", "string_builder append & prepend")
 	memepp::string s4 = u8"klmnopqrst";
 	memepp::string_view sv4 = s4;
 
-	auto s11 = s1 + s2;
-	REQUIRE(s11 == u8"1234567890abcdefghij");
+	auto sb11 = memepp::string_builder{} + s1 + s2;
+	REQUIRE(sb11 == u8"1234567890abcdefghij");
 
-    auto s12 = s2 + s1;
-    REQUIRE(s12 == u8"abcdefghij1234567890");
+    auto sb12 = memepp::string_builder{} + s2 + s1;
+    REQUIRE(sb12 == u8"abcdefghij1234567890");
 
-    auto s13 = s1 + u8"1234567890";
-    REQUIRE(s13 == u8"12345678901234567890");
+    auto sb13 = memepp::string_builder{} + s1 + u8"1234567890";
+    REQUIRE(sb13 == u8"12345678901234567890");
 	
-    auto sb14 = u8"1234567890" + s1;
+    auto sb14 = memepp::string_builder{} + u8"1234567890" + s1;
     REQUIRE(sb14 == u8"12345678901234567890");
 
-    auto sb15 = s1 + u8"1234567890" + s2;
+    auto sb15 = memepp::string_builder{} + s1 + u8"1234567890" + s2;
     REQUIRE(sb15 == u8"12345678901234567890abcdefghij");
 
-    auto sb16 = s1 + u8"1234567890" + s2 + u8"abcdefghij";
+    auto sb16 = memepp::string_builder{} + s1 + u8"1234567890" + s2 + u8"abcdefghij";
     REQUIRE(sb16 == u8"12345678901234567890abcdefghijabcdefghij");
 
-    auto sb17 = s1 + u8"1234567890" + s2 + u8"abcdefghij" + s1;
+    auto sb17 = memepp::string_builder{} + s1 + u8"1234567890" + s2 + u8"abcdefghij" + s1;
     REQUIRE(sb17 == u8"12345678901234567890abcdefghijabcdefghij1234567890");
 	
-    auto sb80 = u8"1234567890" + s2 + u8"abcdefghij" + s1 + u8"1234567890";
+    auto sb80 = memepp::string_builder{} + u8"1234567890" + s2 + u8"abcdefghij" + s1 + u8"1234567890";
     REQUIRE(sb80 == u8"1234567890abcdefghijabcdefghij12345678901234567890");
 
 	auto sb81 = sb80;
@@ -1368,19 +1368,19 @@ TEST_CASE("memepp::string - 24", "string_builder append & prepend")
 	memepp::string s81 = sb81;
     REQUIRE(s81 == u8"1234567890abcdefghijabcdefghij12345678901234567890");
 	
-	auto s14 = memepp::string(s1 + u8"1234567890" + s2 + u8"abcdefghij" + s1 + u8"1234567890");
-    REQUIRE(s14 == u8"12345678901234567890abcdefghijabcdefghij12345678901234567890");
+	auto s11 = memepp::string(memepp::string_builder{} + s1 + u8"1234567890" + s2 + u8"abcdefghij" + s1 + u8"1234567890");
+    REQUIRE(s11 == u8"12345678901234567890abcdefghijabcdefghij12345678901234567890");
 
-    auto sb21 = s1 + s2 + s3;
+    auto sb21 = memepp::string_builder{} + s1 + s2 + s3;
     REQUIRE(sb21 == u8"1234567890abcdefghij0987654321");
 	
-    auto sb23 = s1 + s2 + s3 + sv4;
+    auto sb23 = memepp::string_builder{} + s1 + s2 + s3 + sv4;
     REQUIRE(sb23 == u8"1234567890abcdefghij0987654321klmnopqrst");
 	
-    auto sb24 = s2 + s1 + s3 + sv4;
+    auto sb24 = memepp::string_builder{} + s2 + s1 + s3 + sv4;
     REQUIRE(sb24 == u8"abcdefghij12345678900987654321klmnopqrst");
 
-	auto sb25 = s2 + sv4 + s1 + s3;
+	auto sb25 = memepp::string_builder{} + s2 + sv4 + s1 + s3;
     REQUIRE(sb25 == u8"abcdefghijklmnopqrst12345678900987654321");
 }
 
@@ -1999,7 +1999,7 @@ TEST_CASE("memepp::string - 200", "mulit thread read")
 		}
 
 		std::vector<std::thread> thrs_;
-		std::atomic_bool stop = false;
+		std::atomic_bool stop { false };
 		for (auto index = 0; index < 64; ++index)
 		{
 			thrs_.push_back(std::thread([&s01, &stop]
