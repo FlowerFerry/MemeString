@@ -98,6 +98,8 @@ namespace memepp {
     }
 
     static_assert(sizeof(mmstrstk_t) == MMSTR__OBJ_SIZE, "mmstrstk_t size mismatch");
+    static_assert(static_cast<mmint_t>(case_sensit_t::all_sensitive) == -1, 
+        "case_sensitivity_t all_sensitive value mismatch");
 };
 
 #endif // !MEMEPP_STRING_FWD_HPP_INCLUDED

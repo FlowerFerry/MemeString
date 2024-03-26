@@ -2165,4 +2165,11 @@ TEST_CASE("memepp::string - 00", "Accidents encountered in engineering practice"
 		}
 	} while (0);
 	
+	do {
+		int64_t v = INT64_MAX;
+		std::vector<char> buf;
+        buf.resize(32, 0);
+        auto len = snprintf(buf.data(), buf.size(), "%lld - %lld", v, v);
+        REQUIRE(len == 41);
+	} while (0);
 }
