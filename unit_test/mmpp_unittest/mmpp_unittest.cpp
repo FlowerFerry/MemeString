@@ -2034,7 +2034,7 @@ TEST_CASE("memepp::string - 200", "mulit thread read")
 			u8"堆中数组的数组越界条件";
 
 		std::vector<std::thread> thrs_;
-		std::atomic_bool stop = false;
+		std::atomic_bool stop { false };
 		for (auto index = 0; index < 64; ++index)
 		{
 			thrs_.push_back(std::thread([&s02, &stop]
