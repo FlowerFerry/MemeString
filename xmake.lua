@@ -7,6 +7,12 @@ set_version("0.0.1", {build = "%Y%m%d%H%M"})
 
 add_rules("mode.debug", "mode.release")
 
+option("test_enable")
+    set_default(false)
+    set_showmenu(true)
+    set_description("Enable unit test")
+option_end()
+
 -- stdc = "c11"
 -- set_languages(stdc)
 
@@ -42,5 +48,12 @@ target("mmpp_unittest")
     if is_os("windows") ~= true then
         add_syslinks("rt")
     end
+    on_load(function (target)
+        if has_config("test_enable") then
+            target:set("enabled", true)
+        else
+            target:set("enabled", false)
+        end
+    end)
     add_rpathdirs("$ORIGIN")
 target_end()
