@@ -1167,13 +1167,14 @@ MemeStringStack_vformatWithLimitInCstyle(
 			}
 
 			result = MemeVariableBuffer_releaseToString((mmvb_ptr_t)&vbuf, &out, _object_size);
+			MemeVariableBufferStack_unInit(&vbuf, MMSTR__OBJ_SIZE);
 			if (result) {
-				MemeVariableBufferStack_unInit(&vbuf, MMSTR__OBJ_SIZE);
 				return MemeStringStack_getInitObject(_object_size);
 			}
 
 			return out;
 		}
+		MemeVariableBufferStack_unInit(&vbuf, MMSTR__OBJ_SIZE);
 	}
 
 	if (_size_limit > 0 && len > _size_limit)
@@ -1203,11 +1204,11 @@ MemeStringStack_vformatWithLimitInCstyle(
 	}
 
 	result = MemeVariableBuffer_releaseToString((mmvb_ptr_t)&vbuf, &out, _object_size);
+	MemeVariableBufferStack_unInit(&vbuf, MMSTR__OBJ_SIZE);
 	if (result) {
-		MemeVariableBufferStack_unInit(&vbuf, MMSTR__OBJ_SIZE);
 		return MemeStringStack_getInitObject(_object_size);
 	}
-
+	
 	return out;
 }
 
