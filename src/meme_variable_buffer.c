@@ -237,6 +237,33 @@ MEME_STDCALL MemeVariableBuffer_appendWithBytes(
 	if (_len < 0)
 		_len = strlen((const char*)_buf);
 
+	if (MemeVariableBuffer_data(_s) == _buf) 
+	{
+		mmint_t result = 0;
+		mmvbstk_t vb;
+		MemeVariableBufferStack_init(&vb, MMSTR__OBJ_SIZE);
+		result = MemeVariableBuffer_reserve((mmvb_ptr_t)&vb,
+			MemeVariableBuffer_size(_s) + _len);
+		if (result)
+			return result;
+		result = MemeVariableBuffer_appendWithBytes(
+			(mmvb_ptr_t)&vb, MemeVariableBuffer_data(_s), MemeVariableBuffer_size(_s));
+		if (result) {
+			MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+			return result;
+		}
+
+		result = MemeVariableBuffer_appendWithBytes((mmvb_ptr_t)&vb, _buf, _len);
+		if (result) {
+			MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+			return result;
+		}
+
+		MemeVariableBuffer_swap((mmvb_ptr_t)&vb, _s);
+		MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+		return 0;
+	}
+	
 	switch (MMS__GET_TYPE(s))
 	{
 	case MemeString_StorageType_small:
@@ -310,45 +337,64 @@ MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_appendWithOther(
 	MemeVariableBuffer_t _s, MemeVariableBuffer_Const_t _other)
 {
-	MemeString_Const_t s = (MemeString_Const_t)_s;
-	//int result = 0;
+	mmstr_ptr_t  str   = (mmstr_ptr_t)_s;
+    mmstr_cptr_t other = (mmstr_cptr_t)_other;
 
-	assert(s != NULL && MemeVariableBuffer_appendWithOther);
+	assert(str != NULL && MemeVariableBuffer_appendWithOther);
 	assert(_other != NULL && MemeVariableBuffer_appendWithOther);
-	assert(MemeStringImpl_isModifiableType(MMS__GET_TYPE(s)) == 1
+	assert(MemeStringImpl_isModifiableType(MMS__GET_TYPE(str)) == 1
 		&& MemeVariableBuffer_appendWithOther);
 
-	switch (MMS__GET_TYPE(s))
+	if (str == other) {
+		mmint_t result = 0;
+		mmvbstk_t vb;
+		MemeVariableBufferStack_init(&vb, MMSTR__OBJ_SIZE);
+		result = MemeVariableBuffer_reserve((mmvb_ptr_t)&vb, 
+			MemeVariableBuffer_size(_s) + MemeVariableBuffer_size(_other));
+        if (result)
+            return result;
+        result = MemeVariableBuffer_appendWithBytes(
+			(mmvb_ptr_t)&vb, MemeVariableBuffer_data(_s), MemeVariableBuffer_size(_s));
+        if (result) {
+            MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+            return result;
+        }
+		
+		result = MemeVariableBuffer_appendWithBytes(
+			(mmvb_ptr_t)&vb, MemeVariableBuffer_data(_other), MemeVariableBuffer_size(_other));
+		if (result) {
+			MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+			return result;
+		}
+
+		MemeVariableBuffer_swap((mmvb_ptr_t)&vb, _s);
+		MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+		return 0;
+	}
+	
+	switch (MMS__GET_TYPE(str))
 	{
 	case MemeString_StorageType_small:
 	{
 		if (0 == MemeStringSmall_canBeAppendIt(
-			(const MemeStringSmall_t*)s, MemeVariableBuffer_size(_other)))
+			(const MemeStringSmall_t*)str, MemeVariableBuffer_size(_other)))
 		{
 			return MemeStringSmall_appendWithBytes(
-				(MemeStringSmall_t*)s, MemeVariableBuffer_data(_other), MemeVariableBuffer_size(_other));
+				(MemeStringSmall_t*)str, MemeVariableBuffer_data(_other), MemeVariableBuffer_size(_other));
 		}
 		else {
 			int result = MemeStringImpl_capacityExpansionSmallToMedium(
-				(MemeStringStack_t*)s, MemeString_byteSize(s) + MemeVariableBuffer_size(_other));
+				(MemeStringStack_t*)str, MemeString_byteSize(str) + MemeVariableBuffer_size(_other));
 			if (result)
 				return result;
 			return MemeStringMedium_appendWithBytes(
-				(MemeStringMedium_t*)s, MemeVariableBuffer_data(_other), MemeVariableBuffer_size(_other));
+				(MemeStringMedium_t*)str, MemeVariableBuffer_data(_other), MemeVariableBuffer_size(_other));
 		}
 	} break;
 	case MemeString_StorageType_medium:
 	{
-		//if (0 != MemeStringMedium_canBeAppendIt(
-		//	(const MemeStringMedium_t*)s, MemeVariableBuffer_size(_other)))
-		//{
-		//	result = MemeStringImpl_capacityExpansionWithModifiable(
-		//		(MemeStringStack_t*)s, MemeString_byteSize(s) + MemeVariableBuffer_size(_other));
-		//	if (result)
-		//		return result;
-		//}
 		return MemeStringMedium_appendWithBytes(
-			(MemeStringMedium_t*)s, MemeVariableBuffer_data(_other), MemeVariableBuffer_size(_other));
+			(MemeStringMedium_t*)str, MemeVariableBuffer_data(_other), MemeVariableBuffer_size(_other));
 	} break;
 	default: {
 		return (MGEC__OPNOTSUPP);
