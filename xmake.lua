@@ -33,9 +33,9 @@ target("mmpp_unittest")
     set_kind("binary")
     set_languages("c11", "cxx11")
     add_includedirs(
-        "3rdparty/include"
+        "3rdparty/catch2/include"
     )
-    add_files("unittest/mmpp_unittest/*.cpp")
+    add_files("unit_test/mmpp_unittest/*.cpp")
     add_deps("meme_string")
     add_links("meme_string")
     add_syslinks("pthread", "dl")
