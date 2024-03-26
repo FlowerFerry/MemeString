@@ -135,10 +135,12 @@ MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_remove(
     MemeVariableBuffer_t _s, MemeInteger_t _pos, MemeInteger_t _count);
 
+//! @param _out The string stack object, must be uninitialized.
 MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_releaseToBuffer(
 	MemeVariableBuffer_t _s, MemeBufferStack_t* _out, MemeInteger_t _objectSize);
 
+//! @param _out The string stack object, must be uninitialized.
 MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_releaseToString(
 	MemeVariableBuffer_t _s, MemeStringStack_t* _out, MemeInteger_t _objectSize);

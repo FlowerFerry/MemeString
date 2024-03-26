@@ -293,3 +293,4 @@ EXPORTS
     MemeVariantStack_convToUInt @276
     MemeVariantStack_setInt @277
     MemeVariantStack_setUInt @278
+    MemeStringStack_vformatWithLimitInCstyle @279

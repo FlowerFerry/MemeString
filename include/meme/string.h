@@ -234,6 +234,14 @@ MemeStringStack_vformatInCstyle_v2(
 	MEGO_SYMBOL__MSVC_FORMAT_STRING(const char* _format),
 	va_list _args);
 
+MEME_API mmstrstk_t MEME_STDCALL
+MemeStringStack_vformatWithLimitInCstyle(
+	size_t _object_size,
+	mmint_t _size_limit,
+	mmint_t _pre_size,
+	MEGO_SYMBOL__MSVC_FORMAT_STRING(const char* _format),
+	va_list _args);
+
 //! @param _s The string stack object, must be initialized.
 MEME_API mmsstk_t
 MemeStringStack_formatInCstyle_v2(

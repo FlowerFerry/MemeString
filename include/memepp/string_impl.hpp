@@ -867,6 +867,20 @@ namespace memepp {
         return result;
 	}
 
+	MEMEPP__IMPL_INLINE string c_format(
+		mmint_t _size_limit,
+		mmint_t _predict,
+		MEGO_SYMBOL__MSVC_FORMAT_STRING(const char* _fmt),
+		...)
+	{
+		va_list args;
+		va_start(args, _fmt);
+		string result = MemeStringStack_vformatWithLimitInCstyle(
+			MEME_STRING__OBJECT_SIZE, _size_limit, _predict, _fmt, args);
+		va_end(args);
+		return result;
+	}
+
 }; // namespace memepp
 
 	MEMEPP__IMPL_INLINE memepp::string mm_from(const char* _str, size_t _len)

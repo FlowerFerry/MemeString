@@ -1783,6 +1783,71 @@ TEST_CASE("memepp::string - 30", "operator+")
     memepp::string str06 = str04 + str05;
 	
     REQUIRE(str06 == "   fsihusffiofsdoiusfdoihsdfghuiofdsgu988989er89ewru9irwehuijhidhjkfdhjkfgdjkdfg  World!");
+
+}
+
+TEST_CASE("memepp::string - 31", "format")
+{
+    auto str01_01 = memepp::c_format(-1, -1, "Hello %s", "World");
+    REQUIRE(str01_01 == "Hello World");
+	
+    auto str01_02 = memepp::c_format(-1, 7, "Hello %s", "World");
+    REQUIRE(str01_02 == "Hello World");
+	
+    auto str01_03 = memepp::c_format(7, -1, "Hello %s", "World");
+    REQUIRE(str01_03 == "Hello W");
+
+    auto str01_04 = memepp::c_format(7, 5, "Hello %s", "World");
+    REQUIRE(str01_04 == "Hello W");
+	
+    auto str01_05 = memepp::c_format(5, 7, "Hello %s", "World");
+    REQUIRE(str01_05 == "Hello");
+
+    auto str02_01 = memepp::c_format(
+		-1, -1, 
+		"Hellooooooooooo %s - (%lld) - (%lld)", "Worlddddddddddd", INT64_MIN, INT64_MAX);
+    REQUIRE(str02_01 == "Hellooooooooooo Worlddddddddddd - (-9223372036854775808) - (9223372036854775807)");
+	
+    auto str02_02 = memepp::c_format(
+        -1, 2 * MMSTR__OBJ_SIZE, 
+		"Hellooooooooooo %s - (%lld) - (%lld)", "Worlddddddddddd", INT64_MIN, INT64_MAX);
+    REQUIRE(str02_02 == "Hellooooooooooo Worlddddddddddd - (-9223372036854775808) - (9223372036854775807)");
+	
+    auto str02_03 = memepp::c_format(
+        48, -1, 
+		"Hellooooooooooo %s - (%lld) - (%lld)", "Worlddddddddddd", INT64_MIN, INT64_MAX);
+    REQUIRE(str02_03 == "Hellooooooooooo Worlddddddddddd - (-922337203685");
+
+    auto str02_04 = memepp::c_format(
+		48, 48,
+		"Hellooooooooooo %s - (%lld) - (%lld)", "Worlddddddddddd", INT64_MIN, INT64_MAX);
+    REQUIRE(str02_04 == "Hellooooooooooo Worlddddddddddd - (-922337203685");
+
+    auto str02_05 = memepp::c_format(
+        72, 48,
+		"Hellooooooooooo %s - (%lld) - (%lld)", "Worlddddddddddd", INT64_MIN, INT64_MAX);
+    REQUIRE(str02_05 == "Hellooooooooooo Worlddddddddddd - (-9223372036854775808) - (922337203685");
+
+    auto str02_06 = memepp::c_format(
+		48, 72,
+		"Hellooooooooooo %s - (%lld) - (%lld)", "Worlddddddddddd", INT64_MIN, INT64_MAX);
+    REQUIRE(str02_06 == "Hellooooooooooo Worlddddddddddd - (-922337203685");
+
+	auto str02_07 = memepp::c_format(
+		-1, 128,
+		"Hellooooooooooo %s - (%lld) - (%lld)", "Worlddddddddddd", INT64_MIN, INT64_MAX);
+    REQUIRE(str02_07 == "Hellooooooooooo Worlddddddddddd - (-9223372036854775808) - (9223372036854775807)");
+
+    auto str02_08 = memepp::c_format(
+        128, -1,
+        "Hellooooooooooo %s - (%lld) - (%lld)", "Worlddddddddddd", INT64_MIN, INT64_MAX);
+    REQUIRE(str02_08 == "Hellooooooooooo Worlddddddddddd - (-9223372036854775808) - (9223372036854775807)");
+	
+    auto str02_09 = memepp::c_format(
+        128, 128,
+        "Hellooooooooooo %s - (%lld) - (%lld)", "Worlddddddddddd", INT64_MIN, INT64_MAX);
+    REQUIRE(str02_09 == "Hellooooooooooo Worlddddddddddd - (-9223372036854775808) - (9223372036854775807)");
+	
 }
 
 #include <memepp/variant.hpp>

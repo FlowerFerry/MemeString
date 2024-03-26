@@ -330,8 +330,14 @@ namespace memepp {
 		size_t _size_limit,
 		MEGO_SYMBOL__MSVC_FORMAT_STRING(const char* _fmt),
 		...)
-		MEGO_SYMBOL__GCC_ATTRIBUTE_FORMAT(printf, 2, 3);
+		MEGO_SYMBOL__GCC_ATTRIBUTE_FORMAT(snprintf, 2, 3);
     
+	string c_format(
+		mmint_t _size_limit,
+		mmint_t _predict,
+		MEGO_SYMBOL__MSVC_FORMAT_STRING(const char* _fmt),
+		...)
+		MEGO_SYMBOL__GCC_ATTRIBUTE_FORMAT(snprintf, 3, 4);
 }; // namespace memepp
 
 
