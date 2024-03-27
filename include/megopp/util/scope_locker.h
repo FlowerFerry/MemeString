@@ -3,6 +3,7 @@
 #define MEGOPP_UTIL_SCOPE_LOCKER_H_INCLUDED
 
 #include <mutex>
+#include <shared_mutex>
 
 namespace mgpp {
 namespace util {
