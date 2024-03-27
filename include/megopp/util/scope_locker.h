@@ -96,6 +96,10 @@ public:
             locker_.unlock();
         }
     }
+
+private:
+    std::shared_lock<_Mtx>& locker_;
+    bool src_owns_lock_;
 };
 
 }
