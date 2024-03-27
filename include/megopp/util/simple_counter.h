@@ -4,6 +4,7 @@
 
 #include <megopp/help/null_mutex.h>
 #include <megopp/util/scope_cleanup.h>
+#include <megopp/util/scope_locker.h>
 
 #include <memory>
 #include <functional>
@@ -31,9 +32,21 @@ namespace util {
             return count_;
         }
 
+        inline mmint_t count(std::unique_lock<_Mtx>& _locker) const
+        {
+            scope_unique_locker<_Mtx> locker(_locker);
+            return count_;
+        }
+
         inline mmint_t compare_value(_Mtx& _mtx) const
         {
             std::unique_lock<_Mtx> locker(_mtx);
+            return compare_value_;
+        }
+
+        inline mmint_t compare_value(std::unique_lock<_Mtx>& _locker) const
+        {
+            scope_unique_locker<_Mtx> locker(_locker);
             return compare_value_;
         }
 
@@ -43,9 +56,21 @@ namespace util {
             return count_ == compare_value_;
         }
 
+        inline bool is_equal(std::unique_lock<_Mtx>& _locker) const
+        {
+            scope_unique_locker<_Mtx> locker(_locker);
+            return count_ == compare_value_;
+        }
+
         inline bool is_greater(_Mtx& _mtx) const
         {
             std::unique_lock<_Mtx> locker(_mtx);
+            return count_ > compare_value_;
+        }
+
+        inline bool is_greater(std::unique_lock<_Mtx>& _locker) const
+        {
+            scope_unique_locker<_Mtx> locker(_locker);
             return count_ > compare_value_;
         }
 
@@ -55,15 +80,33 @@ namespace util {
             return count_ < compare_value_;
         }
 
+        inline bool is_less(std::unique_lock<_Mtx>& _locker) const
+        {
+            scope_unique_locker<_Mtx> locker(_locker);
+            return count_ < compare_value_;
+        }
+
         inline bool is_greater_or_equal(_Mtx& _mtx) const
         {
             std::unique_lock<_Mtx> locker(_mtx);
             return count_ >= compare_value_;
         }
 
+        inline bool is_less_or_equal(std::unique_lock<_Mtx>& _locker) const
+        {
+            scope_unique_locker<_Mtx> locker(_locker);
+            return count_ <= compare_value_;
+        }
+
         inline bool is_less_or_equal(_Mtx& _mtx) const
         {
             std::unique_lock<_Mtx> locker(_mtx);
+            return count_ <= compare_value_;
+        }
+
+        inline bool is_less_or_equal(std::unique_lock<_Mtx>& _locker) const
+        {
+            scope_unique_locker<_Mtx> locker(_locker);
             return count_ <= compare_value_;
         }
 
@@ -73,9 +116,21 @@ namespace util {
             return count_ != compare_value_;
         }
 
+        inline bool is_not_equal(std::unique_lock<_Mtx>& _locker) const
+        {
+            scope_unique_locker<_Mtx> locker(_locker);
+            return count_ != compare_value_;
+        }
+
         inline void set_count(_Mtx& _mtx, mmint_t _count)
         {
             std::unique_lock<_Mtx> locker(_mtx);
+            count_ = _count;
+        }
+
+        inline void set_count(std::unique_lock<_Mtx>& _locker, mmint_t _count)
+        {
+            scope_unique_locker<_Mtx> locker(_locker);
             count_ = _count;
         }
 
@@ -85,9 +140,23 @@ namespace util {
             compare_value_ = _compare_value;
         }
 
+        inline void set_compare_value(std::unique_lock<_Mtx>& _locker, mmint_t _compare_value)
+        {
+            scope_unique_locker<_Mtx> locker(_locker);
+            compare_value_ = _compare_value;
+        }
+
         inline void set_callback(_Mtx& _mtx, const std::function<void(const ref_counter&)>& _cb)
         {
             std::unique_lock<_Mtx> locker(_mtx);
+            if (_cb) {
+                cb_ = std::make_shared< std::function<void(const ref_counter&)> >(_cb);
+            }
+        }
+
+        inline void set_callback(std::unique_lock<_Mtx>& _locker, const std::function<void(const ref_counter&)>& _cb)
+        {
+            scope_unique_locker<_Mtx> locker(_locker);
             if (_cb) {
                 cb_ = std::make_shared< std::function<void(const ref_counter&)> >(_cb);
             }
@@ -111,22 +180,14 @@ namespace util {
 
 		inline ref_counter& increment(std::unique_lock<_Mtx>& _locker)
 		{
-			auto owns = _locker.owns_lock();
-			auto cleanup = megopp::util::scope_cleanup__create([&]
-			{
-                if (owns && owns != _locker.owns_lock())
-                    _locker.lock();
-			});
-
-			if (!owns)
-				_locker.lock();
+            scope_unique_locker<_Mtx> locker(_locker);
 
 			auto count = count_++;
             
             if (count < compare_value_ && count_ == compare_value_) 
             {
                 auto cb = cb_;
-                _locker.unlock();
+                locker.unlock();
 
                 if (cb)
                     (*cb)(*this);
@@ -152,22 +213,14 @@ namespace util {
 
 		inline ref_counter& decrement(std::unique_lock<_Mtx>& _locker)
 		{
-			auto owns = _locker.owns_lock();
-			auto cleanup = megopp::util::scope_cleanup__create([&]
-			{
-                if (owns && owns != _locker.owns_lock())
-                    _locker.lock();
-			});
-
-			if (!owns)
-				_locker.lock();
+            scope_unique_locker<_Mtx> locker(_locker);
 
 			auto count = count_--;
 
 			if (count > compare_value_ && count_ == compare_value_) 
 			{
                 auto cb = cb_;
-				_locker.unlock();
+				locker.unlock();
 
 				if (cb)
 					(*cb)(*this);
