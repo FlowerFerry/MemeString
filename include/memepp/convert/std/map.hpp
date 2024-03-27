@@ -24,7 +24,7 @@ namespace convert {
 
         auto it = _map.find(_key);
         if (it == _map.end())
-            return {};
+            return _default.to_string();
         return _fn(it->second);
     }
 
@@ -41,7 +41,7 @@ namespace convert {
 
         auto it = _map.find(_key);
         if (it == _map.end())
-            return {};
+            return _default.to_string();
         return it->second;
     }
 
