@@ -38,6 +38,12 @@ namespace util {
             return count_;
         }
 
+        inline mmint_t count(std::shared_lock<_Mtx>& _locker) const
+        {
+            scope_shared_locker<_Mtx> locker(_locker);
+            return count_;
+        }
+
         inline mmint_t compare_value(_Mtx& _mtx) const
         {
             std::unique_lock<_Mtx> locker(_mtx);
@@ -47,6 +53,12 @@ namespace util {
         inline mmint_t compare_value(std::unique_lock<_Mtx>& _locker) const
         {
             scope_unique_locker<_Mtx> locker(_locker);
+            return compare_value_;
+        }
+
+        inline mmint_t compare_value(std::shared_lock<_Mtx>& _locker) const
+        {
+            scope_shared_locker<_Mtx> locker(_locker);
             return compare_value_;
         }
 
@@ -62,6 +74,12 @@ namespace util {
             return count_ == compare_value_;
         }
 
+        inline bool is_equal(std::shared_lock<_Mtx>& _locker) const
+        {
+            scope_shared_locker<_Mtx> locker(_locker);
+            return count_ == compare_value_;
+        }
+
         inline bool is_greater(_Mtx& _mtx) const
         {
             std::unique_lock<_Mtx> locker(_mtx);
@@ -71,6 +89,12 @@ namespace util {
         inline bool is_greater(std::unique_lock<_Mtx>& _locker) const
         {
             scope_unique_locker<_Mtx> locker(_locker);
+            return count_ > compare_value_;
+        }
+
+        inline bool is_greater(std::shared_lock<_Mtx>& _locker) const
+        {
+            scope_shared_locker<_Mtx> locker(_locker);
             return count_ > compare_value_;
         }
 
@@ -86,16 +110,28 @@ namespace util {
             return count_ < compare_value_;
         }
 
+        inline bool is_less(std::shared_lock<_Mtx>& _locker) const
+        {
+            scope_shared_locker<_Mtx> locker(_locker);
+            return count_ < compare_value_;
+        }
+
         inline bool is_greater_or_equal(_Mtx& _mtx) const
         {
             std::unique_lock<_Mtx> locker(_mtx);
             return count_ >= compare_value_;
         }
 
-        inline bool is_less_or_equal(std::unique_lock<_Mtx>& _locker) const
+        inline bool is_greater_or_equal(std::unique_lock<_Mtx>& _locker) const
         {
             scope_unique_locker<_Mtx> locker(_locker);
-            return count_ <= compare_value_;
+            return count_ >= compare_value_;
+        }
+
+        inline bool is_greater_or_equal(std::shared_lock<_Mtx>& _locker) const
+        {
+            scope_shared_locker<_Mtx> locker(_locker);
+            return count_ >= compare_value_;
         }
 
         inline bool is_less_or_equal(_Mtx& _mtx) const
@@ -110,6 +146,12 @@ namespace util {
             return count_ <= compare_value_;
         }
 
+        inline bool is_less_or_equal(std::shared_lock<_Mtx>& _locker) const
+        {
+            scope_shared_locker<_Mtx> locker(_locker);
+            return count_ <= compare_value_;
+        }
+
         inline bool is_not_equal(_Mtx& _mtx) const
         {
             std::unique_lock<_Mtx> locker(_mtx);
@@ -119,6 +161,12 @@ namespace util {
         inline bool is_not_equal(std::unique_lock<_Mtx>& _locker) const
         {
             scope_unique_locker<_Mtx> locker(_locker);
+            return count_ != compare_value_;
+        }
+
+        inline bool is_not_equal(std::shared_lock<_Mtx>& _locker) const
+        {
+            scope_shared_locker<_Mtx> locker(_locker);
             return count_ != compare_value_;
         }
 
