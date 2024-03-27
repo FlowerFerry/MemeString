@@ -25,58 +25,69 @@ namespace util {
             compare_value_(_compare_value)
         {}
 
-        inline mmint_t count() const
+        inline mmint_t count(_Mtx& _mtx) const
         {
+            std::unique_lock<_Mtx> locker(_mtx);
             return count_;
         }
 
-        inline mmint_t compare_value() const
+        inline mmint_t compare_value(_Mtx& _mtx) const
         {
+            std::unique_lock<_Mtx> locker(_mtx);
             return compare_value_;
         }
 
-        inline bool is_equal() const
+        inline bool is_equal(_Mtx& _mtx) const
         {
+            std::unique_lock<_Mtx> locker(_mtx);
             return count_ == compare_value_;
         }
 
-        inline bool is_greater() const
+        inline bool is_greater(_Mtx& _mtx) const
         {
+            std::unique_lock<_Mtx> locker(_mtx);
             return count_ > compare_value_;
         }
 
-        inline bool is_less() const
+        inline bool is_less(_Mtx& _mtx) const
         {
+            std::unique_lock<_Mtx> locker(_mtx);
             return count_ < compare_value_;
         }
 
-        inline bool is_greater_or_equal() const
+        inline bool is_greater_or_equal(_Mtx& _mtx) const
         {
+            std::unique_lock<_Mtx> locker(_mtx);
             return count_ >= compare_value_;
         }
 
-        inline bool is_less_or_equal() const
+        inline bool is_less_or_equal(_Mtx& _mtx) const
         {
+            std::unique_lock<_Mtx> locker(_mtx);
             return count_ <= compare_value_;
         }
 
-        inline bool is_not_equal() const
+        inline bool is_not_equal(_Mtx& _mtx) const
         {
+            std::unique_lock<_Mtx> locker(_mtx);
             return count_ != compare_value_;
         }
 
-        inline void set_count(mmint_t _count)
+        inline void set_count(_Mtx& _mtx, mmint_t _count)
         {
+            std::unique_lock<_Mtx> locker(_mtx);
             count_ = _count;
         }
 
-        inline void set_compare_value(mmint_t _compare_value)
+        inline void set_compare_value(_Mtx& _mtx, mmint_t _compare_value)
         {
+            std::unique_lock<_Mtx> locker(_mtx);
             compare_value_ = _compare_value;
         }
 
-        inline void set_callback(const std::function<void(const ref_counter&)>& _cb)
+        inline void set_callback(_Mtx& _mtx, const std::function<void(const ref_counter&)>& _cb)
         {
+            std::unique_lock<_Mtx> locker(_mtx);
             if (_cb) {
                 cb_ = std::make_shared< std::function<void(const ref_counter&)> >(_cb);
             }
@@ -160,17 +171,17 @@ namespace util {
 			return *this;
 		}
 
-        inline ref_counter& operator++()
-        {
-            auto mtx = megopp::auxiliary::null_mutex{};
-            return increment(mtx);
-        }
+        // inline ref_counter& operator++()
+        // {
+        //     auto mtx = megopp::auxiliary::null_mutex{};
+        //     return increment(mtx);
+        // }
 
-        inline ref_counter& operator--()
-        {
-            auto mtx = megopp::auxiliary::null_mutex{};
-            return decrement(mtx);
-        }
+        // inline ref_counter& operator--()
+        // {
+        //     auto mtx = megopp::auxiliary::null_mutex{};
+        //     return decrement(mtx);
+        // }
 
 
 
