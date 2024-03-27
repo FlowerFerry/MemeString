@@ -9,6 +9,7 @@
 
 namespace memepp {
 namespace convert {
+}
 
     template<template<class, class, class...> class _Map, 
     typename _Key, typename _Value, typename _KeyParameter, typename _Fn, typename... _MapArgs>
@@ -44,7 +45,6 @@ namespace convert {
         return it->second;
     }
 
-}
 }
 
 #endif // !MEMEPP_CONVERT_STD_UNORDERED_MAP_HPP_INCLUDED
