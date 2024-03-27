@@ -13,7 +13,7 @@ namespace convert {
 
     template<template<class, class, class...> class _Map, 
     typename _Key, typename _Value, typename _KeyParameter, typename _Fn, typename... _MapArgs>
-    memepp::string from_map(
+    inline memepp::string from_map(
         const _Map<_Key, _Value, _MapArgs...>& _map, 
         const _KeyParameter& _key, const memepp::string_view& _default, _Fn&& _fn)
     {
@@ -30,7 +30,7 @@ namespace convert {
 
     template<template<class, class, class...> class _Map, 
     typename _Key, typename _Value, typename _KeyParameter, typename... _MapArgs>
-    memepp::string from_map(
+    inline memepp::string from_map(
         const _Map<_Key, _Value, _MapArgs...>& _map, 
         const _KeyParameter& _key, const memepp::string_view& _default)
     {
