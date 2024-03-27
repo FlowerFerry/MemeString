@@ -68,7 +68,7 @@ struct atomic_counter
         return !(*this == _other);
     }
 
-    inline _Ty operator _Ty() const noexcept
+    inline operator _Ty() const noexcept
     {
         return val_.load(std::memory_order_relaxed);
     }
