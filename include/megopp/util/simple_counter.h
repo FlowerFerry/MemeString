@@ -100,10 +100,11 @@ namespace util {
                 
             if (count < compare_value_ && count_ == compare_value_) 
             {
+                auto cb = cb_;
                 locker.unlock();
     
-                if (cb_)
-                    (*cb_)(*this);
+                if (cb)
+                    (*cb)(*this);
             }
 			return *this;
 		}
@@ -124,10 +125,11 @@ namespace util {
             
             if (count < compare_value_ && count_ == compare_value_) 
             {
+                auto cb = cb_;
                 _locker.unlock();
 
-                if (cb_)
-                    (*cb_)(*this);
+                if (cb)
+                    (*cb)(*this);
             }
 			return *this;
 		}
@@ -139,10 +141,11 @@ namespace util {
 
 			if (count > compare_value_ && count_ == compare_value_) 
 			{
+                auto cb = cb_;
 				locker.unlock();
 
-				if (cb_)
-					(*cb_)(*this);
+				if (cb)
+					(*cb)(*this);
 			}
 			return *this;
 		}
@@ -163,10 +166,11 @@ namespace util {
 
 			if (count > compare_value_ && count_ == compare_value_) 
 			{
+                auto cb = cb_;
 				_locker.unlock();
 
-				if (cb_)
-					(*cb_)(*this);
+				if (cb)
+					(*cb)(*this);
 			}
 			return *this;
 		}
