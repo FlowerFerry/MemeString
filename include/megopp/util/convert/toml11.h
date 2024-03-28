@@ -24,50 +24,50 @@ namespace util {
         
         if constexpr (std::is_convertible<_Ty, std::string>::value)
         {
-            switch (it->second.type())
+            switch (_value.type())
             {
             case toml::value_t::string:
-                return it->second.as_string();
+                return _value.as_string();
             case toml::value_t::integer:
-                return std::to_string(it->second.as_integer());
+                return std::to_string(_value.as_integer());
             case toml::value_t::floating:
-                return std::to_string(it->second.as_floating());
+                return std::to_string(_value.as_floating());
             case toml::value_t::boolean:
-                return it->second.as_boolean() ? "true" : "false";
+                return _value.as_boolean() ? "true" : "false";
             default:
                 return _default;
             }
         }
-        else if (std::is_same<_Ty, memepp::string>::value)
+        else if constexpr (std::is_same<_Ty, memepp::string>::value)
         {
-            switch (it->second.type())
+            switch (_value.type())
             {
             case toml::value_t::string:
-                return mm_from(it->second.as_string());
+                return mm_from(_value.as_string());
             case toml::value_t::integer:
-                return mm_from(std::to_string(it->second.as_integer()));
+                return mm_from(std::to_string(_value.as_integer()));
             case toml::value_t::floating:
-                return mm_from(std::to_string(it->second.as_floating()));
+                return mm_from(std::to_string(_value.as_floating()));
             case toml::value_t::boolean:
-                return it->second.as_boolean() ? "true" : "false";
+                return _value.as_boolean() ? "true" : "false";
             default:
                 return _default;
             }
         }
         else {
-            switch (it->second.type())
+            switch (_value.type())
             {
             case toml::value_t::integer:
-                return static_cast<_Ty>(it->second.as_integer());
+                return static_cast<_Ty>(_value.as_integer());
             case toml::value_t::floating:
-                return static_cast<_Ty>(it->second.as_floating());
+                return static_cast<_Ty>(_value.as_floating());
             case toml::value_t::boolean:
-                return static_cast<_Ty>(it->second.as_boolean());
+                return static_cast<_Ty>(_value.as_boolean());
             case toml::value_t::string:
             {
                 char *endptr = nullptr;
-                auto v = strtod(it->second.as_string().c_str(), &endptr);
-                if (endptr == it->second.as_string().c_str() || errno == ERANGE) 
+                auto v = strtod(_value.as_string().c_str(), &endptr);
+                if (endptr == _value.as_string().c_str() || errno == ERANGE) 
                     return _default;
                 return static_cast<_Ty>(v);
             }
