@@ -65,9 +65,10 @@ namespace util {
                 return static_cast<_Ty>(_value.as_boolean());
             case toml::value_t::string:
             {
+                const char* ptr = static_cast<const std::string&>(_value.as_string()).c_str();
                 char *endptr = nullptr;
-                auto v = strtod(_value.as_string().c_str(), &endptr);
-                if (endptr == _value.as_string().c_str() || errno == ERANGE) 
+                auto v = strtod(ptr, &endptr);
+                if (endptr == ptr || errno == ERANGE) 
                     return _default;
                 return static_cast<_Ty>(v);
             }
