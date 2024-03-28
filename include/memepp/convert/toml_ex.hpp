@@ -22,7 +22,7 @@ namespace convert {
 		}
 		static memepp::string from_object(::toml::string&& _v)
 		{
-            return mm_from(static_cast<std::string&&>(_v));
+            return mm_from(static_cast<std::string&&>(std::move(_v)));
 		}
 	};
 
@@ -40,11 +40,11 @@ namespace convert {
 	{
 		static ::toml::string into_object(const memepp::string& _v)
 		{
-            return std::string_view{ _v.data(), static_cast<size_t>(_v.size()) };
+            return ::toml::string{ std::string_view{ _v.data(), static_cast<size_t>(_v.size()) }};
 		}
 		static ::toml::string into_object(const memepp::string_view& _v)
 		{
-            return std::string_view{ _v.data(), static_cast<size_t>(_v.size()) };
+            return ::toml::string{ std::string_view{ _v.data(), static_cast<size_t>(_v.size()) }};
 		}
 	};
     
