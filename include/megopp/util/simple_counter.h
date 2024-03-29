@@ -13,7 +13,7 @@
 namespace mgpp {
 namespace util {
 
-	template<typename _Mtx = megopp::auxiliary::null_mutex>
+	template<typename _Mtx = megopp::help::null_mutex>
 	struct ref_counter
 	{
 		ref_counter() : count_(0), compare_value_(0) {}
