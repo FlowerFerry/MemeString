@@ -2,6 +2,8 @@
 #ifndef MEGOPP_MEMORY_COW_PTR_H_INCLUDED
 #define MEGOPP_MEMORY_COW_PTR_H_INCLUDED
 
+#include <megopp/help/null_mutex.h>
+
 #include <memory>
 #include <mutex>
 #include <shared_mutex>
@@ -16,6 +18,9 @@ template <
 class cow_ptr 
 {
 public:
+    static constexpr bool is_external_write_mutex = 
+        std::is_same_v<_WriteMutex, megopp::help::null_mutex>;
+
     cow_ptr() noexcept
         : ptr_()
     {    
@@ -154,7 +159,10 @@ public:
         typename = std::enable_if_t<std::is_invocable_v<_Fn, std::shared_ptr<_Ty>&>>>
     inline std::shared_ptr<const _Ty> write(_Fn&& _fn)
     {
-        return write(write_mutex_, std::forward<_Fn>(_fn));
+        if constexpr (is_external_write_mutex)
+            return read();
+        else
+            return write(write_mutex_, std::forward<_Fn>(_fn));
     }
 
     inline std::shared_ptr<_Ty> release()
