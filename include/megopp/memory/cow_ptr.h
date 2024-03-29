@@ -15,6 +15,7 @@ template <
     typename _GenrcMutex = std::shared_mutex>
 class cow_ptr 
 {
+public:
     cow_ptr() noexcept
         : ptr_()
     {    
