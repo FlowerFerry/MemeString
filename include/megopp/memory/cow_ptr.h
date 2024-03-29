@@ -134,9 +134,9 @@ public:
 
     template<typename _Mutex, typename _Fn, 
         typename = std::enable_if_t<std::is_invocable_v<_Fn, std::shared_ptr<_Ty>&>>>
-    inline std::shared_ptr<const _Ty> write(_Mutex& _mtx, _Fn&& _fn)
+    inline std::shared_ptr<const _Ty> write(std::unique_lock<_Mutex>& _locker, _Fn&& _fn)
     {
-        util::scope_unique_locker write_locker(_mtx);
+        util::scope_unique_locker write_locker(_locker);
         auto old_ptr = read();
         auto new_ptr = std::make_shared<_Ty>(*old_ptr);
 
@@ -162,13 +162,15 @@ public:
     {
         if constexpr (is_external_write_mutex)
             return nullptr;
-        else
-            return write(write_mutex_, std::forward<_Fn>(_fn));
+        else {
+            std::uniue_lock<_WriteMutex> locker(write_mutex_, std::defer_lock);
+            return write(locker, std::forward<_Fn>(_fn));
+        }
     }
 
     template<typename _Mutex, typename _CondFn, typename _Fn, 
         typename = std::enable_if_t<std::is_invocable_v<_Fn, std::shared_ptr<_Ty>&>>>
-    inline std::shared_ptr<const _Ty> write_if(_Mutex& _mtx, _CondFn&& _cond_fn, _Fn&& _fn)
+    inline std::shared_ptr<const _Ty> write_if(std::unique_lock<_Mutex>& _locker, _CondFn&& _cond_fn, _Fn&& _fn)
     {
         auto old_ptr = read();
 
@@ -178,7 +180,7 @@ public:
                 return old_ptr;
         }
 
-        util::scope_unique_locker write_locker(_mtx);
+        util::scope_unique_locker write_locker(_locker);
         old_ptr = read();
         auto new_ptr = std::make_shared<_Ty>(*old_ptr);
 
@@ -204,8 +206,10 @@ public:
     {
         if constexpr (is_external_write_mutex)
             return nullptr;
-        else
-            return write_if(write_mutex_, std::forward<_CondFn>(_cond_fn), std::forward<_Fn>(_fn));
+        else {
+            std::unique_lock<_WriteMutex> locker(write_mutex_, std::defer_lock);
+            return write_if(locker, std::forward<_CondFn>(_cond_fn), std::forward<_Fn>(_fn));
+        }
     }
 
     inline std::shared_ptr<_Ty> release()
