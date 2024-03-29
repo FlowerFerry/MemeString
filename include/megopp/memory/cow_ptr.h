@@ -11,8 +11,8 @@ namespace mem {
 
 template <
     typename _Ty, 
-    typename _GenrcMutex = std::shared_mutex, 
-    typename _WriteMutex = std::mutex>
+    typename _WriteMutex = std::mutex, 
+    typename _GenrcMutex = std::shared_mutex>
 class cow_ptr 
 {
     cow_ptr() noexcept
@@ -125,11 +125,11 @@ class cow_ptr
         return ptr_;
     }
 
-    template<typename _Fn, 
+    template<typename _Mutex, typename _Fn, 
         typename = std::enable_if_t<std::is_invocable_v<_Fn, std::shared_ptr<_Ty>&>>>
-    inline std::shared_ptr<const _Ty> write(_Fn&& _fn)
+    inline std::shared_ptr<const _Ty> write(_Mutex& _mtx, _Fn&& _fn)
     {
-        std::unique_lock<_WriteMutex> write_locker(write_mutex_);
+        std::unique_lock<_Mutex> write_locker(_mtx);
         auto old_ptr = read();
         auto new_ptr = std::make_shared<_Ty>(*old_ptr);
 
@@ -147,6 +147,13 @@ class cow_ptr
         genrc_locker.unlock();
         write_locker.unlock();
         return new_ptr;
+    }
+
+    template<typename _Fn, 
+        typename = std::enable_if_t<std::is_invocable_v<_Fn, std::shared_ptr<_Ty>&>>>
+    inline std::shared_ptr<const _Ty> write(_Fn&& _fn)
+    {
+        return write(write_mutex_, std::forward<_Fn>(_fn));
     }
 
     inline std::shared_ptr<_Ty> release()
