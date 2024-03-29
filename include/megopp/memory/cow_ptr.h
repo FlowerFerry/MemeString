@@ -3,6 +3,7 @@
 #define MEGOPP_MEMORY_COW_PTR_H_INCLUDED
 
 #include <megopp/help/null_mutex.h>
+#include <megopp/util/scope_locker.h>
 
 #include <memory>
 #include <mutex>
@@ -135,7 +136,7 @@ public:
         typename = std::enable_if_t<std::is_invocable_v<_Fn, std::shared_ptr<_Ty>&>>>
     inline std::shared_ptr<const _Ty> write(_Mutex& _mtx, _Fn&& _fn)
     {
-        std::unique_lock<_Mutex> write_locker(_mtx);
+        util::scope_unique_locker write_locker(_mtx);
         auto old_ptr = read();
         auto new_ptr = std::make_shared<_Ty>(*old_ptr);
 
