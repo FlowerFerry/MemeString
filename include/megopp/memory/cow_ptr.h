@@ -161,9 +161,51 @@ public:
     inline std::shared_ptr<const _Ty> write(_Fn&& _fn)
     {
         if constexpr (is_external_write_mutex)
-            return read();
+            return nullptr;
         else
             return write(write_mutex_, std::forward<_Fn>(_fn));
+    }
+
+    template<typename _Mutex, typename _CondFn, typename _Fn, 
+        typename = std::enable_if_t<std::is_invocable_v<_Fn, std::shared_ptr<_Ty>&>>>
+    inline std::shared_ptr<const _Ty> write_if(_Mutex& _mtx, _CondFn&& _cond_fn, _Fn&& _fn)
+    {
+        auto old_ptr = read();
+
+        if constexpr (std::is_same_v<std::invoke_result_t<_CondFn, const std::shared_ptr<_Ty>&>, bool>)
+        {
+            if (!_cond_fn(old_ptr))
+                return old_ptr;
+        }
+
+        util::scope_unique_locker write_locker(_mtx);
+        old_ptr = read();
+        auto new_ptr = std::make_shared<_Ty>(*old_ptr);
+
+        if constexpr (std::is_same_v<std::invoke_result_t<_Fn, std::shared_ptr<_Ty>&>, bool>)
+        {
+            if (!_fn(new_ptr))
+                return old_ptr;
+        }
+        else {
+            _fn(new_ptr);
+        }
+
+        std::unique_lock<_GenrcMutex> genrc_locker(genrc_mutex_);
+        ptr_ = new_ptr;
+        genrc_locker.unlock();
+        write_locker.unlock();
+        return new_ptr;
+    }
+
+    template<typename _CondFn, typename _Fn, 
+        typename = std::enable_if_t<std::is_invocable_v<_Fn, std::shared_ptr<_Ty>&>>>
+    inline std::shared_ptr<const _Ty> write_if(_CondFn&& _cond_fn, _Fn&& _fn)
+    {
+        if constexpr (is_external_write_mutex)
+            return nullptr;
+        else
+            return write_if(write_mutex_, std::forward<_CondFn>(_cond_fn), std::forward<_Fn>(_fn));
     }
 
     inline std::shared_ptr<_Ty> release()
