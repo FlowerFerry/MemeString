@@ -7,7 +7,7 @@
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 namespace megopp {
-namespace auxiliary {
+namespace help {
 
 class noncopyable
 {

@@ -9,7 +9,7 @@
 #include "megopp/help/noncopyable.h"
 
 namespace megopp {
-namespace auxiliary {
+namespace help {
 
 class null_mutex
   : private noncopyable
