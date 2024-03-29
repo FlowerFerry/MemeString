@@ -19,8 +19,6 @@ template <
 class cow_ptr 
 {
 public:
-    static constexpr bool is_external_write_mutex = 
-        std::is_same_v<_WriteMutex, megopp::help::null_mutex>;
 
     cow_ptr() noexcept
         : ptr_()
@@ -160,12 +158,8 @@ public:
         typename = std::enable_if_t<std::is_invocable_v<_Fn, std::shared_ptr<_Ty>&>>>
     inline std::shared_ptr<const _Ty> write(_Fn&& _fn)
     {
-        if constexpr (is_external_write_mutex)
-            return nullptr;
-        else {
-            std::uniue_lock<_WriteMutex> locker(write_mutex_, std::defer_lock);
-            return write(locker, std::forward<_Fn>(_fn));
-        }
+        std::uniue_lock<_WriteMutex> locker(write_mutex_, std::defer_lock);
+        return write(locker, std::forward<_Fn>(_fn));
     }
 
     template<typename _Mutex, typename _CondFn, typename _Fn, 
@@ -204,12 +198,8 @@ public:
         typename = std::enable_if_t<std::is_invocable_v<_Fn, std::shared_ptr<_Ty>&>>>
     inline std::shared_ptr<const _Ty> write_if(_CondFn&& _cond_fn, _Fn&& _fn)
     {
-        if constexpr (is_external_write_mutex)
-            return nullptr;
-        else {
-            std::unique_lock<_WriteMutex> locker(write_mutex_, std::defer_lock);
-            return write_if(locker, std::forward<_CondFn>(_cond_fn), std::forward<_Fn>(_fn));
-        }
+        std::unique_lock<_WriteMutex> locker(write_mutex_, std::defer_lock);
+        return write_if(locker, std::forward<_CondFn>(_cond_fn), std::forward<_Fn>(_fn));
     }
 
     inline std::shared_ptr<_Ty> release()

@@ -6,6 +6,8 @@
 #include <megopp/util/scope_cleanup.h>
 #include <megopp/util/scope_locker.h>
 
+#include <meme/string_fwd.h>
+
 #include <memory>
 #include <functional>
 #include <mutex>
