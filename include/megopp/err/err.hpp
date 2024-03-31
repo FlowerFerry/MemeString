@@ -268,7 +268,7 @@ namespace details {
     
     inline std::unique_ptr<basic_err> make_err(const std::shared_ptr<void>& _data)
     {
-        return std::make_unique<user_err>(std::move(_data));
+        return std::make_unique<user_err>(_data);
     }
     
     inline const memepp::string& err_get_message(const basic_err* _e)
