@@ -7,6 +7,7 @@
 #include <megopp/err/err.h>
 #include <memepp/native.hpp>
 #include <memepp/convert/std/wstring.hpp>
+#include <megopp/util/scope_cleanup.h>
 
 #include <type_traits>
 
@@ -22,7 +23,7 @@ namespace win {
 
 #if MG_OS__WIN_AVAIL
     
-    inline memepp::native_string get_known_folder_path_u16(REFKNOWNFOLDERID rfid, mgpp::err& _err)
+    inline memepp::native_string get_known_folder_path_u16(REFKNOWNFOLDERID rfid, mgec_t& _ec)
     {
         wchar_t* szPath = nullptr;
         auto hr = SHGetKnownFolderPath(rfid, 0, NULL, &szPath);
@@ -31,18 +32,18 @@ namespace win {
                 CoTaskMemFree(szPath);
             });
             memepp::native_string path = szPath;
-            _err = mgpp::err{};
+            _ec = 0;
             return path;
         }
         else {
-            _err = mgpp::err(MGEC__ERR, "SHGetKnownFolderPath");
+            _ec = MGEC__ERR;
             return {};
         }
     }
 
-    inline memepp::string get_known_folder_path(REFKNOWNFOLDERID rfid, mgpp::err& _err)
+    inline memepp::string get_known_folder_path(REFKNOWNFOLDERID rfid, mgec_t& _ec)
     {
-        return mm_from(get_known_folder_path_u16(rfid, _err));
+        return mm_from(get_known_folder_path_u16(rfid, _ec));
     }
     
 #endif

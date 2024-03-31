@@ -18,20 +18,18 @@ namespace win {
 #if MG_OS__WIN_AVAIL
 
     template<typename _Fn>
-    inline void enum_logical_drives_u16(_Fn&& _fn, mgpp::err& _err)
+    inline mgec_t enum_logical_drives_u16(_Fn&& _fn)
     {
         DWORD dwSize = GetLogicalDriveStringsW(0, NULL);
         if (dwSize == 0) {
-            _err = mgpp::err(mgec__from_sys_err(GetLastError()), "GetLogicalDriveStringsW");
-            return;
+            return mgec__from_sys_err(GetLastError());
         }
 
         std::vector<wchar_t> drives;
         drives.resize(dwSize + 1, 0);
         dwSize = GetLogicalDriveStringsW(dwSize, drives.data());
         if (dwSize == 0) {
-            _err = mgpp::err(mgec__from_sys_err(GetLastError()), "GetLogicalDriveStringsW");
-            return;
+            return mgec__from_sys_err(GetLastError());
         }
         
         for (wchar_t* p = drives.data(); *p != 0; p += wcslen(p) + 1) 
@@ -45,26 +43,23 @@ namespace win {
                 _fn(p);
             }
         }
-
-        _err = mgpp::err{};
-        return;
+        
+        return 0;
     }
     
     template<typename _Fn>
-    inline void enum_removable_drives_u16(_Fn&& _fn, mgpp::err& _err)
+    inline mgec_t enum_removable_drives_u16(_Fn&& _fn)
     {
         DWORD dwSize = GetLogicalDriveStringsW(0, NULL);
         if (dwSize == 0) {
-            _err = mgpp::err(mgec__from_sys_err(GetLastError()), "GetLogicalDriveStringsW");
-            return;
+            return mgec__from_sys_err(GetLastError());
         }
 
         std::vector<wchar_t> drives;
         drives.resize(dwSize + 1, 0);
         dwSize = GetLogicalDriveStringsW(dwSize, drives.data());
         if (dwSize == 0) {
-            _err = mgpp::err(mgec__from_sys_err(GetLastError()), "GetLogicalDriveStringsW");
-            return;
+            return mgec__from_sys_err(GetLastError());
         }
         
         for (wchar_t* p = drives.data(); *p != 0; p += wcslen(p) + 1) 
@@ -82,9 +77,8 @@ namespace win {
                 _fn(p);
             }
         }
-
-        _err = mgpp::err{};
-        return;
+        
+        return 0;
     }
     
 #endif

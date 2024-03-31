@@ -501,6 +501,12 @@ MEME_API MemeInteger_t
 
 //****************************************************************************/
 
+MG_CAPI_INLINE mmstrstk_t
+mmstrstk_get_init(size_t _object_size)
+{
+    return MemeStringStack_getInitObject(_object_size);
+}
+
 MG_CAPI_INLINE int 
 mmstrstk_init(mmstrstk_t* _out, size_t _object_size) 
 {
@@ -617,56 +623,6 @@ mmstr_assign_by_buf(mmstr_ptr_t _out, mmbuf_cptr_t _other, mmint_t _offset)
 		return MemeStringStack_reset((mmstrstk_t*)_out, MMSTR__OBJ_SIZE);
 	return MemeStringStack_assignByBuffer((mmstrstk_t*)_out, MMSTR__OBJ_SIZE, _other, _offset);
 }
-
-//MEME_API int 
-//MEME_STDCALL mmsstk_init(mmstrstk_t* _out, size_t _object_size);
-//
-//MEME_API int
-//MEME_STDCALL mmsstk_init_by_other(mmstrstk_t* _out, size_t _object_size, mmstr_cptr_t _other);
-//
-//MEME_API int
-//MEME_STDCALL mmsstk_init_by_buf(
-//	mmstrstk_t* _out, size_t _object_size, mmbuf_cptr_t _other, mmint_t _offset);
-//
-//MEME_API int
-//MEME_STDCALL mmsstk_init_by_utf8(
-//	mmstrstk_t* _out, size_t _object_size, const mmbyte_t* _utf8, mmint_t _len);
-//
-//MEME_API int
-//MEME_STDCALL mmsstk_init_by_utf8_v2(
-//	mmstrstk_t* _out, size_t _object_size, const mmbyte_t* _utf8, mmint_t _len,
-//	MemeString_Storage_t _suggest);
-//
-//MEME_API int
-//MEME_STDCALL mmsstk_init_by_hexs(
-//	mmstrstk_t* _out, size_t _object_size,
-//	const mmbyte_t* _interval, mmint_t _ivlen, const uint8_t* _hexs, mmint_t _len);
-//
-//MEME_API int
-//MEME_STDCALL mmsstk_init_by_user(
-//	mmstrstk_t* _out, size_t _object_size,
-//	void* _user_data,
-//	MemeString_UserObjectDestruct_t* _destruct_fn,
-//	MemeString_UserObjectData_t* _data_fn,
-//	MemeString_UserObjectSize_t* _size_fn);
-//
-//MEME_API int
-//MEME_STDCALL mmsstk_uninit(mmstrstk_t* _out, size_t _object_size);
-//
-//MEME_API int
-//MEME_STDCALL mmsstk_reset(mmstrstk_t* _out, size_t _object_size);
-//
-//MEME_API int
-//MEME_STDCALL mms_assign(mmstr_ptr_t _s, mmstr_cptr_t _other);
-//
-//MEME_API int
-//MEME_STDCALL mms_assign_by_utf8(
-//	mmstr_ptr_t _s, const mmbyte_t* _utf8, mmint_t _len);
-//
-//MEME_API int
-//MEME_STDCALL mms_assign_by_buf(
-//	mmstr_ptr_t _out, mmbuf_cptr_t _other, mmint_t _offset);
-
 
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_STRING_H_INCLUDED
