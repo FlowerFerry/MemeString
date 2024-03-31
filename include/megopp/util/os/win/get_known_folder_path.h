@@ -23,7 +23,8 @@ namespace win {
 
 #if MG_OS__WIN_AVAIL
     
-    inline memepp::native_string get_known_folder_path_u16(REFKNOWNFOLDERID rfid, mgec_t& _ec)
+    inline memepp::native_string get_known_folder_path_u16(
+        REFKNOWNFOLDERID rfid, mgec_t* _ec = nullptr)
     {
         wchar_t* szPath = nullptr;
         auto hr = SHGetKnownFolderPath(rfid, 0, NULL, &szPath);
@@ -32,16 +33,19 @@ namespace win {
                 CoTaskMemFree(szPath);
             });
             memepp::native_string path = szPath;
-            _ec = 0;
+            if (_ec)
+                *_ec = 0;
             return path;
         }
         else {
-            _ec = MGEC__ERR;
+            if (_ec)
+                *_ec = MGEC__ERR;
             return {};
         }
     }
 
-    inline memepp::string get_known_folder_path(REFKNOWNFOLDERID rfid, mgec_t& _ec)
+    inline memepp::string get_known_folder_path(
+        REFKNOWNFOLDERID rfid, mgec_t* _ec = nullptr)
     {
         return mm_from(get_known_folder_path_u16(rfid, _ec));
     }

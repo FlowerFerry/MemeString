@@ -5,6 +5,8 @@
 #include <mego/predef/os/windows.h>
 #include <mego/err/ec.h>
 
+#include <megopp/help/objbuf.h>
+
 #include <vector>
 
 #if MG_OS__WIN_AVAIL
@@ -141,6 +143,48 @@ namespace win  {
 #endif
 
     template<typename _Ty,
+        TCP_TABLE_CLASS _TableClass,
+        typename = std::enable_if_t<
+            !std::is_same_v<typename __mib_tcp_tb_traits<_Ty>::table_type, void>>>
+    inline help::objbuf<typename __mib_tcp_tb_traits<_Ty>::table_type> 
+        get_extended_tcp_table(BOOL _order, mgec_t* _ec = nullptr)
+    {
+        using result_t = help::objbuf<typename __mib_tcp_tb_traits<_Ty>::table_type, std::allocator<uint8_t>>;
+
+        DWORD dwSize = 0;
+        DWORD dwResult = GetExtendedTcpTable(
+            nullptr, &dwSize, _order, __mib_tcp_tb_traits<_Ty>::af, _TableClass, 0);
+        if (dwResult != ERROR_INSUFFICIENT_BUFFER)
+        {
+            if (_ec)
+                *_ec = mgec__from_sys_err(dwResult);
+            return {};
+        }
+
+        std::vector<uint8_t> buffer(dwSize);
+        dwResult = GetExtendedTcpTable(buffer.data(), &dwSize, _order, __mib_tcp_tb_traits<_Ty>::af, _TableClass, 0);
+        if (dwResult != NO_ERROR)
+        {
+            if (_ec)
+                *_ec = mgec__from_sys_err(dwResult);
+            return {};
+        }
+
+        if (_ec)
+            *_ec = mgec_t{};
+        return result_t{ std::move(buffer) };
+    }
+
+    template<typename _Ty,
+        typename = std::enable_if_t<
+            !std::is_same_v<typename __mib_tcp_tb_traits<_Ty>::table_type, void>>>
+    inline help::objbuf<typename __mib_tcp_tb_traits<_Ty>::table_type> 
+        get_extended_tcp_table(BOOL _order, mgec_t* _ec = nullptr)
+    {
+        return get_extended_tcp_table<_Ty, __mib_tcp_tb_traits<_Ty>::table_class>(_order, _ec);
+    }
+
+    template<typename _Ty,
         TCP_TABLE_CLASS _TableClass, 
         typename _Fn,
         typename = std::enable_if_t<
@@ -156,7 +200,7 @@ namespace win  {
             return MGEC__ERR;
         }
 
-        std::vector<char> buffer(dwSize);
+        std::vector<uint8_t> buffer(dwSize);
         dwResult = GetExtendedTcpTable(buffer.data(), &dwSize, _order, __mib_tcp_tb_traits<_Ty>::af, _TableClass, 0);
         if (dwResult != NO_ERROR)
         {
