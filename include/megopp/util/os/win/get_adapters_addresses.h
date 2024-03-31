@@ -24,7 +24,7 @@ namespace win {
 #if MG_OS__WIN_AVAIL
 
 template <typename _Fn>
-inline mgpp::err get_adapters_addresses(_Fn&& _fn)
+inline mgec_t enum_adapters_addresses(_Fn&& _fn)
 {
     static_assert(std::is_invocable_v<_Fn, const IP_ADAPTER_ADDRESSES*>, "Invalid function type");
 
@@ -40,12 +40,12 @@ inline mgpp::err get_adapters_addresses(_Fn&& _fn)
             buf.resize(len);
         }
         else if (ret != ERROR_SUCCESS) {
-            return mgpp::err{ mgec__from_sys_err(ret) };
+            return mgec__from_sys_err(ret);
         }
     } while (ret == ERROR_BUFFER_OVERFLOW && iterations++ < 3);
 
     if (ret != ERROR_SUCCESS)
-        return mgpp::err{ mgec__from_sys_err(ret) };
+        return mgec__from_sys_err(ret);
 
     IP_ADAPTER_ADDRESSES *p = (IP_ADAPTER_ADDRESSES*)buf.data();
 
@@ -62,7 +62,7 @@ inline mgpp::err get_adapters_addresses(_Fn&& _fn)
         
     }
     
-    return mgpp::err{};
+    return 0;
 }
 
 #endif

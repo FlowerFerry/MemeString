@@ -146,7 +146,7 @@ namespace win  {
         typename = std::enable_if_t<
             std::is_invocable_v<_Fn, const typename __mib_tcp_tb_traits<_Ty>::row_type&>
             || !std::is_same_v<typename __mib_tcp_tb_traits<_Ty>::table_type, void>>>
-    inline mgec_t get_extended_tcp_table(BOOL _order, DWORD& _numEntries, _Fn&& _fn)
+    inline mgec_t enum_extended_tcp_table(BOOL _order, DWORD& _numEntries, _Fn&& _fn)
     {
         DWORD dwResult = 0;
         DWORD dwSize = 0;
@@ -186,9 +186,9 @@ namespace win  {
         typename = std::enable_if_t<
         std::is_invocable_v<_Fn, const typename __mib_tcp_tb_traits<_Ty>::row_type&>
         || !std::is_same_v<typename __mib_tcp_tb_traits<_Ty>::table_type, void>>>
-        inline mgec_t get_extended_tcp_table(BOOL _order, DWORD& _numEntries, _Fn&& _fn)
+        inline mgec_t enum_extended_tcp_table(BOOL _order, DWORD& _numEntries, _Fn&& _fn)
     {
-        return get_extended_tcp_table<_Ty, __mib_tcp_tb_traits<_Ty>::table_class>(_order, _numEntries, std::forward<_Fn>(_fn));
+        return enum_extended_tcp_table<_Ty, __mib_tcp_tb_traits<_Ty>::table_class>(_order, _numEntries, std::forward<_Fn>(_fn));
     }
 
     template<typename _Ty,
@@ -197,10 +197,10 @@ namespace win  {
         typename = std::enable_if_t<
         std::is_invocable_v<_Fn, const typename __mib_tcp_tb_traits<_Ty>::row_type&>
         || !std::is_same_v<typename __mib_tcp_tb_traits<_Ty>::table_type, void>>>
-        inline mgec_t get_extended_tcp_table(BOOL _order, _Fn&& _fn)
+        inline mgec_t enum_extended_tcp_table(BOOL _order, _Fn&& _fn)
     {
         DWORD dwNumEntries = 0;
-        return get_extended_tcp_table<_Ty, _TableClass>(_order, dwNumEntries, std::forward<_Fn>(_fn));
+        return enum_extended_tcp_table<_Ty, _TableClass>(_order, dwNumEntries, std::forward<_Fn>(_fn));
     }
     
     template<typename _Ty,
@@ -208,9 +208,9 @@ namespace win  {
         typename = std::enable_if_t<
         std::is_invocable_v<_Fn, const typename __mib_tcp_tb_traits<_Ty>::row_type&>
         || !std::is_same_v<typename __mib_tcp_tb_traits<_Ty>::table_type, void>>>
-        inline mgec_t get_extended_tcp_table(BOOL _order, _Fn&& _fn)
+        inline mgec_t enum_extended_tcp_table(BOOL _order, _Fn&& _fn)
     {
-        return get_extended_tcp_table<_Ty, __mib_tcp_tb_traits<_Ty>::table_class>(_order, std::forward<_Fn>(_fn));
+        return enum_extended_tcp_table<_Ty, __mib_tcp_tb_traits<_Ty>::table_class>(_order, std::forward<_Fn>(_fn));
     }
 #endif
 }
