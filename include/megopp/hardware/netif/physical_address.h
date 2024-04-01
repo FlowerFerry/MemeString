@@ -37,7 +37,7 @@ inline mgpp::err get_phy_addr_infos(std::map<int, mgpp::netif::phy_addr_info>& _
 {
     _infos.clear();
 #if MG_OS__WIN_AVAIL
-    auto err = mgpp::os::win::get_adapters_addresses([&](const IP_ADAPTER_ADDRESSES* _addr) 
+    auto err = mgpp::os::win::enum_adapters_addresses([&](const IP_ADAPTER_ADDRESSES* _addr) 
     {
         mgpp::netif::phy_addr_info info;
 
