@@ -175,6 +175,7 @@ namespace details {
         full_err() = default;
 
         full_err(const full_err& _e)
+            : fninfo_and_sln_err(_e)
         {
             for (auto& item : _e.list_)
             {
