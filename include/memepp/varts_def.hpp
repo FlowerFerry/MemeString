@@ -24,12 +24,18 @@ namespace memepp {
         {}
 
         varts(const mmvtsstk_t& _vts)
-            : ts_ud_(_vts.ts, _vts.userdata), var_(_vts.var)
-        {}
+            : var_(_vts.var)
+        {
+            ts_ud_.ts_ = _vts.ts;
+            ts_ud_.ud_ = _vts.userdata;
+        }
 
         varts(mmvtsstk_t&& _vts) noexcept
-            : ts_ud_(_vts.ts, _vts.userdata), var_(std::move(_vts.var))
-        {}
+            : var_(std::move(_vts.var))
+        {
+            ts_ud_.ts_ = _vts.ts;
+            ts_ud_.ud_ = _vts.userdata;
+        }
 
         varts(const variant& _var)
             : var_(_var)
@@ -40,45 +46,61 @@ namespace memepp {
         {}
 
         varts(const variant& _var, mgu_timestamp_t _ts)
-            : ts_ud_(_ts), var_(_var)
+            : var_(_var)
         {
+            ts_ud_.ud_ = 0;
             if (_ts == -1)
                 ts_ud_.ts_ = MMVTS__TS_INVALID;
+            else
+                ts_ud_.ts_ = _ts;
         }
 
         varts(variant&& _var, mgu_timestamp_t _ts)
-            : ts_ud_(_ts), var_(std::move(_var))
+            : var_(std::move(_var))
         {
+            ts_ud_.ud_ = 0;
             if (_ts == -1)
                 ts_ud_.ts_ = MMVTS__TS_INVALID;
+            else
+                ts_ud_.ts_ = _ts;
         }
         
         varts(const variant& _var, mgu_timestamp_t _ts, int8_t _ud)
-            : ts_ud_(_ts, _ud), var_(_var)
+            : var_(_var)
         {
+            ts_ud_.ud_ = _ud;
             if (_ts == -1)
                 ts_ud_.ts_ = MMVTS__TS_INVALID;
+            else
+                ts_ud_.ts_ = _ts;
         }
 
         varts(variant&& _var, mgu_timestamp_t _ts, int8_t _ud) noexcept
-            : ts_ud_(_ts, _ud), var_(std::move(_var))
+            : var_(std::move(_var))
         {
+            ts_ud_.ud_ = _ud;
             if (_ts == -1)
                 ts_ud_.ts_ = MMVTS__TS_INVALID;
+            else
+                ts_ud_.ts_ = _ts;
         }
 
         varts(mgu_timestamp_t _ts)
-            : ts_ud_(_ts)
         {
+            ts_ud_.ud_ = 0;
             if (_ts == -1)
                 ts_ud_.ts_ = MMVTS__TS_INVALID;
+            else
+                ts_ud_.ts_ = _ts;
         }
 
         varts(mgu_timestamp_t _ts, int8_t _ud)
-            : ts_ud_(_ts, _ud)
         {
+            ts_ud_.ud_ = _ud;
             if (_ts == -1)
                 ts_ud_.ts_ = MMVTS__TS_INVALID;
+            else
+                ts_ud_.ts_ = _ts;
         }
 
         varts& operator=(const varts& _other)
@@ -226,9 +248,6 @@ namespace memepp {
     private:
         union {
             struct TsUd {
-                TsUd() : ts_(MMVTS__TS_INVALID), ud_(0) {}
-                TsUd(mgu_timestamp_t _ts, int8_t _ud) : ts_((uint64_t)_ts), ud_((uint8_t)_ud) {}
-                TsUd(mgu_timestamp_t _ts) : ts_((uint64_t)_ts), ud_(0) {}
 
                 uint64_t ts_ : (CHAR_BIT * 7); // unix timestamp
                 uint64_t ud_ : (CHAR_BIT * 1); // user data
