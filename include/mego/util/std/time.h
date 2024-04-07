@@ -119,7 +119,7 @@ extern "C" {
         return ctime_s(_buf, _bufsz, _time);
     #else
         if (!_buf || _time) return MGEC__INVAL;
-        if (_bufsz < 26 || _bufsz > SIZE_MAX) return MGEC__INVAL;
+        if (_bufsz < 26) return MGEC__INVAL;
 
         auto time = static_cast<time_t>(*_time);
         errno = 0;
