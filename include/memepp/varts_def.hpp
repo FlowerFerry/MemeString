@@ -3,6 +3,7 @@
 #define MEME_VARTS_DEF_H_INCLUDED
 
 #include <meme/varts_fwd.h>
+#include <mego/predef/compiler/visualc.h>
 
 #include <memepp/varts_fwd.hpp>
 #include <memepp/variant_def.hpp>
@@ -247,7 +248,11 @@ namespace memepp {
 
     private:
         union {
+#if MEGO_COMP__MSVC__AVAILABLE
             struct TsUd {
+#else
+            struct {
+#endif
 
                 uint64_t ts_ : (CHAR_BIT * 7); // unix timestamp
                 uint64_t ud_ : (CHAR_BIT * 1); // user data
