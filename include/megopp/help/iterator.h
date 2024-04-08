@@ -8,15 +8,14 @@
 namespace mgpp {
 namespace help {
     
-template <typename It>
+template <typename It, typename = void>
 struct iter_traits
 {
     using mapped_type = typename std::iterator_traits<It>::value_type;
 };
 
-template <typename It, 
-    typename = std::enable_if_t<megopp::is_pair_v<typename std::iterator_traits<It>::value_type>>>
-struct iter_traits
+template <typename It>
+struct iter_traits<It, std::enable_if_t<megopp::is_pair_v<typename std::iterator_traits<It>::value_type>>>
 {
     using mapped_type = typename std::iterator_traits<It>::value_type::second_type;
 };
