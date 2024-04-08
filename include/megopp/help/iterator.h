@@ -2,11 +2,25 @@
 #ifndef MEGOPP_HELP_ITERATOR_H_INCLUDED
 #define MEGOPP_HELP_ITERATOR_H_INCLUDED
 
-#include <utility>
+#include "type_traits.h"
+#include <iterator>
 
 namespace mgpp {
 namespace help {
     
+template <typename It>
+struct iter_traits
+{
+    using mapped_type = typename std::iterator_traits<It>::value_type;
+};
+
+template <typename It, 
+    typename = std::enable_if_t<megopp::is_pair_v<typename std::iterator_traits<It>::value_type>>>
+struct iter_traits
+{
+    using mapped_type = typename std::iterator_traits<It>::value_type::second_type;
+};
+
 template <typename T, typename U>
 inline U & iter_value(std::pair<T, U> & pair) 
 {

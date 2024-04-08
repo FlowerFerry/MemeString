@@ -7,9 +7,20 @@
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
 #include <stdint.h>
+
+#include <utility>
 #include <type_traits>
 
 namespace megopp {
+
+template <typename T>
+struct is_pair : std::false_type {};
+
+template <typename T, typename U>
+struct is_pair<std::pair<T, U>> : std::true_type {};
+
+template <typename T>
+constexpr bool is_pair_v = is_pair<T>::value;
 
 	template<size_t _bytes>
 	struct type_with_size {};
