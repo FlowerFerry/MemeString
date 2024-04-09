@@ -28,9 +28,9 @@ namespace util {
             compare_value_(_compare_value)
         {}
         
-        template<typename _Dummy = void,
+        template<
             typename = std::enable_if_t<
-                std::is_same<_Mtx, megopp::help::null_mutex>::value&& std::is_same<_Dummy, void>::value>>
+                std::is_same<_Mtx, megopp::help::null_mutex>::value>>
         inline mmint_t count() const
         {
             return count_;
@@ -54,9 +54,9 @@ namespace util {
             return count_;
         }
 
-        template<typename _Dummy = void,
+        template<
             typename = std::enable_if_t<
-                std::is_same<_Mtx, megopp::help::null_mutex>::value&& std::is_same<_Dummy, void>::value>>
+                std::is_same<_Mtx, megopp::help::null_mutex>::value>>
         inline mmint_t compare_value() const
         {
             return compare_value_;
@@ -80,9 +80,9 @@ namespace util {
             return compare_value_;
         }
 
-        template<typename _Dummy = void,
+        template<
             typename = std::enable_if_t<
-                std::is_same<_Mtx, megopp::help::null_mutex>::value&& std::is_same<_Dummy, void>::value>>
+                std::is_same<_Mtx, megopp::help::null_mutex>::value>>
         inline bool is_equal() const
         {
             return count_ == compare_value_;
@@ -106,9 +106,9 @@ namespace util {
             return count_ == compare_value_;
         }
 
-        template<typename _Dummy = void,
+        template<
             typename = std::enable_if_t<
-                std::is_same<_Mtx, megopp::help::null_mutex>::value&& std::is_same<_Dummy, void>::value>>
+                std::is_same<_Mtx, megopp::help::null_mutex>::value>>
         inline bool is_greater() const
         {
             return count_ > compare_value_;
@@ -132,9 +132,9 @@ namespace util {
             return count_ > compare_value_;
         }
 
-        template<typename _Dummy = void,
+        template<
             typename = std::enable_if_t<
-                std::is_same<_Mtx, megopp::help::null_mutex>::value&& std::is_same<_Dummy, void>::value>>
+                std::is_same<_Mtx, megopp::help::null_mutex>::value>>
         inline bool is_less() const
         {
             return count_ < compare_value_;
@@ -158,9 +158,9 @@ namespace util {
             return count_ < compare_value_;
         }
 
-        template<typename _Dummy = void,
+        template<
             typename = std::enable_if_t<
-                std::is_same<_Mtx, megopp::help::null_mutex>::value&& std::is_same<_Dummy, void>::value>>
+                std::is_same<_Mtx, megopp::help::null_mutex>::value>>
         inline bool is_greater_or_equal() const
         {
             return count_ >= compare_value_;
@@ -184,9 +184,9 @@ namespace util {
             return count_ >= compare_value_;
         }
 
-        template<typename _Dummy = void,
+        template<
             typename = std::enable_if_t<
-                std::is_same<_Mtx, megopp::help::null_mutex>::value&& std::is_same<_Dummy, void>::value>>
+                std::is_same<_Mtx, megopp::help::null_mutex>::value>>
         inline bool is_less_or_equal() const
         {
             return count_ <= compare_value_;
@@ -210,9 +210,9 @@ namespace util {
             return count_ <= compare_value_;
         }
 
-        template<typename _Dummy = void,
+        template<
             typename = std::enable_if_t<
-                std::is_same<_Mtx, megopp::help::null_mutex>::value&& std::is_same<_Dummy, void>::value>>
+                std::is_same<_Mtx, megopp::help::null_mutex>::value>>
         inline bool is_not_equal() const
         {
             return count_ != compare_value_;
@@ -236,9 +236,9 @@ namespace util {
             return count_ != compare_value_;
         }
 
-        template<typename _Dummy = void,
+        template<
             typename = std::enable_if_t<
-                std::is_same<_Mtx, megopp::help::null_mutex>::value&& std::is_same<_Dummy, void>::value>>
+                std::is_same<_Mtx, megopp::help::null_mutex>::value>>
         inline void set_count(mmint_t _count)
         {
             count_ = _count;
@@ -256,9 +256,9 @@ namespace util {
             count_ = _count;
         }
 
-        template<typename _Dummy = void,
+        template<
             typename = std::enable_if_t<
-                std::is_same<_Mtx, megopp::help::null_mutex>::value&& std::is_same<_Dummy, void>::value>>
+                std::is_same<_Mtx, megopp::help::null_mutex>::value>>
         inline void set_compare_value(mmint_t _compare_value)
         {
             compare_value_ = _compare_value;
@@ -276,9 +276,9 @@ namespace util {
             compare_value_ = _compare_value;
         }
 
-        template<typename _Dummy = void,
+        template<
             typename = std::enable_if_t<
-                std::is_same<_Mtx, megopp::help::null_mutex>::value&& std::is_same<_Dummy, void>::value>>
+                std::is_same<_Mtx, megopp::help::null_mutex>::value>>
         inline void set_callback(const std::function<void(const ref_counter&)>& _cb)
         {
             if (_cb) {
@@ -302,9 +302,9 @@ namespace util {
             }
         }
 		
-        template<typename _Dummy = void,
+        template<
             typename = std::enable_if_t<
-                std::is_same<_Mtx, megopp::help::null_mutex>::value&& std::is_same<_Dummy, void>::value>>
+                std::is_same<_Mtx, megopp::help::null_mutex>::value>>
         inline ref_counter& increment()
         {
             auto count = count_++;
@@ -350,9 +350,9 @@ namespace util {
 			return *this;
 		}
         
-        template<typename _Dummy = void,
+        template<
             typename = std::enable_if_t<
-                std::is_same<_Mtx, megopp::help::null_mutex>::value&& std::is_same<_Dummy, void>::value>>
+                std::is_same<_Mtx, megopp::help::null_mutex>::value>>
         inline ref_counter& decrement()
         {
             auto count = count_--;
