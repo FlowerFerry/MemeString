@@ -129,7 +129,9 @@ namespace endian {
 #endif
 
     
-    template<typename _Ty, endian_t _Endian>
+    template<typename _Ty, endian_t _Endian,
+        typename = typename std::enable_if<
+            std::is_arithmetic<_Ty>::value || std::is_enum<_Ty>::value>::type>
     struct arithmetic_member
     {
         using type = _Ty;
@@ -201,30 +203,35 @@ namespace endian {
             return *this;
         }
         
+        template<typename = typename std::enable_if<!std::is_floating_point<type>::value>::type>
         inline arithmetic_member& operator&=(const type& _value) noexcept
         {
             set_value(get_value() & _value);
             return *this;
         }
 
+        template<typename = typename std::enable_if<!std::is_floating_point<type>::value>::type>
         inline arithmetic_member& operator|=(const type& _value) noexcept
         {
             set_value(get_value() | _value);
             return *this;
         }
 
+        template<typename = typename std::enable_if<!std::is_floating_point<type>::value>::type>
         inline arithmetic_member& operator^=(const type& _value) noexcept
         {
             set_value(get_value() ^ _value);
             return *this;
         }
 
+        template<typename = typename std::enable_if<!std::is_floating_point<type>::value>::type>
         inline arithmetic_member& operator<<=(const type& _value) noexcept
         {
             set_value(get_value() << _value);
             return *this;
         }
 
+        template<typename = typename std::enable_if<!std::is_floating_point<type>::value>::type>
         inline arithmetic_member& operator>>=(const type& _value) noexcept
         {
             set_value(get_value() >> _value);
@@ -233,7 +240,7 @@ namespace endian {
 
         inline arithmetic_member& operator%=(const type& _value) noexcept
         {
-            set_value(get_value() % _value);
+            set_value(fmod(_value, std::is_floating_point<type>()));
             return *this;
         }
 
@@ -285,14 +292,16 @@ namespace endian {
 
         inline type operator%(const type& _value) const noexcept
         {
-            return get_value() % _value;
+            return fmod(_value, std::is_floating_point<type>());
         }
 
+        template<typename = typename std::enable_if<!std::is_floating_point<type>::value>::type>
         inline type operator&(const type& _value) const noexcept
         {
             return get_value() & _value;
         }
 
+        template<typename = typename std::enable_if<!std::is_floating_point<type>::value>::type>
         inline type operator|(const type& _value) const noexcept
         {
             return get_value() | _value;
@@ -361,6 +370,16 @@ namespace endian {
         }
 
     protected:
+        inline type fmod(const type& _value, std::false_type) const noexcept
+        {
+            return get_value() % _value;
+        }
+
+        inline type fmod(const type& _value, std::true_type) const noexcept
+        {
+            return std::fmod(get_value(), _value);
+        }
+
         arithmetic_member_private<_Ty, _Endian> private_;
     };
 
