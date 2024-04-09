@@ -4,6 +4,7 @@
 
 #include "memepp/string_def.hpp"
 #include "memepp/string_view_def.hpp"
+#include "memepp/convert/common_def.hpp"
 #include "fmt/format.h"
 
 template <>
