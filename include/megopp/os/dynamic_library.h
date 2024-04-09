@@ -12,6 +12,7 @@
 #include "megopp/util/os/win/error_message.h"
 
 #include <memory>
+#include <type_traits>
 
 //#include "utf8/unchecked.h"
 
@@ -49,8 +50,9 @@ namespace os {
 		inline static std::shared_ptr<dynamic_library> load
 			(const memepp::string & _path, memepp::string & _errorString, bool _dependentLibraryMode = false);
 
-		template<typename _Fn>
-		inline _Fn* get_symbol(const char* _symbol);
+		template<typename _Fn, 
+			typename = std::enable_if_t<std::is_function<typename std::remove_pointer<_Fn>::type>::value>>
+		inline typename std::remove_pointer<_Fn>::type* get_symbol(const char* _symbol);
 
 		inline static const memepp::string & file_name_suffix()
 		{
@@ -142,16 +144,16 @@ namespace os {
 		return std::shared_ptr<dynamic_library>(original);
 	}
 
-	template<typename _Fn>
-	inline _Fn * dynamic_library::get_symbol(const char * _symbol)
+	template<typename _Fn, typename>
+	inline typename std::remove_pointer<_Fn>::type * dynamic_library::get_symbol(const char * _symbol)
 	{
 		if (!handle_)
 			return NULL;
 
 #if MEGO_OS__WINDOWS__AVAILABLE
-		return (_Fn *)::GetProcAddress((HMODULE)handle_, _symbol);
+		return (typename std::remove_pointer<_Fn>::type *)::GetProcAddress((HMODULE)handle_, _symbol);
 #else
-		return (_Fn *)::dlsym(handle_, _symbol);
+		return (typename std::remove_pointer<_Fn>::type *)::dlsym(handle_, _symbol);
 #endif
 	}
 
