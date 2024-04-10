@@ -62,7 +62,10 @@ namespace endian {
 		case endian_t::big_word:
 		{
 #if MEGO_ENDIAN__LITTLE_BYTE || MEGO_ENDIAN__BIG_BYTE
-			_v = word_swap(_v);
+			if constexpr (sizeof(_Ty) >= 4)
+			{
+				_v = word_swap(_v);
+			}
 #if MEGO_ENDIAN__LITTLE_BYTE
 			return byte_swap(_v);
 #endif
@@ -73,7 +76,10 @@ namespace endian {
 		case endian_t::little_word:
 		{
 #if MEGO_ENDIAN__LITTLE_BYTE || MEGO_ENDIAN__BIG_BYTE
-			_v = word_swap(_v);
+			if constexpr (sizeof(_Ty) >= 4)
+			{
+				_v = word_swap(_v);
+			}
 #if MEGO_ENDIAN__BIG_BYTE
 			return byte_swap(_v);
 #endif
