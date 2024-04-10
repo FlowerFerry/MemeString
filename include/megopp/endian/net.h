@@ -61,11 +61,25 @@ namespace endian {
 		} break;
 		case endian_t::big_word:
 		{
-
+#if MEGO_ENDIAN__LITTLE_BYTE || MEGO_ENDIAN__BIG_BYTE
+			_v = word_swap(_v);
+#if MEGO_ENDIAN__LITTLE_BYTE
+			return byte_swap(_v);
+#endif
+#else
+#	error "[megopp::endian::htot] unknown endianness"
+#endif
 		} break;
 		case endian_t::little_word:
 		{
-
+#if MEGO_ENDIAN__LITTLE_BYTE || MEGO_ENDIAN__BIG_BYTE
+			_v = word_swap(_v);
+#if MEGO_ENDIAN__BIG_BYTE
+			return byte_swap(_v);
+#endif
+#else
+#	error "[megopp::endian::htot] unknown endianness"
+#endif
 		} break;
 		default:
 			return _v;
