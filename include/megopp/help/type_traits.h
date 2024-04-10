@@ -56,10 +56,10 @@ constexpr bool is_pair_v = is_pair<T>::value;
 	};
 
 	template<size_t _ByteSize>
-	using types_by_size = type_with_size<_ByteSize>;
+	using type_by_size = type_with_size<_ByteSize>;
 
 	template<size_t _BeginBit, size_t _BitSize>
-	using types_by_bit_size = type_with_size<(_BeginBit + _BitSize + 7) / 8>;
+	using type_by_bit_size = type_with_size<(_BeginBit + _BitSize + 7) / 8>;
 
 } // namespace megopp
 

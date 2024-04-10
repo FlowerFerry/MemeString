@@ -15,7 +15,7 @@ namespace endian {
 	template<size_t _BeginBit, size_t _BitSize, typename _Type, endian_t _Endian>
 	struct bit_field_member_private
     {
-        using uint_type = typename types_by_size<sizeof(_Type)>::uint;
+        using uint_type = typename type_by_size<sizeof(_Type)>::uint;
 
         static constexpr uint_type total_bit_size   = sizeof(_Type) * CHAR_BIT;
         static constexpr uint_type mask             = ((1 << _BitSize) - 1);
@@ -44,7 +44,7 @@ namespace endian {
 #endif
     >
     {
-        using uint_type = typename types_by_size<sizeof(_Type)>::uint;
+        using uint_type = typename type_by_size<sizeof(_Type)>::uint;
 
         static constexpr uint_type total_bit_size   = sizeof(_Type) * CHAR_BIT;
         static constexpr uint_type mask             = ((1 << _BitSize) - 1);
@@ -77,7 +77,7 @@ namespace endian {
 #endif
     >
     {
-        using uint_type = typename types_by_size<sizeof(_Type)>::uint;
+        using uint_type = typename type_by_size<sizeof(_Type)>::uint;
 
         static constexpr uint_type total_bit_size   = sizeof(_Type) * CHAR_BIT;
         static constexpr uint_type mask             = ((1 << _BitSize) - 1);

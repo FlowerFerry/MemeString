@@ -90,7 +90,7 @@ namespace endian {
     >
     {
         using type = _Ty;
-        using uint_type = typename types_by_size<sizeof(_Ty)>::uint;
+        using uint_type = typename type_by_size<sizeof(_Ty)>::uint;
 
         // arithmetic_member_private() noexcept :
         //     data_(0)
