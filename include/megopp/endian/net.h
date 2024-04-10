@@ -34,6 +34,44 @@ namespace endian {
 #endif
 	}
 
+	template<typename _Ty>
+	inline _Ty htot(_Ty _v, endian_t _target) noexcept
+	{
+		switch (_target)
+		{
+		case endian_t::big_byte:
+		{
+#if	MEGO_ENDIAN__BIG_BYTE
+			return _v;
+#elif MEGO_ENDIAN__LITTLE_BYTE
+			return byte_swap(_v);
+#else
+#	error "[megopp::endian::htot] unknown endianness"
+#endif
+		} break;
+		case endian_t::little_byte:
+		{
+#if	MEGO_ENDIAN__BIG_BYTE
+			return byte_swap(_v);
+#elif MEGO_ENDIAN__LITTLE_BYTE
+			return _v;
+#else
+#	error "[megopp::endian::htot] unknown endianness"
+#endif
+		} break;
+		case endian_t::big_word:
+		{
+
+		} break;
+		case endian_t::little_word:
+		{
+
+		} break;
+		default:
+			return _v;
+		}
+	}
+
 };
 };
 
