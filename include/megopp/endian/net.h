@@ -90,6 +90,8 @@ namespace endian {
 		default:
 			return _v;
 		}
+		
+		return _v;
 	}
 
 };
