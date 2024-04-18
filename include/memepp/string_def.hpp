@@ -14,6 +14,8 @@
 #include "memepp/iterator.hpp"
 #include "memepp/rune_iterator.hpp"
 
+#include <type_traits>
+
 namespace memepp {
 
     //! \brief A string class.
@@ -153,7 +155,18 @@ namespace memepp {
 		size_type index_of(const char* _utf8, bool _full_match,
 			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
 		
-		size_type index_of(const char* _utf8, size_type _u8len, size_type _offset, bool _full_match,
+		size_type index_of(const char* _utf8, size_type _u8len, 
+			size_type _offset, bool _full_match,
+			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
+
+		size_type last_index_of(const string& _other,
+			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
+		
+		size_type last_index_of(const string& _other,
+			size_type _offset, size_type _limit, bool _full_match,
+			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
+
+		size_type last_index_of(const char* _utf8, 
 			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
 		
 		size_type last_index_of(const char* _utf8, bool _full_match,
@@ -230,9 +243,9 @@ namespace memepp {
 		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container> _inserter) const;
 
-		template<class _Container>
-		inline MemeInteger_t split(string_view _key, 
-			std::back_insert_iterator<_Container> _inserter) const;
+		//template<class _Container>
+		//inline MemeInteger_t split(string_view _key, 
+		//	std::back_insert_iterator<_Container> _inserter) const;
 
 		//template<template<class, class...> class _Container, typename _Ty, class... _Arg>
 		//inline MemeInteger_t split(
@@ -244,62 +257,66 @@ namespace memepp {
 		//! \param _behavior The behavior of split.
 		//! \param _inserter The inserter to insert the result.
 		//! \return The error code.
-		template<template<class> class _Container>
+		template<template<class> class _Container,
+            typename = std::enable_if_t<std::is_same_v<string, typename _Container<string>::value_type>>>
 		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string>> _inserter) const;
 
-		template<template<class> class _Container>
-		inline MemeInteger_t split(string_view _key, 
-			std::back_insert_iterator<_Container<string>> _inserter) const;
+		//template<template<class> class _Container>
+		//inline MemeInteger_t split(string_view _key, 
+		//	std::back_insert_iterator<_Container<string>> _inserter) const;
 
 		//! \brief Split string with key.
 		//! \param _key The key to split.
 		//! \param _behavior The behavior of split.
 		//! \param _inserter The inserter to insert the result.
 		//! \return The error code.
-		template<template<class> class _Container>
+		template<template<class> class _Container,
+            typename = std::enable_if_t<std::is_same_v<string_view, typename _Container<string_view>::value_type>>>
 		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string_view>> _inserter) const MEGOPP__NOEXCEPT;
 
-		template<template<class> class _Container>
-		inline MemeInteger_t split(string_view _key, 
-			std::back_insert_iterator<_Container<string_view>> _inserter) const;
+		//template<template<class> class _Container>
+		//inline MemeInteger_t split(string_view _key, 
+		//	std::back_insert_iterator<_Container<string_view>> _inserter) const;
 
 		//! \brief Split string with key.
 		//! \param _key The key to split.
 		//! \param _behavior The behavior of split.
 		//! \param _inserter The inserter to insert the result.
 		//! \return The error code.
-		template<template<class, class...> class _Container, class... _Arg>
+		template<template<class, class...> class _Container, class... _Arg,
+            typename = std::enable_if_t<std::is_same_v<string, typename _Container<string, _Arg...>::value_type>>>
 		inline MemeInteger_t split(
 			string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string, _Arg...>> _inserter) const;
 
-		template<template<class, class...> class _Container, class... _Arg>
-		inline MemeInteger_t split(
-			string_view _key, 
-			std::back_insert_iterator<_Container<string, _Arg...>> _inserter) const;
+		//template<template<class, class...> class _Container, class... _Arg>
+		//inline MemeInteger_t split(
+		//	string_view _key, 
+		//	std::back_insert_iterator<_Container<string, _Arg...>> _inserter) const;
 
 		//! \brief Split string with key.
 		//! \param _key The key to split.
 		//! \param _behavior The behavior of split.
 		//! \param _inserter The inserter to insert the result.
 		//! \return The error code.
-		template<template<class, class...> class _Container, class... _Arg>
+		template<template<class, class...> class _Container, class... _Arg,
+            typename = std::enable_if_t<std::is_same_v<string_view, typename _Container<string_view, _Arg...>::value_type>>>
 		inline MemeInteger_t split(
 			string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const MEGOPP__NOEXCEPT;
 		
-		template<template<class, class...> class _Container, class... _Arg>
-		inline MemeInteger_t split(
-			string_view _key, 
-			std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const;
+		//template<template<class, class...> class _Container, class... _Arg>
+		//inline MemeInteger_t split(
+		//	string_view _key, 
+		//	std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const;
 
-		template<typename _Function, template<class> class _Container>
-		inline MemeInteger_t split(
-			split_behavior_t _behavior,
-			std::back_insert_iterator<_Container<string_view>> _inserter, 
-			const _Function& _fn) const;
+		//template<typename _Function, template<class> class _Container>
+		//inline MemeInteger_t split(
+		//	split_behavior_t _behavior,
+		//	std::back_insert_iterator<_Container<string_view>> _inserter, 
+		//	const _Function& _fn) const;
 		
 		const native_handle_type& native_handle() const noexcept;
 

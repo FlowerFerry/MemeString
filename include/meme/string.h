@@ -622,11 +622,11 @@ mmstrstk_init_by_hex(
 }
 
 MG_CAPI_INLINE int
-mmstrstk_init_or_copy(
+mmstrstk_init_cond_copy(
 	mmstrstk_t* _out, size_t _object_size, mmstr_cptr_t _other)
 {
-    assert(_out != NULL && "mmstrstk_init_or_copy");
-    assert(_object_size != 0 && "mmstrstk_init_or_copy");
+    assert(_out != NULL && "mmstrstk_init_cond_copy");
+    assert(_object_size != 0 && "mmstrstk_init_cond_copy");
 	
     return MemeStringStack_initAndConditionalConvert(_out, _object_size, _other);
 }

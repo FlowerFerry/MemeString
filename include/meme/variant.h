@@ -339,5 +339,121 @@ MEME_API mgec_t MEME_STDCALL
     MemeVariantStack_getBufferView(
         const mmvarstk_t* _obj, size_t _object_size, mmbufstk_t* _out, int _is_inited);
 
+
+
+MG_CAPI_INLINE mgec_t mmvarstk_init(mmvarstk_t* _obj, size_t _object_size)
+{
+    assert(_obj != NULL && "mmvarstk_init");
+    assert(_object_size > 0 && "mmvarstk_init");
+    
+    return MemeVariantStack_init(_obj, _object_size);
+}
+
+MG_CAPI_INLINE mgec_t mmvarstk_init_by_other(
+    mmvarstk_t* _obj, size_t _object_size, mmvar_cptr_t _other)
+{
+    assert(_obj != NULL && "mmvarstk_init_by_other");
+    assert(_object_size > 0 && "mmvarstk_init_by_other");
+
+    return MemeVariantStack_initByOther(_obj, _object_size, _other);
+}
+
+MG_CAPI_INLINE mgec_t mmvarstk_init_by_move(
+    mmvarstk_t* _obj, size_t _object_size, mmvarstk_t* _other)
+{
+    assert(_obj != NULL && "mmvarstk_init_by_move");
+    assert(_object_size > 0 && "mmvarstk_init_by_move");
+
+    return MemeVariantStack_initByMove(_obj, _object_size, _other);
+}
+
+MG_CAPI_INLINE mgec_t mmvarstk_init_by_byte(
+    mmvarstk_t* _obj, size_t _object_size, mmbyte_t _val)
+{
+    assert(_obj != NULL && "mmvarstk_init_by_byte");
+    assert(_object_size > 0 && "mmvarstk_init_by_byte");
+
+    return MemeVariantStack_initByByte(_obj, _object_size, _val);
+}
+
+MG_CAPI_INLINE mgec_t mmvarstk_init_by_char(
+    mmvarstk_t* _obj, size_t _object_size, char _val)
+{
+    assert(_obj != NULL && "mmvarstk_init_by_char");
+    assert(_object_size > 0 && "mmvarstk_init_by_char");
+
+    return MemeVariantStack_initByChar(_obj, _object_size, _val);
+}
+
+MG_CAPI_INLINE mgec_t mmvarstk_init_by_wchar(
+    mmvarstk_t* _obj, size_t _object_size, wchar_t _val)
+{
+    assert(_obj != NULL && "mmvarstk_init_by_wchar");
+    assert(_object_size > 0 && "mmvarstk_init_by_wchar");
+
+    return MemeVariantStack_initByWChar(_obj, _object_size, _val);
+}
+
+MG_CAPI_INLINE mgec_t mmvarstk_init_by_int64(
+    mmvarstk_t* _obj, size_t _object_size, int64_t _val)
+{
+    assert(_obj != NULL && "mmvarstk_init_by_int64");
+    assert(_object_size > 0 && "mmvarstk_init_by_int64");
+
+    return MemeVariantStack_initByInt64(_obj, _object_size, _val);
+}
+
+MG_CAPI_INLINE mgec_t mmvarstk_init_by_uint64(
+    mmvarstk_t* _obj, size_t _object_size, uint64_t _val)
+{
+    assert(_obj != NULL && "mmvarstk_init_by_uint64");
+    assert(_object_size > 0 && "mmvarstk_init_by_uint64");
+
+    return MemeVariantStack_initByUInt64(_obj, _object_size, _val);
+}
+
+MG_CAPI_INLINE mgec_t mmvarstk_init_by_double(
+    mmvarstk_t* _obj, size_t _object_size, double _val)
+{
+    assert(_obj != NULL && "mmvarstk_init_by_double");
+    assert(_object_size > 0 && "mmvarstk_init_by_double");
+
+    return MemeVariantStack_initByDouble(_obj, _object_size, _val);
+}
+
+MG_CAPI_INLINE mgec_t mmvarstk_init_by_str(
+    mmvarstk_t* _obj, size_t _object_size, mmstr_cptr_t _val)
+{
+    assert(_obj != NULL && "mmvarstk_init_by_string");
+    assert(_object_size > 0 && "mmvarstk_init_by_string");
+
+    return MemeVariantStack_initByString(_obj, _object_size, _val);
+}
+
+MG_CAPI_INLINE mgec_t mmvarstk_init_by_buf(
+    mmvarstk_t* _obj, size_t _object_size, mmbuf_cptr_t _val)
+{
+    assert(_obj != NULL && "mmvarstk_init_by_buffer");
+    assert(_object_size > 0 && "mmvarstk_init_by_buffer");
+
+    return MemeVariantStack_initByBuffer(_obj, _object_size, _val);
+}
+
+MG_CAPI_INLINE mgec_t mmvarstk_init_by_rune(
+    mmvarstk_t* _obj, size_t _object_size, const mmrune_t* _val)
+{
+    assert(_obj != NULL && "mmvarstk_init_by_rune");
+    assert(_object_size > 0 && "mmvarstk_init_by_rune");
+
+    return MemeVariantStack_initByRune(_obj, _object_size, _val);
+}
+
+MG_CAPI_INLINE mgec_t mmvarstk_uninit(mmvarstk_t* _obj, size_t _object_size)
+{
+    assert(_obj != NULL && "mmvarstk_uninit");
+
+    return MemeVariantStack_unInit(_obj, _object_size);
+}
+
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_VARIANT_H_INCLUDED

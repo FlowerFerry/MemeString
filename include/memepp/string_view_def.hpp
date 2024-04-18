@@ -11,6 +11,8 @@
 #include "memepp/iterator.hpp"
 #include "memepp/rune_iterator.hpp"
 
+#include <type_traits>
+
 namespace memepp {
 
 	class string_view
@@ -58,10 +60,14 @@ namespace memepp {
 		const_reference at(size_type _pos) const;
 
 		const char* data() const noexcept;
-		size_type size() const noexcept;
-		bool empty() const noexcept;
-		inline size_t length() const noexcept { return static_cast<size_t>(size()); }
 		const_pointer bytes() const noexcept;
+
+		inline size_t length() const noexcept { return static_cast<size_t>(size()); }
+		size_type size() const noexcept;
+
+		bool empty() const noexcept;
+
+		size_type rune_size() const noexcept;
 		size_type u16char_size() const noexcept;
 
 		const_iterator begin() const noexcept;
@@ -111,6 +117,20 @@ namespace memepp {
 		
 		size_type index_of(const char* _utf8, bool _full_match,
 			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
+		
+		size_type index_of(const char* _utf8, size_type _u8len, 
+			size_type _offset, bool _full_match,
+			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
+
+		size_type last_index_of(const string_view& _other,
+			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
+
+		size_type last_index_of(const string_view& _other,
+			size_type _offset, size_type _limit, bool _full_match,
+			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
+
+		size_type last_index_of(const char* _utf8, 
+			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
 
 		size_type last_index_of(const char* _utf8, bool _full_match,
 			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
@@ -125,7 +145,7 @@ namespace memepp {
 		bool contains(const_pointer _utf8) const noexcept;
 		bool contains(const_pointer _utf8, size_type _count) const noexcept;
 		bool contains(char _ch) const noexcept;
-		//bool contains(const word& _ch) const noexcept;
+        bool contains(const rune& _ch) const noexcept;
 
 		bool starts_with(const string_view& _sv) const noexcept;
 		bool starts_with(const char* _utf8) const noexcept;
@@ -158,9 +178,9 @@ namespace memepp {
 		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container> _inserter) const;
 		
-		template<class _Container>
-		inline MemeInteger_t split(string_view _key, 
-			std::back_insert_iterator<_Container> _inserter) const;
+		//template<class _Container>
+		//inline MemeInteger_t split(string_view _key, 
+		//	std::back_insert_iterator<_Container> _inserter) const;
 
 		//template<template<class, class...> class _Container, typename _Ty, class... _Arg>
 		//inline MemeInteger_t split(
@@ -172,41 +192,45 @@ namespace memepp {
 		//	string_view _key, 
 		//	std::back_insert_iterator<_Container<_Ty, _Arg...>> _inserter) const;
 
-		template<template<class> class _Container>
+		template<template<class> class _Container,
+            typename = std::enable_if_t<std::is_same_v<string, typename _Container<string>::value_type>>>
 		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string>> _inserter) const;
 		
-		template<template<class> class _Container>
-		inline MemeInteger_t split(string_view _key, 
-			std::back_insert_iterator<_Container<string>> _inserter) const;
+		//template<template<class> class _Container>
+		//inline MemeInteger_t split(string_view _key, 
+		//	std::back_insert_iterator<_Container<string>> _inserter) const;
 
-		template<template<class> class _Container>
+		template<template<class> class _Container,
+            typename = std::enable_if_t<std::is_same_v<string, typename _Container<string>::value_type>>>
 		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string_view>> _inserter) const;
 		
-		template<template<class> class _Container>
-		inline MemeInteger_t split(string_view _key, 
-			std::back_insert_iterator<_Container<string_view>> _inserter) const;
+		//template<template<class> class _Container>
+		//inline MemeInteger_t split(string_view _key, 
+		//	std::back_insert_iterator<_Container<string_view>> _inserter) const;
 
-		template<template<class, class...> class _Container, class... _Arg>
+		template<template<class, class...> class _Container, class... _Arg,
+            typename = std::enable_if_t<std::is_same_v<string, typename _Container<string, _Arg...>::value_type>>>
 		inline MemeInteger_t split(
 			string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string, _Arg...>> _inserter) const;
 		
-		template<template<class, class...> class _Container, class... _Arg>
-		inline MemeInteger_t split(
-			string_view _key, 
-			std::back_insert_iterator<_Container<string, _Arg...>> _inserter) const;
+		//template<template<class, class...> class _Container, class... _Arg>
+		//inline MemeInteger_t split(
+		//	string_view _key, 
+		//	std::back_insert_iterator<_Container<string, _Arg...>> _inserter) const;
 
-		template<template<class, class...> class _Container, class... _Arg>
+		template<template<class, class...> class _Container, class... _Arg,
+            typename = std::enable_if_t<std::is_same_v<string_view, typename _Container<string_view, _Arg...>::value_type>>>
 		inline MemeInteger_t split(
 			string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const;
 		
-		template<template<class, class...> class _Container, class... _Arg>
-		inline MemeInteger_t split(
-			string_view _key, 
-			std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const;
+		//template<template<class, class...> class _Container, class... _Arg>
+		//inline MemeInteger_t split(
+		//	string_view _key, 
+		//	std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const;
 
 		const native_handle_type& native_handle() const noexcept;
 

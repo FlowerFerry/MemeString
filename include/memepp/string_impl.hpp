@@ -501,6 +501,34 @@ namespace memepp {
 			static_cast<mmflag_case_sensit_t>(_cs));
 	}
 
+	MEMEPP__IMPL_INLINE string::size_type string::last_index_of(const string& _other,
+		case_sensitivity_t _cs) const noexcept
+	{
+		return MemeString_lastIndexOfOther(
+			to_pointer(native_handle()), 0, -1,
+			to_pointer(_other.native_handle()), -1, 0,
+			static_cast<mmflag_case_sensit_t>(_cs));
+	}
+
+	MEMEPP__IMPL_INLINE string::size_type string::last_index_of(const string& _other,
+		size_type _offset, size_type _limit, bool _full_match,
+		case_sensitivity_t _cs) const noexcept
+	{
+        return MemeString_lastIndexOfOther(
+            to_pointer(native_handle()), _offset, _limit,
+            to_pointer(_other.native_handle()), -1, (_full_match ? 1 : 0),
+            static_cast<mmflag_case_sensit_t>(_cs));
+	}
+	
+	MEMEPP__IMPL_INLINE string::size_type string::last_index_of(const char* _utf8, 
+		case_sensitivity_t _cs) const noexcept
+	{
+        return MemeString_lastIndexOfUtf8bytes(
+            to_pointer(native_handle()), 0, -1,
+            reinterpret_cast<const uint8_t*>(_utf8), -1, 0,
+            static_cast<mmflag_case_sensit_t>(_cs));
+	}
+	
 	MEMEPP__IMPL_INLINE string::size_type string::last_index_of(const char* _utf8, bool _full_match,
 		case_sensitivity_t _cs) const noexcept
 	{

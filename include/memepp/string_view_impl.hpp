@@ -194,6 +194,11 @@ namespace memepp {
         return MemeString_byteData(to_pointer(data_));
     }
 
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::rune_size() const noexcept
+	{
+        return MemeString_runeSize(to_pointer(data_));
+	}
+
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::u16char_size() const noexcept
 	{
 		return MemeString_u16CharSize(to_pointer(data_));
@@ -402,6 +407,43 @@ namespace memepp {
             static_cast<mmflag_case_sensit_t>(_cs));
 	}
 
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::index_of(
+		const char* _utf8, size_type _u8len, size_type _offset, bool _full_match, case_sensitivity_t _cs) const noexcept
+	{
+		return MemeString_indexOfUtf8bytes(
+			to_pointer(native_handle()), _offset, -1,
+			reinterpret_cast<const uint8_t*>(_utf8), _u8len, (_full_match ? 1 : 0),
+			static_cast<mmflag_case_sensit_t>(_cs));
+	}
+
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::last_index_of(const string_view& _other,
+		case_sensitivity_t _cs) const noexcept
+	{
+        return MemeString_lastIndexOfOther(
+            to_pointer(native_handle()), 0, -1,
+            to_pointer(_other.native_handle()), -1, 0,
+            static_cast<mmflag_case_sensit_t>(_cs));
+	}
+
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::last_index_of(const string_view& _other,
+		size_type _offset, size_type _limit, bool _full_match,
+		case_sensitivity_t _cs) const noexcept
+	{
+        return MemeString_lastIndexOfOther(
+            to_pointer(native_handle()), _offset, _limit,
+            to_pointer(_other.native_handle()), -1, (_full_match ? 1 : 0),
+            static_cast<mmflag_case_sensit_t>(_cs));
+	}
+
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::last_index_of(const char* _utf8, 
+		case_sensitivity_t _cs) const noexcept
+	{
+        return MemeString_lastIndexOfUtf8bytes(
+            to_pointer(native_handle()), 0, -1,
+            reinterpret_cast<const uint8_t*>(_utf8), -1, 0,
+            static_cast<mmflag_case_sensit_t>(_cs));
+	}
+	
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::last_index_of(const char* _utf8, bool _full_match,
 		case_sensitivity_t _cs) const noexcept
 	{
@@ -450,6 +492,11 @@ namespace memepp {
 	{
         return find(_ch) != npos;
 	}
+
+    MEMEPP__IMPL_INLINE bool string_view::contains(const rune& _ch) const noexcept
+    {
+        return find(_ch) != npos;
+    }
 
 	MEMEPP__IMPL_INLINE bool string_view::starts_with(const string_view& _sv) const noexcept
 	{

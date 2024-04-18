@@ -8,7 +8,7 @@
 namespace memepp {
 
 
-	template<template<class> class _Container>
+	template<template<class> class _Container, typename>
 	inline MemeInteger_t string_view::split(
 		string_view _key, split_behavior_t _behavior,
 		std::back_insert_iterator<_Container<string>> _inserter) const
@@ -34,7 +34,7 @@ namespace memepp {
 		return 0;
 	}
 
-	template<template<class, class...> class _Container, class... _Arg>
+	template<template<class, class...> class _Container, class... _Arg, typename>
 	inline MemeInteger_t string_view::split(
 		string_view _key, split_behavior_t _behavior,
 		std::back_insert_iterator<_Container<string, _Arg...>> _inserter) const
@@ -118,7 +118,7 @@ namespace memepp {
 	//	return 0;
 	//}
 
-	template<template<class> class _Container>
+	template<template<class> class _Container, typename>
 	inline MemeInteger_t string_view::split(
 		string_view _key, split_behavior_t _behavior,
 		std::back_insert_iterator<_Container<string_view>> _inserter) const
@@ -144,7 +144,7 @@ namespace memepp {
 		return 0;
 	}
 
-	template<template<class, class...> class _Container, class... _Arg>
+	template<template<class, class...> class _Container, class... _Arg, typename>
 	inline MemeInteger_t string_view::split(
 		string_view _key, split_behavior_t _behavior,
 		std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const
