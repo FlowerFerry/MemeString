@@ -32,10 +32,12 @@
 #  define MG_INLINE
 #endif
 
-#if defined(__cplusplus)
-#  define MG_CAPI_INLINE MG_INLINE
-#else
-#  define MG_CAPI_INLINE static MG_INLINE
+#ifndef MG_CAPI_INLINE
+#  if defined(__cplusplus)
+#    define MG_CAPI_INLINE MG_INLINE
+#  else
+#    define MG_CAPI_INLINE static MG_INLINE
+#  endif
 #endif
 
 #endif // !MEGO_PREDEF_INLINE_H_INCLUDED
