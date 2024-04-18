@@ -4,6 +4,7 @@
 
 #include "buffer_fwd.h"
 #include "mego/predef/symbol/deprecated.h"
+#include <mego/predef/symbol/inline.h>
 
 MEME_EXTERN_C_SCOPE_START
 

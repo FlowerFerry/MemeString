@@ -8,6 +8,7 @@
 #include <meme/variable_buffer_fwd.h>
 #include <meme/rune.h>
 #include <mego/err/ec.h>
+#include <mego/predef/symbol/inline.h>
 
 #include <stddef.h>
 
