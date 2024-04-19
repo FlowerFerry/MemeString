@@ -15,7 +15,6 @@ struct c_wrap_smart_ptr
     c_wrap_smart_ptr()
         : ptr_(nullptr)
         , __reserve__(0)
-        , has_ref_(0)
     {
         static_assert(sizeof(_CStruct) == sizeof(*this), "In mgpp::util::c_wrap_smart_ptr, _CStruct size error");
     }
@@ -23,12 +22,11 @@ struct c_wrap_smart_ptr
     c_wrap_smart_ptr(const std::shared_ptr<_Ty>& _ptr)
         : ptr_(_ptr)
         , __reserve__(0)
-        , has_ref_(_ptr ? 1 : 0)
     {}
     
     inline constexpr bool is_null() const noexcept
     {
-        return has_ref_ == 0;
+        return !ptr_;
     }
 
     inline const _CStruct* get_struct_ptr() const noexcept
@@ -56,7 +54,6 @@ struct c_wrap_smart_ptr
     inline void reset(const std::shared_ptr<_Ty>& _ptr = nullptr)
     {
         ptr_ = _ptr;
-        has_ref_ = _ptr ? 1 : 0;
     }
 
     static inline _CStruct null_struct() noexcept
@@ -102,6 +99,18 @@ struct c_wrap_smart_ptr
         ptr->reset(_ptr);
     }
 
+    static inline _CStruct copy_struct(const _CStruct* _st) noexcept
+    {
+        if (MEGO_SYMBOL__UNLIKELY(_st == nullptr))
+            return null_struct();
+        
+        auto ptr = reinterpret_cast<const c_wrap_smart_ptr*>(_st);
+        if (MEGO_SYMBOL__UNLIKELY(ptr->is_null()))
+            return null_struct();
+
+        return ptr->into_struct();
+    }
+
     static inline void reset_struct(_CStruct* _st, const std::shared_ptr<_Ty>& _ptr) noexcept
     {
         if (MEGO_SYMBOL__UNLIKELY(_st == nullptr))
@@ -112,8 +121,7 @@ struct c_wrap_smart_ptr
     }
 
     std::shared_ptr<_Ty> ptr_;
-    size_t __reserve__ : (sizeof(void*) * 8 - 1);
-    size_t has_ref_    : 1;
+    size_t __reserve__;
 };
 
 static_assert(sizeof( std::shared_ptr<void>) == sizeof(void*) * 2, 

@@ -64,6 +64,12 @@ struct c_wrap_shared_ptr
         return c_wrap_shared_ptr{_ptr}.into_struct();
     }
 
+    static inline const std::shared_ptr<_Ty>& unwrap_struct(const _CStruct& _st) noexcept
+    {
+        auto ptr = reinterpret_cast<const c_wrap_shared_ptr*>(&_st);
+        return ptr->get_ptr();
+    }
+
     static inline std::shared_ptr<_Ty> unwrap_struct(const _CStruct* _st) noexcept
     {
         if (MEGO_SYMBOL__UNLIKELY(_st == nullptr))
@@ -71,6 +77,15 @@ struct c_wrap_shared_ptr
 
         auto ptr = reinterpret_cast<const c_wrap_shared_ptr*>(_st);
         return ptr->get_ptr();
+    }
+
+    static inline _CStruct copy_struct(const _CStruct& _st) noexcept
+    {
+        auto ptr = reinterpret_cast<const c_wrap_shared_ptr*>(&_st);
+        if (!ptr)
+            return null_struct();
+
+        return ptr->into_struct();
     }
 
     static inline _CStruct copy_struct(const _CStruct* _st) noexcept
@@ -83,6 +98,12 @@ struct c_wrap_shared_ptr
             return null_struct();
 
         return ptr->into_struct();
+    }
+
+    static inline void reset_struct(_CStruct& _st, const std::shared_ptr<_Ty>& _ptr = nullptr) noexcept
+    {
+        auto ptr = reinterpret_cast<c_wrap_shared_ptr*>(&_st);
+        ptr->reset(_ptr);
     }
 
     static inline void reset_struct(_CStruct* _st, const std::shared_ptr<_Ty>& _ptr = nullptr) noexcept
