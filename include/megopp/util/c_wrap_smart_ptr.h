@@ -8,7 +8,8 @@
 namespace mgpp {
 namespace util {
 
-template<typename _Ty, typename _CStruct>
+template<typename _Ty, typename _CStruct,
+    typename = std::enable_if_t<std::is_trivial_v<_CStruct>>>
 struct c_wrap_smart_ptr
 {
     c_wrap_smart_ptr()
@@ -68,7 +69,7 @@ struct c_wrap_smart_ptr
         return c_wrap_smart_ptr{_ptr}.into_struct();
     }
 
-    static inline const std::shared_ptr<_Ty>& unwrap_struct(const _CStruct* _st) noexcept
+    static inline std::shared_ptr<_Ty> unwrap_struct(const _CStruct* _st) noexcept
     {
         if (MEGO_SYMBOL__UNLIKELY(_st == nullptr))
             return nullptr;
@@ -93,6 +94,15 @@ struct c_wrap_smart_ptr
     }
 
     static inline void unref_struct(_CStruct* _st, const std::shared_ptr<_Ty>& _ptr = nullptr) noexcept
+    {
+        if (MEGO_SYMBOL__UNLIKELY(_st == nullptr))
+            return;
+
+        auto ptr = reinterpret_cast<c_wrap_smart_ptr*>(_st);
+        ptr->reset(_ptr);
+    }
+
+    static inline void reset_struct(_CStruct* _st, const std::shared_ptr<_Ty>& _ptr) noexcept
     {
         if (MEGO_SYMBOL__UNLIKELY(_st == nullptr))
             return;
