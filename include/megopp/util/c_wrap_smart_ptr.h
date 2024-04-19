@@ -116,19 +116,8 @@ struct c_wrap_smart_ptr
     size_t has_ref_    : 1;
 };
 
-template<>
-struct c_wrap_smart_ptr<void, void>
-{
-    std::shared_ptr<void> ptr_;
-    size_t __reserve__ : (sizeof(void*) * 8 - 1);
-    size_t has_ref_    : 1;
-};
-
 static_assert(sizeof( std::shared_ptr<void>) == sizeof(void*) * 2, 
     "sizeof(std::shared_ptr<void>) != sizeof(void*) * 2");
-static_assert(sizeof(c_wrap_smart_ptr<void, void>) == sizeof(void*) * 3, 
-    "mgpp::util::c_wrap_smart_ptr size error");
-
 }
 }
 
