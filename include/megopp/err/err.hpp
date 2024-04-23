@@ -578,7 +578,7 @@ namespace details {
 
 }; // namespace detail  
 
-class err : public std::exception 
+class err
 {
 public:
 
@@ -696,7 +696,7 @@ public:
         return *this;
     }
 
-    const char* what() const noexcept override;
+    const char* what() const noexcept;
 
     constexpr mgec_t code() const noexcept;
     constexpr mmint_t usercode() const noexcept;

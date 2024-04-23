@@ -26,7 +26,7 @@ MEME_API int MEME_STDCALL
     MemeRuneIndex_isSpace(const mmbyte_t* _buf, int _size);
 
 MG_CAPI_INLINE int
-MemeRuneIndex_isChPunct(const mmbyte_t* _buf, int _size)
+    MemeRuneIndex_isChPunct(const mmbyte_t* _buf, int _size)
 {
     assert(_buf != NULL);
 
@@ -326,6 +326,15 @@ MG_CAPI_INLINE int
 //    
 //    return mmutf_u8rune_char_size(_s->byte[0]);
 //}
+
+
+MG_CAPI_INLINE int
+    mmruneidx_is_space(const mmbyte_t* _buf, int _size)
+{
+    assert(_buf != NULL);
+
+    return MemeRuneIndex_isSpace(_buf, _size);
+}
 
 MEME_EXTERN_C_SCOPE_ENDED
 

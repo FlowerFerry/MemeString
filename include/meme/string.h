@@ -171,33 +171,33 @@ MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_toValidUtf8(
     const mmsstk_t* _s, size_t _object_size);
 
-MEME_API mmstrstk_t
-MEME_STDCALL MemeStringStack_fromInt(
-    size_t _object_size, mmint_t _value, int _radix);
-
-MEME_API mmstrstk_t
-MEME_STDCALL MemeStringStack_fromInt16(
-    size_t _object_size, int16_t _value, int _radix);
-
-MEME_API mmstrstk_t
-MEME_STDCALL MemeStringStack_fromInt32(
-    size_t _object_size, int32_t _value, int _radix);
-
-MEME_API mmstrstk_t
-MEME_STDCALL MemeStringStack_fromInt64(
-    size_t _object_size, int64_t _value, int _radix);
-
-MEME_API mmstrstk_t
-MEME_STDCALL MemeStringStack_fromUInt16(
-    size_t _object_size, uint16_t _value, int _radix);
-
-MEME_API mmstrstk_t
-MEME_STDCALL MemeStringStack_fromUInt32(
-    size_t _object_size, uint32_t _value, int _radix);
-
-MEME_API mmstrstk_t
-MEME_STDCALL MemeStringStack_fromUInt64(
-    size_t _object_size, uint64_t _value, int _radix);
+//MEME_API mmstrstk_t
+//MEME_STDCALL MemeStringStack_fromInt(
+//    size_t _object_size, mmint_t _value, int _radix);
+//
+//MEME_API mmstrstk_t
+//MEME_STDCALL MemeStringStack_fromInt16(
+//    size_t _object_size, int16_t _value, int _radix);
+//
+//MEME_API mmstrstk_t
+//MEME_STDCALL MemeStringStack_fromInt32(
+//    size_t _object_size, int32_t _value, int _radix);
+//
+//MEME_API mmstrstk_t
+//MEME_STDCALL MemeStringStack_fromInt64(
+//    size_t _object_size, int64_t _value, int _radix);
+//
+//MEME_API mmstrstk_t
+//MEME_STDCALL MemeStringStack_fromUInt16(
+//    size_t _object_size, uint16_t _value, int _radix);
+//
+//MEME_API mmstrstk_t
+//MEME_STDCALL MemeStringStack_fromUInt32(
+//    size_t _object_size, uint32_t _value, int _radix);
+//
+//MEME_API mmstrstk_t
+//MEME_STDCALL MemeStringStack_fromUInt64(
+//    size_t _object_size, uint64_t _value, int _radix);
 
 //MEME_API mmstrstk_t
 //MEME_STDCALL MemeStringStack_fromFloat(
