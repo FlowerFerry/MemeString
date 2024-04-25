@@ -6,6 +6,8 @@
 #include "mego/predef/symbol/deprecated.h"
 #include <mego/predef/symbol/inline.h>
 
+#include <assert.h>
+
 MEME_EXTERN_C_SCOPE_START
 
 MEME_API int

@@ -11,6 +11,7 @@
 #include <mego/predef/symbol/inline.h>
 
 #include <stddef.h>
+#include <assert.h>
 
 MEME_EXTERN_C_SCOPE_START
 
