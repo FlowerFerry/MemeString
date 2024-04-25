@@ -21,40 +21,40 @@ namespace memepp {
     public:
         using native_handle_type = mmvarstk_t;
 
-        variant() noexcept;
-        variant(mmvar_cptr_t _other);
-        variant(native_handle_type&& _other);
-        variant(const native_handle_type& _other);
+        MEMEPP__IMPL_INLINE variant() noexcept;
+        MEMEPP__IMPL_INLINE variant(mmvar_cptr_t _other);
+        MEMEPP__IMPL_INLINE variant(native_handle_type&& _other);
+        MEMEPP__IMPL_INLINE variant(const native_handle_type& _other);
 
-        variant(const variant& _other);
-        variant(variant&& _other) noexcept;
+        MEMEPP__IMPL_INLINE variant(const variant& _other);
+        MEMEPP__IMPL_INLINE variant(variant&& _other) noexcept;
 
-        variant(mmbyte_t _v) noexcept;
-        variant(char _v) noexcept;
-        variant(wchar_t _v) noexcept;
-        variant(int64_t _v) noexcept;
-        variant(uint64_t _v) noexcept;
-        variant(double _v) noexcept;
-        variant(const string& _v);
-        variant(const buffer& _v);
-        variant(const variable_buffer& _v);
-        variant(const rune& _v);
+        MEMEPP__IMPL_INLINE variant(mmbyte_t _v) noexcept;
+        MEMEPP__IMPL_INLINE variant(char _v) noexcept;
+        MEMEPP__IMPL_INLINE variant(wchar_t _v) noexcept;
+        MEMEPP__IMPL_INLINE variant(int64_t _v) noexcept;
+        MEMEPP__IMPL_INLINE variant(uint64_t _v) noexcept;
+        MEMEPP__IMPL_INLINE variant(double _v) noexcept;
+        MEMEPP__IMPL_INLINE variant(const string& _v);
+        MEMEPP__IMPL_INLINE variant(const buffer& _v);
+        MEMEPP__IMPL_INLINE variant(const variable_buffer& _v);
+        MEMEPP__IMPL_INLINE variant(const rune& _v);
 
-        ~variant();
+        MEMEPP__IMPL_INLINE ~variant();
 
-        variant& operator=(const variant& _other);
-        variant& operator=(variant&& _other) noexcept;
+        MEMEPP__IMPL_INLINE variant& operator=(const variant& _other);
+        MEMEPP__IMPL_INLINE variant& operator=(variant&& _other) noexcept;
 
-        variant& operator=(mmbyte_t _v);
-        variant& operator=(char _v);
-        variant& operator=(wchar_t _v);
-        variant& operator=(int64_t _v);
-        variant& operator=(uint64_t _v);
-        variant& operator=(double _v);
-        variant& operator=(const string& _v);
-        variant& operator=(const buffer& _v);
-        variant& operator=(const variable_buffer& _v);
-        variant& operator=(const rune& _v);
+        MEMEPP__IMPL_INLINE variant& operator=(mmbyte_t _v);
+        MEMEPP__IMPL_INLINE variant& operator=(char _v);
+        MEMEPP__IMPL_INLINE variant& operator=(wchar_t _v);
+        MEMEPP__IMPL_INLINE variant& operator=(int64_t _v);
+        MEMEPP__IMPL_INLINE variant& operator=(uint64_t _v);
+        MEMEPP__IMPL_INLINE variant& operator=(double _v);
+        MEMEPP__IMPL_INLINE variant& operator=(const string& _v);
+        MEMEPP__IMPL_INLINE variant& operator=(const buffer& _v);
+        MEMEPP__IMPL_INLINE variant& operator=(const variable_buffer& _v);
+        MEMEPP__IMPL_INLINE variant& operator=(const rune& _v);
 
         template<typename _Ty>
         mgec_t try_get(_Ty& _out) const noexcept;
@@ -89,18 +89,18 @@ namespace memepp {
         //    return {};
         //}
 
-        bool is_null() const noexcept;
-        bool is_type(meta::typid _type) const noexcept;
+        MEMEPP__IMPL_INLINE bool is_null() const noexcept;
+        MEMEPP__IMPL_INLINE bool is_type(meta::typid _type) const noexcept;
 
-        meta::typid type_id() const noexcept;
+        MEMEPP__IMPL_INLINE meta::typid type_id() const noexcept;
 
         template<typename _Ty>
         mgec_t set(const _Ty& _v) noexcept;
 
-        void reset() noexcept;
-        void swap(variant& _other) noexcept;
+        MEMEPP__IMPL_INLINE void reset() noexcept;
+        MEMEPP__IMPL_INLINE void swap(variant& _other) noexcept;
 
-        const native_handle_type& native_handle() const noexcept;
+        MEMEPP__IMPL_INLINE const native_handle_type& native_handle() const noexcept;
     private:
         native_handle_type data_;
     };
