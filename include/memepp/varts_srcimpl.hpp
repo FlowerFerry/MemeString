@@ -1,0 +1,7 @@
+
+#ifndef MEMEPP_VARTS_SRCIMPL_HPP_INCLUDED
+#define MEMEPP_VARTS_SRCIMPL_HPP_INCLUDED
+
+#include <memepp/variant_srcimpl.hpp>
+
+#endif // !MEMEPP_VARTS_SRCIMPL_HPP_INCLUDED
