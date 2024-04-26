@@ -115,7 +115,7 @@ namespace endian {
 #endif
 
 	template<size_t _BeginBit, size_t _BitSize, endian_t _Endian,
-		typename _Type = typename types_by_bit_size<_BeginBit, _BitSize>::uint>
+		typename _Type = typename type_by_bit_size<_BeginBit, _BitSize>::uint>
 	struct bit_field_member
     {
         using data_type = bit_field_member_private<_BeginBit, _BitSize, _Type, _Endian>;
