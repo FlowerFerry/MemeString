@@ -14,6 +14,7 @@ namespace memepp {
     {
     public:
         varts() noexcept
+            : ts_ud_value_(0)
         {}
         
         varts(const varts& _other)
@@ -39,11 +40,13 @@ namespace memepp {
         }
 
         varts(const variant& _var)
-            : var_(_var)
+            : ts_ud_value_(0) 
+            , var_(_var)
         {}
 
         varts(variant&& _var) noexcept
-            : var_(std::move(_var))
+            : ts_ud_value_(0) 
+            , var_(std::move(_var))
         {}
 
         varts(const variant& _var, mgu_timestamp_t _ts)
