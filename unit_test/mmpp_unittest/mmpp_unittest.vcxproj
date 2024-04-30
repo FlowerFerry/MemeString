@@ -181,6 +181,7 @@ xcopy /y "$(ProjectDir)..\..\projects\vs\libmeme_string\$(Platform)\$(Configurat
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="mmpp_string_split.cpp" />
     <ClCompile Include="mmpp_unittest.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
