@@ -3,6 +3,7 @@
 #define MEMEPP_RUNE_DEF_HPP_INCLUDED
 
 #include "meme/rune.h"
+
 #include "memepp/string_fwd.hpp"
 
 #include <memepp/iterator.hpp>
@@ -42,7 +43,7 @@ namespace memepp {
         const_iterator cend() const noexcept;
 
 		bool is_multi() const noexcept;
-		inline bool is_english_char() const noexcept { return !is_multi(); }
+		inline bool is_en_char() const noexcept { return !is_multi(); }
 
         bool is_ch_punct() const noexcept;
         bool is_en_punct() const noexcept;
@@ -50,7 +51,7 @@ namespace memepp {
         bool is_space() const noexcept;
 
         inline operator bool() const noexcept { return valid() && !empty(); }
-
+		
         inline MemeRune_t& native_handle() noexcept { return data_; }
         inline const MemeRune_t& native_handle() const noexcept { return data_; }
 	private:

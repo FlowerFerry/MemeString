@@ -216,21 +216,23 @@ namespace memepp {
 			string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string, _Arg...>> _inserter) const;
 		
-		//template<template<class, class...> class _Container, class... _Arg>
-		//inline MemeInteger_t split(
-		//	string_view _key, 
-		//	std::back_insert_iterator<_Container<string, _Arg...>> _inserter) const;
+		template<template<class, class...> class _Container, class... _Arg,            
+		    typename = std::enable_if_t<std::is_same_v<string, typename _Container<string, _Arg...>::value_type>>>
+		inline mmint_t split(
+			string_view _key, 
+			std::back_insert_iterator<_Container<string, _Arg...>> _inserter) const;
 
 		template<template<class, class...> class _Container, class... _Arg,
             typename = std::enable_if_t<std::is_same_v<string_view, typename _Container<string_view, _Arg...>::value_type>>>
 		inline MemeInteger_t split(
 			string_view _key, split_behavior_t _behavior,
-			std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const;
+			std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const MEGOPP__NOEXCEPT;
 		
-		//template<template<class, class...> class _Container, class... _Arg>
-		//inline MemeInteger_t split(
-		//	string_view _key, 
-		//	std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const;
+		template<template<class, class...> class _Container, class... _Arg,
+		    typename = std::enable_if_t<std::is_same_v<string_view, typename _Container<string_view, _Arg...>::value_type>>>
+		inline mmint_t split(
+			string_view _key, 
+			std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const MEGOPP__NOEXCEPT;
 
 		const native_handle_type& native_handle() const noexcept;
 
