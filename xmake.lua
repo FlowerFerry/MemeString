@@ -37,7 +37,7 @@ target_end()
 
 target("mmpp_unittest")
     set_kind("binary")
-    set_languages("c11", "cxx11")
+    set_languages("c11", "cxx17")
     add_includedirs(
         "3rdparty/catch2/include"
     )
