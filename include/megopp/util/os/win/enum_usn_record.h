@@ -20,8 +20,8 @@ template<typename _Fn,
     typename = std::enable_if_t<std::is_invocable_v<_Fn, const USN_RECORD_UNION&>>>
 inline void enum_usn_record_buffer(const uint8_t* _buffer, size_t _size, _Fn&& _fn)
 {
-    auto p = buffer + sizeof(USN);
-    auto end = buffer + size;
+    auto p = _buffer + sizeof(USN);
+    auto end = _buffer + _size;
     while (p < end) {
         auto record = reinterpret_cast<const USN_RECORD_UNION*>(p);
         if constexpr (std::is_same_v<std::invoke_result_t<_Fn, const USN_RECORD_UNION&>, bool>) {
