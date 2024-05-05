@@ -608,19 +608,19 @@ public:
         , err_{ details::make_err(_message, _solution) }
     {}
     
-    err (mgec_t _code, mmint_t _user_code)
+    err (mgec_t _code, int32_t _user_code)
         : code_{ _code }
         , user_code_{ _user_code }
         , err_{}
     {}
 
-    err (mgec_t _code, mmint_t _user_code, const memepp::string &_message)
+    err (mgec_t _code, int32_t _user_code, const memepp::string &_message)
         : code_{ _code }
         , user_code_{ _user_code }
         , err_{ details::make_err(_message) }
     {}
 
-    err (mgec_t _code, mmint_t _user_code, const memepp::string &_message, const memepp::string &_solution)
+    err (mgec_t _code, int32_t _user_code, const memepp::string &_message, const memepp::string &_solution)
         : code_{ _code }
         , user_code_{ _user_code }
         , err_{ details::make_err(_message, _solution) }
@@ -734,7 +734,7 @@ public:
     }
 private:
     mgec_t  code_;
-    mmint_t user_code_;
+    int32_t user_code_;
     std::unique_ptr<details::basic_err> err_;
 };
 

@@ -7,6 +7,7 @@
 #include "memepp/string_fwd.hpp"
 #include "memepp/string_view_fwd.hpp"
 #include "memepp/string_builder_fwd.hpp"
+#include "megopp/predef/keyword/noexcept.h"
 
 #include "memepp/iterator.hpp"
 #include "memepp/rune_iterator.hpp"
