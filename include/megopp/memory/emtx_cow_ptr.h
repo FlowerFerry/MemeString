@@ -186,7 +186,7 @@ public:
         _genrc_locker.lock();
         ptr_ = new_ptr;
         _genrc_locker.unlock();
-        _write_locker.unlock();
+        write_locker.unlock();
         return new_ptr;
     }
 
@@ -227,7 +227,7 @@ public:
         _genrc_locker.lock();
         ptr_ = new_ptr;
         _genrc_locker.unlock();
-        _write_locker.unlock();
+        write_locker.unlock();
         return new_ptr;
     }
 
