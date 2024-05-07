@@ -208,7 +208,11 @@ public:
         }
 
         util::scope_unique_locker write_locker(_write_locker);
-        old_ptr = read();
+        
+        _genrc_locker.lock_shared();
+        auto old_ptr = ptr_;
+        _genrc_locker.unlock();
+
         auto new_ptr = std::make_shared<_Ty>(*old_ptr);
 
         if constexpr (std::is_same_v<std::invoke_result_t<_Fn, std::shared_ptr<_Ty>&>, bool>)
