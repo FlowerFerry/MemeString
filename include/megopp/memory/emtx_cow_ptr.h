@@ -208,9 +208,9 @@ public:
         }
 
         util::scope_unique_locker write_locker(_write_locker);
-        
+
         _genrc_locker.lock_shared();
-        auto old_ptr = ptr_;
+        old_ptr = ptr_;
         _genrc_locker.unlock();
 
         auto new_ptr = std::make_shared<_Ty>(*old_ptr);
