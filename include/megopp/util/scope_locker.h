@@ -196,7 +196,7 @@ template <typename _Locker>
 class scope_locker {
 
 public:
-    using mutex_type = _Locker::mutex_type;
+    using lock_type = _Locker;
 
     explicit scope_locker(_Locker& _locker) 
         : locker_(_locker), src_owns_lock_(_locker.owns_lock())
