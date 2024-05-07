@@ -176,14 +176,18 @@ public:
         if (!owns_lock_) {
             mtx_.lock_shared();
             is_shared_ = true;
+            owns_lock_ = true;
         }
     }
 
     bool try_lock_shared() {
         if (!owns_lock_) {
-            is_shared_ = mtx_.try_lock_shared();
+            owns_lock_ = mtx_.try_lock_shared();
+            if (owns_lock_) {
+                is_shared_ = true;
+            }
         }
-        return is_shared_;
+        return owns_lock_;
     }
 
 private:
