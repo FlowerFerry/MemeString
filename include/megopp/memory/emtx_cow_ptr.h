@@ -201,7 +201,7 @@ public:
         auto old_ptr = ptr_;
         _genrc_locker.unlock();
 
-        if constexpr (std::is_same_v<std::invoke_result_t<_CondFn, const std::shared_ptr<_Ty>&>, bool>)
+        if constexpr (std::is_same_v<std::invoke_result_t<_CondFn, const std::shared_ptr<const _Ty>&>, bool>)
         {
             if (!_cond_fn(old_ptr))
                 return old_ptr;
