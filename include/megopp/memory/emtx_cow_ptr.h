@@ -197,6 +197,8 @@ public:
         util::rw_lock<_GenrcMutex>& _genrc_locker,
         _CondFn&& _cond_fn, _Fn&& _fn)
     {
+        util::scope_unique_locker write_locker(_write_locker, std::defer_lock_t{});
+
         _genrc_locker.lock_shared();
         auto old_ptr = ptr_;
         _genrc_locker.unlock();
@@ -207,7 +209,7 @@ public:
                 return old_ptr;
         }
 
-        util::scope_unique_locker write_locker(_write_locker);
+        write_locker.lock();
 
         _genrc_locker.lock_shared();
         old_ptr = ptr_;
@@ -229,6 +231,28 @@ public:
         _genrc_locker.unlock();
         write_locker.unlock();
         return new_ptr;
+    }
+
+    template<typename _Fn, 
+        typename = std::enable_if_t<std::is_invocable_v<_Fn, std::shared_ptr<_Ty>&>>>
+    inline std::shared_ptr<const _Ty> write_unsafe(
+        std::unique_lock<_WriteMutex>& _write_locker, 
+        std::unique_lock<_GenrcMutex>& _genrc_locker,
+        _Fn&& _fn)
+    {
+        util::scope_unique_locker write_locker(_write_locker);
+        util::scope_unique_locker genrc_locker(_genrc_locker);
+
+        if constexpr (std::is_same_v<std::invoke_result_t<_Fn, std::shared_ptr<_Ty>&>, bool>)
+        {
+            if (!_fn(ptr_))
+                return ptr_;
+        }
+        else {
+            _fn(ptr_);
+        }
+
+        return ptr_;
     }
 
     template<
