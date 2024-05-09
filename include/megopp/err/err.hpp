@@ -670,6 +670,44 @@ public:
 
 err_cond make_err_cond(int _errval, const err_cat* _cat) noexcept;
 
+//! @code
+//! class custom_err_cat : public err_cat
+//! {
+//! public:
+//!     const char* name() const noexcept override
+//!     {
+//!         return "custom";
+//!     }
+//!
+//!     memepp::string message(int _errval) const noexcept override
+//!     {
+//!         switch (_errval) {
+//!         case 1: return "error 1";
+//!         case 2: return "error 2";
+//!         default: return "unknown error";
+//!         }
+//!     }
+//! };
+//!
+//! const err_cat* custom_err_cat() noexcept
+//! {
+//!     static custom_err_cat cat;
+//!     return &cat;
+//! }
+//! 
+//! int main() {
+//!     auto e = do_something();
+//!     if (e) {
+//!         std::cout << e.message() << std::endl;
+//!     }
+//!     
+//!     err_cond cond = make_err_cond(1, custom_err_cat());
+//!     if (e == cond) {
+//!         std::cout << "error 1" << std::endl;
+//!     }
+//!     return 0;
+//! }
+//! @endcode
 class err
 {
 public:
@@ -814,6 +852,7 @@ public:
     void set_userdata(const std::shared_ptr<void> &data);
 
     err_cond get_err_cond() const noexcept;
+    inline err_cat* category() const noexcept { return global_cat_; }
 
     inline static err make_ok()
     {
@@ -937,6 +976,21 @@ private:
     inline void err::set_userdata(const std::shared_ptr<void> &data)
     {
         details::err_set_userdata(err_, data);
+    }
+
+	inline err_cond err_cat::get_err_cond(int _errval) const noexcept
+    {
+        return err_cond{ _errval, this };
+    }
+
+	inline bool err_cat::equivalent(int _errval, const err_cond& _cond) const noexcept
+    {
+        return get_err_cond(_errval) == _cond;
+    }
+
+	inline bool err_cat::equivalent(const err& _code, int _errval) const noexcept
+    {
+        return _code.code() == _errval && _code.category() == this;
     }
 
 }; // namespace mgpp
