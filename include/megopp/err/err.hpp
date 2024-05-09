@@ -579,6 +579,7 @@ namespace details {
 }; // namespace detail  
 
 class err;
+class err_cond;
 
 //! \brief Error category
 class err_cat
