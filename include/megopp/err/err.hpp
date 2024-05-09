@@ -578,6 +578,97 @@ namespace details {
 
 }; // namespace detail  
 
+class err;
+
+//! \brief Error category
+class err_cat
+{
+public:
+    virtual ~err_cat() = default;
+
+    virtual const char* name() const noexcept = 0;
+    virtual memepp::string message(int _errval) const noexcept = 0;
+    
+	virtual err_cond get_err_cond(int _errval) const noexcept;
+
+	virtual bool equivalent(int _errval, const err_cond& _cond) const noexcept;
+
+	virtual bool equivalent(const err& _code, int _errval) const noexcept;
+
+    inline bool operator==(const err_cat& _rhs) const noexcept
+    {
+        return this == &_rhs;
+    }
+
+    inline bool operator!=(const err_cat& _rhs) const noexcept
+    {
+        return this != &_rhs;
+    }
+
+    inline bool operator<(const err_cat& _rhs) const noexcept
+    {
+        return this < &_rhs;
+    }
+
+    inline bool operator>(const err_cat& _rhs) const noexcept
+    {
+        return this > &_rhs;
+    }
+};
+
+const err_cat* generic_err_cat() noexcept;
+
+class err_cond
+{
+public:
+    err_cond() noexcept
+        : errval_{ 0 }
+        , cat_{ generic_err_cat() }
+    {}
+
+    err_cond(int _errval, const err_cat* _cat) noexcept
+        : errval_{ _errval }
+        , cat_{ _cat }
+    {}
+
+    err_cond(const err_cond& _rhs) noexcept
+        : errval_{ _rhs.errval_ }
+        , cat_{ _rhs.cat_ }
+    {}
+
+    err_cond& operator=(const err_cond& _rhs) noexcept
+    {
+        errval_ = _rhs.errval_;
+        cat_ = _rhs.cat_;
+        return *this;
+    }
+
+    int value() const noexcept
+    {
+        return errval_;
+    }
+
+    memepp::string message() const noexcept
+    {
+        return cat_->message(errval_);
+    }
+
+    const err_cat* category() const noexcept
+    {
+        return cat_;
+    }
+
+    bool operator==(const err_cond& _rhs) const noexcept
+    {
+        return errval_ == _rhs.errval_ && cat_ == _rhs.cat_;
+    }
+
+    int errval_;
+    const err_cat* cat_;
+};
+
+err_cond make_err_cond(int _errval, const err_cat* _cat) noexcept;
+
 class err
 {
 public:
@@ -721,6 +812,8 @@ public:
     void set_funcinfo(const fninfo&info);
     void set_userdata(const std::shared_ptr<void> &data);
 
+    err_cond get_err_cond() const noexcept;
+
     inline static err make_ok()
     {
         static err e;
@@ -733,8 +826,9 @@ public:
         return e;
     }
 private:
-    mgec_t  code_;
+    int32_t code_;
     int32_t user_code_;
+    err_cat* global_cat_;
     std::unique_ptr<details::basic_err> err_;
 };
 
