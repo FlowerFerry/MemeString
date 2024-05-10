@@ -158,7 +158,7 @@ public:
         typename = std::enable_if_t<std::is_invocable_v<_Fn, std::shared_ptr<_Ty>&>>>
     inline std::shared_ptr<const _Ty> write(_Fn&& _fn)
     {
-        std::uniue_lock<_WriteMutex> locker(write_mutex_, std::defer_lock);
+        std::unique_lock<_WriteMutex> locker(write_mutex_, std::defer_lock);
         return write(locker, std::forward<_Fn>(_fn));
     }
 
@@ -210,8 +210,8 @@ public:
 
 private:
     std::shared_ptr<_Ty> ptr_;
-    _GenrcMutex genrc_mutex_;
-    _WriteMutex write_mutex_;
+    mutable _GenrcMutex genrc_mutex_;
+    mutable _WriteMutex write_mutex_;
 };
 
 }
