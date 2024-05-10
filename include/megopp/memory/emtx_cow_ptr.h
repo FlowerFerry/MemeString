@@ -1,6 +1,6 @@
 
-#ifndef MEGOPP_MEMORY_COW_PTR_H_INCLUDED
-#define MEGOPP_MEMORY_COW_PTR_H_INCLUDED
+#ifndef MEGOPP_MEMORY_EMTX_COW_PTR_H_INCLUDED
+#define MEGOPP_MEMORY_EMTX_COW_PTR_H_INCLUDED
 
 #include <megopp/help/null_mutex.h>
 #include <megopp/util/scope_locker.h>
@@ -277,4 +277,4 @@ private:
 }
 }
 
-#endif // !MEGOPP_MEMORY_COW_PTR_H_INCLUDED
+#endif // !MEGOPP_MEMORY_EMTX_COW_PTR_H_INCLUDED
