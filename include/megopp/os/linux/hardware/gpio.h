@@ -75,6 +75,15 @@ struct gpio
         return mg_gpio__unexport(num_);
     }
 
+    inline bool is_initialized() const noexcept
+    {
+        if (MEGO_SYMBOL__UNLIKELY(num_ == MG_GPIO__NUMBER_INVALID))
+            return false;
+        
+        int value = 0;
+        return mg_gpio__get_value(num_, &value) == 0;
+    }
+
     inline mgec_t set_value(int value) const noexcept
     {
         return mg_gpio__set_value(num_, value);

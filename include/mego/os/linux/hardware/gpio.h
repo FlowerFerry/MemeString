@@ -23,7 +23,7 @@ typedef int mg_gpio__number_t;
 #define MG_GPIO__NUMBER_INVALID (-1)
 #endif
 
-MG_CAPI_INLINE mgec_t mg_gpio__export  (mg_gpio__number_t _num)
+MG_CAPI_INLINE mgec_t mg_gpio__export(mg_gpio__number_t _num)
 {
 #if MG_OS__LINUX_AVAIL
     mgu_stat stat;
