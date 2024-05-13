@@ -125,8 +125,8 @@ namespace memepp {
 		variable_buffer& resize(size_type _count);
 		variable_buffer& resize(size_type _count, value_type _value);
 
-		MemeInteger_t release(buffer& _buf);
-		MemeInteger_t release(string& _str);
+		mmint_t release(buffer& _buf);
+		mmint_t release(string& _str);
 
 		const native_handle_type& native_handle() const MEGOPP__NOEXCEPT;
 

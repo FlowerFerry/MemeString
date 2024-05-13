@@ -872,50 +872,50 @@ private:
     std::unique_ptr<details::basic_err> err_;
 };
 
-    inline const char* err::what() const noexcept
-    {
-        return message().data();
-    }
+inline const char* err::what() const noexcept
+{
+    return message().data();
+}
 
-    inline constexpr mgec_t err::code() const noexcept
-    {
-        return code_;
-    }
+inline constexpr mgec_t err::code() const noexcept
+{
+    return code_;
+}
 
-    inline constexpr mmint_t err::usercode() const noexcept
-    {
-        return user_code_;
-    }
+inline constexpr mmint_t err::usercode() const noexcept
+{
+    return user_code_;
+}
 
-    inline const memepp::string &err::message() const noexcept
-    {
-        return details::err_get_message(err_.get());
-    }
+inline const memepp::string &err::message() const noexcept
+{
+    return details::err_get_message(err_.get());
+}
 
-    inline memepp::string err::solution() const noexcept
-    {
-        return details::err_get_solution(err_.get());
-    }
+inline memepp::string err::solution() const noexcept
+{
+    return details::err_get_solution(err_.get());
+}
 
-    inline bool err::has_funcinfo() const noexcept
-    {
-        return details::err_get_fninfo(err_.get()) != nullptr;
-    }
+inline bool err::has_funcinfo() const noexcept
+{
+    return details::err_get_fninfo(err_.get()) != nullptr;
+}
 
-    inline const err::fninfo* err::get_funcinfo() const noexcept
-    {
-        return details::err_get_fninfo(err_.get());
-    }
+inline const err::fninfo* err::get_funcinfo() const noexcept
+{
+    return details::err_get_fninfo(err_.get());
+}
 
-    inline std::shared_ptr<void> err::userdata() const noexcept
-    {
-        return details::err_get_userdata(err_.get());
-    }
+inline std::shared_ptr<void> err::userdata() const noexcept
+{
+    return details::err_get_userdata(err_.get());
+}
 
-    inline err err::copy() const
-    {
-        return err{ *this };
-    }
+inline err err::copy() const
+{
+    return err{ *this };
+}
     
     //inline err err::next() const
     //{
@@ -923,15 +923,15 @@ private:
     //    return next ? err{ next } : make_ok();
     //}
 
-    inline bool err::ok() const noexcept
-    {
-        return code() == MGEC__OK;
-    }
+inline bool err::ok() const noexcept
+{
+    return code() == MGEC__OK;
+}
 
-    inline err::operator bool() const noexcept
-    {
-        return !ok();
-    }
+inline err::operator bool() const noexcept
+{
+    return !ok();
+}
 
     //inline void err::set_last(const err &e)
     //{
@@ -958,40 +958,40 @@ private:
     //    inner->next_ = e.impl_;
     //}
 
-    inline void err::set_message(const memepp::string &_message)
-    {
-        details::err_set_message(err_, _message);
-    }
+inline void err::set_message(const memepp::string &_message)
+{
+    details::err_set_message(err_, _message);
+}
 
-    inline void err::set_solution(const memepp::string &_solution)
-    {
-        details::err_set_solution(err_, _solution);
-    }
+inline void err::set_solution(const memepp::string &_solution)
+{
+    details::err_set_solution(err_, _solution);
+}
 
-    inline void err::set_funcinfo(const fninfo &info)
-    {
-        details::err_set_funcinfo(err_, info);
-    }
+inline void err::set_funcinfo(const fninfo &info)
+{
+    details::err_set_funcinfo(err_, info);
+}
 
-    inline void err::set_userdata(const std::shared_ptr<void> &data)
-    {
-        details::err_set_userdata(err_, data);
-    }
+inline void err::set_userdata(const std::shared_ptr<void> &data)
+{
+    details::err_set_userdata(err_, data);
+}
 
-	inline err_cond err_cat::get_err_cond(int _errval) const noexcept
-    {
-        return err_cond{ _errval, this };
-    }
+inline err_cond err_cat::get_err_cond(int _errval) const noexcept
+{
+    return err_cond{ _errval, this };
+}
 
-	inline bool err_cat::equivalent(int _errval, const err_cond& _cond) const noexcept
-    {
-        return get_err_cond(_errval) == _cond;
-    }
+inline bool err_cat::equivalent(int _errval, const err_cond& _cond) const noexcept
+{
+    return get_err_cond(_errval) == _cond;
+}
 
-	inline bool err_cat::equivalent(const err& _code, int _errval) const noexcept
-    {
-        return _code.code() == _errval && _code.category() == this;
-    }
+inline bool err_cat::equivalent(const err& _code, int _errval) const noexcept
+{
+    return _code.code() == _errval && _code.category() == this;
+}
 
 }; // namespace mgpp
 

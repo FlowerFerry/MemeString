@@ -390,7 +390,7 @@ namespace memepp {
 		return *this;
 	}
 
-	MEMEPP__IMPL_INLINE MemeInteger_t variable_buffer::release(buffer& _buf)
+	MEMEPP__IMPL_INLINE mmint_t variable_buffer::release(buffer& _buf)
 	{
 		MemeBufferStack_t stack;
 		auto result = MemeVariableBuffer_releaseToBuffer(to_pointer(data_), &stack, MEME_STRING__OBJECT_SIZE);
@@ -400,7 +400,7 @@ namespace memepp {
 		return 0;
 	}
 
-	MEMEPP__IMPL_INLINE MemeInteger_t variable_buffer::release(string& _str)
+	MEMEPP__IMPL_INLINE mmint_t variable_buffer::release(string& _str)
 	{
 		MemeStringStack_t stack;
 		auto result = MemeVariableBuffer_releaseToString(to_pointer(data_), &stack, MEME_STRING__OBJECT_SIZE);
