@@ -57,7 +57,6 @@ struct gpio
             uninit();
     }
 
-    inline gpio& operator=(const gpio& other) noexcept = delete;
     inline gpio& operator=(gpio&& other) noexcept
     {
         if (this != &other) {
