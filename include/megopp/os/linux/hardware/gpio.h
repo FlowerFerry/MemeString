@@ -40,17 +40,6 @@ struct gpio
         other.num_ = MG_GPIO__NUMBER_INVALID;
     }
 
-    gpio& operator=(gpio&& other) noexcept
-    {
-        if (this != &other)
-        {
-            num_ = other.num_;
-            dir_ = other.dir_;
-            other.num_ = MG_GPIO__NUMBER_INVALID;
-        }
-        return *this;
-    }
-
     ~gpio()
     {
         if (MEGO_SYMBOL__UNLIKELY(num_ != MG_GPIO__NUMBER_INVALID))
