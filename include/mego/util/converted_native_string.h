@@ -46,7 +46,7 @@ extern "C" {
 #if MG_OS__WIN_AVAIL
 
 MG_CAPI_INLINE mgec_t mgu__to_converted_native_string(
-    const char *_src, size_t _slen, 
+    const char *_src, mmint_t _slen, 
     mmn_char_cptr_t *_out, size_t *_out_slen, int)
 {
     size_t u16len = 0;
@@ -91,7 +91,7 @@ MG_CAPI_INLINE void mgu__free_converted_native_string(const char *_src, mmn_char
 }
 
 MG_CAPI_INLINE mgec_t mgu_w__to_converted_native_string(
-    const wchar_t *_src, size_t _slen, 
+    const wchar_t *_src, mmint_t _slen, 
     mmn_char_cptr_t *_out, size_t *_out_slen, int _must_alloc)
 {
     wchar_t * path = NULL;
@@ -143,7 +143,7 @@ MG_CAPI_INLINE void mgu_w__free_converted_native_string(const wchar_t *_src, mmn
 #else
 
 MG_CAPI_INLINE mgec_t mgu__to_converted_native_string(
-    const char *_src, size_t _slen, mmn_char_cptr_t *_out, size_t *_out_slen, int _must_alloc)
+    const char *_src, mmint_t _slen, mmn_char_cptr_t *_out, size_t *_out_slen, int _must_alloc)
 {
     char * path = NULL;
 
@@ -196,7 +196,7 @@ MG_CAPI_INLINE void mgu__free_converted_native_string(const char *_src, mmn_char
 #if MG_OS__WIN_AVAIL
 
 MG_CAPI_INLINE mgec_t mgu_w__to_cns(
-    const wchar_t *_src, size_t _slen, 
+    const wchar_t *_src, mmint_t _slen, 
     mmn_char_cptr_t *_out, size_t *_out_slen, int _must_alloc)
 {
     return mgu_w__to_converted_native_string(_src, _slen, _out, _out_slen, _must_alloc);
@@ -209,7 +209,7 @@ MG_CAPI_INLINE void mgu_w__free_cns(const wchar_t *_src, mmn_char_cptr_t _new)
 #endif
 
 MG_CAPI_INLINE mgec_t mgu__to_cns(
-    const char *_src, size_t _slen, 
+    const char *_src, mmint_t _slen, 
     mmn_char_cptr_t *_out, size_t *_out_slen, int _must_alloc)
 {
     return mgu__to_converted_native_string(_src, _slen, _out, _out_slen, _must_alloc);
