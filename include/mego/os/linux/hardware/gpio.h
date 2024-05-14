@@ -170,7 +170,7 @@ MG_CAPI_INLINE mgec_t mg_gpio__get_value(mg_gpio__number_t _num, int* _value)
     }
 
     close(fd);
-    *_value = (c == '1');
+    *_value = (c == '1' ? 1 : 0);
     return 0;
 #else
     return MGEC__OPNOTSUPP;
