@@ -49,6 +49,11 @@ MG_CAPI_INLINE mgec_t mg_gpio__export(mg_gpio__number_t _num)
     }
 
     close(fd);
+
+    snprintf(buf, sizeof(buf), "/sys/class/gpio/gpio%d", _num);
+    if (mgu_get_stat(buf, -1, &stat) != 0)
+        return mgec__from_sys_err(errno);
+    
     return 0;
 #else
     return MGEC__OPNOTSUPP;
