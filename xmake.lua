@@ -29,6 +29,8 @@ target("meme_string")
     add_syslinks("pthread", "dl")
     if is_os("windows") ~= true then
         add_syslinks("rt")
+        add_cxxflags("-fPIC", "-fexceptions")
+        add_ldflags ("-fPIC", "-fexceptions")
     end
     set_kind("shared")
     set_symbols("hidden")

@@ -11,6 +11,12 @@
 
 #include <stdio.h>
 
+#if MG_OS__LINUX_AVAIL
+#include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
+#endif
+
 typedef enum mg_gpio__direction 
 {
     mg_gpio__direction_in  = 0,
