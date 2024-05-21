@@ -904,7 +904,7 @@ public:
     void set_userdata(const std::shared_ptr<void> &data);
 
     err_cond get_err_cond() const noexcept;
-    inline err_cat* category() const noexcept { return global_cat_; }
+    inline const err_cat* category() const noexcept { return global_cat_; }
 
     inline static err make_ok()
     {
@@ -920,7 +920,7 @@ public:
 private:
     int32_t  code_;
     int32_t  user_code_;
-    err_cat* global_cat_;
+    const err_cat* global_cat_;
     std::unique_ptr<details::basic_err> err_;
 };
 
