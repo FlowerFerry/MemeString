@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MG_OS_LINUX_HARDWARE_GPIO_H_INCLUDED
 #define MG_OS_LINUX_HARDWARE_GPIO_H_INCLUDED
 
@@ -10,6 +10,7 @@
 #include <mego/util/posix/sys/stat.h>
 
 #include <stdio.h>
+#include <time.h>
 
 #if MG_OS__LINUX_AVAIL
 #include <fcntl.h>
@@ -55,10 +56,16 @@ MG_CAPI_INLINE mgec_t mg_gpio__export(mg_gpio__number_t _num)
     }
 
     close(fd);
+    
+    struct timespec ts;
+    ts.tv_sec = 0;                 // 0 seconds
+    ts.tv_nsec = 10000000L;        // 10 millisecond (10,000,000 nanoseconds)
+
+    nanosleep(&ts, NULL);
 
     snprintf(buf, sizeof(buf), "/sys/class/gpio/gpio%d", _num);
     if (mgu_get_stat(buf, -1, &stat) != 0)
-        return mgec__from_sys_err(errno);
+        return MGEC__IO;
     
     return 0;
 #else
