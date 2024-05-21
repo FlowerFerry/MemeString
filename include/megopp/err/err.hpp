@@ -683,6 +683,11 @@ public:
         return errval_ == _rhs.errval_ && cat_ == _rhs.cat_;
     }
 
+    bool operator!=(const err_cond& _rhs) const noexcept
+    {
+        return !(*this == _rhs);
+    }
+
     int errval_;
     const err_cat* cat_;
 };
@@ -1053,16 +1058,6 @@ inline bool err_cat::equivalent(int _errval, const err_cond& _cond) const noexce
 inline bool err_cat::equivalent(const err& _code, int _errval) const noexcept
 {
     return _code.code() == _errval && _code.category() == this;
-}
-
-inline bool operator==(const err_cond& _lhs, const err_cond& _rhs) noexcept
-{
-    return _lhs.category() == _rhs.category() && _lhs.value() == _rhs.value();
-}
-
-inline bool operator!=(const err_cond& _lhs, const err_cond& _rhs) noexcept
-{
-    return !(_lhs == _rhs);
 }
 
 inline bool operator==(const err& _lhs, const err_cond& _rhs) noexcept
