@@ -856,10 +856,10 @@ public:
         , err_{ _e.err_ ? _e.err_->clone() : nullptr }
     {}
 
-    err (err &&e) noexcept
-        : code_{ e.code_ }
-        , user_code_{ e.user_code_ }
-        , err_{ std::move(e.err_) }
+    err (err &&_e) noexcept
+        : code_{ _e.code_ }
+        , user_code_{ _e.user_code_ }
+        , err_{ std::move(_e.err_) }
     {}
 
     err &operator=(const err &_e)
@@ -870,12 +870,22 @@ public:
         return *this;
     }
 
-    err &operator=(err &&e) noexcept
+    err &operator=(err &&_e) noexcept
     {
-        code_ = e.code_;
-        user_code_ = e.user_code_;
-        err_ = std::move(e.err_);
+        code_ = _e.code_;
+        user_code_ = _e.user_code_;
+        err_ = std::move(_e.err_);
         return *this;
+    }
+
+    bool operator==(const err& _e) const noexcept
+    {
+        return category() == _e.category() && code() == _e.code() && usercode() == _e.usercode();
+    }
+    
+    bool operator!=(const err& _e) const noexcept
+    {
+        return !(*this == _e);
     }
 
     const char* what() const noexcept;
@@ -1043,6 +1053,36 @@ inline bool err_cat::equivalent(int _errval, const err_cond& _cond) const noexce
 inline bool err_cat::equivalent(const err& _code, int _errval) const noexcept
 {
     return _code.code() == _errval && _code.category() == this;
+}
+
+inline bool operator==(const err_cond& _lhs, const err_cond& _rhs) noexcept
+{
+    return _lhs.category() == _rhs.category() && _lhs.value() == _rhs.value();
+}
+
+inline bool operator!=(const err_cond& _lhs, const err_cond& _rhs) noexcept
+{
+    return !(_lhs == _rhs);
+}
+
+inline bool operator==(const err& _lhs, const err_cond& _rhs) noexcept
+{
+    return _lhs.category() == _rhs.category() && _lhs.code() == _rhs.value();
+}
+
+inline bool operator==(const err_cond& _lhs, const err& _rhs) noexcept
+{
+    return _rhs == _lhs;
+}
+
+inline bool operator!=(const err& _lhs, const err_cond& _rhs) noexcept
+{
+    return !(_lhs == _rhs);
+}
+
+inline bool operator!=(const err_cond& _lhs, const err& _rhs) noexcept
+{
+    return !(_lhs == _rhs);
 }
 
 }; // namespace mgpp
