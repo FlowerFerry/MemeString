@@ -14,21 +14,21 @@ typedef int mgrc_t;
 // const char* mgec__name(mgec_t _ec);
 // const char* mgec__desc(mgec_t _ec);
 
-// mgec_t mgec__from_sys_err  (int _sys_err);
-// mgec_t mgec__from_posix_err(int _posix_err);
+ //mgec_t mgec__from_sys_err  (int _sys_err);
+ //mgec_t mgec__from_posix_err(int _posix_err);
 
 #if defined(__cplusplus)
 }
 #endif 
 
-#define MGEC__POSIX_OFFSET_BEGIN  -100000
-#define MGEC__POSIX_OFFSET_END    -199999
+#define MGEC__POSIX_OFFSET_BEGIN  (-100000)
+#define MGEC__POSIX_OFFSET_END    (-199999)
 
-#define MGEC__OFFSET1_BEGIN        -200000
-#define MGEC__OFFSET1_END          -299999
+#define MGEC__OFFSET1_BEGIN       (-200000)
+#define MGEC__OFFSET1_END         (-299999)
 
-#define MGEC__OFFSET2_BEGIN        -300000
-#define MGEC__OFFSET2_END          -309999
+#define MGEC__OFFSET2_BEGIN       (-300000)
+#define MGEC__OFFSET2_END         (-309999)
 
 #define MGEC__OK          0      //< 成功 Success
 #define MGEC__ERR        -1      //< 未知错误 Unknown error

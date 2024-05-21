@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEGOPP_ERR_HPP_INCLUDED
 #define MEGOPP_ERR_HPP_INCLUDED
 
@@ -576,7 +576,7 @@ namespace details {
 //    std::shared_ptr<void> data_;
 //};
 
-}; // namespace detail  
+}; // namespace details  
 
 class err;
 class err_cond;
@@ -617,14 +617,33 @@ public:
     }
 };
 
-const err_cat* generic_err_cat() noexcept;
+class generic_err_cat : public err_cat
+{
+public:
+    const char* name() const noexcept override
+    {
+        return "generic";
+    }
+
+    memepp::string message(int _errval) const noexcept override
+    {
+        return {};
+    }
+    
+};
+
+inline const err_cat* get_genrc_err_cat() noexcept
+{
+    static generic_err_cat cat;
+    return &cat;
+}
 
 class err_cond
 {
 public:
     err_cond() noexcept
         : errval_{ 0 }
-        , cat_{ generic_err_cat() }
+        , cat_{ get_genrc_err_cat() }
     {}
 
     err_cond(int _errval, const err_cat* _cat) noexcept
@@ -668,7 +687,10 @@ public:
     const err_cat* cat_;
 };
 
-err_cond make_err_cond(int _errval, const err_cat* _cat) noexcept;
+inline err_cond make_err_cond(int _errval, const err_cat* _cat) noexcept
+{
+    return err_cond{ _errval, _cat };
+}
 
 //! @code
 //! class custom_err_cat : public err_cat
@@ -717,54 +739,84 @@ public:
     err ()
         : code_{ MGEC__OK }
         , user_code_{ 0 }
+        , global_cat_{ get_genrc_err_cat() }
         , err_{  }
     {}
 
-    err (mgec_t _code)
+    err (int32_t _code)
         : code_{ _code }
         , user_code_{ 0 }
+        , global_cat_{ get_genrc_err_cat() }
         , err_{  }
     {}
 
-    err (mgec_t _code, const memepp::string &_message)
+    err (int32_t _code, const memepp::string &_message)
         : code_{ _code }
         , user_code_{ 0 }
+        , global_cat_{ get_genrc_err_cat() }
         , err_{ details::make_err(_message) }
     {}
 
-    err (mgec_t _code, const memepp::string &_message, const memepp::string &_solution)
+    err (int32_t _code, const memepp::string &_message, const memepp::string &_solution)
         : code_{ _code }
         , user_code_{ 0 }
+        , global_cat_{ get_genrc_err_cat() }
         , err_{ details::make_err(_message, _solution) }
     {}
     
-    err (mgec_t _code, int32_t _user_code)
+    err (int32_t _code, int32_t _user_code)
         : code_{ _code }
         , user_code_{ _user_code }
+        , global_cat_{ get_genrc_err_cat() }
         , err_{}
     {}
 
-    err (mgec_t _code, int32_t _user_code, const memepp::string &_message)
+    err (int32_t _code, int32_t _user_code, const memepp::string &_message)
         : code_{ _code }
         , user_code_{ _user_code }
+        , global_cat_{ get_genrc_err_cat() }
         , err_{ details::make_err(_message) }
     {}
 
-    err (mgec_t _code, int32_t _user_code, const memepp::string &_message, const memepp::string &_solution)
+    err (int32_t _code, int32_t _user_code, const memepp::string &_message, const memepp::string &_solution)
         : code_{ _code }
         , user_code_{ _user_code }
+        , global_cat_{ get_genrc_err_cat() }
+        , err_{ details::make_err(_message, _solution) }
+    {}
+
+    err(int32_t _code, err_cat* _cat)
+        : code_{ _code }
+        , user_code_{ 0 }
+        , global_cat_{ _cat }
+        , err_{}
+    {}
+
+    err(int32_t _code, err_cat* _cat, const memepp::string& _message)
+        : code_{ _code }
+        , user_code_{ 0 }
+        , global_cat_{ _cat }
+        , err_{ details::make_err(_message) }
+    {}
+
+    err(int32_t _code, err_cat* _cat, const memepp::string& _message, const memepp::string& _solution)
+        : code_{ _code }
+        , user_code_{ 0 }
+        , global_cat_{ _cat }
         , err_{ details::make_err(_message, _solution) }
     {}
 
     err (const std::shared_ptr<void> &_data)
         : code_{ MGEC__OK }
         , user_code_{ 0 }
+        , global_cat_{ get_genrc_err_cat() }
         , err_{ details::make_err(_data) }
     {}
 
-    err (mgec_t code, const std::shared_ptr<void> &_data)
+    err (int32_t code, const std::shared_ptr<void> &_data)
         : code_{ code }
         , user_code_{ 0 }
+        , global_cat_{ get_genrc_err_cat() }
         , err_{ details::make_err(_data) }
     {}
 
@@ -828,8 +880,8 @@ public:
 
     const char* what() const noexcept;
 
-    constexpr mgec_t code() const noexcept;
-    constexpr mmint_t usercode() const noexcept;
+    constexpr int32_t code() const noexcept;
+    constexpr int32_t usercode() const noexcept;
     const memepp::string &message() const noexcept;
 
     memepp::string solution() const noexcept;
@@ -839,12 +891,12 @@ public:
 
     std::shared_ptr<void> userdata() const noexcept;
     err copy() const;
-    err next() const;
+    //err next() const;
 
     bool ok() const noexcept;
     explicit operator bool() const noexcept;
 
-    void set_last(const err &e);
+    //void set_last(const err &e);
     void set_message(const memepp::string &message);
     void set_solution(const memepp::string &solution);
 
@@ -866,8 +918,8 @@ public:
         return e;
     }
 private:
-    int32_t code_;
-    int32_t user_code_;
+    int32_t  code_;
+    int32_t  user_code_;
     err_cat* global_cat_;
     std::unique_ptr<details::basic_err> err_;
 };
@@ -877,12 +929,12 @@ inline const char* err::what() const noexcept
     return message().data();
 }
 
-inline constexpr mgec_t err::code() const noexcept
+inline constexpr int32_t err::code() const noexcept
 {
     return code_;
 }
 
-inline constexpr mmint_t err::usercode() const noexcept
+inline constexpr int32_t err::usercode() const noexcept
 {
     return user_code_;
 }
