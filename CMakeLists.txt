@@ -6,6 +6,7 @@ if (WIN32)
 else()
   set (MEME_PROJECT_NAME    meme_string)
 endif()
+set (MEMESTRING_PROJECT_NAME ${MEME_PROJECT_NAME} PARENT_SCOPE)
 
 project(${MEME_PROJECT_NAME} VERSION 0.0.1 LANGUAGES C)
 
