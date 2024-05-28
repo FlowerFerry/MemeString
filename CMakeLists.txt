@@ -2,9 +2,9 @@
 cmake_minimum_required(VERSION 3.14)
 
 if (WIN32)
-  set (MEME_PROJECT_NAME libmeme_string)
+  set (MEME_PROJECT_NAME libmeme_string PARENT_SCOPE)
 else()
-  set (MEME_PROJECT_NAME meme_string)
+  set (MEME_PROJECT_NAME    meme_string PARENT_SCOPE)
 endif()
 
 project(${MEME_PROJECT_NAME} VERSION 0.0.1 LANGUAGES C)
