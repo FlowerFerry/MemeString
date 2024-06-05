@@ -18,6 +18,8 @@ option(MEMESTRING_SONAME_SUFFIX_ENABLE "Disable soname suffix" ON)
 # 添加 include 路径
 # include_directories(3rdparty/cvector/include include include_private)
 
+message(STATUS "MEMESTRING_SONAME_SUFFIX_ENABLE: ${MEMESTRING_SONAME_SUFFIX_ENABLE}")
+
 # 添加链接库
 if (NOT WIN32)
   find_package(Threads REQUIRED)
