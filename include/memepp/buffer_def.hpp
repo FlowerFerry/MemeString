@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEMEPP_BUFFER_DEF_HPP_INCLUDED
 #define MEMEPP_BUFFER_DEF_HPP_INCLUDED
 
@@ -69,6 +69,8 @@ namespace memepp {
 		string to_string(size_type _front_offset = 0) const;
 		buffer to_large() const;
 		
+		void reset();
+
 		size_type index_of(const buffer& _other) const MEGOPP__NOEXCEPT;
 		size_type index_of(const_pointer _utf8, size_type _utf8_len) const MEGOPP__NOEXCEPT;
 

@@ -1,4 +1,4 @@
-
+﻿
 
 #ifndef MEMEPP_STRING_IMPL_HPP_INCLUDED
 #define MEMEPP_STRING_IMPL_HPP_INCLUDED
@@ -355,6 +355,14 @@ namespace memepp {
 	MEMEPP__IMPL_INLINE void string::swap(string& _other) noexcept
 	{
 		MemeString_swap(to_pointer(data_), to_pointer(_other.data_));
+	}
+
+	MEMEPP__IMPL_INLINE void string::reset()
+	{
+		*errc() = MemeStringStack_reset(&data_, MMSTR__OBJ_SIZE);
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(*errc());
+#endif
 	}
 
 	MEMEPP__IMPL_INLINE string::size_type string::find(const string& _other, size_type _pos) const noexcept

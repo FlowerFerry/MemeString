@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEMEPP_STRING_DEF_HPP_INCLUDED
 #define MEMEPP_STRING_DEF_HPP_INCLUDED
 
@@ -115,6 +115,8 @@ namespace memepp {
         string to_large() const noexcept;
 
 		void swap(string& _other) noexcept;
+
+		void reset();
 
 		//! \brief Find the first occurrence of a character in a string.
 		//! \param _other The string to find.

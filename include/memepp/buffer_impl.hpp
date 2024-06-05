@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEMEPP_BUFFER_IMPL_HPP_INCLUDED
 #define MEMEPP_BUFFER_IMPL_HPP_INCLUDED
 
@@ -154,7 +154,12 @@ namespace memepp {
         return storage_type() == buffer_storage_t::large ?
             *this : buffer{ data(), size(), buffer_storage_t::large };
 	}
-    
+	
+	MEMEPP__IMPL_INLINE void buffer::reset()
+	{
+        MemeBufferStack_reset(&data_, MMSTR__OBJ_SIZE);
+	}
+
 	MEMEPP__IMPL_INLINE buffer::size_type buffer::index_of(
 		const buffer& _other) const MEGOPP__NOEXCEPT
 	{

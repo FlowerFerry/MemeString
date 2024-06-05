@@ -537,6 +537,8 @@ TEST_CASE("memepp::string - 09", "variable_buffer resize")
 	REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b01.native_handle())) == 1);
 	REQUIRE(MemeString_checkHeadTailMemory(
 		(MemeString_Const_t)memepp::to_pointer(b01.native_handle())) == 1);
+
+
 }
 
 TEST_CASE("memepp::string - 10", "variable_buffer append")
