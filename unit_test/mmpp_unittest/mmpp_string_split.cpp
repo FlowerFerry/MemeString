@@ -1,4 +1,4 @@
-
+﻿
 #include <catch2/catch.hpp>
 
 #include <memepp/split/self.hpp>
@@ -165,4 +165,5 @@ TEST_CASE("memepp::string - 07", "string split")
 	REQUIRE(l03_sv01[2] == "22");
 	REQUIRE(l03_sv01[3] == "3");
 	REQUIRE(l03_sv01[4] == "444");
+	
 }

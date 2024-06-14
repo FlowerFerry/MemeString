@@ -21,5 +21,8 @@
     <ClCompile Include="mmpp_string_split.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="mmpp_variable_buffer_resize.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

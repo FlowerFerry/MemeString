@@ -183,6 +183,7 @@ xcopy /y "$(ProjectDir)..\..\projects\vs\libmeme_string\$(Platform)\$(Configurat
   <ItemGroup>
     <ClCompile Include="mmpp_string_split.cpp" />
     <ClCompile Include="mmpp_unittest.cpp" />
+    <ClCompile Include="mmpp_variable_buffer_resize.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
