@@ -1,4 +1,4 @@
-
+﻿
 #include <meme/impl/string_p__small.h>
 
 
@@ -89,6 +89,14 @@ void MemeStringSmall_shrinkTailZero(MemeStringSmall_t* _s)
 	while (_s->buffer_[index] == 0 && index > 0 && _s->buffer_[index - 1] == 0)
 		--index;
 	_s->capacity_ += (MemeStringSmall_byteSize(_s) - index);
+}
+
+mgec_t MemeStringSmall_resizeAndOverwrite(MemeStringSmall_t* _s, mmint_t _size)
+{
+	assert(_size > MMS__GET_SMALL_BUFFER_SIZE && "MemeStringSmall_resizeAndOverwrite");
+
+	MemeStringSmall_byteSizeOffsetAndSetZero(_s, _size - (MemeStringSmall_byteSize(_s)));
+	return 0;
 }
 
 int MemeStringSmall_resizeWithByte(MemeStringSmall_t* _s, MemeInteger_t _size, MemeByte_t _byte)

@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEME_IMPL_STRING_P_MEDIUM_H_INCLUDED
 #define MEME_IMPL_STRING_P_MEDIUM_H_INCLUDED
 
@@ -70,6 +70,9 @@ MemeStringMedium_assign(MemeStringMedium_t* _s, const MemeByte_t* _buf, MemeInte
 MemeInteger_t
 MemeStringMedium_remove(
 	MemeStringMedium_t* _s, MemeInteger_t _pos, MemeInteger_t _count);
+
+mgec_t 
+MemeStringMedium_resizeAndOverwrite(MemeStringMedium_t* _s, mmint_t _size);
 
 int
 MemeStringMedium_resizeWithByte(MemeStringMedium_t* _s, MemeInteger_t _size, MemeByte_t _byte);

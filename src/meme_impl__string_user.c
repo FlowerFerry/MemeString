@@ -1,4 +1,4 @@
-
+﻿
 #include <meme/impl/string_p__user.h>
 
 
@@ -70,16 +70,16 @@ int MemeStringUser_reset(MemeStringUser_t* _s)
 	return 0;
 }
 
-const MemeByte_t* MemeStringUser_constData(const MemeStringUser_t* _s)
+const mmbyte_t* MemeStringUser_constData(const MemeStringUser_t* _s)
 {
 	const char* p = _s->ref_->data_fn_(_s->ref_->user_data_);
-	return p ? (const MemeByte_t*)(p + _s->offset_) : MemeStringImpl_default();
+	return p ? (const mmbyte_t*)(p + _s->offset_) : MemeStringImpl_default();
 }
 
-void MemeStringUser_setOffset(MemeStringUser_t* _s, MemeInteger_t _offset)
+void MemeStringUser_setOffset(MemeStringUser_t* _s, mmint_t _offset)
 {
 	_s->offset_ += _offset;
-	_s->size_ -= _offset;
+	_s->size_   -= _offset;
 }
 
 void MemeStringUser_shrinkTailZero(MemeStringUser_t* _s)
@@ -95,14 +95,14 @@ void MemeStringUser_RefCount_init(volatile MemeStringUser_RefCounted_t* _refcoun
 	MemeAtomicInteger_init(&(_refcount->count_), 1);
 }
 
-MemeInteger_t MemeStringUser_RefCount_increment(volatile MemeStringUser_RefCounted_t* _refcount)
+mmint_t MemeStringUser_RefCount_increment(volatile MemeStringUser_RefCounted_t* _refcount)
 {
 	assert(_refcount != NULL && MemeStringUser_RefCount_increment);
 
 	return MemeAtomicInteger_increment(&(_refcount->count_));
 }
 
-MemeInteger_t MemeStringUser_RefCount_decrementAndDestruct(volatile MemeStringUser_RefCounted_t* _refcount)
+mmint_t MemeStringUser_RefCount_decrementAndDestruct(volatile MemeStringUser_RefCounted_t* _refcount)
 {
 	//MemeString_FreeFunction_t* f_func = NULL;
 	MemeInteger_t result = 0;
@@ -127,17 +127,17 @@ MemeInteger_t MemeStringUser_RefCount_decrementAndDestruct(volatile MemeStringUs
 }
 
 
-MemeInteger_t MemeStringUser_getSharedHeapByteSize(const MemeStringUser_t* _s)
+mmint_t MemeStringUser_getSharedHeapByteSize(const MemeStringUser_t* _s)
 {
 	return sizeof(MemeStringUser_RefCounted_t) + _s->offset_ + _s->size_;
 }
 
-MemeInteger_t MemeStringUser_getPrivateHeapByteSize(const MemeStringUser_t* _s)
+mmint_t MemeStringUser_getPrivateHeapByteSize(const MemeStringUser_t* _s)
 {
 	return 0;
 }
 
-MemeInteger_t MemeStringUser_checkHeadTailMemory(const MemeStringUser_t* _s)
+mmint_t MemeStringUser_checkHeadTailMemory(const MemeStringUser_t* _s)
 {
 #if !(MMOPT__HEADTAIL_MEMCHECK_ENABLED)
 	return 1;

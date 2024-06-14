@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEMEPP_VARIABLE_BUFFER_IMPL_HPP_INCLUDED
 #define MEMEPP_VARIABLE_BUFFER_IMPL_HPP_INCLUDED
 
@@ -379,6 +379,15 @@ namespace memepp {
 		throw_errc(get_errc());
 #endif
 		return *this;
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::resize_and_overwrite(size_type _count)
+	{
+        *errc() = static_cast<int>(MemeVariableBuffer_resizeAndOverwrite(to_pointer(data_), _count));
+#if !MMOPT__EXCEPTION_DISABLED
+        throw_errc(get_errc());
+#endif
+        return *this;
 	}
 
 	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::resize(size_type _count, value_type _value)

@@ -1,4 +1,4 @@
-
+﻿
 #include <meme/impl/string_p__medium.h>
 
 
@@ -57,7 +57,7 @@ mmint_t MemeStringMedium_usedByteFrontCapacity(const MemeStringMedium_t* _s)
 
 void MemeStringMedium_byteSizeOffset(MemeStringMedium_t* _s, MemeInteger_t _offset)
 {
-	_s->size_ += _offset;
+	_s->size_     += _offset;
 	_s->capacity_ -= _offset;
 }
 
@@ -215,6 +215,19 @@ MemeStringMedium_remove(
 	}
 
 	return 0;
+}
+
+mgec_t MemeStringMedium_resizeAndOverwrite(MemeStringMedium_t* _s, mmint_t _size)
+{
+	if (MemeStringMedium_maxByteCapacity(_s) < _size)
+	{
+        mgec_t rc = MemeStringImpl_capacityExpansionWithModifiable((mmstrstk_t*)_s, _size);
+        if (rc)
+            return rc;
+	}
+	
+    MemeStringMedium_byteSizeOffsetAndSetZero(_s, _size - _s->size_);
+    return 0;
 }
 
 int MemeStringMedium_resizeWithByte(MemeStringMedium_t* _s, MemeInteger_t _size, MemeByte_t _byte)

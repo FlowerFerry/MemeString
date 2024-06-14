@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEME_IMPL_STRING_P_SMALL_H_INCLUDED
 #define MEME_IMPL_STRING_P_SMALL_H_INCLUDED
 
@@ -19,6 +19,9 @@ MemeStringSmall_stackReset(MemeStringStack_t* _s);
 int 
 MemeStringSmall_initByU8bytes(
 	MemeStringSmall_t* _s, const MemeByte_t* _utf8, size_t _len);
+
+mgec_t 
+MemeStringSmall_resizeAndOverwrite(MemeStringSmall_t* _s, mmint_t _size);
 
 int
 MemeStringSmall_resizeWithByte(MemeStringSmall_t* _s, MemeInteger_t _size, MemeByte_t _byte);
@@ -44,8 +47,8 @@ MemeStringSmall_byteCapacity(const MemeStringSmall_t* _s);
 //inline MemeInteger_t 
 //MemeStringSmall_wordSize(const MemeStringSmall_t* _s);
 
-MemeRuneIndex_t 
-MemeStringSmall_at(const MemeStringSmall_t* _s, size_t _index);
+//MemeRuneIndex_t 
+//MemeStringSmall_at(const MemeStringSmall_t* _s, size_t _index);
 
 int
 MemeStringSmall_appendWithByte(MemeStringSmall_t* _s, MemeInteger_t _count, MemeByte_t _byte);

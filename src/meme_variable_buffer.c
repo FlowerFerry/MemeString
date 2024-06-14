@@ -1,4 +1,4 @@
-
+﻿
 #include "meme/variable_buffer.h"
 #include "meme/string.h"
 #include "meme/buffer.h"
@@ -479,6 +479,37 @@ MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_resize(MemeVariableBuffer_t _s, MemeInteger_t _size)
 {
 	return MemeVariableBuffer_resizeWithByte(_s, _size, 0);
+}
+
+MEME_API mgec_t MEME_STDCALL MemeVariableBuffer_resizeAndOverwrite(mmvb_ptr_t _b, mmint_t _size)
+{
+    mmstr_ptr_t s = (mmstr_ptr_t)_b;
+	
+    assert(s != NULL  && "MemeVariableBuffer_resizeAndOverwrite");
+    assert(_size >= 0 && "MemeVariableBuffer_resizeAndOverwrite");
+    assert(MemeStringImpl_isModifiableType(MMS__GET_TYPE(s)) == 1 && "MemeVariableBuffer_resizeAndOverwrite");
+
+	switch (MMS__GET_TYPE(s)) {
+	case mmstr_strg_small: {
+		if (_size <= MMSTR__GET_SMALL_BUF_SIZE)
+			return MemeStringSmall_resizeAndOverwrite((MemeStringSmall_t*)s, _size);
+		else {
+            int rc = MemeStringImpl_capacityExpansionSmallToMedium((mmstrstk_t*)s, _size);
+            if (rc)
+                return rc;
+			
+            return MemeStringMedium_resizeAndOverwrite((MemeStringMedium_t*)s, _size);
+		}
+	} break;
+	case mmstr_strg_medium: {
+        return MemeStringMedium_resizeAndOverwrite((MemeStringMedium_t*)s, _size);
+    } break;
+    default: {
+        return MGEC__OPNOTSUPP;
+    } break;
+	}
+
+	return 0;
 }
 
 MEME_API MemeInteger_t 

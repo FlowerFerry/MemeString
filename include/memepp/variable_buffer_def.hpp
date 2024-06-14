@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEMEPP_VARIABLE_BUFFER_DEF_HPP_INCLUDED
 #define MEMEPP_VARIABLE_BUFFER_DEF_HPP_INCLUDED
 
@@ -124,6 +124,7 @@ namespace memepp {
 
 		variable_buffer& resize(size_type _count);
 		variable_buffer& resize(size_type _count, value_type _value);
+		variable_buffer& resize_and_overwrite(size_type _count);
 
 		mmint_t release(buffer& _buf);
 		mmint_t release(string& _str);

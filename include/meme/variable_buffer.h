@@ -1,8 +1,10 @@
-
+﻿
 #ifndef MEME_VARIABLE_BUFFER_H_INCLUDED
 #define MEME_VARIABLE_BUFFER_H_INCLUDED
 
 #include "variable_buffer_fwd.h"
+
+#include <mego/err/ec.h>
 
 MEME_EXTERN_C_SCOPE_START
 
@@ -126,6 +128,9 @@ MEME_STDCALL MemeVariableBuffer_clear(MemeVariableBuffer_t _s);
 
 MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_resize(MemeVariableBuffer_t _s, MemeInteger_t _size);
+
+MEME_API mgec_t
+MEME_STDCALL MemeVariableBuffer_resizeAndOverwrite(mmvb_ptr_t _b, mmint_t _size);
 
 MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_resizeWithByte(

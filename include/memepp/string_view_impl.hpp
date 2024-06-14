@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEMEPP_STRING_VIEW_IMPL_HPP_INCLUDED
 #define MEMEPP_STRING_VIEW_IMPL_HPP_INCLUDED
 
@@ -64,7 +64,7 @@ namespace memepp {
 		MemeStringViewUnsafeStack_init(&data_, MEME_STRING__OBJECT_SIZE, 
 			reinterpret_cast<const uint8_t*>(_utf8), _size);
 	}
-
+	
 	MEMEPP__IMPL_INLINE string_view::string_view(const_pointer _utf8) noexcept
 	{
 		MemeStringViewUnsafeStack_init(&data_, MEME_STRING__OBJECT_SIZE, _utf8, -1);

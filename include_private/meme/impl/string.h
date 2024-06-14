@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEME_IMPL_STRING_H_INCLUDED
 #define MEME_IMPL_STRING_H_INCLUDED
 
@@ -172,6 +172,10 @@ struct _MemeString_t
 
 #ifndef MMS__GET_SMALL_BUFFER_SIZE
 #define MMS__GET_SMALL_BUFFER_SIZE (sizeof(((MemeStringSmall_t*)0)->buffer_) - 2)
+#endif
+
+#ifndef MMSTR__GET_SMALL_BUF_SIZE
+#define MMSTR__GET_SMALL_BUF_SIZE (sizeof(((MemeStringSmall_t*)0)->buffer_) - 2)
 #endif
 
 #ifndef MMS__GET_TYPE
