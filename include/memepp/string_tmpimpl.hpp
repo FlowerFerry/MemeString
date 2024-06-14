@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEME_STRING_TEMPLATEIMPL_H_INCLUDED
 #define MEME_STRING_TEMPLATEIMPL_H_INCLUDED
 
@@ -7,18 +7,23 @@
 #include <memepp/string_view_def.hpp>
 #include <memepp/rune_impl.hpp>
 
+#include <type_traits>
+
 namespace memepp {
-    
-	template<typename _Func>
+
+	template<typename _Func, typename = std::enable_if_t<std::is_invocable_v<_Func, memepp::rune&>>>
 	struct __string_mapping_convert_helper
 	{
 		inline __string_mapping_convert_helper(_Func&& _func) : func_(std::forward<_Func>(_func)) {}
 		
 		inline int call(memepp::rune& _ch)
 		{
-			//if (!func_)
-			//	return -1;
-            return func_(_ch);
+            if constexpr (std::is_same_v<std::invoke_result_t<_Func, memepp::rune&>, int>)
+                return func_(_ch);
+			else {
+                func_(_ch);
+                return 0;
+			}
 		}
 
 		inline static int callback(MemeRune_t* _ch, void* _user_data)
@@ -34,6 +39,32 @@ namespace memepp {
         _Func func_;
 	};
 
+    template<typename _Func, typename = std::enable_if_t<std::is_invocable_v<_Func, const memepp::rune&>>>
+	struct __string_foreach_helper
+	{
+        inline __string_foreach_helper(_Func&& _func) : func_(std::forward<_Func>(_func)) {}
+
+		inline mmflag_cbproc_t call(const memepp::rune& _ch)
+		{
+            if constexpr (std::is_same_v<std::invoke_result_t<_Func, const memepp::rune&>, mmflag_cbproc_t>)
+                return func_(_ch);
+			else {
+                func_(_ch);
+                return mmflag_cbproc_continue;
+			}
+		}
+
+        inline static mmflag_cbproc_t callback(const mmrune_t* _ch, void* _user_data)
+        {
+            auto helper = reinterpret_cast<__string_foreach_helper*>(_user_data);
+            auto result = helper->call({ *_ch });
+            return result;
+        }
+
+	private:
+        _Func func_;
+	};
+
 	template<typename _Func>
 	inline string string::mapping_convert(_Func&& _func) const
 	{
@@ -42,6 +73,16 @@ namespace memepp {
 			&native_handle(),
             MMS__OBJECT_SIZE, 
 			__string_mapping_convert_helper<_Func>::callback,
+			&helper);
+	}
+
+	template<typename _Func>
+	inline string::size_type string::foreach(_Func&& _func) const noexcept
+	{
+        __string_foreach_helper<_Func> helper{ std::forward<_Func>(_func) };
+        return MemeString_foreach(
+			to_pointer(native_handle()), 
+			__string_foreach_helper<_Func>::callback, 
 			&helper);
 	}
 

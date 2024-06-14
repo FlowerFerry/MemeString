@@ -1,4 +1,4 @@
-
+﻿
 #include "meme/string.h"
 #include <meme/utf/u8rune.h>
 #include <meme/rune.h>
@@ -1091,12 +1091,13 @@ MEME_API mmint_t
 MEME_STDCALL MemeString_foreach(
 	mmstr_cptr_t _str, mmstr_foreach_rune_cb_t* _cb, void* _user_data)
 {
+	const mmbyte_t* pointer = MemeString_byteData(_str);
+	mmint_t count = MemeString_byteSize(_str);
+	mmint_t index = 0;
+	
     assert(_str != NULL && _cb != NULL && MemeString_foreach != NULL);
 
-    const mmbyte_t* pointer = MemeString_byteData(_str);
-    mmint_t count = MemeString_byteSize(_str);
-
-    for (mmint_t index = 0; index < count; )
+    for (; index < count; )
     {
 		mmflag_cbproc_t cbResult = mmflag_cbproc_continue;
 		mmrune_t r;
@@ -1105,7 +1106,7 @@ MEME_STDCALL MemeString_foreach(
 			++index;
             continue;
 		}
-		if (runeSize + index >= count)
+		if (runeSize + index > count)
 			break;
 		
         MemeRune_initByUtf8Bytes(&r, pointer + index, runeSize);
@@ -1117,7 +1118,7 @@ MEME_STDCALL MemeString_foreach(
 		
         index += runeSize;
     }
-    return 0;
+    return index;
 }
 
 MEME_API MemeInteger_t MEME_STDCALL MemeString_split(

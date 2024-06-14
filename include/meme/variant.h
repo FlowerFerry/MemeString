@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEME_VARIANT_H_INCLUDED
 #define MEME_VARIANT_H_INCLUDED
 
@@ -342,6 +342,8 @@ MEME_API mgec_t MEME_STDCALL
         const mmvarstk_t* _obj, size_t _object_size, mmbufstk_t* _out, int _is_inited);
 
 
+
+//****************************************************************************/
 
 MG_CAPI_INLINE mgec_t mmvarstk_init(mmvarstk_t* _obj, size_t _object_size)
 {

@@ -295,4 +295,4 @@ EXPORTS
     MemeVariantStack_setUInt @278
     MemeStringStack_vformatWithLimitInCstyle @279
     MemeVariableBuffer_resizeAndOverwrite @280
-    
+    MemeString_foreach @281

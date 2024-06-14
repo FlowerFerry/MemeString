@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEMEPP_RUNE_DEF_HPP_INCLUDED
 #define MEMEPP_RUNE_DEF_HPP_INCLUDED
 
@@ -50,8 +50,25 @@ namespace memepp {
 
         bool is_space() const noexcept;
 
-        inline operator bool() const noexcept { return valid() && !empty(); }
+        inline explicit operator bool() const noexcept { return valid() && !empty(); }
 		
+		inline bool operator==(char _ch) const noexcept
+		{
+            if (size() != 1) 
+				return false;
+            return data()[0] == _ch;
+		}
+
+		inline bool operator==(const rune& _r) const noexcept
+		{
+            if (size() != _r.size())
+                return false;
+            return memcmp(data(), _r.data(), size()) == 0;
+		}
+
+        inline bool operator!=(char _ch) const noexcept { return !(*this == _ch); }
+        inline bool operator!=(const rune& _r) const noexcept { return !(*this == _r); }
+
         inline MemeRune_t& native_handle() noexcept { return data_; }
         inline const MemeRune_t& native_handle() const noexcept { return data_; }
 	private:

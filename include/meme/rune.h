@@ -328,6 +328,8 @@ MG_CAPI_INLINE int
 //}
 
 
+//****************************************************************************/
+
 MG_CAPI_INLINE int
     mmruneidx_is_space(const mmbyte_t* _buf, int _size)
 {

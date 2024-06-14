@@ -1597,6 +1597,50 @@ TEST_CASE("memepp::string - 31", "format")
 	
 }
 
+TEST_CASE("memepp::string - 32", "foreach")
+{
+    mmint_t pos = 0;
+    auto runeCount = 0;
+    memepp::string s01 = "Hello World!";
+    pos = s01.foreach([&](const memepp::rune& _r)
+    {
+        if (runeCount == 5)
+            REQUIRE(_r == ' ');
+
+        ++runeCount;
+    });
+    REQUIRE(runeCount == 12);
+    REQUIRE(pos == 12);
+
+    memepp::string s02 = "";
+    pos = s02.foreach([&](const memepp::rune& _r)
+    {
+        REQUIRE(false);
+    });
+    REQUIRE(pos == 0);
+    
+    memepp::string s03 = u8"您好，世界！";
+    runeCount = 0;
+    pos = s03.foreach([&](const memepp::rune& _r)
+    {
+        ++runeCount;
+        if (runeCount == 1)
+            REQUIRE(_r == u8"您");
+        if (runeCount == 2)
+            REQUIRE(_r == u8"好");
+        if (runeCount == 3)
+            REQUIRE(_r == u8"，");
+        if (runeCount == 4)
+            REQUIRE(_r == u8"世");
+        if (runeCount == 5)
+            REQUIRE(_r == u8"界");
+        if (runeCount == 6)
+            REQUIRE(_r == u8"！");
+    });
+    REQUIRE(runeCount == 6);
+    REQUIRE(pos == 18);
+}
+
 #include <memepp/variant.hpp>
 
 TEST_CASE("memepp::variant - 01", "variant basic operations")
