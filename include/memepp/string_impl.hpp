@@ -5,7 +5,7 @@
 
 #include "meme/string.h"
 #include <memepp/predef/macro_option.hpp>
-#include "memepp/rune_def.hpp"
+//#include "memepp/rune_def.hpp"
 #include "memepp/string_def.hpp"
 #include "memepp/string_view.hpp"
 #include "memepp/string_builder.hpp"
@@ -268,6 +268,16 @@ namespace memepp {
 	MEMEPP__IMPL_INLINE string::size_type string::u16char_size() const noexcept
 	{
         return MemeString_u16CharSize(to_pointer(data_));
+	}
+
+	MEMEPP__IMPL_INLINE rune string::rune_front() const noexcept
+	{
+        return MemeString_runeFront(to_pointer(data_));
+	}
+	
+	MEMEPP__IMPL_INLINE rune string::rune_back() const noexcept
+	{
+        return MemeString_runeBack(to_pointer(data_));
 	}
 
 	MEMEPP__IMPL_INLINE const_iterator string::begin() const noexcept
@@ -747,7 +757,7 @@ namespace memepp {
 		return data_;
 	}
 
-	MEMEPP__IMPL_INLINE bool operator==(const string& _lhs, const string& _rhs)
+	MEMEPP__IMPL_INLINE bool operator==(const string& _lhs, const string& _rhs) noexcept
 	{
 		int result = 0;
 		MemeString_isEqualWithOther(
@@ -756,7 +766,7 @@ namespace memepp {
 		return result;
 	}
 
-	MEMEPP__IMPL_INLINE bool operator==(const char* _lhs, const string& _rhs)
+	MEMEPP__IMPL_INLINE bool operator==(const char* _lhs, const string& _rhs) noexcept
 	{
 		int result = 0;
 		MemeString_isEqual(
@@ -764,7 +774,7 @@ namespace memepp {
 		return result;
 	}
 
-	MEMEPP__IMPL_INLINE bool operator==(const string& _lhs, const char* _rhs)
+	MEMEPP__IMPL_INLINE bool operator==(const string& _lhs, const char* _rhs) noexcept
 	{
 		int result = 0;
 		MemeString_isEqual(
@@ -772,7 +782,7 @@ namespace memepp {
 		return result;
 	}
 	
-	MEMEPP__IMPL_INLINE bool operator==(const string& _lhs, string::const_pointer _rhs)
+	MEMEPP__IMPL_INLINE bool operator==(const string& _lhs, string::const_pointer _rhs) noexcept
 	{
         int result = 0;
         MemeString_isEqual(
@@ -780,7 +790,7 @@ namespace memepp {
         return result;
 	}
 
-	MEMEPP__IMPL_INLINE bool operator==(string::const_pointer _lhs, const string& _rhs)
+	MEMEPP__IMPL_INLINE bool operator==(string::const_pointer _lhs, const string& _rhs) noexcept
 	{
         int result = 0;
         MemeString_isEqual(
@@ -788,101 +798,215 @@ namespace memepp {
         return result;
 	}
 
-	MEMEPP__IMPL_INLINE bool operator!=(const string& _lhs, const string& _rhs)
+	MEMEPP__IMPL_INLINE bool operator==(const string& _lhs, const rune& _rhs) noexcept
+	{
+		int result = 0;
+		MemeString_isEqual(to_pointer(_lhs.native_handle()), 
+			reinterpret_cast<const char*>(_rhs.data()), _rhs.size(), &result);
+        return result;
+	}
+	
+	MEMEPP__IMPL_INLINE bool operator==(const rune& _lhs, const string& _rhs) noexcept
+	{
+		int result = 0;
+		MemeString_isEqual(to_pointer(_rhs.native_handle()),
+            reinterpret_cast<const char*>(_lhs.data()), _lhs.size(), &result);
+        return result;
+	}
+
+	MEMEPP__IMPL_INLINE bool operator!=(const string& _lhs, const string& _rhs) noexcept
 	{
 		return !(_lhs == _rhs);
 	}
 
-	MEMEPP__IMPL_INLINE bool operator!=(const char* _lhs, const string& _rhs)
+	MEMEPP__IMPL_INLINE bool operator!=(const char* _lhs, const string& _rhs) noexcept
 	{
 		return !(_lhs == _rhs);
 	}
 
-	MEMEPP__IMPL_INLINE bool operator!=(const string& _lhs, const char* _rhs)
+	MEMEPP__IMPL_INLINE bool operator!=(const string& _lhs, const char* _rhs) noexcept
 	{
 		return !(_lhs == _rhs);
 	}
     
-    MEMEPP__IMPL_INLINE bool operator!=(const string& _lhs, string::const_pointer _rhs)
+    MEMEPP__IMPL_INLINE bool operator!=(const string& _lhs, string::const_pointer _rhs) noexcept
     {
         return !(_lhs == _rhs);
     }
 
-    MEMEPP__IMPL_INLINE bool operator!=(string::const_pointer _lhs, const string& _rhs)
+    MEMEPP__IMPL_INLINE bool operator!=(string::const_pointer _lhs, const string& _rhs) noexcept
+    {
+        return !(_lhs == _rhs);
+    }
+
+    MEMEPP__IMPL_INLINE bool operator!=(const string& _lhs, const rune& _rhs) noexcept
+    {
+        return !(_lhs == _rhs);
+    }
+
+    MEMEPP__IMPL_INLINE bool operator!=(const rune& _lhs, const string& _rhs) noexcept
     {
         return !(_lhs == _rhs);
     }
 	
-    //MEMEPP__IMPL_INLINE bool operator<(const string& _lhs, const string& _rhs)
-    //{
-    //    int result = 0;
-    //    MemeString_isLessWithOther(
-    //        to_pointer(_lhs.native_handle()),
-    //        to_pointer(_rhs.native_handle()), &result);
-    //    return result;
-    //}
+	MEMEPP__IMPL_INLINE bool operator<(const string& _lhs, const string& _rhs) noexcept
+	{
+		return MemeString_compare(
+            to_pointer(_lhs.native_handle()), to_pointer(_rhs.native_handle())) < 0;
+	}
+	
+	MEMEPP__IMPL_INLINE bool operator>(const string& _lhs, const string& _rhs) noexcept
+	{
+        return MemeString_compare(
+            to_pointer(_lhs.native_handle()), to_pointer(_rhs.native_handle())) > 0;
+	}
+	
+	MEMEPP__IMPL_INLINE bool operator<=(const string& _lhs, const string& _rhs) noexcept
+	{
+        return !(_lhs > _rhs);
+	}
 
-    //MEMEPP__IMPL_INLINE bool operator<(const char* _lhs, const string& _rhs)
-    //{
-    //    int result = 0;
-    //    MemeString_isLess(
-    //        to_pointer(_rhs.native_handle()), _lhs, -1, &result);
-    //    return result;
-    //}
+	MEMEPP__IMPL_INLINE bool operator>=(const string& _lhs, const string& _rhs) noexcept
+	{
+        return !(_lhs < _rhs);
+	}
 
-    //MEMEPP__IMPL_INLINE bool operator<(const string& _lhs, const char* _rhs)
-    //{
-    //    int result = 0;
-    //    MemeString_isLess(
-    //        to_pointer(_lhs.native_handle()), _rhs, -1, &result);
-    //    return result;
-    //}
+	MEMEPP__IMPL_INLINE bool operator<(const string& _lhs, const char* _rhs) noexcept
+	{
+        return MemeString_compareByUtf8bytes(
+            to_pointer(_lhs.native_handle()), 
+			reinterpret_cast<string::const_pointer>(_rhs), -1) < 0;
+	}
+	
+	MEMEPP__IMPL_INLINE bool operator<(const char* _lhs, const string& _rhs) noexcept
+	{
+        return MemeString_compareByUtf8bytes(
+			to_pointer(_rhs.native_handle()), 
+			reinterpret_cast<string::const_pointer>(_lhs), -1) > 0;
+	}
+	
+	MEMEPP__IMPL_INLINE bool operator>(const string& _lhs, const char* _rhs) noexcept
+	{
+        return MemeString_compareByUtf8bytes(
+            to_pointer(_lhs.native_handle()),
+            reinterpret_cast<string::const_pointer>(_rhs), -1) > 0;
+	}
+	
+	MEMEPP__IMPL_INLINE bool operator>(const char* _lhs, const string& _rhs) noexcept
+	{
+        return MemeString_compareByUtf8bytes(
+            to_pointer(_rhs.native_handle()),
+            reinterpret_cast<string::const_pointer>(_lhs), -1) < 0;
+	}
+	
+	MEMEPP__IMPL_INLINE bool operator<=(const string& _lhs, const char* _rhs) noexcept
+	{
+        return !(_lhs > _rhs);
+	}
+	
+	MEMEPP__IMPL_INLINE bool operator<=(const char* _lhs, const string& _rhs) noexcept
+	{
+		return !(_lhs > _rhs);
+	}
 
-    //MEMEPP__IMPL_INLINE bool operator<=(const string& _lhs, const string& _rhs)
-    //{
-    //    return !(_rhs < _lhs);
-    //}
+	MEMEPP__IMPL_INLINE bool operator>=(const string& _lhs, const char* _rhs) noexcept
+	{
+        return !(_lhs < _rhs);
+	}
+	
+	MEMEPP__IMPL_INLINE bool operator>=(const char* _lhs, const string& _rhs) noexcept
+	{
+        return !(_lhs < _rhs);
+	}
 
-    //MEMEPP__IMPL_INLINE bool operator<=(const char* _lhs, const string& _rhs)
-    //{
-    //    return !(_rhs < _lhs);
-    //}
+	MEMEPP__IMPL_INLINE bool operator<(const string& _lhs, string::const_pointer _rhs) noexcept
+	{
+        return MemeString_compareByUtf8bytes(
+            to_pointer(_lhs.native_handle()), _rhs, -1) < 0;
+	}
 
-    //MEMEPP__IMPL_INLINE bool operator<=(const string& _lhs, const char* _rhs)
-    //{
-    //    return !(_rhs < _lhs);
-    //}
+	MEMEPP__IMPL_INLINE bool operator<(string::const_pointer _lhs, const string& _rhs) noexcept
+	{
+        return MemeString_compareByUtf8bytes(
+            to_pointer(_rhs.native_handle()), _lhs, -1) > 0;
+	}
 
-    //MEMEPP__IMPL_INLINE bool operator>(const string& _lhs, const string& _rhs)
-    //{
-    //    return _rhs < _lhs;
-    //}
+	MEMEPP__IMPL_INLINE bool operator>(const string& _lhs, string::const_pointer _rhs) noexcept
+	{
+        return MemeString_compareByUtf8bytes(
+            to_pointer(_lhs.native_handle()), _rhs, -1) > 0;
+	}
+	
+	MEMEPP__IMPL_INLINE bool operator>(string::const_pointer _lhs, const string& _rhs) noexcept
+	{
+        return MemeString_compareByUtf8bytes(
+            to_pointer(_rhs.native_handle()), _lhs, -1) < 0;
+	}
 
-    //MEMEPP__IMPL_INLINE bool operator>(const char* _lhs, const string& _rhs)
-    //{
-    //    return _rhs < _lhs;
-    //}
+	MEMEPP__IMPL_INLINE bool operator<=(const string& _lhs, string::const_pointer _rhs) noexcept
+	{
+        return !(_lhs > _rhs);
+	}
 
-    //MEMEPP__IMPL_INLINE bool operator>(const string& _lhs, const char* _rhs)
-    //{
-    //    return _rhs < _lhs;
-    //}
+	MEMEPP__IMPL_INLINE bool operator<=(string::const_pointer _lhs, const string& _rhs) noexcept
+	{
+        return !(_lhs > _rhs);
+	}
 
-    //MEMEPP__IMPL_INLINE bool operator>=(const string& _lhs, const string& _rhs)
-    //{
-    //    return !(_lhs < _rhs);
-    //}
+	MEMEPP__IMPL_INLINE bool operator>=(const string& _lhs, string::const_pointer _rhs) noexcept
+	{
+        return !(_lhs < _rhs);
+	}
 
-    //MEMEPP__IMPL_INLINE bool operator>=(const char* _lhs, const string& _rhs)
-    //{
-    //    return !(_lhs < _rhs);
-    //}
+	MEMEPP__IMPL_INLINE bool operator>=(string::const_pointer _lhs, const string& _rhs) noexcept
+	{
+        return !(_lhs < _rhs);
+	}
 
-    //MEMEPP__IMPL_INLINE bool operator>=(const string& _lhs, const char* _rhs)
-    //{
-    //    return !(_lhs < _rhs);
-    //}
+	MEMEPP__IMPL_INLINE bool operator<(const string& _lhs, const rune& _rhs) noexcept
+	{
+        return MemeString_compareByUtf8bytes(to_pointer(_lhs.native_handle()), 
+            reinterpret_cast<string::const_pointer>(_rhs.data()), _rhs.size()) < 0;
+	}
+	
+	MEMEPP__IMPL_INLINE bool operator<(const rune& _lhs, const string& _rhs) noexcept
+	{
+        return MemeString_compareByUtf8bytes(to_pointer(_rhs.native_handle()),
+            reinterpret_cast<string::const_pointer>(_lhs.data()), _lhs.size()) > 0;
+	}
+	
+	MEMEPP__IMPL_INLINE bool operator>(const string& _lhs, const rune& _rhs) noexcept
+	{
+        return MemeString_compareByUtf8bytes(to_pointer(_lhs.native_handle()),
+            reinterpret_cast<string::const_pointer>(_rhs.data()), _rhs.size()) > 0;
+	}
 
+	MEMEPP__IMPL_INLINE bool operator>(const rune& _lhs, const string& _rhs) noexcept
+	{
+        return MemeString_compareByUtf8bytes(to_pointer(_rhs.native_handle()),
+            reinterpret_cast<string::const_pointer>(_lhs.data()), _lhs.size()) < 0;
+	}
+
+	MEMEPP__IMPL_INLINE bool operator<=(const string& _lhs, const rune& _rhs) noexcept
+	{
+        return !(_lhs > _rhs);
+	}
+	
+	MEMEPP__IMPL_INLINE bool operator<=(const rune& _lhs, const string& _rhs) noexcept
+	{
+        return !(_lhs > _rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator>=(const string& _lhs, const rune& _rhs) noexcept
+	{
+        return !(_lhs < _rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator>=(const rune& _lhs, const string& _rhs) noexcept
+	{
+        return !(_lhs < _rhs);
+	}
+	
 	MEMEPP__IMPL_INLINE string from_hexadecimals(const uint8_t* _buf, size_t _len)
 	{
 		MemeStringStack_t stack;

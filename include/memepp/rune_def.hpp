@@ -66,6 +66,14 @@ namespace memepp {
             return memcmp(data(), _r.data(), size()) == 0;
 		}
 
+        inline bool operator==(const char* _u8) const noexcept
+        {
+            size_t _size = strlen(_u8);
+            if (static_cast<size_t>(size()) != _size)
+                return false;
+            return memcmp(data(), _u8, _size) == 0;
+        }
+
         inline bool operator!=(char _ch) const noexcept { return !(*this == _ch); }
         inline bool operator!=(const rune& _r) const noexcept { return !(*this == _r); }
 

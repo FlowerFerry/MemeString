@@ -336,6 +336,65 @@ MEME_API const MemeByte_t* MEME_STDCALL MemeString_at(MemeString_Const_t _s, Mem
     return MemeString_byteData(_s) + _index;
 }
 
+MEME_API mmrune_t MEME_STDCALL MemeString_runeFront(mmstr_cptr_t _s)
+{
+	mmrune_t runeData;
+	mmint_t runeSize;
+	mmint_t byteSize;
+    const mmbyte_t* byteData;
+
+	assert(_s != NULL);
+	
+    byteSize = MemeString_byteSize(_s);
+	
+	if (byteSize < 1) {
+		runeData = MemeRune_getInitObject();
+        runeData.attr.invalid = 1;
+		return runeData;
+	}
+	byteData = MemeString_byteData(_s);
+	runeSize = mmutf_u8rune_char_size(*byteData);
+	if (runeSize == -1 || runeSize > byteSize) 
+	{
+		runeData = MemeRune_getInitObject();
+		runeData.attr.invalid = 1;
+		return runeData;
+	}
+
+	MemeRune_initByUtf8Bytes(&runeData, byteData, runeSize);
+    return runeData;
+}
+
+MEME_API mmrune_t MEME_STDCALL MemeString_runeBack(mmstr_cptr_t _s)
+{
+	mmrune_t runeData;
+	mmint_t runeSize;
+    mmint_t byteSize;
+    const mmbyte_t* byteData;
+	
+    assert(_s != NULL);
+
+    byteSize = MemeString_byteSize(_s);
+
+    if (byteSize < 1) {
+		runeData = MemeRune_getInitObject();
+		runeData.attr.invalid = 1;
+		return runeData;
+	}
+
+	byteData = MemeString_byteData(_s);
+    runeSize = mmutf_u8rune_prev_char_size(byteData, byteData + byteSize);
+    if (runeSize == -1 || runeSize > byteSize) 
+	{
+		runeData = MemeRune_getInitObject();
+		runeData.attr.invalid = 1;
+		return runeData;
+	}
+	
+    MemeRune_initByUtf8Bytes(&runeData, byteData + byteSize - runeSize, runeSize);
+    return runeData;
+}
+
 MEME_API MemeInteger_t MEME_STDCALL MemeString_maxByteSize(MemeString_Const_t _s)
 {
 	assert(_s);
@@ -570,7 +629,7 @@ MEME_API int MEME_STDCALL MemeString_isEqual(MemeString_Const_t _s,
 	MemeInteger_t rhslen = 0;
 	const char* src = NULL;
 
-	if ((!_result))
+	if (MEGO_SYMBOL__UNLIKELY(_result == NULL))
 		return (MGEC__INVAL);
 
 	src = MemeString_cStr(_s);
@@ -701,6 +760,41 @@ MEME_API int MEME_STDCALL MemeString_compare(mmstr_cptr_t _s, mmstr_cptr_t _othe
  //           return (*src < *dst ? -1 : 1);
  //   }
  //   return (srclen == dstlen ? 0 : (srclen < dstlen ? -1 : 1));
+}
+
+MEME_API int MEME_STDCALL MemeString_compareByUtf8bytes(
+	mmstr_cptr_t _s, const mmbyte_t* _other, mmint_t _len)
+{
+    const mmbyte_t* src = NULL;
+    const mmbyte_t* dst = NULL;
+    mmint_t srclen = 0;
+    mmint_t dstlen = 0;
+    mmint_t rlen = 0;
+
+    assert(_s);
+	
+	if (MEGO_SYMBOL__UNLIKELY(_other == NULL))
+        return -1;
+
+	if (_len < 0)
+        _len = strlen((const char*)_other);
+
+    src = MemeString_byteData(_s);
+    dst = _other;
+    srclen = MemeString_byteSize(_s);
+    dstlen = _len;
+    rlen = MemeMath_Min(srclen, dstlen);
+
+    rlen = memcmp(src, dst, rlen);
+    if (rlen)
+        return (int)rlen;
+
+    if (srclen == dstlen)
+        return 0;
+    if (srclen < dstlen)
+        return -1;
+    else
+        return 1;
 }
 
 MEME_API MemeInteger_t MEME_STDCALL MemeString_indexOfWithUtf8bytes(

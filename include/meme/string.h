@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEME_STRING_H_INCLUDED
 #define MEME_STRING_H_INCLUDED
 
@@ -252,10 +252,6 @@ MemeStringStack_formatInCstyle_v2(
 	MEGO_SYMBOL__GCC_ATTRIBUTE_FORMAT(printf, 3, 4);
 
 //MEME_API MemeInteger_t
-//MEME_STDCALL MemeStringStack_toInteger(
-//    const MemeStringStack_t* _s, size_t _object_size, MemeInteger_t* _out);
-//
-//MEME_API MemeInteger_t
 //MEME_STDCALL MemeStringStack_toDouble(
 //    const MemeStringStack_t* _s, size_t _object_size, double* _out);
 
@@ -268,15 +264,15 @@ MEME_API int
 //MEME_API int 
 //	MEME_STDCALL MemeString_createWithType(MemeString_t* _out, MemeString_Storage_t);
 
-MEME_API int 
-	MEME_STDCALL MemeString_createByOther(mmstr_ptr_t* _out, mmstr_cptr_t _other);
-
-MEME_API int 
-	MEME_STDCALL MemeString_createByRune(mmstr_ptr_t* _out, size_t _len, mmrune_t _ch);
-
-MEME_API int 
-	MEME_STDCALL MemeString_createByUtf8bytes(
-		mmstr_ptr_t* _out, const mmbyte_t* _utf8, mmint_t _len);
+//MEME_API int 
+//	MEME_STDCALL MemeString_createByOther(mmstr_ptr_t* _out, mmstr_cptr_t _other);
+//
+//MEME_API int 
+//	MEME_STDCALL MemeString_createByRune(mmstr_ptr_t* _out, size_t _len, mmrune_t _ch);
+//
+//MEME_API int 
+//	MEME_STDCALL MemeString_createByUtf8bytes(
+//		mmstr_ptr_t* _out, const mmbyte_t* _utf8, mmint_t _len);
 
 MEME_API int 
 	MEME_STDCALL MemeString_destroy(MemeString_t* _out);
@@ -314,7 +310,7 @@ MEME_API MemeInteger_t
 MEME_API MemeInteger_t
 	MEME_STDCALL MemeString_maxByteSize(MemeString_Const_t _s);
 MEME_API MemeInteger_t
-MEME_STDCALL MemeString_maxByteCapacity(MemeString_Const_t _s);
+	MEME_STDCALL MemeString_maxByteCapacity(MemeString_Const_t _s);
 
 //! @brief Get the byte pointer at the specified index.
 //! @param _s The string.
@@ -323,6 +319,12 @@ MEME_STDCALL MemeString_maxByteCapacity(MemeString_Const_t _s);
 //! @note The index must be in the range [0, MemeString_wordSize(_s)).
 MEME_API const MemeByte_t*
 	MEME_STDCALL MemeString_at(MemeString_Const_t _s, MemeInteger_t _index);
+
+MEME_API mmrune_t
+	MEME_STDCALL MemeString_runeFront(mmstr_cptr_t _s);
+
+MEME_API mmrune_t
+	MEME_STDCALL MemeString_runeBack(mmstr_cptr_t _s);
 
 MEME_API int
 	MEME_STDCALL MemeString_isEqual(
@@ -340,6 +342,17 @@ MEME_API int
 
 MEME_API int
 MEME_STDCALL MemeString_compare(mmstr_cptr_t _s, mmstr_cptr_t _other);
+
+MEME_API int
+MEME_STDCALL MemeString_compareByUtf8bytes(
+    mmstr_cptr_t _s, const mmbyte_t* _other, mmint_t _len);
+//
+//MEME_API int
+//MEME_STDCALL MemeString_runeCompare(mmstr_cptr_t _s, mmstr_cptr_t _other);
+//
+//MEME_API int
+//MEME_STDCALL MemeString_runeCompareByUtf8bytes(
+//	mmstr_cptr_t _s, const mmbyte_t* _other, mmint_t _len);
 
 MEME_API MemeInteger_t
 	MEME_STDCALL MemeString_indexOfWithUtf8bytes(
@@ -424,6 +437,9 @@ MEME_STDCALL MemeString_endsMatchWithUtf8bytes(
 MEME_API mmint_t
 MEME_STDCALL MemeString_foreach(
     mmstr_cptr_t _str, mmstr_foreach_rune_cb_t* _cb, void* _user_data);
+//
+//MEME_API mgec_t
+//MEME_STDCALL MemeString_toInteger(mmstr_cptr_t _s, mmint_t* _out, int _base);
 
 //! @brief Split the string into substrings.
 //! @param _s The string.

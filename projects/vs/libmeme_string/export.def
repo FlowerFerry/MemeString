@@ -296,3 +296,6 @@ EXPORTS
     MemeStringStack_vformatWithLimitInCstyle @279
     MemeVariableBuffer_resizeAndOverwrite @280
     MemeString_foreach @281
+    MemeString_compareByUtf8bytes @282
+    MemeString_runeFront @283
+    MemeString_runeBack @284

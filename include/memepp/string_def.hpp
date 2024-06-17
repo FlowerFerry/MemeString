@@ -91,6 +91,9 @@ namespace memepp {
 		size_type rune_size() const noexcept;
         size_type u16char_size() const noexcept;
 
+        rune rune_front() const noexcept;
+        rune rune_back() const noexcept;
+
 		const_iterator begin() const noexcept;
 		const_iterator cbegin() const noexcept;
 
@@ -331,17 +334,53 @@ namespace memepp {
 		native_handle_type data_;
 	};
 
-	bool operator==(const string& _lhs, const string& _rhs);
-	bool operator==(const char* _lhs, const string& _rhs);
-	bool operator==(const string& _lhs, const char* _rhs);
-    bool operator==(const string& _lhs, string::const_pointer _rhs);
-    bool operator==(string::const_pointer _lhs, const string& _rhs);
+	bool operator==(const string& _lhs, const string& _rhs) noexcept;
+	bool operator==(const char* _lhs, const string& _rhs) noexcept;
+	bool operator==(const string& _lhs, const char* _rhs) noexcept;
+	bool operator==(string::const_pointer _lhs, const string& _rhs) noexcept;
+    bool operator==(const string& _lhs, string::const_pointer _rhs) noexcept;
+	bool operator==(const rune& _lhs, const string& _rhs) noexcept;
+	bool operator==(const string& _lhs, const rune& _rhs) noexcept;
 
-	bool operator!=(const string& _lhs, const string& _rhs);
-	bool operator!=(const char* _lhs, const string& _rhs);
-	bool operator!=(const string& _lhs, const char* _rhs);
-    bool operator!=(const string& _lhs, string::const_pointer _rhs);
-    bool operator!=(string::const_pointer _lhs, const string& _rhs);
+	bool operator!=(const string& _lhs, const string& _rhs) noexcept;
+	bool operator!=(const char* _lhs, const string& _rhs) noexcept;
+	bool operator!=(const string& _lhs, const char* _rhs) noexcept;
+	bool operator!=(string::const_pointer _lhs, const string& _rhs) noexcept;
+    bool operator!=(const string& _lhs, string::const_pointer _rhs) noexcept;
+	bool operator!=(const rune& _lhs, const string& _rhs) noexcept;
+    bool operator!=(const string& _lhs, const rune& _rhs) noexcept;
+	
+	bool operator<(const string& _lhs, const string& _rhs) noexcept;
+	bool operator>(const string& _lhs, const string& _rhs) noexcept;
+	bool operator<=(const string& _lhs, const string& _rhs) noexcept;
+	bool operator>=(const string& _lhs, const string& _rhs) noexcept;
+
+	bool operator<(const string& _lhs, const char* _rhs) noexcept;
+    bool operator<(const char* _lhs, const string& _rhs) noexcept;
+	bool operator>(const string& _lhs, const char* _rhs) noexcept;
+    bool operator>(const char* _lhs, const string& _rhs) noexcept;
+	bool operator<=(const string& _lhs, const char* _rhs) noexcept;
+    bool operator<=(const char* _lhs, const string& _rhs) noexcept;
+	bool operator>=(const string& _lhs, const char* _rhs) noexcept;
+    bool operator>=(const char* _lhs, const string& _rhs) noexcept;
+
+	bool operator<(const string& _lhs, string::const_pointer _rhs) noexcept;
+    bool operator<(string::const_pointer _lhs, const string& _rhs) noexcept;
+	bool operator>(const string& _lhs, string::const_pointer _rhs) noexcept;
+    bool operator>(string::const_pointer _lhs, const string& _rhs) noexcept;
+	bool operator<=(const string& _lhs, string::const_pointer _rhs) noexcept;
+    bool operator<=(string::const_pointer _lhs, const string& _rhs) noexcept;
+	bool operator>=(const string& _lhs, string::const_pointer _rhs) noexcept;
+    bool operator>=(string::const_pointer _lhs, const string& _rhs) noexcept;
+
+	bool operator<(const string& _lhs, const rune& _rhs) noexcept;
+    bool operator<(const rune& _lhs, const string& _rhs) noexcept;
+	bool operator>(const string& _lhs, const rune& _rhs) noexcept;
+    bool operator>(const rune& _lhs, const string& _rhs) noexcept;
+	bool operator<=(const string& _lhs, const rune& _rhs) noexcept;
+    bool operator<=(const rune& _lhs, const string& _rhs) noexcept;
+	bool operator>=(const string& _lhs, const rune& _rhs) noexcept;
+    bool operator>=(const rune& _lhs, const string& _rhs) noexcept;
 
 	memepp::string from_hexadecimals(const uint8_t* _buf, size_t _len);
 
