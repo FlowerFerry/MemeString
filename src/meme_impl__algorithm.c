@@ -1,4 +1,4 @@
-
+﻿
 #include "meme/impl/algorithm.h"
 #include <meme/impl/string.h>
 #include <mego/predef/symbol/likely.h>
@@ -359,7 +359,7 @@ mmint_t MemeImpl_SearchByViolenceWithSensitivity(
     const uint8_t* _source, mmint_t _source_len, uint8_t _key,
     mmflag_case_sensit_t _cs)
 {
-    if (_source_len == -1) {
+    if (_source_len < 0) {
         const uint8_t* index = _source;
         if ((_cs & MemeFlag_CaseSensitive) == 0)
         {

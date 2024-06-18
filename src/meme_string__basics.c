@@ -1081,10 +1081,12 @@ MemeString_matchCountWithUtf8bytes(
     MemeInteger_t index = -1;
     MemeInteger_t match_count = 0;
 
-    if ((_offset < 0))
+    if (MEGO_SYMBOL__UNLIKELY(_offset < 0))
         _offset = 0;
-    if ((_offset > count - 1))
+    if (_offset > count - 1)
         _offset = count - 1;
+    if (_needle_len < 0)
+        _needle_len = strlen((const char*)_needle);
 
     index = MemeString_indexOfWithUtf8bytes(_s, _offset, _needle, _needle_len, _cs);
     while (index != -1)

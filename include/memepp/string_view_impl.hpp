@@ -287,7 +287,43 @@ namespace memepp {
         return storage_type() == string_storage_t::large ?
             to_string() : string{ data(), size(), string_storage_t::large };
 	}
-    
+
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::count(const string_view& _str, case_sensit_t _cs) const noexcept
+	{
+		return MemeString_matchCountWithUtf8bytes(
+			to_pointer(data_), 0, _str.bytes(), _str.size(), static_cast<mmflag_case_sensit_t>(_cs));
+	}
+
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::count(const char* _str, case_sensit_t _cs) const noexcept
+	{
+		return MemeString_matchCountWithUtf8bytes(
+			to_pointer(data_), 0, reinterpret_cast<const uint8_t*>(_str), -1, static_cast<mmflag_case_sensit_t>(_cs));
+	}
+
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::count(const char* _str, size_type _size, case_sensit_t _cs) const noexcept
+	{
+		return MemeString_matchCountWithUtf8bytes(
+			to_pointer(data_), 0, reinterpret_cast<const uint8_t*>(_str), _size, static_cast<mmflag_case_sensit_t>(_cs));
+	}
+
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::count(const_pointer _str, case_sensit_t _cs) const noexcept
+	{
+		return MemeString_matchCountWithUtf8bytes(
+			to_pointer(data_), 0, _str, -1, static_cast<mmflag_case_sensit_t>(_cs));
+	}
+
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::count(const_pointer _str, size_type _size, case_sensit_t _cs) const noexcept
+	{
+		return MemeString_matchCountWithUtf8bytes(
+			to_pointer(data_), 0, _str, _size, static_cast<mmflag_case_sensit_t>(_cs));
+	}
+
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::count(const rune& _rune, case_sensit_t _cs) const noexcept
+	{
+		return MemeString_matchCountWithUtf8bytes(
+			to_pointer(data_), 0, _rune.data(), _rune.size(), static_cast<mmflag_case_sensit_t>(_cs));
+	}
+
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::find(
 		const string_view& _other, size_type _pos) const noexcept
 	{
@@ -340,6 +376,16 @@ namespace memepp {
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
 	}
 
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::rfind(const string_view& _other, size_type _pos) const noexcept
+	{
+		return MemeString_lastIndexOfOther(
+			to_pointer(native_handle()),
+			_pos, -1,
+			to_pointer(_other.native_handle()), -1,
+			1,
+			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
+	}
+
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::rfind(const char* _utf8, size_type _pos) const noexcept
 	{
         return MemeString_lastIndexOfWithUtf8bytes(
@@ -367,7 +413,14 @@ namespace memepp {
             to_pointer(native_handle()), _pos, _utf8, _substr_count, 
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
 	}
-	
+
+	MEMEPP__IMPL_INLINE string_view::size_type string_view::rfind(char _ch, size_type _pos) const noexcept
+	{
+		return MemeString_lastIndexOfWithUtf8bytes(
+			to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(&_ch), 1,
+			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
+	}
+
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::rfind(const rune& _ch, size_type _pos) const noexcept
 	{
         return MemeString_lastIndexOfWithUtf8bytes(
@@ -544,7 +597,15 @@ namespace memepp {
             to_pointer(native_handle()), _utf8, _size, 
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
     }
-    
+
+	MEMEPP__IMPL_INLINE bool string_view::starts_with(const rune& _ch) const noexcept
+	{
+        return MemeString_startsMatchWithUtf8bytes(
+            to_pointer(native_handle()),
+            _ch.data(), _ch.size(),
+            static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
+	}
+	
 	MEMEPP__IMPL_INLINE bool string_view::ends_with(const string_view& _sv) const noexcept
 	{
         return MemeString_endsMatchWithOther(
@@ -582,6 +643,14 @@ namespace memepp {
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
     }
 
+	MEMEPP__IMPL_INLINE bool string_view::ends_with(const rune& _ch) const noexcept
+	{
+        return MemeString_endsMatchWithUtf8bytes(
+            to_pointer(native_handle()),
+            _ch.data(), _ch.size(),
+            static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
+	}
+	
 	MEMEPP__IMPL_INLINE string string_view::to_en_upper() const noexcept
 	{
 		return MemeStringStack_toEnUpper(&native_handle(), sizeof(data_));

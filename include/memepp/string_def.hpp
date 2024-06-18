@@ -86,7 +86,6 @@ namespace memepp {
 		inline size_t char_size() const noexcept { return static_cast<size_t>(size()); }
 		size_type size() const noexcept;
 		bool empty() const noexcept;
-		//size_type max_size() const noexcept;
 		size_type capacity() const noexcept;
 		size_type rune_size() const noexcept;
         size_type u16char_size() const noexcept;
@@ -121,6 +120,19 @@ namespace memepp {
 
 		void reset();
 
+		size_type count(const string_view& _str,
+			case_sensit_t _cs = case_sensit_t::all_sensitive) const noexcept;
+		size_type count(const char* _str,
+			case_sensit_t _cs = case_sensit_t::all_sensitive) const noexcept;
+        size_type count(const char* _str, size_type _size,
+			case_sensit_t _cs = case_sensit_t::all_sensitive) const noexcept;
+		size_type count(const_pointer _str,
+			case_sensit_t _cs = case_sensit_t::all_sensitive) const noexcept;
+        size_type count(const_pointer _str, size_type _size,
+			case_sensit_t _cs = case_sensit_t::all_sensitive) const noexcept;
+        size_type count(const rune& _rune,
+			case_sensit_t _cs = case_sensit_t::all_sensitive) const noexcept;
+
 		//! \brief Find the first occurrence of a character in a string.
 		//! \param _other The string to find.
 		//! \param _pos The position to start searching from.
@@ -133,12 +145,12 @@ namespace memepp {
 		size_type find(char _ch, size_type _pos = 0) const noexcept;
         size_type find(const rune& _ch, size_type _pos = 0) const noexcept;
 
-        //size_type rfind(const string& _other, size_type _pos = npos) const noexcept;
+        size_type rfind(const string& _other, size_type _pos = npos) const noexcept;
         size_type rfind(const char* _utf8, size_type _pos = npos) const noexcept;
         size_type rfind(const char* _utf8, size_type _pos, size_type _substr_count) const noexcept;
         size_type rfind(const_pointer _utf8, size_type _pos = npos) const noexcept;
         size_type rfind(const_pointer _utf8, size_type _pos, size_type _substr_count) const noexcept;
-        //size_type rfind(char _ch, size_type _pos = npos) const noexcept;
+        size_type rfind(char _ch, size_type _pos = npos) const noexcept;
         size_type rfind(const rune& _ch, size_type _pos = npos) const noexcept;
         
 		size_type index_of(const string& _other,
@@ -200,7 +212,6 @@ namespace memepp {
 		//! @returns True if this string starts with the given string.
 		//! @note This function is case sensitive.
         bool starts_with(const string_view& _sv) const noexcept;
-
         bool starts_with(const char* _utf8) const noexcept;
         bool starts_with(const char* _utf8, size_type _count) const noexcept;
         bool starts_with(const_pointer _utf8) const noexcept;

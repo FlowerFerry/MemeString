@@ -92,6 +92,19 @@ namespace memepp {
 		string to_string() const;
         string to_large () const noexcept;
 
+		size_type count(const string_view& _str,
+			case_sensit_t _cs = case_sensit_t::all_sensitive) const noexcept;
+		size_type count(const char* _str,
+			case_sensit_t _cs = case_sensit_t::all_sensitive) const noexcept;
+		size_type count(const char* _str, size_type _size,
+			case_sensit_t _cs = case_sensit_t::all_sensitive) const noexcept;
+		size_type count(const_pointer _str,
+			case_sensit_t _cs = case_sensit_t::all_sensitive) const noexcept;
+		size_type count(const_pointer _str, size_type _size,
+			case_sensit_t _cs = case_sensit_t::all_sensitive) const noexcept;
+		size_type count(const rune& _rune,
+			case_sensit_t _cs = case_sensit_t::all_sensitive) const noexcept;
+
         size_type find(const string_view& _other, size_type _pos = 0) const noexcept;
         size_type find(const char* _utf8, size_type _pos = 0) const noexcept;
         size_type find(const char* _utf8, size_type _pos, size_type _substr_count) const noexcept;
@@ -100,10 +113,12 @@ namespace memepp {
 		size_type find(char _ch, size_type _pos = 0) const noexcept;
 		size_type find(const rune& _ch, size_type _pos = 0) const noexcept;
 
+		size_type rfind(const string_view& _other, size_type _pos = 0) const noexcept;
 		size_type rfind(const char* _utf8, size_type _pos = npos) const noexcept;
 		size_type rfind(const char* _utf8, size_type _pos, size_type _substr_count) const noexcept;
 		size_type rfind(const_pointer _utf8, size_type _pos = npos) const noexcept;
 		size_type rfind(const_pointer _utf8, size_type _pos, size_type _substr_count) const noexcept;
+        size_type rfind(char _ch, size_type _pos = npos) const noexcept;
 		size_type rfind(const rune& _ch, size_type _pos = npos) const noexcept;
 
 		size_type index_of(const string_view& _other,
@@ -157,7 +172,7 @@ namespace memepp {
 		bool starts_with(const_pointer _utf8) const noexcept;
 		bool starts_with(const_pointer _utf8, size_type _count) const noexcept;
 		//bool starts_with(char _ch) const noexcept;
-		//bool starts_with(const word& _ch) const noexcept;
+		bool starts_with(const rune& _ch) const noexcept;
 
 		bool ends_with(const string_view& _sv) const noexcept;
 		bool ends_with(const char* _utf8) const noexcept;
@@ -165,7 +180,7 @@ namespace memepp {
 		bool ends_with(const_pointer _utf8) const noexcept;
 		bool ends_with(const_pointer _utf8, size_type _count) const noexcept;
 		//bool ends_with(char _ch) const noexcept;
-		//bool ends_with(const word& _ch) const noexcept;
+		bool ends_with(const rune& _ch) const noexcept;
 
 		string to_en_upper() const noexcept;
 		string to_en_lower() const noexcept;

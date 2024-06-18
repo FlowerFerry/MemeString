@@ -1,4 +1,4 @@
-
+﻿
 #include "mego/predef/symbol/likely.h"
 #include "meme/string.h"
 #include "meme/buffer.h"
@@ -1335,7 +1335,7 @@ MemeStringViewUnsafe_split(
 
 	if (*_out_count < 1)
 		return (MGEC__INVAL);
-	if (_key_len == -1)
+	if (_key_len < 0)
 		_key_len = strlen(_key);
 
 	while (output_index < *_out_count)

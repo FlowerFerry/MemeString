@@ -375,6 +375,43 @@ namespace memepp {
 #endif
 	}
 
+
+	MEMEPP__IMPL_INLINE string::size_type string::count(const string_view& _str, case_sensit_t _cs) const noexcept
+	{
+        return MemeString_matchCountWithUtf8bytes(
+            to_pointer(data_), 0, _str.bytes(), _str.size(), static_cast<mmflag_case_sensit_t>(_cs));
+	}
+	
+	MEMEPP__IMPL_INLINE string::size_type string::count(const char* _str, case_sensit_t _cs) const noexcept
+	{
+        return MemeString_matchCountWithUtf8bytes(
+            to_pointer(data_), 0, reinterpret_cast<const uint8_t*>(_str), -1, static_cast<mmflag_case_sensit_t>(_cs));
+	}
+
+	MEMEPP__IMPL_INLINE string::size_type string::count(const char* _str, size_type _size, case_sensit_t _cs) const noexcept
+	{
+        return MemeString_matchCountWithUtf8bytes(
+            to_pointer(data_), 0, reinterpret_cast<const uint8_t*>(_str), _size, static_cast<mmflag_case_sensit_t>(_cs));
+	}
+
+	MEMEPP__IMPL_INLINE string::size_type string::count(const_pointer _str, case_sensit_t _cs) const noexcept
+	{
+        return MemeString_matchCountWithUtf8bytes(
+            to_pointer(data_), 0, _str, -1, static_cast<mmflag_case_sensit_t>(_cs));
+	}
+
+	MEMEPP__IMPL_INLINE string::size_type string::count(const_pointer _str, size_type _size, case_sensit_t _cs) const noexcept
+	{
+        return MemeString_matchCountWithUtf8bytes(
+            to_pointer(data_), 0, _str, _size, static_cast<mmflag_case_sensit_t>(_cs));
+	}
+
+	MEMEPP__IMPL_INLINE string::size_type string::count(const rune& _rune, case_sensit_t _cs) const noexcept
+	{
+        return MemeString_matchCountWithUtf8bytes(
+            to_pointer(data_), 0, _rune.data(), _rune.size(), static_cast<mmflag_case_sensit_t>(_cs));
+	}
+
 	MEMEPP__IMPL_INLINE string::size_type string::find(const string& _other, size_type _pos) const noexcept
 	{
 		return MemeString_indexOfWithOther(
@@ -424,6 +461,16 @@ namespace memepp {
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
     }
 
+	MEMEPP__IMPL_INLINE string::size_type string::rfind(const string& _other, size_type _pos) const noexcept
+	{
+        return MemeString_lastIndexOfOther(
+            to_pointer(native_handle()), 
+			_pos, -1,
+			to_pointer(_other.native_handle()), -1,
+			1,
+            static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
+	}
+
 	MEMEPP__IMPL_INLINE string::size_type string::rfind(const char* _utf8, size_type _pos) const noexcept
 	{
         return MemeString_lastIndexOfWithUtf8bytes(
@@ -451,7 +498,14 @@ namespace memepp {
             to_pointer(native_handle()), _pos, _utf8, _count, 
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
     }
-    
+
+	MEMEPP__IMPL_INLINE string::size_type string::rfind(char _ch, size_type _pos) const noexcept
+	{
+        return MemeString_lastIndexOfWithUtf8bytes(
+            to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(&_ch), 1,
+            static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
+	}
+	
     MEMEPP__IMPL_INLINE string::size_type string::rfind(const rune& _ch, size_type _pos) const noexcept
     {
         return MemeString_lastIndexOfWithUtf8bytes(
