@@ -13,59 +13,59 @@ MemeStringMedium_canBeAppendIt(const MemeStringMedium_t* _s, MemeInteger_t _bufl
 	return 0;
 }
 
-const uint8_t*
-MemeStringMedium_constData(const MemeStringMedium_t* _s)
-{
-	return _s->real_ + _s->front_capacity_;
-}
+//const uint8_t*
+//MemeStringMedium_constData(const MemeStringMedium_t* _s)
+//{
+//	return _s->real_ + _s->front_capacity_;
+//}
 
-uint8_t* MemeStringMedium_data(MemeStringMedium_t* _s)
-{
-	return _s->real_ + _s->front_capacity_;
-}
+//uint8_t* MemeStringMedium_data(MemeStringMedium_t* _s)
+//{
+//	return _s->real_ + _s->front_capacity_;
+//}
 
-uint8_t* MemeStringMedium_iteratorEnd(MemeStringMedium_t* _s)
-{
-	return MemeStringMedium_data(_s) + _s->size_;
-}
+//uint8_t* MemeStringMedium_iteratorEnd(MemeStringMedium_t* _s)
+//{
+//	return MemeStringMedium_data(_s) + _s->size_;
+//}
 
-MemeInteger_t MemeStringMedium_maxByteSize(const MemeStringMedium_t* _s)
-{
-	return SIZE_MAX >> sizeof(size_t);
-}
+//MemeInteger_t MemeStringMedium_maxByteSize(const MemeStringMedium_t* _s)
+//{
+//	return SIZE_MAX >> sizeof(size_t);
+//}
 
-MemeInteger_t MemeStringMedium_realByteSize(const MemeStringMedium_t* _s)
-{
-	return _s->front_capacity_ + _s->size_ + _s->capacity_;
-}
+//MemeInteger_t MemeStringMedium_realByteSize(const MemeStringMedium_t* _s)
+//{
+//	return _s->front_capacity_ + _s->size_ + _s->capacity_;
+//}
 
-MemeInteger_t
-MemeStringMedium_maxByteCapacity(const MemeStringMedium_t* _s)
-{
-	return _s->size_ + MemeStringMedium_availableByteCapacity(_s);
-}
+//MemeInteger_t MemeStringMedium_availableByteCapacity(const MemeStringMedium_t* _s)
+//{
+//	return _s->capacity_ - 1;
+//}
 
-MemeInteger_t MemeStringMedium_availableByteCapacity(const MemeStringMedium_t* _s)
-{
-	return _s->capacity_ - 1;
-}
+//MemeInteger_t
+//MemeStringMedium_maxByteCapacity(const MemeStringMedium_t* _s)
+//{
+//	return _s->size_ + MemeStringMedium_availableByteCapacity(_s);
+//}
 
-mmint_t MemeStringMedium_usedByteFrontCapacity(const MemeStringMedium_t* _s)
-{
-	return MMS__GET_MEDIUM_FRONT_CAPACITY_MAX_VALUE - _s->front_capacity_;
-}
+//mmint_t MemeStringMedium_usedByteFrontCapacity(const MemeStringMedium_t* _s)
+//{
+//	return MMS__GET_MEDIUM_FRONT_CAPACITY_MAX_VALUE - _s->front_capacity_;
+//}
+//
+//void MemeStringMedium_byteSizeOffset(MemeStringMedium_t* _s, MemeInteger_t _offset)
+//{
+//	_s->size_     += _offset;
+//	_s->capacity_ -= _offset;
+//}
 
-void MemeStringMedium_byteSizeOffset(MemeStringMedium_t* _s, MemeInteger_t _offset)
-{
-	_s->size_     += _offset;
-	_s->capacity_ -= _offset;
-}
-
-void MemeStringMedium_byteSizeOffsetAndSetZero(MemeStringMedium_t* _s, MemeInteger_t _offset)
-{
-	MemeStringMedium_byteSizeOffset(_s, _offset);
-	*(MemeStringMedium_iteratorEnd(_s)) = '\0';
-}
+//void MemeStringMedium_byteSizeOffsetAndSetZero(MemeStringMedium_t* _s, MemeInteger_t _offset)
+//{
+//	MemeStringMedium_byteSizeOffset(_s, _offset);
+//	*(MemeStringMedium_iteratorEnd(_s)) = '\0';
+//}
 
 int MemeStringMedium_appendWithByte(MemeStringMedium_t* _s, MemeInteger_t _count, MemeByte_t _byte)
 {

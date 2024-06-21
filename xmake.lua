@@ -13,6 +13,12 @@ option("test_enable")
     set_description("Enable unit test")
 option_end()
 
+option("benchmark_enable")
+    set_default(false)
+    set_showmenu(true)
+    set_description("Enable benchmark")
+option_end()
+
 -- stdc = "c11"
 -- set_languages(stdc)
 
@@ -54,6 +60,28 @@ target("mmpp_unittest")
     end
     on_load(function (target)
         if has_config("test_enable") then
+            target:set("enabled", true)
+        else
+            target:set("enabled", false)
+        end
+    end)
+    add_rpathdirs("$ORIGIN")
+target_end()
+
+target("mmpp_benchmark")
+    set_kind("binary")
+    set_languages("c11", "cxx17")
+    add_files("test/mmpp_benchmark/*.cpp")
+    add_syslinks("pthread", "dl")
+    if is_os("windows") ~= true then
+        add_syslinks("rt")
+    end
+    if has_config("benchmark_enable") then
+        add_deps("meme_string")
+        add_links("meme_string")
+    end
+    on_load(function (target)
+        if has_config("benchmark_enable") then
             target:set("enabled", true)
         else
             target:set("enabled", false)

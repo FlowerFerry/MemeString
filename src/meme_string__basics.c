@@ -598,7 +598,8 @@ MEME_EXTERN_C MEME_API mmsmem_free_t* MEME_STDCALL mmsmem_get_free_func()
 
 static MemeInteger_t* __MemeStringOption_storageMediumLimit()
 {
-	static MemeInteger_t limit = sizeof(MemeStringStack_t) + sizeof(MemeStringLarge_RefCounted_t) * 3;
+	static MemeInteger_t limit = 
+		sizeof(mmint_t) * 16 + (sizeof(MemeStringStack_t) + sizeof(MemeStringLarge_RefCounted_t) * 3);
 	return &limit;
 }
 

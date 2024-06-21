@@ -22,24 +22,24 @@
 MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_init(
 	mmsstk_t* _out, size_t _object_size)
 {
-	MemeString_t obj = NULL;
+	mmstr_ptr_t obj = NULL;
 
 	assert(_out);
 	assert(_object_size != 0);
     
-	if ((_object_size > sizeof(struct _MemeString_t)))
+	if (MEGO_SYMBOL__UNLIKELY(_object_size > MMSTR__OBJ_SIZE))
 		return (MGEC__OPNOTSUPP);
 
-	obj = (mms_t)_out;
+	obj = (mmstr_ptr_t)_out;
 	obj->small_.buffer_[0] = '\0';
 	obj->small_.type_ = MemeString_ImplType_small;
-	obj->small_.capacity_ = MMS__GET_SMALL_BUFFER_SIZE;
+	obj->small_.capacity_ = MMSTR__GET_SMALL_BUF_SIZE;
 	return 0;
 }
 
 MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL MemeStringStack_getInitObject(size_t _object_size)
 {
-	mmsstk_t stack;
+	mmstrstk_t stack;
 	MemeStringStack_init(&stack, _object_size);
 	return stack;
 }
@@ -79,12 +79,12 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initTakeOverUserObject(
 
 MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_unInit(mmsstk_t* _out, size_t _object_size)
 {
-	mmstr_t obj = (mmstr_t)_out;
+	//mmstr_t obj = (mmstr_cptr_t)_out;
 
-	assert(obj && MemeStringStack_unInit != NULL);
-	assert(_object_size != 0 && MemeStringStack_unInit != NULL);
+	assert((mmstr_cptr_t)_out != NULL && "MemeStringStack_unInit");
+	assert(_object_size != 0 && "MemeStringStack_unInit");
 
-	switch (MMS__GET_TYPE(obj)) {
+	switch (MMS__GET_TYPE((mmstr_cptr_t)_out)) {
 	case MemeString_ImplType_small:
 	{
 		// do nothing
@@ -418,10 +418,10 @@ MEME_STDCALL MemeStringStack_initAndConditionalConvert(
 	 || MemeString_storageType(_other) == MemeString_UnsafeStorageType_view)
 	{
         return MemeStringStack_initByU8bytes(
-			_out, _object_size, MemeString_byteData(_other), MemeString_byteSize(_other));
+			_out, MMS__OBJECT_SIZE, MemeString_byteData(_other), MemeString_byteSize(_other));
     }
     else {
-        return MemeStringStack_initByOther(_out, _object_size, _other);
+        return MemeStringStack_initByOther(_out, MMS__OBJECT_SIZE, _other);
     }
 }
 
