@@ -1633,7 +1633,7 @@ TEST_CASE("memepp::string - 32", "foreach")
     mmint_t pos = 0;
     auto runeCount = 0;
     memepp::string s01 = "Hello World!";
-    pos = s01.foreach([&](const memepp::rune& _r)
+    pos = s01.rune_foreach([&](const memepp::rune& _r)
     {
         if (runeCount == 5)
             REQUIRE(_r == ' ');
@@ -1644,7 +1644,7 @@ TEST_CASE("memepp::string - 32", "foreach")
     REQUIRE(pos == 12);
 
     memepp::string s02 = "";
-    pos = s02.foreach([&](const memepp::rune& _r)
+    pos = s02.rune_foreach([&](const memepp::rune& _r)
     {
         REQUIRE(false);
     });
@@ -1652,7 +1652,7 @@ TEST_CASE("memepp::string - 32", "foreach")
     
     memepp::string s03 = u8"您好，世界！";
     runeCount = 0;
-    pos = s03.foreach([&](const memepp::rune& _r)
+    pos = s03.rune_foreach([&](const memepp::rune& _r)
     {
         ++runeCount;
         if (runeCount == 1)

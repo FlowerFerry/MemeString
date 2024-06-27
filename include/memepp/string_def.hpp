@@ -232,7 +232,7 @@ namespace memepp {
         bool ends_with(const rune& _ch) const noexcept;
 
 		template<typename _Func>
-        size_type foreach(_Func&& _func) const noexcept;
+        size_type rune_foreach(_Func&& _func) const noexcept;
 
 		string to_en_upper() const noexcept;
 		string to_en_lower() const noexcept;

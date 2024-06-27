@@ -77,7 +77,7 @@ namespace memepp {
 	}
 
 	template<typename _Func>
-	inline string::size_type string::foreach(_Func&& _func) const noexcept
+	inline string::size_type string::rune_foreach(_Func&& _func) const noexcept
 	{
         __string_foreach_helper<_Func> helper{ std::forward<_Func>(_func) };
         return MemeString_foreach(
