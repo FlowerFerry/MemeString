@@ -496,28 +496,6 @@ MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL MemeString_availableByteCapaci
 	}
 }
 
-static MemeString_MallocFunction_t** __MemeString_mallocFuncObject()
-{
-	static MemeString_MallocFunction_t* pointer =
-#if MMOPT__HEADTAIL_MEMCHECK_ENABLED
-		&MemeCheck_Malloc;
-#else
-		&malloc;
-#endif
-	return &pointer;
-}
-
-static MemeString_FreeFunction_t** __MemeString_freeFuncObject()
-{
-	static MemeString_FreeFunction_t* pointer =
-#if MMOPT__HEADTAIL_MEMCHECK_ENABLED
-		&MemeCheck_Free;
-#else
-		&free;
-#endif
-	return &pointer;
-}
-
 //MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_setMallocFunction(MemeString_MallocFunction_t* _fn)
 //{
 //	return MMENO__POSIX_OFFSET(ENOTSUP);
@@ -553,7 +531,7 @@ static MemeString_FreeFunction_t** __MemeString_freeFuncObject()
 //MEME_EXTERN_C MEME_API MemeString_ReallocFunction_t* MEME_STDCALL MemeString_getReallocFunction()
 //{
 //#if MMOPT__HEADTAIL_MEMCHECK_ENABLED
-//	return MemeCheck_Realloc;
+//	return MemeMemoryCheck_Realloc;
 //#else
 //	return realloc;
 //#endif
@@ -562,39 +540,11 @@ static MemeString_FreeFunction_t** __MemeString_freeFuncObject()
 //MEME_EXTERN_C MEME_API MemeString_CallocFunction_t* MEME_STDCALL MemeString_getCallocFunction()
 //{
 //#if MMOPT__HEADTAIL_MEMCHECK_ENABLED
-//    return MemeCheck_Calloc;
+//    return MemeMemoryCheck_Calloc;
 //#else
 //    return calloc;
 //#endif
 //}
-
-MEME_EXTERN_C MEME_API mmsmem_malloc_t* MEME_STDCALL mmsmem_get_malloc_func()
-{
-	return *__MemeString_mallocFuncObject();
-}
-
-MEME_EXTERN_C MEME_API mmsmem_calloc_t* MEME_STDCALL mmsmem_get_calloc_func()
-{
-#if MMOPT__HEADTAIL_MEMCHECK_ENABLED
-	return MemeCheck_Calloc;
-#else
-	return calloc;
-#endif
-}
-
-MEME_EXTERN_C MEME_API mmsmem_realloc_t* MEME_STDCALL mmsmem_get_realloc_func()
-{
-#if MMOPT__HEADTAIL_MEMCHECK_ENABLED
-    return MemeCheck_Realloc;
-#else
-    return realloc;
-#endif
-}
-
-MEME_EXTERN_C MEME_API mmsmem_free_t* MEME_STDCALL mmsmem_get_free_func()
-{
-    return *__MemeString_freeFuncObject();
-}
 
 static MemeInteger_t* __MemeStringOption_storageMediumLimit()
 {

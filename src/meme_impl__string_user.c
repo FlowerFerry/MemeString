@@ -37,7 +37,7 @@ int MemeStringUser_initTakeOver(MemeStringUser_t* _s,
 
 	if (_s->ref_) {
 		d_func(refCount);
-		return -EPERM;
+		return MGEC__PERM;
 	}
 	_s->ref_ = refCount;
 	_s->size_ = _strlen;

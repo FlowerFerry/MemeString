@@ -7,6 +7,7 @@
 #include "meme/impl/atomic.h"
 #include <meme/impl/string_memory.h>
 #include "mego/predef/symbol/likely.h"
+#include <mego/predef/symbol/inline.h>
 #include <mego/err/ec.h>
 
 #include <string.h>
@@ -54,13 +55,21 @@ int MemeStringLarge_unInit(MemeStringLarge_t* _s);
 
 int MemeStringLarge_reset (MemeStringLarge_t* _s);
 
-void
-MemeStringLarge_setOffset(MemeStringLarge_t* _s, MemeInteger_t _offset);
+MG_CAPI_INLINE void
+MemeStringLarge_setOffset(MemeStringLarge_t* _s, mmint_t _offset)
+{
+	_s->offset_ += _offset;
+	_s->size_   -= _offset;
+}
 
 void 
 MemeStringLarge_shrinkTailZero(MemeStringLarge_t* _s);
 
-const uint8_t* MemeStringLarge_constData(const MemeStringLarge_t* _s);
+MG_CAPI_INLINE const uint8_t* 
+MemeStringLarge_constData(const MemeStringLarge_t* _s)
+{
+	return _s->ref_->real_ + _s->offset_;
+}
 
 uint8_t* MemeStringLarge_RefCount_data(volatile MemeStringLarge_RefCounted_t* _refcount);
 

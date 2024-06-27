@@ -38,35 +38,35 @@ int MemeStringSmall_clear(MemeStringSmall_t* _s)
 	return 0;
 }
 
-int MemeStringSmall_isEmpty(const MemeStringSmall_t* _s)
-{
-	assert(_s);
-	return MMS__GET_SMALL_BUFFER_SIZE == _s->capacity_;
-}
+//int MemeStringSmall_isEmpty(const MemeStringSmall_t* _s)
+//{
+//	assert(_s);
+//	return MMS__GET_SMALL_BUFFER_SIZE == _s->capacity_;
+//}
 
-const char* MemeStringSmall_cStr(const MemeStringSmall_t* _s)
-{
-	assert(_s);
-	return (const char*)_s->buffer_;
-}
+//const char* MemeStringSmall_cStr(const MemeStringSmall_t* _s)
+//{
+//	assert(_s);
+//	return (const char*)_s->buffer_;
+//}
 
-const uint8_t* MemeStringSmall_byteData(const MemeStringSmall_t* _s)
-{
-	assert(_s);
-	return _s->buffer_;
-}
+//const uint8_t* MemeStringSmall_byteData(const MemeStringSmall_t* _s)
+//{
+//	assert(_s);
+//	return _s->buffer_;
+//}
 
-MemeInteger_t MemeStringSmall_byteSize(const MemeStringSmall_t* _s)
-{
-	assert(_s);
-	return MMS__GET_SMALL_BUFFER_SIZE - _s->capacity_;
-}
+//MemeInteger_t MemeStringSmall_byteSize(const MemeStringSmall_t* _s)
+//{
+//	assert(_s);
+//	return MMS__GET_SMALL_BUFFER_SIZE - _s->capacity_;
+//}
 
-MemeInteger_t MemeStringSmall_byteCapacity(const MemeStringSmall_t* _s)
-{
-	assert(_s);
-	return _s->capacity_;
-}
+//MemeInteger_t MemeStringSmall_byteCapacity(const MemeStringSmall_t* _s)
+//{
+//	assert(_s);
+//	return _s->capacity_;
+//}
 
 int MemeStringSmall_canBeAppendIt(const MemeStringSmall_t* _s, MemeInteger_t _buflen)
 {
@@ -79,7 +79,7 @@ int MemeStringSmall_canBeAppendIt(const MemeStringSmall_t* _s, MemeInteger_t _bu
 
 void MemeStringSmall_byteSizeOffsetAndSetZero(MemeStringSmall_t* _s, MemeInteger_t _offset)
 {
-	_s->capacity_ -= _offset;
+	_s->capacity_ -= (mmbyte_t)_offset;
 	_s->buffer_[MemeStringSmall_byteSize(_s)] = '\0';
 }
 
@@ -88,7 +88,7 @@ void MemeStringSmall_shrinkTailZero(MemeStringSmall_t* _s)
 	MemeInteger_t index = MemeStringSmall_byteSize(_s);
 	while (_s->buffer_[index] == 0 && index > 0 && _s->buffer_[index - 1] == 0)
 		--index;
-	_s->capacity_ += (MemeStringSmall_byteSize(_s) - index);
+	_s->capacity_ += (mmbyte_t)(MemeStringSmall_byteSize(_s) - index);
 }
 
 mgec_t MemeStringSmall_resizeAndOverwrite(MemeStringSmall_t* _s, mmint_t _size)

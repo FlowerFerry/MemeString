@@ -5,6 +5,7 @@
 #include <meme/impl/string.h>
 #include <meme/impl/algorithm.h>
 #include <mego/err/ec.h>
+#include <mego/predef/symbol/inline.h>
 #include <string.h>
 #include <errno.h>
 #include <assert.h>
@@ -29,20 +30,35 @@ MemeStringSmall_resizeWithByte(MemeStringSmall_t* _s, MemeInteger_t _size, MemeB
 int 
 MemeStringSmall_clear(MemeStringSmall_t* _s);
 
-int 
-MemeStringSmall_isEmpty(const MemeStringSmall_t* _s);
+MG_CAPI_INLINE int
+MemeStringSmall_isEmpty(const MemeStringSmall_t* _s)
+{
+	return MMS__GET_SMALL_BUFFER_SIZE == _s->capacity_;
+}
 
-const char* 
-MemeStringSmall_cStr(const MemeStringSmall_t* _s);
+MG_CAPI_INLINE const char*
+MemeStringSmall_cStr(const MemeStringSmall_t* _s)
+{
+	return (const char*)_s->buffer_;
+}
 
-const uint8_t* 
-MemeStringSmall_byteData(const MemeStringSmall_t* _s);
+MG_CAPI_INLINE const uint8_t*
+MemeStringSmall_byteData(const MemeStringSmall_t* _s)
+{
+	return _s->buffer_;
+}
 
-MemeInteger_t 
-MemeStringSmall_byteSize(const MemeStringSmall_t* _s);
+MG_CAPI_INLINE mmint_t
+MemeStringSmall_byteSize(const MemeStringSmall_t* _s)
+{
+	return MMS__GET_SMALL_BUFFER_SIZE - _s->capacity_;
+}
 
-MemeInteger_t 
-MemeStringSmall_byteCapacity(const MemeStringSmall_t* _s);
+MG_CAPI_INLINE mmint_t
+MemeStringSmall_byteCapacity(const MemeStringSmall_t* _s)
+{
+	return _s->capacity_;
+}
 
 //inline MemeInteger_t 
 //MemeStringSmall_wordSize(const MemeStringSmall_t* _s);

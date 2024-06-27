@@ -1,4 +1,4 @@
-
+﻿
 #include <meme/string_memory.h>
 #include <meme/impl/string_memory.h>
 
@@ -11,6 +11,76 @@
 #include <stdint.h>
 #include <errno.h>
 #include <time.h>
+
+void* __MemeMemory_Malloc(size_t _size)
+{
+    return malloc(_size);
+}
+
+void __MemeMemory_Free(void* _ptr)
+{
+    free(_ptr);
+}
+
+void* __MemeMemory_Calloc(size_t _count, size_t _size)
+{
+    return calloc(_count, _size);
+}
+
+void* __MemeMemory_Realloc(void* _ptr, size_t _size)
+{
+    return realloc(_ptr, _size);
+}
+
+MemeMemory_MallocFunc_t** __MemeMemory_MallocFuncObject()
+{
+	static MemeMemory_MallocFunc_t* pointer =
+#if MMOPT__HEADTAIL_MEMCHECK_ENABLED
+		&MemeMemoryCheck_Malloc;
+#else
+		&__MemeMemory_Malloc;
+#endif
+	return &pointer;
+}
+
+MemeMemory_FreeFunc_t** __MemeMemory_FreeFuncObject()
+{
+	static MemeMemory_FreeFunc_t* pointer =
+#if MMOPT__HEADTAIL_MEMCHECK_ENABLED
+		&MemeMemoryCheck_Free;
+#else
+		&__MemeMemory_Free;
+#endif
+	return &pointer;
+}
+
+MEME_EXTERN_C MEME_API mmsmem_malloc_t* MEME_STDCALL mmsmem_get_malloc_func()
+{
+	return *__MemeMemory_MallocFuncObject();
+}
+
+MEME_EXTERN_C MEME_API mmsmem_calloc_t* MEME_STDCALL mmsmem_get_calloc_func()
+{
+#if MMOPT__HEADTAIL_MEMCHECK_ENABLED
+	return MemeMemoryCheck_Calloc;
+#else
+	return __MemeMemory_Calloc;
+#endif
+}
+
+MEME_EXTERN_C MEME_API mmsmem_realloc_t* MEME_STDCALL mmsmem_get_realloc_func()
+{
+#if MMOPT__HEADTAIL_MEMCHECK_ENABLED
+	return MemeMemoryCheck_Realloc;
+#else
+	return __MemeMemory_Realloc;
+#endif
+}
+
+MEME_EXTERN_C MEME_API mmsmem_free_t* MEME_STDCALL mmsmem_get_free_func()
+{
+	return *__MemeMemory_FreeFuncObject();
+}
 
 #if MMOPT__HEADTAIL_MEMCHECK_ENABLED
 
@@ -171,7 +241,7 @@ MemeInteger_t MemeCheck_calibrate(const void* _data)
 	MemeCheckHead_t* head; 
 	MemeCheckTail_t* tail;
     
-	if (mmsmem_get_malloc_func() != &MemeCheck_Malloc)
+	if (mmsmem_get_malloc_func() != &MemeMemoryCheck_Malloc)
 		return 1;
 
 	head = (MemeCheckHead_t*)MemeCheck_getHeadPointer(_data);
@@ -181,7 +251,7 @@ MemeInteger_t MemeCheck_calibrate(const void* _data)
         1 : 0;
 }
 
-void* MemeCheck_Malloc(size_t _size)
+void* MemeMemoryCheck_Malloc(size_t _size)
 {
 	MemeCheckHead_t* head;
 	MemeCheckTail_t* tail;
@@ -200,7 +270,7 @@ void* MemeCheck_Malloc(size_t _size)
     return p + sizeof(MemeCheckHead_t);
 }
 
-void* MemeCheck_Realloc(void* _block, size_t _size)
+void* MemeMemoryCheck_Realloc(void* _block, size_t _size)
 {
 	MemeCheckHead_t* head;
 	MemeCheckTail_t* tail;
@@ -223,7 +293,7 @@ void* MemeCheck_Realloc(void* _block, size_t _size)
     return p + sizeof(MemeCheckHead_t);
 }
 
-void* MemeCheck_Calloc(size_t _count, size_t _size)
+void* MemeMemoryCheck_Calloc(size_t _count, size_t _size)
 {
 	MemeCheckHead_t* head;
 	MemeCheckTail_t* tail;
@@ -246,45 +316,49 @@ void* MemeCheck_Calloc(size_t _count, size_t _size)
 	return p + sizeof(MemeCheckHead_t);
 }
 
-void MemeCheck_Free(void* _pointer)
+void MemeMemoryCheck_Free(void* _pointer)
 {
 	free((void*)MemeCheck_getHeadPointer(_pointer));
 }
 #endif
 
 int MemeStringMemory_allocFunctionSwitch(
-	MemeString_MallocFunction_t* _in_malloc_fn, MemeString_FreeFunction_t* _in_free_fn,
-	MemeString_MallocFunction_t** _out_malloc_fn, MemeString_FreeFunction_t** _out_free_fn)
+	mmmem_malloc_fn_t*  _in_malloc_fn , mmmem_free_fn_t* _in_free_fn,
+	mmmem_malloc_fn_t** _out_malloc_fn, mmmem_free_fn_t** _out_free_fn)
 {
-	*_out_malloc_fn = (_in_malloc_fn ? _in_malloc_fn : mmsmem_get_malloc_func());
-	if (*_out_malloc_fn == _in_malloc_fn)
+	if (_in_malloc_fn == NULL || _in_free_fn == NULL) 
 	{
-		if (_in_free_fn == NULL)
-			return (MGEC__INVAL);
-		*_out_free_fn = _in_free_fn;
+		*_out_malloc_fn = mmsmem_get_malloc_func();
+        *_out_free_fn   = mmsmem_get_free_func();
+		return 0;
 	}
 	else {
-		*_out_free_fn = mmsmem_get_free_func();
+        *_out_malloc_fn = _in_malloc_fn;
+        *_out_free_fn   = _in_free_fn;
+        return 0;
 	}
-	return 0;
 }
 
 MEME_EXTERN_C MEME_API void* MEME_STDCALL mmsmem_malloc(size_t _size)
 {
-    return mmsmem_get_malloc_func()(_size);
+	mmmem_malloc_fn_t* fn = mmsmem_get_malloc_func();
+    return fn(_size);
 }
 
 MEME_EXTERN_C MEME_API void* MEME_STDCALL mmsmem_realloc(void* _block, size_t _size)
 {
-    return mmsmem_get_realloc_func()(_block, _size);
+    mmmem_realloc_fn_t* fn = mmsmem_get_realloc_func();
+    return fn(_block, _size);
 }
 
 MEME_EXTERN_C MEME_API void* MEME_STDCALL mmsmem_calloc(size_t _count, size_t _size)
 {
-    return mmsmem_get_calloc_func()(_count, _size);
+    mmmem_calloc_fn_t* fn = mmsmem_get_calloc_func();
+    return fn(_count, _size);
 }
 
 MEME_EXTERN_C MEME_API void MEME_STDCALL mmsmem_free(void* _pointer)
 {
-    mmsmem_get_free_func()(_pointer);
+    mmmem_free_fn_t* fn = mmsmem_get_free_func();
+	fn(_pointer);
 }

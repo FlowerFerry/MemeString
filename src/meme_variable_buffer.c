@@ -509,7 +509,7 @@ MEME_API mgec_t MEME_STDCALL MemeVariableBuffer_resizeAndOverwrite(mmvb_ptr_t _b
     } break;
 	}
 
-	return 0;
+	//return 0;
 }
 
 MEME_API MemeInteger_t 

@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEME_IMPL_STRING_MEMORY_H_INCLUDED
 #define MEME_IMPL_STRING_MEMORY_H_INCLUDED
 
@@ -8,6 +8,8 @@
 #ifndef MMOPT__HEADTAIL_MEMCHECK_ENABLED
 #define MMOPT__HEADTAIL_MEMCHECK_ENABLED (0)
 #endif
+
+MEME_EXTERN_C_SCOPE_START
 
 #if MMOPT__HEADTAIL_MEMCHECK_ENABLED
 typedef struct _MemeCheckHead_t {
@@ -23,14 +25,15 @@ typedef struct _MemeCheckTail_t {
 
 uint16_t 
 	MemeCheck_Crc16le(const uint8_t* _buf, size_t _len);
+
 void* 
-	MemeCheck_Malloc(size_t _size);
+	MemeMemoryCheck_Malloc(size_t _size);
 void* 
-	MemeCheck_Realloc(void* _block, size_t _size);
+	MemeMemoryCheck_Realloc(void* _block, size_t _size);
 void* 
-	MemeCheck_Calloc(size_t _count, size_t _size);
+	MemeMemoryCheck_Calloc(size_t _count, size_t _size);
 void 
-	MemeCheck_Free(void* _pointer);
+	MemeMemoryCheck_Free(void* _pointer);
 
 void 
 	MemeCheckHead_init(MemeCheckHead_t* _factor);
@@ -54,9 +57,11 @@ MemeInteger_t
 #endif
 
 int MemeStringMemory_allocFunctionSwitch(
-	MemeString_MallocFunction_t* _in_malloc_fn,
-	MemeString_FreeFunction_t* _in_free_fn,
-	MemeString_MallocFunction_t** _out_malloc_fn,
-	MemeString_FreeFunction_t** _out_free_fn);
+	mmmem_malloc_fn_t* _in_malloc_fn,
+	mmmem_free_fn_t* _in_free_fn,
+	mmmem_malloc_fn_t** _out_malloc_fn,
+	mmmem_free_fn_t** _out_free_fn);
+
+MEME_EXTERN_C_SCOPE_ENDED
 
 #endif // !MEME_IMPL_STRING_MEMORY_H_INCLUDED

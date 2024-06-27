@@ -1,4 +1,4 @@
-
+﻿
 #include "meme/buffer.h"
 #include "meme/string.h"
 #include "meme/unsafe/string_view.h"
@@ -206,7 +206,7 @@ MEME_STDCALL MemeBufferViewUnsafeStack_init(
 	{
         p->data_ = NULL;
         p->size_ = 0;
-        p->_res_ = 0;
+        p->__res__ = 0;
         p->type_ = MemeBuffer_UnsafeStorageType_view;
         return 0;
     }
@@ -216,7 +216,7 @@ MEME_STDCALL MemeBufferViewUnsafeStack_init(
 	
 	p->data_   = _buf;
 	p->size_   = _len;
-	p->_res_   = 0;
+	p->__res__ = 0;
 	p->type_   = MemeBuffer_UnsafeStorageType_view;
 	return 0;
 }

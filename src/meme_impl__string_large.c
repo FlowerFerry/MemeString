@@ -1,4 +1,4 @@
-
+﻿
 #include <meme/impl/string_p__large.h>
 
 
@@ -84,7 +84,7 @@ int MemeStringLarge_init(
 	if (_s->ref_) {
 		d_func(refCount->real_);
 		d_func(refCount);
-		return -EPERM;
+		return MGEC__PERM;
 	}
 	_s->ref_ = refCount;
 	return 0;
@@ -124,7 +124,7 @@ int MemeStringLarge_initByU8bytes(
 
 	if (_cfn) {
 		if ((_dfn == NULL))
-			return -EINVAL;
+			return MGEC__INVAL;
 		c_func = _cfn;
 		d_func = _dfn;
 	}
@@ -218,11 +218,11 @@ int MemeStringLarge_initAndTakeover(
 	return 0;
 }
 
-void MemeStringLarge_setOffset(MemeStringLarge_t* _s, MemeInteger_t _offset)
-{
-	_s->offset_ += _offset;
-	_s->size_ -= _offset;
-}
+//void MemeStringLarge_setOffset(MemeStringLarge_t* _s, MemeInteger_t _offset)
+//{
+//	_s->offset_ += _offset;
+//	_s->size_ -= _offset;
+//}
 
 void MemeStringLarge_shrinkTailZero(MemeStringLarge_t* _s)
 {
@@ -231,10 +231,10 @@ void MemeStringLarge_shrinkTailZero(MemeStringLarge_t* _s)
 		--(_s->size_);
 }
 
-const uint8_t* MemeStringLarge_constData(const MemeStringLarge_t* _s)
-{
-	return _s->ref_->real_ + _s->offset_;
-}
+//const uint8_t* MemeStringLarge_constData(const MemeStringLarge_t* _s)
+//{
+//	return _s->ref_->real_ + _s->offset_;
+//}
 
 uint8_t* MemeStringLarge_RefCount_data(volatile MemeStringLarge_RefCounted_t* _refcount)
 {

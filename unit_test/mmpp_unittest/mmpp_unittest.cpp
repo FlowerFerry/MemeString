@@ -598,19 +598,11 @@ TEST_CASE("memepp::string - 13", "en lower an en upper")
     
 	memepp::string s02 = "SDJODSjassnkldslkdsSFDHKgdhkgdnkDSKJDDASHUhisffskjfbkGDASGK好";
 	auto l02 = s02.to_en_lower();
-#if INTPTR_MAX == INT64_MAX
 	REQUIRE(l02.storage_type() == memepp::string_storage_t::medium);
-#else
-	REQUIRE(l02.storage_type() == memepp::string_storage_t::large);
-#endif
 	REQUIRE(l02 == "sdjodsjassnkldslkdssfdhkgdhkgdnkdskjddashuhisffskjfbkgdasgk好");
 
 	auto u02 = s02.to_en_upper(); 
-#if INTPTR_MAX == INT64_MAX
 	REQUIRE(u02.storage_type() == memepp::string_storage_t::medium);
-#else
-	REQUIRE(u02.storage_type() == memepp::string_storage_t::large);
-#endif
 	REQUIRE(u02 == "SDJODSJASSNKLDSLKDSSFDHKGDHKGDNKDSKJDDASHUHISFFSKJFBKGDASGK好");
 }
 
@@ -919,11 +911,7 @@ TEST_CASE("memepp::string - 21", "operator=")
 	memepp::string s12;
 	s12 = mm_from(s11);
 	REQUIRE(s12 == sz11);
-#if INTPTR_MAX == INT64_MAX
 	REQUIRE(s12.storage_type() == memepp::string_storage_t::medium);
-#else
-	REQUIRE(s12.storage_type() == memepp::string_storage_t::large);
-#endif
 	REQUIRE(MemeString_checkHeadTailMemory(
 		(MemeString_Const_t)memepp::to_pointer(s12.native_handle())) == 1);
 }
@@ -2006,11 +1994,7 @@ TEST_CASE("memepp::string - 00", "Accidents encountered in engineering practice"
 	};
 	func02(mm_from(std02));
 	REQUIRE(s02 == std02);
-#if INTPTR_MAX == INT64_MAX
 	REQUIRE(s02.storage_type() == memepp::string_storage_t::medium);
-#else
-	REQUIRE(s02.storage_type() == memepp::string_storage_t::large);
-#endif
 	REQUIRE(MemeString_checkHeadTailMemory(
 		(MemeString_Const_t)memepp::to_pointer(s02.native_handle())) == 1);
 

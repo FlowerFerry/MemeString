@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>../../../include;../../../include_private;$(IncludePath)</IncludePath>
+    <IncludePath>../../../3rdparty/cvector/include;../../../include;../../../include_private;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -91,7 +91,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;LIBMEMESTRING_EXPORTS;_WINDOWS;_USRDLL;MEME_OPTION__BUILD_SHARED;MMOPT__HEADTAIL_MEMCHECK_ENABLED=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;LIBMEMESTRING_EXPORTS;_WINDOWS;_USRDLL;MEME_OPTION__BUILD_SHARED;MMOPT__HEADTAIL_MEMCHECK_ENABLED=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>

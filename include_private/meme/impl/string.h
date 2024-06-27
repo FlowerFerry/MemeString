@@ -9,8 +9,26 @@
 #include <limits.h>
 #include <assert.h>
 
+#ifndef INTPTR_MAX
+#error "INTPTR_MAX not defined"
+#endif
+
 #if INTPTR_MAX == INT16_MAX
 #error "16-bit system not supported"
+#endif
+
+#if INTPTR_MAX == INT32_MAX
+#  ifndef MMSTR_IMPLTYPE_BITS
+#  define MMSTR_IMPLTYPE_BITS (4)
+#  endif
+#else
+#  ifndef MMSTR_IMPLTYPE_BITS
+#  define MMSTR_IMPLTYPE_BITS (CHAR_BIT)
+#  endif
+#endif
+
+#ifndef MMSTR_SIZE_T_EFFECTIVE_BITS
+#define MMSTR_SIZE_T_EFFECTIVE_BITS (sizeof(size_t) * CHAR_BIT - MMSTR_IMPLTYPE_BITS)
 #endif
 
 MEME_EXTERN_C_SCOPE_START
@@ -48,30 +66,16 @@ enum _MemeString_ImplType_t {
 	MemeString_ImplType_view		= MemeString_UnsafeStorageType_view,
 	MemeString_ImplType_user		= MemeString_StorageType_user
 };
-//
-//typedef struct _MemeString_Basic_t
-//{
-//	union {
-//		MemeInteger_t size_;
-//	};
-//	union {
-//		size_t capacity_ : ((sizeof(size_t) - 1) * (CHAR_BIT));
-//		struct {
-//			uint8_t __occupy_a_seat__[sizeof(size_t) - 1];
-//			uint8_t type_;
-//		};
-//	};
-//} MemeString_Basic_t;
 
 typedef struct _MemeStringUser_t
 {
 	MemeStringUser_RefCounted_t* ref_;
 	struct {
-		MemeInteger_t offset_ : (sizeof(size_t)*(CHAR_BIT)-sizeof(size_t));
+		size_t offset_ : MMSTR_SIZE_T_EFFECTIVE_BITS;
 	};
 	struct {
-		size_t size_ : (sizeof(size_t)* (CHAR_BIT)-sizeof(size_t));
-		size_t type_ : (sizeof(size_t));
+		size_t size_ : MMSTR_SIZE_T_EFFECTIVE_BITS;
+		size_t type_ : MMSTR_IMPLTYPE_BITS;
 	};
 } MemeStringUser_t;
 
@@ -79,12 +83,12 @@ typedef struct _MemeStringMedium_t
 {
 	MemeByte_t* real_;
 	struct {
-		size_t size_ : (sizeof(size_t)*(CHAR_BIT)-sizeof(size_t));
-		size_t front_capacity_ : sizeof(size_t);
+		size_t size_ : MMSTR_SIZE_T_EFFECTIVE_BITS;
+		size_t front_capacity_ : MMSTR_IMPLTYPE_BITS;
 	};
 	struct {
-		size_t capacity_ : (sizeof(size_t)*(CHAR_BIT)-sizeof(size_t));
-		size_t type_ : (sizeof(size_t));
+		size_t capacity_ : MMSTR_SIZE_T_EFFECTIVE_BITS;
+		size_t type_ : MMSTR_IMPLTYPE_BITS;
 	};
 } MemeStringMedium_t;
 
@@ -98,51 +102,42 @@ typedef struct _MemeStringLarge_t
 {
 	MemeStringLarge_RefCounted_t * ref_;
 	struct {
-		MemeInteger_t offset_ : (sizeof(size_t)* (CHAR_BIT)-sizeof(size_t));
+		size_t offset_ : MMSTR_SIZE_T_EFFECTIVE_BITS;
 	};
 	struct {
-		size_t size_ : (sizeof(size_t)* (CHAR_BIT)-sizeof(size_t));
-		size_t type_ : (sizeof(size_t));
+		size_t size_ : MMSTR_SIZE_T_EFFECTIVE_BITS;
+		size_t type_ : MMSTR_IMPLTYPE_BITS;
 	};
 } MemeStringLarge_t;
 
-#if INTPTR_MAX == INT32_MAX
-typedef struct _MemeStringSmall_t
-{
-	union {
-		uint8_t buffer_[MEME_STRING__OBJECT_SIZE];
-
-		struct {
-			size_t __occupy_a_seat_1__[2];
-			size_t __occupy_a_seat_2__ : ((sizeof(size_t) - 2)* (CHAR_BIT));
-			size_t capacity_ : (CHAR_BIT);
-			size_t __occupy_a_seat_3__ : (sizeof(size_t));
-			size_t type_ : (sizeof(size_t));
-		};
-	};
-} MemeStringSmall_t;
-#else
 typedef struct _MemeStringSmall_t
 {
 	union {
 		uint8_t buffer_[MMS__OBJECT_SIZE];
 
 		struct {
-			size_t __occupy_a_seat_1__[2];
-			size_t __occupy_a_seat_2__ : ((sizeof(size_t)-1)*(CHAR_BIT)-sizeof(size_t));
-			size_t capacity_ : (CHAR_BIT);
-			size_t type_ : (sizeof(size_t));
+			mmbyte_t __res1__[MMS__OBJECT_SIZE - 2];
+			mmbyte_t capacity_;
+#if INTPTR_MAX == INT32_MAX
+			mmbyte_t __res2__ : (CHAR_BIT)-MMSTR_IMPLTYPE_BITS;
+#endif
+			mmbyte_t type_ : MMSTR_IMPLTYPE_BITS;
 		};
 	};
 } MemeStringSmall_t;
-#endif
 
 typedef struct _MemeStringNone_t
 {
 	struct {
-		size_t __occupy_a_seat_1__[2];
-		size_t __occupy_a_seat_2__ : (sizeof(size_t)*(CHAR_BIT)-sizeof(size_t));
-		size_t type_ : (sizeof(size_t));
+		//size_t __occupy_a_seat_1__[2];
+		//size_t __occupy_a_seat_2__ : (sizeof(size_t)*(CHAR_BIT)-sizeof(size_t));
+		//size_t type_ : MMSTR_IMPLTYPE_BITS;
+		
+		mmbyte_t __res1__[MMS__OBJECT_SIZE - 1];
+#if INTPTR_MAX == INT32_MAX
+		mmbyte_t __res2__ : (CHAR_BIT)-MMSTR_IMPLTYPE_BITS;
+#endif
+		mmbyte_t type_ : MMSTR_IMPLTYPE_BITS;
 	};
 } MemeStringNone_t;
 
@@ -150,22 +145,22 @@ typedef struct _MemeStringViewUnsafe_t
 {
 	const uint8_t* data_;
 	struct {
-		MemeInteger_t _res_ : (sizeof(size_t)* (CHAR_BIT)-sizeof(size_t));
+		mmint_t __res__;
 	};
 	struct {
-		size_t size_ : (sizeof(size_t)* (CHAR_BIT)-sizeof(size_t));
-		size_t type_ : (sizeof(size_t));
+		size_t size_ : MMSTR_SIZE_T_EFFECTIVE_BITS;
+		size_t type_ : MMSTR_IMPLTYPE_BITS;
 	};
 } MemeStringViewUnsafe_t;
 
 struct _MemeString_t
 {
 	union {
-		MemeStringNone_t none_;
-		MemeStringSmall_t  small_;
-		MemeStringMedium_t medium_;
-		MemeStringLarge_t  large_;
-		MemeStringUser_t   user_;
+		MemeStringNone_t       none_;
+		MemeStringSmall_t      small_;
+		MemeStringMedium_t     medium_;
+		MemeStringLarge_t      large_;
+		MemeStringUser_t       user_;
 		MemeStringViewUnsafe_t viewUnsafe_;
 	};
 };

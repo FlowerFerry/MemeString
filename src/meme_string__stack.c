@@ -1262,7 +1262,7 @@ MEME_EXTERN_C MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringViewUnsafeStack_
 
 	p->data_   = _buf;
 	p->size_   = _len;
-	p->_res_   = 0;
+	p->__res__ = 0;
 	p->type_   = MemeString_ImplType_view;
 	return 0;
 }
