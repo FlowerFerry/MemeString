@@ -16,7 +16,8 @@ add_executable(mmpp_unittest
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
 target_include_directories(${PROJECT_NAME} PRIVATE 
-  ./
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/catch2/include
   ${MMBM_PARENT_HEADER_DIR}
 )
 
