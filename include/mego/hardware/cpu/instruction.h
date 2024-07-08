@@ -13,7 +13,9 @@
 extern "C" {
 #endif
 
-typedef uint32_t mghw_simd_instruction_t;
+//! @typedef mghw_simd_instruction_t
+//! @brief 定义 SIMD 指令集支持标志的类型。
+typedef uint64_t mghw_simd_instruction_t;
 #define MGHW_SIMD_INSTRUCTION__DEFAULT   (0x0000)
 #define MGHW_SIMD_INSTRUCTION__SSE2      (0x0001)
 #define MGHW_SIMD_INSTRUCTION__SSE42     (0x0002)
@@ -43,6 +45,11 @@ mghw_detect_supported_simd_instructions() {
 
 #elif MEGO_ARCH__AMD64
 
+//! @brief 检测并返回当前系统支持的 SIMD 指令集。
+//!
+//! 适用于 AMD64 架构的实现，使用 CPUID 指令检测支持的 SIMD 指令集合。
+//!
+//! @return 返回支持的 SIMD 指令集合。
 MG_CAPI_INLINE mghw_simd_instruction_t
 mghw_detect_supported_simd_instructions()
 { 
@@ -50,7 +57,7 @@ mghw_detect_supported_simd_instructions()
     uint32_t ebx = 0;
     uint32_t ecx = 0;
     uint32_t edx = 0;
-    uint32_t val = 0x0;
+    uint64_t val = 0x0;
 
   // EBX for EAX=0x1
     eax = 0x1;
@@ -92,6 +99,11 @@ mghw_detect_supported_simd_instructions()
 
 #else
 
+//! @brief 检测并返回当前系统支持的 SIMD 指令集。
+//!
+//! 默认实现，不支持任何 SIMD 指令集。
+//!
+//! @return 返回支持的 SIMD 指令集合。
 MG_CAPI_INLINE mghw_simd_instruction_t
 mghw_detect_supported_simd_instructions() {
     return MGHW_SIMD_INSTRUCTION__DEFAULT;

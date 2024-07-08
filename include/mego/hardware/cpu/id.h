@@ -43,6 +43,16 @@
 
 #if MEGO_ARCH__AMD64
 
+//! @brief 执行 CPUID 指令。
+//!
+//! 该函数执行 x86 的 CPUID 指令，并将结果存储在提供的寄存器变量中。
+//!
+//! @param[in,out] _eax 指向 eax 寄存器值的指针。在输入时指定 CPUID 的功能号，在输出时存储 CPUID 指令的返回值。
+//! @param[in,out] _ebx 指向 ebx 寄存器值的指针。在输出时存储 CPUID 指令的返回值。
+//! @param[in,out] _ecx 指向 ecx 寄存器值的指针。在输入时指定 CPUID 的子功能号，在输出时存储 CPUID 指令的返回值。
+//! @param[in,out] _edx 指向 edx 寄存器值的指针。在输出时存储 CPUID 指令的返回值。
+//!
+//! 根据不同的编译器和系统环境，选择合适的方法执行 CPUID 指令。对于 MSVC 编译器，使用 `__cpuid` 内联函数。对于支持 `cpuid.h` 头文件的系统，使用 `__get_cpuid` 函数。否则，使用内联汇编代码执行 CPUID 指令。
 MG_CAPI_INLINE void mghw_cpuid(uint32_t *_eax, uint32_t *_ebx, uint32_t *_ecx, uint32_t *_edx) 
 {
 #if MEGO_COMP__MSVC__AVAILABLE

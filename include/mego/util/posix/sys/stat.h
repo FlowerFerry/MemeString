@@ -34,21 +34,29 @@
 extern "C" {
 #endif
 
+//! @struct mgu_stat
+//! @brief 文件状态结构体。
+//!
+//! 该结构体用于存储文件的状态信息，包括设备ID、inode编号、文件模式、硬链接数量、用户ID、组ID、设备ID（如果是特殊文件）、文件大小以及最后访问、修改和状态更改的时间。
 struct mgu_stat
 {
-	mgu_dev_t		st_dev;
-	mgu_ino_t		st_ino;
-	uint32_t		st_mode;
-	int64_t			st_nlink;
-	int64_t			st_uid;
-	int64_t			st_gid;
-	mgu_dev_t		st_rdev;
-	int64_t			st_size;
-	mgu_timespec_t	st_atim;
-	mgu_timespec_t	st_mtim;
-	mgu_timespec_t	st_ctim;
+	mgu_dev_t		st_dev;   ///< 设备ID。
+	mgu_ino_t		st_ino;   ///< inode编号。
+	uint32_t		st_mode;  ///< 文件模式（权限和文件类型）。
+	int64_t			st_nlink; ///< 硬链接数量。
+	int64_t			st_uid;   ///< 用户ID。
+	int64_t			st_gid;   ///< 组ID。
+	mgu_dev_t		st_rdev;  ///< 设备ID（如果是特殊文件）。
+	int64_t			st_size;  ///< 文件大小（以字节为单位）。
+	mgu_timespec_t	st_atim;  ///< 最后访问时间。
+	mgu_timespec_t	st_mtim;  ///< 最后修改时间。
+	mgu_timespec_t	st_ctim;  ///< 状态最后更改时间。
 };
 
+//! @enum mgu_stat_mode
+//! @brief 文件模式枚举。
+//!
+//! 该枚举定义了文件模式的不同标志，用于表示文件类型、权限以及特殊模式位。
 enum mgu_stat_mode {
 	mgu_stat_mode_ifmt   = 0xF000, // File type mask
 	mgu_stat_mode_ifsock = 0xC000, // socket
@@ -59,22 +67,22 @@ enum mgu_stat_mode {
 	mgu_stat_mode_ifchr  = 0x2000, // Character special
 	mgu_stat_mode_iffifo = 0x1000, // Pipe
 
-	mgu_stat_mode_isuid = 0004000,
-	mgu_stat_mode_isgid = 0002000,
-	mgu_stat_mode_isvtx = 0001000,
+	mgu_stat_mode_isuid = 0004000, ///< 设置用户ID位
+	mgu_stat_mode_isgid = 0002000, ///< 设置组ID位
+	mgu_stat_mode_isvtx = 0001000, ///< 粘着位
 
-	mgu_stat_mode_irwxu = 00700,
-	mgu_stat_mode_irusr = 00400,
-	mgu_stat_mode_iwusr = 00200,
-	mgu_stat_mode_ixusr = 00100,
-	mgu_stat_mode_irwxg = 00070,
-	mgu_stat_mode_irgrp = 00040,
-	mgu_stat_mode_iwgrp = 00020,
-	mgu_stat_mode_ixgrp = 00010,
-	mgu_stat_mode_irwxo = 00007,
-	mgu_stat_mode_iroth = 00004,
-	mgu_stat_mode_iwoth = 00002,
-	mgu_stat_mode_ixoth = 00001,
+	mgu_stat_mode_irwxu = 00700, ///< 用户读、写、执行权限
+	mgu_stat_mode_irusr = 00400, ///< 用户读权限
+	mgu_stat_mode_iwusr = 00200, ///< 用户写权限
+	mgu_stat_mode_ixusr = 00100, ///< 用户执行权限
+	mgu_stat_mode_irwxg = 00070, ///< 组读、写、执行权限
+	mgu_stat_mode_irgrp = 00040, ///< 组读权限
+	mgu_stat_mode_iwgrp = 00020, ///< 组写权限
+	mgu_stat_mode_ixgrp = 00010, ///< 组执行权限
+	mgu_stat_mode_irwxo = 00007, ///< 其他用户读、写、执行权限
+	mgu_stat_mode_iroth = 00004, ///< 其他用户读权限
+	mgu_stat_mode_iwoth = 00002, ///< 其他用户写权限
+	mgu_stat_mode_ixoth = 00001, ///< 其他用户执行权限
 };
 
 // #if MG_OS__WIN_AVAIL
@@ -85,7 +93,16 @@ enum mgu_stat_mode {
 
 
 #if MG_OS__WIN_AVAIL
-MG_CAPI_INLINE int mgu_get_w_stat(const wchar_t* _path, intptr_t _slen, struct mgu_stat* _buf)
+
+//! @brief 获取文件的状态信息。
+//!
+//! 该函数获取指定路径的文件状态信息，并将其存储在提供的 `mgu_stat` 结构体中。
+//!
+//! @param[in] _path 一个指向路径字符串的指针。
+//! @param[in] _slen 路径字符串的长度。小于0表示字符串以NULL结尾。
+//! @param[out] _buf 用于存储文件状态信息的 `mgu_stat` 结构体指针。
+//! @return 成功时返回0；如果发生错误，返回相应的错误码。
+MG_CAPI_INLINE int mgu_get_w_stat(const wchar_t* _path, mmint_t _slen, struct mgu_stat* _buf)
 {
 	struct _stat64 buffer;
 	const wchar_t* path = NULL;
@@ -133,7 +150,15 @@ MG_CAPI_INLINE int mgu_get_w_stat(const wchar_t* _path, intptr_t _slen, struct m
 };
 #endif
 
-MG_CAPI_INLINE int mgu_get_stat(const char* _path, intptr_t _slen, struct mgu_stat* _buf)
+//! @brief 获取文件的状态信息。
+//!
+//! 该函数获取指定路径的文件状态信息，并将其存储在提供的 `mgu_stat` 结构体中。
+//!
+//! @param[in] _path 一个指向路径字符串的指针。
+//! @param[in] _slen 路径字符串的长度。小于0表示字符串以NULL结尾。
+//! @param[out] _buf 用于存储文件状态信息的 `mgu_stat` 结构体指针。
+//! @return 成功时返回0；如果发生错误，返回相应的错误码。
+MG_CAPI_INLINE int mgu_get_stat(const char* _path, mmint_t _slen, struct mgu_stat* _buf)
 {
 #if MG_OS__LINUX_AVAIL
 	struct stat buffer;

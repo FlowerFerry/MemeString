@@ -7,6 +7,7 @@
 #include <mego/predef/os/windows.h>
 #include <mego/util/converted_native_string.h>
 #include <mego/util/posix/sys/stat.h>
+#include <mego/predef/symbol/inline.h>
 
 #include <string.h>
 #if MG_OS__WIN_AVAIL
@@ -19,22 +20,32 @@
 extern "C" {
 #endif // __cplusplus
 
+// #if MG_OS__WIN_AVAIL
+// mgec_t mgfs__check_and_create_w_dirs_if_needed(
+//     const wchar_t *_path, size_t _slen, int _create_if_needed, int _path_allow_modified);
+
+// mgrc_t mgfs__is_exist_w_dir(const wchar_t *_path, size_t _slen);
+
+// #endif
+
+// mgec_t mgfs__check_and_create_dirs_if_needed(
+//     const char *_path, size_t _slen, int _create_if_needed, int _path_allow_modified);
+
+// mgrc_t mgfs__is_exist_dir(const char *_path, size_t _slen);
+
 #if MG_OS__WIN_AVAIL
-mgec_t mgfs__check_and_create_w_dirs_if_needed(
-    const wchar_t *_path, size_t _slen, int _create_if_needed, int _path_allow_modified);
 
-mgrc_t mgfs__is_exist_w_dir(const wchar_t *_path, size_t _slen);
-
-#endif
-
-mgec_t mgfs__check_and_create_dirs_if_needed(
-    const char *_path, size_t _slen, int _create_if_needed, int _path_allow_modified);
-
-mgrc_t mgfs__is_exist_dir(const char *_path, size_t _slen);
-
-#if MG_OS__WIN_AVAIL
-inline mgec_t mgfs__check_and_create_w_dirs_if_needed(
-    const wchar_t *_path, size_t _slen, int _create_if_needed, int _path_allow_modified)
+//! @brief 检查指定路径是否存在并在需要时创建目录。
+//!
+//! 该函数检查给定路径是否存在，并在路径不存在且需要创建时，创建所需的目录。
+//!
+//! @param[in] _path 一个指向路径字符串的指针。
+//! @param[in] _slen 路径字符串的长度。
+//! @param[in] _create_if_needed 如果为非零值且路径不存在，则创建目录。
+//! @param[in] _path_allow_modified 如果为非零值，则允许修改传入的路径字符串。
+//! @return 成功时返回0；如果发生错误，返回相应的错误码。
+MG_CAPI_INLINE mgec_t mgfs__check_and_create_w_dirs_if_needed(
+    const wchar_t *_path, mmint_t _slen, int _create_if_needed, int _path_allow_modified)
 {
     size_t path_len = 0;
     const wchar_t *path = NULL;
@@ -96,7 +107,14 @@ inline mgec_t mgfs__check_and_create_w_dirs_if_needed(
     }
 }
 
-inline mgrc_t mgfs__is_exist_w_dir(const wchar_t *_path, size_t _slen)
+//! @brief 检查给定路径是否存在且是一个目录。
+//!
+//! 该函数检查指定路径是否存在，并且是否是一个目录。
+//! 
+//! @param[in] _path 一个指向路径字符串的指针。
+//! @param[in] _slen 路径字符串的长度。小于0表示字符串以NULL结尾。
+//! @return 如果路径存在且是目录，返回1；如果路径不存在或不是目录，返回0；如果发生错误，返回相应的错误码。
+MG_CAPI_INLINE mgrc_t mgfs__is_exist_w_dir(const wchar_t *_path, mmint_t _slen)
 {
     struct mgu_stat st;
     int eno = mgu_get_w_stat(_path, _slen, &st);
@@ -108,8 +126,17 @@ inline mgrc_t mgfs__is_exist_w_dir(const wchar_t *_path, size_t _slen)
 
 #endif
 
-inline mgec_t mgfs__check_and_create_dirs_if_needed(
-    const char *_path, size_t _slen, int _create_if_needed, int _path_allow_modified) 
+//! @brief 检查指定路径是否存在并在需要时创建目录。
+//!
+//! 该函数检查给定路径是否存在，并在路径不存在且需要创建时，创建所需的目录。
+//!
+//! @param[in] _path 一个指向路径字符串的指针。
+//! @param[in] _slen 路径字符串的长度。
+//! @param[in] _create_if_needed 如果为非零值且路径不存在，则创建目录。
+//! @param[in] _path_allow_modified 如果为非零值，则允许修改传入的路径字符串。
+//! @return 成功时返回0；如果发生错误，返回相应的错误码。
+MG_CAPI_INLINE mgec_t mgfs__check_and_create_dirs_if_needed(
+    const char *_path, mmint_t _slen, int _create_if_needed, int _path_allow_modified) 
 {
     mgec_t ec = 0;
     mmn_char_cptr_t path = NULL;
@@ -179,7 +206,14 @@ inline mgec_t mgfs__check_and_create_dirs_if_needed(
 #endif 
 }
 
-inline mgrc_t mgfs__is_exist_dir(const char *_path, size_t _slen)
+//! @brief 检查给定路径是否存在且是一个目录。
+//!
+//! 该函数检查指定路径是否存在，并且是否是一个目录。
+//! 
+//! @param[in] _path 一个指向路径字符串的指针。
+//! @param[in] _slen 路径字符串的长度。小于0表示字符串以NULL结尾。
+//! @return 如果路径存在且是目录，返回1；如果路径不存在或不是目录，返回0；如果发生错误，返回相应的错误码。
+MG_CAPI_INLINE mgrc_t mgfs__is_exist_dir(const char *_path, mmint_t _slen)
 {
     struct mgu_stat st;
     int eno = mgu_get_stat(_path, _slen, &st);
