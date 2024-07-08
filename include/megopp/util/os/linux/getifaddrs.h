@@ -19,8 +19,7 @@
 #include <type_traits>
 
 namespace mgpp {
-namespace os {
-namespace linux {
+namespace os_linux {
 
 #if MG_OS__LINUX_AVAIL
 
@@ -52,7 +51,6 @@ inline mgpp::err getifaddrs(_Fn&& _fn)
 #endif
 
 }; // namespace linux
-}; // namespace os
 }; // namespace mgpp
 
 #endif // !MEGOPP_UTIL_OS_LINUX_GETIFADDRS_H_INCLUDED
