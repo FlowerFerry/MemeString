@@ -5,7 +5,7 @@
 #include <mego/os/linux/hardware/gpio.h>
 
 namespace mgpp {
-namespace linux {
+namespace os_linux {
 namespace hw {
 
 struct gpio
