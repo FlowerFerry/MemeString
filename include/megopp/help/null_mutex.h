@@ -37,7 +37,7 @@ public:
   }
 };
 
-} // namespace auxiliary
+} 
 } // namespace megopp
 
 #endif // MEGOPP_AUXILIARY_NULL_MUTEX_HPP_INCLUDED

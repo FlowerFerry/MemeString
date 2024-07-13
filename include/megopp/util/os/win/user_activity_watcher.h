@@ -25,6 +25,11 @@ namespace os   {
 namespace win  {
 
 #if MG_OS__WIN_AVAIL
+
+//! @brief 用户活动监视器结构体，用于检测用户是否处于活动状态。
+//!
+//! 该结构体提供了一种机制，用于检测用户的活动状态（活动或空闲），并在状态改变时
+//! 调用回调函数。适用于 Windows 系统。
 struct usr_act_watcher
 {
     enum class act_state 
@@ -33,6 +38,12 @@ struct usr_act_watcher
         act,
         idle
     };
+
+    //! @brief 空闲状态回调函数类型定义。
+    //!
+    //! @param watcher 用户活动监视器实例的引用。
+    //! @param state 当前的用户活动状态。
+    //! @param error 错误信息（如果有）。
     typedef void(idle_fn_t)(usr_act_watcher&, act_state, const mgpp::err&);
 
     inline constexpr act_state current_state() const noexcept { return current_state_; }
@@ -49,6 +60,9 @@ struct usr_act_watcher
         fn_ = _fn;
     }
 
+    //! @brief 检查一次用户活动状态。
+    //!
+    //! 该函数检查用户的活动状态，如果状态发生变化，则调用回调函数。
     void check_once() {
         if (!fn_)
             return;

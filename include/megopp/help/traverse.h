@@ -10,6 +10,14 @@
 namespace mgpp {
 namespace help {
 
+    //! 遍历容器并在满足特定条件时执行操作的模板函数
+    //!
+    //! @param _locker 共享锁，用于控制对容器的并发访问
+    //! @param _container 要遍历的容器
+    //! @param _begin 遍历的起始点，可选类型。如果没有提供，将从容器的开始位置遍历
+    //! @param _count 要遍历的元素数量
+    //! @param _out 输出参数，用于存储遍历过程中找到的符合条件的元素
+    //! @param _pred 谓词函数，用于判断元素是否符合条件
     template <typename _Container, typename _SharedLocker, typename _Ty, typename _Pred>
     inline void foreach_with_small_step
         (

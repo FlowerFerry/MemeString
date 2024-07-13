@@ -31,66 +31,6 @@ namespace win  {
         static constexpr ULONG af = AF_UNSPEC;
     };
     
-    //struct mib_udptable_owner_pid
-    //{
-    //    inline const MIB_UDPTABLE_OWNER_PID* get() const noexcept 
-    //    { 
-    //        return reinterpret_cast<const MIB_UDPTABLE_OWNER_PID*>(buf.data()); 
-    //    }
-
-    //    std::vector<uint8_t> buf;
-    //};
-
-    //struct mib_udp6table_owner_pid
-    //{
-    //    inline const MIB_UDP6TABLE_OWNER_PID* get() const noexcept
-    //    {
-    //        return reinterpret_cast<const MIB_UDP6TABLE_OWNER_PID*>(buf.data());
-    //    }
-
-    //    std::vector<uint8_t> buf;
-    //};
-
-    //struct mib_udptable_owner_module
-    //{
-    //    inline const MIB_UDPTABLE_OWNER_MODULE* get() const noexcept
-    //    {
-    //        return reinterpret_cast<const MIB_UDPTABLE_OWNER_MODULE*>(buf.data());
-    //    }
-
-    //    std::vector<uint8_t> buf;
-    //};
-
-    //struct mib_udp6table_owner_module
-    //{
-    //    inline const MIB_UDP6TABLE_OWNER_MODULE* get() const noexcept
-    //    {
-    //        return reinterpret_cast<const MIB_UDP6TABLE_OWNER_MODULE*>(buf.data());
-    //    }
-
-    //    std::vector<uint8_t> buf;
-    //};
-
-    //struct mib_udptable
-    //{
-    //    inline const MIB_UDPTABLE* get() const noexcept
-    //    {
-    //        return reinterpret_cast<const MIB_UDPTABLE*>(buf.data());
-    //    }
-
-    //    std::vector<uint8_t> buf;
-    //};
-
-    //struct mib_udp6table
-    //{
-    //    inline const MIB_UDP6TABLE* get() const noexcept
-    //    {
-    //        return reinterpret_cast<const MIB_UDP6TABLE*>(buf.data());
-    //    }
-
-    //    std::vector<uint8_t> buf;
-    //};
-    
     template<>
     struct __mib_udp_tb_traits<MIB_UDPTABLE_OWNER_PID>
     {

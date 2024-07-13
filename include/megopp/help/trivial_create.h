@@ -8,20 +8,6 @@
 namespace mgpp {
 namespace help {
     
-    // template<typename _Object>
-    // inline typename std::enable_if<!std::is_trivial<_Object>::value, _Object>::type trivial_create()
-    // {
-    //     return _Object{};
-    // }
-
-    // template<typename _Object>
-    // inline typename std::enable_if<std::is_trivial<_Object>::value, _Object>::type trivial_create()
-    // {
-    //     _Object obj;
-    //     memset(&obj, 0, sizeof(_Object));
-    //     return  obj;
-    // }
-
     template<typename _Object>
     inline _Object trivial_create_impl(std::true_type)
     {

@@ -5,6 +5,8 @@
 #include <memepp/string.hpp>
 #include <megopp/err/err.h>
 
+#include <algorithm>
+
 namespace mgpp {
 namespace netif {
 

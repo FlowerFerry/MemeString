@@ -11,10 +11,6 @@ namespace util {
 template <typename _Ty>
 struct atomic_counter
 {
-    // constexpr atomic_counter(_Ty _minVal = std::numeric_limits<_Ty>::min(), _Ty _maxVal = std::numeric_limits<_Ty>::max()) noexcept
-    //     : val_(0), minVal_(_minVal), maxVal_(_maxVal)
-    // {}
-
     constexpr atomic_counter(_Ty _val = {}, _Ty _minVal = std::numeric_limits<_Ty>::min(), _Ty _maxVal = std::numeric_limits<_Ty>::max()) noexcept
         : val_(_val), minVal_(_minVal), maxVal_(_maxVal)
     {

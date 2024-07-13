@@ -19,7 +19,7 @@ private:
   const noncopyable& operator=(const noncopyable&);
 };
 
-} // namespace auxiliary
+} 
 } // namespace megopp
 
 
