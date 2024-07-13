@@ -181,9 +181,9 @@ extern "C" {
         struct tm gtm;
         mgu_time_t nowt = time(NULL);
         if (mgu_localtime_s(&nowt, &ltm) == NULL)
-            return -1;
+            return INT_MIN;
         if (mgu_gmtime_s(&nowt, &gtm) == NULL)
-            return -1;
+            return INT_MIN;
 
         diff =  (ltm.tm_hour - gtm.tm_hour) * 60 * 60 +
                 (ltm.tm_min  - gtm.tm_min ) * 60 +

@@ -47,10 +47,6 @@
 extern "C" {
 #endif // __cppplusplus
 
-    
-    // inline int MegoUtil_GetExecutablePath(char* _out, int _capacity, int* _dirname_pos);
-
-
 #if MEGO_OS__WINDOWS__AVAILABLE
     MG_CAPI_INLINE int MegoUtil_GetExecutablePath(char* _out, int _capacity, int* _dirname_pos)
     {

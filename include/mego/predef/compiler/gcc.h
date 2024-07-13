@@ -24,4 +24,8 @@
 #define MEGO_COMP__GCC__AVAILABLE (0)
 #endif
 
+#ifndef MG_COMP__GCC_AVAIL
+#define MG_COMP__GCC_AVAIL MEGO_COMP__GCC__AVAILABLE
+#endif
+
 #endif

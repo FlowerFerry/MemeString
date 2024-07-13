@@ -39,4 +39,12 @@
 #define MEGO_SYMBOL__UNLIKELY(x) (x)
 #endif
 
+#ifndef MG_SYM__LIKELY
+#define MG_SYM__LIKELY MEGO_SYMBOL__LIKELY
+#endif
+
+#ifndef MG_SYM__UNLIKELY
+#define MG_SYM__UNLIKELY MEGO_SYMBOL__UNLIKELY
+#endif
+
 #endif // !MEGO_PREDEF_LIKELY_H_INCLUDED

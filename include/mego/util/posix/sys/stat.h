@@ -3,6 +3,7 @@
 #define MEGO_UTIL_SYS_STAT_H_INCLUDED
 
 #include <mego/err/ec.h>
+#include <mego/err/ec_impl.h>
 #include <mego/predef/os/linux.h>
 #include <mego/util/posix/sys/types.h>
 #include <mego/util/converted_native_string.h>
@@ -85,13 +86,6 @@ enum mgu_stat_mode {
 	mgu_stat_mode_ixoth = 00001, ///< 其他用户执行权限
 };
 
-// #if MG_OS__WIN_AVAIL
-// int mgu_get_w_stat(const wchar_t* _path, intptr_t _slen, struct mgu_stat* _buf);
-// #endif
-
-// int mgu_get_stat(const char* _path, intptr_t _slen, struct mgu_stat* _buf);
-
-
 #if MG_OS__WIN_AVAIL
 
 //! @brief 获取文件的状态信息。
@@ -112,7 +106,7 @@ MG_CAPI_INLINE int mgu_get_w_stat(const wchar_t* _path, mmint_t _slen, struct mg
 	
 	if (_wstat64(path, &buffer) != 0) {
 		mgu_w__free_cns(_path, path);
-		return errno;
+		return mgec__from_posix_err(errno);
 	}
 
 	mgu_w__free_cns(_path, path);
@@ -178,7 +172,7 @@ MG_CAPI_INLINE int mgu_get_stat(const char* _path, mmint_t _slen, struct mgu_sta
 #if MG_OS__LINUX_AVAIL
 	if (stat(path, &buffer) != 0) {
 		mgu__free_cns(_path, path);
-		return errno;
+		return mgec__from_posix_err(errno);
 	}
 
 	mgu__free_cns(_path, path);

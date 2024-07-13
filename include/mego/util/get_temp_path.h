@@ -13,9 +13,6 @@
 extern "C" {
 #endif // __cppplusplus
     
-    
-    // int mgu_get_temp_path(char* _out, int _capacity);
-
     MG_CAPI_INLINE int mgu_get_temp_path(char* _out, int _capacity)
     {
 #if MG_OS__WIN_AVAIL
