@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MGU_STD_FILE_H_INCLUDED
 #define MGU_STD_FILE_H_INCLUDED
 
