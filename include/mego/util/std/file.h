@@ -10,6 +10,10 @@
 #include <string.h>
 #include <stdio.h>
 
+#if MG_OS__LINUX_AVAIL
+#include <unistd.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
