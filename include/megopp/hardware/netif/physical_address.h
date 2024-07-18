@@ -52,7 +52,7 @@ inline mgpp::err get_phy_addr_infos(std::map<int, mgpp::netif::phy_addr_info>& _
 
     return err;
 #elif MG_OS__LINUX_AVAIL
-    auto err = mgpp::os::linux::getifaddrs([&](const ifaddrs* _addr)
+    auto err = mgpp::os_linux::getifaddrs([&](const ifaddrs* _addr)
     {
         if (!_addr->ifa_name)
             return true;
