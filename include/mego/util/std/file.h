@@ -70,25 +70,33 @@ MG_CAPI_INLINE FILE* mgu_fopen(
     FILE* fp = NULL;
     mmn_char_cptr_t path = NULL;
     mmn_char_cptr_t mode = NULL;
-    mgec_t ec = 0;
+    mgec_t  err = 0;
+    errno_t eno = 0;
     
-    ec = mgu__to_cns(_path, _slen, &path, NULL, 0);
-    if (MEGO_SYMBOL__UNLIKELY(ec != 0))
+    err = mgu__to_cns(_path, _slen, &path, NULL, 0);
+    if (MEGO_SYMBOL__UNLIKELY(err != 0))
         return NULL;
 
-    ec = mgu__to_cns(_mode, _mlen, &mode, NULL, 0);
-    if (MEGO_SYMBOL__UNLIKELY(ec != 0)) {
+    err = mgu__to_cns(_mode, _mlen, &mode, NULL, 0);
+    if (MEGO_SYMBOL__UNLIKELY(err != 0)) {
         mgu__free_cns(_path, path);
         return NULL;
     }
 
 #if MG_OS__WIN_AVAIL
-    fp = _wfopen(path, mode);
+    eno = _wfopen_s(&fp, path, mode);
 #else
     fp = fopen(path, mode);
 #endif
     mgu__free_cns(_path, path);
     mgu__free_cns(_mode, mode);
+#if MG_OS__WIN_AVAIL
+    if (MEGO_SYMBOL__UNLIKELY(eno != 0))
+    {
+        errno = eno;
+        return NULL;
+    }
+#endif
     return fp;
 }
 
