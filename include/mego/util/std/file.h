@@ -71,7 +71,9 @@ MG_CAPI_INLINE FILE* mgu_fopen(
     mmn_char_cptr_t path = NULL;
     mmn_char_cptr_t mode = NULL;
     mgec_t  err = 0;
+#if MG_OS__WIN_AVAIL
     errno_t eno = 0;
+#endif
     
     err = mgu__to_cns(_path, _slen, &path, NULL, 0);
     if (MEGO_SYMBOL__UNLIKELY(err != 0))
