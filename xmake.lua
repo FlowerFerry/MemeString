@@ -7,16 +7,16 @@ set_version("0.0.1", {build = "%Y%m%d%H%M"})
 
 add_rules("mode.debug", "mode.release")
 
-option("test_enable")
+option("memestr_test_enable")
     set_default(false)
     set_showmenu(true)
-    set_description("Enable unit test")
+    set_description("Enable unit test of meme library")
 option_end()
 
-option("benchmark_enable")
+option("memestr_benchmark_enable")
     set_default(false)
     set_showmenu(true)
-    set_description("Enable benchmark")
+    set_description("Enable benchmark of meme library")
 option_end()
 
 -- stdc = "c11"

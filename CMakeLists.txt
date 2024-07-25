@@ -13,9 +13,9 @@ endif()
 
 project(${MEME_PROJECT_NAME} VERSION 0.0.1 LANGUAGES C)
 
-option(MEMESTRING_SONAME_SUFFIX_ENABLE "Disable soname suffix" ON)
-option(MEMESTRING_BENCHMARK_ENABLE "Enable benchmark" OFF)
-option(MEMESTRING_UNITTEST_ENABLE  "Enable unittest"  OFF)
+option(MEMESTRING_SONAME_SUFFIX_ENABLE "Enable soname suffix of  of meme library" ON)
+option(MEMESTRING_BENCHMARK_ENABLE "Enable benchmark of meme library" OFF)
+option(MEMESTRING_UNITTEST_ENABLE  "Enable unit test of meme library"  OFF)
 
 # 设置 C 语言标准
 # set(CMAKE_C_STANDARD 11)
