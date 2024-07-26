@@ -140,7 +140,7 @@ MG_CAPI_INLINE mgec_t mgfs__check_and_create_dirs_if_needed(
 {
     mgec_t ec = 0;
     mmn_char_cptr_t path = NULL;
-    size_t path_len = 0;
+    mmint_t path_len = 0;
 
     if (MEGO_SYMBOL__UNLIKELY(_path == NULL))
         return MGEC__INVAL;

@@ -158,7 +158,7 @@ MG_CAPI_INLINE int mgu_get_stat(const char* _path, mmint_t _slen, struct mgu_sta
 	struct stat buffer;
 #endif
 	mmn_char_cptr_t path = NULL;
-	size_t path_len = 0;
+	mmint_t path_len = 0;
 	mgec_t ec = mgu__to_cns(_path, _slen, &path, &path_len, 0);
 	if (MEGO_SYMBOL__UNLIKELY(ec != 0))
 		return ec;
