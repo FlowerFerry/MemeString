@@ -47,7 +47,7 @@ extern "C" {
 MG_CAPI_INLINE mgec_t mgfs__check_and_create_w_dirs_if_needed(
     const wchar_t *_path, mmint_t _slen, int _create_if_needed, int _path_allow_modified)
 {
-    size_t path_len = 0;
+    mmint_t path_len = 0;
     const wchar_t *path = NULL;
     mgec_t ec = 0;
     if (MEGO_SYMBOL__UNLIKELY(_path == NULL))
