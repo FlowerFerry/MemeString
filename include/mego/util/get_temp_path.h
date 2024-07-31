@@ -54,7 +54,8 @@ extern "C" {
             return -1;
         }
 
-        strncpy(_out, tmp_path, _capacity);
+        strncpy(_out, tmp_path, _capacity - 1);
+        _out[_capacity - 1] = '\0';
 #endif
         return 0;
     }

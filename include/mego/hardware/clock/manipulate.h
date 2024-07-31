@@ -81,7 +81,7 @@ MG_CAPI_INLINE int mghw_clock__get_first_rtc_path(
         }
     }
     if (!ret) {
-        strncpy(_path, rtc_paths[index], _path_len);
+        strncpy(_path, rtc_paths[index], _path_len - 1);
         _path[_path_len - 1] = '\0';
     }
     return ret;
