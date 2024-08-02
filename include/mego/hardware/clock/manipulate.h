@@ -6,6 +6,7 @@
 #include <mego/predef/symbol/inline.h>
 #include <mego/util/std/time.h>
 #include <mego/predef/architecture/x86.h>
+#include <mego/util/std/string.h>
 
 #if MG_OS__LINUX_AVAIL
 #include <string.h>
@@ -81,8 +82,7 @@ MG_CAPI_INLINE int mghw_clock__get_first_rtc_path(
         }
     }
     if (!ret) {
-        strncpy(_path, rtc_paths[index], _path_len - 1);
-        _path[_path_len - 1] = '\0';
+        mgu_strncpy_s(_path, _path_len, rtc_paths[index], _path_len - 1);
     }
     return ret;
 #else

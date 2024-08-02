@@ -9,6 +9,7 @@
 #include <mego/err/ec.h>
 #include <mego/err/ec_impl.h>
 #include <mego/util/math.h>
+#include <mego/util/std/string.h>
 
 //! @brief 获取当前用户的语言设置。
 MG_CAPI_INLINE mgec_t mgu__get_user_language(char* _language, size_t _size) 
@@ -36,8 +37,8 @@ MG_CAPI_INLINE mgec_t mgu__get_user_language(char* _language, size_t _size)
         if (pos == NULL)
             return MGEC__ERR;
 
-        strncpy(_language, lang, MGU_MATH__MIN(lang - pos, _size - 1));
-        _language[_size - 1] = '\0';
+        mgu_strncpy_s(_language, _size, lang, MGU_MATH__MIN(lang - pos, _size - 1));
+
     } while (0);
     return 0;
 #else

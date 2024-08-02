@@ -5,6 +5,7 @@
 #include <mego/predef/os/windows.h>
 #include <mego/predef/symbol/inline.h>
 #include <mego/util/std/errno.h>
+#include <mego/util/std/stddef.h>
 #include <mego/predef/symbol/likely.h>
 
 #ifndef __STDC_WANT_LIB_EXT1__
@@ -22,7 +23,7 @@
 #else
 
 MG_CAPI_INLINE errno_t mgu_strncpy_s(
-    char* _dest, size_t _destsz, const char* _src, size_t _count) 
+    char* _dest, rsize_t _destsz, const char* _src, rsize_t _count) 
 {
     if (MG_SYM__UNLIKELY(_dest == NULL || _destsz == 0)) 
         return EINVAL;
@@ -33,7 +34,7 @@ MG_CAPI_INLINE errno_t mgu_strncpy_s(
         return EINVAL;
     }
 
-    if (MG_SYM__UNLIKELY(_count >= _destsz)) 
+    if (MG_SYM__UNLIKELY(_count >= _destsz || _destsz > RSIZE_MAX)) 
     {
         _dest[0] = '\0';
         return ERANGE;

@@ -9,6 +9,7 @@
 #include <mego/err/ec.h>
 #include <mego/err/ec_impl.h>
 #include <mego/util/math.h>
+#include <mego/util/std/string.h>
 
 //! @brief 获取当前用户的国家/地区设置。
 MG_CAPI_INLINE mgec_t mgu__get_user_country(char* _country, size_t _size) 
@@ -39,10 +40,9 @@ MG_CAPI_INLINE mgec_t mgu__get_user_country(char* _country, size_t _size)
 
         pos2 = strchr(pos1 + 1, '.');
         if (pos2 == NULL) 
-            strncpy(_country, pos1 + 1, MGU_MATH__MIN(strlen(pos1 + 1), _size - 1));
+            mgu_strncpy_s(_country, _size, pos1 + 1, MGU_MATH__MIN(strlen(pos1 + 1), _size - 1));
         else
-            strncpy(_country, pos1 + 1, MGU_MATH__MIN(pos2 - pos1 - 1,  _size - 1));
-        _country[_size - 1] = '\0';
+            mgu_strncpy_s(_country, _size, pos1 + 1, MGU_MATH__MIN(pos2 - pos1 - 1,  _size - 1));
     } while (0);
     return 0;
 #else

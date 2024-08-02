@@ -6,6 +6,7 @@
 #include <mego/predef/symbol/inline.h>
 #include <mego/util/os/windows/windows_simplify.h>
 #include <meme/utf/converter.h>
+#include <mego/util/std/string.h>
 
 #include <string.h>
 
@@ -54,8 +55,7 @@ extern "C" {
             return -1;
         }
 
-        strncpy(_out, tmp_path, _capacity - 1);
-        _out[_capacity - 1] = '\0';
+        mgu_strncpy_s(_out, _capacity, tmp_path, _capacity - 1);
 #endif
         return 0;
     }
