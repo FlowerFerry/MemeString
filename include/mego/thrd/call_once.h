@@ -1,10 +1,11 @@
-
+﻿
 #ifndef MEGO_THRD_CALL_ONCE_H_INCLUDED
 #define MEGO_THRD_CALL_ONCE_H_INCLUDED
 
 #include "mego/predef/threads.h"
 #include <mego/predef/symbol/inline.h>
 #include <stdint.h>
+#include <assert.h>
 
 #ifdef __cplusplus
 extern "C" {
