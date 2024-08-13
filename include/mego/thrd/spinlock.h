@@ -36,7 +36,7 @@ MG_CAPI_INLINE void mgthrd_spinlock_unlock(mgthrd_spinlock_t*_lock)
     mgu_atomic_flag_clear(&_lock->locked);
 }
 
-MG_CAPI_INLINE void mgthrd_spinlock_lock_all(mgthrd_spinlock_t*_locks, size_t _n)
+MG_CAPI_INLINE void mgthrd_spinlock_lock_all(mgthrd_spinlock_t*_locks[], size_t _n)
 {
     size_t locked_count = 0;
     mgthrd_spinwait_t spinwait;
@@ -45,14 +45,14 @@ MG_CAPI_INLINE void mgthrd_spinlock_lock_all(mgthrd_spinlock_t*_locks, size_t _n
     {
         for(size_t i = 0; i < _n; ++i) 
         {
-            if (&_locks[i] == NULL)
+            if (_locks[i] == NULL)
                 continue;
 
-            if(!mgthrd_spinlock_trylock(&_locks[i]))
+            if(!mgthrd_spinlock_trylock(_locks[i]))
             {
                 for (size_t j = 0; j < i; ++j) 
                 {
-                    mgthrd_spinlock_unlock(&_locks[j]);
+                    mgthrd_spinlock_unlock(_locks[j]);
                 }
                 locked_count = 0;
                 mgthrd_spinwait_once(&spinwait);
@@ -63,13 +63,13 @@ MG_CAPI_INLINE void mgthrd_spinlock_lock_all(mgthrd_spinlock_t*_locks, size_t _n
     }
 }
 
-MG_CAPI_INLINE void mgthrd_spinlock_unlock_all(mgthrd_spinlock_t*_locks, size_t _n)
+MG_CAPI_INLINE void mgthrd_spinlock_unlock_all(mgthrd_spinlock_t*_locks[], size_t _n)
 {
     for(size_t i = 0; i < _n; ++i) 
     {
-        if (&_locks[i] == NULL)
+        if (_locks[i] == NULL)
             continue;
-        mgthrd_spinlock_unlock(&_locks[i]);
+        mgthrd_spinlock_unlock(_locks[i]);
     }
     
 }
