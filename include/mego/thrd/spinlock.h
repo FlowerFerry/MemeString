@@ -45,6 +45,9 @@ MG_CAPI_INLINE void mgthrd_spinlock_lock_all(mgthrd_spinlock_t*_locks, size_t _n
     {
         for(size_t i = 0; i < _n; ++i) 
         {
+            if (&_locks[i] == NULL)
+                continue;
+
             if(!mgthrd_spinlock_trylock(&_locks[i]))
             {
                 for (size_t j = 0; j < i; ++j) 
@@ -63,7 +66,11 @@ MG_CAPI_INLINE void mgthrd_spinlock_lock_all(mgthrd_spinlock_t*_locks, size_t _n
 MG_CAPI_INLINE void mgthrd_spinlock_unlock_all(mgthrd_spinlock_t*_locks, size_t _n)
 {
     for(size_t i = 0; i < _n; ++i) 
+    {
+        if (&_locks[i] == NULL)
+            continue;
         mgthrd_spinlock_unlock(&_locks[i]);
+    }
     
 }
 
