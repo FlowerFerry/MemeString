@@ -627,6 +627,7 @@ public:
 
     memepp::string message(int _errval) const noexcept override
     {
+        (void)_errval;
         return {};
     }
     
