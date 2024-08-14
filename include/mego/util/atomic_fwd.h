@@ -51,7 +51,7 @@ typedef struct mgu_atomic_flag { mgu_atomic_bool value_; } mgu_atomic_flag;
 
 #define MGU_ATOMIC_FLAG_INIT { false }
 
-#else
+#elif defined(__STDC_NO_ATOMICS__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
 #  include <stdatomic.h>
 

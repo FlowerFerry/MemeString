@@ -14,7 +14,7 @@
 #include <string.h>
 #include <assert.h>
 
-#include <yvals.h>
+#include <crtdbg.h>
 #include <intrin.h>
 
 
@@ -2214,7 +2214,7 @@ MG_CAPI_INLINE void mgu_atomic_flag_clear_explicit(
 #undef __MGU_ATOMIC_INTRIN_ACQ_REL
 #undef __MGU_ATOMIC_YIELD_PROCESSOR
 
-#else
+#elif defined(__STDC_NO_ATOMICS__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
 #define mgu_atomic_is_lock_free(obj) atomic_is_lock_free(obj)
 #define mgu_atomic_init(obj,desired) atomic_init(obj,desired)
