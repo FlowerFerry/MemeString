@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-#if MG_COMP__MSVC_AVAIL && (!defined(__STDC_VERSION__) || __STDC_VERSION__ < 201112L)
+#if MG_COMP__MSVC_AVAIL && !defined(__STDC_NO_ATOMICS__)
 
 #define MGU_ATOMIC_BOOL_LOCK_FREE     2
 #define MGU_ATOMIC_CHAR_LOCK_FREE     2

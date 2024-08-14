@@ -5,21 +5,54 @@
 #include "atomic_fwd.h"
 #include <mego/predef/symbol/inline.h>
 #include <mego/predef/lang/version.h>
+#include <mego/predef/helper_macros.h>
 
-#if MG_COMP__MSVC_AVAIL 
+#if MG_COMP__MSVC_AVAIL && !defined(__STDC_NO_ATOMICS__)
+
+//! @see vcruntime_c11_atomic_support.h
 
 #include <string.h>
+#include <assert.h>
+
 #include <yvals.h>
 #include <intrin.h>
+
+
+// Interlocked intrinsic mapping for _nf/_acq/_rel
+#if defined(_M_CEE_PURE) || defined(_M_IX86) || (defined(_M_X64) && !defined(_M_ARM64EC))
+#define __MGU_ATOMIC_INTRIN_RELAXED(x) x
+#define __MGU_ATOMIC_INTRIN_ACQUIRE(x) x
+#define __MGU_ATOMIC_INTRIN_RELEASE(x) x
+#define __MGU_ATOMIC_INTRIN_ACQ_REL(x) x
+#ifdef _M_CEE_PURE
+#define __MGU_ATOMIC_YIELD_PROCESSOR()
+#else // ^^^ _M_CEE_PURE / !_M_CEE_PURE vvv
+#define __MGU_ATOMIC_YIELD_PROCESSOR() _mm_pause()
+#endif // ^^^ !_M_CEE_PURE ^^^
+
+#elif defined(_M_ARM) || defined(_M_ARM64) || defined(_M_ARM64EC)
+#define __MGU_ATOMIC_INTRIN_RELAXED(x) MEGO__JOIN(x, _nf)
+#define __MGU_ATOMIC_INTRIN_ACQUIRE(x) MEGO__JOIN(x, _acq)
+#define __MGU_ATOMIC_INTRIN_RELEASE(x) MEGO__JOIN(x, _rel)
+// We don't have interlocked intrinsics for acquire-release ordering, even on
+// ARM32/ARM64, so fall back to sequentially consistent.
+#define __MGU_ATOMIC_INTRIN_ACQ_REL(x) x
+#define __MGU_ATOMIC_YIELD_PROCESSOR() __yield()
+
+#else // ^^^ ARM32/ARM64 / unsupported hardware vvv
+#error Unsupported hardware
+#endif // hardware
+// end code from xatomic.h
+
 
 // Padding bits should not participate in cmpxchg comparison starting in C++20.
 // Clang does not have __builtin_zero_non_value_bits to exclude these bits to implement this C++20 feature.
 // The EDG front-end substitutes everything and runs into incomplete types passed to atomic<T>.
-#if MG_LANG__CXX20_AVAIL && !defined(__clang__) /* TRANSITION, LLVM-46685 */ && !defined(__EDG__)
-#define __MGU_ATOMIC_CMPXCHG_MASK_OUT_PADDING_BITS 1
-#else
-#define __MGU_ATOMIC_CMPXCHG_MASK_OUT_PADDING_BITS 0
-#endif
+//#if MG_LANG__CXX20_AVAIL && !defined(__clang__) /* TRANSITION, LLVM-46685 */ && !defined(__EDG__)
+//#define __MGU_ATOMIC_CMPXCHG_MASK_OUT_PADDING_BITS 1
+//#else
+//#define __MGU_ATOMIC_CMPXCHG_MASK_OUT_PADDING_BITS 0
+//#endif
 
 // Controls whether ARM64 ldar/ldapr/stlr should be used
 #ifndef __MGU_ATOMIC_USE_ARM64_LDAR_STLR
@@ -87,11 +120,11 @@
 
 #define __MGU_ATOMIC_STORE_RELEASE(_Width, _Ptr, _Desired)       \
     __mgu_atomic_compiler_or_memory_barrier();                   \
-    WriteNoFence##_Width((_Ptr), (_Desired));
+    __iso_volatile_store##_Width((_Ptr), (_Desired));
 
 #define __MGU_ATOMIC_STORE_SWITCH_PREFIX(_Width, _Ptr, _Desired) \
     case mgu_memory_order_relaxed:                               \
-        WriteNoFence##_Width((_Ptr), (_Desired));        \
+        __iso_volatile_store##_Width((_Ptr), (_Desired));        \
         return;                                                  \
     case mgu_memory_order_release:                               \
         __MGU_ATOMIC_STORE_RELEASE(_Width, _Ptr, _Desired)       \
@@ -101,7 +134,7 @@
     case mgu_memory_order_acquire:                               \
     case mgu_memory_order_acq_rel:                               \
         __MGU_ATOMIC_INVALID_MEMORY_ORDER;                       \
-        _FALLTHROUGH;
+        /*FALLTHROUGH*/;
 
 #define __MGU_ATOMIC_POST_LOAD_BARRIER_AS_NEEDED(_Order_var) \
     switch (_Order_var) {                                    \
@@ -127,18 +160,18 @@
 #define __MGU_ATOMIC_CHOOSE_INTRINSIC(_Order, _Result, _Intrinsic, ...) \
     switch (_Order) {                                                   \
     case mgu_memory_order_relaxed:                                      \
-        _Result = _INTRIN_RELAXED(_Intrinsic)(__VA_ARGS__);             \
+        _Result = __MGU_ATOMIC_INTRIN_RELAXED(_Intrinsic)(__VA_ARGS__); \
         break;                                                          \
     case mgu_memory_order_consume:                                      \
     case mgu_memory_order_acquire:                                      \
-        _Result = _INTRIN_ACQUIRE(_Intrinsic)(__VA_ARGS__);             \
+        _Result = __MGU_ATOMIC_INTRIN_ACQUIRE(_Intrinsic)(__VA_ARGS__); \
         break;                                                          \
     case mgu_memory_order_release:                                      \
-        _Result = _INTRIN_RELEASE(_Intrinsic)(__VA_ARGS__);             \
+        _Result = __MGU_ATOMIC_INTRIN_RELEASE(_Intrinsic)(__VA_ARGS__); \
         break;                                                          \
     default:                                                            \
         __MGU_ATOMIC_INVALID_MEMORY_ORDER;                              \
-        _FALLTHROUGH;                                                   \
+        /*FALLTHROUGH*/;                                                \
     case mgu_memory_order_acq_rel:                                      \
     case mgu_memory_order_seq_cst:                                      \
         _Result = _Intrinsic(__VA_ARGS__);                              \
@@ -154,7 +187,7 @@
 #define __MGU_ATOMIC_LOAD_ARM64(_Result, _Width, _Ptr, _Order_var) \
     switch (_Order_var) {                                          \
     case mgu_memory_order_relaxed:                                 \
-        _Result = ReadNoFence##_Width(_Ptr);                       \
+        _Result = __iso_volatile_load##_Width(_Ptr);               \
         break;                                                     \
     case mgu_memory_order_consume:                                 \
     case mgu_memory_order_acquire:                                 \
@@ -165,22 +198,12 @@
     case mgu_memory_order_release:                                 \
     case mgu_memory_order_acq_rel:                                 \
     default:                                                       \
-        _Result = ReadNoFence##_Width(_Ptr);                       \
+        _Result = __iso_volatile_load##_Width(_Ptr);               \
         __MGU_ATOMIC_INVALID_MEMORY_ORDER;                         \
         break;                                                     \
     }
 
 #endif
-
-MG_CAPI_INLINE
-VOID
-WriteNoFence32(
-    _Out_ _Interlocked_operand_ LONG volatile* Destination,
-    _In_ LONG Value
-)
-{
-    WriteNoFence(Destination, Value);
-}
 
 MG_CAPI_INLINE void __mgu_atomic_check_memory_order(const unsigned int _Order) {
     if (_Order > mgu_memory_order_seq_cst) {
@@ -188,15 +211,26 @@ MG_CAPI_INLINE void __mgu_atomic_check_memory_order(const unsigned int _Order) {
     }
 }
 
-MG_CAPI_INLINE bool __mgu_atomic_is_lock_free_bool  (volatile mgu_atomic_bool*   _obj) { return true; }
-MG_CAPI_INLINE bool __mgu_atomic_is_lock_free_int8  (volatile mgu_atomic_char*   _obj) { return true; }
-MG_CAPI_INLINE bool __mgu_atomic_is_lock_free_uint8 (volatile mgu_atomic_uchar*  _obj) { return true; }
-MG_CAPI_INLINE bool __mgu_atomic_is_lock_free_int16 (volatile mgu_atomic_short*  _obj) { return true; }
-MG_CAPI_INLINE bool __mgu_atomic_is_lock_free_uint16(volatile mgu_atomic_ushort* _obj) { return true; }
-MG_CAPI_INLINE bool __mgu_atomic_is_lock_free_int32 (volatile mgu_atomic_long*   _obj) { return true; }
-MG_CAPI_INLINE bool __mgu_atomic_is_lock_free_uint32(volatile mgu_atomic_ulong*  _obj) { return true; }
-MG_CAPI_INLINE bool __mgu_atomic_is_lock_free_int64 (volatile mgu_atomic_llong*  _obj) { return true; }
-MG_CAPI_INLINE bool __mgu_atomic_is_lock_free_uint64(volatile mgu_atomic_ullong* _obj) { return true; }
+//! @see winnt.h
+//MG_CAPI_INLINE
+//VOID
+//WriteNoFence32(
+//    _Out_ _Interlocked_operand_ LONG volatile* Destination,
+//    _In_ LONG Value
+//)
+//{
+//    WriteNoFence(Destination, Value);
+//}
+
+MG_CAPI_INLINE bool mgu_atomic_is_lock_free_bool  (volatile mgu_atomic_bool*   _obj) { return true; }
+MG_CAPI_INLINE bool mgu_atomic_is_lock_free_int8  (volatile mgu_atomic_char*   _obj) { return true; }
+MG_CAPI_INLINE bool mgu_atomic_is_lock_free_uint8 (volatile mgu_atomic_uchar*  _obj) { return true; }
+MG_CAPI_INLINE bool mgu_atomic_is_lock_free_int16 (volatile mgu_atomic_short*  _obj) { return true; }
+MG_CAPI_INLINE bool mgu_atomic_is_lock_free_uint16(volatile mgu_atomic_ushort* _obj) { return true; }
+MG_CAPI_INLINE bool mgu_atomic_is_lock_free_int32 (volatile mgu_atomic_long*   _obj) { return true; }
+MG_CAPI_INLINE bool mgu_atomic_is_lock_free_uint32(volatile mgu_atomic_ulong*  _obj) { return true; }
+MG_CAPI_INLINE bool mgu_atomic_is_lock_free_int64 (volatile mgu_atomic_llong*  _obj) { return true; }
+MG_CAPI_INLINE bool mgu_atomic_is_lock_free_uint64(volatile mgu_atomic_ullong* _obj) { return true; }
  
 #ifdef __cplusplus
 
@@ -210,172 +244,186 @@ MG_CAPI_INLINE bool __mgu_atomic_is_lock_free(volatile mgu_atomic_ulong*  _obj) 
 MG_CAPI_INLINE bool __mgu_atomic_is_lock_free(volatile mgu_atomic_llong*  _obj) { return true; }
 MG_CAPI_INLINE bool __mgu_atomic_is_lock_free(volatile mgu_atomic_ullong* _obj) { return true; }
 
-#elif !defined(__STDC_NO_ATOMICS__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
 #define __mgu_atomic_is_lock_free(obj) \
 _Generic((obj), \
-    volatile mgu_atomic_bool*: __mgu_atomic_is_lock_free_bool,     \
-    volatile mgu_atomic_char*: __mgu_atomic_is_lock_free_int8,     \
-    volatile mgu_atomic_uchar*: __mgu_atomic_is_lock_free_uint8,   \
-    volatile mgu_atomic_short*: __mgu_atomic_is_lock_free_int16,   \
-    volatile mgu_atomic_ushort*: __mgu_atomic_is_lock_free_uint16, \
-    volatile mgu_atomic_long*: __mgu_atomic_is_lock_free_int32,    \
-    volatile mgu_atomic_ulong*: __mgu_atomic_is_lock_free_uint32,  \
-    volatile mgu_atomic_llong*: __mgu_atomic_is_lock_free_int64,   \
-    volatile mgu_atomic_ullong*: __mgu_atomic_is_lock_free_uint64  \
+    volatile mgu_atomic_bool*  : mgu_atomic_is_lock_free_bool,    \
+    volatile mgu_atomic_char*  : mgu_atomic_is_lock_free_int8,    \
+    volatile mgu_atomic_uchar* : mgu_atomic_is_lock_free_uint8,   \
+    volatile mgu_atomic_short* : mgu_atomic_is_lock_free_int16,   \
+    volatile mgu_atomic_ushort*: mgu_atomic_is_lock_free_uint16,  \
+    volatile mgu_atomic_long*  : mgu_atomic_is_lock_free_int32,   \
+    volatile mgu_atomic_ulong* : mgu_atomic_is_lock_free_uint32,  \
+    volatile mgu_atomic_llong* : mgu_atomic_is_lock_free_int64,   \
+    volatile mgu_atomic_ullong*: mgu_atomic_is_lock_free_uint64   \
 )(obj)
 
 #else
-#  error "C11 or C++11 required for _Generic support"
+
+#define __mgu_atomic_is_lock_free(obj) \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_uchar)  ? mgu_atomic_is_lock_free_uint8 ((volatile mgu_atomic_uchar*)obj) :  \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_ushort) ? mgu_atomic_is_lock_free_uint16((volatile mgu_atomic_ushort*)obj) : \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_ulong)  ? mgu_atomic_is_lock_free_uint32((volatile mgu_atomic_ulong*)obj) :  \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_ullong) ? mgu_atomic_is_lock_free_uint64((volatile mgu_atomic_ullong*)obj) : \
+    (assert(false), false)))))
+
 #endif
 
 #define mgu_atomic_is_lock_free(obj) __mgu_atomic_is_lock_free(obj)
 
 
-MG_CAPI_INLINE void __mgu_atomic_init_int8(
+MG_CAPI_INLINE void mgu_atomic_init_int8(
     volatile mgu_atomic_char* _obj, char _desired) { *_obj = _desired; }
 
-MG_CAPI_INLINE void __mgu_atomic_init_uint8(
+MG_CAPI_INLINE void mgu_atomic_init_uint8(
     volatile mgu_atomic_uchar* _obj, unsigned char _desired) { *_obj = _desired; }
 
-MG_CAPI_INLINE void __mgu_atomic_init_int16(
+MG_CAPI_INLINE void mgu_atomic_init_int16(
     volatile mgu_atomic_short* _obj, short _desired) { *_obj = _desired; }
 
-MG_CAPI_INLINE void __mgu_atomic_init_uint16(
+MG_CAPI_INLINE void mgu_atomic_init_uint16(
     volatile mgu_atomic_ushort* _obj, unsigned short _desired) { *_obj = _desired; }
 
-MG_CAPI_INLINE void __mgu_atomic_init_int32(
+MG_CAPI_INLINE void mgu_atomic_init_int32(
     volatile mgu_atomic_long* _obj, long _desired) { *_obj = _desired; }
 
-MG_CAPI_INLINE void __mgu_atomic_init_uint32(
+MG_CAPI_INLINE void mgu_atomic_init_uint32(
     volatile mgu_atomic_ulong* _obj, unsigned long _desired) { *_obj = _desired; }
 
-MG_CAPI_INLINE void __mgu_atomic_init_int64(
+MG_CAPI_INLINE void mgu_atomic_init_int64(
     volatile mgu_atomic_llong* _obj, long long _desired) { *_obj = _desired; }
 
-MG_CAPI_INLINE void __mgu_atomic_init_uint64(
+MG_CAPI_INLINE void mgu_atomic_init_uint64(
     volatile mgu_atomic_ullong* _obj, unsigned long long _desired) { *_obj = _desired; }
 
-MG_CAPI_INLINE void __mgu_atomic_init_bool(volatile mgu_atomic_bool* _obj, bool _desired) { *_obj = _desired; }
+MG_CAPI_INLINE void mgu_atomic_init_bool(volatile mgu_atomic_bool* _obj, bool _desired) { *_obj = _desired; }
 
 
 #ifdef __cplusplus
 
-MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_bool*   _obj, bool _desired) { __mgu_atomic_init_bool(_obj, _desired); }
-MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_char*   _obj, char _desired) { __mgu_atomic_init_int8(_obj, _desired); }
-MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_uchar*  _obj, unsigned char _desired) { __mgu_atomic_init_uint8(_obj, _desired); }
-MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_short*  _obj, short _desired) { __mgu_atomic_init_int16(_obj, _desired); }
-MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_ushort* _obj, unsigned short _desired) { __mgu_atomic_init_uint16(_obj, _desired); }
-MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_long*   _obj, long _desired) { __mgu_atomic_init_int32(_obj, _desired); }
-MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_ulong*  _obj, unsigned long _desired) { __mgu_atomic_init_uint32(_obj, _desired); }
-MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_llong*  _obj, long long _desired) { __mgu_atomic_init_int64(_obj, _desired); }
-MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_ullong* _obj, unsigned long long _desired) { __mgu_atomic_init_uint64(_obj, _desired); }
+MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_bool*   _obj, bool _desired) { mgu_atomic_init_bool(_obj, _desired); }
+MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_char*   _obj, char _desired) { mgu_atomic_init_int8(_obj, _desired); }
+MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_uchar*  _obj, unsigned char _desired) { mgu_atomic_init_uint8(_obj, _desired); }
+MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_short*  _obj, short _desired) { mgu_atomic_init_int16(_obj, _desired); }
+MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_ushort* _obj, unsigned short _desired) { mgu_atomic_init_uint16(_obj, _desired); }
+MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_long*   _obj, long _desired) { mgu_atomic_init_int32(_obj, _desired); }
+MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_ulong*  _obj, unsigned long _desired) { mgu_atomic_init_uint32(_obj, _desired); }
+MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_llong*  _obj, long long _desired) { mgu_atomic_init_int64(_obj, _desired); }
+MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_ullong* _obj, unsigned long long _desired) { mgu_atomic_init_uint64(_obj, _desired); }
 
-#elif !defined(__STDC_NO_ATOMICS__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
-#define __mgu_atomic_init(obj,desired)                     \
-_Generic((obj),                                            \
-    volatile mgu_atomic_bool*: __mgu_atomic_init_bool,     \
-    volatile mgu_atomic_char*: __mgu_atomic_init_int8,     \
-    volatile mgu_atomic_uchar*: __mgu_atomic_init_uint8,   \
-    volatile mgu_atomic_short*: __mgu_atomic_init_int16,   \
-    volatile mgu_atomic_ushort*: __mgu_atomic_init_uint16, \
-    volatile mgu_atomic_long*: __mgu_atomic_init_int32,    \
-    volatile mgu_atomic_ulong*: __mgu_atomic_init_uint32,  \
-    volatile mgu_atomic_llong*: __mgu_atomic_init_int64,   \
-    volatile mgu_atomic_ullong*: __mgu_atomic_init_uint64  \
+#define __mgu_atomic_init(obj,desired)                   \
+_Generic((obj),                                          \
+    volatile mgu_atomic_bool*  : mgu_atomic_init_bool,   \
+    volatile mgu_atomic_char*  : mgu_atomic_init_int8,   \
+    volatile mgu_atomic_uchar* : mgu_atomic_init_uint8,  \
+    volatile mgu_atomic_short* : mgu_atomic_init_int16,  \
+    volatile mgu_atomic_ushort*: mgu_atomic_init_uint16, \
+    volatile mgu_atomic_long*  : mgu_atomic_init_int32,  \
+    volatile mgu_atomic_ulong* : mgu_atomic_init_uint32, \
+    volatile mgu_atomic_llong* : mgu_atomic_init_int64,  \
+    volatile mgu_atomic_ullong*: mgu_atomic_init_uint64  \
 )(obj,desired)
 
 #else
-#  error "C11 or C++11 required for _Generic support"
+
+#define __mgu_atomic_init(obj,desired) \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_uchar)  ? mgu_atomic_init_uint8 ((volatile mgu_atomic_uchar*)(obj), (unsigned char)desired) : \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_ushort) ? mgu_atomic_init_uint16((volatile mgu_atomic_ushort*)(obj), (unsigned short)desired) : \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_ulong)  ? mgu_atomic_init_uint32((volatile mgu_atomic_ulong*)(obj), (unsigned long)desired) : \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_ullong) ? mgu_atomic_init_uint64((volatile mgu_atomic_ullong*)(obj), (unsigned long long)desired) : \
+    (assert(0), (void)0)))))
+
 #endif
 
 #define mgu_atomic_init(obj,desired) __mgu_atomic_init(obj,desired)
 
 
-MG_CAPI_INLINE char __mgu_atomic_exchange_int8(
+MG_CAPI_INLINE char mgu_atomic_exchange_int8(
     volatile mgu_atomic_char* _obj, char _desired)
 {
     return InterlockedExchange8(_obj, _desired);
 }
 
-MG_CAPI_INLINE unsigned char __mgu_atomic_exchange_uint8(
+MG_CAPI_INLINE unsigned char mgu_atomic_exchange_uint8(
     volatile mgu_atomic_uchar* _obj, unsigned char _desired)
 {
     char ret = InterlockedExchange8((volatile char*)_obj, *((char*)&_desired));
     return *((unsigned char*)&ret);
 }
 
-MG_CAPI_INLINE short __mgu_atomic_exchange_int16(
+MG_CAPI_INLINE short mgu_atomic_exchange_int16(
     volatile mgu_atomic_short* _obj, short _desired)
 {
     return InterlockedExchange16(_obj, _desired);
 }
 
-MG_CAPI_INLINE unsigned short __mgu_atomic_exchange_uint16(
+MG_CAPI_INLINE unsigned short mgu_atomic_exchange_uint16(
     volatile mgu_atomic_ushort* _obj, unsigned short _desired)
 {
     short ret = InterlockedExchange16((volatile short*)_obj, *((short*)&_desired));
     return *((unsigned short*)&ret);
 }
 
-MG_CAPI_INLINE long __mgu_atomic_exchange_int32(
+MG_CAPI_INLINE long mgu_atomic_exchange_int32(
     volatile mgu_atomic_long* _obj, long _desired)
 {
     return InterlockedExchange(_obj, _desired);
 }
 
-MG_CAPI_INLINE unsigned long __mgu_atomic_exchange_uint32(
+MG_CAPI_INLINE unsigned long mgu_atomic_exchange_uint32(
     volatile mgu_atomic_ulong* _obj, unsigned long _desired)
 {
     long ret = InterlockedExchange((volatile long*)_obj, *((long*)&_desired));
     return *((unsigned long*)&ret);
 }
 
-MG_CAPI_INLINE long long __mgu_atomic_exchange_int64(
+MG_CAPI_INLINE long long mgu_atomic_exchange_int64(
     volatile mgu_atomic_llong* _obj, long long _desired)
 {
     return InterlockedExchange64(_obj, _desired);
 }
 
-MG_CAPI_INLINE unsigned long long __mgu_atomic_exchange_uint64(
+MG_CAPI_INLINE unsigned long long mgu_atomic_exchange_uint64(
     volatile mgu_atomic_ullong* _obj, unsigned long long _desired)
 {
     long long ret = InterlockedExchange64((volatile long long*)_obj, *((long long*)&_desired));
     return *((unsigned long long*)&ret);
 }
 
-MG_CAPI_INLINE bool __mgu_atomic_exchange_bool(
+MG_CAPI_INLINE bool mgu_atomic_exchange_bool(
     volatile mgu_atomic_bool* _obj, bool _desired)
 {
-    return (bool)__mgu_atomic_exchange_int8((volatile mgu_atomic_char*)_obj, (char)_desired);
+    return (bool)mgu_atomic_exchange_int8((volatile mgu_atomic_char*)_obj, (char)_desired);
 }
 
 #ifdef __cplusplus
 
-MG_CAPI_INLINE bool __mgu_atomic_exchange(volatile mgu_atomic_bool* _obj, bool _desired) { return __mgu_atomic_exchange_bool(_obj, _desired); }
-MG_CAPI_INLINE char __mgu_atomic_exchange(volatile mgu_atomic_char* _obj, char _desired) { return __mgu_atomic_exchange_int8(_obj, _desired); }
-MG_CAPI_INLINE unsigned char __mgu_atomic_exchange(volatile mgu_atomic_uchar* _obj, unsigned char _desired) { return __mgu_atomic_exchange_uint8(_obj, _desired); }
-MG_CAPI_INLINE short __mgu_atomic_exchange(volatile mgu_atomic_short* _obj, short _desired) { return __mgu_atomic_exchange_int16(_obj, _desired); }
-MG_CAPI_INLINE unsigned short __mgu_atomic_exchange(volatile mgu_atomic_ushort* _obj, unsigned short _desired) { return __mgu_atomic_exchange_uint16(_obj, _desired); }
-MG_CAPI_INLINE long __mgu_atomic_exchange(volatile mgu_atomic_long* _obj, long _desired) { return __mgu_atomic_exchange_int32(_obj, _desired); }
-MG_CAPI_INLINE unsigned long __mgu_atomic_exchange(volatile mgu_atomic_ulong* _obj, unsigned long _desired) { return __mgu_atomic_exchange_uint32(_obj, _desired); }
-MG_CAPI_INLINE long long __mgu_atomic_exchange(volatile mgu_atomic_llong* _obj, long long _desired) { return __mgu_atomic_exchange_int64(_obj, _desired); }
-MG_CAPI_INLINE unsigned long long __mgu_atomic_exchange(volatile mgu_atomic_ullong* _obj, unsigned long long _desired) { return __mgu_atomic_exchange_uint64(_obj, _desired); }
+MG_CAPI_INLINE bool __mgu_atomic_exchange(volatile mgu_atomic_bool* _obj, bool _desired) { return mgu_atomic_exchange_bool(_obj, _desired); }
+MG_CAPI_INLINE char __mgu_atomic_exchange(volatile mgu_atomic_char* _obj, char _desired) { return mgu_atomic_exchange_int8(_obj, _desired); }
+MG_CAPI_INLINE unsigned char __mgu_atomic_exchange(volatile mgu_atomic_uchar* _obj, unsigned char _desired) { return mgu_atomic_exchange_uint8(_obj, _desired); }
+MG_CAPI_INLINE short __mgu_atomic_exchange(volatile mgu_atomic_short* _obj, short _desired) { return mgu_atomic_exchange_int16(_obj, _desired); }
+MG_CAPI_INLINE unsigned short __mgu_atomic_exchange(volatile mgu_atomic_ushort* _obj, unsigned short _desired) { return mgu_atomic_exchange_uint16(_obj, _desired); }
+MG_CAPI_INLINE long __mgu_atomic_exchange(volatile mgu_atomic_long* _obj, long _desired) { return mgu_atomic_exchange_int32(_obj, _desired); }
+MG_CAPI_INLINE unsigned long __mgu_atomic_exchange(volatile mgu_atomic_ulong* _obj, unsigned long _desired) { return mgu_atomic_exchange_uint32(_obj, _desired); }
+MG_CAPI_INLINE long long __mgu_atomic_exchange(volatile mgu_atomic_llong* _obj, long long _desired) { return mgu_atomic_exchange_int64(_obj, _desired); }
+MG_CAPI_INLINE unsigned long long __mgu_atomic_exchange(volatile mgu_atomic_ullong* _obj, unsigned long long _desired) { return mgu_atomic_exchange_uint64(_obj, _desired); }
 
-#elif !defined(__STDC_NO_ATOMICS__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
-#define __mgu_atomic_exchange(obj,desired)        \
-_Generic((obj),                                   \
-mgu_atomic_bool*: __mgu_atomic_exchange_bool,     \
-mgu_atomic_char*: __mgu_atomic_exchange_int8,     \
-mgu_atomic_uchar*: __mgu_atomic_exchange_uint8,   \
-mgu_atomic_short*: __mgu_atomic_exchange_int16,   \
-mgu_atomic_ushort*: __mgu_atomic_exchange_uint16, \
-mgu_atomic_long*: __mgu_atomic_exchange_int32,    \
-mgu_atomic_ulong*: __mgu_atomic_exchange_uint32,  \
-mgu_atomic_llong*: __mgu_atomic_exchange_int64,   \
-mgu_atomic_ullong*: __mgu_atomic_exchange_uint64  \
+#define __mgu_atomic_exchange(obj,desired)      \
+_Generic((obj),                                 \
+mgu_atomic_bool*  : mgu_atomic_exchange_bool,   \
+mgu_atomic_char*  : mgu_atomic_exchange_int8,   \
+mgu_atomic_uchar* : mgu_atomic_exchange_uint8,  \
+mgu_atomic_short* : mgu_atomic_exchange_int16,  \
+mgu_atomic_ushort*: mgu_atomic_exchange_uint16, \
+mgu_atomic_long*  : mgu_atomic_exchange_int32,  \
+mgu_atomic_ulong* : mgu_atomic_exchange_uint32, \
+mgu_atomic_llong* : mgu_atomic_exchange_int64,  \
+mgu_atomic_ullong*: mgu_atomic_exchange_uint64  \
 )(obj, desired)
 
 #else
@@ -386,7 +434,7 @@ mgu_atomic_ullong*: __mgu_atomic_exchange_uint64  \
 #define mgu_atomic_store(obj,desired)    __mgu_atomic_exchange(obj,desired)
 
 
-MG_CAPI_INLINE char __mgu_atomic_exchange_explicit_int8(
+MG_CAPI_INLINE char mgu_atomic_exchange_explicit_int8(
     volatile mgu_atomic_char* _obj, char _desired, mgu_memory_order _order)
 {
     char ret;
@@ -394,15 +442,15 @@ MG_CAPI_INLINE char __mgu_atomic_exchange_explicit_int8(
     return ret;
 }
 
-MG_CAPI_INLINE unsigned char __mgu_atomic_exchange_explicit_uint8(
+MG_CAPI_INLINE unsigned char mgu_atomic_exchange_explicit_uint8(
     volatile mgu_atomic_uchar* _obj, unsigned char _desired, mgu_memory_order _order)
 {
-    char ret = __mgu_atomic_exchange_explicit_int8(
+    char ret = mgu_atomic_exchange_explicit_int8(
         (volatile mgu_atomic_char*)_obj, *((char*)&_desired), _order);
     return *((unsigned char*)&ret);
 }
 
-MG_CAPI_INLINE short __mgu_atomic_exchange_explicit_int16(
+MG_CAPI_INLINE short mgu_atomic_exchange_explicit_int16(
     volatile mgu_atomic_short* _obj, short _desired, mgu_memory_order _order)
 {
     short ret;
@@ -410,15 +458,15 @@ MG_CAPI_INLINE short __mgu_atomic_exchange_explicit_int16(
     return ret;
 }
 
-MG_CAPI_INLINE unsigned short __mgu_atomic_exchange_explicit_uint16(
+MG_CAPI_INLINE unsigned short mgu_atomic_exchange_explicit_uint16(
     volatile mgu_atomic_ushort* _obj, unsigned short _desired, mgu_memory_order _order)
 {
-    short ret = __mgu_atomic_exchange_explicit_int16(
+    short ret = mgu_atomic_exchange_explicit_int16(
         (volatile mgu_atomic_short*)_obj, *((short*)&_desired), _order);
     return *((unsigned short*)&ret);
 }
 
-MG_CAPI_INLINE long __mgu_atomic_exchange_explicit_int32(
+MG_CAPI_INLINE long mgu_atomic_exchange_explicit_int32(
     volatile mgu_atomic_long* _obj, long _desired, mgu_memory_order _order)
 {
     long ret;
@@ -426,15 +474,15 @@ MG_CAPI_INLINE long __mgu_atomic_exchange_explicit_int32(
     return ret;
 }
 
-MG_CAPI_INLINE unsigned long __mgu_atomic_exchange_explicit_uint32(
+MG_CAPI_INLINE unsigned long mgu_atomic_exchange_explicit_uint32(
     volatile mgu_atomic_ulong* _obj, unsigned long _desired, mgu_memory_order _order)
 {
-    long ret = __mgu_atomic_exchange_explicit_int32(
+    long ret = mgu_atomic_exchange_explicit_int32(
         (volatile mgu_atomic_long*)_obj, *((long*)&_desired), _order);
     return *((unsigned long*)&ret);
 }
 
-MG_CAPI_INLINE long long __mgu_atomic_exchange_explicit_int64(
+MG_CAPI_INLINE long long mgu_atomic_exchange_explicit_int64(
     volatile mgu_atomic_llong* _obj, long long _desired, mgu_memory_order _order)
 {
     long long ret;
@@ -442,18 +490,18 @@ MG_CAPI_INLINE long long __mgu_atomic_exchange_explicit_int64(
     return ret;
 }
 
-MG_CAPI_INLINE unsigned long long __mgu_atomic_exchange_explicit_uint64(
+MG_CAPI_INLINE unsigned long long mgu_atomic_exchange_explicit_uint64(
     volatile mgu_atomic_ullong* _obj, unsigned long long _desired, mgu_memory_order _order)
 {
-    long long ret = __mgu_atomic_exchange_explicit_int64(
+    long long ret = mgu_atomic_exchange_explicit_int64(
         (volatile mgu_atomic_llong*)_obj, *((long long*)&_desired), _order);
     return *((unsigned long long*)&ret);
 }
 
-MG_CAPI_INLINE bool __mgu_atomic_exchange_explicit_bool(
+MG_CAPI_INLINE bool mgu_atomic_exchange_explicit_bool(
     volatile mgu_atomic_bool* _obj, bool _desired, mgu_memory_order _order)
 {
-    return (bool)__mgu_atomic_exchange_explicit_int8(
+    return (bool)mgu_atomic_exchange_explicit_int8(
         (volatile mgu_atomic_char*)_obj, (char)_desired, _order);
 }
 
@@ -462,62 +510,62 @@ MG_CAPI_INLINE bool __mgu_atomic_exchange_explicit_bool(
 MG_CAPI_INLINE bool __mgu_atomic_exchange_explicit(
     volatile mgu_atomic_bool* _obj, bool _desired, mgu_memory_order _order) 
 { 
-    return __mgu_atomic_exchange_explicit_bool(_obj, _desired, _order); 
+    return mgu_atomic_exchange_explicit_bool(_obj, _desired, _order); 
 }
 MG_CAPI_INLINE char __mgu_atomic_exchange_explicit(
     volatile mgu_atomic_char* _obj, char _desired, mgu_memory_order _order)
 {
-    return __mgu_atomic_exchange_explicit_int8(_obj, _desired, _order);
+    return mgu_atomic_exchange_explicit_int8(_obj, _desired, _order);
 }
 MG_CAPI_INLINE unsigned char __mgu_atomic_exchange_explicit(
     volatile mgu_atomic_uchar* _obj, unsigned char _desired, mgu_memory_order _order)
 {
-    return __mgu_atomic_exchange_explicit_uint8(_obj, _desired, _order);
+    return mgu_atomic_exchange_explicit_uint8(_obj, _desired, _order);
 }
 MG_CAPI_INLINE short __mgu_atomic_exchange_explicit(
     volatile mgu_atomic_short* _obj, short _desired, mgu_memory_order _order)
 {
-    return __mgu_atomic_exchange_explicit_int16(_obj, _desired, _order);
+    return mgu_atomic_exchange_explicit_int16(_obj, _desired, _order);
 }
 MG_CAPI_INLINE unsigned short __mgu_atomic_exchange_explicit(
     volatile mgu_atomic_ushort* _obj, unsigned short _desired, mgu_memory_order _order)
 {
-    return __mgu_atomic_exchange_explicit_uint16(_obj, _desired, _order);
+    return mgu_atomic_exchange_explicit_uint16(_obj, _desired, _order);
 }
 MG_CAPI_INLINE long __mgu_atomic_exchange_explicit(
     volatile mgu_atomic_long* _obj, long _desired, mgu_memory_order _order)
 {
-    return __mgu_atomic_exchange_explicit_int32(_obj, _desired, _order);
+    return mgu_atomic_exchange_explicit_int32(_obj, _desired, _order);
 }
 MG_CAPI_INLINE unsigned long __mgu_atomic_exchange_explicit(
     volatile mgu_atomic_ulong* _obj, unsigned long _desired, mgu_memory_order _order)
 {
-    return __mgu_atomic_exchange_explicit_uint32(_obj, _desired, _order);
+    return mgu_atomic_exchange_explicit_uint32(_obj, _desired, _order);
 }
 MG_CAPI_INLINE long long __mgu_atomic_exchange_explicit(
     volatile mgu_atomic_llong* _obj, long long _desired, mgu_memory_order _order)
 {
-    return __mgu_atomic_exchange_explicit_int64(_obj, _desired, _order);
+    return mgu_atomic_exchange_explicit_int64(_obj, _desired, _order);
 }
 MG_CAPI_INLINE unsigned long long __mgu_atomic_exchange_explicit(
     volatile mgu_atomic_ullong* _obj, unsigned long long _desired, mgu_memory_order _order)
 {
-    return __mgu_atomic_exchange_explicit_uint64(_obj, _desired, _order);
+    return mgu_atomic_exchange_explicit_uint64(_obj, _desired, _order);
 }
 
-#elif !defined(__STDC_NO_ATOMICS__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
-#define __mgu_atomic_exchange_explicit(obj,desired,order)      \
-_Generic((obj),                                                \
-    mgu_atomic_bool*: __mgu_atomic_exchange_explicit_bool,     \
-    mgu_atomic_char*: __mgu_atomic_exchange_explicit_int8,     \
-    mgu_atomic_uchar*: __mgu_atomic_exchange_explicit_uint8,   \
-    mgu_atomic_short*: __mgu_atomic_exchange_explicit_int16,   \
-    mgu_atomic_ushort*: __mgu_atomic_exchange_explicit_uint16, \
-    mgu_atomic_long*: __mgu_atomic_exchange_explicit_int32,    \
-    mgu_atomic_ulong*: __mgu_atomic_exchange_explicit_uint32,  \
-    mgu_atomic_llong*: __mgu_atomic_exchange_explicit_int64,   \
-    mgu_atomic_ullong*: __mgu_atomic_exchange_explicit_uint64  \
+#define __mgu_atomic_exchange_explicit(obj,desired,order)    \
+_Generic((obj),                                              \
+    mgu_atomic_bool*  : mgu_atomic_exchange_explicit_bool,   \
+    mgu_atomic_char*  : mgu_atomic_exchange_explicit_int8,   \
+    mgu_atomic_uchar* : mgu_atomic_exchange_explicit_uint8,  \
+    mgu_atomic_short* : mgu_atomic_exchange_explicit_int16,  \
+    mgu_atomic_ushort*: mgu_atomic_exchange_explicit_uint16, \
+    mgu_atomic_long*  : mgu_atomic_exchange_explicit_int32,  \
+    mgu_atomic_ulong* : mgu_atomic_exchange_explicit_uint32, \
+    mgu_atomic_llong* : mgu_atomic_exchange_explicit_int64,  \
+    mgu_atomic_ullong*: mgu_atomic_exchange_explicit_uint64  \
 )(obj,desired,order)
 
 #else
@@ -527,7 +575,7 @@ _Generic((obj),                                                \
 #define mgu_atomic_exchange_explicit(obj,desired,order) __mgu_atomic_exchange_explicit(obj,desired,order)
 
 
-MG_CAPI_INLINE void __mgu_atomic_store_explicit_int8(
+MG_CAPI_INLINE void mgu_atomic_store_explicit_int8(
     volatile mgu_atomic_char* _obj, char _desired, mgu_memory_order _order)
 {
     switch (_order) {
@@ -538,14 +586,14 @@ MG_CAPI_INLINE void __mgu_atomic_store_explicit_int8(
     }
 }
 
-MG_CAPI_INLINE void __mgu_atomic_store_explicit_uint8(
+MG_CAPI_INLINE void mgu_atomic_store_explicit_uint8(
     volatile mgu_atomic_uchar* _obj, unsigned char _desired, mgu_memory_order _order)
 {
-    __mgu_atomic_store_explicit_int8(
+    mgu_atomic_store_explicit_int8(
         (volatile mgu_atomic_char*)_obj, *((char*)&_desired), _order);
 }
 
-MG_CAPI_INLINE void __mgu_atomic_store_explicit_int16(
+MG_CAPI_INLINE void mgu_atomic_store_explicit_int16(
     volatile mgu_atomic_short* _obj, short _desired, mgu_memory_order _order)
 {
     switch (_order) {
@@ -556,32 +604,32 @@ MG_CAPI_INLINE void __mgu_atomic_store_explicit_int16(
     }
 }
 
-MG_CAPI_INLINE void __mgu_atomic_store_explicit_uint16(
+MG_CAPI_INLINE void mgu_atomic_store_explicit_uint16(
     volatile mgu_atomic_ushort* _obj, unsigned short _desired, mgu_memory_order _order)
 {
-    __mgu_atomic_store_explicit_int16(
+    mgu_atomic_store_explicit_int16(
         (volatile mgu_atomic_short*)_obj, *((short*)&_desired), _order);
 }
 
-MG_CAPI_INLINE void __mgu_atomic_store_explicit_int32(
+MG_CAPI_INLINE void mgu_atomic_store_explicit_int32(
     volatile mgu_atomic_long* _obj, long _desired, mgu_memory_order _order)
 {
     switch (_order) {
-    __MGU_ATOMIC_STORE_SWITCH_PREFIX(32, (volatile long*)_obj, _desired)
+    __MGU_ATOMIC_STORE_SWITCH_PREFIX(32, (volatile int*)_obj, _desired)
     case mgu_memory_order_seq_cst:
         InterlockedExchange(_obj, _desired);
         return;
     }
 }
 
-MG_CAPI_INLINE void __mgu_atomic_store_explicit_uint32(
+MG_CAPI_INLINE void mgu_atomic_store_explicit_uint32(
     volatile mgu_atomic_ulong* _obj, unsigned long _desired, mgu_memory_order _order)
 {
-    __mgu_atomic_store_explicit_int32(
+    mgu_atomic_store_explicit_int32(
         (volatile mgu_atomic_long*)_obj, *((long*)&_desired), _order);
 }
 
-MG_CAPI_INLINE void __mgu_atomic_store_explicit_int64(
+MG_CAPI_INLINE void mgu_atomic_store_explicit_int64(
     volatile mgu_atomic_llong* _obj, long long _desired, mgu_memory_order _order)
 {
     switch (_order) {
@@ -592,17 +640,17 @@ MG_CAPI_INLINE void __mgu_atomic_store_explicit_int64(
     }
 }
 
-MG_CAPI_INLINE void __mgu_atomic_store_explicit_uint64(
+MG_CAPI_INLINE void mgu_atomic_store_explicit_uint64(
     volatile mgu_atomic_ullong* _obj, unsigned long long _desired, mgu_memory_order _order)
 {
-    __mgu_atomic_store_explicit_int64(
+    mgu_atomic_store_explicit_int64(
         (volatile mgu_atomic_llong*)_obj, *((long long*)&_desired), _order);
 }
 
-MG_CAPI_INLINE void __mgu_atomic_store_explicit_bool(
+MG_CAPI_INLINE void mgu_atomic_store_explicit_bool(
     volatile mgu_atomic_bool* _obj, bool _desired, mgu_memory_order _order)
 {
-    __mgu_atomic_store_explicit_uint8(
+    mgu_atomic_store_explicit_uint8(
         (volatile mgu_atomic_uchar*)_obj, *((unsigned char*)&_desired), _order);
 }
 
@@ -611,239 +659,250 @@ MG_CAPI_INLINE void __mgu_atomic_store_explicit_bool(
 MG_CAPI_INLINE void __mgu_atomic_store_explicit(
     volatile mgu_atomic_bool* _obj, bool _desired, mgu_memory_order _order) 
 { 
-    __mgu_atomic_store_explicit_bool(_obj, _desired, _order); 
+    mgu_atomic_store_explicit_bool(_obj, _desired, _order); 
 }
 MG_CAPI_INLINE void __mgu_atomic_store_explicit(
     volatile mgu_atomic_char* _obj, char _desired, mgu_memory_order _order)
 {
-    __mgu_atomic_store_explicit_int8(_obj, _desired, _order);
+    mgu_atomic_store_explicit_int8(_obj, _desired, _order);
 }
 MG_CAPI_INLINE void __mgu_atomic_store_explicit(
     volatile mgu_atomic_uchar* _obj, unsigned char _desired, mgu_memory_order _order)
 {
-    __mgu_atomic_store_explicit_uint8(_obj, _desired, _order);
+    mgu_atomic_store_explicit_uint8(_obj, _desired, _order);
 }
 MG_CAPI_INLINE void __mgu_atomic_store_explicit(
     volatile mgu_atomic_short* _obj, short _desired, mgu_memory_order _order)
 {
-    __mgu_atomic_store_explicit_int16(_obj, _desired, _order);
+    mgu_atomic_store_explicit_int16(_obj, _desired, _order);
 }
 MG_CAPI_INLINE void __mgu_atomic_store_explicit(
     volatile mgu_atomic_ushort* _obj, unsigned short _desired, mgu_memory_order _order)
 {
-    __mgu_atomic_store_explicit_uint16(_obj, _desired, _order);
+    mgu_atomic_store_explicit_uint16(_obj, _desired, _order);
 }
 MG_CAPI_INLINE void __mgu_atomic_store_explicit(
     volatile mgu_atomic_long* _obj, long _desired, mgu_memory_order _order)
 {
-    __mgu_atomic_store_explicit_int32(_obj, _desired, _order);
+    mgu_atomic_store_explicit_int32(_obj, _desired, _order);
 }
 MG_CAPI_INLINE void __mgu_atomic_store_explicit(
     volatile mgu_atomic_ulong* _obj, unsigned long _desired, mgu_memory_order _order)
 {
-    __mgu_atomic_store_explicit_uint32(_obj, _desired, _order);
+    mgu_atomic_store_explicit_uint32(_obj, _desired, _order);
 }
 MG_CAPI_INLINE void __mgu_atomic_store_explicit(
     volatile mgu_atomic_llong* _obj, long long _desired, mgu_memory_order _order)
 {
-    __mgu_atomic_store_explicit_int64(_obj, _desired, _order);
+    mgu_atomic_store_explicit_int64(_obj, _desired, _order);
 }
 MG_CAPI_INLINE void __mgu_atomic_store_explicit(
     volatile mgu_atomic_ullong* _obj, unsigned long long _desired, mgu_memory_order _order)
 {
-    __mgu_atomic_store_explicit_uint64(_obj, _desired, _order);
+    mgu_atomic_store_explicit_uint64(_obj, _desired, _order);
 }
 
-#elif !defined(__STDC_NO_ATOMICS__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
-#define __mgu_atomic_store_explicit(obj,desired,order)      \
-_Generic((desired),                                         \
-    mgu_atomic_bool*: __mgu_atomic_store_explicit_bool,     \
-    mgu_atomic_char*: __mgu_atomic_store_explicit_int8,     \
-    mgu_atomic_uchar*: __mgu_atomic_store_explicit_uint8,   \
-    mgu_atomic_short*: __mgu_atomic_store_explicit_int16,   \
-    mgu_atomic_ushort*: __mgu_atomic_store_explicit_uint16, \
-    mgu_atomic_long*: __mgu_atomic_store_explicit_int32,    \
-    mgu_atomic_ulong*: __mgu_atomic_store_explicit_uint32,  \
-    mgu_atomic_llong*: __mgu_atomic_store_explicit_int64,   \
-    mgu_atomic_ullong*: __mgu_atomic_store_explicit_uint64, \
+#define __mgu_atomic_store_explicit(obj,desired,order)    \
+_Generic((desired),                                       \
+    mgu_atomic_bool*  : mgu_atomic_store_explicit_bool,   \
+    mgu_atomic_char*  : mgu_atomic_store_explicit_int8,   \
+    mgu_atomic_uchar* : mgu_atomic_store_explicit_uint8,  \
+    mgu_atomic_short* : mgu_atomic_store_explicit_int16,  \
+    mgu_atomic_ushort*: mgu_atomic_store_explicit_uint16, \
+    mgu_atomic_long*  : mgu_atomic_store_explicit_int32,  \
+    mgu_atomic_ulong* : mgu_atomic_store_explicit_uint32, \
+    mgu_atomic_llong* : mgu_atomic_store_explicit_int64,  \
+    mgu_atomic_ullong*: mgu_atomic_store_explicit_uint64, \
 )(obj, desired, order)
+
+#else
+
+#define __mgu_atomic_store_explicit(obj,desired,order) \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_uchar)  ? mgu_atomic_store_explicit_uint8 ((volatile mgu_atomic_uchar*)(obj), ((unsigned char)desired), order) : \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_ushort) ? mgu_atomic_store_explicit_uint16((volatile mgu_atomic_ushort*)(obj), ((unsigned short)desired), order) : \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_ulong)  ? mgu_atomic_store_explicit_uint32((volatile mgu_atomic_ulong*)(obj), ((unsigned long)desired), order) : \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_ullong) ? mgu_atomic_store_explicit_uint64((volatile mgu_atomic_ullong*)(obj), ((unsigned long long)desired), order) : \
+    (assert(0), 0)))))
 
 #endif
 
 #define mgu_atomic_store_explicit(obj,desired,order) __mgu_atomic_store_explicit(obj,desired,order)
 
 
-MG_CAPI_INLINE char __mgu_atomic_load_int8(const volatile mgu_atomic_char* _obj)
+MG_CAPI_INLINE char mgu_atomic_load_int8(const volatile mgu_atomic_char* _obj)
 {
-    char ret = ReadNoFence8(_obj);
+    char ret = __iso_volatile_load8(_obj);
     __mgu_atomic_compiler_or_memory_barrier();
     return ret;
 }
 
-MG_CAPI_INLINE unsigned char __mgu_atomic_load_uint8(const volatile mgu_atomic_uchar* _obj)
+MG_CAPI_INLINE unsigned char mgu_atomic_load_uint8(const volatile mgu_atomic_uchar* _obj)
 {
-    char ret = __mgu_atomic_load_int8((const volatile mgu_atomic_char*)_obj);
+    char ret = mgu_atomic_load_int8((const volatile mgu_atomic_char*)_obj);
     return *((unsigned char*)&ret);
 }
 
-MG_CAPI_INLINE short __mgu_atomic_load_int16(const volatile mgu_atomic_short* _obj)
+MG_CAPI_INLINE short mgu_atomic_load_int16(const volatile mgu_atomic_short* _obj)
 {
-    short ret = ReadNoFence16(_obj);
+    short ret = __iso_volatile_load16(_obj);
     __mgu_atomic_compiler_or_memory_barrier();
     return ret;
 }
 
-MG_CAPI_INLINE unsigned short __mgu_atomic_load_uint16(const volatile mgu_atomic_ushort* _obj)
+MG_CAPI_INLINE unsigned short mgu_atomic_load_uint16(const volatile mgu_atomic_ushort* _obj)
 {
-    short ret = __mgu_atomic_load_int16((const volatile mgu_atomic_short*)_obj);
+    short ret = mgu_atomic_load_int16((const volatile mgu_atomic_short*)_obj);
     return *((unsigned short*)&ret);
 }
 
-MG_CAPI_INLINE long __mgu_atomic_load_int32(const volatile mgu_atomic_long* _obj)
+MG_CAPI_INLINE long mgu_atomic_load_int32(const volatile mgu_atomic_long* _obj)
 {        
-    long ret = ReadNoFence((volatile long*)_obj);
+    long ret = __iso_volatile_load32((volatile int*)_obj);
     __mgu_atomic_compiler_or_memory_barrier();
     return ret;
 }
 
-MG_CAPI_INLINE unsigned long __mgu_atomic_load_uint32(const volatile mgu_atomic_ulong* _obj)
+MG_CAPI_INLINE unsigned long mgu_atomic_load_uint32(const volatile mgu_atomic_ulong* _obj)
 {
-    long ret = __mgu_atomic_load_int32((const volatile mgu_atomic_long*)_obj);
+    long ret = mgu_atomic_load_int32((const volatile mgu_atomic_long*)_obj);
     return *((unsigned long*)&ret);
 }
 
-MG_CAPI_INLINE long long __mgu_atomic_load_int64(const volatile mgu_atomic_llong* _obj)
+MG_CAPI_INLINE long long mgu_atomic_load_int64(const volatile mgu_atomic_llong* _obj)
 {
-    long long ret = ReadNoFence64(_obj);
+    long long ret = __iso_volatile_load64(_obj);
     __mgu_atomic_compiler_or_memory_barrier();
     return ret;
 }
 
-MG_CAPI_INLINE unsigned long long __mgu_atomic_load_uint64(const volatile mgu_atomic_ullong* _obj)
+MG_CAPI_INLINE unsigned long long mgu_atomic_load_uint64(const volatile mgu_atomic_ullong* _obj)
 {
-    long long ret = __mgu_atomic_load_int64((const volatile mgu_atomic_llong*)_obj);
+    long long ret = mgu_atomic_load_int64((const volatile mgu_atomic_llong*)_obj);
     return *((unsigned long long*) & ret);
 }
 
-MG_CAPI_INLINE bool __mgu_atomic_load_bool(const volatile mgu_atomic_bool* _obj)
+MG_CAPI_INLINE bool mgu_atomic_load_bool(const volatile mgu_atomic_bool* _obj)
 {
-    bool ret = ReadNoFence8((const volatile char*)_obj);
+    bool ret = __iso_volatile_load8((const volatile char*)_obj);
     __mgu_atomic_compiler_or_memory_barrier();
     return ret;
 }
 
 #ifdef __cplusplus
 
-MG_CAPI_INLINE bool __mgu_atomic_load(const volatile mgu_atomic_bool* _obj) { return __mgu_atomic_load_bool(_obj); }
-MG_CAPI_INLINE char __mgu_atomic_load(const volatile mgu_atomic_char* _obj) { return __mgu_atomic_load_int8(_obj); }
-MG_CAPI_INLINE unsigned char __mgu_atomic_load(const volatile mgu_atomic_uchar* _obj) { return __mgu_atomic_load_uint8(_obj); }
-MG_CAPI_INLINE short __mgu_atomic_load(const volatile mgu_atomic_short* _obj) { return __mgu_atomic_load_int16(_obj); }
-MG_CAPI_INLINE unsigned short __mgu_atomic_load(const volatile mgu_atomic_ushort* _obj) { return __mgu_atomic_load_uint16(_obj); }
-MG_CAPI_INLINE long __mgu_atomic_load(const volatile mgu_atomic_long* _obj) { return __mgu_atomic_load_int32(_obj); }
-MG_CAPI_INLINE unsigned long __mgu_atomic_load(const volatile mgu_atomic_ulong* _obj) { return __mgu_atomic_load_uint32(_obj); }
-MG_CAPI_INLINE long long __mgu_atomic_load(const volatile mgu_atomic_llong* _obj) { return __mgu_atomic_load_int64(_obj); }
-MG_CAPI_INLINE unsigned long long __mgu_atomic_load(const volatile mgu_atomic_ullong* _obj) { return __mgu_atomic_load_uint64(_obj); }
+MG_CAPI_INLINE bool __mgu_atomic_load(const volatile mgu_atomic_bool* _obj) { return mgu_atomic_load_bool(_obj); }
+MG_CAPI_INLINE char __mgu_atomic_load(const volatile mgu_atomic_char* _obj) { return mgu_atomic_load_int8(_obj); }
+MG_CAPI_INLINE unsigned char __mgu_atomic_load(const volatile mgu_atomic_uchar* _obj) { return mgu_atomic_load_uint8(_obj); }
+MG_CAPI_INLINE short __mgu_atomic_load(const volatile mgu_atomic_short* _obj) { return mgu_atomic_load_int16(_obj); }
+MG_CAPI_INLINE unsigned short __mgu_atomic_load(const volatile mgu_atomic_ushort* _obj) { return mgu_atomic_load_uint16(_obj); }
+MG_CAPI_INLINE long __mgu_atomic_load(const volatile mgu_atomic_long* _obj) { return mgu_atomic_load_int32(_obj); }
+MG_CAPI_INLINE unsigned long __mgu_atomic_load(const volatile mgu_atomic_ulong* _obj) { return mgu_atomic_load_uint32(_obj); }
+MG_CAPI_INLINE long long __mgu_atomic_load(const volatile mgu_atomic_llong* _obj) { return mgu_atomic_load_int64(_obj); }
+MG_CAPI_INLINE unsigned long long __mgu_atomic_load(const volatile mgu_atomic_ullong* _obj) { return mgu_atomic_load_uint64(_obj); }
 
-#elif !defined(__STDC_NO_ATOMICS__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
-#define __mgu_atomic_load(obj)                 \
-_Generic((obj),                                \
-mgu_atomic_char*: __mgu_atomic_load_int8,      \
-mgu_atomic_uchar*: __mgu_atomic_load_uint8,    \
-mgu_atomic_short*: __mgu_atomic_load_int16,    \
-mgu_atomic_ushort*: __mgu_atomic_load_uint16,  \
-mgu_atomic_long*: __mgu_atomic_load_int32,     \
-mgu_atomic_ulong*: __mgu_atomic_load_uint32,   \
-mgu_atomic_llong*: __mgu_atomic_load_int64,    \
-mgu_atomic_ullong*: __mgu_atomic_load_uint64   \
+#define __mgu_atomic_load(obj)               \
+_Generic((obj),                              \
+mgu_atomic_char*  : mgu_atomic_load_int8,    \
+mgu_atomic_uchar* : mgu_atomic_load_uint8,   \
+mgu_atomic_short* : mgu_atomic_load_int16,   \
+mgu_atomic_ushort*: mgu_atomic_load_uint16,  \
+mgu_atomic_long*  : mgu_atomic_load_int32,   \
+mgu_atomic_ulong* : mgu_atomic_load_uint32,  \
+mgu_atomic_llong* : mgu_atomic_load_int64,   \
+mgu_atomic_ullong*: mgu_atomic_load_uint64   \
 )(obj)
 
+#else
+#  error "C11 or C++11 required for _Generic support"
 #endif
 
 #define mgu_atomic_load(obj) __mgu_atomic_load(obj)
 
 
-MG_CAPI_INLINE char __mgu_atomic_load_explicit_int8(
+MG_CAPI_INLINE char mgu_atomic_load_explicit_int8(
     const volatile mgu_atomic_char* _obj, mgu_memory_order _order)
 {
     char ret;
-    ret = ReadNoFence8(_obj);
+    ret = __iso_volatile_load8(_obj);
     __MGU_ATOMIC_POST_LOAD_BARRIER_AS_NEEDED((_order))
     return ret;
 }
 
-MG_CAPI_INLINE unsigned char __mgu_atomic_load_explicit_uint8(
+MG_CAPI_INLINE unsigned char mgu_atomic_load_explicit_uint8(
     const volatile mgu_atomic_uchar* _obj, mgu_memory_order _order)
 {
-    char ret = __mgu_atomic_load_explicit_int8(
+    char ret = mgu_atomic_load_explicit_int8(
         (volatile mgu_atomic_char*)_obj, _order);
     return *((unsigned char*)&ret);
 }
 
-MG_CAPI_INLINE short __mgu_atomic_load_explicit_int16(
+MG_CAPI_INLINE short mgu_atomic_load_explicit_int16(
     const volatile mgu_atomic_short* _obj, mgu_memory_order _order)
 {
     short ret;
-    ret = ReadNoFence16(_obj);
+    ret = __iso_volatile_load16(_obj);
     __MGU_ATOMIC_POST_LOAD_BARRIER_AS_NEEDED((_order))
     return ret;
 }
 
-MG_CAPI_INLINE unsigned short __mgu_atomic_load_explicit_uint16(
+MG_CAPI_INLINE unsigned short mgu_atomic_load_explicit_uint16(
     const volatile mgu_atomic_ushort* _obj, mgu_memory_order _order)
 {
-    short ret = __mgu_atomic_load_explicit_int16(
+    short ret = mgu_atomic_load_explicit_int16(
         (volatile mgu_atomic_short*)_obj, _order);
     return *((unsigned short*)&ret);
 }
 
-MG_CAPI_INLINE long __mgu_atomic_load_explicit_int32(
+MG_CAPI_INLINE long mgu_atomic_load_explicit_int32(
     const volatile mgu_atomic_long* _obj, mgu_memory_order _order)
 {
     long ret;
 #if __MGU_ATOMIC_USE_ARM64_LDAR_STLR == 1
         __MGU_ATOMIC_LOAD_ARM64(ret, 32, _obj, (_order))
 #else
-        ret = ReadNoFence((const volatile long*)_obj);
+        ret = __iso_volatile_load32((const volatile int*)_obj);
         __MGU_ATOMIC_POST_LOAD_BARRIER_AS_NEEDED((_order))
 #endif
     return ret;
 }
 
-MG_CAPI_INLINE unsigned long __mgu_atomic_load_explicit_uint32(
+MG_CAPI_INLINE unsigned long mgu_atomic_load_explicit_uint32(
     const volatile mgu_atomic_ulong* _obj, mgu_memory_order _order)
 {
-    long ret = __mgu_atomic_load_explicit_int32(
+    long ret = mgu_atomic_load_explicit_int32(
         (volatile mgu_atomic_long*)_obj, _order);
     return *((unsigned long*)&ret);
 }
 
-MG_CAPI_INLINE long long __mgu_atomic_load_explicit_int64(
+MG_CAPI_INLINE long long mgu_atomic_load_explicit_int64(
     const volatile mgu_atomic_llong* _obj, mgu_memory_order _order)
 {
     long long ret;
 #if __MGU_ATOMIC_USE_ARM64_LDAR_STLR == 1
     __MGU_ATOMIC_LOAD_ARM64(ret, 64, _obj, (_order))
 #else
-    ret = ReadNoFence64(_obj);
+    ret = __iso_volatile_load64(_obj);
     __MGU_ATOMIC_POST_LOAD_BARRIER_AS_NEEDED((_order))
 #endif
     return ret;
 }
 
-MG_CAPI_INLINE unsigned long long __mgu_atomic_load_explicit_uint64(
+MG_CAPI_INLINE unsigned long long mgu_atomic_load_explicit_uint64(
     const volatile mgu_atomic_ullong* _obj, mgu_memory_order _order)
 {
-    long long ret = __mgu_atomic_load_explicit_int64(
+    long long ret = mgu_atomic_load_explicit_int64(
         (volatile mgu_atomic_llong*)_obj, _order);
     return *((unsigned long long*)&ret);
 }
 
-MG_CAPI_INLINE bool __mgu_atomic_load_explicit_bool(
+MG_CAPI_INLINE bool mgu_atomic_load_explicit_bool(
     const volatile mgu_atomic_bool* _obj, mgu_memory_order _order)
 {
-    return (bool)__mgu_atomic_load_explicit_int8(
+    return (bool)mgu_atomic_load_explicit_int8(
         (volatile mgu_atomic_char*)_obj, _order);
 }
 
@@ -852,69 +911,71 @@ MG_CAPI_INLINE bool __mgu_atomic_load_explicit_bool(
 MG_CAPI_INLINE bool __mgu_atomic_load_explicit(
     const volatile mgu_atomic_bool* _obj, mgu_memory_order _order)
 { 
-    return __mgu_atomic_load_explicit_bool(_obj, _order); 
+    return mgu_atomic_load_explicit_bool(_obj, _order); 
 }
 MG_CAPI_INLINE char __mgu_atomic_load_explicit(
     const volatile mgu_atomic_char* _obj, mgu_memory_order _order)
 {
-    return __mgu_atomic_load_explicit_int8(_obj, _order);
+    return mgu_atomic_load_explicit_int8(_obj, _order);
 }
 MG_CAPI_INLINE unsigned char __mgu_atomic_load_explicit(
     const volatile mgu_atomic_uchar* _obj, mgu_memory_order _order)
 {
-    return __mgu_atomic_load_explicit_uint8(_obj, _order);
+    return mgu_atomic_load_explicit_uint8(_obj, _order);
 }
 MG_CAPI_INLINE short __mgu_atomic_load_explicit(
     const volatile mgu_atomic_short* _obj, mgu_memory_order _order)
 {
-    return __mgu_atomic_load_explicit_int16(_obj, _order);
+    return mgu_atomic_load_explicit_int16(_obj, _order);
 }
 MG_CAPI_INLINE unsigned short __mgu_atomic_load_explicit(
     const volatile mgu_atomic_ushort* _obj, mgu_memory_order _order)
 {
-    return __mgu_atomic_load_explicit_uint16(_obj, _order);
+    return mgu_atomic_load_explicit_uint16(_obj, _order);
 }
 MG_CAPI_INLINE long __mgu_atomic_load_explicit(
     const volatile mgu_atomic_long* _obj, mgu_memory_order _order)
 {
-    return __mgu_atomic_load_explicit_int32(_obj, _order);
+    return mgu_atomic_load_explicit_int32(_obj, _order);
 }
 MG_CAPI_INLINE unsigned long __mgu_atomic_load_explicit(
     const volatile mgu_atomic_ulong* _obj, mgu_memory_order _order)
 {
-    return __mgu_atomic_load_explicit_uint32(_obj, _order);
+    return mgu_atomic_load_explicit_uint32(_obj, _order);
 }
 MG_CAPI_INLINE long long __mgu_atomic_load_explicit(
     const volatile mgu_atomic_llong* _obj, mgu_memory_order _order)
 {
-    return __mgu_atomic_load_explicit_int64(_obj, _order);
+    return mgu_atomic_load_explicit_int64(_obj, _order);
 }
 MG_CAPI_INLINE unsigned long long __mgu_atomic_load_explicit(
     const volatile mgu_atomic_ullong* _obj, mgu_memory_order _order)
 {
-    return __mgu_atomic_load_explicit_uint64(_obj, _order);
+    return mgu_atomic_load_explicit_uint64(_obj, _order);
 }
 
-#elif !defined(__STDC_NO_ATOMICS__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
-#define __mgu_atomic_load_explicit(obj,order)                 \
-_Generic((obj),                                               \
-    mgu_atomic_bool* : __mgu_atomic_load_explicit_bool,       \
-    mgu_atomic_char* : __mgu_atomic_load_explicit_int8,       \
-    mgu_atomic_uchar* : __mgu_atomic_load_explicit_uint8,     \
-    mgu_atomic_short* : __mgu_atomic_load_explicit_int16,     \
-    mgu_atomic_ushort* : __mgu_atomic_load_explicit_uint16,   \
-    mgu_atomic_long* : __mgu_atomic_load_explicit_int32,      \
-    mgu_atomic_ulong* : __mgu_atomic_load_explicit_uint32,    \
-    mgu_atomic_llong* : __mgu_atomic_load_explicit_int64,     \
-    mgu_atomic_ullong* : __mgu_atomic_load_explicit_uint64    \
+#define __mgu_atomic_load_explicit(obj,order)               \
+_Generic((obj),                                             \
+    mgu_atomic_bool*   : mgu_atomic_load_explicit_bool,     \
+    mgu_atomic_char*   : mgu_atomic_load_explicit_int8,     \
+    mgu_atomic_uchar*  : mgu_atomic_load_explicit_uint8,    \
+    mgu_atomic_short*  : mgu_atomic_load_explicit_int16,    \
+    mgu_atomic_ushort* : mgu_atomic_load_explicit_uint16,   \
+    mgu_atomic_long*   : mgu_atomic_load_explicit_int32,    \
+    mgu_atomic_ulong*  : mgu_atomic_load_explicit_uint32,   \
+    mgu_atomic_llong*  : mgu_atomic_load_explicit_int64,    \
+    mgu_atomic_ullong* : mgu_atomic_load_explicit_uint64    \
 )(obj,order)
 
+#else
+#  error "C11 or C++11 required for _Generic support"
 #endif
 
 #define mgu_atomic_load_explicit(obj,order) __mgu_atomic_load_explicit(obj,order)
 
-MG_CAPI_INLINE char __mgu_atomic_compare_exchange_strong_explicit_int8(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_strong_explicit_int8(
     volatile mgu_atomic_char* _obj, char* _expected, char _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
     char expected_value = *_expected;
@@ -929,29 +990,29 @@ MG_CAPI_INLINE char __mgu_atomic_compare_exchange_strong_explicit_int8(
     return false;
 }
 
-MG_CAPI_INLINE char __mgu_atomic_compare_exchange_weak_explicit_int8(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_weak_explicit_int8(
     volatile mgu_atomic_char* _obj, char* _expected, char _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
-    return __mgu_atomic_compare_exchange_strong_explicit_int8(_obj, _expected, _desired, _success, _failure);
+    return mgu_atomic_compare_exchange_strong_explicit_int8(_obj, _expected, _desired, _success, _failure);
 }
 
-MG_CAPI_INLINE unsigned char __mgu_atomic_compare_exchange_strong_explicit_uint8(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_strong_explicit_uint8(
     volatile mgu_atomic_uchar* _obj, unsigned char* _expected, unsigned char _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
     char expected_value = *((char*)_expected);
-    char ret = __mgu_atomic_compare_exchange_strong_explicit_int8(
+    bool ret = mgu_atomic_compare_exchange_strong_explicit_int8(
         (volatile mgu_atomic_char*)_obj, &expected_value, *((char*)&_desired), _success, _failure);
     memcpy(_expected, &expected_value, sizeof(unsigned char));
-    return *((unsigned char*)&ret);
+    return ret;
 }
 
-MG_CAPI_INLINE unsigned char __mgu_atomic_compare_exchange_weak_explicit_uint8(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_weak_explicit_uint8(
     volatile mgu_atomic_uchar* _obj, unsigned char* _expected, unsigned char _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
-    return __mgu_atomic_compare_exchange_strong_explicit_uint8(_obj, _expected, _desired, _success, _failure);
+    return mgu_atomic_compare_exchange_strong_explicit_uint8(_obj, _expected, _desired, _success, _failure);
 }
 
-MG_CAPI_INLINE short __mgu_atomic_compare_exchange_strong_explicit_int16(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_strong_explicit_int16(
     volatile mgu_atomic_short* _obj, short* _expected, short _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
     short expected_value = *_expected;
@@ -966,29 +1027,29 @@ MG_CAPI_INLINE short __mgu_atomic_compare_exchange_strong_explicit_int16(
     return false;
 }
 
-MG_CAPI_INLINE short __mgu_atomic_compare_exchange_weak_explicit_int16(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_weak_explicit_int16(
     volatile mgu_atomic_short* _obj, short* _expected, short _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
-    return __mgu_atomic_compare_exchange_strong_explicit_int16(_obj, _expected, _desired, _success, _failure);
+    return mgu_atomic_compare_exchange_strong_explicit_int16(_obj, _expected, _desired, _success, _failure);
 }
 
-MG_CAPI_INLINE unsigned short __mgu_atomic_compare_exchange_strong_explicit_uint16(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_strong_explicit_uint16(
     volatile mgu_atomic_ushort* _obj, unsigned short* _expected, unsigned short _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
     short expected_value = *((short*)_expected);
-    short ret = __mgu_atomic_compare_exchange_strong_explicit_int16(
+    bool ret = mgu_atomic_compare_exchange_strong_explicit_int16(
         (volatile mgu_atomic_short*)_obj, &expected_value, *((short*)&_desired), _success, _failure);
     memcpy(_expected, &expected_value, sizeof(unsigned short));
-    return *((unsigned short*)&ret);
+    return ret;
 }
 
-MG_CAPI_INLINE unsigned short __mgu_atomic_compare_exchange_weak_explicit_uint16(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_weak_explicit_uint16(
     volatile mgu_atomic_ushort* _obj, unsigned short* _expected, unsigned short _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
-    return __mgu_atomic_compare_exchange_strong_explicit_uint16(_obj, _expected, _desired, _success, _failure);
+    return mgu_atomic_compare_exchange_strong_explicit_uint16(_obj, _expected, _desired, _success, _failure);
 }
 
-MG_CAPI_INLINE long __mgu_atomic_compare_exchange_strong_explicit_int32(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_strong_explicit_int32(
     volatile mgu_atomic_long* _obj, long* _expected, long _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
     long expected_value = *_expected;
@@ -1003,29 +1064,29 @@ MG_CAPI_INLINE long __mgu_atomic_compare_exchange_strong_explicit_int32(
     return false;
 }
 
-MG_CAPI_INLINE long __mgu_atomic_compare_exchange_weak_explicit_int32(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_weak_explicit_int32(
     volatile mgu_atomic_long* _obj, long* _expected, long _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
-    return __mgu_atomic_compare_exchange_strong_explicit_int32(_obj, _expected, _desired, _success, _failure);
+    return mgu_atomic_compare_exchange_strong_explicit_int32(_obj, _expected, _desired, _success, _failure);
 }
 
-MG_CAPI_INLINE unsigned long __mgu_atomic_compare_exchange_strong_explicit_uint32(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_strong_explicit_uint32(
     volatile mgu_atomic_ulong* _obj, unsigned long* _expected, unsigned long _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
     long expected_value = *((long*)_expected);
-    long ret = __mgu_atomic_compare_exchange_strong_explicit_int32(
+    bool ret = mgu_atomic_compare_exchange_strong_explicit_int32(
         (volatile mgu_atomic_long*)_obj, &expected_value, *((long*)&_desired), _success, _failure);
     memcpy(_expected, &expected_value, sizeof(unsigned long));
-    return *((unsigned long*)&ret);
+    return ret;
 }
 
-MG_CAPI_INLINE unsigned long __mgu_atomic_compare_exchange_weak_explicit_uint32(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_weak_explicit_uint32(
     volatile mgu_atomic_ulong* _obj, unsigned long* _expected, unsigned long _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
-    return __mgu_atomic_compare_exchange_strong_explicit_uint32(_obj, _expected, _desired, _success, _failure);
+    return mgu_atomic_compare_exchange_strong_explicit_uint32(_obj, _expected, _desired, _success, _failure);
 }
 
-MG_CAPI_INLINE long long __mgu_atomic_compare_exchange_strong_explicit_int64(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_strong_explicit_int64(
     volatile mgu_atomic_llong* _obj, long long* _expected, long long _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
     long long expected_value = *_expected;
@@ -1040,167 +1101,177 @@ MG_CAPI_INLINE long long __mgu_atomic_compare_exchange_strong_explicit_int64(
     return false;
 }
 
-MG_CAPI_INLINE long long __mgu_atomic_compare_exchange_weak_explicit_int64(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_weak_explicit_int64(
     volatile mgu_atomic_llong* _obj, long long* _expected, long long _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
-    return __mgu_atomic_compare_exchange_strong_explicit_int64(_obj, _expected, _desired, _success, _failure);
+    return mgu_atomic_compare_exchange_strong_explicit_int64(_obj, _expected, _desired, _success, _failure);
 }
 
-MG_CAPI_INLINE unsigned long long __mgu_atomic_compare_exchange_strong_explicit_uint64(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_strong_explicit_uint64(
     volatile mgu_atomic_ullong* _obj, unsigned long long* _expected, unsigned long long _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
     long long expected_value = *((long long*)_expected);
-    long long ret = __mgu_atomic_compare_exchange_strong_explicit_int64(
+    bool ret = mgu_atomic_compare_exchange_strong_explicit_int64(
         (volatile mgu_atomic_llong*)_obj, &expected_value, *((long long*)&_desired), _success, _failure);
     memcpy(_expected, &expected_value, sizeof(unsigned long long));
-    return *((unsigned long long*)&ret);
+    return ret;
 }
 
-MG_CAPI_INLINE unsigned long long __mgu_atomic_compare_exchange_weak_explicit_uint64(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_weak_explicit_uint64(
     volatile mgu_atomic_ullong* _obj, unsigned long long* _expected, unsigned long long _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
-    return __mgu_atomic_compare_exchange_strong_explicit_uint64(_obj, _expected, _desired, _success, _failure);
+    return mgu_atomic_compare_exchange_strong_explicit_uint64(_obj, _expected, _desired, _success, _failure);
 }
 
-MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_strong_explicit_bool(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_strong_explicit_bool(
     volatile mgu_atomic_bool* _obj, bool* _expected, bool _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
-    return (bool)__mgu_atomic_compare_exchange_strong_explicit_int8(
+    return mgu_atomic_compare_exchange_strong_explicit_int8(
         (volatile mgu_atomic_char*)_obj, (char*)_expected, (char)_desired, _success, _failure);
 }
 
-MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_weak_explicit_bool(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_weak_explicit_bool(
     volatile mgu_atomic_bool* _obj, bool* _expected, bool _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
-    return (bool)__mgu_atomic_compare_exchange_weak_explicit_int8(
+    return mgu_atomic_compare_exchange_weak_explicit_int8(
         (volatile mgu_atomic_char*)_obj, (char*)_expected, (char)_desired, _success, _failure);
-}
-
-MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_strong_explicit(
-    volatile mgu_atomic_bool* _obj, bool* _expected, bool _desired, mgu_memory_order _success, mgu_memory_order _failure)
-{
-    return __mgu_atomic_compare_exchange_strong_explicit_bool(_obj, _expected, _desired, _success, _failure);
-}
-MG_CAPI_INLINE char __mgu_atomic_compare_exchange_strong_explicit(
-    volatile mgu_atomic_char* _obj, char* _expected, char _desired, mgu_memory_order _success, mgu_memory_order _failure)
-{
-    return __mgu_atomic_compare_exchange_strong_explicit_int8(_obj, _expected, _desired, _success, _failure);
-}
-MG_CAPI_INLINE unsigned char __mgu_atomic_compare_exchange_strong_explicit(
-    volatile mgu_atomic_uchar* _obj, unsigned char* _expected, unsigned char _desired, mgu_memory_order _success, mgu_memory_order _failure)
-{
-    return __mgu_atomic_compare_exchange_strong_explicit_uint8(_obj, _expected, _desired, _success, _failure);
-}
-MG_CAPI_INLINE short __mgu_atomic_compare_exchange_strong_explicit(
-    volatile mgu_atomic_short* _obj, short* _expected, short _desired, mgu_memory_order _success, mgu_memory_order _failure)
-{
-    return __mgu_atomic_compare_exchange_strong_explicit_int16(_obj, _expected, _desired, _success, _failure);
-}
-MG_CAPI_INLINE unsigned short __mgu_atomic_compare_exchange_strong_explicit(
-    volatile mgu_atomic_ushort* _obj, unsigned short* _expected, unsigned short _desired, mgu_memory_order _success, mgu_memory_order _failure)
-{
-    return __mgu_atomic_compare_exchange_strong_explicit_uint16(_obj, _expected, _desired, _success, _failure);
-}
-MG_CAPI_INLINE long __mgu_atomic_compare_exchange_strong_explicit(
-    volatile mgu_atomic_long* _obj, long* _expected, long _desired, mgu_memory_order _success, mgu_memory_order _failure)
-{
-    return __mgu_atomic_compare_exchange_strong_explicit_int32(_obj, _expected, _desired, _success, _failure);
-}
-MG_CAPI_INLINE unsigned long __mgu_atomic_compare_exchange_strong_explicit(
-    volatile mgu_atomic_ulong* _obj, unsigned long* _expected, unsigned long _desired, mgu_memory_order _success, mgu_memory_order _failure)
-{
-    return __mgu_atomic_compare_exchange_strong_explicit_uint32(_obj, _expected, _desired, _success, _failure);
-}
-MG_CAPI_INLINE long long __mgu_atomic_compare_exchange_strong_explicit(
-    volatile mgu_atomic_llong* _obj, long long* _expected, long long _desired, mgu_memory_order _success, mgu_memory_order _failure)
-{
-    return __mgu_atomic_compare_exchange_strong_explicit_int64(_obj, _expected, _desired, _success, _failure);
-}
-MG_CAPI_INLINE unsigned long long __mgu_atomic_compare_exchange_strong_explicit(
-    volatile mgu_atomic_ullong* _obj, unsigned long long* _expected, unsigned long long _desired, mgu_memory_order _success, mgu_memory_order _failure)
-{
-    return __mgu_atomic_compare_exchange_strong_explicit_uint64(_obj, _expected, _desired, _success, _failure);
 }
 
 #ifdef __cplusplus
 
+MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_strong_explicit(
+    volatile mgu_atomic_bool* _obj, bool* _expected, bool _desired, mgu_memory_order _success, mgu_memory_order _failure)
+{
+    return mgu_atomic_compare_exchange_strong_explicit_bool(_obj, _expected, _desired, _success, _failure);
+}
+MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_strong_explicit(
+    volatile mgu_atomic_char* _obj, char* _expected, char _desired, mgu_memory_order _success, mgu_memory_order _failure)
+{
+    return mgu_atomic_compare_exchange_strong_explicit_int8(_obj, _expected, _desired, _success, _failure);
+}
+MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_strong_explicit(
+    volatile mgu_atomic_uchar* _obj, unsigned char* _expected, unsigned char _desired, mgu_memory_order _success, mgu_memory_order _failure)
+{
+    return mgu_atomic_compare_exchange_strong_explicit_uint8(_obj, _expected, _desired, _success, _failure);
+}
+MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_strong_explicit(
+    volatile mgu_atomic_short* _obj, short* _expected, short _desired, mgu_memory_order _success, mgu_memory_order _failure)
+{
+    return mgu_atomic_compare_exchange_strong_explicit_int16(_obj, _expected, _desired, _success, _failure);
+}
+MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_strong_explicit(
+    volatile mgu_atomic_ushort* _obj, unsigned short* _expected, unsigned short _desired, mgu_memory_order _success, mgu_memory_order _failure)
+{
+    return mgu_atomic_compare_exchange_strong_explicit_uint16(_obj, _expected, _desired, _success, _failure);
+}
+MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_strong_explicit(
+    volatile mgu_atomic_long* _obj, long* _expected, long _desired, mgu_memory_order _success, mgu_memory_order _failure)
+{
+    return mgu_atomic_compare_exchange_strong_explicit_int32(_obj, _expected, _desired, _success, _failure);
+}
+MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_strong_explicit(
+    volatile mgu_atomic_ulong* _obj, unsigned long* _expected, unsigned long _desired, mgu_memory_order _success, mgu_memory_order _failure)
+{
+    return mgu_atomic_compare_exchange_strong_explicit_uint32(_obj, _expected, _desired, _success, _failure);
+}
+MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_strong_explicit(
+    volatile mgu_atomic_llong* _obj, long long* _expected, long long _desired, mgu_memory_order _success, mgu_memory_order _failure)
+{
+    return mgu_atomic_compare_exchange_strong_explicit_int64(_obj, _expected, _desired, _success, _failure);
+}
+MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_strong_explicit(
+    volatile mgu_atomic_ullong* _obj, unsigned long long* _expected, unsigned long long _desired, mgu_memory_order _success, mgu_memory_order _failure)
+{
+    return mgu_atomic_compare_exchange_strong_explicit_uint64(_obj, _expected, _desired, _success, _failure);
+}
+
 MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_weak_explicit(
     volatile mgu_atomic_bool* _obj, bool* _expected, bool _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
-    return __mgu_atomic_compare_exchange_weak_explicit_bool(_obj, _expected, _desired, _success, _failure);
+    return mgu_atomic_compare_exchange_weak_explicit_bool(_obj, _expected, _desired, _success, _failure);
 }
-MG_CAPI_INLINE char __mgu_atomic_compare_exchange_weak_explicit(
+MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_weak_explicit(
     volatile mgu_atomic_char* _obj, char* _expected, char _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
-    return __mgu_atomic_compare_exchange_weak_explicit_int8(_obj, _expected, _desired, _success, _failure);
+    return mgu_atomic_compare_exchange_weak_explicit_int8(_obj, _expected, _desired, _success, _failure);
 }
-MG_CAPI_INLINE unsigned char __mgu_atomic_compare_exchange_weak_explicit(
+MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_weak_explicit(
     volatile mgu_atomic_uchar* _obj, unsigned char* _expected, unsigned char _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
-    return __mgu_atomic_compare_exchange_weak_explicit_uint8(_obj, _expected, _desired, _success, _failure);
+    return mgu_atomic_compare_exchange_weak_explicit_uint8(_obj, _expected, _desired, _success, _failure);
 }
-MG_CAPI_INLINE short __mgu_atomic_compare_exchange_weak_explicit(
+MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_weak_explicit(
     volatile mgu_atomic_short* _obj, short* _expected, short _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
-    return __mgu_atomic_compare_exchange_weak_explicit_int16(_obj, _expected, _desired, _success, _failure);
+    return mgu_atomic_compare_exchange_weak_explicit_int16(_obj, _expected, _desired, _success, _failure);
 }
-MG_CAPI_INLINE unsigned short __mgu_atomic_compare_exchange_weak_explicit(
+MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_weak_explicit(
     volatile mgu_atomic_ushort* _obj, unsigned short* _expected, unsigned short _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
-    return __mgu_atomic_compare_exchange_weak_explicit_uint16(_obj, _expected, _desired, _success, _failure);
+    return mgu_atomic_compare_exchange_weak_explicit_uint16(_obj, _expected, _desired, _success, _failure);
 }
-MG_CAPI_INLINE long __mgu_atomic_compare_exchange_weak_explicit(
+MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_weak_explicit(
     volatile mgu_atomic_long* _obj, long* _expected, long _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
-    return __mgu_atomic_compare_exchange_weak_explicit_int32(_obj, _expected, _desired, _success, _failure);
+    return mgu_atomic_compare_exchange_weak_explicit_int32(_obj, _expected, _desired, _success, _failure);
 }
-MG_CAPI_INLINE unsigned long __mgu_atomic_compare_exchange_weak_explicit(
+MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_weak_explicit(
     volatile mgu_atomic_ulong* _obj, unsigned long* _expected, unsigned long _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
-    return __mgu_atomic_compare_exchange_weak_explicit_uint32(_obj, _expected, _desired, _success, _failure);
+    return mgu_atomic_compare_exchange_weak_explicit_uint32(_obj, _expected, _desired, _success, _failure);
 }
-MG_CAPI_INLINE long long __mgu_atomic_compare_exchange_weak_explicit(
+MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_weak_explicit(
     volatile mgu_atomic_llong* _obj, long long* _expected, long long _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
-    return __mgu_atomic_compare_exchange_weak_explicit_int64(_obj, _expected, _desired, _success, _failure);
+    return mgu_atomic_compare_exchange_weak_explicit_int64(_obj, _expected, _desired, _success, _failure);
 }
-MG_CAPI_INLINE unsigned long long __mgu_atomic_compare_exchange_weak_explicit(
+MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_weak_explicit(
     volatile mgu_atomic_ullong* _obj, unsigned long long* _expected, unsigned long long _desired, mgu_memory_order _success, mgu_memory_order _failure)
 {
-    return __mgu_atomic_compare_exchange_weak_explicit_uint64(_obj, _expected, _desired, _success, _failure);
+    return mgu_atomic_compare_exchange_weak_explicit_uint64(_obj, _expected, _desired, _success, _failure);
 }
 
-#elif !defined(__STDC_NO_ATOMICS__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
 #define __mgu_atomic_compare_exchange_strong_explicit(obj,expected,desired,success,failure) \
  _Generic((obj),                                                                            \
-    mgu_atomic_bool*: __mgu_atomic_compare_exchange_strong_explicit_bool,                   \
-    mgu_atomic_char*: __mgu_atomic_compare_exchange_strong_explicit_int8,                   \
-    mgu_atomic_uchar*: __mgu_atomic_compare_exchange_strong_explicit_uint8,                 \
-    mgu_atomic_short*: __mgu_atomic_compare_exchange_strong_explicit_int16,                 \
-    mgu_atomic_ushort*: __mgu_atomic_compare_exchange_strong_explicit_uint16,               \
-    mgu_atomic_int*: __mgu_atomic_compare_exchange_strong_explicit_int32,                   \
-    mgu_atomic_uint*: __mgu_atomic_compare_exchange_strong_explicit_uint32,                 \
-    mgu_atomic_long*: __mgu_atomic_compare_exchange_strong_explicit_int32,                  \
-    mgu_atomic_ulong*: __mgu_atomic_compare_exchange_strong_explicit_uint32,                \
-    mgu_atomic_llong*: __mgu_atomic_compare_exchange_strong_explicit_int64,                 \
-    mgu_atomic_ullong*: __mgu_atomic_compare_exchange_strong_explicit_uint64,               \
+    mgu_atomic_char*  : mgu_atomic_compare_exchange_strong_explicit_int8,                   \
+    mgu_atomic_uchar* : mgu_atomic_compare_exchange_strong_explicit_uint8,                  \
+    mgu_atomic_short* : mgu_atomic_compare_exchange_strong_explicit_int16,                  \
+    mgu_atomic_ushort*: mgu_atomic_compare_exchange_strong_explicit_uint16,                 \
+    mgu_atomic_long*  : mgu_atomic_compare_exchange_strong_explicit_int32,                  \
+    mgu_atomic_ulong* : mgu_atomic_compare_exchange_strong_explicit_uint32,                 \
+    mgu_atomic_llong* : mgu_atomic_compare_exchange_strong_explicit_int64,                  \
+    mgu_atomic_ullong*: mgu_atomic_compare_exchange_strong_explicit_uint64,                 \
 )(obj, expected, desired, success, failure)
 
 #define __mgu_atomic_compare_exchange_weak_explicit(obj,expected,desired,success,failure)   \
 _Generic((obj),                                                                             \
-    mgu_atomic_bool*: __mgu_atomic_compare_exchange_weak_explicit_bool,                     \
-    mgu_atomic_char*: __mgu_atomic_compare_exchange_weak_explicit_int8,                     \
-    mgu_atomic_uchar*: __mgu_atomic_compare_exchange_weak_explicit_uint8,                   \
-    mgu_atomic_short*: __mgu_atomic_compare_exchange_weak_explicit_int16,                   \
-    mgu_atomic_ushort*: __mgu_atomic_compare_exchange_weak_explicit_uint16,                 \
-    mgu_atomic_int*: __mgu_atomic_compare_exchange_weak_explicit_int32,                     \
-    mgu_atomic_uint*: __mgu_atomic_compare_exchange_weak_explicit_uint32,                   \
-    mgu_atomic_long*: __mgu_atomic_compare_exchange_weak_explicit_int32,                    \
-    mgu_atomic_ulong*: __mgu_atomic_compare_exchange_weak_explicit_uint32,                  \
-    mgu_atomic_llong*: __mgu_atomic_compare_exchange_weak_explicit_int64,                   \
-    mgu_atomic_ullong*: __mgu_atomic_compare_exchange_weak_explicit_uint64,                 \
+    mgu_atomic_char*  : mgu_atomic_compare_exchange_weak_explicit_int8,                     \
+    mgu_atomic_uchar* : mgu_atomic_compare_exchange_weak_explicit_uint8,                    \
+    mgu_atomic_short* : mgu_atomic_compare_exchange_weak_explicit_int16,                    \
+    mgu_atomic_ushort*: mgu_atomic_compare_exchange_weak_explicit_uint16,                   \
+    mgu_atomic_long*  : mgu_atomic_compare_exchange_weak_explicit_int32,                    \
+    mgu_atomic_ulong* : mgu_atomic_compare_exchange_weak_explicit_uint32,                   \
+    mgu_atomic_llong* : mgu_atomic_compare_exchange_weak_explicit_int64,                    \
+    mgu_atomic_ullong*: mgu_atomic_compare_exchange_weak_explicit_uint64,                   \ 
 )(obj, expected, desired, success, failure)
+
+#else
+
+#define __mgu_atomic_compare_exchange_strong_explicit(obj,expected,desired,success,failure) \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_uchar)  ? mgu_atomic_compare_exchange_strong_explicit_uint8 ((mgu_atomic_uchar*)(obj), (unsigned char*)(expected), ((unsigned char)desired), success, failure) : \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_ushort) ? mgu_atomic_compare_exchange_strong_explicit_uint16((mgu_atomic_ushort*)(obj), (unsigned short*)(expected), ((unsigned short)desired), success, failure) : \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_ulong)  ? mgu_atomic_compare_exchange_strong_explicit_uint32((mgu_atomic_ulong*)(obj), (unsigned long*)(expected), ((unsigned long)desired), success, failure) : \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_ullong) ? mgu_atomic_compare_exchange_strong_explicit_uint64((mgu_atomic_ullong*)(obj), (unsigned long long*)(expected), ((unsigned long long)desired), success, failure) : \
+    (assert(0), false))))))
+
+#define __mgu_atomic_compare_exchange_weak_explicit(obj,expected,desired,success,failure) \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_uchar)  ? mgu_atomic_compare_exchange_weak_explicit_uint8 ((mgu_atomic_uchar*)(obj), (unsigned char*)(expected), ((unsigned char)desired), success, failure) : \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_ushort) ? mgu_atomic_compare_exchange_weak_explicit_uint16((mgu_atomic_ushort*)(obj), (unsigned short*)(expected), ((unsigned short)desired), success, failure) : \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_ulong)  ? mgu_atomic_compare_exchange_weak_explicit_uint32((mgu_atomic_ulong*)(obj), (unsigned long*)(expected), ((unsigned long)desired), success, failure) : \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_ullong) ? mgu_atomic_compare_exchange_weak_explicit_uint64((mgu_atomic_ullong*)(obj), (unsigned long long*)(expected), ((unsigned long long)desired), success, failure) : \
+    (assert(0), false))))))
 
 #endif
 
@@ -1211,112 +1282,112 @@ _Generic((obj),                                                                 
       __mgu_atomic_compare_exchange_weak_explicit(obj,expected,desired,success,failure)
 
 
-MG_CAPI_INLINE char __mgu_atomic_compare_exchange_strong_int8(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_strong_int8(
     volatile mgu_atomic_char* _obj, char* _expected, char _desired)
 {
-    return __mgu_atomic_compare_exchange_strong_explicit_int8(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
+    return mgu_atomic_compare_exchange_strong_explicit_int8(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
 }
 
-MG_CAPI_INLINE char __mgu_atomic_compare_exchange_weak_int8(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_weak_int8(
     volatile mgu_atomic_char* _obj, char* _expected, char _desired)
 {
-    return __mgu_atomic_compare_exchange_weak_explicit_int8(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
+    return mgu_atomic_compare_exchange_weak_explicit_int8(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
 }
 
-MG_CAPI_INLINE unsigned char __mgu_atomic_compare_exchange_strong_uint8(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_strong_uint8(
     volatile mgu_atomic_uchar* _obj, unsigned char* _expected, unsigned char _desired)
 {
-    return __mgu_atomic_compare_exchange_strong_explicit_uint8(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
+    return mgu_atomic_compare_exchange_strong_explicit_uint8(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
 }
 
-MG_CAPI_INLINE unsigned char __mgu_atomic_compare_exchange_weak_uint8(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_weak_uint8(
     volatile mgu_atomic_uchar* _obj, unsigned char* _expected, unsigned char _desired)
 {
-    return __mgu_atomic_compare_exchange_weak_explicit_uint8(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
+    return mgu_atomic_compare_exchange_weak_explicit_uint8(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
 }
 
-MG_CAPI_INLINE short __mgu_atomic_compare_exchange_strong_int16(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_strong_int16(
     volatile mgu_atomic_short* _obj, short* _expected, short _desired)
 {
-    return __mgu_atomic_compare_exchange_strong_explicit_int16(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
+    return mgu_atomic_compare_exchange_strong_explicit_int16(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
 }
 
-MG_CAPI_INLINE short __mgu_atomic_compare_exchange_weak_int16(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_weak_int16(
     volatile mgu_atomic_short* _obj, short* _expected, short _desired)
 {
-    return __mgu_atomic_compare_exchange_weak_explicit_int16(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
+    return mgu_atomic_compare_exchange_weak_explicit_int16(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
 }
 
-MG_CAPI_INLINE unsigned short __mgu_atomic_compare_exchange_strong_uint16(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_strong_uint16(
     volatile mgu_atomic_ushort* _obj, unsigned short* _expected, unsigned short _desired)
 {
-    return __mgu_atomic_compare_exchange_strong_explicit_uint16(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
+    return mgu_atomic_compare_exchange_strong_explicit_uint16(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
 }
 
-MG_CAPI_INLINE unsigned short __mgu_atomic_compare_exchange_weak_uint16(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_weak_uint16(
     volatile mgu_atomic_ushort* _obj, unsigned short* _expected, unsigned short _desired)
 {
-    return __mgu_atomic_compare_exchange_weak_explicit_uint16(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
+    return mgu_atomic_compare_exchange_weak_explicit_uint16(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
 }
 
-MG_CAPI_INLINE long __mgu_atomic_compare_exchange_strong_int32(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_strong_int32(
     volatile mgu_atomic_long* _obj, long* _expected, long _desired)
 {
-    return __mgu_atomic_compare_exchange_strong_explicit_int32(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
+    return mgu_atomic_compare_exchange_strong_explicit_int32(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
 }
 
-MG_CAPI_INLINE long __mgu_atomic_compare_exchange_weak_int32(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_weak_int32(
     volatile mgu_atomic_long* _obj, long* _expected, long _desired)
 {
-    return __mgu_atomic_compare_exchange_weak_explicit_int32(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
+    return mgu_atomic_compare_exchange_weak_explicit_int32(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
 }
 
-MG_CAPI_INLINE unsigned long __mgu_atomic_compare_exchange_strong_uint32(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_strong_uint32(
     volatile mgu_atomic_ulong* _obj, unsigned long* _expected, unsigned long _desired)
 {
-    return __mgu_atomic_compare_exchange_strong_explicit_uint32(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
+    return mgu_atomic_compare_exchange_strong_explicit_uint32(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
 }
 
-MG_CAPI_INLINE unsigned long __mgu_atomic_compare_exchange_weak_uint32(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_weak_uint32(
     volatile mgu_atomic_ulong* _obj, unsigned long* _expected, unsigned long _desired)
 {
-    return __mgu_atomic_compare_exchange_weak_explicit_uint32(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
+    return mgu_atomic_compare_exchange_weak_explicit_uint32(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
 }
 
-MG_CAPI_INLINE long long __mgu_atomic_compare_exchange_strong_int64(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_strong_int64(
     volatile mgu_atomic_llong* _obj, long long* _expected, long long _desired)
 {
-    return __mgu_atomic_compare_exchange_strong_explicit_int64(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
+    return mgu_atomic_compare_exchange_strong_explicit_int64(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
 }
 
-MG_CAPI_INLINE long long __mgu_atomic_compare_exchange_weak_int64(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_weak_int64(
     volatile mgu_atomic_llong* _obj, long long* _expected, long long _desired)
 {
-    return __mgu_atomic_compare_exchange_weak_explicit_int64(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
+    return mgu_atomic_compare_exchange_weak_explicit_int64(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
 }
 
-MG_CAPI_INLINE unsigned long long __mgu_atomic_compare_exchange_strong_uint64(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_strong_uint64(
     volatile mgu_atomic_ullong* _obj, unsigned long long* _expected, unsigned long long _desired)
 {
-    return __mgu_atomic_compare_exchange_strong_explicit_uint64(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
+    return mgu_atomic_compare_exchange_strong_explicit_uint64(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
 }
 
-MG_CAPI_INLINE unsigned long long __mgu_atomic_compare_exchange_weak_uint64(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_weak_uint64(
     volatile mgu_atomic_ullong* _obj, unsigned long long* _expected, unsigned long long _desired)
 {
-    return __mgu_atomic_compare_exchange_weak_explicit_uint64(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
+    return mgu_atomic_compare_exchange_weak_explicit_uint64(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
 }
 
-MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_strong_bool(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_strong_bool(
     volatile mgu_atomic_bool* _obj, bool* _expected, bool _desired)
 {
-    return __mgu_atomic_compare_exchange_strong_explicit_bool(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
+    return mgu_atomic_compare_exchange_strong_explicit_bool(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
 }
 
-MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_weak_bool(
+MG_CAPI_INLINE bool mgu_atomic_compare_exchange_weak_bool(
     volatile mgu_atomic_bool* _obj, bool* _expected, bool _desired)
 {
-    return __mgu_atomic_compare_exchange_weak_explicit_bool(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
+    return mgu_atomic_compare_exchange_weak_explicit_bool(_obj, _expected, _desired, mgu_memory_order_seq_cst, mgu_memory_order_seq_cst);
 }
 
 #if __cplusplus
@@ -1324,122 +1395,136 @@ MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_weak_bool(
 MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_strong(
     volatile mgu_atomic_bool* _obj, bool* _expected, bool _desired)
 {
-    return __mgu_atomic_compare_exchange_strong_bool(_obj, _expected, _desired);
+    return mgu_atomic_compare_exchange_strong_bool(_obj, _expected, _desired);
 }
 MG_CAPI_INLINE char __mgu_atomic_compare_exchange_strong(
     volatile mgu_atomic_char* _obj, char* _expected, char _desired)
 {
-    return __mgu_atomic_compare_exchange_strong_int8(_obj, _expected, _desired);
+    return mgu_atomic_compare_exchange_strong_int8(_obj, _expected, _desired);
 }
 MG_CAPI_INLINE unsigned char __mgu_atomic_compare_exchange_strong(
     volatile mgu_atomic_uchar* _obj, unsigned char* _expected, unsigned char _desired)
 {
-    return __mgu_atomic_compare_exchange_strong_uint8(_obj, _expected, _desired);
+    return mgu_atomic_compare_exchange_strong_uint8(_obj, _expected, _desired);
 }
 MG_CAPI_INLINE short __mgu_atomic_compare_exchange_strong(
     volatile mgu_atomic_short* _obj, short* _expected, short _desired)
 {
-    return __mgu_atomic_compare_exchange_strong_int16(_obj, _expected, _desired);
+    return mgu_atomic_compare_exchange_strong_int16(_obj, _expected, _desired);
 }
 MG_CAPI_INLINE unsigned short __mgu_atomic_compare_exchange_strong(
     volatile mgu_atomic_ushort* _obj, unsigned short* _expected, unsigned short _desired)
 {
-    return __mgu_atomic_compare_exchange_strong_uint16(_obj, _expected, _desired);
+    return mgu_atomic_compare_exchange_strong_uint16(_obj, _expected, _desired);
 }
 MG_CAPI_INLINE long __mgu_atomic_compare_exchange_strong(
     volatile mgu_atomic_long* _obj, long* _expected, long _desired)
 {
-    return __mgu_atomic_compare_exchange_strong_int32(_obj, _expected, _desired);
+    return mgu_atomic_compare_exchange_strong_int32(_obj, _expected, _desired);
 }
 MG_CAPI_INLINE unsigned long __mgu_atomic_compare_exchange_strong(
     volatile mgu_atomic_ulong* _obj, unsigned long* _expected, unsigned long _desired)
 {
-    return __mgu_atomic_compare_exchange_strong_uint32(_obj, _expected, _desired);
+    return mgu_atomic_compare_exchange_strong_uint32(_obj, _expected, _desired);
 }
 MG_CAPI_INLINE long long __mgu_atomic_compare_exchange_strong(
     volatile mgu_atomic_llong* _obj, long long* _expected, long long _desired)
 {
-    return __mgu_atomic_compare_exchange_strong_int64(_obj, _expected, _desired);
+    return mgu_atomic_compare_exchange_strong_int64(_obj, _expected, _desired);
 }
 MG_CAPI_INLINE unsigned long long __mgu_atomic_compare_exchange_strong(
     volatile mgu_atomic_ullong* _obj, unsigned long long* _expected, unsigned long long _desired)
 {
-    return __mgu_atomic_compare_exchange_strong_uint64(_obj, _expected, _desired);
+    return mgu_atomic_compare_exchange_strong_uint64(_obj, _expected, _desired);
 }
 
 MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_weak(
     volatile mgu_atomic_bool* _obj, bool* _expected, bool _desired)
 {
-    return __mgu_atomic_compare_exchange_weak_bool(_obj, _expected, _desired);
+    return mgu_atomic_compare_exchange_weak_bool(_obj, _expected, _desired);
 }
 MG_CAPI_INLINE char __mgu_atomic_compare_exchange_weak(
     volatile mgu_atomic_char* _obj, char* _expected, char _desired)
 {
-    return __mgu_atomic_compare_exchange_weak_int8(_obj, _expected, _desired);
+    return mgu_atomic_compare_exchange_weak_int8(_obj, _expected, _desired);
 }
 MG_CAPI_INLINE unsigned char __mgu_atomic_compare_exchange_weak(
     volatile mgu_atomic_uchar* _obj, unsigned char* _expected, unsigned char _desired)
 {
-    return __mgu_atomic_compare_exchange_weak_uint8(_obj, _expected, _desired);
+    return mgu_atomic_compare_exchange_weak_uint8(_obj, _expected, _desired);
 }
 MG_CAPI_INLINE short __mgu_atomic_compare_exchange_weak(
     volatile mgu_atomic_short* _obj, short* _expected, short _desired)
 {
-    return __mgu_atomic_compare_exchange_weak_int16(_obj, _expected, _desired);
+    return mgu_atomic_compare_exchange_weak_int16(_obj, _expected, _desired);
 }
 MG_CAPI_INLINE unsigned short __mgu_atomic_compare_exchange_weak(
     volatile mgu_atomic_ushort* _obj, unsigned short* _expected, unsigned short _desired)
 {
-    return __mgu_atomic_compare_exchange_weak_uint16(_obj, _expected, _desired);
+    return mgu_atomic_compare_exchange_weak_uint16(_obj, _expected, _desired);
 }
 MG_CAPI_INLINE long __mgu_atomic_compare_exchange_weak(
     volatile mgu_atomic_long* _obj, long* _expected, long _desired)
 {
-    return __mgu_atomic_compare_exchange_weak_int32(_obj, _expected, _desired);
+    return mgu_atomic_compare_exchange_weak_int32(_obj, _expected, _desired);
 }
 MG_CAPI_INLINE unsigned long __mgu_atomic_compare_exchange_weak(
     volatile mgu_atomic_ulong* _obj, unsigned long* _expected, unsigned long _desired)
 {
-    return __mgu_atomic_compare_exchange_weak_uint32(_obj, _expected, _desired);
+    return mgu_atomic_compare_exchange_weak_uint32(_obj, _expected, _desired);
 }
 MG_CAPI_INLINE long long __mgu_atomic_compare_exchange_weak(
     volatile mgu_atomic_llong* _obj, long long* _expected, long long _desired)
 {
-    return __mgu_atomic_compare_exchange_weak_int64(_obj, _expected, _desired);
+    return mgu_atomic_compare_exchange_weak_int64(_obj, _expected, _desired);
 }
 MG_CAPI_INLINE unsigned long long __mgu_atomic_compare_exchange_weak(
     volatile mgu_atomic_ullong* _obj, unsigned long long* _expected, unsigned long long _desired)
 {
-    return __mgu_atomic_compare_exchange_weak_uint64(_obj, _expected, _desired);
+    return mgu_atomic_compare_exchange_weak_uint64(_obj, _expected, _desired);
 }
 
-#elif !defined(__STDC_NO_ATOMICS__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
-#define __mgu_atomic_compare_exchange_strong(obj,expected,desired)   \
+#define __mgu_atomic_compare_exchange_strong(obj,expected,desired) \
 _Generic((obj), \
-    mgu_atomic_bool*: __mgu_atomic_compare_exchange_strong_bool,     \
-    mgu_atomic_char*: __mgu_atomic_compare_exchange_strong_int8,     \
-    mgu_atomic_uchar*: __mgu_atomic_compare_exchange_strong_uint8,   \
-    mgu_atomic_short*: __mgu_atomic_compare_exchange_strong_int16,   \
-    mgu_atomic_ushort*: __mgu_atomic_compare_exchange_strong_uint16, \
-    mgu_atomic_long*: __mgu_atomic_compare_exchange_strong_int32,    \
-    mgu_atomic_ulong*: __mgu_atomic_compare_exchange_strong_uint32,  \
-    mgu_atomic_llong*: __mgu_atomic_compare_exchange_strong_int64,   \
-    mgu_atomic_ullong*: __mgu_atomic_compare_exchange_strong_uint64  \
+    mgu_atomic_char*  : mgu_atomic_compare_exchange_strong_int8,   \
+    mgu_atomic_uchar* : mgu_atomic_compare_exchange_strong_uint8,  \
+    mgu_atomic_short* : mgu_atomic_compare_exchange_strong_int16,  \
+    mgu_atomic_ushort*: mgu_atomic_compare_exchange_strong_uint16, \
+    mgu_atomic_long*  : mgu_atomic_compare_exchange_strong_int32,  \
+    mgu_atomic_ulong* : mgu_atomic_compare_exchange_strong_uint32, \
+    mgu_atomic_llong* : mgu_atomic_compare_exchange_strong_int64,  \
+    mgu_atomic_ullong*: mgu_atomic_compare_exchange_strong_uint64  \
 )(obj, expected, desired)
 
-#define __mgu_atomic_compare_exchange_weak(obj,expected,desired)     \
+#define __mgu_atomic_compare_exchange_weak(obj,expected,desired)   \
 _Generic((obj), \
-    mgu_atomic_bool*: __mgu_atomic_compare_exchange_weak_bool,       \
-    mgu_atomic_char*: __mgu_atomic_compare_exchange_weak_int8,       \
-    mgu_atomic_uchar*: __mgu_atomic_compare_exchange_weak_uint8,     \
-    mgu_atomic_short*: __mgu_atomic_compare_exchange_weak_int16,     \
-    mgu_atomic_ushort*: __mgu_atomic_compare_exchange_weak_uint16,   \
-    mgu_atomic_long*: __mgu_atomic_compare_exchange_weak_int32,      \
-    mgu_atomic_ulong*: __mgu_atomic_compare_exchange_weak_uint32,    \
-    mgu_atomic_llong*: __mgu_atomic_compare_exchange_weak_int64,     \
-    mgu_atomic_ullong*: __mgu_atomic_compare_exchange_weak_uint64    \
+    mgu_atomic_char*  : mgu_atomic_compare_exchange_weak_int8,     \
+    mgu_atomic_uchar* : mgu_atomic_compare_exchange_weak_uint8,    \
+    mgu_atomic_short* : mgu_atomic_compare_exchange_weak_int16,    \
+    mgu_atomic_ushort*: mgu_atomic_compare_exchange_weak_uint16,   \
+    mgu_atomic_long*  : mgu_atomic_compare_exchange_weak_int32,    \
+    mgu_atomic_ulong* : mgu_atomic_compare_exchange_weak_uint32,   \
+    mgu_atomic_llong* : mgu_atomic_compare_exchange_weak_int64,    \
+    mgu_atomic_ullong*: mgu_atomic_compare_exchange_weak_uint64    \
 )(obj, expected, desired)
+
+#else
+
+#define __mgu_atomic_compare_exchange_strong(obj,expected,desired) \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_uchar)  ? mgu_atomic_compare_exchange_strong_uint8 ((mgu_atomic_uchar*)(obj), (unsigned char*)(expected), ((unsigned char)desired)) : \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_ushort) ? mgu_atomic_compare_exchange_strong_uint16((mgu_atomic_ushort*)(obj), (unsigned short*)(expected), ((unsigned short)desired)) : \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_ulong)  ? mgu_atomic_compare_exchange_strong_uint32((mgu_atomic_ulong*)(obj), (unsigned long*)(expected), ((unsigned long)desired)) : \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_ullong) ? mgu_atomic_compare_exchange_strong_uint64((mgu_atomic_ullong*)(obj), (unsigned long long*)(expected), ((unsigned long long)desired)) : \
+    (assert(0), false))))))
+
+#define __mgu_atomic_compare_exchange_weak_explicit(obj,expected,desired) \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_uchar)  ? mgu_atomic_compare_exchange_weak_uint8 ((mgu_atomic_uchar*)(obj), (unsigned char*)(expected), ((unsigned char)desired)) : \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_ushort) ? mgu_atomic_compare_exchange_weak_uint16((mgu_atomic_ushort*)(obj), (unsigned short*)(expected), ((unsigned short)desired)) : \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_ulong)  ? mgu_atomic_compare_exchange_weak_uint32((mgu_atomic_ulong*)(obj), (unsigned long*)(expected), ((unsigned long)desired)) : \
+    (sizeof(*(obj)) == sizeof(mgu_atomic_ullong) ? mgu_atomic_compare_exchange_weak_uint64((mgu_atomic_ullong*)(obj), (unsigned long long*)(expected), ((unsigned long long)desired)) : \
+    (assert(0), false))))))
 
 #endif
 
@@ -1448,7 +1533,7 @@ _Generic((obj), \
 #define mgu_atomic_compare_exchange_weak(obj,expected,desired) __mgu_atomic_compare_exchange_weak(obj,expected,desired)
 
 
-MG_CAPI_INLINE char __mgu_atomic_fetch_add_explicit_int8(
+MG_CAPI_INLINE char mgu_atomic_fetch_add_explicit_int8(
     volatile mgu_atomic_char* _obj, char _arg, mgu_memory_order _order)
 {
     char ret;
@@ -1456,15 +1541,15 @@ MG_CAPI_INLINE char __mgu_atomic_fetch_add_explicit_int8(
     return ret;
 }
 
-MG_CAPI_INLINE unsigned char __mgu_atomic_fetch_add_explicit_uint8(
+MG_CAPI_INLINE unsigned char mgu_atomic_fetch_add_explicit_uint8(
     volatile mgu_atomic_uchar* _obj, unsigned char _arg, mgu_memory_order _order)
 {
-    char ret = __mgu_atomic_fetch_add_explicit_int8(
+    char ret = mgu_atomic_fetch_add_explicit_int8(
         (volatile mgu_atomic_char*)_obj, *((char*)&_arg), _order);
     return *((unsigned char*)&ret);
 }
 
-MG_CAPI_INLINE short __mgu_atomic_fetch_add_explicit_int16(
+MG_CAPI_INLINE short mgu_atomic_fetch_add_explicit_int16(
     volatile mgu_atomic_short* _obj, short _arg, mgu_memory_order _order)
 {
     short ret;
@@ -1472,15 +1557,15 @@ MG_CAPI_INLINE short __mgu_atomic_fetch_add_explicit_int16(
     return ret;
 }
 
-MG_CAPI_INLINE unsigned short __mgu_atomic_fetch_add_explicit_uint16(
+MG_CAPI_INLINE unsigned short mgu_atomic_fetch_add_explicit_uint16(
     volatile mgu_atomic_ushort* _obj, unsigned short _arg, mgu_memory_order _order)
 {
-    short ret = __mgu_atomic_fetch_add_explicit_int16(
+    short ret = mgu_atomic_fetch_add_explicit_int16(
         (volatile mgu_atomic_short*)_obj, *((short*)&_arg), _order);
     return *((unsigned short*)&ret);
 }
 
-MG_CAPI_INLINE long __mgu_atomic_fetch_add_explicit_int32(
+MG_CAPI_INLINE long mgu_atomic_fetch_add_explicit_int32(
     volatile mgu_atomic_long* _obj, long _arg, mgu_memory_order _order)
 {
     long ret;
@@ -1488,15 +1573,15 @@ MG_CAPI_INLINE long __mgu_atomic_fetch_add_explicit_int32(
     return ret;
 }
 
-MG_CAPI_INLINE unsigned long __mgu_atomic_fetch_add_explicit_uint32(
+MG_CAPI_INLINE unsigned long mgu_atomic_fetch_add_explicit_uint32(
     volatile mgu_atomic_ulong* _obj, unsigned long _arg, mgu_memory_order _order)
 {
-    long ret = __mgu_atomic_fetch_add_explicit_int32(
+    long ret = mgu_atomic_fetch_add_explicit_int32(
         (volatile mgu_atomic_long*)_obj, *((long*)&_arg), _order);
     return *((unsigned long*)&ret);
 }
 
-MG_CAPI_INLINE long long __mgu_atomic_fetch_add_explicit_int64(
+MG_CAPI_INLINE long long mgu_atomic_fetch_add_explicit_int64(
     volatile mgu_atomic_llong* _obj, long long _arg, mgu_memory_order _order)
 {
     long long ret;
@@ -1504,10 +1589,10 @@ MG_CAPI_INLINE long long __mgu_atomic_fetch_add_explicit_int64(
     return ret;
 }
 
-MG_CAPI_INLINE unsigned long long __mgu_atomic_fetch_add_explicit_uint64(
+MG_CAPI_INLINE unsigned long long mgu_atomic_fetch_add_explicit_uint64(
     volatile mgu_atomic_ullong* _obj, unsigned long long _arg, mgu_memory_order _order)
 {
-    long long ret = __mgu_atomic_fetch_add_explicit_int64(
+    long long ret = mgu_atomic_fetch_add_explicit_int64(
         (volatile mgu_atomic_llong*)_obj, *((long long*)&_arg), _order);
     return *((unsigned long long*)&ret);
 }
@@ -1517,63 +1602,63 @@ MG_CAPI_INLINE unsigned long long __mgu_atomic_fetch_add_explicit_uint64(
 MG_CAPI_INLINE char __mgu_atomic_fetch_add_explicit(
     volatile mgu_atomic_char* _obj, char _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_add_explicit_int8(_obj, _arg, _order);
+    return mgu_atomic_fetch_add_explicit_int8(_obj, _arg, _order);
 }
 
 MG_CAPI_INLINE unsigned char __mgu_atomic_fetch_add_explicit(
     volatile mgu_atomic_uchar* _obj, unsigned char _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_add_explicit_uint8(_obj, _arg, _order);
+    return mgu_atomic_fetch_add_explicit_uint8(_obj, _arg, _order);
 }
 
 MG_CAPI_INLINE short __mgu_atomic_fetch_add_explicit(
     volatile mgu_atomic_short* _obj, short _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_add_explicit_int16(_obj, _arg, _order);
+    return mgu_atomic_fetch_add_explicit_int16(_obj, _arg, _order);
 }
 
 MG_CAPI_INLINE unsigned short __mgu_atomic_fetch_add_explicit(
     volatile mgu_atomic_ushort* _obj, unsigned short _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_add_explicit_uint16(_obj, _arg, _order);
+    return mgu_atomic_fetch_add_explicit_uint16(_obj, _arg, _order);
 }
 
 MG_CAPI_INLINE long __mgu_atomic_fetch_add_explicit(
     volatile mgu_atomic_long* _obj, long _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_add_explicit_int32(_obj, _arg, _order);
+    return mgu_atomic_fetch_add_explicit_int32(_obj, _arg, _order);
 }
 
 MG_CAPI_INLINE unsigned long __mgu_atomic_fetch_add_explicit(
     volatile mgu_atomic_ulong* _obj, unsigned long _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_add_explicit_uint32(_obj, _arg, _order);
+    return mgu_atomic_fetch_add_explicit_uint32(_obj, _arg, _order);
 }
 
 MG_CAPI_INLINE long long __mgu_atomic_fetch_add_explicit(
     volatile mgu_atomic_llong* _obj, long long _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_add_explicit_int64(_obj, _arg, _order);
+    return mgu_atomic_fetch_add_explicit_int64(_obj, _arg, _order);
 }
 
 MG_CAPI_INLINE unsigned long long __mgu_atomic_fetch_add_explicit(
     volatile mgu_atomic_ullong* _obj, unsigned long long _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_add_explicit_uint64(_obj, _arg, _order);
+    return mgu_atomic_fetch_add_explicit_uint64(_obj, _arg, _order);
 }
 
-#elif !defined(__STDC_NO_ATOMICS__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
-#define __mgu_atomic_fetch_add_explicit(obj,arg,order)               \
-_Generic((obj),                                                      \
-mgu_atomic_char*: __mgu_atomic_fetch_add_explicit_int8,              \
-mgu_atomic_uchar*: __mgu_atomic_fetch_add_explicit_uint8,            \
-mgu_atomic_short*: __mgu_atomic_fetch_add_explicit_int16,            \
-mgu_atomic_ushort*: __mgu_atomic_fetch_add_explicit_uint16,          \
-mgu_atomic_long*: __mgu_atomic_fetch_add_explicit_int32,             \
-mgu_atomic_ulong*: __mgu_atomic_fetch_add_explicit_uint32,           \
-mgu_atomic_llong*: __mgu_atomic_fetch_add_explicit_int64,            \
-mgu_atomic_ullong*: __mgu_atomic_fetch_add_explicit_uint64           \
+#define __mgu_atomic_fetch_add_explicit(obj,arg,order)             \
+_Generic((obj),                                                    \
+mgu_atomic_char*  : mgu_atomic_fetch_add_explicit_int8,            \
+mgu_atomic_uchar* : mgu_atomic_fetch_add_explicit_uint8,           \
+mgu_atomic_short* : mgu_atomic_fetch_add_explicit_int16,           \
+mgu_atomic_ushort*: mgu_atomic_fetch_add_explicit_uint16,          \
+mgu_atomic_long*  : mgu_atomic_fetch_add_explicit_int32,           \
+mgu_atomic_ulong* : mgu_atomic_fetch_add_explicit_uint32,          \
+mgu_atomic_llong* : mgu_atomic_fetch_add_explicit_int64,           \
+mgu_atomic_ullong*: mgu_atomic_fetch_add_explicit_uint64           \
 )(obj,arg,order)
 
 #endif
@@ -1581,55 +1666,55 @@ mgu_atomic_ullong*: __mgu_atomic_fetch_add_explicit_uint64           \
 #define mgu_atomic_fetch_add_explicit(obj,arg,order) __mgu_atomic_fetch_add_explicit(obj,arg,order)
 #define mgu_atomic_fetch_add(obj,arg) __mgu_atomic_fetch_add_explicit(obj,arg,mgu_memory_order_seq_cst)
 
-MG_CAPI_INLINE char __mgu_atomic_fetch_sub_explicit_int8(
+MG_CAPI_INLINE char mgu_atomic_fetch_sub_explicit_int8(
     volatile mgu_atomic_char* _obj, char _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_add_explicit_int8(_obj, -_arg, _order);
+    return mgu_atomic_fetch_add_explicit_int8(_obj, -_arg, _order);
 }
 
-MG_CAPI_INLINE unsigned char __mgu_atomic_fetch_sub_explicit_uint8(
+MG_CAPI_INLINE unsigned char mgu_atomic_fetch_sub_explicit_uint8(
     volatile mgu_atomic_uchar* _obj, unsigned char _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_add_explicit_int8(
+    return mgu_atomic_fetch_add_explicit_int8(
         (volatile mgu_atomic_char*)_obj, -(*((char*)&_arg)), _order);
 }
 
-MG_CAPI_INLINE short __mgu_atomic_fetch_sub_explicit_int16(
+MG_CAPI_INLINE short mgu_atomic_fetch_sub_explicit_int16(
     volatile mgu_atomic_short* _obj, short _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_add_explicit_int16(_obj, -_arg, _order);
+    return mgu_atomic_fetch_add_explicit_int16(_obj, -_arg, _order);
 }
 
-MG_CAPI_INLINE unsigned short __mgu_atomic_fetch_sub_explicit_uint16(
+MG_CAPI_INLINE unsigned short mgu_atomic_fetch_sub_explicit_uint16(
     volatile mgu_atomic_ushort* _obj, unsigned short _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_add_explicit_int16(
+    return mgu_atomic_fetch_add_explicit_int16(
         (volatile mgu_atomic_short*)_obj, -(*((short*)&_arg)), _order);
 }
 
-MG_CAPI_INLINE long __mgu_atomic_fetch_sub_explicit_int32(
+MG_CAPI_INLINE long mgu_atomic_fetch_sub_explicit_int32(
     volatile mgu_atomic_long* _obj, long _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_add_explicit_int32(_obj, -_arg, _order);
+    return mgu_atomic_fetch_add_explicit_int32(_obj, -_arg, _order);
 }
 
-MG_CAPI_INLINE unsigned long __mgu_atomic_fetch_sub_explicit_uint32(
+MG_CAPI_INLINE unsigned long mgu_atomic_fetch_sub_explicit_uint32(
     volatile mgu_atomic_ulong* _obj, unsigned long _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_add_explicit_int32(
+    return mgu_atomic_fetch_add_explicit_int32(
         (volatile mgu_atomic_long*)_obj, -(*((long*)&_arg)), _order);
 }
 
-MG_CAPI_INLINE long long __mgu_atomic_fetch_sub_explicit_int64(
+MG_CAPI_INLINE long long mgu_atomic_fetch_sub_explicit_int64(
     volatile mgu_atomic_llong* _obj, long long _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_add_explicit_int64(_obj, -_arg, _order);
+    return mgu_atomic_fetch_add_explicit_int64(_obj, -_arg, _order);
 }
 
-MG_CAPI_INLINE unsigned long long __mgu_atomic_fetch_sub_explicit_uint64(
+MG_CAPI_INLINE unsigned long long mgu_atomic_fetch_sub_explicit_uint64(
     volatile mgu_atomic_ullong* _obj, unsigned long long _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_add_explicit_int64(
+    return mgu_atomic_fetch_add_explicit_int64(
         (volatile mgu_atomic_llong*)_obj, -(*((long long*)&_arg)), _order);
 }
 
@@ -1638,63 +1723,63 @@ MG_CAPI_INLINE unsigned long long __mgu_atomic_fetch_sub_explicit_uint64(
 MG_CAPI_INLINE char __mgu_atomic_fetch_sub_explicit(
     volatile mgu_atomic_char* _obj, char _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_sub_explicit_int8(_obj, _arg, _order);
+    return mgu_atomic_fetch_sub_explicit_int8(_obj, _arg, _order);
 }
 
 MG_CAPI_INLINE unsigned char __mgu_atomic_fetch_sub_explicit(
     volatile mgu_atomic_uchar* _obj, unsigned char _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_sub_explicit_uint8(_obj, _arg, _order);
+    return mgu_atomic_fetch_sub_explicit_uint8(_obj, _arg, _order);
 }
 
 MG_CAPI_INLINE short __mgu_atomic_fetch_sub_explicit(
     volatile mgu_atomic_short* _obj, short _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_sub_explicit_int16(_obj, _arg, _order);
+    return mgu_atomic_fetch_sub_explicit_int16(_obj, _arg, _order);
 }
 
 MG_CAPI_INLINE unsigned short __mgu_atomic_fetch_sub_explicit(
     volatile mgu_atomic_ushort* _obj, unsigned short _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_sub_explicit_uint16(_obj, _arg, _order);
+    return mgu_atomic_fetch_sub_explicit_uint16(_obj, _arg, _order);
 }
 
 MG_CAPI_INLINE long __mgu_atomic_fetch_sub_explicit(
     volatile mgu_atomic_long* _obj, long _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_sub_explicit_int32(_obj, _arg, _order);
+    return mgu_atomic_fetch_sub_explicit_int32(_obj, _arg, _order);
 }
 
 MG_CAPI_INLINE unsigned long __mgu_atomic_fetch_sub_explicit(
     volatile mgu_atomic_ulong* _obj, unsigned long _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_sub_explicit_uint32(_obj, _arg, _order);
+    return mgu_atomic_fetch_sub_explicit_uint32(_obj, _arg, _order);
 }
 
 MG_CAPI_INLINE long long __mgu_atomic_fetch_sub_explicit(
     volatile mgu_atomic_llong* _obj, long long _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_sub_explicit_int64(_obj, _arg, _order);
+    return mgu_atomic_fetch_sub_explicit_int64(_obj, _arg, _order);
 }
 
 MG_CAPI_INLINE unsigned long long __mgu_atomic_fetch_sub_explicit(
     volatile mgu_atomic_ullong* _obj, unsigned long long _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_sub_explicit_uint64(_obj, _arg, _order);
+    return mgu_atomic_fetch_sub_explicit_uint64(_obj, _arg, _order);
 }
 
-#elif !defined(__STDC_NO_ATOMICS__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
-#define __mgu_atomic_fetch_sub_explicit(obj,arg,order)                   \
-_Generic((obj),                                                          \
-    mgu_atomic_char*: __mgu_atomic_fetch_sub_explicit_int8,              \
-    mgu_atomic_uchar*: __mgu_atomic_fetch_sub_explicit_uint8,            \
-    mgu_atomic_short*: __mgu_atomic_fetch_sub_explicit_int16,            \
-    mgu_atomic_ushort*: __mgu_atomic_fetch_sub_explicit_uint16,          \
-    mgu_atomic_long*: __mgu_atomic_fetch_sub_explicit_int32,             \
-    mgu_atomic_ulong*: __mgu_atomic_fetch_sub_explicit_uint32,           \
-    mgu_atomic_llong*: __mgu_atomic_fetch_sub_explicit_int64,            \
-    mgu_atomic_ullong*: __mgu_atomic_fetch_sub_explicit_uint64           \
+#define __mgu_atomic_fetch_sub_explicit(obj,arg,order)                 \
+_Generic((obj),                                                        \
+    mgu_atomic_char*  : mgu_atomic_fetch_sub_explicit_int8,            \
+    mgu_atomic_uchar* : mgu_atomic_fetch_sub_explicit_uint8,           \
+    mgu_atomic_short* : mgu_atomic_fetch_sub_explicit_int16,           \
+    mgu_atomic_ushort*: mgu_atomic_fetch_sub_explicit_uint16,          \
+    mgu_atomic_long*  : mgu_atomic_fetch_sub_explicit_int32,           \
+    mgu_atomic_ulong* : mgu_atomic_fetch_sub_explicit_uint32,          \
+    mgu_atomic_llong* : mgu_atomic_fetch_sub_explicit_int64,           \
+    mgu_atomic_ullong*: mgu_atomic_fetch_sub_explicit_uint64           \
 )(obj,arg,order)
 
 #endif
@@ -1702,7 +1787,7 @@ _Generic((obj),                                                          \
 #define mgu_atomic_fetch_sub_explicit(obj,arg,order) __mgu_atomic_fetch_sub_explicit(obj,arg,order)
 #define mgu_atomic_fetch_sub(obj,arg) __mgu_atomic_fetch_sub_explicit(obj,arg,mgu_memory_order_seq_cst)
 
-MG_CAPI_INLINE char __mgu_atomic_fetch_and_explicit_int8(
+MG_CAPI_INLINE char mgu_atomic_fetch_and_explicit_int8(
     volatile mgu_atomic_char* _obj, char _arg, mgu_memory_order _order)
 {
     char ret;
@@ -1710,15 +1795,15 @@ MG_CAPI_INLINE char __mgu_atomic_fetch_and_explicit_int8(
     return ret;
 }
 
-MG_CAPI_INLINE unsigned char __mgu_atomic_fetch_and_explicit_uint8(
+MG_CAPI_INLINE unsigned char mgu_atomic_fetch_and_explicit_uint8(
     volatile mgu_atomic_uchar* _obj, unsigned char _arg, mgu_memory_order _order)
 {
-    char ret = __mgu_atomic_fetch_and_explicit_int8(
+    char ret = mgu_atomic_fetch_and_explicit_int8(
         (volatile mgu_atomic_char*)_obj, *((char*)&_arg), _order);
     return *((unsigned char*)&ret);
 }
 
-MG_CAPI_INLINE short __mgu_atomic_fetch_and_explicit_int16(
+MG_CAPI_INLINE short mgu_atomic_fetch_and_explicit_int16(
     volatile mgu_atomic_short* _obj, short _arg, mgu_memory_order _order)
 {
     short ret;
@@ -1726,15 +1811,15 @@ MG_CAPI_INLINE short __mgu_atomic_fetch_and_explicit_int16(
     return ret;
 }
 
-MG_CAPI_INLINE unsigned short __mgu_atomic_fetch_and_explicit_uint16(
+MG_CAPI_INLINE unsigned short mgu_atomic_fetch_and_explicit_uint16(
     volatile mgu_atomic_ushort* _obj, unsigned short _arg, mgu_memory_order _order)
 {
-    short ret = __mgu_atomic_fetch_and_explicit_int16(
+    short ret = mgu_atomic_fetch_and_explicit_int16(
         (volatile mgu_atomic_short*)_obj, *((short*)&_arg), _order);
     return *((unsigned short*)&ret);
 }
 
-MG_CAPI_INLINE long __mgu_atomic_fetch_and_explicit_int32(
+MG_CAPI_INLINE long mgu_atomic_fetch_and_explicit_int32(
     volatile mgu_atomic_long* _obj, long _arg, mgu_memory_order _order)
 {
     long ret;
@@ -1742,15 +1827,15 @@ MG_CAPI_INLINE long __mgu_atomic_fetch_and_explicit_int32(
     return ret;
 }
 
-MG_CAPI_INLINE unsigned long __mgu_atomic_fetch_and_explicit_uint32(
+MG_CAPI_INLINE unsigned long mgu_atomic_fetch_and_explicit_uint32(
     volatile mgu_atomic_ulong* _obj, unsigned long _arg, mgu_memory_order _order)
 {
-    long ret = __mgu_atomic_fetch_and_explicit_int32(
+    long ret = mgu_atomic_fetch_and_explicit_int32(
         (volatile mgu_atomic_long*)_obj, *((long*)&_arg), _order);
     return *((unsigned long*)&ret);
 }
 
-MG_CAPI_INLINE long long __mgu_atomic_fetch_and_explicit_int64(
+MG_CAPI_INLINE long long mgu_atomic_fetch_and_explicit_int64(
     volatile mgu_atomic_llong* _obj, long long _arg, mgu_memory_order _order)
 {
     long long ret;
@@ -1758,10 +1843,10 @@ MG_CAPI_INLINE long long __mgu_atomic_fetch_and_explicit_int64(
     return ret;
 }
 
-MG_CAPI_INLINE unsigned long long __mgu_atomic_fetch_and_explicit_uint64(
+MG_CAPI_INLINE unsigned long long mgu_atomic_fetch_and_explicit_uint64(
     volatile mgu_atomic_ullong* _obj, unsigned long long _arg, mgu_memory_order _order)
 {
-    long long ret = __mgu_atomic_fetch_and_explicit_int64(
+    long long ret = mgu_atomic_fetch_and_explicit_int64(
         (volatile mgu_atomic_llong*)_obj, *((long long*)&_arg), _order);
     return *((unsigned long long*)&ret);
 }
@@ -1771,70 +1856,70 @@ MG_CAPI_INLINE unsigned long long __mgu_atomic_fetch_and_explicit_uint64(
 MG_CAPI_INLINE char __mgu_atomic_fetch_and_explicit(
     mgu_atomic_char* obj, char arg, mgu_memory_order order)
 {
-    return __mgu_atomic_fetch_and_explicit_int8(obj, arg, order);
+    return mgu_atomic_fetch_and_explicit_int8(obj, arg, order);
 }
 
 MG_CAPI_INLINE unsigned char __mgu_atomic_fetch_and_explicit(
     mgu_atomic_uchar* obj, unsigned char arg, mgu_memory_order order)
 {
-    return __mgu_atomic_fetch_and_explicit_uint8(obj, arg, order);
+    return mgu_atomic_fetch_and_explicit_uint8(obj, arg, order);
 }
 
 MG_CAPI_INLINE short __mgu_atomic_fetch_and_explicit(
     mgu_atomic_short* obj, short arg, mgu_memory_order order)
 {
-    return __mgu_atomic_fetch_and_explicit_int16(obj, arg, order);
+    return mgu_atomic_fetch_and_explicit_int16(obj, arg, order);
 }
 
 MG_CAPI_INLINE unsigned short __mgu_atomic_fetch_and_explicit(
     mgu_atomic_ushort* obj, unsigned short arg, mgu_memory_order order)
 {
-    return __mgu_atomic_fetch_and_explicit_uint16(obj, arg, order);
+    return mgu_atomic_fetch_and_explicit_uint16(obj, arg, order);
 }
 
 MG_CAPI_INLINE long __mgu_atomic_fetch_and_explicit(
     mgu_atomic_long* obj, long arg, mgu_memory_order order)
 {
-    return __mgu_atomic_fetch_and_explicit_int32(obj, arg, order);
+    return mgu_atomic_fetch_and_explicit_int32(obj, arg, order);
 }
 
 MG_CAPI_INLINE unsigned long __mgu_atomic_fetch_and_explicit(
     mgu_atomic_ulong* obj, unsigned long arg, mgu_memory_order order)
 {
-    return __mgu_atomic_fetch_and_explicit_uint32(obj, arg, order);
+    return mgu_atomic_fetch_and_explicit_uint32(obj, arg, order);
 }
 
 MG_CAPI_INLINE long long __mgu_atomic_fetch_and_explicit(
     mgu_atomic_llong* obj, long long arg, mgu_memory_order order)
 {
-    return __mgu_atomic_fetch_and_explicit_int64(obj, arg, order);
+    return mgu_atomic_fetch_and_explicit_int64(obj, arg, order);
 }
 
 MG_CAPI_INLINE unsigned long long __mgu_atomic_fetch_and_explicit(
     mgu_atomic_ullong* obj, unsigned long long arg, mgu_memory_order order)
 {
-    return __mgu_atomic_fetch_and_explicit_uint64(obj, arg, order);
+    return mgu_atomic_fetch_and_explicit_uint64(obj, arg, order);
 }
 
-#elif !defined(__STDC_NO_ATOMICS__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
-#define __mgu_atomic_fetch_and_explicit(obj,arg,order)               \
-_Generic((obj),                                                      \
-mgu_atomic_char*: __mgu_atomic_fetch_and_explicit_int8,              \
-mgu_atomic_uchar*: __mgu_atomic_fetch_and_explicit_uint8,            \
-mgu_atomic_short*: __mgu_atomic_fetch_and_explicit_int16,            \
-mgu_atomic_ushort*: __mgu_atomic_fetch_and_explicit_uint16,          \
-mgu_atomic_long*: __mgu_atomic_fetch_and_explicit_int32,             \
-mgu_atomic_ulong*: __mgu_atomic_fetch_and_explicit_uint32,           \
-mgu_atomic_llong*: __mgu_atomic_fetch_and_explicit_int64,            \
-mgu_atomic_ullong*: __mgu_atomic_fetch_and_explicit_uint64           \
+#define __mgu_atomic_fetch_and_explicit(obj,arg,order)             \
+_Generic((obj),                                                    \
+mgu_atomic_char*  : mgu_atomic_fetch_and_explicit_int8,            \
+mgu_atomic_uchar* : mgu_atomic_fetch_and_explicit_uint8,           \
+mgu_atomic_short* : mgu_atomic_fetch_and_explicit_int16,           \
+mgu_atomic_ushort*: mgu_atomic_fetch_and_explicit_uint16,          \
+mgu_atomic_long*  : mgu_atomic_fetch_and_explicit_int32,           \
+mgu_atomic_ulong* : mgu_atomic_fetch_and_explicit_uint32,          \
+mgu_atomic_llong* : mgu_atomic_fetch_and_explicit_int64,           \
+mgu_atomic_ullong*: mgu_atomic_fetch_and_explicit_uint64           \
 )(obj,arg,order)
 
 #endif
 
 #define mgu_atomic_fetch_and_explicit(obj,arg,order) __mgu_atomic_fetch_and_explicit(obj,arg,order)
 
-MG_CAPI_INLINE char __mgu_atomic_fetch_or_explicit_int8(
+MG_CAPI_INLINE char mgu_atomic_fetch_or_explicit_int8(
     volatile mgu_atomic_char* _obj, char _arg, mgu_memory_order _order)
 {
     char ret;
@@ -1842,15 +1927,15 @@ MG_CAPI_INLINE char __mgu_atomic_fetch_or_explicit_int8(
     return ret;
 }
 
-MG_CAPI_INLINE unsigned char __mgu_atomic_fetch_or_explicit_uint8(
+MG_CAPI_INLINE unsigned char mgu_atomic_fetch_or_explicit_uint8(
     volatile mgu_atomic_uchar* _obj, unsigned char _arg, mgu_memory_order _order)
 {
-    char ret = __mgu_atomic_fetch_or_explicit_int8(
+    char ret = mgu_atomic_fetch_or_explicit_int8(
         (volatile mgu_atomic_char*)_obj, *((char*)&_arg), _order);
     return *((unsigned char*)&ret);
 }
 
-MG_CAPI_INLINE short __mgu_atomic_fetch_or_explicit_int16(
+MG_CAPI_INLINE short mgu_atomic_fetch_or_explicit_int16(
     volatile mgu_atomic_short* _obj, short _arg, mgu_memory_order _order)
 {
     short ret;
@@ -1858,15 +1943,15 @@ MG_CAPI_INLINE short __mgu_atomic_fetch_or_explicit_int16(
     return ret;
 }
 
-MG_CAPI_INLINE unsigned short __mgu_atomic_fetch_or_explicit_uint16(
+MG_CAPI_INLINE unsigned short mgu_atomic_fetch_or_explicit_uint16(
     volatile mgu_atomic_ushort* _obj, unsigned short _arg, mgu_memory_order _order)
 {
-    short ret = __mgu_atomic_fetch_or_explicit_int16(
+    short ret = mgu_atomic_fetch_or_explicit_int16(
         (volatile mgu_atomic_short*)_obj, *((short*)&_arg), _order);
     return *((unsigned short*)&ret);
 }
 
-MG_CAPI_INLINE long __mgu_atomic_fetch_or_explicit_int32(
+MG_CAPI_INLINE long mgu_atomic_fetch_or_explicit_int32(
     volatile mgu_atomic_long* _obj, long _arg, mgu_memory_order _order)
 {
     long ret;
@@ -1874,15 +1959,15 @@ MG_CAPI_INLINE long __mgu_atomic_fetch_or_explicit_int32(
     return ret;
 }
 
-MG_CAPI_INLINE unsigned long __mgu_atomic_fetch_or_explicit_uint32(
+MG_CAPI_INLINE unsigned long mgu_atomic_fetch_or_explicit_uint32(
     volatile mgu_atomic_ulong* _obj, unsigned long _arg, mgu_memory_order _order)
 {
-    long ret = __mgu_atomic_fetch_or_explicit_int32(
+    long ret = mgu_atomic_fetch_or_explicit_int32(
         (volatile mgu_atomic_long*)_obj, *((long*)&_arg), _order);
     return *((unsigned long*)&ret);
 }
 
-MG_CAPI_INLINE long long __mgu_atomic_fetch_or_explicit_int64(
+MG_CAPI_INLINE long long mgu_atomic_fetch_or_explicit_int64(
     volatile mgu_atomic_llong* _obj, long long _arg, mgu_memory_order _order)
 {
     long long ret;
@@ -1890,10 +1975,10 @@ MG_CAPI_INLINE long long __mgu_atomic_fetch_or_explicit_int64(
     return ret;
 }
 
-MG_CAPI_INLINE unsigned long long __mgu_atomic_fetch_or_explicit_uint64(
+MG_CAPI_INLINE unsigned long long mgu_atomic_fetch_or_explicit_uint64(
     volatile mgu_atomic_ullong* _obj, unsigned long long _arg, mgu_memory_order _order)
 {
-    long long ret = __mgu_atomic_fetch_or_explicit_int64(
+    long long ret = mgu_atomic_fetch_or_explicit_int64(
         (volatile mgu_atomic_llong*)_obj, *((long long*)&_arg), _order);
     return *((unsigned long long*)&ret);
 }
@@ -1903,63 +1988,63 @@ MG_CAPI_INLINE unsigned long long __mgu_atomic_fetch_or_explicit_uint64(
 MG_CAPI_INLINE char __mgu_atomic_fetch_or_explicit(
     volatile mgu_atomic_char* obj, char arg, mgu_memory_order order)
 {
-    return __mgu_atomic_fetch_or_explicit_int8(obj, arg, order);
+    return mgu_atomic_fetch_or_explicit_int8(obj, arg, order);
 }
 
 MG_CAPI_INLINE unsigned char __mgu_atomic_fetch_or_explicit(
     volatile mgu_atomic_uchar* obj, unsigned char arg, mgu_memory_order order)
 {
-    return __mgu_atomic_fetch_or_explicit_uint8(obj, arg, order);
+    return mgu_atomic_fetch_or_explicit_uint8(obj, arg, order);
 }
 
 MG_CAPI_INLINE short __mgu_atomic_fetch_or_explicit(
     volatile mgu_atomic_short* obj, short arg, mgu_memory_order order)
 {
-    return __mgu_atomic_fetch_or_explicit_int16(obj, arg, order);
+    return mgu_atomic_fetch_or_explicit_int16(obj, arg, order);
 }
 
 MG_CAPI_INLINE unsigned short __mgu_atomic_fetch_or_explicit(
     volatile mgu_atomic_ushort* obj, unsigned short arg, mgu_memory_order order)
 {
-    return __mgu_atomic_fetch_or_explicit_uint16(obj, arg, order);
+    return mgu_atomic_fetch_or_explicit_uint16(obj, arg, order);
 }
 
 MG_CAPI_INLINE long __mgu_atomic_fetch_or_explicit(
     volatile mgu_atomic_long* obj, long arg, mgu_memory_order order)
 {
-    return __mgu_atomic_fetch_or_explicit_int32(obj, arg, order);
+    return mgu_atomic_fetch_or_explicit_int32(obj, arg, order);
 }
 
 MG_CAPI_INLINE unsigned long __mgu_atomic_fetch_or_explicit(
     volatile mgu_atomic_ulong* obj, unsigned long arg, mgu_memory_order order)
 {
-    return __mgu_atomic_fetch_or_explicit_uint32(obj, arg, order);
+    return mgu_atomic_fetch_or_explicit_uint32(obj, arg, order);
 }
 
 MG_CAPI_INLINE long long __mgu_atomic_fetch_or_explicit(
     volatile mgu_atomic_llong* obj, long long arg, mgu_memory_order order)
 {
-    return __mgu_atomic_fetch_or_explicit_int64(obj, arg, order);
+    return mgu_atomic_fetch_or_explicit_int64(obj, arg, order);
 }
 
 MG_CAPI_INLINE unsigned long long __mgu_atomic_fetch_or_explicit(
     volatile mgu_atomic_ullong* obj, unsigned long long arg, mgu_memory_order order)
 {
-    return __mgu_atomic_fetch_or_explicit_uint64(obj, arg, order);
+    return mgu_atomic_fetch_or_explicit_uint64(obj, arg, order);
 }
 
-#elif !defined(__STDC_NO_ATOMICS__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
-#define __mgu_atomic_fetch_or_explicit(obj,arg,order)              \
-_Generic((obj),                                                    \
-mgu_atomic_char*: __mgu_atomic_fetch_or_explicit_int8,             \
-mgu_atomic_uchar*: __mgu_atomic_fetch_or_explicit_uint8,           \
-mgu_atomic_short*: __mgu_atomic_fetch_or_explicit_int16,           \
-mgu_atomic_ushort*: __mgu_atomic_fetch_or_explicit_uint16,         \
-mgu_atomic_long*: __mgu_atomic_fetch_or_explicit_int32,            \
-mgu_atomic_ulong*: __mgu_atomic_fetch_or_explicit_uint32,          \
-mgu_atomic_llong*: __mgu_atomic_fetch_or_explicit_int64,           \
-mgu_atomic_ullong*: __mgu_atomic_fetch_or_explicit_uint64          \
+#define __mgu_atomic_fetch_or_explicit(obj,arg,order)             \
+_Generic((obj),                                                   \
+mgu_atomic_char*  : mgu_atomic_fetch_or_explicit_int8,            \
+mgu_atomic_uchar* : mgu_atomic_fetch_or_explicit_uint8,           \
+mgu_atomic_short* : mgu_atomic_fetch_or_explicit_int16,           \
+mgu_atomic_ushort*: mgu_atomic_fetch_or_explicit_uint16,          \
+mgu_atomic_long*  : mgu_atomic_fetch_or_explicit_int32,           \
+mgu_atomic_ulong* : mgu_atomic_fetch_or_explicit_uint32,          \
+mgu_atomic_llong* : mgu_atomic_fetch_or_explicit_int64,           \
+mgu_atomic_ullong*: mgu_atomic_fetch_or_explicit_uint64           \
 )(obj,arg,order)
 
 #endif
@@ -1968,7 +2053,7 @@ mgu_atomic_ullong*: __mgu_atomic_fetch_or_explicit_uint64          \
 #define mgu_atomic_fetch_or(obj,arg) __mgu_atomic_fetch_or_explicit(obj,arg,mgu_memory_order_seq_cst)
 
 
-MG_CAPI_INLINE char __mgu_atomic_fetch_xor_explicit_int8(
+MG_CAPI_INLINE char mgu_atomic_fetch_xor_explicit_int8(
     volatile mgu_atomic_char* _obj, char _arg, mgu_memory_order _order)
 {
     char ret;
@@ -1976,15 +2061,15 @@ MG_CAPI_INLINE char __mgu_atomic_fetch_xor_explicit_int8(
     return ret;
 }
 
-MG_CAPI_INLINE unsigned char __mgu_atomic_fetch_xor_explicit_uint8(
+MG_CAPI_INLINE unsigned char mgu_atomic_fetch_xor_explicit_uint8(
     volatile mgu_atomic_uchar* _obj, unsigned char _arg, mgu_memory_order _order)
 {
-    char ret = __mgu_atomic_fetch_xor_explicit_int8(
+    char ret = mgu_atomic_fetch_xor_explicit_int8(
         (volatile mgu_atomic_char*)_obj, *((char*)&_arg), _order);
     return *((unsigned char*)&ret);
 }
 
-MG_CAPI_INLINE short __mgu_atomic_fetch_xor_explicit_int16(
+MG_CAPI_INLINE short mgu_atomic_fetch_xor_explicit_int16(
     volatile mgu_atomic_short* _obj, short _arg, mgu_memory_order _order)
 {
     short ret;
@@ -1992,15 +2077,15 @@ MG_CAPI_INLINE short __mgu_atomic_fetch_xor_explicit_int16(
     return ret;
 }
 
-MG_CAPI_INLINE unsigned short __mgu_atomic_fetch_xor_explicit_uint16(
+MG_CAPI_INLINE unsigned short mgu_atomic_fetch_xor_explicit_uint16(
     volatile mgu_atomic_ushort* _obj, unsigned short _arg, mgu_memory_order _order)
 {
-    short ret = __mgu_atomic_fetch_xor_explicit_int16(
+    short ret = mgu_atomic_fetch_xor_explicit_int16(
         (volatile mgu_atomic_short*)_obj, *((short*)&_arg), _order);
     return *((unsigned short*)&ret);
 }
 
-MG_CAPI_INLINE long __mgu_atomic_fetch_xor_explicit_int32(
+MG_CAPI_INLINE long mgu_atomic_fetch_xor_explicit_int32(
     volatile mgu_atomic_long* _obj, long _arg, mgu_memory_order _order)
 {
     long ret;
@@ -2008,15 +2093,15 @@ MG_CAPI_INLINE long __mgu_atomic_fetch_xor_explicit_int32(
     return ret;
 }
 
-MG_CAPI_INLINE unsigned long __mgu_atomic_fetch_xor_explicit_uint32(
+MG_CAPI_INLINE unsigned long mgu_atomic_fetch_xor_explicit_uint32(
     volatile mgu_atomic_ulong* _obj, unsigned long _arg, mgu_memory_order _order)
 {
-    long ret = __mgu_atomic_fetch_xor_explicit_int32(
+    long ret = mgu_atomic_fetch_xor_explicit_int32(
         (volatile mgu_atomic_long*)_obj, *((long*)&_arg), _order);
     return *((unsigned long*)&ret);
 }
 
-MG_CAPI_INLINE long long __mgu_atomic_fetch_xor_explicit_int64(
+MG_CAPI_INLINE long long mgu_atomic_fetch_xor_explicit_int64(
     volatile mgu_atomic_llong* _obj, long long _arg, mgu_memory_order _order)
 {
     long long ret;
@@ -2024,10 +2109,10 @@ MG_CAPI_INLINE long long __mgu_atomic_fetch_xor_explicit_int64(
     return ret;
 }
 
-MG_CAPI_INLINE unsigned long long __mgu_atomic_fetch_xor_explicit_uint64(
+MG_CAPI_INLINE unsigned long long mgu_atomic_fetch_xor_explicit_uint64(
     volatile mgu_atomic_ullong* _obj, unsigned long long _arg, mgu_memory_order _order)
 {
-    long long ret = __mgu_atomic_fetch_xor_explicit_int64(
+    long long ret = mgu_atomic_fetch_xor_explicit_int64(
         (volatile mgu_atomic_llong*)_obj, *((long long*)&_arg), _order);
     return *((unsigned long long*)&ret);
 }
@@ -2037,63 +2122,63 @@ MG_CAPI_INLINE unsigned long long __mgu_atomic_fetch_xor_explicit_uint64(
 MG_CAPI_INLINE char __mgu_atomic_fetch_xor_explicit(
     volatile mgu_atomic_char* _obj, char _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_xor_explicit_int8(_obj, _arg, _order);
+    return mgu_atomic_fetch_xor_explicit_int8(_obj, _arg, _order);
 }
 
 MG_CAPI_INLINE unsigned char __mgu_atomic_fetch_xor_explicit(
     volatile mgu_atomic_uchar* _obj, unsigned char _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_xor_explicit_uint8(_obj, _arg, _order);
+    return mgu_atomic_fetch_xor_explicit_uint8(_obj, _arg, _order);
 }
 
 MG_CAPI_INLINE short __mgu_atomic_fetch_xor_explicit(
     volatile mgu_atomic_short* _obj, short _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_xor_explicit_int16(_obj, _arg, _order);
+    return mgu_atomic_fetch_xor_explicit_int16(_obj, _arg, _order);
 }
 
 MG_CAPI_INLINE unsigned short __mgu_atomic_fetch_xor_explicit(
     volatile mgu_atomic_ushort* _obj, unsigned short _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_xor_explicit_uint16(_obj, _arg, _order);
+    return mgu_atomic_fetch_xor_explicit_uint16(_obj, _arg, _order);
 }
 
 MG_CAPI_INLINE long __mgu_atomic_fetch_xor_explicit(
     volatile mgu_atomic_long* _obj, long _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_xor_explicit_int32(_obj, _arg, _order);
+    return mgu_atomic_fetch_xor_explicit_int32(_obj, _arg, _order);
 }
 
 MG_CAPI_INLINE unsigned long __mgu_atomic_fetch_xor_explicit(
     volatile mgu_atomic_ulong* _obj, unsigned long _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_xor_explicit_uint32(_obj, _arg, _order);
+    return mgu_atomic_fetch_xor_explicit_uint32(_obj, _arg, _order);
 }
 
 MG_CAPI_INLINE long long __mgu_atomic_fetch_xor_explicit(
     volatile mgu_atomic_llong* _obj, long long _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_xor_explicit_int64(_obj, _arg, _order);
+    return mgu_atomic_fetch_xor_explicit_int64(_obj, _arg, _order);
 }
 
 MG_CAPI_INLINE unsigned long long __mgu_atomic_fetch_xor_explicit(
     volatile mgu_atomic_ullong* _obj, unsigned long long _arg, mgu_memory_order _order)
 {
-    return __mgu_atomic_fetch_xor_explicit_uint64(_obj, _arg, _order);
+    return mgu_atomic_fetch_xor_explicit_uint64(_obj, _arg, _order);
 }
 
-#elif !defined(__STDC_NO_ATOMICS__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
-#define __mgu_atomic_fetch_xor_explicit(obj,arg,order)              \
-_Generic((obj),                                                     \
-mgu_atomic_char*: __mgu_atomic_fetch_xor_explicit_int8,             \
-mgu_atomic_uchar*: __mgu_atomic_fetch_xor_explicit_uint8,           \
-mgu_atomic_short*: __mgu_atomic_fetch_xor_explicit_int16,           \
-mgu_atomic_ushort*: __mgu_atomic_fetch_xor_explicit_uint16,         \
-mgu_atomic_long*: __mgu_atomic_fetch_xor_explicit_int32,            \
-mgu_atomic_ulong*: __mgu_atomic_fetch_xor_explicit_uint32,          \
-mgu_atomic_llong*: __mgu_atomic_fetch_xor_explicit_int64,           \
-mgu_atomic_ullong*: __mgu_atomic_fetch_xor_explicit_uint64          \
+#define __mgu_atomic_fetch_xor_explicit(obj,arg,order)            \
+_Generic((obj),                                                   \
+mgu_atomic_char*  : mgu_atomic_fetch_xor_explicit_int8,           \
+mgu_atomic_uchar* : mgu_atomic_fetch_xor_explicit_uint8,          \
+mgu_atomic_short* : mgu_atomic_fetch_xor_explicit_int16,          \
+mgu_atomic_ushort*: mgu_atomic_fetch_xor_explicit_uint16,         \
+mgu_atomic_long*  : mgu_atomic_fetch_xor_explicit_int32,          \
+mgu_atomic_ulong* : mgu_atomic_fetch_xor_explicit_uint32,         \
+mgu_atomic_llong* : mgu_atomic_fetch_xor_explicit_int64,          \
+mgu_atomic_ullong*: mgu_atomic_fetch_xor_explicit_uint64          \
 )(obj,arg,order)
 
 #endif
@@ -2104,19 +2189,30 @@ mgu_atomic_ullong*: __mgu_atomic_fetch_xor_explicit_uint64          \
 MG_CAPI_INLINE bool mgu_atomic_flag_test_and_set_explicit(
     volatile mgu_atomic_flag* _obj, mgu_memory_order _order)
 {
-    char o = 0;
-    return mgu_atomic_compare_exchange_strong_explicit(
-        (mgu_atomic_char*)&_obj->value_, &o, 1, _order, mgu_memory_order_relaxed) ? 0 : 1;
+    bool o = false;
+    return mgu_atomic_compare_exchange_strong_explicit_bool(
+        &_obj->value_, &o, 1, _order, mgu_memory_order_relaxed) ? 0 : 1;
 }
 
 MG_CAPI_INLINE void mgu_atomic_flag_clear_explicit(
     volatile mgu_atomic_flag* _obj, mgu_memory_order _order)
 {
-    mgu_atomic_store_explicit((mgu_atomic_char*)&_obj->value_, 0, _order);
+    mgu_atomic_store_explicit_bool(&_obj->value_, 0, _order);
 }
 
 #define mgu_atomic_flag_test_and_set(obj) mgu_atomic_flag_test_and_set_explicit(obj, mgu_memory_order_seq_cst)
 #define mgu_atomic_flag_clear(obj) mgu_atomic_flag_clear_explicit(obj, mgu_memory_order_release)
+
+#undef __MGU_ATOMIC_INVALID_MEMORY_ORDER
+#undef __mgu_atomic_compiler_or_memory_barrier
+#undef __mgu_atomic_memory_barrier
+#undef __mgu_atomic_compiler_barrier
+
+#undef __MGU_ATOMIC_INTRIN_RELAXED
+#undef __MGU_ATOMIC_INTRIN_ACQUIRE
+#undef __MGU_ATOMIC_INTRIN_RELEASE
+#undef __MGU_ATOMIC_INTRIN_ACQ_REL
+#undef __MGU_ATOMIC_YIELD_PROCESSOR
 
 #else
 
