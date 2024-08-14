@@ -8,7 +8,7 @@
 
 #include <utility>
 
-namespace megopp {
+namespace mgpp {
 namespace util {
 
 	template<typename _Func>
@@ -57,6 +57,8 @@ namespace util {
 //!  }
 //! @endcode
 #define MEGOPP_UTIL__ON_SCOPE_CLEANUP(callback) \
-	auto MEGO__JOIN(MEGOPP_UTIL__SCOPE_CLEANUP_, __LINE__) = ::megopp::util::scope_cleanup__create(callback)
+	auto MEGO__JOIN(MEGOPP_UTIL__SCOPE_CLEANUP_, __LINE__) = ::mgpp::util::scope_cleanup__create(callback)
+
+#include <megopp/predef/namespace_alias.h>
 
 #endif // !MEGOPP_UTIL_SCOPE_CLEANUP_HPP_INCLUDED

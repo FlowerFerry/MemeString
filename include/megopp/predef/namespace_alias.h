@@ -1,0 +1,10 @@
+
+#ifndef MEGOPP_PREDEF_NAMESPACE_ALIAS_H_INCLUDED
+#define MEGOPP_PREDEF_NAMESPACE_ALIAS_H_INCLUDED
+
+namespace mgpp {
+}
+
+namespace megopp = mgpp;
+
+#endif // !MEGOPP_PREDEF_NAMESPACE_ALIAS_H_INCLUDED
