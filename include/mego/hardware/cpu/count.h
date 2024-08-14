@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEGO_HARDWARE_CPU_COUNT_H_INCLUDED
 #define MEGO_HARDWARE_CPU_COUNT_H_INCLUDED
 
@@ -20,7 +20,7 @@ MG_CAPI_INLINE mgthrd_once_flag* __mghw_processor_count_once_flag()
     return &flag;
 }
 
-MG_CAPI_INLINE void __mghw_processor_count_init()
+MG_CAPI_INLINE void __mghw_processor_count_init(void)
 {
 #if MG_OS__WIN_AVAIL
     SYSTEM_INFO sysinfo;
