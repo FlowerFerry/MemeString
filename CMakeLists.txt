@@ -1,4 +1,4 @@
-
+﻿
 cmake_minimum_required(VERSION 3.14)
 
 if (WIN32)
@@ -79,5 +79,6 @@ if (MEMESTRING_UNITTEST_ENABLE)
   set(MMBM_PARENT_LIBRARY_FILE ${CMAKE_BINARY_DIR}/${CMAKE_SHARED_LIBRARY_PREFIX}${MEME_PROJECT_NAME}${CMAKE_SHARED_LIBRARY_SUFFIX})
   set(MMBM_PARENT_LINKER_FILE  $<TARGET_LINKER_FILE:${MEME_PROJECT_NAME}>)
   add_subdirectory(unit_test/mmpp_unittest)
+  add_subdirectory(unit_test/mmpp_thrd_unittest)
 endif()
 
