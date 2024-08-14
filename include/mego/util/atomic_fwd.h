@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-#if MG_COMP__MSVC_AVAIL && !defined(__STDC_NO_ATOMICS__)
+#if MG_COMP__MSVC_AVAIL
 
 #define MGU_ATOMIC_BOOL_LOCK_FREE     2
 #define MGU_ATOMIC_CHAR_LOCK_FREE     2
@@ -91,6 +91,10 @@ typedef atomic_intmax_t     mgu_atomic_intmax_t;
 typedef atomic_uintmax_t    mgu_atomic_uintmax_t;
 
 typedef atomic_flag         mgu_atomic_flag;
+
+#else
+    
+#  error "No atomic support"
 
 #endif
 

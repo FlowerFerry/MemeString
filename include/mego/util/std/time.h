@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEGO_UTIL_STD_TIME_H_INCLUDED
 #define MEGO_UTIL_STD_TIME_H_INCLUDED
 
@@ -39,11 +39,11 @@ extern "C" {
         long      tv_nsec;  // Nanoseconds - [0, 999999999]
     } mgu_timespec_t;
 
-    enum mgu_round_t
+    typedef enum mgu_round_t
     {
         mgu_round_down = 0,
         mgu_round_up = 1
-    };
+    } mgu_round_t;
 
 #ifdef TIME_UTC
     MG_CAPI_INLINE int mgu_timespec_get(mgu_timespec_t* _ts, int _base)

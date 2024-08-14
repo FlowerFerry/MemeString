@@ -7,7 +7,7 @@
 #include <mego/predef/lang/version.h>
 #include <mego/predef/helper_macros.h>
 
-#if MG_COMP__MSVC_AVAIL && !defined(__STDC_NO_ATOMICS__)
+#if MG_COMP__MSVC_AVAIL
 
 //! @see vcruntime_c11_atomic_support.h
 
@@ -1254,7 +1254,7 @@ _Generic((obj),                                                                 
     mgu_atomic_long*  : mgu_atomic_compare_exchange_weak_explicit_int32,                    \
     mgu_atomic_ulong* : mgu_atomic_compare_exchange_weak_explicit_uint32,                   \
     mgu_atomic_llong* : mgu_atomic_compare_exchange_weak_explicit_int64,                    \
-    mgu_atomic_ullong*: mgu_atomic_compare_exchange_weak_explicit_uint64,                   \ 
+    mgu_atomic_ullong*: mgu_atomic_compare_exchange_weak_explicit_uint64,                   \
 )(obj, expected, desired, success, failure)
 
 #else
@@ -2191,13 +2191,13 @@ MG_CAPI_INLINE bool mgu_atomic_flag_test_and_set_explicit(
 {
     bool o = false;
     return mgu_atomic_compare_exchange_strong_explicit_bool(
-        &_obj->value_, &o, 1, _order, mgu_memory_order_relaxed) ? 0 : 1;
+        &_obj->value_, &o, true, _order, mgu_memory_order_relaxed) ? 0 : 1;
 }
 
 MG_CAPI_INLINE void mgu_atomic_flag_clear_explicit(
     volatile mgu_atomic_flag* _obj, mgu_memory_order _order)
 {
-    mgu_atomic_store_explicit_bool(&_obj->value_, 0, _order);
+    mgu_atomic_store_explicit_bool(&_obj->value_, false, _order);
 }
 
 #define mgu_atomic_flag_test_and_set(obj) mgu_atomic_flag_test_and_set_explicit(obj, mgu_memory_order_seq_cst)
@@ -2244,6 +2244,11 @@ MG_CAPI_INLINE void mgu_atomic_flag_clear_explicit(
 #define mgu_atomic_flag_test_and_set_explicit(obj,order) atomic_flag_test_and_set_explicit(obj,order)
 #define mgu_atomic_flag_clear(obj) atomic_flag_clear(obj)
 #define mgu_atomic_flag_clear_explicit(obj,order) atomic_flag_clear_explicit(obj,order)
+
+
+#else
+
+#  error "No atomic support"
 
 #endif
 

@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEGO_UTIL_CONV_TO_NATIVE_C_STR_H_INCLUDED
 #define MEGO_UTIL_CONV_TO_NATIVE_C_STR_H_INCLUDED
 
@@ -23,7 +23,7 @@ extern "C" {
 
 MG_CAPI_INLINE mgec_t mgu__to_converted_native_string(
     const char *_src, mmint_t _slen, 
-    mmn_char_cptr_t *_out, mmint_t *_out_slen, int)
+    mmn_char_cptr_t *_out, mmint_t *_out_slen, int _must_alloc)
 {
     mmint_t u16len = 0;
     wchar_t * path = NULL;
