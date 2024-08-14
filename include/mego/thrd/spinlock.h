@@ -13,7 +13,7 @@ typedef struct mgthrd_spinlock {
 
 MG_CAPI_INLINE void mgthrd_spinlock_init(mgthrd_spinlock_t* _lock)
 {
-    _lock->locked = MGU_ATOMIC_FLAG_INIT;
+    mgu_atomic_flag_clear(&_lock->locked);
 }
 
 MG_CAPI_INLINE void mgthrd_spinlock_lock(mgthrd_spinlock_t*_lock)
