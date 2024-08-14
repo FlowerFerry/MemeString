@@ -11,7 +11,9 @@
 #include <utility>
 #include <type_traits>
 
-namespace megopp {
+#include <megopp/predef/namespace_alias.h>
+
+namespace mgpp {
 
 template <typename T>
 struct is_pair : std::false_type {};

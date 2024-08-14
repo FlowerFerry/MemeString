@@ -6,12 +6,14 @@
 #include <megopp/util/scope_cleanup.h>
 #include <memepp/string.hpp>
 #include <memepp/variable_buffer.hpp>
+#include <megopp/predef/namespace_alias.h>
+
 
 #include <ww898/utf_converters.hpp>
 #include <ww898/cp_utf8.hpp>
 #include <ww898/cp_utfw.hpp>
 
-namespace megopp {
+namespace mgpp {
 namespace os {
 namespace win {
 

@@ -3,8 +3,10 @@
 #define MEGOPP_UTIL_TEMPLATE_INDEXER_H_INCLUDED
 
 #include <type_traits>
+#include <megopp/predef/namespace_alias.h>
 
-namespace megopp {
+
+namespace mgpp {
 namespace util {
 
 //! \brief Indexer for types

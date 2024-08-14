@@ -10,6 +10,8 @@
 #include <memepp/convert/std/string.hpp>
 #include <megopp/util/scope_cleanup.h>
 #include "megopp/util/os/win/error_message.h"
+#include <megopp/predef/namespace_alias.h>
+
 
 #include <memory>
 #include <type_traits>
@@ -22,7 +24,7 @@
 #	include <VersionHelpers.h>
 #endif
 
-namespace megopp {
+namespace mgpp {
 namespace os {
 	
 	class dynamic_library

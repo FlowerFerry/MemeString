@@ -3,8 +3,10 @@
 #define MEGOPP_ENDIAN_TYPES_H_INCLUDED
 
 #include <mego/predef/endian.h>
+#include <megopp/predef/namespace_alias.h>
 
-namespace megopp {
+
+namespace mgpp {
 
 	enum class endian_t
 	{

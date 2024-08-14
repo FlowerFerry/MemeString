@@ -6,8 +6,10 @@
 
 #include "mego/predef/endian.h"
 #include "megopp/endian/byte_swap.h"
+#include <megopp/predef/namespace_alias.h>
 
-namespace megopp {
+
+namespace mgpp {
 namespace endian {
 
 	template<typename _Ty>

@@ -8,8 +8,9 @@
 #include "types.h"
 #include "megopp/help/type_traits.h"
 #include <megopp/endian/byte_swap.h>
+#include <megopp/predef/namespace_alias.h>
 
-namespace megopp {
+namespace mgpp {
 namespace endian {
 
 	template<size_t _BeginBit, size_t _BitSize, typename _Type, endian_t _Endian>

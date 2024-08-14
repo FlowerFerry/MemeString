@@ -3,8 +3,10 @@
 #define MEGOPP_UTIL_TEMPLET_RANDOM_H_INCLUDED
 
 #include <limits.h>
+#include <megopp/predef/namespace_alias.h>
 
-namespace megopp {
+
+namespace mgpp {
 namespace util {
 
 	constexpr unsigned int template_seed(const char* str,

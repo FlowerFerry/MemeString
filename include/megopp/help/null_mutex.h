@@ -8,7 +8,7 @@
 
 #include "megopp/help/noncopyable.h"
 
-namespace megopp {
+namespace mgpp {
 namespace help {
 
 class null_mutex

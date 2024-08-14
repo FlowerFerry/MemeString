@@ -13,8 +13,9 @@
 
 #include "megopp/help/type_traits.h"
 #include "types.h"
+#include <megopp/predef/namespace_alias.h>
 
-namespace megopp {
+namespace mgpp {
 
 namespace endian {
 
