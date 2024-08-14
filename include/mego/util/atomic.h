@@ -10,8 +10,7 @@
 
 #include <string.h>
 #include <yvals.h>
-#include <xatomic.h>
-#include <xthreads.h>
+#include <intrin.h>
 
 // Padding bits should not participate in cmpxchg comparison starting in C++20.
 // Clang does not have __builtin_zero_non_value_bits to exclude these bits to implement this C++20 feature.
@@ -25,31 +24,74 @@
 // Controls whether ARM64 ldar/ldapr/stlr should be used
 #ifndef __MGU_ATOMIC_USE_ARM64_LDAR_STLR
 #  if defined(_M_ARM64) || defined(_M_ARM64EC)
-#    ifdef __clang__ // TRANSITION, LLVM-62103
-#      define __MGU_ATOMIC_USE_ARM64_LDAR_STLR 0
-#    else // ^^^ Clang doesn't support new intrinsics / __load_acquire/__stlr intrinsics are available vvv
+#    if defined(_HAS_ARM64_LOAD_ACQUIRE) && _HAS_ARM64_LOAD_ACQUIRE == 1 // TRANSITION, VS 2022 17.7 Preview 1
 #      define __MGU_ATOMIC_USE_ARM64_LDAR_STLR 1
-#    endif // ^^^ __load_acquire/__stlr intrinsics are available ^^^
+#    else // ^^^ updated intrin0.inl.h is available / workaround vvv
+#      define __MGU_ATOMIC_USE_ARM64_LDAR_STLR 0
+#    endif // ^^^ workaround ^^^
 #  else // ^^^ ARM64/ARM64EC / Other architectures vvv
 #    define __MGU_ATOMIC_USE_ARM64_LDAR_STLR 0
 #  endif // ^^^ Other architectures ^^^
 #endif // __MGU_ATOMIC_USE_ARM64_LDAR_STLR
 
+// The following is modified from the _CRT_SECURE_INVALID_PARAMETER macro in
+// corecrt.h. We need to do this because this header must be C, not C++, but we
+// still want to report invalid parameters in the same way as C++ does. The
+// macro in the CRT expands to C++ code because it contains global namespace
+// qualification. This can be fixed in the ucrt by using a mechanism that
+// defines something like _GLOBAL_NAMESPACE to :: in c++ mode and nothing in C
+// mode.
+#ifndef __MGU_ATOMIC_INVALID_PARAMETER
+#ifdef _DEBUG
+#define __MGU_ATOMIC_INVALID_PARAMETER(expr) _invalid_parameter(_CRT_WIDE(#expr), L"", __FILEW__, __LINE__, 0)
+#else
+// By default, _ATOMIC_INVALID_PARAMETER in retail invokes
+// _invalid_parameter_noinfo_noreturn(), which is marked
+// __declspec(noreturn) and does not return control to the application.
+// Even if _set_invalid_parameter_handler() is used to set a new invalid
+// parameter handler which does return control to the application,
+// _invalid_parameter_noinfo_noreturn() will terminate the application
+// and invoke Watson. You can overwrite the definition of
+// _ATOMIC_INVALID_PARAMETER if you need.
+#define __MGU_ATOMIC_INVALID_PARAMETER(expr) _invalid_parameter_noinfo_noreturn()
+#endif
+#endif
+
 #ifndef __MGU_ATOMIC_INVALID_MEMORY_ORDER
 #  ifdef _DEBUG
-#    define __MGU_ATOMIC_INVALID_MEMORY_ORDER _STL_REPORT_ERROR("Invalid memory order")
+#define __MGU_ATOMIC_INVALID_MEMORY_ORDER                       \
+    do {                                                        \
+        _RPTF0(_CRT_ASSERT, "Invalid memory order");            \
+        __MGU_ATOMIC_INVALID_PARAMETER("Invalid memory order"); \
+    } while (0)
 #  else // ^^^ defined(_DEBUG) / !defined(_DEBUG) vvv
 #    define __MGU_ATOMIC_INVALID_MEMORY_ORDER
 #  endif // ^^^ !defined(_DEBUG) ^^^
 #endif // __MGU_ATOMIC_INVALID_MEMORY_ORDER
 
-#define __MGU_ATOMIC_STORE_RELEASE(_Width, _Ptr, _Desired)  \
-    _Compiler_or_memory_barrier();                          \
-    __iso_volatile_store##_Width((_Ptr), (_Desired));
+// this is different from the STL
+// we are the MSVC runtime so we need not support clang here
+#define __mgu_atomic_compiler_barrier()                                                       \
+    _Pragma("warning(push)") _Pragma("warning(disable : 4996)") /* was declared deprecated */ \
+        _ReadWriteBarrier() _Pragma("warning(pop)")
+
+#if defined(_M_ARM) || defined(_M_ARM64) || defined(_M_ARM64EC)
+#define __mgu_atomic_memory_barrier()             __dmb(0xB) // inner shared data memory barrier
+#define __mgu_atomic_compiler_or_memory_barrier() __mgu_atomic_memory_barrier()
+#elif defined(_M_IX86) || defined(_M_X64)
+// x86/x64 hardware only emits memory barriers inside _Interlocked intrinsics
+#define __mgu_atomic_compiler_or_memory_barrier() __mgu_atomic_compiler_barrier()
+#else // ^^^ x86/x64 / unsupported hardware vvv
+#error Unsupported hardware
+#endif // hardware
+
+#define __MGU_ATOMIC_STORE_RELEASE(_Width, _Ptr, _Desired)       \
+    __mgu_atomic_compiler_or_memory_barrier();                   \
+    WriteNoFence##_Width((_Ptr), (_Desired));
 
 #define __MGU_ATOMIC_STORE_SWITCH_PREFIX(_Width, _Ptr, _Desired) \
     case mgu_memory_order_relaxed:                               \
-        __iso_volatile_store##_Width((_Ptr), (_Desired));        \
+        WriteNoFence##_Width((_Ptr), (_Desired));        \
         return;                                                  \
     case mgu_memory_order_release:                               \
         __MGU_ATOMIC_STORE_RELEASE(_Width, _Ptr, _Desired)       \
@@ -68,7 +110,7 @@
     case mgu_memory_order_consume:                           \
     case mgu_memory_order_acquire:                           \
     case mgu_memory_order_seq_cst:                           \
-        _Compiler_or_memory_barrier();                       \
+        __mgu_atomic_compiler_or_memory_barrier();           \
         break;                                               \
     case mgu_memory_order_release:                           \
     case mgu_memory_order_acq_rel:                           \
@@ -107,32 +149,42 @@
 #if __MGU_ATOMIC_USE_ARM64_LDAR_STLR == 1
 
 #define __MGU_ATOMIC_LOAD_ACQUIRE_ARM64(_Width, _Ptr) \
-    static_cast<__int##_Width>(__load_acquire##_Width(reinterpret_cast<const volatile unsigned __int##_Width*>(_Ptr)))
+    __load_acquire##_Width((const volatile unsigned __int##_Width*)(_Ptr))
 
 #define __MGU_ATOMIC_LOAD_ARM64(_Result, _Width, _Ptr, _Order_var) \
     switch (_Order_var) {                                          \
     case mgu_memory_order_relaxed:                                 \
-        _Result = __iso_volatile_load##_Width(_Ptr);               \
+        _Result = ReadNoFence##_Width(_Ptr);                       \
         break;                                                     \
     case mgu_memory_order_consume:                                 \
     case mgu_memory_order_acquire:                                 \
     case mgu_memory_order_seq_cst:                                 \
         _Result = __MGU_ATOMIC_LOAD_ACQUIRE_ARM64(_Width, _Ptr);   \
-        _Compiler_barrier();                                       \
+        __mgu_atomic_compiler_barrier();                           \
         break;                                                     \
     case mgu_memory_order_release:                                 \
     case mgu_memory_order_acq_rel:                                 \
     default:                                                       \
-        _Result = __iso_volatile_load##_Width(_Ptr);               \
+        _Result = ReadNoFence##_Width(_Ptr);                       \
         __MGU_ATOMIC_INVALID_MEMORY_ORDER;                         \
         break;                                                     \
     }
 
 #endif
 
-extern "C" inline void __mgu_atomic_check_memory_order(const unsigned int _Order) noexcept {
+MG_CAPI_INLINE
+VOID
+WriteNoFence32(
+    _Out_ _Interlocked_operand_ LONG volatile* Destination,
+    _In_ LONG Value
+)
+{
+    WriteNoFence(Destination, Value);
+}
+
+MG_CAPI_INLINE void __mgu_atomic_check_memory_order(const unsigned int _Order) {
     if (_Order > mgu_memory_order_seq_cst) {
-        _STL_REPORT_ERROR("Invalid memory order");
+        __MGU_ATOMIC_INVALID_MEMORY_ORDER;
     }
 }
 
@@ -515,7 +567,7 @@ MG_CAPI_INLINE void __mgu_atomic_store_explicit_int32(
     volatile mgu_atomic_long* _obj, long _desired, mgu_memory_order _order)
 {
     switch (_order) {
-    __MGU_ATOMIC_STORE_SWITCH_PREFIX(32, (volatile int*)_obj, _desired)
+    __MGU_ATOMIC_STORE_SWITCH_PREFIX(32, (volatile long*)_obj, _desired)
     case mgu_memory_order_seq_cst:
         InterlockedExchange(_obj, _desired);
         return;
@@ -624,8 +676,8 @@ _Generic((desired),                                         \
 
 MG_CAPI_INLINE char __mgu_atomic_load_int8(const volatile mgu_atomic_char* _obj)
 {
-    char ret = __iso_volatile_load8(_obj);
-    _Compiler_or_memory_barrier();
+    char ret = ReadNoFence8(_obj);
+    __mgu_atomic_compiler_or_memory_barrier();
     return ret;
 }
 
@@ -637,8 +689,8 @@ MG_CAPI_INLINE unsigned char __mgu_atomic_load_uint8(const volatile mgu_atomic_u
 
 MG_CAPI_INLINE short __mgu_atomic_load_int16(const volatile mgu_atomic_short* _obj)
 {
-    short ret = __iso_volatile_load16(_obj);
-    _Compiler_or_memory_barrier();
+    short ret = ReadNoFence16(_obj);
+    __mgu_atomic_compiler_or_memory_barrier();
     return ret;
 }
 
@@ -650,8 +702,8 @@ MG_CAPI_INLINE unsigned short __mgu_atomic_load_uint16(const volatile mgu_atomic
 
 MG_CAPI_INLINE long __mgu_atomic_load_int32(const volatile mgu_atomic_long* _obj)
 {        
-    int ret = __iso_volatile_load32((volatile int*)_obj);
-    _Compiler_or_memory_barrier();
+    long ret = ReadNoFence((volatile long*)_obj);
+    __mgu_atomic_compiler_or_memory_barrier();
     return ret;
 }
 
@@ -663,8 +715,8 @@ MG_CAPI_INLINE unsigned long __mgu_atomic_load_uint32(const volatile mgu_atomic_
 
 MG_CAPI_INLINE long long __mgu_atomic_load_int64(const volatile mgu_atomic_llong* _obj)
 {
-    long long ret = __iso_volatile_load64(_obj);
-    _Compiler_or_memory_barrier();
+    long long ret = ReadNoFence64(_obj);
+    __mgu_atomic_compiler_or_memory_barrier();
     return ret;
 }
 
@@ -676,8 +728,8 @@ MG_CAPI_INLINE unsigned long long __mgu_atomic_load_uint64(const volatile mgu_at
 
 MG_CAPI_INLINE bool __mgu_atomic_load_bool(const volatile mgu_atomic_bool* _obj)
 {
-    bool ret = __iso_volatile_load8((const volatile char*)_obj);
-    _Compiler_or_memory_barrier();
+    bool ret = ReadNoFence8((const volatile char*)_obj);
+    __mgu_atomic_compiler_or_memory_barrier();
     return ret;
 }
 
@@ -716,7 +768,7 @@ MG_CAPI_INLINE char __mgu_atomic_load_explicit_int8(
     const volatile mgu_atomic_char* _obj, mgu_memory_order _order)
 {
     char ret;
-    ret = __iso_volatile_load8(_obj);
+    ret = ReadNoFence8(_obj);
     __MGU_ATOMIC_POST_LOAD_BARRIER_AS_NEEDED((_order))
     return ret;
 }
@@ -733,7 +785,7 @@ MG_CAPI_INLINE short __mgu_atomic_load_explicit_int16(
     const volatile mgu_atomic_short* _obj, mgu_memory_order _order)
 {
     short ret;
-    ret = __iso_volatile_load16(_obj);
+    ret = ReadNoFence16(_obj);
     __MGU_ATOMIC_POST_LOAD_BARRIER_AS_NEEDED((_order))
     return ret;
 }
@@ -753,7 +805,7 @@ MG_CAPI_INLINE long __mgu_atomic_load_explicit_int32(
 #if __MGU_ATOMIC_USE_ARM64_LDAR_STLR == 1
         __MGU_ATOMIC_LOAD_ARM64(ret, 32, _obj, (_order))
 #else
-        ret = __iso_volatile_load32((const volatile int*)_obj);
+        ret = ReadNoFence((const volatile long*)_obj);
         __MGU_ATOMIC_POST_LOAD_BARRIER_AS_NEEDED((_order))
 #endif
     return ret;
@@ -774,7 +826,7 @@ MG_CAPI_INLINE long long __mgu_atomic_load_explicit_int64(
 #if __MGU_ATOMIC_USE_ARM64_LDAR_STLR == 1
     __MGU_ATOMIC_LOAD_ARM64(ret, 64, _obj, (_order))
 #else
-    ret = __iso_volatile_load64(_obj);
+    ret = ReadNoFence64(_obj);
     __MGU_ATOMIC_POST_LOAD_BARRIER_AS_NEEDED((_order))
 #endif
     return ret;
