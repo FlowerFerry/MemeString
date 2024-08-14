@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#ifndef __cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -94,7 +94,7 @@ typedef atomic_flag         mgu_atomic_flag;
 
 #endif
 
-#ifndef __cplusplus
+#ifdef __cplusplus
 }
 #endif
 
