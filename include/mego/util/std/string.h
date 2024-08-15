@@ -10,7 +10,7 @@
 
 #ifndef __STDC_WANT_LIB_EXT1__
 #define __STDC_WANT_LIB_EXT1__ 1
-#define __MEGO_UNDEF__STDC_WANT_LIB_EXT1__ 1
+// #define __MEGO_UNDEF__STDC_WANT_LIB_EXT1__ 1
 #endif
 
 #include <string.h>
@@ -47,9 +47,9 @@ MG_CAPI_INLINE errno_t mgu_strncpy_s(
 
 #endif
 
-#ifdef __MEGO_UNDEF__STDC_WANT_LIB_EXT1__
-#undef __STDC_WANT_LIB_EXT1__
-#undef __MEGO_UNDEF__STDC_WANT_LIB_EXT1__
-#endif
+// #ifdef __MEGO_UNDEF__STDC_WANT_LIB_EXT1__
+// #undef __STDC_WANT_LIB_EXT1__
+// #undef __MEGO_UNDEF__STDC_WANT_LIB_EXT1__
+// #endif
 
 #endif // !MEGO_UTIL_STD_STRING_H_INCLUDED
