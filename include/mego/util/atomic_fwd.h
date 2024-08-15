@@ -3,7 +3,7 @@
 #define MEGO_UTIL_ATOMIC_FWD_H_INCLUDED
 
 #include <mego/predef/compiler/visualc.h>
-#include <mego/util/os/windows/windows_simplify.h>
+#include <mego/predef/lang/version.h>
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -51,7 +51,7 @@ typedef struct mgu_atomic_flag { mgu_atomic_bool value_; } mgu_atomic_flag;
 
 #define MGU_ATOMIC_FLAG_INIT { false }
 
-#elif defined(__STDC_NO_ATOMICS__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif defined(__STDC_NO_ATOMICS__) && MG_LANG__C11_AVAIL
 
 #  include <stdatomic.h>
 
@@ -93,8 +93,8 @@ typedef atomic_uintmax_t    mgu_atomic_uintmax_t;
 typedef atomic_flag         mgu_atomic_flag;
 
 #else
-    
-#  error "No atomic support"
+
+#  error "No mego::util::atomic support"
 
 #endif
 

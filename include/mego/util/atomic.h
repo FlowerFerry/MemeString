@@ -9,6 +9,8 @@
 
 #if MG_COMP__MSVC_AVAIL
 
+#include <mego/util/os/windows/windows_simplify.h>
+
 //! @see vcruntime_c11_atomic_support.h
 
 #include <string.h>
@@ -244,7 +246,7 @@ MG_CAPI_INLINE bool __mgu_atomic_is_lock_free(volatile mgu_atomic_ulong*  _obj) 
 MG_CAPI_INLINE bool __mgu_atomic_is_lock_free(volatile mgu_atomic_llong*  _obj) { return true; }
 MG_CAPI_INLINE bool __mgu_atomic_is_lock_free(volatile mgu_atomic_ullong* _obj) { return true; }
 
-#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif MG_LANG__C11_AVAIL
 
 #define __mgu_atomic_is_lock_free(obj) \
 _Generic((obj), \
@@ -312,7 +314,7 @@ MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_ulong*  _obj, unsigned
 MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_llong*  _obj, long long _desired) { mgu_atomic_init_int64(_obj, _desired); }
 MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_ullong* _obj, unsigned long long _desired) { mgu_atomic_init_uint64(_obj, _desired); }
 
-#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif MG_LANG__C11_AVAIL
 
 #define __mgu_atomic_init(obj,desired)                   \
 _Generic((obj),                                          \
@@ -411,7 +413,7 @@ MG_CAPI_INLINE unsigned long __mgu_atomic_exchange(volatile mgu_atomic_ulong* _o
 MG_CAPI_INLINE long long __mgu_atomic_exchange(volatile mgu_atomic_llong* _obj, long long _desired) { return mgu_atomic_exchange_int64(_obj, _desired); }
 MG_CAPI_INLINE unsigned long long __mgu_atomic_exchange(volatile mgu_atomic_ullong* _obj, unsigned long long _desired) { return mgu_atomic_exchange_uint64(_obj, _desired); }
 
-#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif MG_LANG__C11_AVAIL
 
 #define __mgu_atomic_exchange(obj,desired)      \
 _Generic((obj),                                 \
@@ -553,7 +555,7 @@ MG_CAPI_INLINE unsigned long long __mgu_atomic_exchange_explicit(
     return mgu_atomic_exchange_explicit_uint64(_obj, _desired, _order);
 }
 
-#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif MG_LANG__C11_AVAIL
 
 #define __mgu_atomic_exchange_explicit(obj,desired,order)    \
 _Generic((obj),                                              \
@@ -702,7 +704,7 @@ MG_CAPI_INLINE void __mgu_atomic_store_explicit(
     mgu_atomic_store_explicit_uint64(_obj, _desired, _order);
 }
 
-#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif MG_LANG__C11_AVAIL
 
 #define __mgu_atomic_store_explicit(obj,desired,order)    \
 _Generic((desired),                                       \
@@ -802,7 +804,7 @@ MG_CAPI_INLINE unsigned long __mgu_atomic_load(const volatile mgu_atomic_ulong* 
 MG_CAPI_INLINE long long __mgu_atomic_load(const volatile mgu_atomic_llong* _obj) { return mgu_atomic_load_int64(_obj); }
 MG_CAPI_INLINE unsigned long long __mgu_atomic_load(const volatile mgu_atomic_ullong* _obj) { return mgu_atomic_load_uint64(_obj); }
 
-#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif MG_LANG__C11_AVAIL
 
 #define __mgu_atomic_load(obj)               \
 _Generic((obj),                              \
@@ -954,7 +956,7 @@ MG_CAPI_INLINE unsigned long long __mgu_atomic_load_explicit(
     return mgu_atomic_load_explicit_uint64(_obj, _order);
 }
 
-#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif MG_LANG__C11_AVAIL
 
 #define __mgu_atomic_load_explicit(obj,order)               \
 _Generic((obj),                                             \
@@ -1231,7 +1233,7 @@ MG_CAPI_INLINE bool __mgu_atomic_compare_exchange_weak_explicit(
     return mgu_atomic_compare_exchange_weak_explicit_uint64(_obj, _expected, _desired, _success, _failure);
 }
 
-#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif MG_LANG__C11_AVAIL
 
 #define __mgu_atomic_compare_exchange_strong_explicit(obj,expected,desired,success,failure) \
  _Generic((obj),                                                                            \
@@ -1484,7 +1486,7 @@ MG_CAPI_INLINE unsigned long long __mgu_atomic_compare_exchange_weak(
     return mgu_atomic_compare_exchange_weak_uint64(_obj, _expected, _desired);
 }
 
-#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif MG_LANG__C11_AVAIL
 
 #define __mgu_atomic_compare_exchange_strong(obj,expected,desired) \
 _Generic((obj), \
@@ -1647,7 +1649,7 @@ MG_CAPI_INLINE unsigned long long __mgu_atomic_fetch_add_explicit(
     return mgu_atomic_fetch_add_explicit_uint64(_obj, _arg, _order);
 }
 
-#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif MG_LANG__C11_AVAIL
 
 #define __mgu_atomic_fetch_add_explicit(obj,arg,order)             \
 _Generic((obj),                                                    \
@@ -1768,7 +1770,7 @@ MG_CAPI_INLINE unsigned long long __mgu_atomic_fetch_sub_explicit(
     return mgu_atomic_fetch_sub_explicit_uint64(_obj, _arg, _order);
 }
 
-#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif MG_LANG__C11_AVAIL
 
 #define __mgu_atomic_fetch_sub_explicit(obj,arg,order)                 \
 _Generic((obj),                                                        \
@@ -1901,7 +1903,7 @@ MG_CAPI_INLINE unsigned long long __mgu_atomic_fetch_and_explicit(
     return mgu_atomic_fetch_and_explicit_uint64(obj, arg, order);
 }
 
-#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif MG_LANG__C11_AVAIL
 
 #define __mgu_atomic_fetch_and_explicit(obj,arg,order)             \
 _Generic((obj),                                                    \
@@ -2033,7 +2035,7 @@ MG_CAPI_INLINE unsigned long long __mgu_atomic_fetch_or_explicit(
     return mgu_atomic_fetch_or_explicit_uint64(obj, arg, order);
 }
 
-#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif MG_LANG__C11_AVAIL
 
 #define __mgu_atomic_fetch_or_explicit(obj,arg,order)             \
 _Generic((obj),                                                   \
@@ -2167,7 +2169,7 @@ MG_CAPI_INLINE unsigned long long __mgu_atomic_fetch_xor_explicit(
     return mgu_atomic_fetch_xor_explicit_uint64(_obj, _arg, _order);
 }
 
-#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif MG_LANG__C11_AVAIL
 
 #define __mgu_atomic_fetch_xor_explicit(obj,arg,order)            \
 _Generic((obj),                                                   \
@@ -2214,7 +2216,7 @@ MG_CAPI_INLINE void mgu_atomic_flag_clear_explicit(
 #undef __MGU_ATOMIC_INTRIN_ACQ_REL
 #undef __MGU_ATOMIC_YIELD_PROCESSOR
 
-#elif defined(__STDC_NO_ATOMICS__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif defined(__STDC_NO_ATOMICS__) && MG_LANG__C11_AVAIL
 
 #define mgu_atomic_is_lock_free(obj) atomic_is_lock_free(obj)
 #define mgu_atomic_init(obj,desired) atomic_init(obj,desired)
@@ -2248,7 +2250,7 @@ MG_CAPI_INLINE void mgu_atomic_flag_clear_explicit(
 
 #else
 
-#  error "No atomic support"
+#  error "No mego::util::atomic support"
 
 #endif
 
