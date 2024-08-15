@@ -31,13 +31,15 @@ typedef enum mgu__memory_order {
     mgu_memory_order_seq_cst = 5
 } mgu_memory_order;
 
+#if defined(__cplusplus) || MG_LANG__C11_AVAIL
+
 typedef bool               mgu_atomic_bool;
-typedef char               mgu_atomic_char;
-typedef unsigned char      mgu_atomic_uchar;
+typedef int8_t             mgu_atomic_char;
+typedef uint8_t            mgu_atomic_uchar;
 typedef short              mgu_atomic_short;
 typedef unsigned short     mgu_atomic_ushort;
-typedef long               mgu_atomic_long;
-typedef unsigned long      mgu_atomic_ulong;
+typedef int32_t            mgu_atomic_long;
+typedef uint32_t           mgu_atomic_ulong;
 typedef long long          mgu_atomic_llong;
 typedef unsigned long long mgu_atomic_ullong;
 typedef intptr_t           mgu_atomic_intptr_t;
@@ -47,9 +49,76 @@ typedef ptrdiff_t          mgu_atomic_ptrdiff_t;
 typedef intmax_t           mgu_atomic_intmax_t;
 typedef uintmax_t          mgu_atomic_uintmax_t;
 
-typedef struct mgu_atomic_flag { mgu_atomic_bool value_; } mgu_atomic_flag;
 
 #define MGU_ATOMIC_FLAG_INIT { false }
+
+#else
+
+typedef enum mgu_atomic_type {
+    mgu_atomic_none_type,
+    mgu_atomic_bool_type,
+    mgu_atomic_char_type,
+    mgu_atomic_uchar_type,
+    mgu_atomic_short_type,
+    mgu_atomic_ushort_type,
+    mgu_atomic_long_type,
+    mgu_atomic_ulong_type,
+    mgu_atomic_llong_type,
+    mgu_atomic_ullong_type
+} mgu_atomic_type;
+
+typedef struct mgu_atomic_none { uint8_t type_; } mgu_atomic_none;
+
+typedef struct mgu_atomic_bool {
+    uint8_t type_;
+    bool    value_;
+} mgu_atomic_bool;
+
+typedef struct mgu_atomic_char {
+    uint8_t type_;
+    char    value_;
+} mgu_atomic_char;
+
+typedef struct mgu_atomic_uchar {
+    uint8_t type_;
+    unsigned char value_;
+} mgu_atomic_uchar;
+
+typedef struct mgu_atomic_short {
+    uint8_t type_;
+    short   value_;
+} mgu_atomic_short;
+
+typedef struct mgu_atomic_ushort {
+    uint8_t type_;
+    unsigned short value_;
+} mgu_atomic_ushort;
+
+typedef struct mgu_atomic_long {
+    uint8_t type_;
+    long    value_;
+} mgu_atomic_long;
+
+typedef struct mgu_atomic_ulong {
+    uint8_t type_;
+    unsigned long value_;
+} mgu_atomic_ulong;
+
+typedef struct mgu_atomic_llong {
+    uint8_t type_;
+    long long value_;
+} mgu_atomic_llong;
+
+typedef struct mgu_atomic_ullong {
+    uint8_t type_;
+    unsigned long long value_;
+} mgu_atomic_ullong;
+
+#define MGU_ATOMIC_FLAG_INIT { { mgu_atomic_bool_type }, false }
+
+#endif
+
+typedef struct mgu_atomic_flag { mgu_atomic_bool value_; } mgu_atomic_flag;
 
 #elif defined(__STDC_NO_ATOMICS__) && MG_LANG__C11_AVAIL
 
