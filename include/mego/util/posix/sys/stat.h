@@ -5,6 +5,7 @@
 #include <mego/err/ec.h>
 #include <mego/err/ec_impl.h>
 #include <mego/predef/os/linux.h>
+#include <mego/predef/os/windows.h>
 #include <mego/util/posix/sys/types.h>
 #include <mego/util/converted_native_string.h>
 #include <meme/utf/converter.h>
@@ -72,6 +73,7 @@ enum mgu_stat_mode {
 	mgu_stat_mode_isgid = 0002000, ///< 设置组ID位
 	mgu_stat_mode_isvtx = 0001000, ///< 粘着位
 
+#if !MG_OS__WIN_AVAIL
 	mgu_stat_mode_irwxu = 00700, ///< 用户读、写、执行权限
 	mgu_stat_mode_irusr = 00400, ///< 用户读权限
 	mgu_stat_mode_iwusr = 00200, ///< 用户写权限
@@ -84,6 +86,7 @@ enum mgu_stat_mode {
 	mgu_stat_mode_iroth = 00004, ///< 其他用户读权限
 	mgu_stat_mode_iwoth = 00002, ///< 其他用户写权限
 	mgu_stat_mode_ixoth = 00001, ///< 其他用户执行权限
+#endif
 };
 
 #if MG_OS__WIN_AVAIL
