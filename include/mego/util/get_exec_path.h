@@ -13,7 +13,7 @@
 // DragonFly BSD : readlink /proc/curproc/file
 // Windows : GetModuleFileName() with hModule = NULL
 
-#if MEGO_OS__WINDOWS__AVAILABLE
+#if MG_OS__WIN_AVAIL
 #elif defined(__linux__) || defined(__CYGWIN__) || defined(__sun)
 
 #include <stdio.h>
@@ -29,11 +29,11 @@
 #endif
 #include <inttypes.h>
 
-#if !defined(__MEGOUTIL__PROC_SELF_EXE_PATH__)
+#if !defined(__MEGOUTIL__PROC_SELF_EXE_PATH)
 #if defined(__sun)
-#define __MEGOUTIL__PROC_SELF_EXE_PATH__ "/proc/self/path/a.out"
+#define __MEGOUTIL__PROC_SELF_EXE_PATH "/proc/self/path/a.out"
 #else
-#define __MEGOUTIL__PROC_SELF_EXE_PATH__ "/proc/self/exe"
+#define __MEGOUTIL__PROC_SELF_EXE_PATH "/proc/self/exe"
 #endif
 #endif
 
@@ -47,18 +47,25 @@
 extern "C" {
 #endif // __cppplusplus
 
-#if MEGO_OS__WINDOWS__AVAILABLE
+#if MG_OS__WIN_AVAIL
+
     MG_CAPI_INLINE int MegoUtil_GetExecutablePath(char* _out, int _capacity, int* _dirname_pos)
     {
         return MegoUtilImpl_GetModulePath(NULL, _out, _capacity, _dirname_pos);
     }
+
+    MG_CAPI_INLINE int mgu_get_exec_w_path(wchar_t* _out, int _capacity, int* _dirname_pos)
+    {
+        return mgu_get_module_w_path(NULL, _out, _capacity, _dirname_pos);
+    }
+
 #elif defined(__linux__) || defined(__CYGWIN__) || defined(__sun)
     MG_CAPI_INLINE int MegoUtil_GetExecutablePath(char* _out, int _capacity, int* _dirname_pos)
     {
         char buffer[PATH_MAX] = { 0 };
         int  length = -1;
 
-        char* resolved = realpath(__MEGOUTIL__PROC_SELF_EXE_PATH__, buffer);
+        char* resolved = realpath(__MEGOUTIL__PROC_SELF_EXE_PATH, buffer);
         if (!resolved)
             return -1;
         length = (int)strlen(buffer);
@@ -83,7 +90,7 @@ extern "C" {
     }
 #else
 
-#error unsupported platform
+#error Unsupported platform
     
 #endif
     
@@ -92,11 +99,16 @@ MG_CAPI_INLINE int mgu_get_executable_path(char* _out, int _capacity, int* _dirn
     return MegoUtil_GetExecutablePath(_out, _capacity, _dirname_pos);
 }
 
+MG_CAPI_INLINE int mgu_get_exec_path(char* _out, int _capacity, int* _dirname_pos)
+{
+    return MegoUtil_GetExecutablePath(_out, _capacity, _dirname_pos);
+}
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus
 
-#undef __MEGOUTIL__PROC_SELF_EXE_PATH__
+#undef __MEGOUTIL__PROC_SELF_EXE_PATH
 
 #endif // MEGO_UTIL_GET_EXEC_PATH_H_INCLUDED
 

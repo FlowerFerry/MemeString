@@ -21,19 +21,6 @@
 extern "C" {
 #endif // __cplusplus
 
-// #if MG_OS__WIN_AVAIL
-// mgec_t mgfs__check_and_create_w_dirs_if_needed(
-//     const wchar_t *_path, size_t _slen, int _create_if_needed, int _path_allow_modified);
-
-// mgrc_t mgfs__is_exist_w_dir(const wchar_t *_path, size_t _slen);
-
-// #endif
-
-// mgec_t mgfs__check_and_create_dirs_if_needed(
-//     const char *_path, size_t _slen, int _create_if_needed, int _path_allow_modified);
-
-// mgrc_t mgfs__is_exist_dir(const char *_path, size_t _slen);
-
 #if MG_OS__WIN_AVAIL
 
 //! @brief 检查指定路径是否存在并在需要时创建目录。

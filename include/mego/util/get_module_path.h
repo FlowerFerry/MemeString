@@ -5,9 +5,7 @@
 #include <mego/predef/os/windows.h>
 #include <mego/predef/symbol/inline.h>
 
-#if MEGO_OS__WINDOWS__AVAILABLE
-#   include <mego/util/os/windows/windows_simplify.h>
-#endif
+#include <mego/util/os/windows/windows_simplify.h>
 
 #include <stdlib.h>
 
@@ -15,7 +13,7 @@
 extern "C" {
 #endif // __cppplusplus
 
-#if MEGO_OS__WINDOWS__AVAILABLE
+#if MG_OS__WIN_AVAIL
 
     MG_CAPI_INLINE int MegoUtilImpl_GetModulePath(
         HMODULE _module, char* _out, int _capacity, int* _dirname_pos)
@@ -23,6 +21,9 @@ extern "C" {
         wchar_t buf[MAX_PATH] = { 0 };
         int length = -1;
         wchar_t* path = NULL;
+
+        if (!_out)
+            return -1;
 
         do {
             int w2mb_len = 0;
@@ -38,8 +39,7 @@ extern "C" {
                 while (result == capacity)
                 {
                     wchar_t* tmp = (wchar_t*)realloc(path, capacity * 2 * sizeof(wchar_t));
-                    if (!tmp)
-                    {
+                    if (!tmp) {
                         break;
                     }
                     path = tmp;
@@ -66,20 +66,17 @@ extern "C" {
                 }
 
             }
-            else if (w2mb_len <= 0)
-            {
+            else if (w2mb_len <= 0) {
                 break;
             }
 
             if (w2mb_len <= _capacity && _dirname_pos)
             {
-                int i;
-
-                for (i = w2mb_len - 1; i >= 0; --i)
+                for (int idx = w2mb_len - 1; idx >= 0; --idx)
                 {
-                    if (_out[i] == '\\')
+                    if (_out[idx] == '\\')
                     {
-                        *_dirname_pos = i;
+                        *_dirname_pos = idx;
                         break;
                     }
                 }
@@ -91,9 +88,75 @@ extern "C" {
         if (path && path != buf)
             free(path);
 
+        if (length == _capacity) {
+            _out[_capacity] = '\0';
+            --length;
+        }
         return length;
     }
     
+    MG_CAPI_INLINE int mgu_get_module_w_path(
+        HMODULE _module, wchar_t* _out, int _capacity, int* _dirname_pos)
+    {
+        int length = -1;
+        wchar_t* path = NULL;
+
+        if (!_out)
+            return -1;
+
+        do {
+            DWORD result = GetModuleFileNameW(_module, _out, _capacity);
+            if (result == 0) {
+                break;
+            }
+
+            if (result == _capacity)
+            {
+                DWORD capacity = result;
+                while (result == capacity)
+                {
+                    wchar_t* tmp = (wchar_t*)realloc(path, capacity * 2 * sizeof(wchar_t));
+                    if (!tmp) {
+                        break;
+                    }
+                    path = tmp;
+                    capacity *= 2;
+                    result = GetModuleFileNameW(_module, path, capacity);
+                }
+                if (result == capacity)
+                {
+                    break;
+                }
+            }
+            else {
+                path = _out;
+            }
+
+            if (result <= _capacity && _dirname_pos)
+            {
+                for (int idx = result - 1; idx >= 0; --idx)
+                {
+                    if (path[idx] == L'\\')
+                    {
+                        *_dirname_pos = idx;
+                        break;
+                    }
+                }
+            }
+
+            length = result;
+        } while (0);
+
+        if (path && path != _out)
+            free(path);
+
+        if (length == _capacity) {
+            _out[_capacity] = L'\0';
+            --length;
+        }
+        return length;
+    }
+
 #endif
 
 #ifdef __cplusplus
