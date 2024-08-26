@@ -15,6 +15,7 @@
 #include <direct.h>
 #else
 #include <sys/stat.h>
+#include <unistd.h>
 #endif
 
 #ifdef __cplusplus

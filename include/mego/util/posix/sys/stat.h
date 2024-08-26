@@ -99,7 +99,7 @@ enum mgu_stat_mode {
 //! @param[in] _slen 路径字符串的长度。小于0表示字符串以NULL结尾。
 //! @param[out] _buf 用于存储文件状态信息的 `mgu_stat` 结构体指针。
 //! @return 成功时返回0；如果发生错误，返回相应的错误码。
-MG_CAPI_INLINE int mgu_get_w_stat(const wchar_t* _path, mmint_t _slen, struct mgu_stat* _buf)
+MG_CAPI_INLINE mgec_t mgu_get_w_stat(const wchar_t* _path, mmint_t _slen, struct mgu_stat* _buf)
 {
 	struct _stat64 buffer;
 	const wchar_t* path = NULL;
@@ -155,7 +155,7 @@ MG_CAPI_INLINE int mgu_get_w_stat(const wchar_t* _path, mmint_t _slen, struct mg
 //! @param[in] _slen 路径字符串的长度。小于0表示字符串以NULL结尾。
 //! @param[out] _buf 用于存储文件状态信息的 `mgu_stat` 结构体指针。
 //! @return 成功时返回0；如果发生错误，返回相应的错误码。
-MG_CAPI_INLINE int mgu_get_stat(const char* _path, mmint_t _slen, struct mgu_stat* _buf)
+MG_CAPI_INLINE mgec_t mgu_get_stat(const char* _path, mmint_t _slen, struct mgu_stat* _buf)
 {
 #if MG_OS__LINUX_AVAIL
 	struct stat buffer;
