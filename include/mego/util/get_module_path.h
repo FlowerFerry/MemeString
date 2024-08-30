@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEGO_UTIL_GET_MODULE_PATH_H_INCLUDED
 #define MEGO_UTIL_GET_MODULE_PATH_H_INCLUDED
 
@@ -21,9 +21,6 @@ extern "C" {
         wchar_t buf[MAX_PATH] = { 0 };
         int length = -1;
         wchar_t* path = NULL;
-
-        if (!_out)
-            return -1;
 
         do {
             int w2mb_len = 0;
@@ -69,15 +66,19 @@ extern "C" {
             else if (w2mb_len <= 0) {
                 break;
             }
-
-            if (w2mb_len <= _capacity && _dirname_pos)
+            
+            if (w2mb_len <= _capacity)
             {
-                for (int idx = w2mb_len - 1; idx >= 0; --idx)
-                {
-                    if (_out[idx] == '\\')
+                _out[w2mb_len] = '\0';
+                
+                if (_dirname_pos) {
+                    for (int idx = w2mb_len - 1; idx >= 0; --idx)
                     {
-                        *_dirname_pos = idx;
-                        break;
+                        if (_out[idx] == '\\')
+                        {
+                            *_dirname_pos = idx;
+                            break;
+                        }
                     }
                 }
             }
@@ -88,10 +89,9 @@ extern "C" {
         if (path && path != buf)
             free(path);
 
-        if (length == _capacity) {
-            _out[_capacity] = '\0';
-            --length;
-        }
+        if (_out && _capacity != 0 && length >= _capacity)
+            _out[_capacity - 1] = '\0';
+        
         return length;
     }
     
@@ -100,60 +100,50 @@ extern "C" {
     {
         int length = -1;
         wchar_t* path = NULL;
+        DWORD result = 0;
 
-        if (!_out)
-            return -1;
-
-        do {
-            DWORD result = GetModuleFileNameW(_module, _out, _capacity);
+        if (_out) {
+            result = GetModuleFileNameW(_module, _out, _capacity);
             if (result == 0) {
-                break;
+                return -1;
             }
 
-            if (result == _capacity)
-            {
-                DWORD capacity = result;
-                while (result == capacity)
-                {
-                    wchar_t* tmp = (wchar_t*)realloc(path, capacity * 2 * sizeof(wchar_t));
-                    if (!tmp) {
-                        break;
+            if (result != _capacity) {
+                if (_dirname_pos) {
+                    for (int idx = result - 1; idx >= 0; --idx)
+                    {
+                        if (_out[idx] == L'\\')
+                        {
+                            *_dirname_pos = idx;
+                            break;
+                        }
                     }
-                    path = tmp;
-                    capacity *= 2;
-                    result = GetModuleFileNameW(_module, path, capacity);
                 }
-                if (result == capacity)
-                {
+                return result;
+            }
+            
+            _out[_capacity - 1] = L'\0';
+        }
+ 
+        do {
+            DWORD capacity = result = (MAX_PATH / 2);
+            while (capacity == result)
+            {
+                wchar_t* tmp = (wchar_t*)realloc(path, capacity * 2 * sizeof(wchar_t));
+                if (!tmp) {
                     break;
                 }
-            }
-            else {
-                path = _out;
-            }
-
-            if (result <= _capacity && _dirname_pos)
-            {
-                for (int idx = result - 1; idx >= 0; --idx)
-                {
-                    if (path[idx] == L'\\')
-                    {
-                        *_dirname_pos = idx;
-                        break;
-                    }
-                }
+                path = tmp;
+                capacity *= 2;
+                result = GetModuleFileNameW(_module, path, capacity);
             }
 
-            length = result;
+            if (capacity != result)
+                length = result;
         } while (0);
 
-        if (path && path != _out)
+        if (path)
             free(path);
-
-        if (length == _capacity) {
-            _out[_capacity] = L'\0';
-            --length;
-        }
         return length;
     }
 
