@@ -1,6 +1,6 @@
 ﻿
 #include <meme/impl/string_p__large.h>
-//#include <mego/mem/pool.h>
+#include <mego/mem/pool.h>
 
 void MemeStringLarge_RefCount_init(volatile MemeStringLarge_RefCounted_t* _refcount)
 {
