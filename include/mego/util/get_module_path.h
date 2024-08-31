@@ -22,6 +22,9 @@ extern "C" {
         int length = -1;
         wchar_t* path = NULL;
 
+        if (!_out)
+            _capacity = 0;
+        
         do {
             int w2mb_len = 0;
             int w2mb_eno = 0;
@@ -95,20 +98,23 @@ extern "C" {
         return length;
     }
     
+    MG_CAPI_INLINE int mgu_get_module_path(
+        HMODULE _module, char* _out, int _capacity, int* _dirname_pos)
+    {
+        return MegoUtilImpl_GetModulePath(_module, _out, _capacity, _dirname_pos);
+    }
+
     MG_CAPI_INLINE int mgu_get_module_w_path(
         HMODULE _module, wchar_t* _out, int _capacity, int* _dirname_pos)
     {
         int length = -1;
         wchar_t* path = NULL;
         DWORD result = 0;
-
+        
         if (_out) {
             result = GetModuleFileNameW(_module, _out, _capacity);
-            if (result == 0) {
-                return -1;
-            }
-
-            if (result != _capacity) {
+            
+            if (result != 0 && result != _capacity) {
                 if (_dirname_pos) {
                     for (int idx = result - 1; idx >= 0; --idx)
                     {
@@ -122,7 +128,8 @@ extern "C" {
                 return result;
             }
             
-            _out[_capacity - 1] = L'\0';
+            if (_capacity > 0)
+                _out[_capacity - 1] = L'\0';
         }
  
         do {
