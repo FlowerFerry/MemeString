@@ -108,7 +108,7 @@ MG_CAPI_INLINE mgrc_t mgfs__is_exist_w_dir(const wchar_t *_path, mmint_t _slen)
     struct mgu_stat st;
     int eno = mgu_get_w_stat(_path, _slen, &st);
     if (eno != 0)
-        return mgec__from_posix_err(eno);
+        return eno;
     
     return MGU__S_ISDIR(st.st_mode) ? 1 : 0;
 }
@@ -254,7 +254,7 @@ MG_CAPI_INLINE mgrc_t mgfs__is_exist_dir(const char *_path, mmint_t _slen)
     struct mgu_stat st;
     int eno = mgu_get_stat(_path, _slen, &st);
     if (eno != 0)
-        return mgec__from_posix_err(eno);
+        return eno;
     
     return MGU__S_ISDIR(st.st_mode) ? 1 : 0;
 }

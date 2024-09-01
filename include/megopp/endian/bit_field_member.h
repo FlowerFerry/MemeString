@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEGOPP_ENDIAN_BIT_FIELD_MEMBER_H_INCLUDED
 #define MEGOPP_ENDIAN_BIT_FIELD_MEMBER_H_INCLUDED
 
@@ -89,6 +89,8 @@ namespace endian {
         static constexpr uint_type byte_size        = end_byte_index - begin_byte_index;
         static constexpr uint_type rbegin_bit_index = _BeginBit;
         static constexpr uint_type rend_bit_index   = _BeginBit + _BitSize;
+        static constexpr uint_type actual_mask      =
+            byte_swap_with_size<sizeof(uint_type)>::convert(static_cast<uint_type>(~(mask << rbegin_bit_index)));
 
         inline constexpr uint_type get_value() const noexcept
         {
@@ -97,7 +99,7 @@ namespace endian {
                 return ((data_ >> (total_bit_size - CHAR_BIT)) >> rbegin_bit_index) & mask;
             }
             else {
-                uint_type value = megopp::endian::byte_swap(data_);
+                uint_type value = byte_swap_with_size<sizeof(uint_type)>::convert(data_);
                 return (value >> rbegin_bit_index) & mask;
             }
         }
@@ -105,8 +107,8 @@ namespace endian {
         inline constexpr void set_value(uint_type _value) noexcept
         {
             _value = (_value & mask) << rbegin_bit_index;
-            _value = megopp::endian::byte_swap(_value);
-            data_  = (data_ & ~(mask << begin_bit_index)) | _value;
+            _value = byte_swap_with_size<sizeof(uint_type)>::convert(_value);
+            data_  = (data_ & actual_mask) | _value;
         }
 
         uint_type data_;
