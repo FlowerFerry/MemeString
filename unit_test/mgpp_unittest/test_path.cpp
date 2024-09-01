@@ -4,6 +4,7 @@
 
 #include <string_view>
 
+#if MG_OS__WIN_AVAIL
 static std::string WideStringToUTF8(const std::wstring_view& wstr) {
     
     if (wstr.empty()) {
@@ -22,7 +23,6 @@ static std::string WideStringToUTF8(const std::wstring_view& wstr) {
     return str;
 }
 
-#if MG_OS__WIN_AVAIL
 TEST_CASE("Get module path", "[get_module_path]") 
 {
     wchar_t path_0_1[MAX_PATH * 10];
