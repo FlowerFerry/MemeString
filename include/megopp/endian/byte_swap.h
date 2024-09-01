@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEGOPP_STOOL_ENDIAN_BSWAP_H_INCLUDED
 #define MEGOPP_STOOL_ENDIAN_BSWAP_H_INCLUDED
 
@@ -42,6 +42,10 @@ namespace endian {
 	template<>
 	struct byte_swap_with_size<1>
 	{
+		inline constexpr static uint8_t convert(uint8_t _value) noexcept
+		{
+			return _value;
+		}
 	};
 
 	template<int _ByteSize>

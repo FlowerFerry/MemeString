@@ -69,6 +69,59 @@ TEST_CASE("bit_field_member", "[bit_field_member]")
     REQUIRE((u_0_1.bfm -= 1) == 0xF);
     REQUIRE(u_0_1.v == 0x3C);
 
+    union {
+        mgpp::endian::bit_field_member<2, 4, mgpp::endian_t::big_byte> bfm;
+        uint8_t v;
+    } u_4_1;
+    u_4_1.v = 0;
+    u_4_1.bfm = 3;
+    REQUIRE(u_4_1.bfm == 3);
+    REQUIRE(u_4_1.v == 0x0C);
+
+    REQUIRE(u_4_1.bfm * 2 == 6);
+    REQUIRE(u_4_1.bfm / 2 == 1);
+    REQUIRE(u_4_1.bfm + 2 == 5);
+    REQUIRE(u_4_1.bfm - 2 == 1);
+    REQUIRE(u_4_1.bfm & 2 == 2);
+    REQUIRE(u_4_1.bfm | 2 == 3);
+    REQUIRE(u_4_1.bfm ^ 2 == 1);
+    REQUIRE(~u_4_1.bfm == 0xFC);
+    REQUIRE(u_4_1.bfm << 2 == 12);
+    REQUIRE(u_4_1.bfm >> 2 == 0);
+    REQUIRE(!u_4_1.bfm == false);
+
+    REQUIRE(u_4_1.bfm == 3);
+    REQUIRE(u_4_1.v == 0x0C);
+    REQUIRE(u_4_1.bfm++ == 3);
+    REQUIRE(u_4_1.bfm == 4);
+    REQUIRE(u_4_1.v == 0x10);
+    REQUIRE(u_4_1.bfm-- == 4);
+    REQUIRE(u_4_1.bfm == 3);
+    REQUIRE(u_4_1.v == 0x0C);
+    
+    REQUIRE((u_4_1.bfm *= 2) == 6);
+    REQUIRE(u_4_1.v == 0x18);
+    REQUIRE((u_4_1.bfm /= 2) == 3);
+    REQUIRE(u_4_1.v == 0x0C);
+    REQUIRE((u_4_1.bfm += 2) == 5);
+    REQUIRE(u_4_1.v == 0x14);
+    REQUIRE((u_4_1.bfm -= 2) == 3);
+    REQUIRE(u_4_1.v == 0x0C);
+    REQUIRE((u_4_1.bfm &= 2) == 2);
+    REQUIRE(u_4_1.v == 0x08);
+    REQUIRE((u_4_1.bfm |= 1) == 3);
+    REQUIRE(u_4_1.v == 0x0C);
+    
+    REQUIRE((u_4_1.bfm *= 6) == 2);
+    REQUIRE(u_4_1.v == 0x08);
+    REQUIRE((u_4_1.bfm += 15) == 1);
+    REQUIRE(u_4_1.v == 0x04);
+    REQUIRE((u_4_1.bfm /= 10) == 0);
+    REQUIRE(u_4_1.v == 0x00);
+    REQUIRE((u_4_1.bfm -= 1) == 0xF);
+    REQUIRE(u_4_1.v == 0x3C);
+    
+
 #if MEGO_ENDIAN__LITTLE_BYTE
     union {
         mgpp::endian::bit_field_member<6, 4, mgpp::endian_t::little_byte> bfm;
@@ -124,53 +177,53 @@ TEST_CASE("bit_field_member", "[bit_field_member]")
     union {
         mgpp::endian::bit_field_member<6, 4, mgpp::endian_t::big_byte> bfm;
         uint16_t v;
-    } u_1_2;
-    u_1_2.v = 0x0650;
-    REQUIRE(u_1_2.bfm == 0);
-    u_1_2.bfm += 3;
-    REQUIRE(u_1_2.bfm == 3);
-    REQUIRE(u_1_2.v == 0xC650);
+    } u_3_1;
+    u_3_1.v = 0x0650;
+    REQUIRE(u_3_1.bfm == 0);
+    u_3_1.bfm += 3;
+    REQUIRE(u_3_1.bfm == 3);
+    REQUIRE(u_3_1.v == 0xC650);
     
-    REQUIRE(u_1_2.bfm * 2 == 6);
-    REQUIRE(u_1_2.bfm / 2 == 1);
-    REQUIRE(u_1_2.bfm + 2 == 5);
-    REQUIRE(u_1_2.bfm - 2 == 1);
-    REQUIRE(u_1_2.bfm & 2 == 2);
-    REQUIRE(u_1_2.bfm | 2 == 3);
-    REQUIRE(u_1_2.bfm ^ 2 == 1);
-    REQUIRE(~u_1_2.bfm == 0xFFFC);
-    REQUIRE(u_1_2.bfm << 2 == 12);
-    REQUIRE(u_1_2.bfm >> 2 == 0);
-    REQUIRE(!u_1_2.bfm == false);
+    REQUIRE(u_3_1.bfm * 2 == 6);
+    REQUIRE(u_3_1.bfm / 2 == 1);
+    REQUIRE(u_3_1.bfm + 2 == 5);
+    REQUIRE(u_3_1.bfm - 2 == 1);
+    REQUIRE(u_3_1.bfm & 2 == 2);
+    REQUIRE(u_3_1.bfm | 2 == 3);
+    REQUIRE(u_3_1.bfm ^ 2 == 1);
+    REQUIRE(~u_3_1.bfm == 0xFFFC);
+    REQUIRE(u_3_1.bfm << 2 == 12);
+    REQUIRE(u_3_1.bfm >> 2 == 0);
+    REQUIRE(!u_3_1.bfm == false);
     
-    REQUIRE(u_1_2.bfm++ == 3);
-    REQUIRE(u_1_2.bfm == 4);
-    REQUIRE(u_1_2.v == 0x0651);
-    REQUIRE(u_1_2.bfm-- == 4);
-    REQUIRE(u_1_2.bfm == 3);
-    REQUIRE(u_1_2.v == 0xC650);
+    REQUIRE(u_3_1.bfm++ == 3);
+    REQUIRE(u_3_1.bfm == 4);
+    REQUIRE(u_3_1.v == 0x0651);
+    REQUIRE(u_3_1.bfm-- == 4);
+    REQUIRE(u_3_1.bfm == 3);
+    REQUIRE(u_3_1.v == 0xC650);
 
-    REQUIRE((u_1_2.bfm *= 2) == 6);
-    REQUIRE(u_1_2.v == 0x8651);
-    REQUIRE((u_1_2.bfm /= 2) == 3);
-    REQUIRE(u_1_2.v == 0xC650);
-    REQUIRE((u_1_2.bfm += 2) == 5);
-    REQUIRE(u_1_2.v == 0x4651);
-    REQUIRE((u_1_2.bfm -= 2) == 3);
-    REQUIRE(u_1_2.v == 0xC650);
-    REQUIRE((u_1_2.bfm &= 2) == 2);
-    REQUIRE(u_1_2.v == 0x8650);
-    REQUIRE((u_1_2.bfm |= 1) == 3);
-    REQUIRE(u_1_2.v == 0xC650);
+    REQUIRE((u_3_1.bfm *= 2) == 6);
+    REQUIRE(u_3_1.v == 0x8651);
+    REQUIRE((u_3_1.bfm /= 2) == 3);
+    REQUIRE(u_3_1.v == 0xC650);
+    REQUIRE((u_3_1.bfm += 2) == 5);
+    REQUIRE(u_3_1.v == 0x4651);
+    REQUIRE((u_3_1.bfm -= 2) == 3);
+    REQUIRE(u_3_1.v == 0xC650);
+    REQUIRE((u_3_1.bfm &= 2) == 2);
+    REQUIRE(u_3_1.v == 0x8650);
+    REQUIRE((u_3_1.bfm |= 1) == 3);
+    REQUIRE(u_3_1.v == 0xC650);
     
-    REQUIRE((u_1_2.bfm *= 6) == 2);
-    REQUIRE(u_1_2.v == 0x8650);
-    REQUIRE((u_1_2.bfm += 15) == 1);
-    REQUIRE(u_1_2.v == 0x4650);
-    REQUIRE((u_1_2.bfm /= 10) == 0);
-    REQUIRE(u_1_2.v == 0x0650);
-    REQUIRE((u_1_2.bfm -= 1) == 0xF);
-    REQUIRE(u_1_2.v == 0xC653);
+    REQUIRE((u_3_1.bfm *= 6) == 2);
+    REQUIRE(u_3_1.v == 0x8650);
+    REQUIRE((u_3_1.bfm += 15) == 1);
+    REQUIRE(u_3_1.v == 0x4650);
+    REQUIRE((u_3_1.bfm /= 10) == 0);
+    REQUIRE(u_3_1.v == 0x0650);
+    REQUIRE((u_3_1.bfm -= 1) == 0xF);
+    REQUIRE(u_3_1.v == 0xC653);
 
     union {
         mgpp::endian::bit_field_member<6, 12, mgpp::endian_t::big_byte, uint32_t> bfm;
