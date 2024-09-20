@@ -25,8 +25,6 @@ inline void enum_usn_record_buffer(const uint8_t* _buffer, size_t _size, _Fn&& _
     const USN_RECORD_UNION* record = reinterpret_cast<const USN_RECORD_UNION*>(ptr);
     while (ptr + record->Header.RecordLength < end) 
     {
-        record = reinterpret_cast<const USN_RECORD_UNION*>(ptr);
-
         if constexpr (std::is_same_v<std::invoke_result_t<_Fn, const USN_RECORD_UNION&>, bool>) 
         {
             if (!_fn(*record))
@@ -36,6 +34,7 @@ inline void enum_usn_record_buffer(const uint8_t* _buffer, size_t _size, _Fn&& _
             _fn(*record);
         
         ptr += record->Header.RecordLength;
+        record = reinterpret_cast<const USN_RECORD_UNION*>(ptr);
     }
 }
 
