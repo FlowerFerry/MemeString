@@ -36,7 +36,10 @@ inline mgpp::err enum_top_physical_size(int _limit, _Fn&& fn)
     std::vector<uint32_t> pids{ 1024 };
     do {
         DWORD cbNeeded;
-        if (!EnumProcesses(pids.data(), static_cast<uint32_t>(pids.size() * sizeof(uint32_t)), &cbNeeded))
+        if (!EnumProcesses(
+            static_cast<DWORD*>(pids.data()), 
+            static_cast<uint32_t>(pids.size() * sizeof(uint32_t)), 
+            &cbNeeded))
             return mgpp::err { mgec__from_sys_err(GetLastError()) };
         
         if (cbNeeded < pids.size() * sizeof(uint32_t))
