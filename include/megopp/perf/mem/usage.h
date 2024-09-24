@@ -33,18 +33,16 @@ inline mgpp::err enum_top_physical_size(int _limit, _Fn&& fn)
     
 #if MG_OS__WIN_AVAIL
 
-    std::vector<uint32_t> pids{ 1024 };
+    std::vector<DWORD> pids{ 1024 };
     do {
         DWORD cbNeeded;
         if (!EnumProcesses(
-            static_cast<DWORD*>(pids.data()), 
-            static_cast<uint32_t>(pids.size() * sizeof(uint32_t)), 
-            &cbNeeded))
+            pids.data(), static_cast<DWORD>(pids.size() * sizeof(DWORD)), &cbNeeded))
             return mgpp::err { mgec__from_sys_err(GetLastError()) };
         
-        if (cbNeeded < pids.size() * sizeof(uint32_t))
+        if (cbNeeded < pids.size() * sizeof(DWORD))
         {
-            pids.resize(cbNeeded / sizeof(uint32_t));
+            pids.resize(cbNeeded / sizeof(DWORD));
             break;
         }
         
