@@ -15,7 +15,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-MG_CAPI_INLINE mgec_t mgos_get_proc_name_by_pid(uint32_t _pid, char* _buf, size_t _buf_size)
+MG_CAPI_INLINE mgec_t mgu_get_proc_name_by_pid(uint32_t _pid, char* _buf, size_t _buf_size)
 {
 #if MG_OS__WIN_AVAIL
     HANDLE hProcess;
