@@ -51,7 +51,7 @@ inline mgpp::err enum_top_physical_size(int _limit, _Fn&& fn)
     } while (true);
 
     std::vector<std::tuple<uint32_t, uint64_t>> procInfos;
-
+    procInfos.reserve(pids.size());
     for (auto pid : pids) {
         if (pid == 0)
             continue;
@@ -90,6 +90,7 @@ inline mgpp::err enum_top_physical_size(int _limit, _Fn&& fn)
     char path[256];
     char line[256];
     std::vector<std::tuple<uint32_t, uint64_t>> procInfos;
+    procInfos.reserve(256);
     auto e = mgpp::os_linux::readdir("/proc", -1, 
     [&](const dirent* entry) 
     {
