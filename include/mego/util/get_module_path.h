@@ -114,7 +114,7 @@ extern "C" {
         if (_out) {
             result = GetModuleFileNameW(_module, _out, _capacity);
             
-            if (result != 0 && result != _capacity) {
+            if (result != 0 && (int)result != _capacity) {
                 if (_dirname_pos) {
                     for (int idx = result - 1; idx >= 0; --idx)
                     {

@@ -7,6 +7,7 @@
 #include <mego/err/ec_impl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #if MG_OS__WIN_AVAIL
 #  include <Psapi.h>

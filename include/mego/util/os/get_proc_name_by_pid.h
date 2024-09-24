@@ -15,7 +15,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-MG_CAPI_INLINE mgec_t mgu_get_proc_name_by_pid(uint32_t _pid, char* _buf, size_t _buf_size)
+MG_CAPI_INLINE mgrc_t mgu_get_proc_name_by_pid(uint32_t _pid, char* _buf, size_t _buf_size)
 {
 #if MG_OS__WIN_AVAIL
     HANDLE hProcess;
@@ -23,7 +23,7 @@ MG_CAPI_INLINE mgec_t mgu_get_proc_name_by_pid(uint32_t _pid, char* _buf, size_t
     DWORD cbNeeded;
     DWORD result;
     wchar_t* namePtr = nullptr;
-    int nameLen = 128;
+    DWORD nameLen = 128;
     if (_buf == NULL || _buf_size == 0)
         return MGEC__INVAL;
     _buf[0] = '\0';
@@ -36,8 +36,10 @@ MG_CAPI_INLINE mgec_t mgu_get_proc_name_by_pid(uint32_t _pid, char* _buf, size_t
     {
         int w2mbLen;
         do {
-            if (namePtr)
+            if (namePtr) {
                 free(namePtr);
+                namePtr = nullptr;
+            }
             namePtr = (wchar_t*)malloc(nameLen * sizeof(wchar_t));
             if (namePtr == nullptr) {
                 CloseHandle(hProcess);
@@ -59,7 +61,7 @@ MG_CAPI_INLINE mgec_t mgu_get_proc_name_by_pid(uint32_t _pid, char* _buf, size_t
             break;
         } while(true);
 
-        w2mbLen = WideCharToMultiByte(CP_UTF8, 0, namePtr, result, _buf, _buf_size, NULL, NULL);
+        w2mbLen = WideCharToMultiByte(CP_UTF8, 0, namePtr, (int)result, _buf, (int)_buf_size, NULL, NULL);
         if (w2mbLen <= 0) {
             free(namePtr);
             CloseHandle(hProcess);
@@ -67,16 +69,19 @@ MG_CAPI_INLINE mgec_t mgu_get_proc_name_by_pid(uint32_t _pid, char* _buf, size_t
         }
 
         if (w2mbLen < _buf_size)
-            _buf[w2mbLen] = '\0';
-        _buf[_buf_size - 1] = '\0';
+            nameLen = w2mbLen;
+        else
+            nameLen = _buf_size - 1;
+        
+        _buf[nameLen] = '\0';
+        if (namePtr)
+            free(namePtr);
     }
-
-    if (namePtr)
-        free(namePtr);
     CloseHandle(hProcess);
-    return 0;
+    return nameLen;
 #else
     char path[256];
+    int  len;
     FILE* fp;
     if (_buf == NULL || _buf_size == 0)
         return MGEC__INVAL;
@@ -90,8 +95,9 @@ MG_CAPI_INLINE mgec_t mgu_get_proc_name_by_pid(uint32_t _pid, char* _buf, size_t
     fgets(_buf, _buf_size, fp);
     fclose(fp);
 
-    _buf[strcspn(_buf, "\n")] = '\0';
-    return 0;
+    len = strcspn(_buf, "\n");
+    _buf[len] = '\0';
+    return len;
 #endif
 
 }
