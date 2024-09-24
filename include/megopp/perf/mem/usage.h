@@ -33,7 +33,8 @@ inline mgpp::err enum_top_physical_size(int _limit, _Fn&& fn)
     
 #if MG_OS__WIN_AVAIL
 
-    std::vector<DWORD> pids{ 1024 };
+    std::vector<DWORD> pids;
+    pids.resize(1024);
     do {
         DWORD cbNeeded;
         if (!EnumProcesses(
