@@ -22,9 +22,10 @@
 
 namespace mgpp {
 namespace perf {
+namespace mem  {
 
 template<typename _Fn>
-inline mgpp::err enum_top_physical_memory_size(int _limit, _Fn&& fn)
+inline mgpp::err enum_top_physical_size(int _limit, _Fn&& fn)
 {
     static_assert(std::is_invocable_v<_Fn, uint32_t, uint64_t>, "Invalid function type");
     if (_limit <= 0)
@@ -34,7 +35,7 @@ inline mgpp::err enum_top_physical_memory_size(int _limit, _Fn&& fn)
 
     std::vector<uint32_t> pids{ 1024 };
     do {
-        uint32_t cbNeeded;
+        DWORD cbNeeded;
         if (!EnumProcesses(pids.data(), static_cast<uint32_t>(pids.size() * sizeof(uint32_t)), &cbNeeded))
             return mgpp::err { mgec__from_sys_err(GetLastError()) };
         
@@ -143,6 +144,7 @@ inline mgpp::err enum_top_physical_memory_size(int _limit, _Fn&& fn)
     return {};
 }
 
+}
 } // namespace perf
 } // namespace mgpp
 
