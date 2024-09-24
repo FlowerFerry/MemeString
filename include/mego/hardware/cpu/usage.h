@@ -8,7 +8,7 @@
 #include <stdlib.h>
 
 #if MG_OS__WIN_AVAIL
-MG_CAPI_INLINE float __mghw_cpu_usage_calc(FILETIME idleTime, FILETIME kernelTime, FILETIME userTime)
+MG_CAPI_INLINE double __mghw_cpu_usage_calc(FILETIME idleTime, FILETIME kernelTime, FILETIME userTime)
 {
     ULARGE_INTEGER idle, kernel, user;
     idle.LowPart    = idleTime.dwLowDateTime;
@@ -22,7 +22,7 @@ MG_CAPI_INLINE float __mghw_cpu_usage_calc(FILETIME idleTime, FILETIME kernelTim
 }
 #endif
 
-MG_CAPI_INLINE float mghw_cpu_usage()
+MG_CAPI_INLINE double mghw_cpu_usage()
 {
 #if MG_OS__WIN_AVAIL
     FILETIME idleTime, kernelTime, userTime;
