@@ -54,7 +54,7 @@ MG_CAPI_INLINE mgec_t mgfs__check_and_create_w_dirs_if_needed(
         else
             p = (wchar_t*)path;
         
-        for (size_t index = 1; index < path_len; ++index) 
+        for (mmint_t index = 1; index < path_len; ++index) 
         {
             if (p[index] == L'\\' || p[index] == L'/') 
             {
