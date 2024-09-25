@@ -18,7 +18,7 @@
 #include <stdint.h>
 
 #include <crtdbg.h>
-#include <intrin0.h>
+#include <intrin.h>
 
 
 // Interlocked intrinsic mapping for _nf/_acq/_rel
@@ -100,9 +100,11 @@
 
 // this is different from the STL
 // we are the MSVC runtime so we need not support clang here
-#define __mgu_atomic_compiler_barrier()                                                       \
-    _Pragma("warning(push)") _Pragma("warning(disable : 4996)") /* was declared deprecated */ \
-        _ReadWriteBarrier() _Pragma("warning(pop)")
+//#define __mgu_atomic_compiler_barrier()                                                       \
+//    _Pragma("warning(push)") _Pragma("warning(disable : 4996)") /* was declared deprecated */ \
+//        _ReadWriteBarrier() _Pragma("warning(pop)")
+#define __mgu_atomic_compiler_barrier() \
+        _ReadWriteBarrier() 
 
 #if defined(_M_ARM) || defined(_M_ARM64) || defined(_M_ARM64EC)
 #define __mgu_atomic_memory_barrier()             __dmb(0xB) // inner shared data memory barrier
@@ -275,7 +277,12 @@ MG_CAPI_INLINE int8_t __mgu_atomic_load_explicit_i8(const volatile int8_t* _obj,
 #if __MGU_ATOMIC_USE_ARM64_LDAR_STLR == 1
     __MGU_ATOMIC_LOAD_ARM64(ret, 8, (const volatile char*)_obj, _order)
 #else
+    
+#if defined(_M_ARM) || defined(_M_ARM64)
     ret = __iso_volatile_load8((const volatile char*)_obj);
+#else
+    ret = *_obj;
+#endif
     __MGU_ATOMIC_POST_LOAD_BARRIER_AS_NEEDED((_order))
 #endif
     return ret;
@@ -293,7 +300,13 @@ MG_CAPI_INLINE int16_t __mgu_atomic_load_explicit_i16(const volatile int16_t* _o
 #if __MGU_ATOMIC_USE_ARM64_LDAR_STLR == 1
     __MGU_ATOMIC_LOAD_ARM64(ret, 16, _obj, _order)
 #else
+    
+#if defined(_M_ARM) || defined(_M_ARM64)
     ret = __iso_volatile_load16(_obj);
+#else
+    ret = *_obj;
+#endif
+    
     __MGU_ATOMIC_POST_LOAD_BARRIER_AS_NEEDED((_order))
 #endif
     return ret;
@@ -311,7 +324,13 @@ MG_CAPI_INLINE int32_t __mgu_atomic_load_explicit_i32(const volatile int32_t* _o
 #if __MGU_ATOMIC_USE_ARM64_LDAR_STLR == 1
     __MGU_ATOMIC_LOAD_ARM64(ret, 32, _obj, (_order))
 #else
+    
+#if defined(_M_ARM) || defined(_M_ARM64)
     ret = __iso_volatile_load32(_obj);
+#else
+    ret = *_obj;
+#endif
+    
     __MGU_ATOMIC_POST_LOAD_BARRIER_AS_NEEDED((_order))
 #endif
     return ret;
@@ -330,10 +349,14 @@ MG_CAPI_INLINE int64_t __mgu_atomic_load_explicit_i64(const volatile int64_t* _o
     __MGU_ATOMIC_LOAD_ARM64(ret, 64, _obj, (_order))
 #else
 
-#ifdef _M_ARM
+#if defined(_M_X64)
+    ret = *_obj;
+#elif defined(_M_ARM)
     ret = __ldrexd(_obj);
-#else
+#elif defined(_M_ARM64)
     ret = __iso_volatile_load64(_obj);
+#else
+    ret = _InterlockedOr64(_obj, 0);
 #endif
     __MGU_ATOMIC_POST_LOAD_BARRIER_AS_NEEDED((_order))
 #endif
