@@ -178,6 +178,24 @@ MG_CAPI_INLINE void __mgu_atomic_check_memory_order(const unsigned int _Order) {
 
 #endif
 
+#define __MGU_ATOMIC_LOAD(_Result, _Width, _Ptr, _Order_var)       \
+    switch (_Order_var) {                                          \
+    case mgu_memory_order_relaxed:                                 \
+        _Result = __mgu_atomic_load_relaxed_##_Width(_Ptr);        \
+        break;                                                     \
+    case mgu_memory_order_consume:                                 \
+    case mgu_memory_order_acquire:                                 \
+        _Result = __mgu_atomic_load_acquire_##_Width(_Ptr);        \
+        break;                                                     \
+    case mgu_memory_order_seq_cst:                                 \
+        _Result = __mgu_atomic_load_seq_cst_##_Width(_Ptr);        \
+        break;                                                     \
+    case mgu_memory_order_release:                                 \
+    case mgu_memory_order_acq_rel:                                 \
+    default:                                                       \
+        __MGU_ATOMIC_INVALID_MEMORY_ORDER;                         \
+        break;                                                     \
+    }
 
 #define __MGU_ATOMIC_POST_LOAD_BARRIER_AS_NEEDED(_Order_var) \
     switch (_Order_var) {                                    \
@@ -210,20 +228,27 @@ MG_CAPI_INLINE void __mgu_atomic_check_memory_order(const unsigned int _Order) {
 
 #endif
 
-#define __MGU_ATOMIC_STORE_SWITCH_PREFIX(_Width, _Ptr, _Desired) \
-    case mgu_memory_order_relaxed:                               \
-        __iso_volatile_store##_Width((_Ptr), (_Desired));        \
-        return;                                                  \
-    case mgu_memory_order_release:                               \
-        __MGU_ATOMIC_STORE_RELEASE(_Width, _Ptr, _Desired)       \
-        return;                                                  \
-    default:                                                     \
-    case mgu_memory_order_consume:                               \
-    case mgu_memory_order_acquire:                               \
-    case mgu_memory_order_acq_rel:                               \
-        __MGU_ATOMIC_INVALID_MEMORY_ORDER;                       \
+#define __MGU_ATOMIC_STORE_SWITCH_PREFIX(_Width, _Ptr, _Desired)     \
+    case mgu_memory_order_relaxed:                                   \
+        __mgu_atomic_store_relaxed_##_Width((_Ptr), (_Desired));     \
+        return;                                                      \
+    case mgu_memory_order_release:                                   \
+        __mgu_atomic_store_release_##_Width((_Ptr), (_Desired));     \
+        return;                                                      \
+    case mgu_memory_order_consume:                                   \
+    case mgu_memory_order_acquire:                                   \
+    case mgu_memory_order_acq_rel:                                   \
+    default:                                                         \
+        __MGU_ATOMIC_INVALID_MEMORY_ORDER;                           \
         /*FALLTHROUGH*/;
 
+#define __MGU_ATOMIC_STORE(_Width, _Ptr, _Desired, _Order_var)       \
+    switch (_Order_var) {                                            \
+    case mgu_memory_order_seq_cst:                                   \
+        __mgu_atomic_store_seq_cst_##_Width((_Ptr), (_Desired));     \
+        return;                                                      \
+    __MGU_ATOMIC_STORE_SWITCH_PREFIX(_Width, _Ptr, _Desired)         \
+    }
 
 #define __MGU_ATOMIC_STORE_SEQ_CST_ARM(_Width, _Ptr, _Desired) \
     __mgu_atomic_memory_barrier();                             \
@@ -247,6 +272,221 @@ MG_CAPI_INLINE void __mgu_atomic_check_memory_order(const unsigned int _Order) {
     __mgu_atomic_compiler_barrier();                       \
     __iso_volatile_store64((_Ptr), (_Desired));            \
     _Atomic_thread_fence(_Atomic_memory_order_seq_cst);
+
+
+
+MG_CAPI_INLINE int8_t __mgu_atomic_load_relaxed_8(const volatile int8_t * _source)
+{
+#if defined(_M_ARM) || defined(_M_ARM64)
+    return __iso_volatile_load8((volatile char*)_source);
+#else
+    return *(_source);
+#endif
+}
+
+MG_CAPI_INLINE int8_t __mgu_atomic_load_seq_cst_8(const volatile int8_t* _source)
+{
+    int8_t result = __mgu_atomic_load_relaxed_8(_source);
+    __mgu_atomic_compiler_or_memory_barrier();
+    return result;
+}
+
+MG_CAPI_INLINE int8_t __mgu_atomic_load_acquire_8(const volatile int8_t* _source)
+{
+    return __mgu_atomic_load_seq_cst_8(_source);
+}
+
+MG_CAPI_INLINE int16_t __mgu_atomic_load_relaxed_16(const volatile int16_t* _source)
+{
+#if defined(_M_ARM) || defined(_M_ARM64)
+    return __iso_volatile_load16((volatile short*)_source);
+#else
+    return *(_source);
+#endif
+}
+
+MG_CAPI_INLINE int16_t __mgu_atomic_load_seq_cst_16(const volatile int16_t* _source)
+{
+    int16_t result = __mgu_atomic_load_relaxed_16(_source);
+    __mgu_atomic_compiler_or_memory_barrier();
+    return result;
+}
+
+MG_CAPI_INLINE int16_t __mgu_atomic_load_acquire_16(const volatile int16_t* _source)
+{
+    return __mgu_atomic_load_seq_cst_16(_source);
+}
+
+MG_CAPI_INLINE int32_t __mgu_atomic_load_relaxed_32(const volatile int32_t* _source)
+{
+#if defined(_M_ARM) || defined(_M_ARM64)
+    return __iso_volatile_load32((volatile long*)_source);
+#else
+    return *(_source);
+#endif
+}
+
+MG_CAPI_INLINE int32_t __mgu_atomic_load_seq_cst_32(const volatile int32_t* _source)
+{
+    int32_t result = __mgu_atomic_load_relaxed_32(_source);
+    __mgu_atomic_compiler_or_memory_barrier();
+    return result;
+}
+
+MG_CAPI_INLINE int32_t __mgu_atomic_load_acquire_32(const volatile int32_t* _source)
+{
+    return __mgu_atomic_load_seq_cst_32(_source);
+}
+
+MG_CAPI_INLINE int64_t __mgu_atomic_load_relaxed_64(const volatile int64_t* _source)
+{
+#if defined(_M_X64)
+    return *_source;
+#elif defined(_M_ARM)
+    return __ldrexd(_source);
+#elif defined(_M_ARM64)
+    return __iso_volatile_load64(_source);
+#else
+    return _InterlockedOr64(_source, 0);
+#endif
+}
+
+MG_CAPI_INLINE int64_t __mgu_atomic_load_seq_cst_64(const volatile int64_t* _source)
+{
+    int64_t result;
+#if defined(_M_X64)
+    result = *_source;
+    __mgu_atomic_compiler_or_memory_barrier();
+#elif defined(_M_ARM)
+    result = __ldrexd(_source);
+    __mgu_atomic_compiler_or_memory_barrier();
+#elif defined(_M_ARM64)
+    result = __iso_volatile_load64(_source);
+    __mgu_atomic_compiler_or_memory_barrier();
+#else
+    result = _InterlockedOr64(_source, 0);
+#endif
+    return result;
+}
+
+MG_CAPI_INLINE int64_t __mgu_atomic_load_acquire_64(const volatile int64_t* _source)
+{
+    return __mgu_atomic_load_seq_cst_64(_source);
+}
+
+MG_CAPI_INLINE void __mgu_atomic_store_relaxed_8(volatile int8_t* _target, int8_t _value)
+{
+#if defined(_M_ARM) || defined(_M_ARM64)
+    __iso_volatile_store8((volatile char*)_target, _value);
+#else
+    * (_target) = _value;
+#endif
+}
+
+MG_CAPI_INLINE void __mgu_atomic_store_release_8(volatile int8_t* _target, int8_t _value)
+{
+    __mgu_atomic_compiler_or_memory_barrier();
+    __mgu_atomic_store_relaxed_8(_target, _value);
+}
+
+MG_CAPI_INLINE void __mgu_atomic_store_seq_cst_8(volatile int8_t* _target, int8_t _value)
+{
+#if defined(_M_ARM) || defined(_M_ARM64)
+    __mgu_atomic_compiler_or_memory_barrier();
+    __iso_volatile_store8((volatile char*)_target, _value);
+    __mgu_atomic_compiler_or_memory_barrier();
+#else
+    _InterlockedExchange8((volatile char*)_target, _value);
+#endif
+}
+
+MG_CAPI_INLINE void __mgu_atomic_store_relaxed_16(volatile int16_t* _target, int16_t _value)
+{
+#if defined(_M_ARM) || defined(_M_ARM64)
+    __iso_volatile_store16((volatile short*)_target, _value);
+#else
+    * (_target) = _value;
+#endif
+}
+
+MG_CAPI_INLINE void __mgu_atomic_store_release_16(volatile int16_t* _target, int16_t _value)
+{
+    __mgu_atomic_compiler_or_memory_barrier();
+    __mgu_atomic_store_relaxed_16(_target, _value);
+}
+
+MG_CAPI_INLINE void __mgu_atomic_store_seq_cst_16(volatile int16_t* _target, int16_t _value)
+{
+#if defined(_M_ARM) || defined(_M_ARM64)
+    __mgu_atomic_compiler_or_memory_barrier();
+    __iso_volatile_store16((volatile short*)_target, _value);
+    __mgu_atomic_compiler_or_memory_barrier();
+#else
+    _InterlockedExchange16((volatile short*)_target, _value);
+#endif
+}
+
+MG_CAPI_INLINE void __mgu_atomic_store_relaxed_32(volatile int32_t* _target, int32_t _value)
+{
+#if defined(_M_ARM) || defined(_M_ARM64)
+    __iso_volatile_store32((volatile long*)_target, _value);
+#else
+    * (_target) = _value;
+#endif
+}
+
+MG_CAPI_INLINE void __mgu_atomic_store_release_32(volatile int32_t* _target, int32_t _value)
+{
+    __mgu_atomic_compiler_or_memory_barrier();
+    __mgu_atomic_store_relaxed_32(_target, _value);
+}
+
+MG_CAPI_INLINE void __mgu_atomic_store_seq_cst_32(volatile int32_t* _target, int32_t _value)
+{
+#if defined(_M_ARM) || defined(_M_ARM64)
+    __mgu_atomic_compiler_or_memory_barrier();
+    __iso_volatile_store32((volatile long*)_target, _value);
+    __mgu_atomic_compiler_or_memory_barrier();
+#else
+    _InterlockedExchange((volatile long*)_target, _value);
+#endif
+}
+
+MG_CAPI_INLINE void __mgu_atomic_store_relaxed_64(volatile int64_t* _target, int64_t _value)
+{
+#if defined(_M_X64)
+    * (_target) = _value;
+#elif defined(_M_ARM64)
+    __iso_volatile_store64(_target, _value);
+#else
+    __MGU_ATOMIC_INTRIN_RELAXED(_InterlockedExchange64)(_target, _value);
+#endif
+}
+
+MG_CAPI_INLINE void __mgu_atomic_store_release_64(volatile int64_t* _target, int64_t _value)
+{
+#if defined(_M_X64)
+    __mgu_atomic_compiler_or_memory_barrier();
+    *(_target) = _value;
+#elif defined(_M_ARM64)
+    __mgu_atomic_compiler_or_memory_barrier();
+    __iso_volatile_store64(_target, _value);
+#else
+    __MGU_ATOMIC_INTRIN_RELEASE(_InterlockedExchange64)(_target, _value);
+#endif
+}
+
+MG_CAPI_INLINE void __mgu_atomic_store_seq_cst_64(volatile int64_t* _target, int64_t _value)
+{
+#if defined(_M_ARM64)
+    __mgu_atomic_compiler_or_memory_barrier();
+    __iso_volatile_store64(_target, _value);
+    __mgu_atomic_compiler_or_memory_barrier();
+#else
+    _InterlockedExchange64(_target, _value);
+#endif
+}
+
 
 
 MG_CAPI_INLINE bool __mgu_atomic_is_lock_free_b  (volatile bool*     _obj) { return true; }
@@ -277,13 +517,7 @@ MG_CAPI_INLINE int8_t __mgu_atomic_load_explicit_i8(const volatile int8_t* _obj,
 #if __MGU_ATOMIC_USE_ARM64_LDAR_STLR == 1
     __MGU_ATOMIC_LOAD_ARM64(ret, 8, (const volatile char*)_obj, _order)
 #else
-    
-#if defined(_M_ARM) || defined(_M_ARM64)
-    ret = __iso_volatile_load8((const volatile char*)_obj);
-#else
-    ret = *_obj;
-#endif
-    __MGU_ATOMIC_POST_LOAD_BARRIER_AS_NEEDED((_order))
+    __MGU_ATOMIC_LOAD(ret, 8, _obj, _order)
 #endif
     return ret;
 }
@@ -300,14 +534,7 @@ MG_CAPI_INLINE int16_t __mgu_atomic_load_explicit_i16(const volatile int16_t* _o
 #if __MGU_ATOMIC_USE_ARM64_LDAR_STLR == 1
     __MGU_ATOMIC_LOAD_ARM64(ret, 16, _obj, _order)
 #else
-    
-#if defined(_M_ARM) || defined(_M_ARM64)
-    ret = __iso_volatile_load16(_obj);
-#else
-    ret = *_obj;
-#endif
-    
-    __MGU_ATOMIC_POST_LOAD_BARRIER_AS_NEEDED((_order))
+    __MGU_ATOMIC_LOAD(ret, 16, _obj, _order)
 #endif
     return ret;
 }
@@ -322,16 +549,9 @@ MG_CAPI_INLINE int32_t __mgu_atomic_load_explicit_i32(const volatile int32_t* _o
 {
     int32_t ret;
 #if __MGU_ATOMIC_USE_ARM64_LDAR_STLR == 1
-    __MGU_ATOMIC_LOAD_ARM64(ret, 32, _obj, (_order))
+    __MGU_ATOMIC_LOAD_ARM64(ret, 32, _obj, _order)
 #else
-    
-#if defined(_M_ARM) || defined(_M_ARM64)
-    ret = __iso_volatile_load32(_obj);
-#else
-    ret = *_obj;
-#endif
-    
-    __MGU_ATOMIC_POST_LOAD_BARRIER_AS_NEEDED((_order))
+    __MGU_ATOMIC_LOAD(ret, 32, _obj, _order)
 #endif
     return ret;
 }
@@ -346,19 +566,9 @@ MG_CAPI_INLINE int64_t __mgu_atomic_load_explicit_i64(const volatile int64_t* _o
 {
     int64_t ret;
 #if __MGU_ATOMIC_USE_ARM64_LDAR_STLR == 1
-    __MGU_ATOMIC_LOAD_ARM64(ret, 64, _obj, (_order))
+    __MGU_ATOMIC_LOAD_ARM64(ret, 64, _obj, _order)
 #else
-
-#if defined(_M_X64)
-    ret = *_obj;
-#elif defined(_M_ARM)
-    ret = __ldrexd(_obj);
-#elif defined(_M_ARM64)
-    ret = __iso_volatile_load64(_obj);
-#else
-    ret = _InterlockedOr64(_obj, 0);
-#endif
-    __MGU_ATOMIC_POST_LOAD_BARRIER_AS_NEEDED((_order))
+    __MGU_ATOMIC_LOAD(ret, 64, _obj, _order)
 #endif
     return ret;
 }
@@ -378,12 +588,14 @@ MG_CAPI_INLINE bool __mgu_atomic_load_explicit_b(const volatile bool* _obj, mgu_
 MG_CAPI_INLINE void __mgu_atomic_store_explicit_i8(
     volatile int8_t* _obj, int8_t _desired, mgu_memory_order _order)
 {
-    switch (_order) {
-        __MGU_ATOMIC_STORE_SWITCH_PREFIX(8, (volatile char*)_obj, _desired)
-    case mgu_memory_order_seq_cst:
-        InterlockedExchange8((volatile char*)_obj, _desired);
-        return;
-    }
+    __MGU_ATOMIC_STORE(8, _obj, _desired, _order)
+
+    //switch (_order) {
+    //    __MGU_ATOMIC_STORE_SWITCH_PREFIX(8, (volatile char*)_obj, _desired)
+    //case mgu_memory_order_seq_cst:
+    //    InterlockedExchange8((volatile char*)_obj, _desired);
+    //    return;
+    //}
 }
 
 MG_CAPI_INLINE void __mgu_atomic_store_explicit_u8(
@@ -395,12 +607,14 @@ MG_CAPI_INLINE void __mgu_atomic_store_explicit_u8(
 MG_CAPI_INLINE void __mgu_atomic_store_explicit_i16(
     volatile int16_t* _obj, int16_t _desired, mgu_memory_order _order)
 {
-    switch (_order) {
-        __MGU_ATOMIC_STORE_SWITCH_PREFIX(16, _obj, _desired)
-    case mgu_memory_order_seq_cst:
-        InterlockedExchange16(_obj, _desired);
-        return;
-    }
+    __MGU_ATOMIC_STORE(16, _obj, _desired, _order)
+
+    //switch (_order) {
+    //    __MGU_ATOMIC_STORE_SWITCH_PREFIX(16, _obj, _desired)
+    //case mgu_memory_order_seq_cst:
+    //    InterlockedExchange16(_obj, _desired);
+    //    return;
+    //}
 }
 
 MG_CAPI_INLINE void __mgu_atomic_store_explicit_u16(
@@ -412,12 +626,14 @@ MG_CAPI_INLINE void __mgu_atomic_store_explicit_u16(
 MG_CAPI_INLINE void __mgu_atomic_store_explicit_i32(
     volatile int32_t* _obj, int32_t _desired, mgu_memory_order _order)
 {
-    switch (_order) {
-        __MGU_ATOMIC_STORE_SWITCH_PREFIX(32, _obj, _desired)
-    case mgu_memory_order_seq_cst:
-        InterlockedExchange((volatile long*)_obj, _desired);
-        return;
-    }
+    __MGU_ATOMIC_STORE(32, _obj, _desired, _order)
+        
+    //switch (_order) {
+    //    __MGU_ATOMIC_STORE_SWITCH_PREFIX(32, _obj, _desired)
+    //case mgu_memory_order_seq_cst:
+    //    InterlockedExchange((volatile long*)_obj, _desired);
+    //    return;
+    //}
 }
 
 MG_CAPI_INLINE void __mgu_atomic_store_explicit_u32(
@@ -429,12 +645,14 @@ MG_CAPI_INLINE void __mgu_atomic_store_explicit_u32(
 MG_CAPI_INLINE void __mgu_atomic_store_explicit_i64(
     volatile int64_t* _obj, int64_t _desired, mgu_memory_order _order)
 {
-    switch (_order) {
-        __MGU_ATOMIC_STORE_SWITCH_PREFIX(64, _obj, _desired)
-    case mgu_memory_order_seq_cst:
-        InterlockedExchange64(_obj, _desired);
-        return;
-    }
+    __MGU_ATOMIC_STORE(64, _obj, _desired, _order)
+        
+    //switch (_order) {
+    //    __MGU_ATOMIC_STORE_SWITCH_PREFIX(64, _obj, _desired)
+    //case mgu_memory_order_seq_cst:
+    //    InterlockedExchange64(_obj, _desired);
+    //    return;
+    //}
 }
 
 MG_CAPI_INLINE void __mgu_atomic_store_explicit_u64(
@@ -976,10 +1194,12 @@ MG_CAPI_INLINE uint64_t __mgu_atomic_fetch_xor_explicit_u64(
 #undef __MGU_ATOMIC_CHOOSE_INTRINSIC
 #undef __MGU_ATOMIC_STORE_RELEASE
 #undef __MGU_ATOMIC_STORE_SWITCH_PREFIX
+#undef __MGU_ATOMIC_LOAD
 #undef __MGU_ATOMIC_LOAD_ARM64
 #undef __MGU_ATOMIC_LOAD_ACQUIRE_ARM64
 #undef __MGU_ATOMIC_POST_LOAD_BARRIER_AS_NEEDED
 
+#undef __MGU_ATOMIC_STORE
 #undef __MGU_ATOMIC_STORE_SEQ_CST_ARM
 #undef __MGU_ATOMIC_STORE_SEQ_CST_ARM64
 #undef __MGU_ATOMIC_STORE_SEQ_CST_X86_X64
