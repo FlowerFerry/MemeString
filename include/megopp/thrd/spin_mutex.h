@@ -12,7 +12,6 @@ namespace thrd {
 struct spin_mutex
 {
     spin_mutex()
-        : locked(ATOMIC_FLAG_INIT)
     {
     }
 
@@ -42,7 +41,7 @@ struct spin_mutex
     }
 
 private:
-    std::atomic_flag locked;
+    std::atomic_flag locked = ATOMIC_FLAG_INIT;
 };
 
 }    
