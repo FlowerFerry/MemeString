@@ -88,48 +88,48 @@ MG_CAPI_INLINE bool __mgu_atomic_is_lock_free(volatile void* _obj)
 
 #if defined(__cplusplus) || MG_LANG__C11_AVAIL
 
-MG_CAPI_INLINE void mgu_atomic_init_b  (volatile mgu_atomic_bool*   _obj, bool     _desired) { return __mgu_atomic_init_b  (_obj, _desired); }
-MG_CAPI_INLINE void mgu_atomic_init_i8 (volatile mgu_atomic_char*   _obj, int8_t   _desired) { return __mgu_atomic_init_i8 (_obj, _desired); }
-MG_CAPI_INLINE void mgu_atomic_init_u8 (volatile mgu_atomic_uchar*  _obj, uint8_t  _desired) { return __mgu_atomic_init_u8 (_obj, _desired); }
-MG_CAPI_INLINE void mgu_atomic_init_i16(volatile mgu_atomic_short*  _obj, int16_t  _desired) { return __mgu_atomic_init_i16(_obj, _desired); }
-MG_CAPI_INLINE void mgu_atomic_init_u16(volatile mgu_atomic_ushort* _obj, uint16_t _desired) { return __mgu_atomic_init_u16(_obj, _desired); }
-MG_CAPI_INLINE void mgu_atomic_init_i32(volatile mgu_atomic_long*   _obj, int32_t  _desired) { return __mgu_atomic_init_i32(_obj, _desired); }
-MG_CAPI_INLINE void mgu_atomic_init_u32(volatile mgu_atomic_ulong*  _obj, uint32_t _desired) { return __mgu_atomic_init_u32(_obj, _desired); }
-MG_CAPI_INLINE void mgu_atomic_init_i64(volatile mgu_atomic_llong*  _obj, int64_t  _desired) { return __mgu_atomic_init_i64(_obj, _desired); }
-MG_CAPI_INLINE void mgu_atomic_init_u64(volatile mgu_atomic_ullong* _obj, uint64_t _desired) { return __mgu_atomic_init_u64(_obj, _desired); }
+MG_CAPI_INLINE void mgu_atomic_init_b  (volatile mgu_atomic_bool*   _obj, bool     _desired) { __mgu_atomic_init_b  (_obj, _desired); }
+MG_CAPI_INLINE void mgu_atomic_init_i8 (volatile mgu_atomic_char*   _obj, int8_t   _desired) { __mgu_atomic_init_i8 (_obj, _desired); }
+MG_CAPI_INLINE void mgu_atomic_init_u8 (volatile mgu_atomic_uchar*  _obj, uint8_t  _desired) { __mgu_atomic_init_u8 (_obj, _desired); }
+MG_CAPI_INLINE void mgu_atomic_init_i16(volatile mgu_atomic_short*  _obj, int16_t  _desired) { __mgu_atomic_init_i16(_obj, _desired); }
+MG_CAPI_INLINE void mgu_atomic_init_u16(volatile mgu_atomic_ushort* _obj, uint16_t _desired) { __mgu_atomic_init_u16(_obj, _desired); }
+MG_CAPI_INLINE void mgu_atomic_init_i32(volatile mgu_atomic_long*   _obj, int32_t  _desired) { __mgu_atomic_init_i32(_obj, _desired); }
+MG_CAPI_INLINE void mgu_atomic_init_u32(volatile mgu_atomic_ulong*  _obj, uint32_t _desired) { __mgu_atomic_init_u32(_obj, _desired); }
+MG_CAPI_INLINE void mgu_atomic_init_i64(volatile mgu_atomic_llong*  _obj, int64_t  _desired) { __mgu_atomic_init_i64(_obj, _desired); }
+MG_CAPI_INLINE void mgu_atomic_init_u64(volatile mgu_atomic_ullong* _obj, uint64_t _desired) { __mgu_atomic_init_u64(_obj, _desired); }
 
 #endif
 
 #ifdef __cplusplus
 
-MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_bool*   _obj, bool     _desired) { __mgu_atomic_init_b  (_obj, _desired); }
-MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_char*   _obj, int8_t   _desired) { __mgu_atomic_init_i8 (_obj, _desired); }
-MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_uchar*  _obj, uint8_t  _desired) { __mgu_atomic_init_u8 (_obj, _desired); }
-MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_short*  _obj, int16_t  _desired) { __mgu_atomic_init_i16(_obj, _desired); }
-MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_ushort* _obj, uint16_t _desired) { __mgu_atomic_init_u16(_obj, _desired); }
-MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_long*   _obj, int32_t  _desired) { __mgu_atomic_init_i32(_obj, _desired); }
-MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_ulong*  _obj, uint32_t _desired) { __mgu_atomic_init_u32(_obj, _desired); }
-MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_llong*  _obj, int64_t  _desired) { __mgu_atomic_init_i64(_obj, _desired); }
-MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_ullong* _obj, uint64_t _desired) { __mgu_atomic_init_u64(_obj, _desired); }
+//MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_bool*   _obj, bool     _desired) { __mgu_atomic_init_b  (_obj, _desired); }
+//MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_char*   _obj, int8_t   _desired) { __mgu_atomic_init_i8 (_obj, _desired); }
+//MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_uchar*  _obj, uint8_t  _desired) { __mgu_atomic_init_u8 (_obj, _desired); }
+//MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_short*  _obj, int16_t  _desired) { __mgu_atomic_init_i16(_obj, _desired); }
+//MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_ushort* _obj, uint16_t _desired) { __mgu_atomic_init_u16(_obj, _desired); }
+//MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_long*   _obj, int32_t  _desired) { __mgu_atomic_init_i32(_obj, _desired); }
+//MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_ulong*  _obj, uint32_t _desired) { __mgu_atomic_init_u32(_obj, _desired); }
+//MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_llong*  _obj, int64_t  _desired) { __mgu_atomic_init_i64(_obj, _desired); }
+//MG_CAPI_INLINE void __mgu_atomic_init(volatile mgu_atomic_ullong* _obj, uint64_t _desired) { __mgu_atomic_init_u64(_obj, _desired); }
 
-#define mgu_atomic_init(obj,desired) __mgu_atomic_init(obj,desired)
+//#define mgu_atomic_init(obj,desired) __mgu_atomic_init(obj,desired)
 
 #elif MG_LANG__C11_AVAIL
 
-#define __mgu_atomic_init(obj,desired)                   \
-_Generic((obj),                                          \
-    volatile mgu_atomic_bool*  : __mgu_atomic_init_b,    \
-    volatile mgu_atomic_char*  : __mgu_atomic_init_i8,   \
-    volatile mgu_atomic_uchar* : __mgu_atomic_init_u8,   \
-    volatile mgu_atomic_short* : __mgu_atomic_init_i16,  \
-    volatile mgu_atomic_ushort*: __mgu_atomic_init_u16,  \
-    volatile mgu_atomic_long*  : __mgu_atomic_init_i32,  \
-    volatile mgu_atomic_ulong* : __mgu_atomic_init_u32,  \
-    volatile mgu_atomic_llong* : __mgu_atomic_init_i64,  \
-    volatile mgu_atomic_ullong*: __mgu_atomic_init_u64   \
-)(obj,desired)
-
-#define mgu_atomic_init(obj,desired) __mgu_atomic_init(obj,desired)
+//#define __mgu_atomic_init(obj,desired)                   \
+//_Generic((obj),                                          \
+//    volatile mgu_atomic_bool*  : __mgu_atomic_init_b,    \
+//    volatile mgu_atomic_char*  : __mgu_atomic_init_i8,   \
+//    volatile mgu_atomic_uchar* : __mgu_atomic_init_u8,   \
+//    volatile mgu_atomic_short* : __mgu_atomic_init_i16,  \
+//    volatile mgu_atomic_ushort*: __mgu_atomic_init_u16,  \
+//    volatile mgu_atomic_long*  : __mgu_atomic_init_i32,  \
+//    volatile mgu_atomic_ulong* : __mgu_atomic_init_u32,  \
+//    volatile mgu_atomic_llong* : __mgu_atomic_init_i64,  \
+//    volatile mgu_atomic_ullong*: __mgu_atomic_init_u64   \
+//)(obj,desired)
+//
+//#define mgu_atomic_init(obj,desired) __mgu_atomic_init(obj,desired)
 
 #else
 
