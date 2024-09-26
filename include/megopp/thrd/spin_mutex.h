@@ -2,16 +2,18 @@
 #ifndef MEGOPP_THRD_SPIN_MUTEX_H_INCLUDED
 #define MEGOPP_THRD_SPIN_MUTEX_H_INCLUDED
 
-#include <mego/thrd/spinlock.h>
+#include <mego/thrd/spinwait.h>
+
+#include <atomic>
 
 namespace mgpp {
 namespace thrd {
 
-struct spin_mutex : mgthrd_spinlock_t
+struct spin_mutex
 {
     spin_mutex()
+        : locked(ATOMIC_FLAG_INIT)
     {
-        mgthrd_spinlock_init(this);
     }
 
     ~spin_mutex()
@@ -21,19 +23,26 @@ struct spin_mutex : mgthrd_spinlock_t
 
     inline void lock()
     {
-        mgthrd_spinlock_lock(this);
+        mgthrd_spinwait_t spinwait;
+        mgthrd_spinwait_reset(&spinwait);
+        while (locked.test_and_set(std::memory_order_acquire)) 
+        {
+            mgthrd_spinwait_once(&spinwait);
+        }
     }
 
     inline bool try_lock()
     {
-        return mgthrd_spinlock_trylock(this);
+        return !locked.test_and_set(std::memory_order_acquire);
     }
 
     inline void unlock()
     {
-        mgthrd_spinlock_unlock(this);
+        locked.clear(std::memory_order_release);
     }
 
+private:
+    std::atomic_flag locked;
 };
 
 }    

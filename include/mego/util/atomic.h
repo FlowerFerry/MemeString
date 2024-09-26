@@ -1,4 +1,8 @@
 ﻿
+//! 请注意！`mgu_atomic_*`目前无法在C代码和C++代码之间进行传递，也无法在不同的动态库之间传递。
+//! Please note! `mgu_atomic_*` currently cannot be passed between C and C++ code, 
+//! nor can it be passed across different dynamic libraries.
+
 #ifndef MEGO_UTIL_ATOMIC_H_INCLUDED
 #define MEGO_UTIL_ATOMIC_H_INCLUDED
 
