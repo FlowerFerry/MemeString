@@ -27,7 +27,7 @@ MG_CAPI_INLINE void __mghw_processor_count_init(void)
     GetSystemInfo(&sysinfo);
     *__mghw_processor_count_value() = sysinfo.dwNumberOfProcessors;
 #elif MG_OS__LINUX_AVAIL
-    FILE* fp = mgu_fopen("/proc/cpuinfo", "r");
+    FILE* fp = fopen("/proc/cpuinfo", "r");
     if (!fp) {
         *__mghw_processor_count_value() = 1;
         return;
