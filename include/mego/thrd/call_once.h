@@ -55,6 +55,8 @@ mgthrd_call_once(mgthrd_once_flag* _flag, void(*_func)(void))
 
 #elif MEGO_THR__PTHREADS_AVAILABLE
 	
+# include <pthread.h>
+
 # define mgthrd_once_flag pthread_once_t
 # define MGTHRD_ONCE_FLAG_INIT PTHREAD_ONCE_INIT
 # define mgthrd_call_once(_flag, _func) pthread_once(_flag, _func)
