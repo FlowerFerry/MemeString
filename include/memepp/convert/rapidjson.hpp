@@ -56,7 +56,7 @@ namespace convert {
 	{
 		static memepp::string from_object(const rapidjson::StringBuffer& _s)
 		{
-			return memepp::string{ _s.GetString(), static_cast<MemeInteger_t>(_s.GetLength()) };
+			return memepp::string{ _s.GetString(), static_cast<MemeInteger_t>(_s()) };
 		}
 		
 		static memepp::string from_object(rapidjson::StringBuffer&& _buf)
@@ -66,17 +66,17 @@ namespace convert {
 			static const auto data_func = [](const void* _object) {
 				return reinterpret_cast<const rapidjson::StringBuffer*>(_object)->GetString(); };
 			static const auto size_func = [](const void* _object) {
-				return reinterpret_cast<const rapidjson::StringBuffer*>(_object)->GetLength(); };
+				return reinterpret_cast<const rapidjson::StringBuffer*>(_object)->GetSize(); };
 
-			if (_buf.GetLength() == 0)
+			if (_buf.GetSize() == 0)
 				return{};
-			else if (_buf.GetLength() < MEME_STRING__OBJECT_SIZE)
+			else if (_buf.GetSize() < MEME_STRING__OBJECT_SIZE)
 			{
-				return memepp::string(_buf.GetString(), static_cast<MemeInteger_t>(_buf.GetLength()));
+				return memepp::string(_buf.GetString(), static_cast<MemeInteger_t>(_buf.GetSize()));
 			}
-			else if (_buf.GetLength() < 16 * sizeof(intptr_t))
+			else if (_buf.GetSize() < 16 * sizeof(intptr_t))
 			{
-				return memepp::string(_buf.GetString(), static_cast<MemeInteger_t>(_buf.GetLength()),
+				return memepp::string(_buf.GetString(), static_cast<MemeInteger_t>(_buf.GetSize()),
 					memepp::string_storage_t::medium);
 			}
 
@@ -98,7 +98,7 @@ namespace convert {
 	{
 		static memepp::string_view view_object(const rapidjson::StringBuffer& _s)
 		{
-			return memepp::string_view{ _s.GetString(), static_cast<MemeInteger_t>(_s.GetLength()) };
+			return memepp::string_view{ _s.GetString(), static_cast<MemeInteger_t>(_s.GetSize()) };
 		}
 	};
 	
@@ -157,7 +157,7 @@ namespace convert {
 
 	//inline memepp::string from(const rapidjson::StringBuffer& _s)
 	//{
-	//	return memepp::string{ _s.GetString(), static_cast<MemeInteger_t>(_s.GetLength())};
+	//	return memepp::string{ _s.GetString(), static_cast<MemeInteger_t>(_s.GetSize())};
 	//}
 
 	//inline memepp::string from(const rapidjson::Value& _v)
@@ -185,17 +185,17 @@ namespace convert {
 	//	static const auto data_func = [](const void* _object) { 
 	//		return reinterpret_cast<const rapidjson::StringBuffer*>(_object)->GetString(); };
 	//	static const auto size_func = [](const void* _object) { 
-	//		return reinterpret_cast<const rapidjson::StringBuffer*>(_object)->GetLength(); };
+	//		return reinterpret_cast<const rapidjson::StringBuffer*>(_object)->GetSize(); };
 
-	//	if (_buf.GetLength() == 0)
+	//	if (_buf.GetSize() == 0)
 	//		return{};
- //       else if (_buf.GetLength() < MEME_STRING__OBJECT_SIZE)
+ //       else if (_buf.GetSize() < MEME_STRING__OBJECT_SIZE)
 	//	{
-	//		return memepp::string(_buf.GetString(), static_cast<MemeInteger_t>(_buf.GetLength()));
+	//		return memepp::string(_buf.GetString(), static_cast<MemeInteger_t>(_buf.GetSize()));
 	//	}
-	//	else if (_buf.GetLength() < 16 * sizeof(intptr_t))
+	//	else if (_buf.GetSize() < 16 * sizeof(intptr_t))
 	//	{
-	//		return memepp::string(_buf.GetString(), static_cast<MemeInteger_t>(_buf.GetLength()),
+	//		return memepp::string(_buf.GetString(), static_cast<MemeInteger_t>(_buf.GetSize()),
 	//			memepp::string_storage_t::medium);
 	//	}
 
@@ -218,7 +218,7 @@ namespace convert {
 
 	//inline memepp::string_view view(const rapidjson::StringBuffer& _s)
 	//{
-	//	return memepp::string_view { _s.GetString(), static_cast<MemeInteger_t>(_s.GetLength()) };
+	//	return memepp::string_view { _s.GetString(), static_cast<MemeInteger_t>(_s.GetSize()) };
 	//}
 
 	//inline memepp::string_view view(const rapidjson::Value& _v)
