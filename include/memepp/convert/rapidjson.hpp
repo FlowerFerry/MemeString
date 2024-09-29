@@ -56,7 +56,7 @@ namespace convert {
 	{
 		static memepp::string from_object(const rapidjson::StringBuffer& _s)
 		{
-			return memepp::string{ _s.GetString(), static_cast<MemeInteger_t>(_s()) };
+			return memepp::string{ _s.GetString(), static_cast<MemeInteger_t>(_s.GetSize()) };
 		}
 		
 		static memepp::string from_object(rapidjson::StringBuffer&& _buf)
