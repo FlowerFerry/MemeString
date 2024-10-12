@@ -1,0 +1,9 @@
+
+#ifndef MEGO_COMMON_H_INCLUDED
+#define MEGO_COMMON_H_INCLUDED
+
+#ifndef MGOPT__USE_MEMESTR
+#define MGOPT__USE_MEMESTR (1)
+#endif
+
+#endif // !MEGO_COMMON_H_INCLUDED
