@@ -49,6 +49,16 @@ namespace memepp {
 		return {};
 #endif
 	}
+	
+	inline memepp::string from(std::wstring_view&& _sv)
+	{
+#if MG_OS__WIN_AVAIL
+		return memepp::string{
+			reinterpret_cast<const uint16_t*>(_sv.data()), static_cast<mmint_t>(_sv.size()) };
+#else
+		return {};
+#endif
+	}
 #endif
 
 	template<>
