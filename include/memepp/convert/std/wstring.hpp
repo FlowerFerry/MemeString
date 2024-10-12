@@ -2,11 +2,16 @@
 #ifndef MEMEPP_CONVERT_STD_WSTRING_HPP_INCLUDED
 #define MEMEPP_CONVERT_STD_WSTRING_HPP_INCLUDED
 
+#include <mego/predef/lang/version.h>
+
 #include "memepp/string.hpp"
 #include "memepp/string_view.hpp"
 #include "memepp/convert/common_def.hpp"
 
 #include <string>
+#if MG_LANG__CXX17_AVAIL
+#  include <string_view>
+#endif
 
 namespace memepp {
 	
@@ -34,6 +39,18 @@ namespace memepp {
 #endif
 	}
 	
+#if MG_LANG__CXX17_AVAIL
+	inline memepp::string from(const std::wstring_view& _sv)
+	{
+#if MG_OS__WIN_AVAIL
+		return memepp::string{
+			reinterpret_cast<const uint16_t*>(_sv.data()), static_cast<mmint_t>(_sv.size()) };
+#else
+		return {};
+#endif
+	}
+#endif
+
 	template<>
 	inline std::wstring to<std::wstring>(const memepp::string& _s)
 	{
