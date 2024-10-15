@@ -366,6 +366,39 @@ public:
         : value_{ std::forward<_Args>(_args)... }
     {}
     
+    synchronized_value(const synchronized_value& _other)
+    {
+        auto wlock = wlock();
+        auto rlock = _other.rlock();
+        *wlock = *rlock;
+    }
+
+    inline synchronized_value& operator=(const synchronized_value& _other)
+    {
+        if (this != &_other)
+        {
+            auto wlock = wlock();
+            auto rlock = _other.rlock();
+            *wlock = *rlock;
+        }
+        return *this;
+    }
+
+    synchronized_value(synchronized_value&& _other)
+        : mutex_{ std::move(_other.mutex_) }
+        , value_{ std::move(_other.value_) }
+    {}
+    
+    inline synchronized_value& operator=(synchronized_value&& _other) noexcept
+    {
+        if (this != &_other)
+        {
+            mutex_ = std::move(_other.mutex_);
+            value_ = std::move(_other.value_);
+        }
+        return *this;
+    }
+
     inline synchronized_details::read_life_ptr<_Ty, _Mutex, _SharedLock> 
         rlock() const  noexcept
     {
