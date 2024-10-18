@@ -238,9 +238,9 @@ MG_CAPI_INLINE int mghw_get_harddisk_freespace_by_path(
         return -1;
     }
     
-    _freespace->total = buf.f_blocks * buf.f_frsize;
-    _freespace->free  = buf.f_bfree * buf.f_frsize;
-    _freespace->avail = buf.f_bavail * buf.f_frsize;
+    _freespace->total = buf.f_blocks * buf.f_bsize;
+    _freespace->free  = buf.f_bfree  * buf.f_bsize;
+    _freespace->avail = buf.f_bavail * buf.f_bsize;
     if (_freespace->total > 0)
         _freespace->load  = 100 - (_freespace->free * 100 / _freespace->total);
 #elif MEGO_OS__WINDOWS__AVAILABLE
