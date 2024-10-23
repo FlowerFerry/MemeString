@@ -5,12 +5,10 @@
 #include <mego/thrd/spinwait.h>
 #include <mego/predef/os/linux.h>
 
+#include <megopp/thrd/numeric_id.h>
+
 #include <atomic>
 #include <stdexcept>
-
-#if MG_OS__LINUX_AVAIL
-#  include <unistd.h>
-#endif
 
 namespace mgpp {
 namespace thrd {
@@ -28,20 +26,17 @@ struct spin_mutex
 
     inline void lock()
     {
-#if MG_OS__WIN_AVAIL
-        auto tid = GetCurrentThreadId();
-#else
-        auto tid = gettid();
-#endif
+        auto tid = numeric_id();
         int64_t expected = -1;
 
         mgthrd_spinwait_t spinwait;
         mgthrd_spinwait_reset(&spinwait);
         
-        if (locked.load(std::memory_order_acquire) == tid)
+        if (tid != 0 && locked.load(std::memory_order_acquire) == tid)
             throw std::logic_error("deadlock detected");
         
-        while (!locked.compare_exchange_weak(expected, tid, std::memory_order_acquire))
+        while (!locked.compare_exchange_weak(
+            expected, static_cast<int64_t>(tid), std::memory_order_acquire))
         {
             expected = -1;
             mgthrd_spinwait_once(&spinwait);
@@ -55,17 +50,14 @@ struct spin_mutex
 
     inline bool try_lock()
     {
-#if MG_OS__WIN_AVAIL
-        auto tid = GetCurrentThreadId();
-#else
-        auto tid = gettid();
-#endif
+        auto tid = numeric_id();
         int64_t expected = -1;
 
-        if (locked.load(std::memory_order_acquire) == tid)
+        if (tid != 0 && locked.load(std::memory_order_acquire) == tid)
             throw std::logic_error("deadlock detected");
         
-        return locked.compare_exchange_strong(expected, tid, std::memory_order_acquire);
+        return locked.compare_exchange_strong(
+            expected, static_cast<int64_t>(tid), std::memory_order_acquire);
 
         // return !locked.test_and_set(std::memory_order_acquire);
     }
