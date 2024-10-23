@@ -2,6 +2,8 @@
 #ifndef MEME_STRING_TEMPLATEIMPL_H_INCLUDED
 #define MEME_STRING_TEMPLATEIMPL_H_INCLUDED
 
+#include <mego/predef/lang/version.h>
+
 #include <memepp/dll.hpp>
 #include <memepp/string_def.hpp>
 #include <memepp/string_view_def.hpp>
@@ -11,19 +13,28 @@
 
 namespace memepp {
 
+#if MG_LANG__CXX17_AVAIL
 	template<typename _Func, typename = std::enable_if_t<std::is_invocable_v<_Func, memepp::rune&>>>
+#else
+    template<typename _Func>
+#endif
 	struct __string_mapping_convert_helper
 	{
 		inline __string_mapping_convert_helper(_Func&& _func) : func_(std::forward<_Func>(_func)) {}
 		
 		inline int call(memepp::rune& _ch)
 		{
+#if MG_LANG__CXX17_AVAIL
             if constexpr (std::is_same_v<std::invoke_result_t<_Func, memepp::rune&>, int>)
                 return func_(_ch);
 			else {
                 func_(_ch);
                 return 0;
 			}
+#else
+			return call_wrap(_ch, 
+				typename std::is_integral< std::result_of_t<_Func(memepp::rune&)> >::type{});
+#endif
 		}
 
 		inline static int callback(MemeRune_t* _ch, void* _user_data)
@@ -36,22 +47,44 @@ namespace memepp {
 		}
 		
 	private:
+#if !MG_LANG__CXX17_AVAIL
+		inline int call_wrap(memepp::rune& _ch, std::true_type)
+		{
+            return func_(_ch);
+		}
+		
+		inline int call_wrap(memepp::rune& _ch, std::false_type)
+		{
+            func_(_ch);
+            return 0;
+		}
+#endif
+		
         _Func func_;
 	};
 
+#if MG_LANG__CXX17_AVAIL
     template<typename _Func, typename = std::enable_if_t<std::is_invocable_v<_Func, const memepp::rune&>>>
+#else
+    template<typename _Func>
+#endif
 	struct __string_foreach_helper
 	{
         inline __string_foreach_helper(_Func&& _func) : func_(std::forward<_Func>(_func)) {}
 
 		inline mmflag_cbproc_t call(const memepp::rune& _ch)
 		{
+#if MG_LANG__CXX17_AVAIL
             if constexpr (std::is_same_v<std::invoke_result_t<_Func, const memepp::rune&>, mmflag_cbproc_t>)
                 return func_(_ch);
 			else {
                 func_(_ch);
                 return mmflag_cbproc_continue;
 			}
+#else
+            return call_wrap(_ch,
+                typename std::is_same<std::result_of_t<_Func(const memepp::rune&)>, mmflag_cbproc_t>::type{});
+#endif
 		}
 
         inline static mmflag_cbproc_t callback(const mmrune_t* _ch, void* _user_data)
@@ -62,6 +95,19 @@ namespace memepp {
         }
 
 	private:
+#if !MG_LANG__CXX17_AVAIL
+        inline mmflag_cbproc_t call_wrap(const memepp::rune& _ch, std::true_type)
+        {
+            return func_(_ch);
+        }
+
+        inline mmflag_cbproc_t call_wrap(const memepp::rune& _ch, std::false_type)
+        {
+            func_(_ch);
+            return mmflag_cbproc_continue;
+        }
+#endif
+		
         _Func func_;
 	};
 
