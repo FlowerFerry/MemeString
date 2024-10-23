@@ -41,7 +41,7 @@ struct spin_mutex
         if (locked.load(std::memory_order_acquire) == tid)
             throw std::logic_error("deadlock detected");
         
-        while (locked.compare_exchange_weak(expected, tid, std::memory_order_acquire))
+        while (!locked.compare_exchange_weak(expected, tid, std::memory_order_acquire))
         {
             expected = -1;
             mgthrd_spinwait_once(&spinwait);
@@ -79,7 +79,7 @@ struct spin_mutex
 
 private:
     std::atomic<int64_t> locked = -1;
-    
+
     // std::atomic_flag locked = ATOMIC_FLAG_INIT;
 };
 
