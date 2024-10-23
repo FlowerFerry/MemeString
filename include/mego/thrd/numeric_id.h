@@ -84,8 +84,8 @@ MG_CAPI_INLINE size_t __mgthrd_numeric_id()
     return (size_t)tid;
 #else
 #  error "'mgthrd_numeric_id' is not implemented for this platform"
-#endif
     return 0;
+#endif
 }
 
 #endif // !MEGO_THRD_NUMERIC_ID_H_INCLUDED
