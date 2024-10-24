@@ -11,6 +11,11 @@
 #  pragma comment(lib, "Advapi32.lib")
 #endif
 
+//! 检查当前进程是否以管理员权限运行。
+//! 
+//! @note 此函数仅在Windows操作系统上可用，使用Windows API来检查当前用户令牌是否属于管理员组。
+//! 
+//! @return 如果当前进程以管理员权限运行则返回true，否则返回false。
 MG_CAPI_INLINE bool mg_win_perm_is_run_as_admin() 
 {
 #if MG_OS__WIN_AVAIL

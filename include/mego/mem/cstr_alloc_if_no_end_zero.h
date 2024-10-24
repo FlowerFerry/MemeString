@@ -12,6 +12,15 @@
 #include <stdint.h>
 #include <wchar.h>
 
+//! 如果源字符串没有以 '\0' 结尾，分配一个新的字符串并添加 '\0' 结尾。
+//! 
+//! @param[in] _src 源字符串的指针。
+//! @param[in] _slen 源字符串的长度。如果为负数，将自动计算长度。
+//! @param[out] _out 输出字符串的指针。如果需要分配新的字符串，将返回该指针。
+//! @param[out] _olen 输出字符串的长度指针。如果不为 NULL，将返回字符串的长度。
+//! @param[in] _must_alloc 指示是否必须分配新字符串的标志。
+//! 
+//! @return 返回一个错误码。如果成功则返回 0，如果输入无效则返回 MGEC__INVAL，如果内存不足则返回 MGEC__NOMEM。
 MG_CAPI_INLINE mgec_t mgmem__cstr_alloc_if_no_end_zero(
     const char *_src, mmint_t _slen, const char ** _out, mmint_t* _olen, int _must_alloc)
 {
@@ -55,6 +64,15 @@ MG_CAPI_INLINE mgec_t mgmem__cstr_alloc_if_no_end_zero(
     return 0;
 }
 
+//! 如果源字符串没有以 '\0' 结尾，分配一个新的字符串并添加 '\0' 结尾。
+//! 
+//! @param[in] _src 源字符串的指针。
+//! @param[in] _slen 源字符串的长度。如果为负数，将自动计算长度。
+//! @param[out] _out 输出字符串的指针。如果需要分配新的字符串，将返回该指针。
+//! @param[out] _olen 输出字符串的长度指针。如果不为 NULL，将返回字符串的长度。
+//! @param[in] _must_alloc 指示是否必须分配新字符串的标志。
+//! 
+//! @return 返回一个错误码。如果成功则返回 0，如果输入无效则返回 MGEC__INVAL，如果内存不足则返回 MGEC__NOMEM。
 MG_CAPI_INLINE mgec_t mgmem__wcstr_alloc_if_no_end_zero(
     const wchar_t *_src, mmint_t _slen, const wchar_t ** _out, mmint_t* _olen, int _must_alloc)
 {

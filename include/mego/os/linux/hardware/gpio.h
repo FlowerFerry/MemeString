@@ -30,6 +30,10 @@ typedef int mg_gpio__number_t;
 #define MG_GPIO__NUMBER_INVALID (-1)
 #endif
 
+//! 导出指定编号的GPIO。
+//!
+//! @param[in] _num 要导出的GPIO编号。
+//! @return 成功返回0，失败返回错误码。
 MG_CAPI_INLINE mgec_t mg_gpio__export(mg_gpio__number_t _num)
 {
 #if MG_OS__LINUX_AVAIL
@@ -73,6 +77,10 @@ MG_CAPI_INLINE mgec_t mg_gpio__export(mg_gpio__number_t _num)
 #endif
 }
 
+//! 取消导出指定编号的GPIO。
+//!
+//! @param[in] _num 要取消导出的GPIO编号。
+//! @return 成功返回0，失败返回错误码。
 MG_CAPI_INLINE mgec_t mg_gpio__unexport(mg_gpio__number_t _num)
 {
 #if MG_OS__LINUX_AVAIL
@@ -99,6 +107,11 @@ MG_CAPI_INLINE mgec_t mg_gpio__unexport(mg_gpio__number_t _num)
 #endif
 }
 
+//! 设置指定GPIO的方向。
+//!
+//! @param[in] _num GPIO编号。
+//! @param[in] _dir GPIO方向。
+//! @return 成功返回0，失败返回错误码。
 MG_CAPI_INLINE mgec_t mg_gpio__set_direction(
     mg_gpio__number_t _num, mg_gpio__direction_e _dir)
 {
@@ -129,6 +142,11 @@ MG_CAPI_INLINE mgec_t mg_gpio__set_direction(
 #endif
 }
 
+//! 设置指定GPIO的值。
+//!
+//! @param[in] _num GPIO编号。
+//! @param[in] _value 要设置的值（0或1）。
+//! @return 成功返回0，失败返回错误码。
 MG_CAPI_INLINE mgec_t mg_gpio__set_value(mg_gpio__number_t _num, int _value)
 {
 #if MG_OS__LINUX_AVAIL
@@ -156,6 +174,11 @@ MG_CAPI_INLINE mgec_t mg_gpio__set_value(mg_gpio__number_t _num, int _value)
 #endif
 }
 
+//! 获取指定GPIO的值。
+//!
+//! @param[in] _num GPIO编号。
+//! @param[out] _value 指向存储读取值的指针。
+//! @return 成功返回0，失败返回错误码。
 MG_CAPI_INLINE mgec_t mg_gpio__get_value(mg_gpio__number_t _num, int* _value)
 {
 #if MG_OS__LINUX_AVAIL

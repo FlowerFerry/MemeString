@@ -48,6 +48,7 @@ MG_CAPI_INLINE void __mghw_processor_count_init(void)
 #endif
 }
 
+//! @brief 获取当前系统的核心数
 MG_CAPI_INLINE size_t mghw_processor_count()
 {
     mgthrd_call_once(__mghw_processor_count_once_flag(), __mghw_processor_count_init);

@@ -23,14 +23,14 @@
 extern "C" {
 #endif // __cppplusplus
 
-struct mghw_harddisk_freespace
+typedef struct mghw_harddisk_freespace
 {
     uint32_t st_size;  //! 结构体的大小
     uint32_t load;     //! 硬盘的利用率（百分比）
     uint64_t total;    //! 总空间
     uint64_t free;     //! 可用空间
     uint64_t avail;    //! 可用空间（考虑权限限制）
-};
+} mghw_harddisk_freespace_t;
 
 // mmstrstk_t mghw_get_harddisk_path_by_path(const char* _filepath, size_t _len);
 
@@ -44,6 +44,7 @@ struct mghw_harddisk_freespace
 //! @param _filepath 文件路径
 //! @param _len 文件路径长度；小于0时字符串必须以'\0'结尾
 //! @return 返回硬盘设备路径的字符串对象
+//! @note 依赖于libmeme_string库
 MG_CAPI_INLINE mmstrstk_t mghw_get_harddisk_path_by_path(const char* _filepath, size_t _len)
 {
     mmstrstk_t s;
@@ -147,6 +148,7 @@ MG_CAPI_INLINE mmstrstk_t mghw_get_harddisk_path_by_path(const char* _filepath, 
 //! @param _filepath 文件路径
 //! @param _len 文件路径长度；小于0时字符串必须以'\0'结尾
 //! @return 返回挂载点路径的字符串对象
+//! @note 依赖于libmeme_string库
 MG_CAPI_INLINE mmstrstk_t mghw_get_harddisk_mountpoint_by_path(const char* _filepath, size_t _len)
 {
     mmstrstk_t s;
@@ -220,8 +222,9 @@ MG_CAPI_INLINE mmstrstk_t mghw_get_harddisk_mountpoint_by_path(const char* _file
 //! @param _len 文件路径长度；小于0时字符串必须以'\0'结尾
 //! @param _freespace 输出参数，用于存储硬盘空间信息
 //! @return 成功返回0，失败返回-1
+//! @note 依赖于libmeme_string库
 MG_CAPI_INLINE int mghw_get_harddisk_freespace_by_path(
-    const char* _filepath, size_t _len, mghw_harddisk_freespace* _freespace)
+    const char* _filepath, size_t _len, mghw_harddisk_freespace_t* _freespace)
 {
     mmstrstk_t mountpoint = mghw_get_harddisk_mountpoint_by_path(_filepath, _len);
 #if MEGO_OS__LINUX__AVAILABLE

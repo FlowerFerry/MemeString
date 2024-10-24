@@ -22,6 +22,7 @@ MG_CAPI_INLINE double __mghw_cpu_usage_calc(FILETIME idleTime, FILETIME kernelTi
 }
 #endif
 
+//! @brief 获取当前CPU使用率
 MG_CAPI_INLINE double mghw_cpu_usage()
 {
 #if MG_OS__WIN_AVAIL

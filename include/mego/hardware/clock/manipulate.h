@@ -45,11 +45,11 @@ extern "C" {
 #endif
 
 //! 定义时钟访问类型枚举
-enum mghw_clock_access_t {
+typedef enum mghw_clock_access_t {
     mghw_clock_access__isa,        //< ISA访问方式
     mghw_clock_access__rtc_ioctl,  //< RTC IOCTL访问方式
     mghw_clock_access__kd          //< KD访问方式
-};
+} mghw_clock_access_e;
 
 //! 获取第一个可用的RTC设备路径，若找到有效路径则将其复制到_path中
 //!
@@ -93,10 +93,10 @@ MG_CAPI_INLINE int mghw_clock__get_first_rtc_path(
 //! 确定最适合的时钟访问方式，优先级为RTC > KD > ISA
 //!
 //! @return 返回最合适的时钟访问类型
-MG_CAPI_INLINE mghw_clock_access_t
+MG_CAPI_INLINE mghw_clock_access_e
     mghw_clock__determine_access()
 {
-    mghw_clock_access_t access = mghw_clock_access__isa;
+    mghw_clock_access_e access = mghw_clock_access__isa;
     int is_rtc_avail = 0;
 #if MGHW_CLOCK__RTC_AVAIL
     do {
@@ -307,7 +307,7 @@ MG_CAPI_INLINE int
 //! @return 成功返回0，失败返回-1
 MG_CAPI_INLINE int
     mghw_clock__set_clock(
-        const enum mghw_clock_access_t _access, time_t _newtime, int _universal)
+        const enum mghw_clock_access_e _access, time_t _newtime, int _universal)
 {
     
 #if MG_OS__LINUX_AVAIL
@@ -349,7 +349,7 @@ MG_CAPI_INLINE int
 //! @param _universal 指示是否使用UTC时间
 //! @return 成功返回0，失败返回-1
 MG_CAPI_INLINE int mghw_clock__set_clock_exact_blocked(
-    time_t _settime, const struct timeval* _reftime, mghw_clock_access_t _access, int _universal)
+    time_t _settime, const struct timeval* _reftime, mghw_clock_access_e _access, int _universal)
 {
 #if MG_OS__LINUX_AVAIL
     mgu_time_t newtime;

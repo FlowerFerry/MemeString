@@ -11,6 +11,12 @@
 extern "C" {
 #endif // __cppplusplus
 
+//! 获取当前系统的内存状态信息。
+//! 
+//! 根据当前操作系统平台，函数会获取并填充物理内存和虚拟内存的相关信息。
+//! 
+//! @param[out] status 指向 mghw_memory_status 结构体的指针，用于存储内存状态信息。
+//! @return 如果成功返回 0，如果失败返回 -1。
 MG_CAPI_INLINE int mghw_get_memory_status(struct mghw_memory_status *status)
 {
 #if MEGO_OS__WINDOWS__AVAILABLE

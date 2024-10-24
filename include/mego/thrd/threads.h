@@ -11,6 +11,13 @@
 #   include <sched.h>
 #endif
 
+//! 使当前线程休眠指定的时间。
+//!
+//! 此函数根据操作系统实现线程的休眠功能。它可以选择性地返回剩余时间，如果休眠被中断。
+//!
+//! @param[in] _duration 指向指定休眠时间的`mgu_timespec_t`结构体。
+//! @param[out] _remaining 如果不为NULL，存储被中断时剩余的休眠时间。
+//! @return 成功时返回0；如果被信号中断返回-1；如果发生错误返回-2。
 MG_CAPI_INLINE int mgthrd_sleep(const struct mgu_timespec_t *_duration, struct mgu_timespec_t *_remaining)
 {
 #if MG_OS__WIN_AVAIL
@@ -79,6 +86,10 @@ MG_CAPI_INLINE int mgthrd_sleep(const struct mgu_timespec_t *_duration, struct m
 #endif
 }
 
+//! 让出当前线程的执行。
+//!
+//! 此函数用于在多线程环境中让出当前线程的执行权限，以便其他线程可以运行。
+//! 这个操作有助于提高多线程程序的响应性和性能。
 MG_CAPI_INLINE void mguthrd_yield(void)
 {
 #if MG_OS__WIN_AVAIL
