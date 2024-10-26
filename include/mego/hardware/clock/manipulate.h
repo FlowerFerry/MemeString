@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MGHW_CLOCK_MANIPULATE_H_INCLUDED
 #define MGHW_CLOCK_MANIPULATE_H_INCLUDED
 
@@ -307,7 +307,7 @@ MG_CAPI_INLINE int
 //! @return 成功返回0，失败返回-1
 MG_CAPI_INLINE int
     mghw_clock__set_clock(
-        const enum mghw_clock_access_e _access, time_t _newtime, int _universal)
+        const mghw_clock_access_e _access, time_t _newtime, int _universal)
 {
     
 #if MG_OS__LINUX_AVAIL
