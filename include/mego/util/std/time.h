@@ -118,10 +118,11 @@ extern "C" {
     #if MG_OS__WIN_AVAIL
         return ctime_s(_buf, _bufsz, _time);
     #else
+        time_t time;
         if (!_buf || _time) return MGEC__INVAL;
         if (_bufsz < 26) return MGEC__INVAL;
 
-        auto time = (time_t)(*_time);
+        time = (time_t)(*_time);
         errno = 0;
         if (!ctime_r(&time, _buf)) {
             _buf[0] = '\0';

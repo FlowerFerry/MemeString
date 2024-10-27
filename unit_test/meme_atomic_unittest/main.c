@@ -15,7 +15,7 @@ int ctest_mt_i32_add_cb_1(void* _arg)
     return 0;
 }
 
-const int ctest_mt_i32_add_cb2_once_value = 2097152 * 256;
+const int64_t ctest_mt_i32_add_cb2_once_value = 2097152 * 256;
 int ctest_mt_i32_add_cb_2(void* _arg)
 {
     mmconc_atomic_int32_t* atmc = (mmconc_atomic_int32_t*)_arg;
@@ -37,7 +37,7 @@ int ctest_mt_i32_add_cb_3(void* _arg)
     return 0;
 }
 
-const int ctest_mt_i32_ovf_add_cb1_once_value = 2000000 * 1000;
+const int64_t ctest_mt_i32_ovf_add_cb1_once_value = 2000000 * 1000;
 int ctest_mt_i32_ovf_add_cb_1(void* _arg)
 {
     mmconc_atomic_int32_t* atmc = (mmconc_atomic_int32_t*)_arg;
@@ -126,8 +126,8 @@ MU_TEST(ctest_mt_int_add)
     mgthrd_join(thrd3, NULL);
     mgthrd_join(thrd4, NULL);
 
-    mu_assert(mmconc_atomic_i32_load(&atmc32) == 4 * ctest_mt_i32_add_cb2_once_value,
-        "Error: mmconc_atomic_i32_load(&atmc) != 4 * ctest_mt_i32_add_cb2_once_value");
+    mu_assert(mmconc_atomic_i32_load(&atmc32) == (int)(4 * ctest_mt_i32_add_cb2_once_value),
+        "Error: mmconc_atomic_i32_load(&atmc) != (int)(4 * ctest_mt_i32_add_cb2_once_value)");
 
     mmconc_atomic_i32_store(&atmc32, 0);
 
@@ -209,8 +209,8 @@ MU_TEST(ctest_mt_int_ovf_add)
     mgthrd_join(thrd3, NULL);
     mgthrd_join(thrd4, NULL);
     
-    mu_assert(mmconc_atomic_i32_load(&atmc32) == 4 * ctest_mt_i32_ovf_add_cb1_once_value,
-        "Error: mmconc_atomic_i32_load(&atmc) != 4 * ctest_mt_i32_ovf_add_cb1_once_value");
+    mu_assert(mmconc_atomic_i32_load(&atmc32) == (int)(4 * ctest_mt_i32_ovf_add_cb1_once_value),
+        "Error: mmconc_atomic_i32_load(&atmc) != (int)(4 * ctest_mt_i32_ovf_add_cb1_once_value)");
 
     mmconc_atomic_int64_t atmc64 = mmconc_atomic_i64_get_init(0);
     
