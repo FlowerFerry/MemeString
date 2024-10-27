@@ -33,9 +33,12 @@ set_target_properties(${MMUT_EXEC_NAME} PROPERTIES
     INSTALL_RPATH "\$ORIGIN:\$ORIGIN/../lib"
 )
 
-add_custom_command(
+if(NOT MMUT_PARENT_LIBRARY_FILE STREQUAL "")
+  add_custom_command(
 	TARGET ${MMUT_EXEC_NAME} POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
 	${MMUT_PARENT_LIBRARY_FILE}
 	$<TARGET_FILE_DIR:${MMUT_EXEC_NAME}>
-)
+  )
+endif()
+
