@@ -574,7 +574,7 @@ MemeStringStack_mid(
     obj = (mms_t)_s;
     srcSize = MemeString_byteSize(obj);
     if ((_offset > srcSize))
-        return MemeStringStack_getInitObject(_object_size);
+        return mmstrstk_get_init(_object_size);
 	
     if ((_len < 0))
         _len = srcSize - _offset;
@@ -585,7 +585,7 @@ MemeStringStack_mid(
     {
 		int eno = MemeStringStack_initByOther(&out, _object_size, obj);
 		if (eno)
-			return MemeStringStack_getInitObject(_object_size);
+			return mmstrstk_get_init(_object_size);
 		MemeStringImpl_setDataOffset(&out, _offset);
     }
 	else if (MMS__GET_TYPE(obj) == MemeString_ImplType_view) 
@@ -597,7 +597,7 @@ MemeStringStack_mid(
         int eno = MemeStringStack_initByU8bytes(&out, _object_size,
             MemeString_byteData(obj) + _offset, _len);
         if (eno)
-            return MemeStringStack_getInitObject(_object_size);
+            return mmstrstk_get_init(_object_size);
 	}
     return out;
 }
@@ -618,22 +618,22 @@ MEME_EXTERN_C MEME_API mmstrstk_t MEME_STDCALL MemeStringStack_concat(
     rhsSize = MemeString_byteSize((mmstr_const_t)_other);
 	
     if (lhsSize + rhsSize == 0)
-        return MemeStringStack_getInitObject(_object_size);
+        return mmstrstk_get_init(_object_size);
 
 	result = MemeStringMedium_initWithCapacity((MemeStringMedium_t*)&out, 
 		lhsSize + rhsSize);
     if (result)
-        return MemeStringStack_getInitObject(_object_size);
+        return mmstrstk_get_init(_object_size);
 	
 	result = MemeVariableBuffer_appendWithBytes(
 		(mmvb_t)&out, MemeString_byteData((mmstr_const_t)_s), lhsSize);
     if (result)
-        return MemeStringStack_getInitObject(_object_size);
+        return mmstrstk_get_init(_object_size);
 	
 	result = MemeVariableBuffer_appendWithBytes(
 		(mmvb_t)&out, MemeString_byteData((mmstr_const_t)_other), rhsSize);
     if (result)
-        return MemeStringStack_getInitObject(_object_size);
+        return mmstrstk_get_init(_object_size);
 
     return out;
 }
@@ -1034,14 +1034,14 @@ MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL MemeStringStack_mappingConvert(
 		result = MemeVariableBuffer_appendWithBytes((mmvb_t)&vb, MemeRune_data(&rune), MemeRune_size(&rune));
 		if (result < 0) {
 			MemeVariableBufferStack_unInit(&vb, MMS__OBJECT_SIZE);
-			return MemeStringStack_getInitObject(_object_size);
+			return mmstrstk_get_init(_object_size);
 		}
 	}
 	
 	result = MemeVariableBuffer_releaseToString((mmvb_t)&vb, &stack, _object_size);
 	if (result < 0) {
 		MemeVariableBufferStack_unInit(&vb, MMS__OBJECT_SIZE);
-		return MemeStringStack_getInitObject(_object_size);
+		return mmstrstk_get_init(_object_size);
 	}
     return stack;
 }
@@ -1143,21 +1143,21 @@ MemeStringStack_vformatWithLimitInCstyle(
 	va_list calcArgs;
 
 	if ((_format == NULL))
-		return MemeStringStack_getInitObject(_object_size);
+		return mmstrstk_get_init(_object_size);
 
 	if (_pre_size <= 0) {
 		va_copy(calcArgs, _args);
 		len = vsnprintf(NULL, 0, _format, calcArgs);
 		va_end(calcArgs);
 		if (len <= 0)
-			return MemeStringStack_getInitObject(_object_size);
+			return mmstrstk_get_init(_object_size);
 	}
 	else {
 		MemeVariableBufferStack_init(&vbuf, MMSTR__OBJ_SIZE);
 		result = MemeVariableBuffer_resize((mmvb_ptr_t)&vbuf, _pre_size + 1);
 		if (result) {
 			MemeVariableBufferStack_unInit(&vbuf, MMSTR__OBJ_SIZE);
-			return MemeStringStack_getInitObject(_object_size);
+			return mmstrstk_get_init(_object_size);
 		}
 
 		va_copy(calcArgs, _args);
@@ -1166,7 +1166,7 @@ MemeStringStack_vformatWithLimitInCstyle(
 		va_end(calcArgs);
 		if (len <= 0) {
 			MemeVariableBufferStack_unInit(&vbuf, MMSTR__OBJ_SIZE);
-			return MemeStringStack_getInitObject(_object_size);
+			return mmstrstk_get_init(_object_size);
 		}
 
 		if (_pre_size >= len) {
@@ -1177,13 +1177,13 @@ MemeStringStack_vformatWithLimitInCstyle(
 			result = MemeVariableBuffer_resize((mmvb_ptr_t)&vbuf, len);
 			if (result) {
 				MemeVariableBufferStack_unInit(&vbuf, MMSTR__OBJ_SIZE);
-				return MemeStringStack_getInitObject(_object_size);
+				return mmstrstk_get_init(_object_size);
 			}
 
 			result = MemeVariableBuffer_releaseToString((mmvb_ptr_t)&vbuf, &out, _object_size);
 			MemeVariableBufferStack_unInit(&vbuf, MMSTR__OBJ_SIZE);
 			if (result) {
-				return MemeStringStack_getInitObject(_object_size);
+				return mmstrstk_get_init(_object_size);
 			}
 
 			return out;
@@ -1200,7 +1200,7 @@ MemeStringStack_vformatWithLimitInCstyle(
 	result = MemeVariableBuffer_resize((mmvb_ptr_t)&vbuf, len + 1);
 	if (result) {
 		MemeVariableBufferStack_unInit(&vbuf, MMSTR__OBJ_SIZE);
-		return MemeStringStack_getInitObject(_object_size);
+		return mmstrstk_get_init(_object_size);
 	}
 
 	data = MemeVariableBuffer_dataWithNotConst((mmvb_ptr_t)&vbuf);
@@ -1208,19 +1208,19 @@ MemeStringStack_vformatWithLimitInCstyle(
 	len = vsnprintf((char*)data, len + 1, _format, _args);
 	if (len <= 0) {
 		MemeVariableBufferStack_unInit(&vbuf, MMSTR__OBJ_SIZE);
-		return MemeStringStack_getInitObject(_object_size);
+		return mmstrstk_get_init(_object_size);
 	}
 
 	result = MemeVariableBuffer_resize((mmvb_ptr_t)&vbuf, _size_limit);
 	if (result) {
 		MemeVariableBufferStack_unInit(&vbuf, MMSTR__OBJ_SIZE);
-		return MemeStringStack_getInitObject(_object_size);
+		return mmstrstk_get_init(_object_size);
 	}
 
 	result = MemeVariableBuffer_releaseToString((mmvb_ptr_t)&vbuf, &out, _object_size);
 	MemeVariableBufferStack_unInit(&vbuf, MMSTR__OBJ_SIZE);
 	if (result) {
-		return MemeStringStack_getInitObject(_object_size);
+		return mmstrstk_get_init(_object_size);
 	}
 	
 	return out;
