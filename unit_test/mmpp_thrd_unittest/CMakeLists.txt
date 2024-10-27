@@ -9,30 +9,33 @@ set(MMUT_PARENT_LINKER_FILE  CACHE FILEPATH "")
 
 file(GLOB SRC_FILES "*.cpp")
 
-add_executable(${PROJECT_NAME} ${SRC_FILES})
+set(MMUT_EXEC_NAME ${PROJECT_NAME}_cxx17)
+add_executable(${MMUT_EXEC_NAME} ${SRC_FILES})
 
-target_include_directories(${PROJECT_NAME} PRIVATE 
+target_include_directories(${MMUT_EXEC_NAME} PRIVATE 
   ${MMUT_PARENT_HEADER_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/catch2/include
 )
 
+target_compile_features(${MMUT_EXEC_NAME} PRIVATE cxx_std_17)
+
 if (NOT WIN32)
   find_package(Threads REQUIRED)
-  target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads ${CMAKE_DL_LIBS} rt)
+  target_link_libraries(${MMUT_EXEC_NAME} PRIVATE Threads::Threads ${CMAKE_DL_LIBS} rt)
 endif()
 
-target_link_libraries(${PROJECT_NAME} PRIVATE 
+target_link_libraries(${MMUT_EXEC_NAME} PRIVATE 
   ${MMUT_PARENT_LINKER_FILE}
 )
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
+set_target_properties(${MMUT_EXEC_NAME} PROPERTIES
     BUILD_WITH_INSTALL_RPATH TRUE
     INSTALL_RPATH "\$ORIGIN:\$ORIGIN/../lib"
 )
 
 add_custom_command(
-	TARGET ${PROJECT_NAME} POST_BUILD
+	TARGET ${MMUT_EXEC_NAME} POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
 	${MMUT_PARENT_LIBRARY_FILE}
-	$<TARGET_FILE_DIR:${PROJECT_NAME}>
+	$<TARGET_FILE_DIR:${MMUT_EXEC_NAME}>
 )
