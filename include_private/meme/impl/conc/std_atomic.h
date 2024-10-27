@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEME_IMPL_CONC_STD_ATOMIC_H_INCLUDED
 #define MEME_IMPL_CONC_STD_ATOMIC_H_INCLUDED
 
@@ -7,7 +7,7 @@
 
 MEME_EXTERN_C_SCOPE_START
 
-MG_CAPI_INLINE enum memory_order mmconc_memory_order_to_std_order(mmconc_memory_order_e _order)
+MG_CAPI_INLINE memory_order mmconc_memory_order_to_std_order(mmconc_memory_order_e _order)
 {
     switch (_order)
     {
