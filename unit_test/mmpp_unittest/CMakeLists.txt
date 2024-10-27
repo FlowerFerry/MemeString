@@ -9,7 +9,7 @@ set(MMUT_PARENT_LINKER_FILE  CACHE FILEPATH "")
 
 file(GLOB SRC_FILES "*.cpp")
 
-add_executable(mmpp_unittest
+add_executable(${PROJECT_NAME}_cxx17
 	${SRC_FILES}
 )
 
