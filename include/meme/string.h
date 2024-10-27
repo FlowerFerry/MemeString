@@ -12,6 +12,7 @@
 #include <mego/predef/symbol/restrict.h>
 #include <mego/predef/symbol/inline.h>
 #include <mego/predef/symbol/likely.h>
+#include <mego/predef/symbol/deprecated.h>
 
 #include <stdarg.h>
 #include <assert.h>
@@ -27,6 +28,9 @@ MEME_API MemeInteger_t
 MEME_API int 
 	MEME_STDCALL MemeStringStack_init(mmsstk_t* _out, size_t _object_size);
 
+//! 当外部对象大小大于内部对象大小时，不能按外部对象大小初始化，与设计不符
+//! @deprecated 请使用 MemeStringStack_init
+MEGO_SYMBOL__DEPRECATED 
 MEME_API mmsstk_t
 	MEME_STDCALL MemeStringStack_getInitObject(size_t _object_size);
 
@@ -522,7 +526,9 @@ mmstrstk_get_init(size_t _object_size)
 {
     assert(_object_size != 0 && "mmstrstk_get_init");
 	
-    return MemeStringStack_getInitObject(_object_size);
+	mmstrstk_t _out;
+	MemeStringStack_init(&_out, _object_size);
+	return _out;
 }
 
 MG_CAPI_INLINE int 
