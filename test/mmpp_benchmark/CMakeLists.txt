@@ -7,15 +7,23 @@ set(MMBM_PARENT_HEADER_DIR   CACHE PATH "")
 set(MMBM_PARENT_LIBRARY_FILE CACHE FILEPATH "")
 set(MMBM_PARENT_LINKER_FILE  CACHE FILEPATH "")
 
+set(MMBM_GIT_HOST "github.com" CACHE STRING "")
+
+set(FETCHCONTENT_TIMEOUT 120)
+set(FETCHCONTENT_QUIET FALSE)
+
 set(BENCHMARK_ENABLE_GTEST_TESTS OFF)
+
+message("MMBM_PARENT_HEADER_DIR: ${MMBM_PARENT_HEADER_DIR}")
 
 include(FetchContent)
 
 FetchContent_Declare(
 	benchmark
-	GIT_REPOSITORY https://github.com/google/benchmark.git
+	GIT_REPOSITORY https://${MMBM_GIT_HOST}/google/benchmark.git
 	GIT_TAG v1.8.4
 	SOURCE_DIR ${CMAKE_SOURCE_DIR}/deps/benchmark-v1.8.4
+	GIT_PROGRESS TRUE
 )
 
 FetchContent_MakeAvailable(benchmark)

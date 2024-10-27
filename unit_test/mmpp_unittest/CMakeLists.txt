@@ -3,9 +3,9 @@ cmake_minimum_required(VERSION 3.20)
 
 project(mmpp_unittest)
 
-set(MMBM_PARENT_HEADER_DIR   CACHE PATH "")
-set(MMBM_PARENT_LIBRARY_FILE CACHE FILEPATH "")
-set(MMBM_PARENT_LINKER_FILE  CACHE FILEPATH "")
+set(MMUT_PARENT_HEADER_DIR   CACHE PATH "")
+set(MMUT_PARENT_LIBRARY_FILE CACHE FILEPATH "")
+set(MMUT_PARENT_LINKER_FILE  CACHE FILEPATH "")
 
 file(GLOB SRC_FILES "*.cpp")
 
@@ -18,7 +18,7 @@ target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 target_include_directories(${PROJECT_NAME} PRIVATE 
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/catch2/include
-  ${MMBM_PARENT_HEADER_DIR}
+  ${MMUT_PARENT_HEADER_DIR}
 )
 
 if (NOT WIN32)
@@ -27,7 +27,7 @@ if (NOT WIN32)
 endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE 
-  ${MMBM_PARENT_LINKER_FILE}
+  ${MMUT_PARENT_LINKER_FILE}
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
@@ -38,6 +38,6 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 add_custom_command(
 	TARGET ${PROJECT_NAME} POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-	${MMBM_PARENT_LIBRARY_FILE}
+	${MMUT_PARENT_LIBRARY_FILE}
 	$<TARGET_FILE_DIR:${PROJECT_NAME}>
 )

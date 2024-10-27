@@ -2,6 +2,7 @@
 
 EXPORTS
     MemeStringStack_init @1
+    ; DEPRECATED
     MemeStringStack_getInitObject @2
     MemeStringStack_initTakeOverUserObject @3
     MemeStringStack_initByOther @4
