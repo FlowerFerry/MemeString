@@ -121,7 +121,7 @@ extern "C" {
         if (!_buf || _time) return MGEC__INVAL;
         if (_bufsz < 26) return MGEC__INVAL;
 
-        auto time = static_cast<time_t>(*_time);
+        auto time = (time_t)(*_time);
         errno = 0;
         if (!ctime_r(&time, _buf)) {
             _buf[0] = '\0';
