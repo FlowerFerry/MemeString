@@ -20,7 +20,7 @@ MEME_API void MEME_STDCALL mmconc_atomic_impl_u32_init(volatile mmconc_atomic_ui
 MEME_API void MEME_STDCALL mmconc_atomic_impl_i64_init(volatile mmconc_atomic_int64_t*  _obj, int _obj_size, int64_t  _desired);
 MEME_API void MEME_STDCALL mmconc_atomic_impl_u64_init(volatile mmconc_atomic_uint64_t* _obj, int _obj_size, uint64_t _desired);
 
-MEME_API void MEME_STDCALL mmconc_atomic_impl_flag_init(volatile mmconc_atomic_flag_t* _obj, int _obj_size, int _desired);
+MEME_API void MEME_STDCALL mmconc_atomic_impl_flag_init(volatile mmconc_atomic_flag_t* _obj, int _obj_size);
 
 MG_CAPI_INLINE void mmconc_atomic_bl_init(volatile mmconc_atomic_bool_t* _obj, int _obj_size, int _desired)
 {
@@ -76,10 +76,10 @@ MG_CAPI_INLINE void mmconc_atomic_u64_init(volatile mmconc_atomic_uint64_t* _obj
     mmconc_atomic_impl_u64_init(_obj, _obj_size, _desired);
 }
 
-MG_CAPI_INLINE void mmconc_atomic_flag_init(volatile mmconc_atomic_flag_t* _obj, int _obj_size, int _desired)
+MG_CAPI_INLINE void mmconc_atomic_flag_init(volatile mmconc_atomic_flag_t* _obj, int _obj_size)
 {
     assert(_obj != NULL && "mmconc_atomic_flag_init: _obj is NULL");
-    mmconc_atomic_impl_flag_init(_obj, _obj_size, _desired);
+    mmconc_atomic_impl_flag_init(_obj, _obj_size);
 }
 
 MG_CAPI_INLINE mmconc_atomic_bool_t mmconc_atomic_bl_get_init(int _desired)
@@ -154,11 +154,11 @@ MG_CAPI_INLINE mmconc_atomic_uint64_t mmconc_atomic_u64_get_init(uint64_t _desir
     return obj;
 }
 
-MG_CAPI_INLINE mmconc_atomic_flag_t mmconc_atomic_flag_get_init(int _desired)
+MG_CAPI_INLINE mmconc_atomic_flag_t mmconc_atomic_flag_get_init()
 {
     mmconc_atomic_flag_t obj;
     obj.base.st_size = sizeof(obj);
-    mmconc_atomic_flag_init(&obj, -1, _desired);
+    mmconc_atomic_flag_init(&obj, -1);
     return obj;
 }
 
