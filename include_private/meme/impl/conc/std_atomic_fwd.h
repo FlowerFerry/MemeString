@@ -4,41 +4,36 @@
 
 #include <meme/conc/atomic_fwd.h>
 
+#include <assert.h>
 #include <stdatomic.h>
 
 MEME_EXTERN_C_SCOPE_START
 
-#pragma pack(push, 1)
 typedef struct mmconc_std_atmc_bl {
     mmconc_atomic_none_t base;
     uint8_t reserved[MMCONC_ATOMIC_BOOL_OBJ_SIZE - sizeof(mmconc_atomic_none_t) - sizeof(atomic_bool)];
     atomic_bool data;
 } mmconc_std_atmc_bl_t;
-#pragma pack(pop)
 
 static_assert(
     sizeof(mmconc_std_atmc_bl_t) == sizeof(mmconc_atomic_bool_t),
     "'atomic_bool' size mismatch");
 
-#pragma pack(push, 1)
 typedef struct mmconc_std_atmc_i8 {
     mmconc_atomic_none_t base;
     uint8_t reserved[MMCONC_ATOMIC_INT8_OBJ_SIZE - sizeof(mmconc_atomic_none_t) - sizeof(atomic_schar)];
     atomic_schar data;
 } mmconc_std_atmc_i8_t;
-#pragma pack(pop)
 
 static_assert(
     sizeof(mmconc_std_atmc_i8_t) == sizeof(mmconc_atomic_int8_t),
     "'atomic_schar' size mismatch");
 
-#pragma pack(push, 1)
 typedef struct mmconc_std_atmc_u8 {
     mmconc_atomic_none_t base;
     uint8_t reserved[MMCONC_ATOMIC_UINT8_OBJ_SIZE - sizeof(mmconc_atomic_none_t) - sizeof(atomic_uchar)];
     atomic_uchar data;
 } mmconc_std_atmc_u8_t;
-#pragma pack(pop)
 
 static_assert(
     sizeof(mmconc_std_atmc_u8_t) == sizeof(mmconc_atomic_uint8_t),

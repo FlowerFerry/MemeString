@@ -3,6 +3,7 @@
 #define MEME_CONC_ATOMIC_FWD_H_INCLUDED
 
 #include <stdint.h>
+#include <assert.h>
 
 #include <meme/common.h>
 
