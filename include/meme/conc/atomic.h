@@ -157,7 +157,7 @@ MG_CAPI_INLINE mmconc_atomic_uint64_t mmconc_atomic_u64_get_init(uint64_t _desir
 MG_CAPI_INLINE mmconc_atomic_flag_t mmconc_atomic_flag_get_init(int _desired)
 {
     mmconc_atomic_flag_t obj;
-    obj.b_.base.st_size = sizeof(obj);
+    obj.base.st_size = sizeof(obj);
     mmconc_atomic_flag_init(&obj, -1, _desired);
     return obj;
 }

@@ -70,6 +70,7 @@ MEME_API void MEME_STDCALL
 MEME_API void MEME_STDCALL 
     mmconc_atomic_impl_flag_init(volatile mmconc_atomic_flag_t* _obj, int _obj_size, int _desired)
 {
+    _obj->base.type = mmconc_atomic_flag_type;
     mmconc_msvc_atmc_bl_init(&(((volatile mmconc_native_atmc_bl_t*)_obj)->data), (bool)_desired);
 }
 

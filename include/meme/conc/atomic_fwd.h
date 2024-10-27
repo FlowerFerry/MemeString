@@ -19,7 +19,8 @@ typedef enum mmconc_atomic_data_type {
     mmconc_atomic_int32_type,
     mmconc_atomic_uint32_type,
     mmconc_atomic_int64_type,
-    mmconc_atomic_uint64_type
+    mmconc_atomic_uint64_type,
+    mmconc_atomic_flag_type
 } mmconc_atomic_data_type_e;
 
 typedef enum mmconc_memory_order {
@@ -91,8 +92,9 @@ typedef struct mmconc_atomic_uint64 {
     uint8_t byte[MMCONC_ATOMIC_UINT64_OBJ_SIZE - sizeof(mmconc_atomic_none_t)];
 } mmconc_atomic_uint64_t;
 
-typedef struct mmconc_atomic_flag { 
-    mmconc_atomic_bool_t b_; 
+typedef struct mmconc_atomic_flag {
+    mmconc_atomic_none_t base;
+    uint8_t byte[MMCONC_ATOMIC_BOOL_OBJ_SIZE - sizeof(mmconc_atomic_none_t)];
 } mmconc_atomic_flag_t;
 
 static_assert(sizeof(mmconc_atomic_bool_t)   == MMCONC_ATOMIC_BOOL_OBJ_SIZE,   "mmconc_atomic_bool_t size must be 4 bytes");

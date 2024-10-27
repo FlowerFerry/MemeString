@@ -1,4 +1,4 @@
-
+﻿
 #include <meme/impl/conc/std_atomic.h>
 #include <meme/common.h>
 #include <stdatomic.h>
@@ -72,7 +72,8 @@ MEME_API void MEME_STDCALL
 MEME_API void MEME_STDCALL 
     mmconc_atomic_impl_flag_init(volatile mmconc_atomic_flag_t* _obj, int _obj_size, int _desired)
 {
-    atomic_init(&(((volatile mmconc_std_atmc_bl_t*)_obj)->data), (bool)_desired);
+    _obj->base.type = mmconc_atomic_flag_type;
+    atomic_init(&(((volatile mmconc_std_atmc_flag_t*)_obj)->data), (bool)_desired);
 }
 
 

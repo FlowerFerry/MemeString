@@ -100,7 +100,15 @@ static_assert(
     sizeof(mmconc_std_atmc_u64_t) == sizeof(mmconc_atomic_uint64_t),
     "'atomic_ullong' size mismatch");
 
+typedef struct mmconc_std_atmc_flag {
+    mmconc_atomic_none_t base;
+    uint8_t reserved[MMCONC_ATOMIC_BOOL_OBJ_SIZE - sizeof(mmconc_atomic_none_t) - sizeof(atomic_flag)];
+    atomic_flag data;
+} mmconc_std_atmc_flag_t;
 
+static_assert(
+    sizeof(mmconc_std_atmc_flag_t) == sizeof(mmconc_atomic_flag_t),
+    "'atomic_flag' size mismatch");
 
 MEME_EXTERN_C_SCOPE_ENDED
 
