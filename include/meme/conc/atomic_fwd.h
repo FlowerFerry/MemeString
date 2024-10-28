@@ -23,6 +23,26 @@ typedef enum mmconc_atomic_data_type {
     mmconc_atomic_flag_type
 } mmconc_atomic_data_type_e;
 
+#if INTPTR_MAX == INT64_MAX
+enum {
+    mmconc_atomic_intptr_type  = mmconc_atomic_int64_type,
+    mmconc_atomic_uintptr_type = mmconc_atomic_uint64_type
+};
+enum {
+    mmconc_atomic_size_type = mmconc_atomic_uint64_type,
+};
+#elif INTPTR_MAX == INT32_MAX
+enum {
+    mmconc_atomic_intptr_type  = mmconc_atomic_int32_type,
+    mmconc_atomic_uintptr_type = mmconc_atomic_uint32_type
+};
+enum {
+    mmconc_atomic_size_type = mmconc_atomic_uint32_type,
+};
+#else
+#  error "Unsupported"
+#endif
+
 typedef enum mmconc_memory_order {
     mmconc_memory_order_relaxed = 0,
     mmconc_memory_order_consume = 1,
@@ -41,6 +61,18 @@ typedef enum mmconc_memory_order {
 #define MMCONC_ATOMIC_UINT32_OBJ_SIZE 8
 #define MMCONC_ATOMIC_INT64_OBJ_SIZE  16
 #define MMCONC_ATOMIC_UINT64_OBJ_SIZE 16
+
+#if INTPTR_MAX == INT64_MAX
+#  define MMCONC_ATOMIC_INTPTR_OBJ_SIZE  MMCONC_ATOMIC_INT64_OBJ_SIZE
+#  define MMCONC_ATOMIC_UINTPTR_OBJ_SIZE MMCONC_ATOMIC_UINT64_OBJ_SIZE
+#  define MMCONC_ATOMIC_SIZE_OBJ_SIZE    MMCONC_ATOMIC_UINT64_OBJ_SIZE
+#elif INTPTR_MAX == INT32_MAX
+#  define MMCONC_ATOMIC_INTPTR_OBJ_SIZE  MMCONC_ATOMIC_INT32_OBJ_SIZE
+#  define MMCONC_ATOMIC_UINTPTR_OBJ_SIZE MMCONC_ATOMIC_UINT32_OBJ_SIZE
+#  define MMCONC_ATOMIC_SIZE_OBJ_SIZE    MMCONC_ATOMIC_UINT32_OBJ_SIZE
+#else
+#  error "Unsupported"
+#endif
 
 typedef struct mmconc_atomic_none {
     uint8_t st_size;
@@ -106,6 +138,19 @@ static_assert(sizeof(mmconc_atomic_int32_t)  == MMCONC_ATOMIC_INT32_OBJ_SIZE,  "
 static_assert(sizeof(mmconc_atomic_uint32_t) == MMCONC_ATOMIC_UINT32_OBJ_SIZE, "mmconc_atomic_uint32_t size must be 8 bytes");
 static_assert(sizeof(mmconc_atomic_int64_t)  == MMCONC_ATOMIC_INT64_OBJ_SIZE,  "mmconc_atomic_int64_t size must be 12 bytes");
 static_assert(sizeof(mmconc_atomic_uint64_t) == MMCONC_ATOMIC_UINT64_OBJ_SIZE, "mmconc_atomic_uint64_t size must be 12 bytes");
+
+
+#if INTPTR_MAX == INT64_MAX
+typedef mmconc_atomic_int64_t  mmconc_atomic_intptr_t;
+typedef mmconc_atomic_uint64_t mmconc_atomic_uintptr_t;
+typedef mmconc_atomic_uint64_t mmconc_atomic_size_t;
+#elif INTPTR_MAX == INT32_MAX
+typedef mmconc_atomic_int32_t  mmconc_atomic_intptr_t;
+typedef mmconc_atomic_uint32_t mmconc_atomic_uintptr_t;
+typedef mmconc_atomic_uint32_t mmconc_atomic_size_t;
+#else
+#  error "Unsupported"
+#endif
 
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_CONC_ATOMIC_FWD_H_INCLUDED
