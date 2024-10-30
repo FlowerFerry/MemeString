@@ -542,6 +542,7 @@ MG_CAPI_INLINE int mmconc_atomic_bl_compare_exchange_strong_explicit(
     volatile mmconc_atomic_bool_t* _obj, int* _expected, int _desired, mmconc_memory_order_e _success, mmconc_memory_order_e _failure)
 {
     assert(_obj != NULL && "mmconc_atomic_bl_compare_exchange_strong_explicit: _obj is NULL");
+    assert(_expected != NULL && "mmconc_atomic_bl_compare_exchange_strong_explicit: _expected is NULL");
     return mmconc_atomic_bl_base_compare_exchange_strong_explicit(_obj, _expected, _desired, _success, _failure);
 }
 
@@ -549,6 +550,7 @@ MG_CAPI_INLINE int mmconc_atomic_i8_compare_exchange_strong_explicit(
     volatile mmconc_atomic_int8_t* _obj, int8_t* _expected, int8_t _desired, mmconc_memory_order_e _success, mmconc_memory_order_e _failure)
 {
     assert(_obj != NULL && "mmconc_atomic_i8_compare_exchange_strong_explicit: _obj is NULL");
+    assert(_expected != NULL && "mmconc_atomic_i8_compare_exchange_strong_explicit: _expected is NULL");
     return mmconc_atomic_i8_base_compare_exchange_strong_explicit(_obj, _expected, _desired, _success, _failure);
 }
 
@@ -556,6 +558,7 @@ MG_CAPI_INLINE int mmconc_atomic_u8_compare_exchange_strong_explicit(
     volatile mmconc_atomic_uint8_t* _obj, uint8_t* _expected, uint8_t _desired, mmconc_memory_order_e _success, mmconc_memory_order_e _failure)
 {
     assert(_obj != NULL && "mmconc_atomic_u8_compare_exchange_strong_explicit: _obj is NULL");
+    assert(_expected != NULL && "mmconc_atomic_u8_compare_exchange_strong_explicit: _expected is NULL");
     return mmconc_atomic_u8_base_compare_exchange_strong_explicit(_obj, _expected, _desired, _success, _failure);
 }
 
@@ -563,6 +566,7 @@ MG_CAPI_INLINE int mmconc_atomic_i16_compare_exchange_strong_explicit(
     volatile mmconc_atomic_int16_t* _obj, int16_t* _expected, int16_t _desired, mmconc_memory_order_e _success, mmconc_memory_order_e _failure)
 {
     assert(_obj != NULL && "mmconc_atomic_i16_compare_exchange_strong_explicit: _obj is NULL");
+    assert(_expected != NULL && "mmconc_atomic_i16_compare_exchange_strong_explicit: _expected is NULL");
     return mmconc_atomic_i16_base_compare_exchange_strong_explicit(_obj, _expected, _desired, _success, _failure);
 }
 
@@ -570,6 +574,7 @@ MG_CAPI_INLINE int mmconc_atomic_u16_compare_exchange_strong_explicit(
     volatile mmconc_atomic_uint16_t* _obj, uint16_t* _expected, uint16_t _desired, mmconc_memory_order_e _success, mmconc_memory_order_e _failure)
 {
     assert(_obj != NULL && "mmconc_atomic_u16_compare_exchange_strong_explicit: _obj is NULL");
+    assert(_expected != NULL && "mmconc_atomic_u16_compare_exchange_strong_explicit: _expected is NULL");
     return mmconc_atomic_u16_base_compare_exchange_strong_explicit(_obj, _expected, _desired, _success, _failure);
 }
 
@@ -577,6 +582,7 @@ MG_CAPI_INLINE int mmconc_atomic_i32_compare_exchange_strong_explicit(
     volatile mmconc_atomic_int32_t* _obj, int32_t* _expected, int32_t _desired, mmconc_memory_order_e _success, mmconc_memory_order_e _failure)
 {
     assert(_obj != NULL && "mmconc_atomic_i32_compare_exchange_strong_explicit: _obj is NULL");
+    assert(_expected != NULL && "mmconc_atomic_i32_compare_exchange_strong_explicit: _expected is NULL");
     return mmconc_atomic_i32_base_compare_exchange_strong_explicit(_obj, _expected, _desired, _success, _failure);
 }
 
@@ -584,6 +590,7 @@ MG_CAPI_INLINE int mmconc_atomic_u32_compare_exchange_strong_explicit(
     volatile mmconc_atomic_uint32_t* _obj, uint32_t* _expected, uint32_t _desired, mmconc_memory_order_e _success, mmconc_memory_order_e _failure)
 {
     assert(_obj != NULL && "mmconc_atomic_u32_compare_exchange_strong_explicit: _obj is NULL");
+    assert(_expected != NULL && "mmconc_atomic_u32_compare_exchange_strong_explicit: _expected is NULL");
     return mmconc_atomic_u32_base_compare_exchange_strong_explicit(_obj, _expected, _desired, _success, _failure);
 }
 
@@ -591,6 +598,7 @@ MG_CAPI_INLINE int mmconc_atomic_i64_compare_exchange_strong_explicit(
     volatile mmconc_atomic_int64_t* _obj, int64_t* _expected, int64_t _desired, mmconc_memory_order_e _success, mmconc_memory_order_e _failure)
 {
     assert(_obj != NULL && "mmconc_atomic_i64_compare_exchange_strong_explicit: _obj is NULL");
+    assert(_expected != NULL && "mmconc_atomic_i64_compare_exchange_strong_explicit: _expected is NULL");
     return mmconc_atomic_i64_base_compare_exchange_strong_explicit(_obj, _expected, _desired, _success, _failure);
 }
 
@@ -598,6 +606,7 @@ MG_CAPI_INLINE int mmconc_atomic_u64_compare_exchange_strong_explicit(
     volatile mmconc_atomic_uint64_t* _obj, uint64_t* _expected, uint64_t _desired, mmconc_memory_order_e _success, mmconc_memory_order_e _failure)
 {
     assert(_obj != NULL && "mmconc_atomic_u64_compare_exchange_strong_explicit: _obj is NULL");
+    assert(_expected != NULL && "mmconc_atomic_u64_compare_exchange_strong_explicit: _expected is NULL");
     return mmconc_atomic_u64_base_compare_exchange_strong_explicit(_obj, _expected, _desired, _success, _failure);
 }
 
@@ -666,6 +675,7 @@ MG_CAPI_INLINE int mmconc_atomic_bl_compare_exchange_weak_explicit(
     volatile mmconc_atomic_bool_t* _obj, int* _expected, int _desired, mmconc_memory_order_e _success, mmconc_memory_order_e _failure)
 {
     assert(_obj != NULL && "mmconc_atomic_bl_compare_exchange_weak_explicit: _obj is NULL");
+    assert(_expected != NULL && "mmconc_atomic_bl_compare_exchange_weak_explicit: _expected is NULL");
     return mmconc_atomic_bl_base_compare_exchange_weak_explicit(_obj, _expected, _desired, _success, _failure);
 }
 
@@ -673,6 +683,7 @@ MG_CAPI_INLINE int mmconc_atomic_i8_compare_exchange_weak_explicit(
     volatile mmconc_atomic_int8_t* _obj, int8_t* _expected, int8_t _desired, mmconc_memory_order_e _success, mmconc_memory_order_e _failure)
 {
     assert(_obj != NULL && "mmconc_atomic_i8_compare_exchange_weak_explicit: _obj is NULL");
+    assert(_expected != NULL && "mmconc_atomic_i8_compare_exchange_weak_explicit: _expected is NULL");
     return mmconc_atomic_i8_base_compare_exchange_weak_explicit(_obj, _expected, _desired, _success, _failure);
 }
 
@@ -680,6 +691,7 @@ MG_CAPI_INLINE int mmconc_atomic_u8_compare_exchange_weak_explicit(
     volatile mmconc_atomic_uint8_t* _obj, uint8_t* _expected, uint8_t _desired, mmconc_memory_order_e _success, mmconc_memory_order_e _failure)
 {
     assert(_obj != NULL && "mmconc_atomic_u8_compare_exchange_weak_explicit: _obj is NULL");
+    assert(_expected != NULL && "mmconc_atomic_u8_compare_exchange_weak_explicit: _expected is NULL");
     return mmconc_atomic_u8_base_compare_exchange_weak_explicit(_obj, _expected, _desired, _success, _failure);
 }
 
@@ -687,6 +699,7 @@ MG_CAPI_INLINE int mmconc_atomic_i16_compare_exchange_weak_explicit(
     volatile mmconc_atomic_int16_t* _obj, int16_t* _expected, int16_t _desired, mmconc_memory_order_e _success, mmconc_memory_order_e _failure)
 {
     assert(_obj != NULL && "mmconc_atomic_i16_compare_exchange_weak_explicit: _obj is NULL");
+    assert(_expected != NULL && "mmconc_atomic_i16_compare_exchange_weak_explicit: _expected is NULL");
     return mmconc_atomic_i16_base_compare_exchange_weak_explicit(_obj, _expected, _desired, _success, _failure);
 }
 
@@ -694,6 +707,7 @@ MG_CAPI_INLINE int mmconc_atomic_u16_compare_exchange_weak_explicit(
     volatile mmconc_atomic_uint16_t* _obj, uint16_t* _expected, uint16_t _desired, mmconc_memory_order_e _success, mmconc_memory_order_e _failure)
 {
     assert(_obj != NULL && "mmconc_atomic_u16_compare_exchange_weak_explicit: _obj is NULL");
+    assert(_expected != NULL && "mmconc_atomic_u16_compare_exchange_weak_explicit: _expected is NULL");
     return mmconc_atomic_u16_base_compare_exchange_weak_explicit(_obj, _expected, _desired, _success, _failure);
 }
 
@@ -701,6 +715,7 @@ MG_CAPI_INLINE int mmconc_atomic_i32_compare_exchange_weak_explicit(
     volatile mmconc_atomic_int32_t* _obj, int32_t* _expected, int32_t _desired, mmconc_memory_order_e _success, mmconc_memory_order_e _failure)
 {
     assert(_obj != NULL && "mmconc_atomic_i32_compare_exchange_weak_explicit: _obj is NULL");
+    assert(_expected != NULL && "mmconc_atomic_i32_compare_exchange_weak_explicit: _expected is NULL");
     return mmconc_atomic_i32_base_compare_exchange_weak_explicit(_obj, _expected, _desired, _success, _failure);
 }
 
@@ -708,6 +723,7 @@ MG_CAPI_INLINE int mmconc_atomic_u32_compare_exchange_weak_explicit(
     volatile mmconc_atomic_uint32_t* _obj, uint32_t* _expected, uint32_t _desired, mmconc_memory_order_e _success, mmconc_memory_order_e _failure)
 {
     assert(_obj != NULL && "mmconc_atomic_u32_compare_exchange_weak_explicit: _obj is NULL");
+    assert(_expected != NULL && "mmconc_atomic_u32_compare_exchange_weak_explicit: _expected is NULL");
     return mmconc_atomic_u32_base_compare_exchange_weak_explicit(_obj, _expected, _desired, _success, _failure);
 }
 
@@ -715,6 +731,7 @@ MG_CAPI_INLINE int mmconc_atomic_i64_compare_exchange_weak_explicit(
     volatile mmconc_atomic_int64_t* _obj, int64_t* _expected, int64_t _desired, mmconc_memory_order_e _success, mmconc_memory_order_e _failure)
 {
     assert(_obj != NULL && "mmconc_atomic_i64_compare_exchange_weak_explicit: _obj is NULL");
+    assert(_expected != NULL && "mmconc_atomic_i64_compare_exchange_weak_explicit: _expected is NULL");
     return mmconc_atomic_i64_base_compare_exchange_weak_explicit(_obj, _expected, _desired, _success, _failure);
 }
 
@@ -722,6 +739,7 @@ MG_CAPI_INLINE int mmconc_atomic_u64_compare_exchange_weak_explicit(
     volatile mmconc_atomic_uint64_t* _obj, uint64_t* _expected, uint64_t _desired, mmconc_memory_order_e _success, mmconc_memory_order_e _failure)
 {
     assert(_obj != NULL && "mmconc_atomic_u64_compare_exchange_weak_explicit: _obj is NULL");
+    assert(_expected != NULL && "mmconc_atomic_u64_compare_exchange_weak_explicit: _expected is NULL");
     return mmconc_atomic_u64_base_compare_exchange_weak_explicit(_obj, _expected, _desired, _success, _failure);
 }
 

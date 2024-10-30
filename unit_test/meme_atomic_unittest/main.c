@@ -237,7 +237,7 @@ MU_TEST(ctest_mt_int_ovf_add)
     mgthrd_join(thrd7, NULL);
     mgthrd_join(thrd8, NULL);
 
-    mu_assert(mmconc_atomic_i64_load(&atmc64) == (int64_t)(8 * ctest_mt_i64_ovf_add_cb1_once_value),
+    mu_assert(mmconc_atomic_i64_load(&atmc64) == (int64_t)(8i64 * ctest_mt_i64_ovf_add_cb1_once_value),
         "Error: mmconc_atomic_i64_load(&atmc) != (int64_t)(8 * ctest_mt_i64_ovf_add_cb1_once_value)");
     
 }
