@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEGOPP_THRD_SPIN_MUTEX_H_INCLUDED
 #define MEGOPP_THRD_SPIN_MUTEX_H_INCLUDED
 
@@ -27,7 +27,7 @@ struct spin_mutex
     inline void lock()
     {
         auto tid = numeric_id();
-        int64_t expected = -1;
+        size_t expected = SIZE_MAX;
 
         mgthrd_spinwait_t spinwait;
         mgthrd_spinwait_reset(&spinwait);
@@ -36,9 +36,9 @@ struct spin_mutex
             throw std::logic_error("deadlock detected");
         
         while (!locked.compare_exchange_weak(
-            expected, static_cast<int64_t>(tid), std::memory_order_acquire))
+            expected, tid, std::memory_order_acquire))
         {
-            expected = -1;
+            expected = SIZE_MAX;
             mgthrd_spinwait_once(&spinwait);
         }
 
@@ -51,26 +51,26 @@ struct spin_mutex
     inline bool try_lock()
     {
         auto tid = numeric_id();
-        int64_t expected = -1;
+        size_t expected = SIZE_MAX;
 
         if (tid != 0 && locked.load(std::memory_order_acquire) == tid)
             throw std::logic_error("deadlock detected");
         
         return locked.compare_exchange_strong(
-            expected, static_cast<int64_t>(tid), std::memory_order_acquire);
+            expected, tid, std::memory_order_acquire);
 
         // return !locked.test_and_set(std::memory_order_acquire);
     }
 
     inline void unlock()
     {
-        locked.store(-1, std::memory_order_release);
+        locked.store(SIZE_MAX, std::memory_order_release);
 
         // locked.clear(std::memory_order_release);
     }
 
 private:
-    std::atomic<int64_t> locked = -1;
+    std::atomic<size_t> locked = SIZE_MAX;
 
     // std::atomic_flag locked = ATOMIC_FLAG_INIT;
 };
