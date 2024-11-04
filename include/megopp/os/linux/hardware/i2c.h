@@ -11,9 +11,21 @@ namespace hw {
     class i2c 
     {
     public:
+        i2c() {}
+
         i2c(int _num, int _dev_addr) 
             : num_(_num), dev_addr_(_dev_addr)
         {}
+
+        inline void set_num(int _num)
+        {
+            num_ = _num;
+        }
+
+        inline void set_dev_addr(int _dev_addr)
+        {
+            dev_addr_ = _dev_addr;
+        }
 
         inline void set_timeout_tick(int _timeout_tick)
         {
@@ -27,11 +39,17 @@ namespace hw {
 
         inline mgec_t read(uint8_t _reg_addr, uint8_t* _buf, size_t _len)
         {
+            if (num_ < 0)
+                return MGEC__ERR;
+            
             return mg_i2c__read(num_, dev_addr_, _reg_addr, timeout_tick_, retry_count_, _buf, _len);
         }
 
         inline mgec_t write(uint8_t _reg_addr, uint8_t* _buf, size_t _len)
         {
+            if (num_ < 0)
+                return MGEC__ERR;
+
             return mg_i2c__write(num_, dev_addr_, _reg_addr, timeout_tick_, retry_count_, _buf, _len);
         }
 
