@@ -95,7 +95,7 @@ MG_CAPI_INLINE mgec_t mg_i2c__write(
     if (MEGO_SYMBOL__UNLIKELY(fd < 0))
         return mgec__from_sys_err(errno);
 
-    buf = malloc(_len + 1);
+    buf = (uint8_t*)malloc(_len + 1);
     if (buf == NULL) {
         close(fd);
         return MGEC__NOMEM;
