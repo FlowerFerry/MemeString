@@ -1,10 +1,11 @@
-
+﻿
 #ifndef MEGO_THRD_NUMERIC_ID_H_INCLUDED
 #define MEGO_THRD_NUMERIC_ID_H_INCLUDED
 
 #include <mego/predef/symbol/inline.h>
 #include <mego/predef/os/windows.h>
 #include <mego/predef/os/linux.h>
+#include <mego/predef/symbol/thread_local.h>
 #include <stdint.h>
 #include <stddef.h>
 
@@ -86,6 +87,12 @@ MG_CAPI_INLINE size_t __mgthrd_numeric_id()
 #  error "'mgthrd_numeric_id' is not implemented for this platform"
     return 0;
 #endif
+}
+
+MG_CAPI_INLINE size_t mgthrd_numeric_id()
+{
+    static MEGO__THREAD_LOCAL size_t tid = __mgthrd_numeric_id();
+    return tid;
 }
 
 #endif // !MEGO_THRD_NUMERIC_ID_H_INCLUDED
