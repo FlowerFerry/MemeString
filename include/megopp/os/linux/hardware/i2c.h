@@ -37,7 +37,7 @@ namespace hw {
             retry_count_ = _retry_count;
         }
 
-        inline mgec_t read(uint8_t _reg_addr, uint8_t* _buf, size_t _len)
+        inline mgec_t read(uint8_t _reg_addr, uint8_t* _buf, size_t _len) const
         {
             if (num_ < 0)
                 return MGEC__ERR;
