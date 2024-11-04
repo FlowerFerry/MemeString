@@ -45,7 +45,7 @@ namespace hw {
             return mg_i2c__read(num_, dev_addr_, _reg_addr, timeout_tick_, retry_count_, _buf, _len);
         }
 
-        inline mgec_t write(uint8_t _reg_addr, uint8_t* _buf, size_t _len)
+        inline mgec_t write(uint8_t _reg_addr, const uint8_t* _buf, size_t _len)
         {
             if (num_ < 0)
                 return MGEC__ERR;
