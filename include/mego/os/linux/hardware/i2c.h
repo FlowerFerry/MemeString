@@ -42,7 +42,7 @@ MG_CAPI_INLINE mgec_t mg_i2c__read(
     snprintf(path, sizeof(path), "/dev/i2c-%d", _num);
     fd = open(path, O_RDWR);
     if (MEGO_SYMBOL__UNLIKELY(fd < 0))
-        return mgec__from_sys_err(errno);
+        return mgec__from_posix_err(errno);
 
     ioctl(fd, I2C_TIMEOUT, _timeout_tick);
     ioctl(fd, I2C_RETRIES, _retry_count);
@@ -64,7 +64,7 @@ MG_CAPI_INLINE mgec_t mg_i2c__read(
     if (MEGO_SYMBOL__UNLIKELY(ret < 0))
     {
         close(fd);
-        return mgec__from_sys_err(errno);
+        return mgec__from_posix_err(errno);
     }
     
     close(fd);
@@ -94,7 +94,7 @@ MG_CAPI_INLINE mgec_t mg_i2c__write(
     snprintf(path, sizeof(path), "/dev/i2c-%d", _num);
     fd = open(path, O_RDWR);
     if (MEGO_SYMBOL__UNLIKELY(fd < 0))
-        return mgec__from_sys_err(errno);
+        return mgec__from_posix_err(errno);
 
     buf = (uint8_t*)malloc(_len + 1);
     if (buf == NULL) {
@@ -121,7 +121,7 @@ MG_CAPI_INLINE mgec_t mg_i2c__write(
     {
         free(buf);
         close(fd);
-        return mgec__from_sys_err(errno);
+        return mgec__from_posix_err(errno);
     }
 
     free(buf);
