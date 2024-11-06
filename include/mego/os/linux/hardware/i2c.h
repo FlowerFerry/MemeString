@@ -44,7 +44,8 @@ MG_CAPI_INLINE mgec_t mg_i2c__read(
     if (MEGO_SYMBOL__UNLIKELY(fd < 0))
         return mgec__from_posix_err(errno);
 
-    ioctl(fd, I2C_TIMEOUT, _timeout_tick);
+    if (_timeout_tick > 0)
+        ioctl(fd, I2C_TIMEOUT, _timeout_tick);
     ioctl(fd, I2C_RETRIES, _retry_count);
     
     data.nmsgs = 2;
@@ -102,7 +103,8 @@ MG_CAPI_INLINE mgec_t mg_i2c__write(
         return MGEC__NOMEM;
     }
 
-    ioctl(fd, I2C_TIMEOUT, _timeout_tick);
+    if (_timeout_tick > 0)
+        ioctl(fd, I2C_TIMEOUT, _timeout_tick);
     ioctl(fd, I2C_RETRIES, _retry_count);
 
     buf[0] = _reg_addr;
