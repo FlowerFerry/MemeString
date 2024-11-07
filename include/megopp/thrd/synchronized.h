@@ -303,9 +303,9 @@ namespace synchronized_details {
         {
             if constexpr (!std::is_same_v<_SharedLock, _UniqueLock>)
             {
-                unlock();
+                this->unlock();
                 return write_life_ptr<_Ty, _Mutex, _SharedLock, _UniqueLock>{ 
-                    *this, _UniqueLock{ *(lock_.mutex()) } };
+                    *this, _UniqueLock{ *(this->lock_.mutex()) } };
             }
             else {
                 return write_life_ptr<_Ty, _Mutex, _SharedLock, _UniqueLock>{ 
