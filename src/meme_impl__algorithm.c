@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-static MemeInteger_t __mm_BoyerMoore_isPrefix(
+static MemeInteger_t __MemeBoyerMoore_isPrefix(
     const uint8_t* _word, MemeInteger_t _word_len, MemeInteger_t _pos)
 {
     MemeInteger_t index;
@@ -24,7 +24,7 @@ static MemeInteger_t __mm_BoyerMoore_isPrefix(
     return 1;
 }
 
-static MemeInteger_t __mm_BoyerMoore_suffixLength(
+static MemeInteger_t __MemeBoyerMoore_suffixLength(
     const uint8_t* _word, MemeInteger_t _word_len, MemeInteger_t _pos)
 {
     MemeInteger_t index;
@@ -32,7 +32,7 @@ static MemeInteger_t __mm_BoyerMoore_suffixLength(
     return index;
 }
 
-static void __mm_BoyerMoore_makeBadDelta(
+static void __MemeBoyerMoore_makeBadDelta(
     MemeInteger_t* _delta1, MemeInteger_t _delta1_len,
     const uint8_t* _pat, MemeInteger_t _pat_len) 
 {
@@ -45,14 +45,14 @@ static void __mm_BoyerMoore_makeBadDelta(
     
 }
 
-static void __mm_BoyerMoore_makeGoodDelta(MemeInteger_t* _delta2, const uint8_t* _pat, MemeInteger_t _pat_len)
+static void __MemeBoyerMoore_makeGoodDelta(MemeInteger_t* _delta2, const uint8_t* _pat, MemeInteger_t _pat_len)
 {
     MemeInteger_t p;
     MemeInteger_t last_prefix_index = 1;
 
     for (p = _pat_len - 1; p >= 0; --p) 
     {
-        if (__mm_BoyerMoore_isPrefix(_pat, _pat_len, p + 1))
+        if (__MemeBoyerMoore_isPrefix(_pat, _pat_len, p + 1))
         {
             last_prefix_index = p + 1;
         }
@@ -61,7 +61,7 @@ static void __mm_BoyerMoore_makeGoodDelta(MemeInteger_t* _delta2, const uint8_t*
 
     for (p = 0; p < _pat_len - 1; ++p) 
     {
-        MemeInteger_t slen = __mm_BoyerMoore_suffixLength(_pat, _pat_len, p);
+        MemeInteger_t slen = __MemeBoyerMoore_suffixLength(_pat, _pat_len, p);
         if (_pat[p - slen] != _pat[_pat_len - 1 - slen]) 
         {
             _delta2[_pat_len - 1 - slen] = _pat_len - 1 - p + slen;
@@ -110,7 +110,7 @@ static inline const MemeByte_t*
     return _rit + 1;
 }
 
-static inline MemeInteger_t __mm_ReverseBoyerMoore_isPrefix(
+static inline MemeInteger_t __MemeReverseBoyerMoore_isPrefix(
     const MemeByte_t* _pat_rbegin, const MemeByte_t* _pat_rend, MemeInteger_t _pos)
 {
     MemeInteger_t suffixlen = mbit_rDistance(_pat_rend, _pat_rbegin) - _pos;
@@ -123,7 +123,7 @@ static inline MemeInteger_t __mm_ReverseBoyerMoore_isPrefix(
     
 }
 
-static MemeInteger_t __mm_ReverseBoyerMoore_suffixLength(
+static MemeInteger_t __MemeReverseBoyerMoore_suffixLength(
     const MemeByte_t* _pat_rbegin, const MemeByte_t* _pat_rend, MemeInteger_t _pos)
 {
     MemeInteger_t len = mbit_rDistance(_pat_rend, _pat_rbegin);
@@ -137,7 +137,7 @@ static MemeInteger_t __mm_ReverseBoyerMoore_suffixLength(
     
 }
 
-static inline void __mm_ReverseBoyerMoore_makeBadDelta(
+static inline void __MemeReverseBoyerMoore_makeBadDelta(
     MemeInteger_t* _delta1, MemeInteger_t _delta1_len, 
     const MemeByte_t* _pat_rbegin, const MemeByte_t* _pat_rend)
 {
@@ -152,7 +152,7 @@ static inline void __mm_ReverseBoyerMoore_makeBadDelta(
     }
 }
 
-static void __mm_ReverseBoyerMoore_makeGoodDelta(
+static void __MemeReverseBoyerMoore_makeGoodDelta(
     MemeInteger_t* _delta2, const MemeByte_t* _pat_rbegin, const MemeByte_t* _pat_rend)
 {
     MemeInteger_t p;
@@ -161,7 +161,7 @@ static void __mm_ReverseBoyerMoore_makeGoodDelta(
 
     for (p = pat_len - 1; p >= 0; --p)
     {
-        if (__mm_ReverseBoyerMoore_isPrefix(_pat_rbegin, _pat_rend, p + 1))
+        if (__MemeReverseBoyerMoore_isPrefix(_pat_rbegin, _pat_rend, p + 1))
         {
             last_prefix_index = p + 1;
         }
@@ -170,7 +170,7 @@ static void __mm_ReverseBoyerMoore_makeGoodDelta(
 
     for (p = 0; p < pat_len - 1; ++p)
     {
-        MemeInteger_t slen = __mm_ReverseBoyerMoore_suffixLength(_pat_rbegin, _pat_rend, p);
+        MemeInteger_t slen = __MemeReverseBoyerMoore_suffixLength(_pat_rbegin, _pat_rend, p);
         if (*mbit_rAdvance(_pat_rbegin, p - slen) != *mbit_rAdvance(_pat_rbegin, pat_len - 1 - slen))
             _delta2[pat_len - 1 - slen] = pat_len - 1 - p + slen;
 
@@ -195,8 +195,8 @@ mmint_t MemeImpl_SearchByBoyerMoore(
 
     g_delta = malloc(_needle_len * sizeof(MemeInteger_t));
 
-    __mm_BoyerMoore_makeBadDelta (b_delta, sizeof(b_delta) / sizeof(b_delta[0]), _needle, _needle_len);
-    __mm_BoyerMoore_makeGoodDelta(g_delta, _needle, _needle_len);
+    __MemeBoyerMoore_makeBadDelta (b_delta, sizeof(b_delta) / sizeof(b_delta[0]), _needle, _needle_len);
+    __MemeBoyerMoore_makeGoodDelta(g_delta, _needle, _needle_len);
     
     if ((_haystack_len < 0)) 
     {
@@ -283,9 +283,9 @@ mmint_t MemeImpl_ReverseSearchByBoyerMoore(
     p_rbegin = _needle + _needle_len - 1;
     p_rend   = _needle - 1;
     g_delta  = malloc(_needle_len * sizeof(MemeInteger_t));
-    __mm_ReverseBoyerMoore_makeBadDelta (
+    __MemeReverseBoyerMoore_makeBadDelta (
         b_delta, sizeof(b_delta) / sizeof(b_delta[0]), p_rbegin, p_rend);
-    __mm_ReverseBoyerMoore_makeGoodDelta(g_delta, p_rbegin, p_rend);
+    __MemeReverseBoyerMoore_makeGoodDelta(g_delta, p_rbegin, p_rend);
     
     --_needle_len;
     index = _needle_len;

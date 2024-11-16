@@ -296,7 +296,7 @@ namespace memepp {
     {
 		mmstrstk_t str;
 		auto result = MemeStringStack_initAndConditionalConvert(&str, _struct_size, memepp::to_pointer(_obj));
-		mmstrstk_uninit(&_obj, _struct_size);
+		mmstrstk_uninit_v0(&_obj, _struct_size);
 		if (result)
 			return {};
 
@@ -307,7 +307,7 @@ namespace memepp {
 	inline mmstrstk_t export_into_dll(const memepp::string& _obj, mmint_t _struct_size)
 	{
 		mmstrstk_t s;
-        mmstrstk_init_by_other(&s, _struct_size, memepp::to_pointer(_obj.native_handle()));
+        mmstrstk_init_by_other_v0(&s, _struct_size, memepp::to_pointer(_obj.native_handle()));
         return s;
 	}
 

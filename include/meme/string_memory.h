@@ -38,4 +38,17 @@ MEME_EXTERN_C MEME_API void*
 MEME_EXTERN_C MEME_API void
 	MEME_STDCALL mmsmem_free(void* _ptr);
 
+
+MEME_EXTERN_C MEME_API void*
+	MEME_STDCALL mmmem_malloc (size_t _size);
+
+MEME_EXTERN_C MEME_API void*
+	MEME_STDCALL mmmem_calloc (size_t _count, size_t _size);
+
+MEME_EXTERN_C MEME_API void*
+	MEME_STDCALL mmmem_realloc(void* _ptr, size_t _size);
+
+MEME_EXTERN_C MEME_API void
+	MEME_STDCALL mmmem_free(void* _ptr);
+
 #endif // !MEME_STRING_MEMORY_H_INCLUDED

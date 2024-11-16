@@ -1,14 +1,15 @@
 ﻿
-#include "meme/string.h"
+#include <meme/string.h>
 #include <meme/utf/u8rune.h>
 #include <meme/rune.h>
-#include "meme/impl/string.h"
-#include "meme/impl/string_p__user.h"
-#include "meme/impl/string_p__small.h"
-#include "meme/impl/string_p__medium.h"
-#include "meme/impl/string_p__large.h"
+#include <meme/impl/string.h>
+#include <meme/impl/string_p__user.h>
+#include <meme/impl/string_p__small.h>
+#include <meme/impl/string_p__medium.h>
+#include <meme/impl/string_p__large.h>
+#include <meme/unsafe/string_view.h>
 
-#include "meme/impl/algorithm.h"
+#include <meme/impl/algorithm.h>
 #include <meme/utf/converter.h>
 #include <mego/predef/symbol/likely.h>
 #include <mego/predef/endian.h>
@@ -17,6 +18,17 @@
 #include <errno.h>
 #include <assert.h>
 #include <stdlib.h>
+
+#include <cvector.h>
+#undef  cvector_clib_malloc
+#define cvector_clib_malloc  mmsmem_malloc
+#undef  cvector_clib_calloc
+#define cvector_clib_calloc  mmsmem_calloc
+#undef  cvector_clib_realloc
+#define cvector_clib_realloc mmsmem_realloc
+#undef  cvector_clib_free
+#define cvector_clib_free    mmsmem_free
+
 
 const uint8_t * MemeStringImpl_default()
 {
@@ -232,6 +244,12 @@ MEME_API int MEME_STDCALL MemeString_destroy(MemeString_t* _out)
     mmsmem_free(*_out);
     *_out = NULL;
     return result;
+}
+
+MEME_API int MEME_STDCALL MemeString_reset(mmstr_ptr_t _out)
+{
+    assert(_out != NULL && "MemeString_reset");
+    return MemeStringStack_reset((mmstrstk_t*)_out, MMS__OBJECT_SIZE);
 }
 
 MEME_API int MEME_STDCALL MemeString_assign(MemeString_t _s, MemeString_Const_t _other)
@@ -1166,6 +1184,37 @@ MEME_STDCALL MemeString_foreach(
         index += runeSize;
     }
     return index;
+}
+
+mgec_t 
+MemeString_extractFirstInDelimiters(
+	mmstr_cptr_t _str, 
+	const mmbyte_t* _delim_left,  mmint_t _left_len, 
+	const mmbyte_t* _delim_right, mmint_t _right_len, mmint_t* _begin, mmint_t* _end)
+{
+    //! 1：左右定界符相同
+    //! 2：左右定界符部分相同
+
+	mmint_t pos = 0;
+    cvector_vector_type(mmint_t) delims = NULL;
+
+    assert(_str != NULL && "MemeString_extractInDelimiters");
+
+	if (_begin == NULL || _end == NULL)
+		return MGEC__INVAL;
+    if (_delim_left == NULL || _delim_right == NULL)
+        return MGEC__INVAL;
+
+	if (_left_len < 0)
+        _left_len = strlen((const char*)_delim_left);
+	
+    if (_right_len < 0)
+        _right_len = strlen((const char*)_delim_right);
+
+	cvector_reserve(delims, 4);
+
+	cvector_free(delims);
+	return MGEC__OPNOTSUPP;
 }
 
 MEME_API MemeInteger_t MEME_STDCALL MemeString_split(

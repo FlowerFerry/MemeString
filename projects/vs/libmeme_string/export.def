@@ -159,9 +159,13 @@ EXPORTS
     mmsmem_get_calloc_func @155
     mmsmem_get_realloc_func @156
     mmsmem_get_free_func @157
+    ; DEPRECATED
     mmsmem_malloc @158
+    ; DEPRECATED
     mmsmem_calloc @159
+    ; DEPRECATED
     mmsmem_realloc @160
+    ; DEPRECATED
     mmsmem_free @161
     ; DEPRECATED
     mmsstk_init @162
@@ -300,6 +304,7 @@ EXPORTS
     MemeString_compareByUtf8bytes @282
     MemeString_runeFront @283
     MemeString_runeBack @284
+    MemeString_reset @285
     mmconc_atomic_bl_base_init @300
     mmconc_atomic_i8_base_init @301
     mmconc_atomic_u8_base_init @302
@@ -405,3 +410,7 @@ EXPORTS
     mmconc_atomic_u64_base_fetch_and_explicit @402
     mmconc_atomic_flag_base_test_and_set_explicit @403
     mmconc_atomic_flag_base_clear_explicit @404
+    mmmem_malloc @600
+    mmmem_calloc @601
+    mmmem_realloc @602
+    mmmem_free @603

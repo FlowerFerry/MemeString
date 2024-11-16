@@ -1,4 +1,4 @@
-
+﻿
 #include "meme/string_builder.h"
 
 #include <meme/string.h>
@@ -15,7 +15,7 @@
 int MemeStringBuilderPart_init(mmsbldr_part_t* _part)
 {
     int result = 0;
-    result = mmstrstk_init(&(_part->str), MMSTR__OBJ_SIZE);
+    result = mmstrstk_init_v0(&(_part->str), MMSTR__OBJ_SIZE);
     return result;
 }
 
@@ -30,7 +30,7 @@ MemeStringBuilderPart_initByOther(mmsbldr_part_t* _part, const mmsbldr_part_t* _
 void MemeStringBuilderPart_unInit(void* _part)
 {
     mmsbldr_part_t* part = (mmsbldr_part_t*)_part;
-    mmstrstk_uninit(&part->str, MMSTR__OBJ_SIZE);
+    mmstrstk_uninit_v0(&part->str, MMSTR__OBJ_SIZE);
 }
 
 int MemeStringBuilderParts_checkInit(mmsbldr_part_t** _part)
@@ -293,15 +293,15 @@ MemeStringBuilder_appendArgByOther(mmsbldr_ptr_t _builder, mmsbldr_cptr_t _other
 {
     mgec_t result = 0;
     mmstrstk_t str;
-    mmstrstk_init(&str, MMSTR__OBJ_SIZE);
+    mmstrstk_init_v0(&str, MMSTR__OBJ_SIZE);
     result = MemeStringBuilder_generate(_other, (mmstr_ptr_t)&str);
     if (result) {
-        mmstrstk_uninit(&str, MMSTR__OBJ_SIZE);
+        mmstrstk_uninit_v0(&str, MMSTR__OBJ_SIZE);
         return result;
     }
     
     result = MemeStringBuilder_appendArgWithString(_builder, (mmstr_cptr_t)&str);
-    mmstrstk_uninit(&str, MMSTR__OBJ_SIZE);
+    mmstrstk_uninit_v0(&str, MMSTR__OBJ_SIZE);
     return result;
 }
 

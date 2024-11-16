@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MGHW_DISK_H_INCLUDED
 #define MGHW_DISK_H_INCLUDED
 
@@ -51,7 +51,7 @@ MG_CAPI_INLINE mmstrstk_t mghw_get_harddisk_path_by_path(const char* _filepath, 
 #if MEGO_OS__LINUX__AVAILABLE
     struct mgu_stat file_stat;
 
-    mmstrstk_init(&s, MMSTR__OBJ_SIZE);
+    mmstrstk_init(&s);
 
     if (mgu_get_stat(_filepath, _len, &file_stat) != 0)
         return s;
@@ -80,7 +80,7 @@ MG_CAPI_INLINE mmstrstk_t mghw_get_harddisk_path_by_path(const char* _filepath, 
             continue;
         if (file_stat.st_dev == mount_stat.st_dev)
         {
-            mmstr_assign_by_utf8((mmstr_t)&s, 
+            mmstrstk_assign_by_utf8(&s,
                 (const uint8_t*)device, strlen(device));
             break;
         }
@@ -94,12 +94,12 @@ MG_CAPI_INLINE mmstrstk_t mghw_get_harddisk_path_by_path(const char* _filepath, 
     // The format for the drive name is "\\.\X:"
     char driveName[16] = { 0 };
     char physicalDrivePath[64] = { 0 };
-    mmstrstk_init(&s, MMSTR__OBJ_SIZE);
+    mmstrstk_init(&s);
     MemeStringViewUnsafeStack_init(&path, MMSTR__OBJ_SIZE, (const uint8_t*)_filepath, _len);
     pos = MemeString_indexOfWithUtf8bytes(
         (mmstr_t)&path, 0, (const uint8_t*)":", -1, MemeFlag_AllSensitive);
     if (pos == -1) {
-        mmstrstk_uninit(&path, MMSTR__OBJ_SIZE);
+        mmstrstk_uninit(&path);
         return s;
     }
     else {
@@ -113,7 +113,7 @@ MG_CAPI_INLINE mmstrstk_t mghw_get_harddisk_path_by_path(const char* _filepath, 
         driveName, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, 
         NULL, OPEN_EXISTING, 0, NULL);
     if (hDrive == INVALID_HANDLE_VALUE) {
-        mmstrstk_uninit(&path, MMSTR__OBJ_SIZE);
+        mmstrstk_uninit(&path);
         return s;
     }
 
@@ -124,7 +124,7 @@ MG_CAPI_INLINE mmstrstk_t mghw_get_harddisk_path_by_path(const char* _filepath, 
         hDrive, IOCTL_STORAGE_GET_DEVICE_NUMBER, NULL, 0, 
         &deviceNumber, sizeof(deviceNumber), &bytesReturned, NULL)) {
         CloseHandle(hDrive);
-        mmstrstk_uninit(&path, MMSTR__OBJ_SIZE);
+        mmstrstk_uninit(&path);
         return s;
     }
     
@@ -133,12 +133,12 @@ MG_CAPI_INLINE mmstrstk_t mghw_get_harddisk_path_by_path(const char* _filepath, 
         "\\\\.\\PhysicalDrive%d", deviceNumber.DeviceNumber);
     CloseHandle(hDrive);
 
-    mmstr_assign_by_utf8((mmstr_t)&s, (const uint8_t*)physicalDrivePath, strlen(physicalDrivePath));
+    mmstrstk_assign_by_utf8(&s, (const uint8_t*)physicalDrivePath, strlen(physicalDrivePath));
 
-    mmstrstk_uninit(&path, MMSTR__OBJ_SIZE);
+    mmstrstk_uninit(&path);
     return s;
 #else // MEGO_OS__Linux__AVAILABLE
-    mmstrstk_init(&s, MMSTR__OBJ_SIZE);
+    mmstrstk_init(&s);
     return s;
 #endif // MEGO_OS__Linux__AVAILABLE
 }
@@ -155,7 +155,7 @@ MG_CAPI_INLINE mmstrstk_t mghw_get_harddisk_mountpoint_by_path(const char* _file
 #if MEGO_OS__LINUX__AVAILABLE
     struct mgu_stat file_stat;
 
-    mmstrstk_init(&s, MMSTR__OBJ_SIZE);
+    mmstrstk_init(&s);
 
     if (mgu_get_stat(_filepath, _len, &file_stat) != 0)
         return s;
@@ -184,7 +184,7 @@ MG_CAPI_INLINE mmstrstk_t mghw_get_harddisk_mountpoint_by_path(const char* _file
             continue;
         if (file_stat.st_dev == mount_stat.st_dev)
         {
-            mmstr_assign_by_utf8((mmstr_t)&s, 
+            mmstrstk_assign_by_utf8(&s,
                 (const uint8_t*)mount_point, strlen(mount_point));
             break;
         }
@@ -198,7 +198,7 @@ MG_CAPI_INLINE mmstrstk_t mghw_get_harddisk_mountpoint_by_path(const char* _file
     // The format for the drive name is "\\.\X:"
     char driveName[16] = { 0 };
     char physicalDrivePath[64] = { 0 };
-    mmstrstk_init(&s, MMSTR__OBJ_SIZE);
+    mmstrstk_init(&s);
     MemeStringViewUnsafeStack_init(&path, MMSTR__OBJ_SIZE, (const uint8_t*)_filepath, _len);
     pos = MemeString_indexOfWithUtf8bytes(
         (mmstr_t)&path, 0, (const uint8_t*)":", -1, MemeFlag_AllSensitive);
@@ -208,10 +208,10 @@ MG_CAPI_INLINE mmstrstk_t mghw_get_harddisk_mountpoint_by_path(const char* _file
         mmstr_assign_by_utf8((mmstr_t)&s, (const uint8_t*)_filepath, pos + 1);
     }
 
-    mmstrstk_uninit(&path, MMSTR__OBJ_SIZE);
+    mmstrstk_uninit(&path);
     return s;
 #else // MEGO_OS__Linux__AVAILABLE
-    mmstrstk_init(&s, MMSTR__OBJ_SIZE);
+    mmstrstk_init(&s);
     return s;
 #endif // MEGO_OS__Linux__AVAILABLE
 }
@@ -230,14 +230,14 @@ MG_CAPI_INLINE int mghw_get_harddisk_freespace_by_path(
 #if MEGO_OS__LINUX__AVAILABLE
     if (MemeString_isEmpty((mmstr_t)&mountpoint))
     {
-        mmstrstk_uninit(&mountpoint, MMSTR__OBJ_SIZE);
+        mmstrstk_uninit(&mountpoint);
         return -1;
     }
     
     struct statvfs buf;
     if (statvfs(MemeString_cStr((mmstr_t)&mountpoint), &buf) != 0)
     {
-        mmstrstk_uninit(&mountpoint, MMSTR__OBJ_SIZE);
+        mmstrstk_uninit(&mountpoint);
         return -1;
     }
     
@@ -256,7 +256,7 @@ MG_CAPI_INLINE int mghw_get_harddisk_freespace_by_path(
         &totalNumberOfBytes,
         &totalNumberOfFreeBytes) == 0)
     {
-        mmstrstk_uninit(&mountpoint, MMSTR__OBJ_SIZE);
+        mmstrstk_uninit(&mountpoint);
         return -1;
     }
     
@@ -267,7 +267,7 @@ MG_CAPI_INLINE int mghw_get_harddisk_freespace_by_path(
         _freespace->load  = (uint32_t)(100 - _freespace->free * 100 / _freespace->total);
 
 #endif
-    mmstrstk_uninit(&mountpoint, MMSTR__OBJ_SIZE);
+    mmstrstk_uninit(&mountpoint);
     return 0;
 }
 

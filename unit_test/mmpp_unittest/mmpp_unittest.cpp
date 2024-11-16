@@ -1448,11 +1448,11 @@ TEST_CASE("memepp::string - 29", "import from dll and export into dll")
     REQUIRE(sv01_01 == str01_01);
     REQUIRE(str01_01.storage_type() == memepp::string_storage_t::small);
     auto stk01_01 = memepp::export_into_dll<mmstrstk_t>(str01_01, MMSTR__OBJ_SIZE);
-    MEGOPP_UTIL__ON_SCOPE_CLEANUP([&stk01_01]() { mmstrstk_uninit(&stk01_01, MMSTR__OBJ_SIZE); });
+    MEGOPP_UTIL__ON_SCOPE_CLEANUP([&stk01_01]() { mmstrstk_uninit_v0(&stk01_01, MMSTR__OBJ_SIZE); });
     REQUIRE(sv01_01 == MemeString_cStr(memepp::to_pointer(stk01_01)));
     REQUIRE(MemeString_storageType(memepp::to_pointer(stk01_01)) == MemeString_StorageType_small);
 	auto stk01_02 = memepp::export_into_dll<mmstrstk_t>(std::move(str01_01), MMSTR__OBJ_SIZE);
-    MEGOPP_UTIL__ON_SCOPE_CLEANUP([&stk01_02]() { mmstrstk_uninit(&stk01_02, MMSTR__OBJ_SIZE); });
+    MEGOPP_UTIL__ON_SCOPE_CLEANUP([&stk01_02]() { mmstrstk_uninit_v0(&stk01_02, MMSTR__OBJ_SIZE); });
     REQUIRE(sv01_01 == MemeString_cStr(memepp::to_pointer(stk01_02)));
     REQUIRE(MemeString_storageType(memepp::to_pointer(stk01_02)) == MemeString_StorageType_small);
 
@@ -1465,7 +1465,7 @@ TEST_CASE("memepp::string - 29", "import from dll and export into dll")
     REQUIRE(str02_01 == str02_02);
     REQUIRE(str02_02.storage_type() == memepp::string_storage_t::large);
     auto stk02_01 = memepp::export_into_dll<mmstrstk_t>(str02_02, MMSTR__OBJ_SIZE);
-    MEGOPP_UTIL__ON_SCOPE_CLEANUP([&stk02_01]() { mmstrstk_uninit(&stk02_01, MMSTR__OBJ_SIZE); });
+    MEGOPP_UTIL__ON_SCOPE_CLEANUP([&stk02_01]() { mmstrstk_uninit_v0(&stk02_01, MMSTR__OBJ_SIZE); });
     REQUIRE(str02_01 == MemeString_cStr(memepp::to_pointer(stk02_01)));
     REQUIRE(MemeString_storageType(memepp::to_pointer(stk02_01)) == MemeString_StorageType_large);
 
@@ -1533,7 +1533,7 @@ TEST_CASE("memepp::string - 29", "import from dll and export into dll")
     REQUIRE(str03_01 == str03_02);
     REQUIRE(str03_02.storage_type() == memepp::string_storage_t::large);
     auto stk03_01 = memepp::export_into_dll<mmstrstk_t>(str03_02, MMSTR__OBJ_SIZE);
-    MEGOPP_UTIL__ON_SCOPE_CLEANUP([&stk03_01]() { mmstrstk_uninit(&stk03_01, MMSTR__OBJ_SIZE); });
+    MEGOPP_UTIL__ON_SCOPE_CLEANUP([&stk03_01]() { mmstrstk_uninit_v0(&stk03_01, MMSTR__OBJ_SIZE); });
     REQUIRE(str03_01 == MemeString_cStr(memepp::to_pointer(stk03_01)));
     REQUIRE(MemeString_storageType(memepp::to_pointer(stk03_01)) == MemeString_StorageType_large);
 
@@ -1543,7 +1543,7 @@ TEST_CASE("memepp::string - 29", "import from dll and export into dll")
     REQUIRE(str04_01 == str04_02);
     REQUIRE(str04_02.storage_type() == memepp::string_storage_t::medium);
     auto stk04_01 = memepp::export_into_dll<mmstrstk_t>(str04_02, MMSTR__OBJ_SIZE);
-    MEGOPP_UTIL__ON_SCOPE_CLEANUP([&stk04_01]() { mmstrstk_uninit(&stk04_01, MMSTR__OBJ_SIZE); });
+    MEGOPP_UTIL__ON_SCOPE_CLEANUP([&stk04_01]() { mmstrstk_uninit_v0(&stk04_01, MMSTR__OBJ_SIZE); });
     REQUIRE(str04_01 == MemeString_cStr(memepp::to_pointer(stk04_01)));
     REQUIRE(MemeString_storageType(memepp::to_pointer(stk04_01)) == MemeString_StorageType_medium);
 }
