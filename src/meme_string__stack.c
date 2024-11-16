@@ -270,6 +270,12 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByOther(
 	return 0;
 }
 
+MEME_API mgec_t MEME_STDCALL MemeStringStack_initByOtherStack(
+	mmstrstk_t* _out, size_t _object_size, const mmstrstk_t* _other)
+{
+	return 0;
+}
+
 MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByBuffer(
 	mmsstk_t* _out, size_t _object_size, MemeBuffer_Const_t _other, MemeInteger_t _offset)
 {

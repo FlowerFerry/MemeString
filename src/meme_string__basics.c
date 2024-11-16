@@ -1186,36 +1186,36 @@ MEME_STDCALL MemeString_foreach(
     return index;
 }
 
-mgec_t 
-MemeString_extractFirstInDelimiters(
-	mmstr_cptr_t _str, 
-	const mmbyte_t* _delim_left,  mmint_t _left_len, 
-	const mmbyte_t* _delim_right, mmint_t _right_len, mmint_t* _begin, mmint_t* _end)
-{
-    //! 1：左右定界符相同
-    //! 2：左右定界符部分相同
-
-	mmint_t pos = 0;
-    cvector_vector_type(mmint_t) delims = NULL;
-
-    assert(_str != NULL && "MemeString_extractInDelimiters");
-
-	if (_begin == NULL || _end == NULL)
-		return MGEC__INVAL;
-    if (_delim_left == NULL || _delim_right == NULL)
-        return MGEC__INVAL;
-
-	if (_left_len < 0)
-        _left_len = strlen((const char*)_delim_left);
-	
-    if (_right_len < 0)
-        _right_len = strlen((const char*)_delim_right);
-
-	cvector_reserve(delims, 4);
-
-	cvector_free(delims);
-	return MGEC__OPNOTSUPP;
-}
+//mgec_t 
+//MemeString_extractFirstInDelimiters(
+//	mmstr_cptr_t _str, 
+//	const mmbyte_t* _delim_left,  mmint_t _left_len, 
+//	const mmbyte_t* _delim_right, mmint_t _right_len, mmint_t* _begin, mmint_t* _end)
+//{
+//    //! 1：左右定界符相同
+//    //! 2：左右定界符部分相同
+//
+//	mmint_t pos = 0;
+//    cvector_vector_type(mmint_t) delims = NULL;
+//
+//    assert(_str != NULL && "MemeString_extractInDelimiters");
+//
+//	if (_begin == NULL || _end == NULL)
+//		return MGEC__INVAL;
+//    if (_delim_left == NULL || _delim_right == NULL)
+//        return MGEC__INVAL;
+//
+//	if (_left_len < 0)
+//        _left_len = strlen((const char*)_delim_left);
+//	
+//    if (_right_len < 0)
+//        _right_len = strlen((const char*)_delim_right);
+//
+//	cvector_reserve(delims, 4);
+//
+//	cvector_free(delims);
+//	return MGEC__OPNOTSUPP;
+//}
 
 MEME_API MemeInteger_t MEME_STDCALL MemeString_split(
 	MemeString_Const_t _s, const char* _key, MemeInteger_t _key_len, 
