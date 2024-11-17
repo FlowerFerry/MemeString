@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEME_STRING_FWD_H_INCLUDED
 #define MEME_STRING_FWD_H_INCLUDED
 
@@ -75,6 +75,7 @@ enum _MemeString_UnsafeStorage_t {
 };
 
 typedef MemeString_Storage_t mmstr_strg_t;
+typedef MemeString_Storage_t mmstr_strg_e;
 enum _mmstr_strg_t {
     mmstr_strg_none    = MemeString_StorageType_none,
     mmstr_strg_small   = MemeString_StorageType_small,
@@ -120,12 +121,17 @@ typedef MemeString_MappingConvertFunc_t mmstr_mapping_conv_cb_t;
 typedef mmflag_cbproc_t MemeString_ForEachRuneFunc_t(const mmrune_t* _ch, void* _user_data);
 typedef MemeString_ForEachRuneFunc_t mmstr_foreach_rune_cb_t;
 
+#ifndef MMSTR__OBJ_REG_SIZE
+#define MMSTR__OBJ_REG_SIZE (3)
+#endif
+
 #ifdef MEME_STRING__OBJECT_SIZE
 #undef MEME_STRING__OBJECT_SIZE
 #endif
-#define MEME_STRING__OBJECT_SIZE (sizeof(mmint_t) * 3)
+#define MEME_STRING__OBJECT_SIZE (sizeof(mmint_t) * MMSTR__OBJ_REG_SIZE)
 
 #ifndef MMS__OBJECT_SIZE
+//! @deprecated
 #define MMS__OBJECT_SIZE MEME_STRING__OBJECT_SIZE
 #endif
 

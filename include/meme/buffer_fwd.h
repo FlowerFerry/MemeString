@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEME_BUFFER_FWD_H_INCLUDED
 #define MEME_BUFFER_FWD_H_INCLUDED
 
@@ -40,8 +40,12 @@ enum _mmbuf_usfstrg_t {
     mmbuf_usfstrg_view = MemeBuffer_UnsafeStorageType_view
 };
 
+#ifndef MMBUF__OBJ_SIZE
+#define MMBUF__OBJ_SIZE MMSTR__OBJ_SIZE
+#endif
+
 typedef struct _MemeBufferStack_t {
-	MemeByte_t byte[MEME_STRING__OBJECT_SIZE];
+	MemeByte_t byte[MMSTR__OBJ_SIZE];
 } MemeBufferStack_t, mmbufstk_t;
 
 MEME_EXTERN_C_SCOPE_ENDED
