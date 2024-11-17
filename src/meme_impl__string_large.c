@@ -56,6 +56,8 @@ int MemeStringLarge_init(
 	assert(_front_capacity + _capacity > 0);
 
 	memset(_s, 0, sizeof(MemeStringStack_t));
+
+    _s->reg_size_ = MMSTR__OBJ_REG_SIZE;
 	_s->type_ = MemeString_ImplType_large;
 	_s->offset_ = 0;
 
@@ -170,6 +172,7 @@ int MemeStringLarge_initByU8bytes(
 	//	return -EPERM;
 	//}
 
+	_s->reg_size_ = MMSTR__OBJ_REG_SIZE;
 	_s->ref_ = refCount;
 	_s->type_ = MemeString_ImplType_large;
 	_s->offset_ = 0;
@@ -210,6 +213,7 @@ int MemeStringLarge_initAndTakeover(
 	MemeStringLarge_RefCount_init(refCount);
 	refCount->real_ = _real;
 
+	_s->reg_size_ = MMSTR__OBJ_REG_SIZE;
 	_s->ref_ = refCount;
 	_s->type_ = MemeString_ImplType_large;
 	_s->offset_ = _offset;

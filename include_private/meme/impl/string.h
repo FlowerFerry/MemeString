@@ -5,6 +5,7 @@
 #include "atomic_fwd.h"
 #include "string_memory.h"
 
+#include <mego/predef/symbol/inline.h>
 #include <stdint.h>
 #include <limits.h>
 #include <assert.h>
@@ -59,20 +60,35 @@ typedef struct _MemeStringUser_RefCounted_t
 
 typedef MemeInteger_t MemeString_ImplType_t;
 enum _MemeString_ImplType_t {
-	MemeString_ImplType_none		= MemeString_StorageType_none,
-	MemeString_ImplType_small		= MemeString_StorageType_small,
+	MemeString_ImplType_none		= 1,
+	MemeString_ImplType_small		= 0,
 	MemeString_ImplType_medium		= MemeString_StorageType_medium,
 	MemeString_ImplType_large		= MemeString_StorageType_large,
 	MemeString_ImplType_view		= MemeString_UnsafeStorageType_view,
 	MemeString_ImplType_user		= MemeString_StorageType_user
 };
+typedef MemeString_ImplType_t mmstr_impltype_e;
+enum {
+    mmstr_impltype_none   = MemeString_ImplType_none,
+    mmstr_impltype_small  = MemeString_ImplType_small,
+    mmstr_impltype_medium = MemeString_ImplType_medium,
+	mmstr_impltype_large  = MemeString_ImplType_large,
+    mmstr_impltype_view   = MemeString_ImplType_view,
+    mmstr_impltype_user   = MemeString_ImplType_user
+};
 
 typedef struct _MemeStringUser_t
 {
-	MemeStringUser_RefCounted_t* ref_;
 	struct {
+#if   INTPTR_MAX == INT32_MAX
+		size_t reg_size_ : 4;
+#elif INTPTR_MAX == INT64_MAX
+        size_t reg_size_ : 4;
+        size_t __reserved1__ : 4;
+#endif
 		size_t offset_ : MMSTR_SIZE_T_EFFECTIVE_BITS;
 	};
+	MemeStringUser_RefCounted_t* ref_;
 	struct {
 		size_t size_ : MMSTR_SIZE_T_EFFECTIVE_BITS;
 		size_t type_ : MMSTR_IMPLTYPE_BITS;
@@ -81,29 +97,46 @@ typedef struct _MemeStringUser_t
 
 typedef struct _MemeStringMedium_t
 {
+	struct {
+#if   INTPTR_MAX == INT32_MAX
+		size_t reg_size_ : 4;
+#elif INTPTR_MAX == INT64_MAX
+        size_t reg_size_ : 4;
+        size_t front_capacity_ : 4;
+#endif
+		size_t capacity_ : MMSTR_SIZE_T_EFFECTIVE_BITS;
+	};
 	MemeByte_t* real_;
 	struct {
 		size_t size_ : MMSTR_SIZE_T_EFFECTIVE_BITS;
-		size_t front_capacity_ : MMSTR_IMPLTYPE_BITS;
-	};
-	struct {
-		size_t capacity_ : MMSTR_SIZE_T_EFFECTIVE_BITS;
 		size_t type_ : MMSTR_IMPLTYPE_BITS;
 	};
 } MemeStringMedium_t;
 
-#ifndef MMS__GET_MEDIUM_FRONT_CAPACITY_MAX_VALUE
-#define MMS__GET_MEDIUM_FRONT_CAPACITY_MAX_VALUE \
-	((1 << sizeof(size_t)) - sizeof(size_t))
-#endif 
+//#ifndef MMS__GET_MEDIUM_FRONT_CAPACITY_MAX_VALUE
+//#define MMS__GET_MEDIUM_FRONT_CAPACITY_MAX_VALUE ((1 << sizeof(size_t)) - sizeof(size_t))
+//#endif 
 
+#ifndef MMSTR__GET_MEDIUM_FRONT_CAP_MAX_SIZE
+#if INTPTR_MAX == INT64_MAX
+#define MMSTR__GET_MEDIUM_FRONT_CAP_MAX_SIZE (15)
+#else
+#define MMSTR__GET_MEDIUM_FRONT_CAP_MAX_SIZE ( 0)
+#endif
+#endif 
 
 typedef struct _MemeStringLarge_t
 {
-	MemeStringLarge_RefCounted_t * ref_;
 	struct {
+#if   INTPTR_MAX == INT32_MAX
+		size_t reg_size_ : 4;
+#elif INTPTR_MAX == INT64_MAX
+		size_t reg_size_ : 4;
+		size_t __reserved1__ : 4;
+#endif
 		size_t offset_ : MMSTR_SIZE_T_EFFECTIVE_BITS;
 	};
+	MemeStringLarge_RefCounted_t * ref_;
 	struct {
 		size_t size_ : MMSTR_SIZE_T_EFFECTIVE_BITS;
 		size_t type_ : MMSTR_IMPLTYPE_BITS;
@@ -112,41 +145,45 @@ typedef struct _MemeStringLarge_t
 
 typedef struct _MemeStringSmall_t
 {
+	mmbyte_t reg_size_ : 4;
 	union {
-		uint8_t buffer_[MMS__OBJECT_SIZE];
+		uint8_t buffer_[MMSTR__OBJ_SIZE - 1];
 
 		struct {
-			mmbyte_t __res1__[MMS__OBJECT_SIZE - 2];
+#if   INTPTR_MAX == INT32_MAX
+			mmbyte_t __reserved1__[MMSTR__OBJ_SIZE - 2];
+			mmbyte_t capacity_ : 4;
+			mmbyte_t type_ : 4;
+#elif INTPTR_MAX == INT64_MAX
+			mmbyte_t __reserved1__[MMSTR__OBJ_SIZE - 3];
 			mmbyte_t capacity_;
-#if INTPTR_MAX == INT32_MAX
-			mmbyte_t __res2__ : (CHAR_BIT)-MMSTR_IMPLTYPE_BITS;
+            mmbyte_t type_;
 #endif
-			mmbyte_t type_ : MMSTR_IMPLTYPE_BITS;
 		};
 	};
 } MemeStringSmall_t;
 
 typedef struct _MemeStringNone_t
 {
+	mmbyte_t reg_size_ : 4;
 	struct {
-		//size_t __occupy_a_seat_1__[2];
-		//size_t __occupy_a_seat_2__ : (sizeof(size_t)*(CHAR_BIT)-sizeof(size_t));
-		//size_t type_ : MMSTR_IMPLTYPE_BITS;
-		
-		mmbyte_t __res1__[MMS__OBJECT_SIZE - 1];
+		mmbyte_t __reserved1__[MMSTR__OBJ_SIZE - 2];
 #if INTPTR_MAX == INT32_MAX
-		mmbyte_t __res2__ : (CHAR_BIT)-MMSTR_IMPLTYPE_BITS;
+		mmbyte_t __reserved2__ : 4;
+		mmbyte_t type_ : 4;
+#elif INTPTR_MAX == INT64_MAX
+		mmbyte_t type_;
 #endif
-		mmbyte_t type_ : MMSTR_IMPLTYPE_BITS;
 	};
 } MemeStringNone_t;
 
 typedef struct _MemeStringViewUnsafe_t
 {
-	const uint8_t* data_;
+	mmbyte_t reg_size_ : 4;
 	struct {
-		mmint_t __res__;
+		uint8_t __reserved1__[sizeof(void*) - 1];
 	};
+	const uint8_t* data_;
 	struct {
 		size_t size_ : MMSTR_SIZE_T_EFFECTIVE_BITS;
 		size_t type_ : MMSTR_IMPLTYPE_BITS;
@@ -165,16 +202,29 @@ struct _MemeString_t
 	};
 };
 
-#ifndef MMS__GET_SMALL_BUFFER_SIZE
-#define MMS__GET_SMALL_BUFFER_SIZE (sizeof(((MemeStringSmall_t*)0)->buffer_) - 2)
+//#ifndef MMS__GET_SMALL_BUFFER_SIZE
+//#define MMS__GET_SMALL_BUFFER_SIZE (sizeof(MemeStringSmall_t) - 2)
+//#endif
+
+//#ifndef MMSTR__GET_SMALL_BUF_SIZE
+//#define MMSTR__GET_SMALL_BUF_SIZE  (sizeof(MemeStringSmall_t) - 2)
+//#endif
+
+#ifndef MMSTR__GET_SMALL_BUF_MAX_SIZE
+#if   INTPTR_MAX == INT32_MAX
+#define MMSTR__GET_SMALL_BUF_MAX_SIZE (sizeof(MemeStringSmall_t) - 2)
+#elif INTPTR_MAX == INT64_MAX
+#define MMSTR__GET_SMALL_BUF_MAX_SIZE (sizeof(MemeStringSmall_t) - 3)
+#endif
 #endif
 
-#ifndef MMSTR__GET_SMALL_BUF_SIZE
-#define MMSTR__GET_SMALL_BUF_SIZE (sizeof(((MemeStringSmall_t*)0)->buffer_) - 2)
-#endif
+//#ifndef MMS__GET_TYPE
+////! @deprecated
+//#define MMS__GET_TYPE(S) ((S)->none_.type_)
+//#endif 
 
-#ifndef MMS__GET_TYPE
-#define MMS__GET_TYPE(S) ((S)->none_.type_)
+#ifndef MMSTR__GET_IMPLTYPE
+#define MMSTR__GET_IMPLTYPE(S) ((S)->none_.type_)
 #endif 
 
 static_assert(sizeof(struct _MemeString_t) == MMSTR__OBJ_SIZE, "MemeString_t size mismatch");
@@ -184,13 +234,37 @@ static_assert(sizeof(MemeRuneIndex_t) == (sizeof(void*) * 2), "MemeRuneIndex_t s
 const uint8_t* 
 MemeStringImpl_default();
 
-MemeString_Storage_t 
+MG_CAPI_INLINE mmstr_impltype_e mmstrimpl_strgtype_to_impltype(mmstr_strg_e _strg)
+{
+	switch (_strg) {
+	case mmstr_strg_none:
+        return mmstr_impltype_none;
+    case mmstr_strg_small:
+        return mmstr_impltype_small;
+	default:
+		return (mmstr_impltype_e)_strg;
+	}
+}
+
+MG_CAPI_INLINE mmstr_strg_e mmstrimpl_impltype_to_strgtype(mmstr_impltype_e _strg)
+{
+    switch (_strg) {
+    case mmstr_impltype_none:
+        return mmstr_strg_none;
+    case mmstr_impltype_small:
+        return mmstr_strg_small;
+    default:
+        return (mmstr_strg_e)_strg;
+    }
+}
+
+MemeString_ImplType_t
 MemeStringImpl_initSuggestType(
 	MemeInteger_t _len,
-	MemeString_Storage_t _user_suggest);
+	MemeString_ImplType_t _user_suggest);
 
 int 
-MemeStringImpl_isModifiableType(MemeString_Storage_t _type);
+MemeStringImpl_isModifiableType(MemeString_ImplType_t _type);
 
 //int
 //MemeStringImpl_dumpToModifiable(const MemeStringStack_t* _s, MemeStringStack_t* _out);

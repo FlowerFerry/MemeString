@@ -12,12 +12,12 @@ TEST_CASE("memepp::string - 09", "variable_buffer resize")
 	REQUIRE(b01.storage_type() == memepp::buffer_storage_t::small);
 	REQUIRE(b01.size() == 0);
 	REQUIRE(b01.empty());
-	REQUIRE(b01.capacity() == MMSTR__OBJ_SIZE - 2);
+	REQUIRE(b01.capacity() == MemeStringOption_getStorageSmallLimit());
 	REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b01.native_handle())) == 1);
 
-	b01.resize(MMSTR__OBJ_SIZE - 2, 1);
+	b01.resize(MemeStringOption_getStorageSmallLimit(), 1);
 	REQUIRE(b01.storage_type() == memepp::buffer_storage_t::small);
-	REQUIRE(b01.size() == MMSTR__OBJ_SIZE - 2);
+	REQUIRE(b01.size() == MemeStringOption_getStorageSmallLimit());
 
 	uint8_t buf01[] = { 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01 };
 	REQUIRE(0 == memcmp(b01.data(), buf01, b01.size()));

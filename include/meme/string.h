@@ -25,6 +25,9 @@ MEME_API int
 MEME_API MemeInteger_t
 	MEME_STDCALL MemeStringOption_getStorageMediumLimit();
 
+MEME_API mmint_t
+MEME_STDCALL MemeStringOption_getStorageSmallLimit();
+
 MEME_API int 
 	MEME_STDCALL MemeStringStack_init(mmsstk_t* _out, size_t _object_size);
 
@@ -46,9 +49,9 @@ MEME_API int
 	MEME_STDCALL MemeStringStack_initByOther(
 		mmstrstk_t* _out, size_t _object_size, mmstr_cptr_t _other);
 
-MEME_API mgec_t
-	MEME_STDCALL MemeStringStack_initByOtherStack(
-		mmstrstk_t* _out, size_t _object_size, const mmstrstk_t* _other);
+//MEME_API mgec_t
+//	MEME_STDCALL MemeStringStack_initByOtherStack(
+//		mmstrstk_t* _out, size_t _object_size, const mmstrstk_t* _other);
 
 MEME_API int
 MEME_STDCALL MemeStringStack_initByBuffer(

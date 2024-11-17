@@ -1,4 +1,4 @@
-
+﻿
 #include <meme/variant.h>
 #include <meme/string.h>
 #include <meme/buffer.h>
@@ -102,6 +102,8 @@ MEME_API mgec_t MEME_STDCALL
     assert(_obj != NULL && MemeVariantStack_init != NULL);
 
     memset(_obj, 0, _object_size);
+    ((mmvar_ptr_t)_obj)->reg_size = (mmbyte_t)(_object_size / (sizeof(void*)));
+    
     return MGEC__OK;
 }
 
@@ -142,6 +144,8 @@ MEME_API mgec_t MEME_STDCALL
         return MGEC__OPNOTSUPP;
 
     memcpy(_obj, _var, _object_size);
+    ((mmvar_ptr_t)_obj)->reg_size = (mmbyte_t)(_object_size / (sizeof(void*)));
+    
     return MGEC__OK;
 }
 
@@ -171,6 +175,7 @@ MEME_API mgec_t MEME_STDCALL
 
     assert(_obj != NULL && MemeVariantStack_initByByte != NULL);
 
+    obj->reg_size = (mmbyte_t)(_object_size / (sizeof(void*)));
     obj->type     = MMMETA_TYPID__BYTE;
     obj->d.b      = _val;
     obj->non_null = 1;
@@ -186,6 +191,7 @@ MEME_API mgec_t MEME_STDCALL
 
     assert(_obj != NULL && MemeVariantStack_initByChar != NULL);
 
+    obj->reg_size = (mmbyte_t)(_object_size / (sizeof(void*)));
     obj->type     = MMMETA_TYPID__CHAR;
     obj->d.c      = _val;
     obj->non_null = 1;
@@ -201,6 +207,7 @@ MEME_API mgec_t MEME_STDCALL
 
     assert(_obj != NULL && MemeVariantStack_initByWChar != NULL);
 
+    obj->reg_size = (mmbyte_t)(_object_size / (sizeof(void*)));
     obj->type     = MMMETA_TYPID__WCHAR;
     obj->d.wc     = _val;
     obj->non_null = 1;
@@ -216,6 +223,7 @@ MEME_API mgec_t MEME_STDCALL
 
     assert(_obj != NULL && MemeVariantStack_initByInt64 != NULL);
 
+    obj->reg_size = (mmbyte_t)(_object_size / (sizeof(void*)));
     obj->type     = MMMETA_TYPID__INT64;
     obj->d.i64    = _val;
     obj->non_null = 1;
@@ -231,6 +239,7 @@ MEME_API mgec_t MEME_STDCALL
 
     assert(_obj != NULL && MemeVariantStack_initByUInt64 != NULL);
 
+    obj->reg_size = (mmbyte_t)(_object_size / (sizeof(void*)));
     obj->type     = MMMETA_TYPID__UINT64;
     obj->d.u64    = _val;
     obj->non_null = 1;
@@ -246,6 +255,7 @@ MEME_API mgec_t MEME_STDCALL
 
     assert(_obj != NULL && MemeVariantStack_initByDouble != NULL);
 
+    obj->reg_size = (mmbyte_t)(_object_size / (sizeof(void*)));
     obj->type     = MMMETA_TYPID__DOUBLE;
     obj->d.d      = _val;
     obj->non_null = 1;
@@ -266,6 +276,7 @@ MEME_API mgec_t MEME_STDCALL
     if (MEGO_SYMBOL__UNLIKELY(result != MGEC__OK))
         return result;
 
+    obj->reg_size = (mmbyte_t)(_object_size / (sizeof(void*)));
     obj->type     = MMMETA_TYPID__STRING;
     obj->non_null = 1;
     return MGEC__OK;
@@ -286,6 +297,7 @@ MEME_API mgec_t MEME_STDCALL
     if (MEGO_SYMBOL__UNLIKELY(result != MGEC__OK))
         return result;
 
+    obj->reg_size = (mmbyte_t)(_object_size / (sizeof(void*)));
     obj->type     = MMMETA_TYPID__BUFFER;
     obj->non_null = 1;
     return MGEC__OK;
@@ -306,6 +318,7 @@ MEME_API mgec_t MEME_STDCALL
     if (MEGO_SYMBOL__UNLIKELY(result != MGEC__OK))
         return result;
 
+    obj->reg_size = (mmbyte_t)(_object_size / (sizeof(void*)));
     obj->type     = MMMETA_TYPID__VARBUF;
     obj->non_null = 1;
     return MGEC__OK;
@@ -321,6 +334,7 @@ MEME_API mgec_t MEME_STDCALL
     assert(_obj != NULL && MemeVariantStack_initByRune != NULL);
     assert(_val != NULL && MemeVariantStack_initByRune != NULL);
 
+    obj->reg_size = (mmbyte_t)(_object_size / (sizeof(void*)));
     obj->type     = MMMETA_TYPID__RUNE;
     obj->d.r      = *_val;
     obj->non_null = 1;
@@ -350,7 +364,8 @@ MemeVariantStack_initAndConditionalConvert(
             &(var->d.str), _object_size, (mmstr_cptr_t)(&(_other->d.str)));
         if (MEGO_SYMBOL__UNLIKELY(result != MGEC__OK))
             return result;
-        
+
+        var->reg_size = (mmbyte_t)(_object_size / (sizeof(void*)));
         var->type     = MMMETA_TYPID__STRING;
         var->non_null = 1;
         return MGEC__OK;
@@ -362,7 +377,8 @@ MemeVariantStack_initAndConditionalConvert(
             &(var->d.buf), _object_size, (mmbuf_cptr_t)(&(_other->d.buf)));
         if (MEGO_SYMBOL__UNLIKELY(result != MGEC__OK))
             return result;
-        
+
+        var->reg_size = (mmbyte_t)(_object_size / (sizeof(void*)));
         var->type     = MMMETA_TYPID__BUFFER;
         var->non_null = 1;
         return MGEC__OK;
@@ -657,7 +673,7 @@ MemeVariantStack_convToInt(
 
         const char* ptr = MemeString_cStr((mmstr_cptr_t) & (obj->d.str));
         char* end = NULL;
-        *_out = strtoll(ptr, &end, 0);
+        *_out = (mmint_t)strtoll(ptr, &end, 0);
         if (ptr == end) {
             return MGEC__INVAL;
         }
@@ -703,7 +719,7 @@ MemeVariantStack_convToUInt(
 
         const char* ptr = MemeString_cStr((mmstr_cptr_t) & (obj->d.str));
         char* end = NULL;
-        *_out = strtoull(ptr, &end, 0);
+        *_out = (size_t)strtoull(ptr, &end, 0);
         if (ptr == end) {
             return MGEC__INVAL;
         }

@@ -13,60 +13,6 @@ MemeStringMedium_canBeAppendIt(const MemeStringMedium_t* _s, MemeInteger_t _bufl
 	return 0;
 }
 
-//const uint8_t*
-//MemeStringMedium_constData(const MemeStringMedium_t* _s)
-//{
-//	return _s->real_ + _s->front_capacity_;
-//}
-
-//uint8_t* MemeStringMedium_data(MemeStringMedium_t* _s)
-//{
-//	return _s->real_ + _s->front_capacity_;
-//}
-
-//uint8_t* MemeStringMedium_iteratorEnd(MemeStringMedium_t* _s)
-//{
-//	return MemeStringMedium_data(_s) + _s->size_;
-//}
-
-//MemeInteger_t MemeStringMedium_maxByteSize(const MemeStringMedium_t* _s)
-//{
-//	return SIZE_MAX >> sizeof(size_t);
-//}
-
-//MemeInteger_t MemeStringMedium_realByteSize(const MemeStringMedium_t* _s)
-//{
-//	return _s->front_capacity_ + _s->size_ + _s->capacity_;
-//}
-
-//MemeInteger_t MemeStringMedium_availableByteCapacity(const MemeStringMedium_t* _s)
-//{
-//	return _s->capacity_ - 1;
-//}
-
-//MemeInteger_t
-//MemeStringMedium_maxByteCapacity(const MemeStringMedium_t* _s)
-//{
-//	return _s->size_ + MemeStringMedium_availableByteCapacity(_s);
-//}
-
-//mmint_t MemeStringMedium_usedByteFrontCapacity(const MemeStringMedium_t* _s)
-//{
-//	return MMS__GET_MEDIUM_FRONT_CAPACITY_MAX_VALUE - _s->front_capacity_;
-//}
-//
-//void MemeStringMedium_byteSizeOffset(MemeStringMedium_t* _s, MemeInteger_t _offset)
-//{
-//	_s->size_     += _offset;
-//	_s->capacity_ -= _offset;
-//}
-
-//void MemeStringMedium_byteSizeOffsetAndSetZero(MemeStringMedium_t* _s, MemeInteger_t _offset)
-//{
-//	MemeStringMedium_byteSizeOffset(_s, _offset);
-//	*(MemeStringMedium_iteratorEnd(_s)) = '\0';
-//}
-
 int MemeStringMedium_appendWithByte(MemeStringMedium_t* _s, MemeInteger_t _count, MemeByte_t _byte)
 {
 	MemeByte_t* pointer = NULL;
@@ -108,12 +54,12 @@ int
 MemeStringMedium_insertWithBytes(
 	MemeStringMedium_t* _s, MemeInteger_t _pos, const MemeByte_t* _buf, MemeInteger_t _buflen)
 {
-	if (_pos + _buflen <= (MemeInteger_t)_s->front_capacity_)
+	if (_pos + _buflen <= MemeStringMedium_frontCapacity(_s))
 	{
 		if (_pos != 0)
 			memmove(MemeStringMedium_data(_s) - _buflen, MemeStringMedium_data(_s), _buflen);
 		memcpy(MemeStringMedium_data(_s) + _pos - _buflen, _buf, _buflen);
-		_s->front_capacity_ -= _buflen;
+		MemeStringMedium_modifyFrontCapacity(_s, -_buflen);
 		_s->size_ += _buflen;
 		return 0;
 	}
@@ -145,16 +91,17 @@ MemeStringMedium_initWithCapacity(
 	_capacity = (_capacity % sizeof(size_t)) == 0 ?
 		(_capacity ? _capacity : sizeof(size_t)) : ((_capacity / sizeof(size_t) + 1) * sizeof(size_t));
 
-	if (front_capacity > MMS__GET_MEDIUM_FRONT_CAPACITY_MAX_VALUE)
-		front_capacity = MMS__GET_MEDIUM_FRONT_CAPACITY_MAX_VALUE;
+	if (front_capacity > MMSTR__GET_MEDIUM_FRONT_CAP_MAX_SIZE)
+		front_capacity = MMSTR__GET_MEDIUM_FRONT_CAP_MAX_SIZE;
 
 	_s->real_ = mmsmem_malloc(front_capacity + _capacity);
 	if (!(_s->real_))
 		return (MGEC__NOMEM);
 
+	_s->reg_size_ = MMSTR__OBJ_REG_SIZE;
 	_s->size_ = 0;
-	_s->type_ = MemeString_StorageType_medium;
-	_s->front_capacity_ = front_capacity;
+	_s->type_ = MemeString_ImplType_medium;
+	MemeStringMedium_setFrontCapacity(_s, front_capacity);
 	_s->capacity_ = _capacity;
 	MemeStringMedium_data(_s)[0] = '\0';
 
@@ -204,7 +151,7 @@ MemeStringMedium_remove(
 			MemeStringMedium_byteSizeOffsetAndSetZero(_s, -_count);
 		}
 		else {
-			_s->front_capacity_ += _count;
+			MemeStringMedium_modifyFrontCapacity(_s, _count);
 			_s->size_ -= _count;
 		}
 	}
@@ -263,7 +210,7 @@ int MemeStringMedium_capacityExpansion(MemeStringMedium_t* _s, MemeInteger_t _mi
 	if (dstlen < _minSizeRequest) {
 		dstlen = (MemeInteger_t)(_minSizeRequest * 1.667);
 	}
-	dstlen = dstlen + _s->front_capacity_ + 1;
+	dstlen = dstlen + MemeStringMedium_frontCapacity(_s) + 1;
 	dstlen = (dstlen % sizeof(size_t)) == 0 ?
 		dstlen : ((dstlen / sizeof(size_t) + 1) * sizeof(size_t));
 
@@ -272,7 +219,7 @@ int MemeStringMedium_capacityExpansion(MemeStringMedium_t* _s, MemeInteger_t _mi
 		return (MGEC__NOMEM);
 
 	_s->real_ = new_pointer;
-	_s->capacity_ = dstlen - _s->front_capacity_ - _s->size_;
+	_s->capacity_ = dstlen - MemeStringMedium_frontCapacity(_s) - _s->size_;
 	return 0;
 }
 

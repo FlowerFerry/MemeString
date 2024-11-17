@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEME_IMPL_VARIANT_H_INCLUDED
 #define MEME_IMPL_VARIANT_H_INCLUDED
 
@@ -37,12 +37,13 @@ typedef union _MemeVariantData_t
 
 typedef struct _MemeVariant_t
 {
+    mmbyte_t reg_size : 7;
+    mmbyte_t non_null : 1;
+    uint16_t type;
+    //struct {
+    //    size_t __res__ : (sizeof(mmint_t) * CHAR_BIT - 25);
+    //};
     MemeVariantData_t d;
-    struct {
-        mmint_t type: 16;
-        mmint_t non_null: 1;
-        mmint_t __res__: (sizeof(mmint_t) * CHAR_BIT - 17);
-    };
 } MemeVariant_t;
 
 static_assert(sizeof(MemeVariant_t) == MMVAR__OBJ_SIZE, "MemeVariant_t size mismatch");

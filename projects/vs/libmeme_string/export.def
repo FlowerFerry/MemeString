@@ -305,6 +305,7 @@ EXPORTS
     MemeString_runeFront @283
     MemeString_runeBack @284
     MemeString_reset @285
+    MemeStringOption_getStorageSmallLimit @286
     mmconc_atomic_bl_base_init @300
     mmconc_atomic_i8_base_init @301
     mmconc_atomic_u8_base_init @302

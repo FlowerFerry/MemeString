@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEME_IMPL_STRING_BUILDER_H_INCLUDED
 #define MEME_IMPL_STRING_BUILDER_H_INCLUDED
 
@@ -37,11 +37,13 @@ typedef struct _MemeStringBuilder_Format_t
 
 struct _MemeStringBuilder_t 
 {
+    mmbyte_t reg_size_;
+    uint16_t flag_;
+    //struct {
+    //    size_t __res__ : (sizeof(size_t) * CHAR_BIT / 2);
+    //    size_t flag_ : (sizeof(size_t) * CHAR_BIT / 2);
+    //};
     cvector_vector_type(mmsbldr_part_t) parts_;
-    struct {
-        size_t flag_   : (sizeof(size_t) * CHAR_BIT / 2);
-        size_t __res__ : (sizeof(size_t) * CHAR_BIT / 2);
-    };
     mmsbldr_fmt_t* fmt_;
     mmstr_ptr_t out_;
 };

@@ -31,16 +31,16 @@ TEST_CASE("memepp::string - 01", "string constructions")
 	REQUIRE(s01.size() == strlen(s01.data()) );
 	REQUIRE(s01.size() == strlen(s01.c_str()));
 	REQUIRE(s01.empty());
-	REQUIRE(s01.capacity() == MEME_STRING__OBJECT_SIZE - 2);
+	REQUIRE(s01.capacity() == MemeStringOption_getStorageSmallLimit());
 
 #if INTPTR_MAX == INT64_MAX
-	const char* test01 = "This is test string...";
+	const char* test01 = "This is test string..";
 #else
     const char* test01 = "teststring";
 #endif
-	memepp::string s02(test01, MEME_STRING__OBJECT_SIZE - 2);
+	memepp::string s02(test01, MemeStringOption_getStorageSmallLimit());
 	REQUIRE(s02.storage_type() == memepp::string_storage_t::small);
-	REQUIRE(s02.size() == MEME_STRING__OBJECT_SIZE - 2);
+	REQUIRE(s02.size() == MemeStringOption_getStorageSmallLimit());
 	REQUIRE(s02.size() == strlen(s02.data()) );
 	REQUIRE(s02.size() == strlen(s02.c_str()));
 	REQUIRE(!strcmp(s02.data() , test01));
@@ -77,7 +77,7 @@ TEST_CASE("memepp::string - 01", "string constructions")
 	REQUIRE(s04 == "test");
 	REQUIRE("test" == s04);
 	REQUIRE(s04.empty() == false);
-	REQUIRE(s04.capacity() == (MEME_STRING__OBJECT_SIZE - 2) - 4);
+	REQUIRE(s04.capacity() == MemeStringOption_getStorageSmallLimit() - 4);
 
     memepp::string s05("test", 2);
     REQUIRE(s05.storage_type() == memepp::string_storage_t::small);
@@ -89,7 +89,7 @@ TEST_CASE("memepp::string - 01", "string constructions")
     REQUIRE(s05 == "te");
     REQUIRE("te" == s05);
     REQUIRE(s05.empty() == false);
-    REQUIRE(s05.capacity() == (MEME_STRING__OBJECT_SIZE - 2) - 2);
+    REQUIRE(s05.capacity() == MemeStringOption_getStorageSmallLimit() - 2);
     
     memepp::string s06("test", 4);
     REQUIRE(s06.storage_type() == memepp::string_storage_t::small);
@@ -101,7 +101,7 @@ TEST_CASE("memepp::string - 01", "string constructions")
     REQUIRE(s06 == "test");
     REQUIRE("test" == s06);
     REQUIRE(s06.empty() == false);
-    REQUIRE(s06.capacity() == (MEME_STRING__OBJECT_SIZE - 2) - 4);
+    REQUIRE(s06.capacity() == MemeStringOption_getStorageSmallLimit() - 4);
 
 }
 
@@ -185,13 +185,13 @@ TEST_CASE("memepp::string - 04", "string mutual convert of std::string")
 	REQUIRE(s01.size() == strlen(s01.data()));
 	REQUIRE(s01.size() == strlen(s01.c_str()));
 	REQUIRE(s01.empty());
-	REQUIRE(s01.capacity() == MEME_STRING__OBJECT_SIZE - 2);
+	REQUIRE(s01.capacity() == MemeStringOption_getStorageSmallLimit());
 	REQUIRE(s02.storage_type() == memepp::string_storage_t::small);
 	REQUIRE(s02.size() == 0);
 	REQUIRE(s02.size() == strlen(s02.data()));
 	REQUIRE(s02.size() == strlen(s02.c_str()));
 	REQUIRE(s02.empty());
-	REQUIRE(s02.capacity() == MEME_STRING__OBJECT_SIZE - 2);
+	REQUIRE(s02.capacity() == MemeStringOption_getStorageSmallLimit());
 	REQUIRE(s01 == s02);
 
     std::string stdstr02 = "test";
@@ -206,7 +206,7 @@ TEST_CASE("memepp::string - 04", "string mutual convert of std::string")
     REQUIRE(s03 == "test");
     REQUIRE("test" == s03);
     REQUIRE(s03.empty() == false);
-    REQUIRE(s03.capacity() == (MEME_STRING__OBJECT_SIZE - 2) - 4);
+    REQUIRE(s03.capacity() == MemeStringOption_getStorageSmallLimit() - 4);
     REQUIRE(s04.storage_type() == memepp::string_storage_t::small);
     REQUIRE(s04.size() == 4);
     REQUIRE(s04.size() == strlen(s04.data()));
@@ -216,7 +216,7 @@ TEST_CASE("memepp::string - 04", "string mutual convert of std::string")
     REQUIRE(s04 == "test");
     REQUIRE("test" == s04);
     REQUIRE(s04.empty() == false);
-    REQUIRE(s04.capacity() == (MEME_STRING__OBJECT_SIZE - 2) - 4);
+    REQUIRE(s04.capacity() == MemeStringOption_getStorageSmallLimit() - 4);
     REQUIRE(s03 == s04);
     
 	std::string stdstr030 { "test 123456789123456790", MEME_STRING__OBJECT_SIZE - 1 };
@@ -343,21 +343,21 @@ TEST_CASE("memepp::string - 08", "variable_buffer constructions")
 	REQUIRE(b01.storage_type() == memepp::buffer_storage_t::small);
 	REQUIRE(b01.size() == 0);
 	REQUIRE(b01.empty());
-	REQUIRE(b01.capacity() == MEME_STRING__OBJECT_SIZE - 2);
+	REQUIRE(b01.capacity() == MemeStringOption_getStorageSmallLimit());
     REQUIRE(b01.data() != nullptr);
     REQUIRE(b01.data()[0] == '\0');
 
 #if INTPTR_MAX == INT64_MAX
 	uint8_t buf01[] = { 
 		0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 
-		0x0C, 0x0D, 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17 };
+		0x0C, 0x0D, 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16 };
 #else
     uint8_t buf01[] = {
         0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A };
 #endif
 	memepp::variable_buffer b02(buf01, sizeof(buf01));
 	REQUIRE(b02.storage_type() == memepp::buffer_storage_t::small);
-	REQUIRE(b02.size() == MEME_STRING__OBJECT_SIZE - 2);
+	REQUIRE(b02.size() == MemeStringOption_getStorageSmallLimit());
 
 	uint8_t buf02[] = {
 		0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0F, 0x10, 
@@ -385,10 +385,10 @@ TEST_CASE("memepp::string - 08", "variable_buffer constructions")
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 	};
 #endif
-	memepp::variable_buffer b05(MEME_STRING__OBJECT_SIZE - 2, 0);
+	memepp::variable_buffer b05(MemeStringOption_getStorageSmallLimit(), 0);
 	REQUIRE(b05.storage_type() == memepp::buffer_storage_t::small);
-	REQUIRE(b05.size() == MEME_STRING__OBJECT_SIZE - 2);
-	REQUIRE(memcmp(b05.data(), buf03, sizeof(buf03)) == 0);
+	REQUIRE(b05.size() == MemeStringOption_getStorageSmallLimit());
+	REQUIRE(memcmp(b05.data(), buf03, MemeStringOption_getStorageSmallLimit()) == 0);
 
 
 	uint8_t buf04[] = {
@@ -411,15 +411,15 @@ TEST_CASE("memepp::string - 10", "variable_buffer append")
 	memepp::variable_buffer b01;
 	b01.resize(10, 1);
 
-	uint8_t buf01[] = { 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02 };
+	uint8_t buf01[] = { 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02 };
 	b01.append(buf01, sizeof(buf01));
 #if INTPTR_MAX == INT64_MAX
 	REQUIRE(b01.storage_type() == memepp::buffer_storage_t::small);
 #else
 	REQUIRE(b01.storage_type() == memepp::buffer_storage_t::medium);
 #endif
-	REQUIRE(b01.size() == 22);	
-	uint8_t buf02[] = { 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02 };
+	REQUIRE(b01.size() == 21);
+	uint8_t buf02[] = { 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02 };
 	REQUIRE(0 == memcmp(b01.data(), buf02, b01.size()));
 	REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b01.native_handle())) == 1);
 	REQUIRE(MemeString_checkHeadTailMemory(
@@ -497,7 +497,7 @@ TEST_CASE("memepp::string - 12", "buffer to_string")
 #if INTPTR_MAX == INT64_MAX
 	uint8_t buf01[] = { 
 		0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11,
-		0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x00, 0x00
+		0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x00, 0x00
 	};
 #else
 	uint8_t buf01[] = {
@@ -959,44 +959,45 @@ TEST_CASE("memepp::string - 23", "variable_buffer insert")
     uint8_t buf01[12] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C };
 #endif
 	memepp::variable_buffer vb01;
-	vb01.insert(0, buf01, MEME_STRING__OBJECT_SIZE - 4);
+	vb01.insert(0, buf01, MemeStringOption_getStorageSmallLimit() - 2);
     REQUIRE(vb01.storage_type() == memepp::buffer_storage_t::small);
-    REQUIRE(vb01.size() == MEME_STRING__OBJECT_SIZE - 4);
-    REQUIRE(memcmp(vb01.data(), buf01, MEME_STRING__OBJECT_SIZE - 4) == 0);
+    REQUIRE(vb01.size() == MemeStringOption_getStorageSmallLimit() - 2);
+    REQUIRE(memcmp(vb01.data(), buf01, MemeStringOption_getStorageSmallLimit() - 2) == 0);
 	REQUIRE(MemeString_checkHeadTailMemory(
 		(MemeString_Const_t)memepp::to_pointer(vb01.native_handle())) == 1);
     
 	vb01.insert(vb01.size(), buf01 + vb01.size(), 2);
     REQUIRE(vb01.storage_type() == memepp::buffer_storage_t::small);
-    REQUIRE(vb01.size() == MEME_STRING__OBJECT_SIZE - 2);
-    REQUIRE(memcmp(vb01.data(), buf01, MEME_STRING__OBJECT_SIZE - 2) == 0);
+    REQUIRE(vb01.size() == MemeStringOption_getStorageSmallLimit());
+    REQUIRE(memcmp(vb01.data(), buf01, MemeStringOption_getStorageSmallLimit()) == 0);
 	REQUIRE(MemeString_checkHeadTailMemory(
 		(MemeString_Const_t)memepp::to_pointer(vb01.native_handle())) == 1);
 
 	memepp::variable_buffer vb02;
-    vb02.insert(0, buf01 + 2, MEME_STRING__OBJECT_SIZE - 4);
+    vb02.insert(0, buf01 + 2, MemeStringOption_getStorageSmallLimit() - 2);
     REQUIRE(vb02.storage_type() == memepp::buffer_storage_t::small);
-    REQUIRE(vb02.size() == MEME_STRING__OBJECT_SIZE - 4);
-    REQUIRE(memcmp(vb02.data(), buf01 + 2, MEME_STRING__OBJECT_SIZE - 4) == 0);
+    REQUIRE(vb02.size() == MemeStringOption_getStorageSmallLimit() - 2);
+    REQUIRE(memcmp(vb02.data(), buf01 + 2, MemeStringOption_getStorageSmallLimit() - 2) == 0);
 	REQUIRE(MemeString_checkHeadTailMemory(
 		(MemeString_Const_t)memepp::to_pointer(vb02.native_handle())) == 1);
 
     vb02.insert(0, buf01, 2);
     REQUIRE(vb02.storage_type() == memepp::buffer_storage_t::small);
-    REQUIRE(vb02.size() == MEME_STRING__OBJECT_SIZE - 2);
-    REQUIRE(memcmp(vb02.data(), buf01, MEME_STRING__OBJECT_SIZE - 2) == 0);
+    REQUIRE(vb02.size() == MemeStringOption_getStorageSmallLimit());
+    REQUIRE(memcmp(vb02.data(), buf01, MemeStringOption_getStorageSmallLimit()) == 0);
 	REQUIRE(MemeString_checkHeadTailMemory(
 		(MemeString_Const_t)memepp::to_pointer(vb02.native_handle())) == 1);
 
 	for (int index = 0; index < 10; ++index) {
-		int randValue = size_t(rand()) % (MEME_STRING__OBJECT_SIZE - 4);
-		memepp::variable_buffer vb00{ buf01, MEME_STRING__OBJECT_SIZE - 4 };
+		int randValue = size_t(rand()) % (MemeStringOption_getStorageSmallLimit() - 2);
+		memepp::variable_buffer vb00{ buf01, MemeStringOption_getStorageSmallLimit() - 2 };
         vb00.insert(randValue, buf01 + randValue, 2);
         REQUIRE(vb00.storage_type() == memepp::buffer_storage_t::small);
-        REQUIRE(vb00.size() == MEME_STRING__OBJECT_SIZE - 2);
+        REQUIRE(vb00.size() == MemeStringOption_getStorageSmallLimit());
         REQUIRE(memcmp(vb00.data(), buf01, randValue) == 0);
         REQUIRE(memcmp(vb00.data() + randValue, buf01 + randValue, 2) == 0);
-        REQUIRE(memcmp(vb00.data() + randValue + 2, buf01 + randValue, MEME_STRING__OBJECT_SIZE - 4 - randValue) == 0);
+        REQUIRE(memcmp(vb00.data() + randValue + 2, 
+            buf01 + randValue, MemeStringOption_getStorageSmallLimit() - 2 - randValue) == 0);
 
 		REQUIRE(MemeString_checkHeadTailMemory(
 			(MemeString_Const_t)memepp::to_pointer(vb00.native_handle())) == 1);

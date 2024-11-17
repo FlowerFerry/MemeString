@@ -146,6 +146,8 @@ MemeStringBuilderStack_init(MemeStringBuilderStack_t* _builder, size_t _builder_
     assert(_builder_size <= sizeof(MemeStringBuilderStack_t) && MemeStringBuilderStack_init);
 
     memset(builder, 0 , _builder_size);
+    builder->reg_size_ = (mmbyte_t)(_builder_size / sizeof(mmint_t));
+
     result = MemeStringBuilderFormat_init(&(builder->fmt_));
     if (result != 0)
         return result;
@@ -172,6 +174,7 @@ MemeStringBuilderStack_initByOther(
     if (result != 0)
         return result;
     
+    builder->reg_size_ = (mmbyte_t)(_builder_size / sizeof(mmint_t));
     builder->flag_ = _other->flag_;
 
     //if (_other->out_) {

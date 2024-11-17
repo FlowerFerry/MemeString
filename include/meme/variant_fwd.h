@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEME_VARIANT_FWD_H_INCLUDED
 #define MEME_VARIANT_FWD_H_INCLUDED
 
@@ -7,7 +7,11 @@
 
 MEME_EXTERN_C_SCOPE_START
 
-#define MEME_VARIANT__OBJECT_SIZE (sizeof(void*) * 4)
+#ifndef MMVAR__OBJ_REG_SIZE
+#define MMVAR__OBJ_REG_SIZE (4)
+#endif
+
+#define MEME_VARIANT__OBJECT_SIZE (sizeof(void*) * MMVAR__OBJ_REG_SIZE)
 #define MMVAR__OBJ_SIZE (MEME_VARIANT__OBJECT_SIZE)
 
 typedef int16_t mmmeta_typid_t;

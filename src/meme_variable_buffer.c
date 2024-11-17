@@ -24,14 +24,14 @@ MEME_STDCALL MemeVariableBufferStack_initByOther(
 	assert(_other);
 	assert(_object_size != 0);
 
-	switch (MMS__GET_TYPE((MemeString_t)_other)) 
+	switch (MMSTR__GET_IMPLTYPE((mmstr_cptr_t)_other)) 
 	{
-	case MemeString_StorageType_small: {
+	case MemeString_ImplType_small: {
 		memcpy(_out, _other, MEME_STRING__OBJECT_SIZE);
 	} break;
-	case MemeString_StorageType_user:
-	case MemeString_StorageType_large:
-	case MemeString_StorageType_medium: {
+	case MemeString_ImplType_user:
+	case MemeString_ImplType_large:
+	case MemeString_ImplType_medium: {
 		MemeStringStack_init((MemeStringStack_t*)_out, MEME_STRING__OBJECT_SIZE);
 		return (int)MemeVariableBuffer_appendWithBytes((MemeVariableBuffer_t)_out,
 			MemeString_byteData((MemeString_t)_other), MemeString_byteSize((MemeString_t)_other));
@@ -230,7 +230,7 @@ MEME_STDCALL MemeVariableBuffer_appendWithBytes(
 	MemeString_Const_t s = (MemeString_Const_t)_s;
 
 	assert(s && MemeVariableBuffer_appendWithBytes);
-	assert(MemeStringImpl_isModifiableType(MMS__GET_TYPE(s)) == 1
+	assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE(s)) == 1
 		&& MemeVariableBuffer_appendWithBytes);
 	assert(_buf);
 
@@ -264,9 +264,9 @@ MEME_STDCALL MemeVariableBuffer_appendWithBytes(
 		return 0;
 	}
 	
-	switch (MMS__GET_TYPE(s))
+	switch (MMSTR__GET_IMPLTYPE(s))
 	{
-	case MemeString_StorageType_small:
+	case MemeString_ImplType_small:
 	{
 		//int result = 0;
 		if (0 == MemeStringSmall_canBeAppendIt((const MemeStringSmall_t*)s, _len))
@@ -281,7 +281,7 @@ MEME_STDCALL MemeVariableBuffer_appendWithBytes(
 			return MemeStringMedium_appendWithBytes((MemeStringMedium_t*)s, _buf, _len);
 		}
 	} break;
-	case MemeString_StorageType_medium:
+	case MemeString_ImplType_medium:
 	{
 		return MemeStringMedium_appendWithBytes((MemeStringMedium_t*)s, _buf, _len);
 	};
@@ -300,13 +300,13 @@ MEME_STDCALL MemeVariableBuffer_appendWithRepeatBytes(
 	MemeString_Const_t s = (MemeString_Const_t)_s;
 
 	assert(s && MemeVariableBuffer_appendWithRepeatBytes);
-	assert(MemeStringImpl_isModifiableType(MMS__GET_TYPE(s)) == 1
+	assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE(s)) == 1
 		&& MemeVariableBuffer_appendWithRepeatBytes);
 	assert(_count >= 0 && MemeVariableBuffer_appendWithRepeatBytes);
 
-	switch (MMS__GET_TYPE(s))
+	switch (MMSTR__GET_IMPLTYPE(s))
 	{
-	case MemeString_StorageType_small:
+	case MemeString_ImplType_small:
 	{
 		//int result = 0;
 		if (0 == MemeStringSmall_canBeAppendIt((const MemeStringSmall_t*)s, _count))
@@ -321,7 +321,7 @@ MEME_STDCALL MemeVariableBuffer_appendWithRepeatBytes(
 			return MemeStringMedium_appendWithByte((MemeStringMedium_t*)s, _count, _byte);
 		}
 	} break;
-	case MemeString_StorageType_medium:
+	case MemeString_ImplType_medium:
 	{
 		return MemeStringMedium_appendWithByte((MemeStringMedium_t*)s, _count, _byte);
 	};
@@ -342,7 +342,7 @@ MEME_STDCALL MemeVariableBuffer_appendWithOther(
 
 	assert(str != NULL && MemeVariableBuffer_appendWithOther);
 	assert(_other != NULL && MemeVariableBuffer_appendWithOther);
-	assert(MemeStringImpl_isModifiableType(MMS__GET_TYPE(str)) == 1
+	assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE(str)) == 1
 		&& MemeVariableBuffer_appendWithOther);
 
 	if (str == other) {
@@ -372,9 +372,9 @@ MEME_STDCALL MemeVariableBuffer_appendWithOther(
 		return 0;
 	}
 	
-	switch (MMS__GET_TYPE(str))
+	switch (MMSTR__GET_IMPLTYPE(str))
 	{
-	case MemeString_StorageType_small:
+	case MemeString_ImplType_small:
 	{
 		if (0 == MemeStringSmall_canBeAppendIt(
 			(const MemeStringSmall_t*)str, MemeVariableBuffer_size(_other)))
@@ -391,7 +391,7 @@ MEME_STDCALL MemeVariableBuffer_appendWithOther(
 				(MemeStringMedium_t*)str, MemeVariableBuffer_data(_other), MemeVariableBuffer_size(_other));
 		}
 	} break;
-	case MemeString_StorageType_medium:
+	case MemeString_ImplType_medium:
 	{
 		return MemeStringMedium_appendWithBytes(
 			(MemeStringMedium_t*)str, MemeVariableBuffer_data(_other), MemeVariableBuffer_size(_other));
@@ -411,7 +411,7 @@ MEME_STDCALL MemeVariableBuffer_insertWithBytes(
     MemeString_Const_t s = (MemeString_Const_t)_s;
 
     assert(s != 0 && MemeVariableBuffer_insertWithBytes);
-    assert(MemeStringImpl_isModifiableType(MMS__GET_TYPE(s)) == 1
+    assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE(s)) == 1
         && MemeVariableBuffer_insertWithBytes);
 
 	if ((_len < 0))
@@ -422,9 +422,9 @@ MEME_STDCALL MemeVariableBuffer_insertWithBytes(
 	if ((_pos & (MemeString_byteSize(s) - _pos)) & INTPTR_MIN)
 		return (MGEC__INVAL);
 	
-    switch (MMS__GET_TYPE(s))
+    switch (MMSTR__GET_IMPLTYPE(s))
     {
-    case MemeString_StorageType_small:
+    case MemeString_ImplType_small:
     {
         if (0 == MemeStringSmall_canBeAppendIt((const MemeStringSmall_t*)s, _len))
         {
@@ -438,7 +438,7 @@ MEME_STDCALL MemeVariableBuffer_insertWithBytes(
             return MemeStringMedium_insertWithBytes((MemeStringMedium_t*)s, _pos, _buf, _len);
         }
     } break;
-    case MemeString_StorageType_medium:
+    case MemeString_ImplType_medium:
     {
         return MemeStringMedium_insertWithBytes((MemeStringMedium_t*)s, _pos, _buf, _len);
     };
@@ -456,14 +456,14 @@ MEME_STDCALL MemeVariableBuffer_clear(MemeVariableBuffer_t _s)
 	MemeString_t s = (MemeString_t)_s;
 
 	assert(s != NULL && MemeVariableBuffer_clear);
-	assert(MemeStringImpl_isModifiableType(MMS__GET_TYPE(s)) == 1);
+	assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE(s)) == 1);
 
-	switch (MMS__GET_TYPE(s)) {
-	case MemeString_StorageType_small:
+	switch (MMSTR__GET_IMPLTYPE(s)) {
+	case MemeString_ImplType_small:
 	{
 		MemeStringSmall_clear(&(s->small_));
 	} break;
-	case MemeString_StorageType_medium:
+	case MemeString_ImplType_medium:
 	{
 		MemeStringMedium_clear(&(s->medium_));
 	} break;
@@ -487,11 +487,11 @@ MEME_API mgec_t MEME_STDCALL MemeVariableBuffer_resizeAndOverwrite(mmvb_ptr_t _b
 	
     assert(s != NULL  && "MemeVariableBuffer_resizeAndOverwrite");
     assert(_size >= 0 && "MemeVariableBuffer_resizeAndOverwrite");
-    assert(MemeStringImpl_isModifiableType(MMS__GET_TYPE(s)) == 1 && "MemeVariableBuffer_resizeAndOverwrite");
+    assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE(s)) == 1 && "MemeVariableBuffer_resizeAndOverwrite");
 
-	switch (MMS__GET_TYPE(s)) {
-	case mmstr_strg_small: {
-		if (_size <= MMSTR__GET_SMALL_BUF_SIZE)
+	switch (MMSTR__GET_IMPLTYPE(s)) {
+	case mmstr_impltype_small: {
+		if (_size <= MMSTR__GET_SMALL_BUF_MAX_SIZE)
 			return MemeStringSmall_resizeAndOverwrite((MemeStringSmall_t*)s, _size);
 		else {
             int rc = MemeStringImpl_capacityExpansionSmallToMedium((mmstrstk_t*)s, _size);
@@ -501,7 +501,7 @@ MEME_API mgec_t MEME_STDCALL MemeVariableBuffer_resizeAndOverwrite(mmvb_ptr_t _b
             return MemeStringMedium_resizeAndOverwrite((MemeStringMedium_t*)s, _size);
 		}
 	} break;
-	case mmstr_strg_medium: {
+	case mmstr_impltype_medium: {
         return MemeStringMedium_resizeAndOverwrite((MemeStringMedium_t*)s, _size);
     } break;
     default: {
@@ -519,12 +519,12 @@ MEME_STDCALL MemeVariableBuffer_resizeWithByte(MemeVariableBuffer_t _s, MemeInte
 
 	assert(s != NULL && MemeVariableBuffer_resizeWithByte);
 	assert(_size >= 0 && MemeVariableBuffer_resizeWithByte);
-	assert(MemeStringImpl_isModifiableType(MMS__GET_TYPE(s)) == 1);
+	assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE(s)) == 1);
 
-	switch (MMS__GET_TYPE(s)) {
-	case MemeString_StorageType_small:
+	switch (MMSTR__GET_IMPLTYPE(s)) {
+	case MemeString_ImplType_small:
 	{
-		if (_size <= MMS__GET_SMALL_BUFFER_SIZE)
+		if (_size <= MMSTR__GET_SMALL_BUF_MAX_SIZE)
 		{
 			return MemeStringSmall_resizeWithByte((MemeStringSmall_t*)_s, _size, _byte);
 		}
@@ -535,7 +535,7 @@ MEME_STDCALL MemeVariableBuffer_resizeWithByte(MemeVariableBuffer_t _s, MemeInte
 			return MemeStringMedium_resizeWithByte((MemeStringMedium_t*)_s, _size, _byte);
 		}
 	} break;
-	case MemeString_StorageType_medium:
+	case MemeString_ImplType_medium:
 	{
 		return MemeStringMedium_resizeWithByte((MemeStringMedium_t*)_s, _size, _byte);
 	} break;
@@ -554,7 +554,7 @@ MEME_STDCALL MemeVariableBuffer_remove(
     MemeString_t s = (MemeString_t)_s;
 
     assert(s != NULL && MemeVariableBuffer_remove);
-    assert(MemeStringImpl_isModifiableType(MMS__GET_TYPE(s)) == 1);
+    assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE(s)) == 1);
 
 	if (_pos < 0)
 		_pos = 0;
@@ -562,12 +562,12 @@ MEME_STDCALL MemeVariableBuffer_remove(
 	if (_count == 0)
 		return 0;
 
-    switch (MMS__GET_TYPE(s)) {
-    case MemeString_StorageType_small:
+    switch (MMSTR__GET_IMPLTYPE(s)) {
+    case MemeString_ImplType_small:
     {
 		return MemeStringSmall_remove ((MemeStringSmall_t*)_s, _pos, _count);
     } break;
-    case MemeString_StorageType_medium:
+    case MemeString_ImplType_medium:
     {
         return MemeStringMedium_remove((MemeStringMedium_t*)_s, _pos, _count);
     } break;
@@ -588,9 +588,9 @@ MEME_STDCALL MemeVariableBuffer_releaseToBuffer(
 	assert(s != NULL    && MemeVariableBuffer_releaseToBuffer);
 	assert(_out != NULL && MemeVariableBuffer_releaseToBuffer);
 
-	switch (MMS__GET_TYPE(s))
+	switch (MMSTR__GET_IMPLTYPE(s))
 	{
-	case MemeString_StorageType_small:
+	case MemeString_ImplType_small:
 	{
 		MemeBufferStack_initByBytes(
 			_out, MEME_STRING__OBJECT_SIZE, 
@@ -598,13 +598,13 @@ MEME_STDCALL MemeVariableBuffer_releaseToBuffer(
 		MemeStringSmall_clear(&(s->small_));
 		return 0;
 	} break;
-	case MemeString_StorageType_medium:
+	case MemeString_ImplType_medium:
 	{
 		MemeByte_t* data_pointer = s->medium_.real_;
 		int result = MemeStringLarge_initAndTakeover(
 			(MemeStringLarge_t*)_out, data_pointer,
-			MemeStringMedium_realByteSize(&(s->medium_)),
-			s->medium_.front_capacity_, s->medium_.size_
+			MemeStringMedium_realByteSize (&(s->medium_)),
+			MemeStringMedium_frontCapacity(&(s->medium_)), s->medium_.size_
 		);
 		if (result)
 			return result;
@@ -630,22 +630,22 @@ MEME_STDCALL MemeVariableBuffer_releaseToString(
 	assert(s != NULL    && MemeVariableBuffer_releaseToString);
 	assert(_out != NULL && MemeVariableBuffer_releaseToString);
 
-	switch (MMS__GET_TYPE(s))
+	switch (MMSTR__GET_IMPLTYPE(s))
 	{
-	case MemeString_StorageType_small:
+	case MemeString_ImplType_small:
 	{
 		memcpy(_out, &(s->small_), MEME_STRING__OBJECT_SIZE);
 		MemeStringSmall_shrinkTailZero((MemeStringSmall_t*)_out);
 		MemeStringSmall_clear(&(s->small_));
 		return 0;
 	} break;
-	case MemeString_StorageType_medium:
+	case MemeString_ImplType_medium:
 	{
 		MemeByte_t* data_pointer = s->medium_.real_;
 		int result = MemeStringLarge_initAndTakeover(
 			(MemeStringLarge_t*)_out, data_pointer,
-			MemeStringMedium_realByteSize(&(s->medium_)),
-			s->medium_.front_capacity_, s->medium_.size_
+			MemeStringMedium_realByteSize (&(s->medium_)),
+			MemeStringMedium_frontCapacity(&(s->medium_)), s->medium_.size_
 		);
 		if (result)
 			return result;
@@ -680,7 +680,7 @@ MEME_STDCALL MemeVariableBuffer_reserve(MemeVariableBuffer_t _s, MemeInteger_t _
 {
 	assert(_s != NULL && MemeVariableBuffer_reserve);
 	assert(_size >= 0 && MemeVariableBuffer_reserve);
-	assert(MemeStringImpl_isModifiableType(MMS__GET_TYPE((MemeString_t)_s)) == 1);
+	assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE((MemeString_t)_s)) == 1);
 
 	return MemeStringImpl_capacityExpansionWithModifiable((MemeStringStack_t*)_s, _size);
 }
@@ -688,7 +688,7 @@ MEME_STDCALL MemeVariableBuffer_reserve(MemeVariableBuffer_t _s, MemeInteger_t _
 MEME_API MemeInteger_t MEME_STDCALL MemeVariableBuffer_selfChop(MemeVariableBuffer_t _s, MemeInteger_t _n)
 {
 	assert(_s != NULL && MemeVariableBuffer_selfChop);
-	assert(MemeStringImpl_isModifiableType(MMS__GET_TYPE((MemeString_t)_s)) == 1);
+	assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE((MemeString_t)_s)) == 1);
 
 	if (_n <= 0)
 		return 0;
@@ -698,13 +698,13 @@ MEME_API MemeInteger_t MEME_STDCALL MemeVariableBuffer_selfChop(MemeVariableBuff
 		return 0;
 	}
 
-	switch (MMS__GET_TYPE((MemeString_t)_s)) 
+	switch (MMSTR__GET_IMPLTYPE((mmstr_cptr_t)_s)) 
 	{
-	case MemeString_StorageType_small: 
+	case MemeString_ImplType_small:
 	{
 		MemeStringSmall_byteSizeOffsetAndSetZero(&(((MemeString_t)_s)->small_), _n);
 	} break;
-	case MemeString_StorageType_medium:
+	case MemeString_ImplType_medium:
 	{
 		MemeStringMedium_byteSizeOffsetAndSetZero(&(((MemeString_t)_s)->medium_), _n);
 	} break;

@@ -6,13 +6,14 @@ int MemeStringSmall_initByU8bytes(
 	MemeStringSmall_t* _s, const MemeByte_t* _utf8, size_t _len)
 {
 	assert(_s);
-	assert(_len <= MMS__GET_SMALL_BUFFER_SIZE);
+	assert(_len <= MMSTR__GET_SMALL_BUF_MAX_SIZE);
 
 	if (_utf8) {
 		memcpy(_s->buffer_, _utf8, _len);
+		_s->reg_size_ = MMSTR__OBJ_REG_SIZE;
 		_s->buffer_[_len] = '\0';
 		_s->type_ = MemeString_ImplType_small;
-		_s->capacity_ = (uint8_t)(MMS__GET_SMALL_BUFFER_SIZE - _len);
+		_s->capacity_ = (uint8_t)(MMSTR__GET_SMALL_BUF_MAX_SIZE - _len);
 	}
 	else {
 		MemeStringSmall_clear(_s);
@@ -32,9 +33,10 @@ int MemeStringSmall_clear(MemeStringSmall_t* _s)
 {
 	assert(_s);
 
+	_s->reg_size_ = MMSTR__OBJ_REG_SIZE;
 	_s->buffer_[0] = 0;
 	_s->type_ = MemeString_ImplType_small;
-	_s->capacity_ = MMS__GET_SMALL_BUFFER_SIZE;
+	_s->capacity_ = MMSTR__GET_SMALL_BUF_MAX_SIZE;
 	return 0;
 }
 
@@ -93,7 +95,7 @@ void MemeStringSmall_shrinkTailZero(MemeStringSmall_t* _s)
 
 mgec_t MemeStringSmall_resizeAndOverwrite(MemeStringSmall_t* _s, mmint_t _size)
 {
-	assert(_size > MMS__GET_SMALL_BUFFER_SIZE && "MemeStringSmall_resizeAndOverwrite");
+	assert(_size > MMSTR__GET_SMALL_BUF_MAX_SIZE && "MemeStringSmall_resizeAndOverwrite");
 
 	MemeStringSmall_byteSizeOffsetAndSetZero(_s, _size - (MemeStringSmall_byteSize(_s)));
 	return 0;

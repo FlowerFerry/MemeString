@@ -113,7 +113,7 @@ extern "C" {
     #endif
     }
 
-    MG_CAPI_INLINE mgec_t mgu_ctime_s(char *_buf, mgu_time_t _bufsz, const mgu_time_t *_time)
+    MG_CAPI_INLINE mgec_t mgu_ctime_s(char *_buf, size_t _bufsz, const mgu_time_t *_time)
     {
     #if MG_OS__WIN_AVAIL
         return ctime_s(_buf, _bufsz, _time);

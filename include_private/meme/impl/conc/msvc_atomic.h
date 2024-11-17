@@ -351,7 +351,7 @@ MG_CAPI_INLINE int64_t __mmconc_msvc_atmc_load_relaxed_64(const volatile int64_t
 #elif defined(_M_ARM64)
     return __iso_volatile_load64(_source);
 #else
-    return _InterlockedCompareExchange64(_source, 0, 0);
+    return _InterlockedCompareExchange64((volatile int64_t*)_source, 0, 0);
 #endif
 }
 
@@ -368,7 +368,7 @@ MG_CAPI_INLINE int64_t __mmconc_msvc_atmc_load_seq_cst_64(const volatile int64_t
     result = __iso_volatile_load64(_source);
     __mmconc_msvc_atmc_compiler_or_memory_barrier();
 #else
-    result = _InterlockedCompareExchange64(_source, 0, 0);
+    result = _InterlockedCompareExchange64((volatile int64_t*)_source, 0, 0);
 #endif
     return result;
 }
@@ -465,7 +465,7 @@ MG_CAPI_INLINE void __mmconc_msvc_atmc_store_relaxed_64(volatile int64_t* _targe
 #elif defined(_M_ARM64)
     __iso_volatile_store64(_target, _value);
 #else
-    __MMCONC_MSVC_ATMC_INTRIN_RELAXED(_InterlockedExchange64)(_target, _value);
+    __MMCONC_MSVC_ATMC_INTRIN_RELAXED(InterlockedExchange64)(_target, _value);
 #endif
 }
 
@@ -478,7 +478,7 @@ MG_CAPI_INLINE void __mmconc_msvc_atmc_store_release_64(volatile int64_t* _targe
     __mmconc_msvc_atmc_compiler_or_memory_barrier();
     __iso_volatile_store64(_target, _value);
 #else
-    __MMCONC_MSVC_ATMC_INTRIN_RELEASE(_InterlockedExchange64)(_target, _value);
+    __MMCONC_MSVC_ATMC_INTRIN_RELEASE(InterlockedExchange64)(_target, _value);
 #endif
 }
 
@@ -489,7 +489,7 @@ MG_CAPI_INLINE void __mmconc_msvc_atmc_store_seq_cst_64(volatile int64_t* _targe
     __iso_volatile_store64(_target, _value);
     __mmconc_msvc_atmc_compiler_or_memory_barrier();
 #else
-    _InterlockedExchange64(_target, _value);
+    InterlockedExchange64(_target, _value);
 #endif
 }
 
@@ -949,7 +949,7 @@ MG_CAPI_INLINE int64_t mmconc_msvc_atmc_i64_fetch_add_explicit(
     volatile mmconc_msvc_atmc_i64_t* _obj, int64_t _arg, mmconc_memory_order_e _order)
 {
     int64_t ret;
-    __MMCONC_MSVC_ATMC_CHOOSE_INTRINSIC(_order, ret, _InterlockedExchangeAdd64, _obj, _arg);
+    __MMCONC_MSVC_ATMC_CHOOSE_INTRINSIC(_order, ret, InterlockedExchangeAdd64, _obj, _arg);
     return ret;
 }
 
@@ -1067,7 +1067,7 @@ MG_CAPI_INLINE int64_t mmconc_msvc_atmc_i64_fetch_and_explicit(
     volatile mmconc_msvc_atmc_i64_t* _obj, int64_t _arg, mmconc_memory_order_e _order)
 {
     int64_t ret;
-    __MMCONC_MSVC_ATMC_CHOOSE_INTRINSIC(_order, ret, _InterlockedAnd64, _obj, _arg);
+    __MMCONC_MSVC_ATMC_CHOOSE_INTRINSIC(_order, ret, InterlockedAnd64, _obj, _arg);
     return ret;
 }
 
@@ -1132,7 +1132,7 @@ MG_CAPI_INLINE int64_t mmconc_msvc_atmc_i64_fetch_or_explicit(
     volatile mmconc_msvc_atmc_i64_t* _obj, int64_t _arg, mmconc_memory_order_e _order)
 {
     int64_t ret;
-    __MMCONC_MSVC_ATMC_CHOOSE_INTRINSIC(_order, ret, _InterlockedOr64, _obj, _arg);
+    __MMCONC_MSVC_ATMC_CHOOSE_INTRINSIC(_order, ret, InterlockedOr64, _obj, _arg);
     return ret;
 }
 
@@ -1197,7 +1197,7 @@ MG_CAPI_INLINE int64_t mmconc_msvc_atmc_i64_fetch_xor_explicit(
     volatile mmconc_msvc_atmc_i64_t* _obj, int64_t _arg, mmconc_memory_order_e _order)
 {
     int64_t ret;
-    __MMCONC_MSVC_ATMC_CHOOSE_INTRINSIC(_order, ret, _InterlockedXor64, _obj, _arg);
+    __MMCONC_MSVC_ATMC_CHOOSE_INTRINSIC(_order, ret, InterlockedXor64, _obj, _arg);
     return ret;
 }
 

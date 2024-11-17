@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEME_STRING_BUILDER_FWD_H_INCLUDED
 #define MEME_STRING_BUILDER_FWD_H_INCLUDED
 
@@ -14,10 +14,14 @@ typedef const struct _MemeStringBuilder_t* mmsbldr_const_t;
 typedef struct _MemeStringBuilder_t* mmsbldr_ptr_t;
 typedef const struct _MemeStringBuilder_t* mmsbldr_cptr_t;
 
+#ifndef MMSBLDR__OBJ_REG_SIZE
+#define MMSBLDR__OBJ_REG_SIZE (4)
+#endif
+
 #ifdef MEME_STRING_BUILDER__OBJECT_SIZE
 #undef MEME_STRING_BUILDER__OBJECT_SIZE
 #endif
-#define MEME_STRING_BUILDER__OBJECT_SIZE (sizeof(mmint_t) * 4)
+#define MEME_STRING_BUILDER__OBJECT_SIZE (sizeof(mmint_t) * MMSBLDR__OBJ_REG_SIZE)
 
 #ifndef MMSBLDR__OBJ_SIZE
 #define MMSBLDR__OBJ_SIZE MEME_STRING_BUILDER__OBJECT_SIZE

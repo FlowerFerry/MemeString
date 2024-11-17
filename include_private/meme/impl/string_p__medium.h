@@ -19,16 +19,46 @@ extern "C" {
 int 
 MemeStringMedium_canBeAppendIt(const MemeStringMedium_t* _s, MemeInteger_t _buflen);
 
+MG_CAPI_INLINE mmint_t 
+MemeStringMedium_frontCapacity(const MemeStringMedium_t* _s)
+{
+#if INTPTR_MAX == INT32_MAX
+	return 0;
+#else
+	return _s->front_capacity_;
+#endif
+}
+
+MG_CAPI_INLINE void MemeStringMedium_setFrontCapacity(MemeStringMedium_t* _s, mmint_t _v)
+{
+#if INTPTR_MAX > INT32_MAX
+    _s->front_capacity_ = _v;
+#endif
+}
+
+MG_CAPI_INLINE void MemeStringMedium_modifyFrontCapacity(MemeStringMedium_t* _s, mmint_t _v)
+{
+#if INTPTR_MAX > INT32_MAX
+    _s->front_capacity_ += _v;
+#endif
+}
+
+MG_CAPI_INLINE mmint_t
+MemeStringMedium_usedByteFrontCapacity(const MemeStringMedium_t* _s)
+{
+	return MMSTR__GET_MEDIUM_FRONT_CAP_MAX_SIZE - MemeStringMedium_frontCapacity(_s);
+}
+
 MG_CAPI_INLINE const uint8_t*
 MemeStringMedium_constData(const MemeStringMedium_t* _s)
 {
-	return _s->real_ + _s->front_capacity_;
+	return _s->real_ + MemeStringMedium_frontCapacity(_s);
 }
 
 MG_CAPI_INLINE uint8_t*
 MemeStringMedium_data(MemeStringMedium_t* _s)
 {
-	return _s->real_ + _s->front_capacity_;
+	return _s->real_ + MemeStringMedium_frontCapacity(_s);
 }
 
 MG_CAPI_INLINE uint8_t*
@@ -46,7 +76,7 @@ MemeStringMedium_maxByteSize(const MemeStringMedium_t* _s)
 MG_CAPI_INLINE mmint_t
 MemeStringMedium_realByteSize(const MemeStringMedium_t* _s)
 {
-	return _s->front_capacity_ + _s->size_ + _s->capacity_;
+	return MemeStringMedium_frontCapacity(_s) + _s->size_ + _s->capacity_;
 }
 
 MG_CAPI_INLINE mmint_t
@@ -59,12 +89,6 @@ MG_CAPI_INLINE mmint_t
 MemeStringMedium_maxByteCapacity(const MemeStringMedium_t* _s)
 {
 	return _s->size_ + MemeStringMedium_availableByteCapacity(_s);
-}
-
-MG_CAPI_INLINE mmint_t
-MemeStringMedium_usedByteFrontCapacity(const MemeStringMedium_t* _s)
-{
-	return MMS__GET_MEDIUM_FRONT_CAPACITY_MAX_VALUE - _s->front_capacity_;
 }
 
 MG_CAPI_INLINE void

@@ -33,7 +33,7 @@ MemeStringSmall_clear(MemeStringSmall_t* _s);
 MG_CAPI_INLINE int
 MemeStringSmall_isEmpty(const MemeStringSmall_t* _s)
 {
-	return MMS__GET_SMALL_BUFFER_SIZE == _s->capacity_;
+	return MMSTR__GET_SMALL_BUF_MAX_SIZE == _s->capacity_;
 }
 
 MG_CAPI_INLINE const char*
@@ -51,7 +51,7 @@ MemeStringSmall_byteData(const MemeStringSmall_t* _s)
 MG_CAPI_INLINE mmint_t
 MemeStringSmall_byteSize(const MemeStringSmall_t* _s)
 {
-	return MMS__GET_SMALL_BUFFER_SIZE - _s->capacity_;
+	return MMSTR__GET_SMALL_BUF_MAX_SIZE - _s->capacity_;
 }
 
 MG_CAPI_INLINE mmint_t

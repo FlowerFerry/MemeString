@@ -204,9 +204,9 @@ MEME_STDCALL MemeBufferViewUnsafeStack_init(
 	
     if (_buf == NULL)
 	{
+		p->reg_size_ = (mmbyte_t)(_object_size / sizeof(mmint_t));
         p->data_ = NULL;
         p->size_ = 0;
-        p->__res__ = 0;
         p->type_ = MemeBuffer_UnsafeStorageType_view;
         return 0;
     }
@@ -214,10 +214,10 @@ MEME_STDCALL MemeBufferViewUnsafeStack_init(
 	if (_len < 0)
 		_len = strlen((const char*)_buf);
 	
-	p->data_   = _buf;
-	p->size_   = _len;
-	p->__res__ = 0;
-	p->type_   = MemeBuffer_UnsafeStorageType_view;
+	p->reg_size_ = (mmbyte_t)(_object_size / sizeof(mmint_t));
+	p->data_ = _buf;
+	p->size_ = _len;
+	p->type_ = MemeBuffer_UnsafeStorageType_view;
 	return 0;
 }
 
@@ -233,9 +233,9 @@ MEME_STDCALL MemeBufferViewUnsafeStack_initByOther(
 	assert(_self != NULL  && MemeBufferViewUnsafeStack_initByOther);
 	assert(_other != NULL && MemeBufferViewUnsafeStack_initByOther);
 
-	if (MMS__GET_TYPE((MemeString_t)_other) == MemeString_ImplType_view)
+	if (MMSTR__GET_IMPLTYPE((mmstr_cptr_t)_other) == MemeString_ImplType_view)
 	{
-		memcpy(_self, _other, MEME_STRING__OBJECT_SIZE);
+		memcpy(_self, _other, MMSTR__OBJ_SIZE);
 		return 0;
 	}
 	else if (MemeString_isSharedStorageTypes((MemeString_t)_other) == 1)
@@ -282,7 +282,7 @@ MEME_STDCALL MemeBufferViewUnsafeStack_assignByOther(
 	assert(_self != NULL  && MemeStringViewUnsafeStack_assignByOther);
 	assert(_other != NULL && MemeStringViewUnsafeStack_assignByOther);
 
-	if (MMS__GET_TYPE((MemeString_t)_other) == MemeString_ImplType_view)
+	if (MMSTR__GET_IMPLTYPE((mmstr_cptr_t)_other) == MemeString_ImplType_view)
 	{
 		int result = MemeStringStack_unInit(s, sizeof(MemeStringStack_t));
 		if (result)
