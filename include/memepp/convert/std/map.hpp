@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEMEPP_CONVERT_STD_UNORDERED_MAP_HPP_INCLUDED
 #define MEMEPP_CONVERT_STD_UNORDERED_MAP_HPP_INCLUDED
 
@@ -34,9 +34,9 @@ namespace convert {
         const _Map<_Key, _Value, _MapArgs...>& _map, 
         const _KeyParameter& _key, const memepp::string_view& _default)
     {
-        static_assert(std::is_same_v<_Value, memepp::string>, 
+        static_assert(std::is_same<_Value, memepp::string>::value, 
             "The value type of the map must be memepp::string");
-        static_assert(std::is_convertible_v<_KeyParameter, _Key>, 
+        static_assert(std::is_convertible<_KeyParameter, _Key>::value,
             "The key parameter must be convertible to the key type of the map");
 
         auto it = _map.find(_key);

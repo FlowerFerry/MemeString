@@ -277,7 +277,7 @@ namespace memepp {
 		//! \param _inserter The inserter to insert the result.
 		//! \return The error code.
 		template<template<class> class _Container,
-            typename = std::enable_if_t<std::is_same_v<string, typename _Container<string>::value_type>>>
+            typename = std::enable_if_t<std::is_same<string, typename _Container<string>::value_type>::value>>
 		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string>> _inserter) const;
 
@@ -291,7 +291,7 @@ namespace memepp {
 		//! \param _inserter The inserter to insert the result.
 		//! \return The error code.
 		template<template<class> class _Container,
-            typename = std::enable_if_t<std::is_same_v<string_view, typename _Container<string_view>::value_type>>>
+            typename = std::enable_if_t<std::is_same<string_view, typename _Container<string_view>::value_type>::value>>
 		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string_view>> _inserter) const MEGOPP__NOEXCEPT;
 
@@ -305,13 +305,13 @@ namespace memepp {
 		//! \param _inserter The inserter to insert the result.
 		//! \return The error code.
 		template<template<class, class...> class _Container, class... _Arg,
-            typename = std::enable_if_t<std::is_same_v<string, typename _Container<string, _Arg...>::value_type>>>
+            typename = std::enable_if_t<std::is_same<string, typename _Container<string, _Arg...>::value_type>::value>>
 		inline MemeInteger_t split(
 			string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string, _Arg...>> _inserter) const;
 
 		template<template<class, class...> class _Container, class... _Arg,
-			typename = std::enable_if_t<std::is_same_v<string, typename _Container<string, _Arg...>::value_type>>>
+			typename = std::enable_if_t<std::is_same<string, typename _Container<string, _Arg...>::value_type>::value>>
 		inline mmint_t split(
 			string_view _key, 
 			std::back_insert_iterator<_Container<string, _Arg...>> _inserter) const;
@@ -322,13 +322,13 @@ namespace memepp {
 		//! \param _inserter The inserter to insert the result.
 		//! \return The error code.
 		template<template<class, class...> class _Container, class... _Arg,
-            typename = std::enable_if_t<std::is_same_v<string_view, typename _Container<string_view, _Arg...>::value_type>>>
+            typename = std::enable_if_t<std::is_same<string_view, typename _Container<string_view, _Arg...>::value_type>::value>>
 		inline MemeInteger_t split(
 			string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const MEGOPP__NOEXCEPT;
 		
 		template<template<class, class...> class _Container, class... _Arg,
-            typename = std::enable_if_t<std::is_same_v<string_view, typename _Container<string_view, _Arg...>::value_type>>>
+            typename = std::enable_if_t<std::is_same<string_view, typename _Container<string_view, _Arg...>::value_type>::value>>
 		inline mmint_t split(
 			string_view _key, 
 			std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const MEGOPP__NOEXCEPT;
