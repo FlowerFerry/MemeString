@@ -493,6 +493,11 @@ MEME_API int MEME_STDCALL MemeVariantStack_regSize(const mmvarstk_t* _obj)
     return ((mmvar_cptr_t)_obj)->reg_size;
 }
 
+MEME_API int MEME_STDCALL MemeVariantStack_objSize(const mmvarstk_t* _obj)
+{
+    return ((mmvar_cptr_t)_obj)->reg_size * sizeof(void*);
+}
+
 MEME_API MemeMetaTypeId_t MEME_STDCALL
     MemeVariantStack_typeId(
         const mmvarstk_t* _obj, size_t _object_size)

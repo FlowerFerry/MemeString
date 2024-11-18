@@ -59,6 +59,9 @@ MEME_STDCALL MemeBufferStack_assign(
 MEME_API int
 MEME_STDCALL MemeBufferStack_regSize(const mmbufstk_t* _obj);
 
+MEME_API int
+MEME_STDCALL MemeBufferStack_objSize(const mmbufstk_t* _obj);
+
 
 MEME_API MemeBuffer_Storage_t
 MEME_STDCALL MemeBuffer_storageType(MemeBuffer_Const_t _s);

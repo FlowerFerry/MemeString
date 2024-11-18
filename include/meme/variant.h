@@ -96,6 +96,9 @@ MEME_API mgec_t MEME_STDCALL
 MEME_API int MEME_STDCALL 
     MemeVariantStack_regSize(const mmvarstk_t* _obj);
 
+MEME_API int MEME_STDCALL 
+    MemeVariantStack_objSize(const mmvarstk_t* _obj);
+
 //! @param _obj must be initialized
 MEME_API MemeMetaTypeId_t MEME_STDCALL
     MemeVariantStack_typeId(

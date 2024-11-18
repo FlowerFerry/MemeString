@@ -115,6 +115,9 @@ MEME_STDCALL MemeStringStack_assignByBuffer(
 MEME_API int
 MEME_STDCALL MemeStringStack_regSize(const mmstrstk_t* _str);
 
+MEME_API int
+MEME_STDCALL MemeStringStack_objSize(const mmstrstk_t* _str);
+
 //! @param _s The string stack object, must be initialized.
 //! @deprecated 将来可能会有ABI问题
 MEME_API mmsstk_t

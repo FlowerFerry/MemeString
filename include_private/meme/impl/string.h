@@ -266,12 +266,12 @@ MemeStringImpl_initSuggestType(
 int 
 MemeStringImpl_isModifiableType(MemeString_ImplType_t _type);
 
-MG_CAPI_INLINE mmint_t MemeStringImpl_objRegSize(mmstr_cptr_t _str)
+MG_CAPI_INLINE int MemeStringImpl_objRegSize(mmstr_cptr_t _str)
 {
 	return _str->none_.reg_size_;
 }
 
-MG_CAPI_INLINE mmint_t MemeStringImpl_objByteSize(mmstr_cptr_t _str)
+MG_CAPI_INLINE int MemeStringImpl_objByteSize(mmstr_cptr_t _str)
 {
     return _str->none_.reg_size_ * sizeof(mmint_t);
 }

@@ -92,6 +92,11 @@ MEME_API int MEME_STDCALL MemeVariableBufferStack_regSize(const mmvbstk_t* _obj)
 	return MemeStringStack_regSize((const mmstrstk_t*)_obj);
 }
 
+MEME_API int MEME_STDCALL MemeVariableBufferStack_objSize(const mmvbstk_t* _obj)
+{
+    return MemeStringStack_objSize((const mmstrstk_t*)_obj);
+}
+
 
 MEME_API MemeVariableBuffer_Storage_t
 MEME_STDCALL MemeVariableBuffer_storageType(MemeVariableBuffer_Const_t _s)
