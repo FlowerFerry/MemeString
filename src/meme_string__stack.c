@@ -571,42 +571,111 @@ MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL
 MemeStringStack_mid(
 	const mmsstk_t* _s, size_t _object_size, MemeInteger_t _offset, MemeInteger_t _len)
 {
-	mmsstk_t out;
-    mms_t obj = NULL;
-	MemeInteger_t srcSize = 0;
+	mmstrstk_t out;
 
     assert(_s != NULL && MemeStringStack_mid != NULL);
     assert(_object_size != 0 && MemeStringStack_mid != NULL);
 
-    obj = (mms_t)_s;
-    srcSize = MemeString_byteSize(obj);
-    if ((_offset > srcSize))
-        return mmstrstk_get_init_v0(_object_size);
-	
-    if ((_len < 0))
-        _len = srcSize - _offset;
-    else if ((_len > srcSize - _offset))
-        _len = srcSize - _offset;
+	MemeStringStack_mid_v2(_s, _offset, _len, &out, MMSTR__OBJ_SIZE);
+	return out;
 
-    if (MemeString_isSharedStorageTypes(obj) && _len + _offset == srcSize)
-    {
-		int eno = MemeStringStack_initByOther(&out, _object_size, obj);
-		if (eno)
-			return mmstrstk_get_init_v0(_object_size);
-		MemeStringImpl_setDataOffset(&out, _offset);
-    }
-	else if (MMSTR__GET_IMPLTYPE(obj) == MemeString_ImplType_view)
+ //   obj = (mms_t)_s;
+ //   srcSize = MemeString_byteSize(obj);
+ //   if ((_offset > srcSize))
+ //       return mmstrstk_get_init_v0(_object_size);
+	//
+ //   if ((_len < 0))
+ //       _len = srcSize - _offset;
+ //   else if ((_len > srcSize - _offset))
+ //       _len = srcSize - _offset;
+
+ //   if (MemeString_isSharedStorageTypes(obj) && _len + _offset == srcSize)
+ //   {
+	//	int eno = MemeStringStack_initByOther(&out, _object_size, obj);
+	//	if (eno)
+	//		return mmstrstk_get_init_v0(_object_size);
+	//	MemeStringImpl_setDataOffset(&out, _offset);
+ //   }
+	//else if (MMSTR__GET_IMPLTYPE(obj) == MemeString_ImplType_view)
+	//{
+ //       MemeStringViewUnsafeStack_init(&out, _object_size,
+ //           MemeString_byteData(obj) + _offset, _len);
+	//}
+	//else {
+ //       int eno = MemeStringStack_initByU8bytes(&out, _object_size,
+ //           MemeString_byteData(obj) + _offset, _len);
+ //       if (eno)
+ //           return mmstrstk_get_init_v0(_object_size);
+	//}
+ //   return out;
+}
+
+MEME_API mgec_t 
+MEME_STDCALL MemeStringStack_mid_v2(
+	const mmstrstk_t* _str, mmint_t _offset, mmint_t _count, mmstrstk_t* _out, mmint_t _obj_size)
+{
+	mmstr_cptr_t str = (mmstr_cptr_t)_str;
+	mmint_t srcSize = 0;
+
+	assert(_str != NULL && "MemeStringStack_mid_v2");
+	assert(_out != NULL && "MemeStringStack_mid_v2");
+
+	if (MG_SYM__UNLIKELY(_offset < 0))
+		_offset = 0;
+
+	srcSize = MemeString_byteSize(str);
+	if (MG_SYM__UNLIKELY(_offset > srcSize))
 	{
-        MemeStringViewUnsafeStack_init(&out, _object_size,
-            MemeString_byteData(obj) + _offset, _len);
+		if (_obj_size > 0)
+			return mmstrstk_init_v0 (_out, (size_t)_obj_size);
+		else
+			return mmstrstk_reset_v0(
+				_out, (size_t)MemeStringImpl_objByteSize((mmstr_cptr_t)_out));
+	}
+	
+	if (_count < 0)
+		_count = srcSize - _offset;
+	else if (_count > srcSize - _offset)
+		_count = srcSize - _offset;
+
+	if (MemeString_isSharedStorageTypes(str) && _offset == 0 && _count + _offset == srcSize)
+	{
+		mgec_t eno = 0;
+		if (_obj_size > 0)
+			eno = MemeStringStack_initByOther(_out, (size_t)_obj_size, str);
+		else
+			eno = MemeStringStack_assign(
+				_out, (size_t)MemeStringImpl_objByteSize((mmstr_cptr_t)_out), str);
+		if (eno)
+			return eno;
+		MemeStringImpl_setDataOffset(_out, _offset);
+	}
+	else if (MMSTR__GET_IMPLTYPE(str) == MemeString_ImplType_view)
+	{
+		mgec_t eno = 0; 
+		if (_obj_size <= 0) {
+			_obj_size = MemeStringImpl_objByteSize((mmstr_cptr_t)_out);
+			eno = mmstrstk_uninit_v0(_out, (size_t)_obj_size);
+		}
+		if (eno)
+			return eno;
+		MemeStringViewUnsafeStack_init(
+			_out, (size_t)_obj_size, MemeString_byteData(str) + _offset, _count);
 	}
 	else {
-        int eno = MemeStringStack_initByU8bytes(&out, _object_size,
-            MemeString_byteData(obj) + _offset, _len);
-        if (eno)
-            return mmstrstk_get_init_v0(_object_size);
+		mgec_t eno = 0;
+		if (_obj_size > 0)
+			eno = MemeStringStack_initByU8bytes(
+				_out, (size_t)_obj_size, MemeString_byteData(str) + _offset, _count);
+		else
+			eno = MemeStringStack_assignByU8bytes(
+				_out, (size_t)MemeStringImpl_objByteSize((mmstr_cptr_t)_out), 
+				MemeString_byteData(str) + _offset, _count);
+		if (eno)
+			return eno;
 	}
-    return out;
+	
+	return 0;
 }
 
 MEME_EXTERN_C MEME_API mmstrstk_t MEME_STDCALL MemeStringStack_concat(
@@ -1250,13 +1319,12 @@ MemeStringStack_formatInCstyle_v2(
     return out;
 }
 
-MEME_API mmstrstk_t
+MEME_API mgec_t
 MEME_STDCALL MemeStringStack_join(
-	size_t _object_size, const char* _separator, mmint_t _separator_len, 
+	mmstrstk_t* _str, size_t _obj_size, const char* _separator, mmint_t _separator_len,
 	const mmstrstk_t* _items, mmint_t _item_count)
 {
-	//if (MG_SYM__UNLIKELY(_items == NULL))
-		return mmstrstk_get_init_v0(_object_size);
+	return MGEC__OPNOTSUPP;
 }
 
 MEME_EXTERN_C MEME_EXTERN_C MEME_API int 

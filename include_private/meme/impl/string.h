@@ -266,6 +266,16 @@ MemeStringImpl_initSuggestType(
 int 
 MemeStringImpl_isModifiableType(MemeString_ImplType_t _type);
 
+MG_CAPI_INLINE mmint_t MemeStringImpl_objRegSize(mmstr_cptr_t _str)
+{
+	return _str->none_.reg_size_;
+}
+
+MG_CAPI_INLINE mmint_t MemeStringImpl_objByteSize(mmstr_cptr_t _str)
+{
+    return _str->none_.reg_size_ * sizeof(mmint_t);
+}
+
 //int
 //MemeStringImpl_dumpToModifiable(const MemeStringStack_t* _s, MemeStringStack_t* _out);
 

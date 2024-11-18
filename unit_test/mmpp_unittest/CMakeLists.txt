@@ -32,6 +32,7 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_compare.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_frontback.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_split.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_mid.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_resize.cpp
 )
 
