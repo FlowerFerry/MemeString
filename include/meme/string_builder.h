@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEME_STRING_BUILDER_H_INCLUDED
 #define MEME_STRING_BUILDER_H_INCLUDED
 
@@ -40,6 +40,9 @@ MEME_API int
 	MEME_STDCALL MemeStringBuilderStack_swap(
 		MemeStringBuilderStack_t* _builder, 
 		MemeStringBuilderStack_t* _other, size_t _builder_size);
+
+MEME_API int
+MEME_STDCALL MemeStringBuilderStack_regSize(const mmsbldrstk_t* _obj);
 
 MEME_API int
 	MEME_STDCALL MemeStringBuilderStack_release(

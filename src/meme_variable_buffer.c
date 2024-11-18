@@ -87,6 +87,11 @@ MEME_STDCALL MemeVariableBufferStack_assign(
 	return MemeStringStack_assign((MemeStringStack_t*)_s, _object_size, (MemeString_Const_t)_other);
 }
 
+MEME_API int MEME_STDCALL MemeVariableBufferStack_regSize(const mmvbstk_t* _obj)
+{
+	return MemeStringStack_regSize((const mmstrstk_t*)_obj);
+}
+
 
 MEME_API MemeVariableBuffer_Storage_t
 MEME_STDCALL MemeVariableBuffer_storageType(MemeVariableBuffer_Const_t _s)

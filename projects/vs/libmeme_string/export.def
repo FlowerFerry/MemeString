@@ -415,4 +415,8 @@ EXPORTS
     mmmem_calloc @601
     mmmem_realloc @602
     mmmem_free @603
-    MemeString_regSize @3000
+    MemeStringStack_regSize @3000
+    MemeBufferStack_regSize @4000
+    MemeVariableBufferStack_regSize @5000
+    MemeStringBuilderStack_regSize @6000
+    MemeVariantStack_regSize @7000

@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEME_BUFFER_H_INCLUDED
 #define MEME_BUFFER_H_INCLUDED
 
@@ -55,6 +55,10 @@ MEME_STDCALL MemeBufferStack_reset(mmbufstk_t* _out, size_t _object_size);
 MEME_API int
 MEME_STDCALL MemeBufferStack_assign(
 	mmbufstk_t* _s, size_t _object_size, const MemeBufferStack_t* _other);
+
+MEME_API int
+MEME_STDCALL MemeBufferStack_regSize(const mmbufstk_t* _obj);
+
 
 MEME_API MemeBuffer_Storage_t
 MEME_STDCALL MemeBuffer_storageType(MemeBuffer_Const_t _s);

@@ -112,6 +112,9 @@ MEME_API int
 MEME_STDCALL MemeStringStack_assignByBuffer(
 	mmsstk_t* _out, size_t _object_size, MemeBuffer_Const_t _other, MemeInteger_t _offset);
 
+MEME_API int
+MEME_STDCALL MemeStringStack_regSize(const mmstrstk_t* _str);
+
 //! @param _s The string stack object, must be initialized.
 //! @deprecated 将来可能会有ABI问题
 MEME_API mmsstk_t
@@ -332,9 +335,6 @@ MEME_API int
 
 MEME_API int
 	MEME_STDCALL MemeString_isEmpty(MemeString_Const_t _s);
-
-MEME_API int
-	MEME_STDCALL MemeString_regSize(mmstr_cptr_t _str);
 
 MEME_API const char* 
 	MEME_STDCALL MemeString_cStr(MemeString_Const_t _s);

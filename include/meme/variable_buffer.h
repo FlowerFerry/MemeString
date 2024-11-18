@@ -38,6 +38,9 @@ MEME_API int
 MEME_STDCALL MemeVariableBufferStack_assign(
 	mmvbstk_t* _s, size_t _object_size, const mmvbstk_t* _other);
 
+MEME_API int
+MEME_STDCALL MemeVariableBufferStack_regSize(const mmvbstk_t* _obj);
+
 MEME_API MemeVariableBuffer_Storage_t
 MEME_STDCALL MemeVariableBuffer_storageType(MemeVariableBuffer_Const_t _s);
 

@@ -259,6 +259,12 @@ MEME_API int MEME_STDCALL MemeStringBuilderStack_swap(
 	return 0;
 }
 
+MEME_API int MEME_STDCALL MemeStringBuilderStack_regSize(const mmsbldrstk_t* _obj)
+{
+    assert(_obj && "MemeStringBuilderStack_regSize");
+    return ((mmsbldr_cptr_t)_obj)->reg_size_;
+}
+
 MEME_API int MEME_STDCALL 
 MemeStringBuilder_generate(mmsbldr_const_t _builder, mms_t _out)
 {

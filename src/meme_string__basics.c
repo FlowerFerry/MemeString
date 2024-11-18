@@ -307,12 +307,6 @@ MEME_API int MEME_STDCALL MemeString_isEmpty(MemeString_Const_t _s)
 	return MemeString_isNonempty(_s) == 0;
 }
 
-MEME_API int MEME_STDCALL MemeString_regSize(mmstr_cptr_t _str)
-{
-    assert(_str && "MemeString_regSize");
-    return _str->none_.reg_size_;
-}
-
 MEME_EXTERN_C MEME_API const char *MEME_STDCALL MemeString_cStr(MemeString_Const_t _s)
 {
 	assert(_s != NULL && MemeString_cStr);

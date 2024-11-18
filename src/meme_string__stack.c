@@ -567,6 +567,12 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_assignByBuffer(
 	return MemeStringStack_initByBuffer(_s, sizeof(mmsstk_t), _other, _offset);
 }
 
+MEME_API int MEME_STDCALL MemeStringStack_regSize(const mmstrstk_t* _str)
+{
+	assert(_str && "MemeString_regSize");
+	return MemeStringImpl_objRegSize((mmstr_cptr_t)_str);
+}
+
 MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL
 MemeStringStack_mid(
 	const mmsstk_t* _s, size_t _object_size, MemeInteger_t _offset, MemeInteger_t _len)

@@ -488,6 +488,11 @@ MEME_API mgec_t MEME_STDCALL
     return MemeVariantStack_init(_obj, _object_size);
 }
 
+MEME_API int MEME_STDCALL MemeVariantStack_regSize(const mmvarstk_t* _obj)
+{
+    return ((mmvar_cptr_t)_obj)->reg_size;
+}
+
 MEME_API MemeMetaTypeId_t MEME_STDCALL
     MemeVariantStack_typeId(
         const mmvarstk_t* _obj, size_t _object_size)
