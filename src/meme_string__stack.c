@@ -1321,7 +1321,7 @@ MemeStringStack_formatInCstyle_v2(
 
 MEME_API mgec_t
 MEME_STDCALL MemeStringStack_join(
-	mmstrstk_t* _str, size_t _obj_size, const char* _separator, mmint_t _separator_len,
+	mmstrstk_t* _str, mmint_t _obj_size, const char* _separator, mmint_t _separator_len,
 	const mmstrstk_t* _items, mmint_t _item_count)
 {
 	return MGEC__OPNOTSUPP;
