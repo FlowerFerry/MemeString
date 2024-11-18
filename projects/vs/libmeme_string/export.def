@@ -415,3 +415,4 @@ EXPORTS
     mmmem_calloc @601
     mmmem_realloc @602
     mmmem_free @603
+    MemeString_regSize @3000

@@ -333,6 +333,9 @@ MEME_API int
 MEME_API int
 	MEME_STDCALL MemeString_isEmpty(MemeString_Const_t _s);
 
+MEME_API int
+	MEME_STDCALL MemeString_regSize(mmstr_cptr_t _str);
+
 MEME_API const char* 
 	MEME_STDCALL MemeString_cStr(MemeString_Const_t _s);
 
@@ -377,7 +380,7 @@ MEME_API int
 	MEME_STDCALL MemeString_isEqualWithOther(
 		MemeString_Const_t _lhs, MemeString_Const_t _rhs, int* _result);
 
-//! deprecated
+//! @deprecated 函数名有歧义，不建议使用。
 MEME_API int
 	MEME_STDCALL MemeString_containsOnlyAscii(mmstr_cptr_t _s, int* _result);
 
