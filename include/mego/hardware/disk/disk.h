@@ -205,7 +205,7 @@ MG_CAPI_INLINE mmstrstk_t mghw_get_harddisk_mountpoint_by_path(const char* _file
     if (pos == -1) {
     }
     else {
-        mmstr_assign_by_utf8((mmstr_t)&s, (const uint8_t*)_filepath, pos + 1);
+        mmstrstk_assign_by_utf8((mmstr_t)&s, (const uint8_t*)_filepath, pos + 1);
     }
 
     mmstrstk_uninit(&path);
