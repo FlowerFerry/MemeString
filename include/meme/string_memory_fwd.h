@@ -9,16 +9,16 @@
 
 MEME_EXTERN_C_SCOPE_START
 
-//! DEPRECATED 
+//! @deprecated 
 typedef void* (MemeString_MallocFunction_t)(size_t);
 
-//! DEPRECATED
+//! @deprecated
 typedef void* (MemeString_ReallocFunction_t)(void*, size_t);
 
-//! DEPRECATED
+//! @deprecated
 typedef void  (MemeString_FreeFunction_t)(void*);
 
-//! DEPRECATED
+//! @deprecated
 typedef void* (MemeString_CallocFunction_t)(size_t, size_t);
 
 typedef void MemeString_UserObjectDestruct_t(void* _object);
@@ -35,16 +35,16 @@ typedef void* (MemeMemory_UserReallocFunc_t)(void*, size_t, void*);
 typedef void  (MemeMemory_UserFreeFunc_t)(void*, void*);
 typedef void* (MemeMemory_UserCallocFunc_t)(size_t, size_t, void*);
 
-//! DEPRECATED
+//! @deprecated
 typedef MemeString_MallocFunction_t  mmsmem_malloc_t;
 
-//! DEPRECATED
+//! @deprecated
 typedef MemeString_ReallocFunction_t mmsmem_realloc_t;
 
-//! DEPRECATED
+//! @deprecated
 typedef MemeString_FreeFunction_t    mmsmem_free_t;
 
-//! DEPRECATED
+//! @deprecated
 typedef MemeString_CallocFunction_t  mmsmem_calloc_t;
 
 typedef MemeString_UserObjectDestruct_t mmstr_usr_obj_destruct_fn_t;

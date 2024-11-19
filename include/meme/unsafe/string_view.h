@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEME_UNSAFE_VIEW_H_INCLUDED
 #define MEME_UNSAFE_VIEW_H_INCLUDED
 
@@ -21,6 +21,7 @@ MEME_STDCALL MemeStringViewUnsafeStack_assignByOther(MemeStringStack_t* _s, size
 	const MemeStringStack_t* _other);
 
 //! @param _out do not initialize
+//! @deprecated 将来可能会有ABI问题
 MEME_API MemeInteger_t
 MEME_STDCALL MemeStringViewUnsafe_split(
 	MemeString_Const_t _s,

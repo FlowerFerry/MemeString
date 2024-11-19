@@ -22,7 +22,7 @@ MEME_STDCALL MemeVariableBufferStack_initByOther(
 
 	assert(_out);
 	assert(_other);
-	assert(_object_size != 0);
+	assert(_object_size != 0 && _object_size <= MMSTR__MAX_REG_BYTE_SIZE);
 
 	switch (MMSTR__GET_IMPLTYPE((mmstr_cptr_t)_other)) 
 	{
@@ -50,7 +50,7 @@ MEME_STDCALL MemeVariableBufferStack_initByBytes(
 {
 	assert(_len >= 0 && MemeVariableBufferStack_initByBytes);
 	assert(_out && MemeVariableBufferStack_initByBytes);
-	assert(_object_size != 0 && MemeVariableBufferStack_initByBytes);
+	assert(_object_size != 0 && _object_size <= MMSTR__MAX_REG_BYTE_SIZE && MemeVariableBufferStack_initByBytes);
 
 	MemeStringStack_init((MemeStringStack_t*)_out, MEME_STRING__OBJECT_SIZE);
 	return (int)MemeVariableBuffer_appendWithBytes((MemeVariableBuffer_t)_out, _buf, _len);
@@ -62,7 +62,7 @@ MEME_STDCALL MemeVariableBufferStack_initWithRepeatBytes(
 {
 	assert(_count >= 0 && MemeVariableBufferStack_initWithRepeatBytes);
 	assert(_out && MemeVariableBufferStack_initWithRepeatBytes);
-	assert(_object_size != 0 && MemeVariableBufferStack_initWithRepeatBytes);
+	assert(_object_size != 0 && _object_size <= MMSTR__MAX_REG_BYTE_SIZE && MemeVariableBufferStack_initWithRepeatBytes);
 
 	MemeStringStack_init((MemeStringStack_t*)_out, MEME_STRING__OBJECT_SIZE);
 	return (int)MemeVariableBuffer_appendWithRepeatBytes((MemeVariableBuffer_t)_out, _count, _byte);

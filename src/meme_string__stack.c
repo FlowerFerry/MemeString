@@ -24,8 +24,8 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_init(
 {
 	mmstr_ptr_t obj = NULL;
 
-	assert(_out);
-	assert(_object_size != 0);
+	assert(_out && "MemeStringStack_init");
+	assert(_object_size != 0 && _object_size <= MMSTR__MAX_REG_BYTE_SIZE && "MemeStringStack_init");
     
 	if (MEGO_SYMBOL__UNLIKELY(_object_size > MMSTR__OBJ_SIZE))
 		return (MGEC__OPNOTSUPP);
@@ -55,11 +55,11 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initTakeOverUserObject(
 	size_t len = 0;
 	//int result = 0;
 
-	assert(_out != NULL			&& MemeStringStack_initTakeOverUserObject != NULL);
-	assert(_user_data != NULL	&& MemeStringStack_initTakeOverUserObject != NULL);
-	assert(_destruct_fn != NULL && MemeStringStack_initTakeOverUserObject != NULL);
-	assert(_data_fn != NULL		&& MemeStringStack_initTakeOverUserObject != NULL);
-	assert(_size_fn != NULL		&& MemeStringStack_initTakeOverUserObject != NULL);
+	assert(_out != NULL			&& "MemeStringStack_initTakeOverUserObject");
+	assert(_user_data != NULL	&& "MemeStringStack_initTakeOverUserObject");
+	assert(_destruct_fn != NULL && "MemeStringStack_initTakeOverUserObject");
+	assert(_data_fn != NULL		&& "MemeStringStack_initTakeOverUserObject");
+	assert(_size_fn != NULL		&& "MemeStringStack_initTakeOverUserObject");
     
 	len = _size_fn(_user_data);
 	if (len <= MMSTR__GET_SMALL_BUF_MAX_SIZE)
@@ -80,10 +80,8 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initTakeOverUserObject(
 
 MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_unInit(mmsstk_t* _out, size_t _object_size)
 {
-	//mmstr_t obj = (mmstr_cptr_t)_out;
 
 	assert((mmstr_cptr_t)_out != NULL && "MemeStringStack_unInit");
-	assert(_object_size != 0 && "MemeStringStack_unInit");
 
 	switch (MMSTR__GET_IMPLTYPE((mmstr_cptr_t)_out)) {
 	case MemeString_ImplType_small:
@@ -119,8 +117,8 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByU8bytesAndType(
 {
 	MemeString_ImplType_t type;
 
-	assert(_out && MemeStringStack_initByU8bytesAndType != NULL);
-	assert(_object_size != 0 && MemeStringStack_initByU8bytesAndType != NULL);
+	assert(_out && "MemeStringStack_initByU8bytesAndType");
+	assert(_object_size != 0 && _object_size <= MMSTR__MAX_REG_BYTE_SIZE && "MemeStringStack_initByU8bytesAndType");
 
 	if (MEGO_SYMBOL__UNLIKELY(_utf8 == NULL))
 		return mmstrstk_init_v0(_out, _object_size);
@@ -168,8 +166,8 @@ MEME_STDCALL MemeStringStack_initByU16bytesAndType(
 	MemeInteger_t u8len = -1;
 	MemeString_ImplType_t type;
 	
-    assert(_out && MemeStringStack_initByU16bytesAndType != NULL);
-    assert(_object_size != 0 && MemeStringStack_initByU16bytesAndType != NULL);
+    assert(_out && "MemeStringStack_initByU16bytesAndType");
+    assert(_object_size != 0 && _object_size <= MMSTR__MAX_REG_BYTE_SIZE && "MemeStringStack_initByU16bytesAndType");
 	
 	if (MEGO_SYMBOL__UNLIKELY(_buf == NULL))
 		return mmstrstk_init_v0(_out, _object_size);
@@ -236,7 +234,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByOther(
 
 	assert(_out);
 	assert(_other);
-	assert(_object_size != 0);
+	assert(_object_size != 0 && _object_size <= MMSTR__MAX_REG_BYTE_SIZE);
 
 	if (MEGO_SYMBOL__UNLIKELY(_other == NULL))
 		return mmstrstk_init_v0(_out, _object_size);
@@ -438,7 +436,6 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_reset(
 	mms_t obj = NULL;
 
 	assert(_out);
-	assert(_object_size != 0);
 
 	obj = (mms_t)_out;
 	switch (MMSTR__GET_IMPLTYPE(obj)) {
@@ -471,8 +468,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_assign(
 {
 	int result = 0;
 
-	assert(_s != NULL		&& MemeStringStack_assign != NULL);
-	assert(_other != NULL	&& MemeStringStack_assign != NULL);
+	assert(_s != NULL && "MemeStringStack_assign");
 
 	if (_other == NULL)
 		return mmstrstk_reset_v0(_s, _object_size);
@@ -552,8 +548,8 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_assignByBuffer(
 {
 	int result = 0;
 
-	assert(_s != NULL		&& MemeStringStack_assignByBuffer != NULL);
-	assert(_other != NULL   && MemeStringStack_assignByBuffer != NULL);
+	assert(_s != NULL     && MemeStringStack_assignByBuffer != NULL);
+	assert(_other != NULL && MemeStringStack_assignByBuffer != NULL);
 
 	if (_other == NULL)
 		return mmstrstk_reset_v0(_s, _object_size);
@@ -586,7 +582,6 @@ MemeStringStack_mid(
 	mmstrstk_t out;
 
     assert(_s != NULL && MemeStringStack_mid != NULL);
-    assert(_object_size != 0 && MemeStringStack_mid != NULL);
 
 	MemeStringStack_mid_v2(_s, _offset, _len, &out, MMSTR__OBJ_SIZE);
 	return out;
@@ -699,7 +694,6 @@ MEME_EXTERN_C MEME_API mmstrstk_t MEME_STDCALL MemeStringStack_concat(
     mmint_t lhsSize = 0;
 	
     assert(_s != NULL && MemeStringStack_concat != NULL);
-    assert(_object_size != 0 && MemeStringStack_concat != NULL);
 	assert(_other != NULL && MemeStringStack_concat != NULL);
 	
     lhsSize = MemeString_byteSize((mmstr_const_t)_s);
@@ -950,6 +944,7 @@ MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL MemeStringStack_getRepeat(
 	mmint_t result = 0;
     mmsstk_t stack;
     mmvbstk_t vb;
+	
     assert(_s != NULL && MemeStringStack_getRepeat != NULL);
 	
 	result = MemeVariableBufferStack_init(&vb, _object_size);
@@ -1345,7 +1340,8 @@ MEME_STDCALL MemeStringViewUnsafeStack_init(
 {
 	MemeStringViewUnsafe_t* p = (MemeStringViewUnsafe_t*)_s;
 
-	assert(_s != NULL		&& MemeStringViewUnsafeStack_init != NULL);
+	assert(_s != NULL && "MemeStringViewUnsafeStack_init");
+	assert(_object_size != 0 && _object_size <= MMSTR__MAX_REG_BYTE_SIZE && "MemeStringViewUnsafeStack_init");
 
     if ((_buf == NULL))
         return (MGEC__INVAL);
@@ -1369,6 +1365,7 @@ MEME_STDCALL MemeStringViewUnsafeStack_initByOther(
 {
 	assert(_s != NULL		&& MemeStringViewUnsafeStack_initByOther != NULL);
 	assert(_other != NULL	&& MemeStringViewUnsafeStack_initByOther != NULL);
+	assert(_object_size != 0 && _object_size <= MMSTR__MAX_REG_BYTE_SIZE);
 
 	if (MMSTR__GET_IMPLTYPE((mmstr_cptr_t)_other) == MemeString_ImplType_view)
 	{
@@ -1499,6 +1496,7 @@ MemeStringViewUnsafe_split(
 	}
 }
 
+//! @deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init(mmsstk_t* _out, size_t _object_size)
 {
     if (_out == NULL)
@@ -1506,6 +1504,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init(mmsstk_t* _out, size_t _obje
     return MemeStringStack_init(_out, _object_size);
 }
 
+//! @deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_other(mmsstk_t* _out, size_t _object_size, mms_const_t _other)
 {
     if (_out == NULL)
@@ -1515,6 +1514,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_other(mmsstk_t* _out, siz
     return MemeStringStack_initByOther(_out, _object_size, _other);
 }
 
+//! @deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_buf(
 	mmsstk_t* _out, size_t _object_size, mmbuf_const_t _other, mmint_t _offset)
 {
@@ -1525,6 +1525,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_buf(
     return MemeStringStack_initByBuffer(_out, _object_size, _other, _offset);
 }
 
+//! @deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_utf8(
 	mmsstk_t* _out, size_t _object_size, const mmbyte_t* _utf8, mmint_t _len)
 {
@@ -1535,6 +1536,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_utf8(
     return MemeStringStack_initByU8bytes(_out, _object_size, _utf8, _len);
 }
 
+//! @deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_utf8_v2(
 	mmsstk_t* _out, size_t _object_size,
 	const mmbyte_t* _utf8, mmint_t _len, MemeString_Storage_t _suggest)
@@ -1546,6 +1548,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_utf8_v2(
     return MemeStringStack_initByU8bytesAndType(_out, _object_size, _utf8, _len, _suggest);
 }
 
+//! @deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_hexs(
 	mmsstk_t* _out, size_t _object_size, const mmbyte_t* _interval, mmint_t _ivlen, const uint8_t* _hexs, mmint_t _len)
 {
@@ -1556,6 +1559,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_hexs(
     return MemeStringStack_initWithHexadecimals(_out, _object_size, _interval, _ivlen, _hexs, _len);
 }
 
+//! @deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_user(
 	mmsstk_t* _out, size_t _object_size, void* _user_data,
 	MemeString_UserObjectDestruct_t* _destruct_fn, 
@@ -1573,6 +1577,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_user(
 		_out, _object_size, _user_data, _destruct_fn, _data_fn, _size_fn);
 }
 
+//! @deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_uninit(mmsstk_t* _out, size_t _object_size)
 {
     if (_out == NULL)
@@ -1580,6 +1585,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_uninit(mmsstk_t* _out, size_t _ob
     return MemeStringStack_unInit(_out, _object_size);
 }
 
+//! @deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_reset(mmsstk_t* _out, size_t _object_size)
 {
     if (_out == NULL)
@@ -1587,6 +1593,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_reset(mmsstk_t* _out, size_t _obj
     return MemeStringStack_reset(_out, _object_size);
 }
 
+//! @deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mms_assign(mms_t _s, mms_const_t _other)
 {
     if (_s == NULL)
@@ -1596,6 +1603,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL mms_assign(mms_t _s, mms_const_t _other)
     return MemeStringStack_assign((mmsstk_t*)_s, sizeof(*_s), _other);
 }
 
+//! @deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mms_assign_by_utf8(
 	mms_t _s, const mmbyte_t* _utf8, mmint_t _len)
 {
@@ -1606,6 +1614,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL mms_assign_by_utf8(
     return MemeStringStack_assignByU8bytes((mmsstk_t*)_s, sizeof(*_s), _utf8, _len);
 }
 
+//! @deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mms_assign_by_buf(
 	mms_t _out, mmbuf_const_t _other, mmint_t _offset)
 {

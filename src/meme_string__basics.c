@@ -221,7 +221,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_create(MemeString_t * _out)
 	assert(_out);
 
 	//c_func = MemeString_getMallocFunction();
-	*_out = (MemeString_t)(mmsmem_malloc(sizeof(struct _MemeString_t)));
+	*_out = (MemeString_t)(mmmem_malloc(sizeof(struct _MemeString_t)));
 	if (!(*_out))
 		return (MGEC__NOMEM);
 
@@ -241,7 +241,7 @@ MEME_API int MEME_STDCALL MemeString_destroy(MemeString_t* _out)
 
 	result = MemeStringStack_unInit((mmsstk_t*)(*_out), MMS__OBJECT_SIZE);
     
-    mmsmem_free(*_out);
+    mmmem_free(*_out);
     *_out = NULL;
     return result;
 }
@@ -249,7 +249,7 @@ MEME_API int MEME_STDCALL MemeString_destroy(MemeString_t* _out)
 MEME_API int MEME_STDCALL MemeString_reset(mmstr_ptr_t _out)
 {
     assert(_out != NULL && "MemeString_reset");
-    return MemeStringStack_reset((mmstrstk_t*)_out, MMS__OBJECT_SIZE);
+    return MemeStringStack_reset((mmstrstk_t*)_out, MMSTR__OBJ_SIZE);
 }
 
 MEME_API int MEME_STDCALL MemeString_assign(MemeString_t _s, MemeString_Const_t _other)

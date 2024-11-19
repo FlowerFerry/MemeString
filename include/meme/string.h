@@ -507,6 +507,7 @@ MEME_STDCALL MemeString_foreach(
 //! @param _cs The case sensitivity of the split.
 //! @param _out The output array of substrings.
 //! @param _out_count The number of substrings.
+//! @deprecated 将来可能会有ABI问题
 MEME_API MemeInteger_t 
 	MEME_STDCALL MemeString_split(
 	MemeString_Const_t _s,
@@ -539,6 +540,7 @@ MEME_API MemeInteger_t
 //! ...
 //! 
 //! \endcode
+//! @deprecated 将来可能会有ABI问题
 MEME_API mmint_t
 	MEME_STDCALL MemeString_splitByCondByteFunc
 	(

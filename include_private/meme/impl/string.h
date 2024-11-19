@@ -32,6 +32,10 @@
 #define MMSTR_SIZE_T_EFFECTIVE_BITS (sizeof(size_t) * CHAR_BIT - MMSTR_IMPLTYPE_BITS)
 #endif
 
+#ifndef MMSTR__MAX_REG_BYTE_SIZE
+#define MMSTR__MAX_REG_BYTE_SIZE ((0xF) * sizeof(mmint_t))
+#endif
+
 MEME_EXTERN_C_SCOPE_START
 
 typedef struct _MemeStringLarge_RefCounted_t 

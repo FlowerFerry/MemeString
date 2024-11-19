@@ -143,7 +143,6 @@ MemeStringBuilderStack_init(MemeStringBuilderStack_t* _builder, size_t _builder_
     mmsbldr_t builder = (mmsbldr_t)_builder;
 
     assert(_builder != NULL && MemeStringBuilderStack_init);
-    assert(_builder_size <= sizeof(MemeStringBuilderStack_t) && MemeStringBuilderStack_init);
 
     memset(builder, 0 , _builder_size);
     builder->reg_size_ = (mmbyte_t)(_builder_size / sizeof(mmint_t));
@@ -167,7 +166,6 @@ MemeStringBuilderStack_initByOther(
     mmsbldr_t builder = (mmsbldr_t)_builder;
 
     assert(_builder != NULL && MemeStringBuilderStack_initByOther);
-    assert(_builder_size <= sizeof(MemeStringBuilderStack_t) && MemeStringBuilderStack_initByOther);
     assert(_other != NULL && MemeStringBuilderStack_initByOther);
     
     result = MemeStringBuilderStack_init(_builder, _builder_size);
@@ -213,7 +211,6 @@ MemeStringBuilderStack_unInit(MemeStringBuilderStack_t* _builder, size_t _builde
     int result = 0;
 
     assert(_builder != NULL && MemeStringBuilderStack_unInit);
-    assert(_builder_size >= sizeof(MemeStringBuilderStack_t) && MemeStringBuilderStack_unInit);
 
     //if (builder->out_ != NULL) {
     //    MemeStringBuilder_generate(builder, builder->out_);
@@ -236,7 +233,6 @@ MemeStringBuilderStack_assignByOther(
     int result = 0;
 
     assert(_builder != NULL && MemeStringBuilderStack_assignByOther);
-    assert(_builder_size <= sizeof(MemeStringBuilderStack_t) && MemeStringBuilderStack_assignByOther);
     assert(_other != NULL && MemeStringBuilderStack_assignByOther);
 
     result = MemeStringBuilderStack_unInit(_builder, _builder_size);
