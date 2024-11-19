@@ -4,6 +4,7 @@
 
 #include "variable_buffer_fwd.h"
 
+#include <mego/predef/symbol/restrict.h>
 #include <mego/err/ec.h>
 
 MEME_EXTERN_C_SCOPE_START
@@ -43,6 +44,16 @@ MEME_STDCALL MemeVariableBufferStack_regSize(const mmvbstk_t* _obj);
 
 MEME_API int
 MEME_STDCALL MemeVariableBufferStack_objSize(const mmvbstk_t* _obj);
+
+MEME_API mmint_t
+MEME_STDCALL MemeVariableBufferStack_split(
+	const mmvbstk_t* _buf,
+	const mmbyte_t* _key, mmint_t _key_len,
+	mmflag_split_behav_t,
+	mmvbstk_t* MEGO_SYMBOL__RESTRICT _out, mmint_t _obj_size,
+	mmint_t* MEGO_SYMBOL__RESTRICT _out_count,
+	mmint_t* MEGO_SYMBOL__RESTRICT _search_index
+);
 
 MEME_API MemeVariableBuffer_Storage_t
 MEME_STDCALL MemeVariableBuffer_storageType(MemeVariableBuffer_Const_t _s);
@@ -156,6 +167,7 @@ MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_releaseToString(
 	MemeVariableBuffer_t _s, MemeStringStack_t* _out, MemeInteger_t _objectSize);
 
+//! @deprecated 将来可能会有ABI问题
 MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_split(
 	MemeVariableBuffer_Const_t _s,

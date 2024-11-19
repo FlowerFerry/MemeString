@@ -23,13 +23,20 @@ typedef int64_t mmint_t;
 # error "Environment not 32, or 64-bit."
 #endif
 
+//! @deprecated
 typedef struct _MemeString_t* MemeString_t;
+//! @deprecated
 typedef const struct _MemeString_t* MemeString_Const_t;
 
+//! @deprecated
 typedef struct _MemeString_t* mms_t;
+//! @deprecated
 typedef const struct _MemeString_t* mms_const_t;
+//! @deprecated
 typedef struct _MemeString_t* mmstr_t;
+//! @deprecated
 typedef const struct _MemeString_t* mmstr_const_t;
+
 typedef struct _MemeString_t* mmstr_ptr_t;
 typedef const struct _MemeString_t* mmstr_cptr_t;
 

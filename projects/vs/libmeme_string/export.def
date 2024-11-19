@@ -417,11 +417,17 @@ EXPORTS
     mmmem_free @603
     MemeStringStack_regSize @3000
     MemeStringStack_objSize @3001
+    MemeStringStack_mid_v2 @3002
+    MemeStringStack_concat_v2 @3003
+    MemeStringStack_split @3004
     MemeBufferStack_regSize @4000
     MemeBufferStack_objSize @4001
+    MemeBufferStack_split @4002
     MemeVariableBufferStack_regSize @5000
     MemeVariableBufferStack_objSize @5001
+    MemeVariableBufferStack_split @5002
     MemeStringBuilderStack_regSize @6000
     MemeStringBuilderStack_objSize @6001
     MemeVariantStack_regSize @7000
     MemeVariantStack_objSize @7001
+    MemeStringViewUnsafeStack_split @8002

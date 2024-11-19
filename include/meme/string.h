@@ -137,6 +137,13 @@ MEME_API mmstrstk_t
 MEME_STDCALL MemeStringStack_concat(
     const mmstrstk_t* _s, size_t _object_size, const mmstrstk_t* _other);
 
+//! @param _str 必须已经初始化
+//! @param _other 必须已经初始化
+//! @param _obj_size 如果为负数，内部则认为@c _out已经初始化；若_out未初始化，请传入@c _out的对象大小
+MEME_API mgec_t 
+MEME_STDCALL MemeStringStack_concat_v2(
+    const mmstrstk_t* _str, const mmstrstk_t* _other, mmstrstk_t* _out, mmint_t _obj_size);
+
 //! @param _s The string stack object, must be initialized.
 //! @deprecated 将来可能会有ABI问题
 MEME_API mmsstk_t
@@ -297,6 +304,24 @@ MEME_STDCALL MemeStringStack_join(
 	mmstrstk_t* _str, mmint_t _obj_size, const char* _separator, mmint_t _separator_len, 
 	const mmstrstk_t* _items, mmint_t _item_count);
 
+
+//! @brief Split the string into substrings.
+//! @param _s The string.
+//! @param _key The key to split the string.
+//! @param _key_len The length of the key.
+//! @param _behavior The behavior of the split.
+//! @param _cs The case sensitivity of the split.
+//! @param _out The output array of substrings.
+//! @param _out_count The number of substrings.
+MEME_API mmint_t
+MEME_STDCALL MemeStringStack_split(
+	const mmstrstk_t* _s,
+	const char* _key, mmint_t _key_len,
+	mmflag_split_behav_t, mmflag_case_sensit_t,
+	mmstrstk_t* MEGO_SYMBOL__RESTRICT _out, mmint_t _obj_size,
+	mmint_t* MEGO_SYMBOL__RESTRICT _out_count,
+	mmint_t* MEGO_SYMBOL__RESTRICT _search_index
+);
 
 //MEME_API MemeInteger_t
 //MEME_STDCALL MemeStringStack_toDouble(
@@ -510,7 +535,7 @@ MEME_STDCALL MemeString_foreach(
 //! @deprecated 将来可能会有ABI问题
 MEME_API MemeInteger_t 
 	MEME_STDCALL MemeString_split(
-	MemeString_Const_t _s,
+	MemeString_Const_t _str,
 	const char* _key, MemeInteger_t _key_len, 
 	MemeFlag_SplitBehavior_t, MemeFlag_CaseSensitivity_t,
 	MemeStringStack_t* MEGO_SYMBOL__RESTRICT _out, 
@@ -858,7 +883,6 @@ MG_CAPI_INLINE int
 mmstrstk_uninit_v0(mmstrstk_t* _out, size_t _object_size)
 {
     assert(_out != NULL && "mmstrstk_uninit_v0");
-    assert(_object_size != 0 && "mmstrstk_uninit_v0");
 	
 	return MemeStringStack_unInit(_out, _object_size);
 }
@@ -875,7 +899,6 @@ MG_CAPI_INLINE int
 mmstrstk_reset_v0(mmstrstk_t* _out, size_t _object_size)
 {
     assert(_out != NULL && "mmstrstk_reset_v0");
-    assert(_object_size != 0 && "mmstrstk_reset_v0");
 	
 	return MemeStringStack_reset(_out, _object_size);
 }
@@ -893,7 +916,6 @@ mmstrstk_assign_v0(
 	mmstrstk_t* _out, size_t _object_size, mmstr_cptr_t _other)
 {
     assert(_out != NULL && "mmstrstk_assign");
-    assert(_object_size != 0 && "mmstrstk_assign");
 
     if (_other == NULL)
         return mmstrstk_reset_v0(_out, _object_size);

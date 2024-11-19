@@ -3,8 +3,9 @@
 #define MEME_BUFFER_H_INCLUDED
 
 #include "buffer_fwd.h"
-#include "mego/predef/symbol/deprecated.h"
+#include <mego/predef/symbol/deprecated.h>
 #include <mego/predef/symbol/inline.h>
+#include <mego/predef/symbol/restrict.h>
 
 #include <assert.h>
 
@@ -62,6 +63,15 @@ MEME_STDCALL MemeBufferStack_regSize(const mmbufstk_t* _obj);
 MEME_API int
 MEME_STDCALL MemeBufferStack_objSize(const mmbufstk_t* _obj);
 
+MEME_API mmint_t
+MEME_STDCALL MemeBufferStack_split(
+    const mmbufstk_t* _buf,
+    const mmbyte_t* _key, mmint_t _key_len,
+    mmflag_split_behav_t,
+    mmbufstk_t* MEGO_SYMBOL__RESTRICT _out, mmint_t _obj_size,
+    mmint_t* MEGO_SYMBOL__RESTRICT _out_count,
+    mmint_t* MEGO_SYMBOL__RESTRICT _search_index
+);
 
 MEME_API MemeBuffer_Storage_t
 MEME_STDCALL MemeBuffer_storageType(MemeBuffer_Const_t _s);
@@ -122,6 +132,7 @@ MEME_API MemeInteger_t
 MEME_STDCALL MemeBuffer_endsMatchWithOther(
 	MemeBuffer_Const_t _s, MemeBuffer_Const_t _other);
 
+//! @deprecated 将来可能会有ABI问题
 MEME_API MemeInteger_t
 MEME_STDCALL MemeBuffer_split(
 	MemeBuffer_Const_t _s,

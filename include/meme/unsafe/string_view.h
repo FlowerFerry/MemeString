@@ -2,7 +2,8 @@
 #ifndef MEME_UNSAFE_VIEW_H_INCLUDED
 #define MEME_UNSAFE_VIEW_H_INCLUDED
 
-#include "meme/string_fwd.h"
+#include <meme/string_fwd.h>
+#include <mego/predef/symbol/restrict.h>
 
 MEME_EXTERN_C_SCOPE_START
 
@@ -19,6 +20,16 @@ MEME_STDCALL MemeStringViewUnsafeStack_initByOther(MemeStringStack_t* _s, size_t
 MEME_API int
 MEME_STDCALL MemeStringViewUnsafeStack_assignByOther(MemeStringStack_t* _s, size_t _object_size,
 	const MemeStringStack_t* _other);
+
+MEME_API mmint_t
+MEME_STDCALL MemeStringViewUnsafeStack_split(
+	const mmstrstk_t* _str,
+	const char* _key, mmint_t _key_len,
+	mmflag_split_behav_t, mmflag_case_sensit_t,
+	mmstrstk_t* MEGO_SYMBOL__RESTRICT _out, mmint_t _obj_size, 
+	mmint_t* MEGO_SYMBOL__RESTRICT _out_count,
+	mmint_t* MEGO_SYMBOL__RESTRICT _search_index
+);
 
 //! @param _out do not initialize
 //! @deprecated 将来可能会有ABI问题

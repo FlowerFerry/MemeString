@@ -630,14 +630,15 @@ MEME_STDCALL MemeStringStack_mid_v2(
 	if (MG_SYM__UNLIKELY(_offset < 0))
 		_offset = 0;
 
+	if (_obj_size <= 0) {
+		_obj_size = MemeStringImpl_objByteSize((mmstr_cptr_t)_out);
+        mmstrstk_uninit_v0(_out, 0);
+	}
+
 	srcSize = MemeString_byteSize(str);
 	if (MG_SYM__UNLIKELY(_offset > srcSize))
 	{
-		if (_obj_size > 0)
-			return mmstrstk_init_v0 (_out, (size_t)_obj_size);
-		else
-			return mmstrstk_reset_v0(
-				_out, (size_t)MemeStringImpl_objByteSize((mmstr_cptr_t)_out));
+		return mmstrstk_init_v0(_out, (size_t)_obj_size);
 	}
 	
 	if (_count < 0)
@@ -648,36 +649,20 @@ MEME_STDCALL MemeStringStack_mid_v2(
 	if (MemeString_isSharedStorageTypes(str) && _offset == 0 && _count + _offset == srcSize)
 	{
 		mgec_t eno = 0;
-		if (_obj_size > 0)
-			eno = MemeStringStack_initByOther(_out, (size_t)_obj_size, str);
-		else
-			eno = MemeStringStack_assign(
-				_out, (size_t)MemeStringImpl_objByteSize((mmstr_cptr_t)_out), str);
+		eno = MemeStringStack_initByOther(_out, (size_t)_obj_size, str);
 		if (eno)
 			return eno;
 		MemeStringImpl_setDataOffset(_out, _offset);
 	}
 	else if (MMSTR__GET_IMPLTYPE(str) == MemeString_ImplType_view)
 	{
-		mgec_t eno = 0; 
-		if (_obj_size <= 0) {
-			_obj_size = MemeStringImpl_objByteSize((mmstr_cptr_t)_out);
-			eno = mmstrstk_uninit_v0(_out, (size_t)_obj_size);
-		}
-		if (eno)
-			return eno;
 		MemeStringViewUnsafeStack_init(
 			_out, (size_t)_obj_size, MemeString_byteData(str) + _offset, _count);
 	}
 	else {
 		mgec_t eno = 0;
-		if (_obj_size > 0)
-			eno = MemeStringStack_initByU8bytes(
+		eno = MemeStringStack_initByU8bytes(
 				_out, (size_t)_obj_size, MemeString_byteData(str) + _offset, _count);
-		else
-			eno = MemeStringStack_assignByU8bytes(
-				_out, (size_t)MemeStringImpl_objByteSize((mmstr_cptr_t)_out), 
-				MemeString_byteData(str) + _offset, _count);
 		if (eno)
 			return eno;
 	}
@@ -689,35 +674,80 @@ MEME_EXTERN_C MEME_API mmstrstk_t MEME_STDCALL MemeStringStack_concat(
 	const mmstrstk_t* _s, size_t _object_size, const mmstrstk_t* _other)
 {
     mmstrstk_t out;
-    mmint_t result  = 0;
-    mmint_t rhsSize = 0;
-    mmint_t lhsSize = 0;
 	
-    assert(_s != NULL && MemeStringStack_concat != NULL);
-	assert(_other != NULL && MemeStringStack_concat != NULL);
-	
-    lhsSize = MemeString_byteSize((mmstr_const_t)_s);
-    rhsSize = MemeString_byteSize((mmstr_const_t)_other);
-	
-    if (lhsSize + rhsSize == 0)
-        return mmstrstk_get_init_v0(_object_size);
+	MemeStringStack_concat_v2(_s, _other, &out, MMSTR__OBJ_SIZE);
+	return out;
 
-	result = MemeStringMedium_initWithCapacity((MemeStringMedium_t*)&out, 
-		lhsSize + rhsSize);
-    if (result)
-        return mmstrstk_get_init_v0(_object_size);
-	
-	result = MemeVariableBuffer_appendWithBytes(
-		(mmvb_t)&out, MemeString_byteData((mmstr_const_t)_s), lhsSize);
-    if (result)
-        return mmstrstk_get_init_v0(_object_size);
-	
-	result = MemeVariableBuffer_appendWithBytes(
-		(mmvb_t)&out, MemeString_byteData((mmstr_const_t)_other), rhsSize);
-    if (result)
-        return mmstrstk_get_init_v0(_object_size);
+ //   assert(_s != NULL && MemeStringStack_concat != NULL);
+	//assert(_other != NULL && MemeStringStack_concat != NULL);
+	//
+ //   lhsSize = MemeString_byteSize((mmstr_const_t)_s);
+ //   rhsSize = MemeString_byteSize((mmstr_const_t)_other);
+	//
+ //   if (lhsSize + rhsSize == 0)
+ //       return mmstrstk_get_init_v0(_object_size);
 
-    return out;
+	//result = MemeStringMedium_initWithCapacity((MemeStringMedium_t*)&out, 
+	//	lhsSize + rhsSize);
+ //   if (result)
+ //       return mmstrstk_get_init_v0(_object_size);
+	//
+	//result = MemeVariableBuffer_appendWithBytes(
+	//	(mmvb_t)&out, MemeString_byteData((mmstr_const_t)_s), lhsSize);
+ //   if (result)
+ //       return mmstrstk_get_init_v0(_object_size);
+	//
+	//result = MemeVariableBuffer_appendWithBytes(
+	//	(mmvb_t)&out, MemeString_byteData((mmstr_const_t)_other), rhsSize);
+ //   if (result)
+ //       return mmstrstk_get_init_v0(_object_size);
+
+    //return out;
+}
+
+MEME_API mgec_t MEME_STDCALL MemeStringStack_concat_v2(
+	const mmstrstk_t* _str, const mmstrstk_t* _other, mmstrstk_t* _out, mmint_t _obj_size)
+{
+	mgec_t  result  = 0;
+	mmint_t rhsSize = 0;
+	mmint_t lhsSize = 0;
+
+	assert(_str != NULL && "MemeStringStack_concat_v2");
+	assert(_other != NULL && "MemeStringStack_concat_v2");
+
+	lhsSize = MemeString_byteSize((mmstr_cptr_t)_str);
+	rhsSize = MemeString_byteSize((mmstr_cptr_t)_other);
+
+	if (_obj_size <= 0) {
+		_obj_size = MemeStringImpl_objByteSize((mmstr_cptr_t)_out);
+		mmstrstk_uninit_v0(_out, 0);
+	}
+
+	if (lhsSize + rhsSize == 0) {
+		return mmstrstk_init_v0(_out, (size_t)_obj_size);
+	}
+
+	result = MemeStringMedium_initWithCapacity((MemeStringMedium_t*)_out, lhsSize + rhsSize);
+	if (result) {
+		mmstrstk_init_v0(_out, (size_t)_obj_size);
+		return result;
+	}
+
+	result = (mgec_t)MemeVariableBuffer_appendWithBytes(
+		(mmvb_ptr_t)_out, MemeString_byteData((mmstr_cptr_t)_str), lhsSize);
+	if (result) {
+		mmstrstk_reset_v0(_out, 0);
+		return result;
+	}
+
+	result = (mgec_t)MemeVariableBuffer_appendWithBytes(
+		(mmvb_ptr_t)_out, MemeString_byteData((mmstr_cptr_t)_other), rhsSize);
+	if (result) {
+		mmstrstk_reset_v0(_out, 0);
+		return result;
+	}
+
+	return 0;
 }
 
 MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL
@@ -1334,6 +1364,98 @@ MEME_STDCALL MemeStringStack_join(
 	return MGEC__OPNOTSUPP;
 }
 
+MEME_API mmint_t 
+MEME_STDCALL MemeStringStack_split(
+	const mmstrstk_t* _str, const char* _key, mmint_t _key_len, 
+	mmflag_split_behav_t _behavior, mmflag_case_sensit_t _sensitivity,
+	mmstrstk_t* MEGO_SYMBOL__RESTRICT _out, mmint_t _obj_size, 
+	mmint_t* MEGO_SYMBOL__RESTRICT _out_count, 
+	mmint_t* MEGO_SYMBOL__RESTRICT _search_index)
+{
+	int result = 0;
+	MemeInteger_t last_index = (_search_index == NULL ? 0 : *_search_index);
+	MemeInteger_t curr_index = -1;
+	MemeInteger_t output_index = 0;
+	mmstr_cptr_t str = (mmstr_cptr_t)_str;
+
+	assert(_str != NULL && "MemeStringStack_split");
+	assert(_out != NULL && "MemeStringStack_split");
+	assert(_key != NULL && "MemeStringStack_split");
+	assert(_out_count != NULL && "MemeStringStack_split");
+
+	if (*_out_count < 1)
+		return (MGEC__INVAL);
+	if (_key_len < 0)
+		_key_len = strlen(_key);
+
+	while (output_index < *_out_count)
+	{
+		curr_index =
+			MemeString_indexOfWithUtf8bytes(
+				str, last_index, (const mmbyte_t*)_key, _key_len, _sensitivity);
+		if (curr_index == -1) {
+			if (last_index < MemeString_byteSize(str))
+			{
+				MemeStringStack_initByU8bytes(
+					_out + output_index, _obj_size, 
+					MemeString_byteData(str) + last_index,
+					MemeString_byteSize(str) - last_index);
+				*_out_count = output_index + 1;
+			}
+			else if (_behavior == MemeFlag_KeepEmptyParts)
+			{
+				MemeStringStack_init(_out + output_index, _obj_size);
+				*_out_count = output_index + 1;
+			}
+			else {
+				*_out_count = output_index;
+			}
+			if (_search_index)
+				*_search_index = -1;
+			return 0;
+		}
+
+		if ((curr_index - last_index) == 0 && _behavior == MemeFlag_SkipEmptyParts)
+		{
+			last_index += _key_len;
+			continue;
+		}
+
+		result = MemeStringStack_initByU8bytes(
+			_out + output_index, _obj_size, MemeString_byteData(str) + last_index, curr_index - last_index);
+		if (result != 0) {
+			for (MemeInteger_t i = 0; i < output_index; ++i)
+				MemeStringStack_unInit(_out + i, MMS__OBJECT_SIZE);
+			return result;
+		}
+		last_index = curr_index + _key_len;
+		++output_index;
+	}
+	if (_behavior == MemeFlag_SkipEmptyParts)
+	{
+		curr_index =
+			MemeString_indexOfWithUtf8bytes(
+				str, last_index, (const MemeByte_t*)_key, _key_len, _sensitivity);
+		if ((curr_index - last_index) == 0)
+		{
+			last_index += _key_len;
+		}
+	}
+
+	*_out_count = output_index;
+	if (last_index < MemeString_byteSize(str))
+	{
+		if (_search_index)
+			*_search_index = last_index;
+		return 0;
+	}
+	else {
+		if (_search_index)
+			*_search_index = -1;
+		return 0;
+	}
+}
+
 MEME_EXTERN_C MEME_EXTERN_C MEME_API int 
 MEME_STDCALL MemeStringViewUnsafeStack_init(
 	MemeStringStack_t* _s, size_t _object_size, const uint8_t* _buf, MemeInteger_t _len)
@@ -1343,9 +1465,9 @@ MEME_STDCALL MemeStringViewUnsafeStack_init(
 	assert(_s != NULL && "MemeStringViewUnsafeStack_init");
 	assert(_object_size != 0 && _object_size <= MMSTR__MAX_REG_BYTE_SIZE && "MemeStringViewUnsafeStack_init");
 
-    if ((_buf == NULL))
-        return (MGEC__INVAL);
-
+	if (_buf == NULL)
+		_buf = MemeStringImpl_default();
+	
 	if (_len < 0)
 		_len = strlen((const char*)_buf);
 
@@ -1414,19 +1536,24 @@ MEME_STDCALL MemeStringViewUnsafeStack_assignByOther(
 	}
 }
 
-MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL
-MemeStringViewUnsafe_split(
-	MemeString_Const_t _s, const char* _key, MemeInteger_t _key_len,
-	MemeFlag_SplitBehavior_t _behavior, MemeFlag_CaseSensitivity_t _sensitivity,
-	MemeStringStack_t* _out, MemeInteger_t* _out_count, MemeInteger_t* _search_index)
+MEME_EXTERN_C MEME_API mmint_t 
+MEME_STDCALL MemeStringViewUnsafeStack_split(
+	const mmstrstk_t* _str, 
+	const char* _key, mmint_t _key_len, 
+	mmflag_split_behav_t _behavior, mmflag_case_sensit_t _sensitivity,
+	mmstrstk_t* MEGO_SYMBOL__RESTRICT _out, mmint_t _obj_size, 
+	mmint_t* MEGO_SYMBOL__RESTRICT _out_count,
+	mmint_t* MEGO_SYMBOL__RESTRICT _search_index)
 {
-	MemeInteger_t last_index = (_search_index == NULL ? 0 : *_search_index);
-	MemeInteger_t curr_index = -1;
-	MemeInteger_t output_index = 0;
+	mmint_t last_index = (_search_index == NULL ? 0 : *_search_index);
+	mmint_t curr_index = -1;
+	mmint_t output_index = 0;
+    mmstr_cptr_t str = (mmstr_cptr_t)_str;
 
-	assert(_s != NULL && MemeString_split != NULL);
-	assert(_out != NULL && MemeString_split != NULL);
-	assert(_out_count != NULL && MemeString_split != NULL);
+	assert(_str != NULL && "MemeStringViewUnsafeStack_split");
+	assert(_out != NULL && "MemeStringViewUnsafeStack_split");
+	assert(_key != NULL && "MemeStringViewUnsafeStack_split");
+	assert(_out_count != NULL && "MemeStringViewUnsafeStack_split");
 
 	if (*_out_count < 1)
 		return (MGEC__INVAL);
@@ -1435,21 +1562,20 @@ MemeStringViewUnsafe_split(
 
 	while (output_index < *_out_count)
 	{
-		curr_index =
-			MemeString_indexOfWithUtf8bytes(
-				_s, last_index, (const MemeByte_t*)_key, _key_len, _sensitivity);
+		curr_index = MemeString_indexOfWithUtf8bytes(
+				str, last_index, (const mmbyte_t*)_key, _key_len, _sensitivity);
 		if (curr_index == -1) {
-			if (last_index < MemeString_byteSize(_s))
+			if (last_index < MemeString_byteSize(str))
 			{
-				MemeStringViewUnsafeStack_init(_out + output_index,
-					MEME_STRING__OBJECT_SIZE, MemeString_byteData(_s) + last_index,
-					MemeString_byteSize(_s) - last_index);
+				MemeStringViewUnsafeStack_init(
+					_out + output_index, _obj_size, 
+					MemeString_byteData(str) + last_index,
+					MemeString_byteSize(str) - last_index);
 				*_out_count = output_index + 1;
 			}
 			else if (_behavior == MemeFlag_KeepEmptyParts)
 			{
-				MemeStringStack_init(_out + output_index,
-					MEME_STRING__OBJECT_SIZE);
+				MemeStringStack_init(_out + output_index, _obj_size);
 				*_out_count = output_index + 1;
 			}
 			else {
@@ -1466,8 +1592,8 @@ MemeStringViewUnsafe_split(
 			continue;
 		}
 
-		MemeStringViewUnsafeStack_init(_out + output_index,
-			MEME_STRING__OBJECT_SIZE, MemeString_byteData(_s) + last_index, curr_index - last_index);
+		MemeStringViewUnsafeStack_init(
+			_out + output_index, _obj_size, MemeString_byteData(str) + last_index, curr_index - last_index);
 		last_index = curr_index + _key_len;
 		++output_index;
 	}
@@ -1475,7 +1601,7 @@ MemeStringViewUnsafe_split(
 	{
 		curr_index =
 			MemeString_indexOfWithUtf8bytes(
-				_s, last_index, (const MemeByte_t*)_key, _key_len, _sensitivity);
+				str, last_index, (const mmbyte_t*)_key, _key_len, _sensitivity);
 		if ((curr_index - last_index) == 0)
 		{
 			last_index += _key_len;
@@ -1483,7 +1609,7 @@ MemeStringViewUnsafe_split(
 	}
 
 	*_out_count = output_index;
-	if (last_index < MemeString_byteSize(_s))
+	if (last_index < MemeString_byteSize(str))
 	{
 		if (_search_index)
 			*_search_index = last_index;
@@ -1494,6 +1620,92 @@ MemeStringViewUnsafe_split(
 			*_search_index = -1;
 		return 0;
 	}
+}
+
+MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL
+MemeStringViewUnsafe_split(
+	MemeString_Const_t _s, const char* _key, MemeInteger_t _key_len,
+	MemeFlag_SplitBehavior_t _behavior, MemeFlag_CaseSensitivity_t _sensitivity,
+	MemeStringStack_t* _out, MemeInteger_t* _out_count, MemeInteger_t* _search_index)
+{
+	return MemeStringViewUnsafeStack_split(
+		(const mmstrstk_t*)_s, _key, _key_len, 
+		_behavior, _sensitivity, _out, MMSTR__OBJ_SIZE, _out_count, _search_index);
+
+	//MemeInteger_t last_index = (_search_index == NULL ? 0 : *_search_index);
+	//MemeInteger_t curr_index = -1;
+	//MemeInteger_t output_index = 0;
+
+	//assert(_s != NULL && MemeString_split != NULL);
+	//assert(_out != NULL && MemeString_split != NULL);
+	//assert(_out_count != NULL && MemeString_split != NULL);
+
+	//if (*_out_count < 1)
+	//	return (MGEC__INVAL);
+	//if (_key_len < 0)
+	//	_key_len = strlen(_key);
+
+	//while (output_index < *_out_count)
+	//{
+	//	curr_index =
+	//		MemeString_indexOfWithUtf8bytes(
+	//			_s, last_index, (const MemeByte_t*)_key, _key_len, _sensitivity);
+	//	if (curr_index == -1) {
+	//		if (last_index < MemeString_byteSize(_s))
+	//		{
+	//			MemeStringViewUnsafeStack_init(_out + output_index,
+	//				MEME_STRING__OBJECT_SIZE, MemeString_byteData(_s) + last_index,
+	//				MemeString_byteSize(_s) - last_index);
+	//			*_out_count = output_index + 1;
+	//		}
+	//		else if (_behavior == MemeFlag_KeepEmptyParts)
+	//		{
+	//			MemeStringStack_init(_out + output_index,
+	//				MEME_STRING__OBJECT_SIZE);
+	//			*_out_count = output_index + 1;
+	//		}
+	//		else {
+	//			*_out_count = output_index;
+	//		}
+	//		if (_search_index)
+	//			*_search_index = -1;
+	//		return 0;
+	//	}
+
+	//	if ((curr_index - last_index) == 0 && _behavior == MemeFlag_SkipEmptyParts)
+	//	{
+	//		last_index += _key_len;
+	//		continue;
+	//	}
+
+	//	MemeStringViewUnsafeStack_init(_out + output_index,
+	//		MEME_STRING__OBJECT_SIZE, MemeString_byteData(_s) + last_index, curr_index - last_index);
+	//	last_index = curr_index + _key_len;
+	//	++output_index;
+	//}
+	//if (_behavior == MemeFlag_SkipEmptyParts)
+	//{
+	//	curr_index =
+	//		MemeString_indexOfWithUtf8bytes(
+	//			_s, last_index, (const MemeByte_t*)_key, _key_len, _sensitivity);
+	//	if ((curr_index - last_index) == 0)
+	//	{
+	//		last_index += _key_len;
+	//	}
+	//}
+
+	//*_out_count = output_index;
+	//if (last_index < MemeString_byteSize(_s))
+	//{
+	//	if (_search_index)
+	//		*_search_index = last_index;
+	//	return 0;
+	//}
+	//else {
+	//	if (_search_index)
+	//		*_search_index = -1;
+	//	return 0;
+	//}
 }
 
 //! @deprecated

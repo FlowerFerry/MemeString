@@ -82,6 +82,19 @@ MEME_API int MEME_STDCALL MemeBufferStack_objSize(const mmbufstk_t* _obj)
     return MemeStringStack_objSize((const mmstrstk_t*)_obj);
 }
 
+MEME_API mmint_t 
+MEME_STDCALL MemeBufferStack_split(
+	const mmbufstk_t* _buf, const mmbyte_t* _key, mmint_t _key_len, 
+	mmflag_split_behav_t _sb,
+	mmbufstk_t* MEGO_SYMBOL__RESTRICT _out, mmint_t _obj_size, 
+	mmint_t* MEGO_SYMBOL__RESTRICT _out_count, 
+	mmint_t* MEGO_SYMBOL__RESTRICT _search_index)
+{
+	return MemeStringStack_split(
+		(const mmstrstk_t*)_buf, (const char*)_key, _key_len, _sb, MemeFlag_AllSensitive,
+		(mmstrstk_t*)_out, _obj_size, _out_count, _search_index);
+}
+
 MEME_API MemeBuffer_Storage_t 
 MEME_STDCALL MemeBuffer_storageType(MemeBuffer_Const_t _s)
 {
@@ -196,9 +209,9 @@ MEME_STDCALL MemeBuffer_split(
 	MemeInteger_t* _search_index
 )
 {
-	return MemeString_split(
-		(MemeString_Const_t)_s, (const char*)_key, _key_len, _sb, MemeFlag_AllSensitive,
-		(MemeStringStack_t*)_out, _out_count, _search_index);
+	return MemeStringStack_split(
+		(const mmstrstk_t*)_s, (const char*)_key, _key_len, _sb, MemeFlag_AllSensitive,
+		(mmstrstk_t*)_out, MMSTR__OBJ_SIZE, _out_count, _search_index);
 }
 
 MEME_API int
