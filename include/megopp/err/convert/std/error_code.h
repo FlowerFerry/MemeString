@@ -11,6 +11,9 @@ namespace mgpp {
 
     inline err into_err(const std::error_code& _ec)
     {
+        if (!_ec)
+            return {};
+
         if (_ec.category() == std::generic_category())
             return { mgec__from_posix_err(_ec.value()) };
 
