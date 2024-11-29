@@ -317,6 +317,7 @@ namespace synchronized_details {
                     *this, _UniqueLock{ *(this->lock_.mutex()) } };
             }
             else {
+                this->lock();
                 return write_life_ptr<_Ty, _Mutex, _SharedLock, _UniqueLock>{ 
                     *this, _UniqueLock{} };
             }
