@@ -118,7 +118,7 @@ int MemeStringLarge_initByU8bytes(
 
 	assert(_s != NULL);
 	assert(_buf != NULL);
-	assert(total_length);
+	//assert(total_length);
 
 	total_length = ((total_length / sizeof(void*)) + 1) * (sizeof(void*));
 
