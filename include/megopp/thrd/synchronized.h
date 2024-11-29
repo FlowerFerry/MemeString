@@ -432,7 +432,7 @@ public:
     }
 
     template <typename _Fn>
-    inline auto with_ulock(_Fn&& _fn) const
+    inline auto with_ulock(_Fn&& _fn)
     {
         return _fn(this->ulock());
     }
