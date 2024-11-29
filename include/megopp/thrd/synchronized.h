@@ -199,10 +199,21 @@ namespace synchronized_details {
 
 #if MGPP_THRD_SYNCHRONIZED_EXCEPTION_ENABLED
         inline _Ty* operator->() const
-        {      
-            if (!owns_lock())
+        {
+            if constexpr (!std::is_same_v<_SharedLock, _UniqueLock>)
             {
-                throw std::logic_error("write_life_ptr::operator->() called while owning lock");
+                if (!owns_lock()) {
+                    throw std::logic_error("write_life_ptr::operator->() called while owning lock");
+                }
+            }
+            else {
+                if (lock_.mutex() && !owns_lock())
+                {
+                    throw std::logic_error("write_life_ptr::operator->() called while owning lock");
+                }
+            }
+            if (data_ == nullptr) {
+                throw std::logic_error("write_life_ptr::operator->() called with nullptr");
             }
             return data_;
         }
@@ -218,8 +229,7 @@ namespace synchronized_details {
         {
             if constexpr (!std::is_same_v<_SharedLock, _UniqueLock>)
             {
-                if (!owns_lock())
-                {
+                if (!owns_lock()) {
                     throw std::logic_error("write_life_ptr::operator*() called while owning lock");
                 }
             }
@@ -229,8 +239,7 @@ namespace synchronized_details {
                     throw std::logic_error("write_life_ptr::operator*() called while owning lock");
                 }
             }
-            if (data_ == nullptr)
-            {
+            if (data_ == nullptr) {
                 throw std::logic_error("write_life_ptr::operator*() called with nullptr");
             }
             return *data_;
