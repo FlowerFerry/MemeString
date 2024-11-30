@@ -36,7 +36,7 @@ inline ::std::string vsnprintf(
     int len = ::vsnprintf(sbuf, sizeof(sbuf), fmt, args);
     va_end(args);
     
-    if (MG_SYM__UNLIKELY(len < 0))
+    if (MG_SYM__UNLIKELY(len <= 0))
         return {};
 
     if (_limit > 0)
@@ -49,7 +49,7 @@ inline ::std::string vsnprintf(
     std::vector<char> buf(len + 1);
     len = ::vsnprintf(buf.data(), buf.size(), fmt, _args);
 
-    if (MG_SYM__UNLIKELY(len < 0))
+    if (MG_SYM__UNLIKELY(len <= 0))
         return {};
     
     return { buf.data(), static_cast<size_t>(len) };

@@ -289,6 +289,25 @@ MemeStringStack_vformatWithLimitInCstyle(
 	MEGO_SYMBOL__MSVC_FORMAT_STRING(const char* _format),
 	va_list _args);
 
+MEME_API mgec_t MEME_STDCALL
+MemeStringStack_vformatWithLimitInCstyle_v2(
+	mmstrstk_t* _str,
+	mmint_t _object_size,
+	mmint_t _size_limit,
+	mmint_t _pre_size,
+	MG_SYM__MSVC_FMT_STR(const char* _format),
+	va_list _args);
+
+MEME_API mgec_t MEME_STDCALL
+MemeStringStack_formatWithLimitInCstyle(
+	mmstrstk_t* _str,
+	mmint_t _object_size,
+	mmint_t _size_limit,
+	mmint_t _pre_size,
+	MG_SYM__MSVC_FMT_STR(const char* _format),
+	...)
+	MG_SYM__GCC_ATTR_FMT(printf, 5, 6);
+
 //! @param _s The string stack object, must be initialized.
 //! @deprecated 将来可能会有ABI问题
 MEME_API mmsstk_t
@@ -621,12 +640,12 @@ mmstrstk_get_init()
 }
 
 MG_CAPI_INLINE int 
-mmstrstk_init_v0(mmstrstk_t* _out, size_t _object_size) 
+mmstrstk_init_v0(mmstrstk_t* _out, size_t _obj_size)
 {
-	assert(_out != NULL && "mmstrstk_init_v0");
-    assert(_object_size != 0 && "mmstrstk_init_v0");
-	
-	return MemeStringStack_init(_out, _object_size);
+	assert(_out   != NULL && "mmstrstk_init_v0");
+    assert(_obj_size != 0 && "mmstrstk_init_v0");
+
+	return MemeStringStack_init(_out, _obj_size);
 }
 
 MG_CAPI_INLINE int 
@@ -909,6 +928,18 @@ mmstrstk_reset(mmstrstk_t* _out)
     assert(_out != NULL && "mmstrstk_reset");
 	
 	return MemeStringStack_reset(_out, MMSTR__OBJ_SIZE);
+}
+
+MG_CAPI_INLINE int
+mmstrstk_init_or_reset(mmstrstk_t* _out, mmint_t _obj_size)
+{
+	assert(_out != NULL   && "mmstrstk_init_or_reset");
+	assert(_obj_size != 0 && "mmstrstk_init_or_reset");
+
+	if (_obj_size > 0)
+		return mmstrstk_init_v0 (_out, (size_t)_obj_size);
+	else
+		return mmstrstk_reset_v0(_out, 0);
 }
 
 MG_CAPI_INLINE int

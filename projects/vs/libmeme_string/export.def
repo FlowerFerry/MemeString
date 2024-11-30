@@ -420,6 +420,8 @@ EXPORTS
     MemeStringStack_mid_v2 @3002
     MemeStringStack_concat_v2 @3003
     MemeStringStack_split @3004
+    MemeStringStack_vformatWithLimitInCstyle_v2 @3005
+    MemeStringStack_formatWithLimitInCstyle @3006
     MemeBufferStack_regSize @4000
     MemeBufferStack_objSize @4001
     MemeBufferStack_split @4002

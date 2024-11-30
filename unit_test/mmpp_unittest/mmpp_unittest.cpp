@@ -1962,4 +1962,8 @@ TEST_CASE("memepp::string - 00", "Accidents encountered in engineering practice"
         auto len = snprintf(buf.data(), buf.size(), "%lld - %lld", v, v);
         REQUIRE(len == 41);
 	} while (0);
+
+    do {
+        memepp::string_view sv = memepp::string{}.to_large();
+    } while (0);
 }
