@@ -27,8 +27,14 @@ inline ::std::string vsnprintf(
     char sbuf[_PreSize];
     va_list args;
     va_copy(args, _args);
+    const char* fmt;
+    mmint_t fmt_len;
+    mgec_t ec = mgmem__cstr_alloc_if_no_end_zero(_fmt, _fmt_len, &fmt, &fmt_len, 1);
+    if (MG_SYM__UNLIKELY(ec != 0))
+        return {};
+    MEGOPP_UTIL__ON_SCOPE_CLEANUP([&] { mgmem__free_if_ptr_not_equal(_fmt, fmt); });
 
-    int len = ::vsnprintf(sbuf, sizeof(sbuf), _fmt, args);
+    int len = ::vsnprintf(sbuf, sizeof(sbuf), fmt, args);
     va_end(args);
     
     if (MG_SYM__UNLIKELY(len < 0))
@@ -42,7 +48,7 @@ inline ::std::string vsnprintf(
     }
     
     std::vector<char> buf(len + 1);
-    len = ::vsnprintf(buf.data(), buf.size(), _fmt, _args);
+    len = ::vsnprintf(buf.data(), buf.size(), fmt, _args);
 
     if (MG_SYM__UNLIKELY(len < 0))
         return {};
