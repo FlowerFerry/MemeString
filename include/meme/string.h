@@ -33,8 +33,8 @@ MEME_API int
 
 //! 当外部对象大小与内部对象大小不同时，不能按外部对象大小初始化，与设计不符
 //! @deprecated 请使用 MemeStringStack_init
-MEGO_SYMBOL__DEPRECATED 
 MEME_API mmsstk_t
+MEGO_SYMBOL__DEPRECATED
 	MEME_STDCALL MemeStringStack_getInitObject(size_t _object_size);
 
 MEME_API int
