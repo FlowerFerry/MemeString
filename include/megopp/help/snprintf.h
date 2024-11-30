@@ -15,6 +15,7 @@
 #include <vector>
 
 namespace mgpp {
+namespace help {
     
 template<size_t _PreSize = 128>    
 inline ::std::string vsnprintf(
@@ -59,6 +60,7 @@ inline ::std::string snprintf(
     return vsnprintf<_PreSize>(_limit, _fmt, _fmt_len, args);
 }
 
+}
 }
 
 #endif // !MEGOPP_HELP_SNPRINTF_H_INCLUDED
