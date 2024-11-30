@@ -1460,7 +1460,6 @@ MemeStringStack_formatWithLimitInCstyle(
 	mmint_t _pre_size,
 	MG_SYM__MSVC_FMT_STR(const char* _format),
 	...)
-	MG_SYM__GCC_ATTR_FMT(printf, 5, 6)
 {
 	mgec_t ec = 0;
 	va_list args;
