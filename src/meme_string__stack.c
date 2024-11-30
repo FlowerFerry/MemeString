@@ -409,7 +409,7 @@ MEME_STDCALL MemeStringStack_initWithHexadecimals(
 	return (int)result;
 }
 
-MEME_API int
+MEME_EXTERN_C MEME_API int
 MEME_STDCALL MemeStringStack_initAndConditionalConvert(
 	mmstrstk_t* _out, size_t _object_size, mmstr_cptr_t _other)
 {
@@ -563,13 +563,13 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_assignByBuffer(
 	return MemeStringStack_initByBuffer(_s, sizeof(mmsstk_t), _other, _offset);
 }
 
-MEME_API int MEME_STDCALL MemeStringStack_regSize(const mmstrstk_t* _str)
+MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_regSize(const mmstrstk_t* _str)
 {
 	assert(_str && "MemeString_regSize");
 	return MemeStringImpl_objRegSize((mmstr_cptr_t)_str);
 }
 
-MEME_API int MEME_STDCALL MemeStringStack_objSize(const mmstrstk_t* _str)
+MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_objSize(const mmstrstk_t* _str)
 {
     assert(_str && "MemeString_objSize");
     return MemeStringImpl_objByteSize((mmstr_cptr_t)_str);
@@ -617,7 +617,7 @@ MemeStringStack_mid(
  //   return out;
 }
 
-MEME_API mgec_t 
+MEME_EXTERN_C MEME_API mgec_t
 MEME_STDCALL MemeStringStack_mid_v2(
 	const mmstrstk_t* _str, mmint_t _offset, mmint_t _count, mmstrstk_t* _out, mmint_t _obj_size)
 {
@@ -705,7 +705,7 @@ MEME_EXTERN_C MEME_API mmstrstk_t MEME_STDCALL MemeStringStack_concat(
     //return out;
 }
 
-MEME_API mgec_t MEME_STDCALL MemeStringStack_concat_v2(
+MEME_EXTERN_C MEME_API mgec_t MEME_STDCALL MemeStringStack_concat_v2(
 	const mmstrstk_t* _str, const mmstrstk_t* _other, mmstrstk_t* _out, mmint_t _obj_size)
 {
 	mgec_t  result  = 0;
@@ -1242,7 +1242,7 @@ MemeStringStack_vformatInCstyle_v2(
 	//return out;
 }
 
-MEME_API mmstrstk_t MEME_STDCALL
+MEME_EXTERN_C MEME_API mmstrstk_t MEME_STDCALL
 MemeStringStack_vformatWithLimitInCstyle(
 	size_t _object_size,
 	mmint_t _size_limit,
@@ -1346,7 +1346,7 @@ MemeStringStack_vformatWithLimitInCstyle(
 	//return out;
 }
 
-MEME_API mgec_t MEME_STDCALL
+MEME_EXTERN_C MEME_API mgec_t MEME_STDCALL
 MemeStringStack_vformatWithLimitInCstyle_v2(
 	mmstrstk_t* _str,
 	mmint_t _object_size,
@@ -1452,7 +1452,7 @@ MemeStringStack_vformatWithLimitInCstyle_v2(
 	return 0;
 }
 
-MEME_API mgec_t MEME_STDCALL
+MEME_EXTERN_C MEME_API mgec_t MEME_STDCALL
 MemeStringStack_formatWithLimitInCstyle(
 	mmstrstk_t* _str,
 	mmint_t _object_size,
@@ -1490,7 +1490,7 @@ MemeStringStack_formatInCstyle_v2(
     return out;
 }
 
-MEME_API mgec_t
+MEME_EXTERN_C MEME_API mgec_t
 MEME_STDCALL MemeStringStack_join(
 	mmstrstk_t* _str, mmint_t _obj_size, const char* _separator, mmint_t _separator_len,
 	const mmstrstk_t* _items, mmint_t _item_count)
@@ -1498,7 +1498,7 @@ MEME_STDCALL MemeStringStack_join(
 	return MGEC__OPNOTSUPP;
 }
 
-MEME_API mmint_t 
+MEME_EXTERN_C MEME_API mmint_t
 MEME_STDCALL MemeStringStack_split(
 	const mmstrstk_t* _str, const char* _key, mmint_t _key_len, 
 	mmflag_split_behav_t _behavior, mmflag_case_sensit_t _sensitivity,
@@ -1590,7 +1590,7 @@ MEME_STDCALL MemeStringStack_split(
 	}
 }
 
-MEME_EXTERN_C MEME_EXTERN_C MEME_API int 
+MEME_EXTERN_C MEME_API int 
 MEME_STDCALL MemeStringViewUnsafeStack_init(
 	MemeStringStack_t* _s, size_t _object_size, const uint8_t* _buf, MemeInteger_t _len)
 {
