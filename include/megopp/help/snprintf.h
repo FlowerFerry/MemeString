@@ -28,8 +28,7 @@ inline ::std::string vsnprintf(
     va_list args;
     va_copy(args, _args);
     const char* fmt;
-    mmint_t fmt_len;
-    mgec_t ec = mgmem__cstr_alloc_if_no_end_zero(_fmt, _fmt_len, &fmt, &fmt_len, 1);
+    mgec_t ec = mgmem__cstr_alloc_if_no_end_zero(_fmt, _fmt_len, &fmt, NULL, 0);
     if (MG_SYM__UNLIKELY(ec != 0))
         return {};
     MEGOPP_UTIL__ON_SCOPE_CLEANUP([&] { mgmem__free_if_ptr_not_equal(_fmt, fmt); });
