@@ -409,6 +409,11 @@ public:
         return *this;
     }
 
+    inline _Mutex* mutex() const noexcept
+    {
+        return &mutex_;
+    }
+
     inline synchronized_details::read_life_ptr<_Ty, _Mutex, _SharedLock> 
         rlock() const  noexcept
     {
