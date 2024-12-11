@@ -138,6 +138,10 @@ namespace synchronized_details {
             }
         }
 
+        inline _SharedLock* get_lock() noexcept
+        {
+            return &lock_;
+        }
     };
 
     template <
