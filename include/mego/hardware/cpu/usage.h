@@ -4,6 +4,7 @@
 
 #include <mego/predef/symbol/inline.h>
 #include <mego/util/os/windows/windows_simplify.h>
+#include <mego/predef/symbol/thread_local.h>
 
 #define __STDC_WANT_LIB_EXT1__ 1
 #include <math.h>
@@ -21,6 +22,7 @@ MG_CAPI_INLINE double __mghw_cpu_usage_calc(
     ULONGLONG kernelDiff;
     ULONGLONG userDiff;
     ULONGLONG totalDiff;
+    MEGO__THREAD_LOCAL static double usage = nan("");
 
     prevIdle.LowPart    = prevIdleTime.dwLowDateTime;
     prevIdle.HighPart   = prevIdleTime.dwHighDateTime;
@@ -39,12 +41,13 @@ MG_CAPI_INLINE double __mghw_cpu_usage_calc(
     idleDiff   = currIdle.QuadPart - prevIdle.QuadPart;
     kernelDiff = currKernel.QuadPart - prevKernel.QuadPart;
     userDiff   = currUser.QuadPart - prevUser.QuadPart;
-    totalDiff  = kernelDiff + userDiff;
+    totalDiff  = kernelDiff + userDiff - idleDiff;
 
     if (totalDiff == 0)
-        return nan("");
+        return usage;
 
-    return 1.0 - (double)idleDiff / totalDiff;
+    usage = 1.0 - (double)idleDiff / totalDiff;
+    return usage;
 }
 #endif
 
@@ -52,7 +55,7 @@ MG_CAPI_INLINE double __mghw_cpu_usage_calc(
 MG_CAPI_INLINE double mghw_cpu_usage()
 {
 #if MG_OS__WIN_AVAIL
-    static FILETIME prevIdleTime = { 0, 0 }, prevKernelTime = { 0, 0 }, prevUserTime = { 0, 0 };
+    MEGO__THREAD_LOCAL static FILETIME prevIdleTime = { 0, 0 }, prevKernelTime = { 0, 0 }, prevUserTime = { 0, 0 };
     FILETIME currIdleTime, currKernelTime, currUserTime;
     if (GetSystemTimes(&currIdleTime, &currKernelTime, &currUserTime) == FALSE)
         return nan("");
@@ -72,8 +75,8 @@ MG_CAPI_INLINE double mghw_cpu_usage()
 	uint64_t user = 0, nice = 0, system = 0, idle = 0, io_wait = 0, irq = 0, soft_irq = 0;
     uint64_t curr_idle = 0, curr_total = 0;
     uint64_t total_diff = 0;
-    static uint64_t prev_idle = 0, prev_total = 0;
-    static double usage = nan("");
+    MEGO__THREAD_LOCAL static uint64_t prev_idle = 0, prev_total = 0;
+    MEGO__THREAD_LOCAL static double usage = nan("");
     FILE* fp = fopen("/proc/stat", "r");
     if (fp == NULL)
         return nan("");
