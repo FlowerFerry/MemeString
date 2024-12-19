@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEGOPP_NETIF_PHYSICAL_ADDRESS_H_INCLUDED
 #define MEGOPP_NETIF_PHYSICAL_ADDRESS_H_INCLUDED
 
@@ -37,6 +37,12 @@ struct physical_address
 
     inline void assign(const uint8_t* _data, uint8_t _len)
     {
+        if (MG_SYM__UNLIKELY(_data == NULL || _len = 0))
+        {
+            len_ = 0;
+            return;
+        }
+
         len_ = (std::min)(size_t(_len), sizeof(data_));
         memcpy(data_, _data, len_);
     }

@@ -254,9 +254,10 @@ MEME_STDCALL MemeVariableBuffer_appendWithBytes(
 	assert(s && MemeVariableBuffer_appendWithBytes);
 	assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE(s)) == 1
 		&& MemeVariableBuffer_appendWithBytes);
-	assert(_buf);
 
-	if (_len < 0)
+	if (MG_SYM__UNLIKELY(_buf == NULL))
+		_len = 0;
+	else if (_len < 0)
 		_len = strlen((const char*)_buf);
 
 	if (MemeVariableBuffer_data(_s) == _buf) 

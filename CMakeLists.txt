@@ -114,5 +114,6 @@ if (MEMESTRING_UNITTEST_ENABLE)
   add_subdirectory(unit_test/mmpp_unittest)
   add_subdirectory(unit_test/mmpp_thrd_unittest)
   add_subdirectory(unit_test/meme_atomic_unittest)
+
 endif()
 

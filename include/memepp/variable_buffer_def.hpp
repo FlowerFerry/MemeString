@@ -150,41 +150,41 @@ namespace memepp {
 	template<typename _Ty>
 	inline variable_buffer& variable_buffer::append(const _Ty& _v, megopp::endian_t _endian)
 	{
-		typename megopp::type_with_size<sizeof(_Ty)>::uint _value = 0;
-		memcpy(&_value, &_v, sizeof(_value));
+		typename megopp::type_with_size<sizeof(_Ty)>::uint value = 0;
+		memcpy(&value, &_v, sizeof(value));
 
 #if MEGO_ENDIAN__LITTLE_BYTE
         if (_endian == megopp::endian_t::big_byte)
         {
-            _value = megopp::endian::byte_swap(_value);
+			value = megopp::endian::byte_swap(value);
         }
 #elif MEGO_ENDIAN__BIG_BYTE
         if (_endian == megopp::endian_t::little_byte)
         {
-			_value = megopp::endian::byte_swap(_value);
+			value = megopp::endian::byte_swap(value);
         }
 #endif
-        return append(reinterpret_cast<const_pointer>(&_value), static_cast<size_type>(sizeof(_value)));
+        return append(reinterpret_cast<const_pointer>(&value), static_cast<size_type>(sizeof(value)));
 	}
     
 	template<typename _Ty>
 	inline variable_buffer& variable_buffer::insert(size_type _pos, const _Ty& _v, megopp::endian_t _endian)
 	{
-        typename megopp::type_with_size<sizeof(_Ty)>::uint _value = 0;
-        memcpy(&_value, &_v, sizeof(_value));
+        typename megopp::type_with_size<sizeof(_Ty)>::uint value = 0;
+        memcpy(&value, &_v, sizeof(value));
         
 #if MEGO_ENDIAN__LITTLE_BYTE
         if (_endian == megopp::endian_t::big_byte)
         {
-            _value = megopp::endian::byte_swap(_value);
+			value = megopp::endian::byte_swap(value);
         }
 #elif MEGO_ENDIAN__BIG_BYTE
         if (_endian == megopp::endian_t::little_byte)
         {
-            _value = megopp::endian::byte_swap(_value);
+			value = megopp::endian::byte_swap(value);
         }
 #endif
-        return insert(_pos, reinterpret_cast<const_pointer>(&_value), static_cast<size_type>(sizeof(_value)));
+        return insert(_pos, reinterpret_cast<const_pointer>(&value), static_cast<size_type>(sizeof(value)));
 	}
 
 };

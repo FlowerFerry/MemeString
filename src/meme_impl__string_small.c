@@ -6,6 +6,7 @@ int MemeStringSmall_initByU8bytes(
 	MemeStringSmall_t* _s, const MemeByte_t* _utf8, size_t _len)
 {
 	assert(_s);
+	assert(_utf8 != NULL);
 	assert(_len <= MMSTR__GET_SMALL_BUF_MAX_SIZE);
 
 	if (_utf8) {
@@ -131,9 +132,10 @@ int MemeStringSmall_appendWithByte(MemeStringSmall_t* _s, MemeInteger_t _count, 
 int MemeStringSmall_appendWithBytes(MemeStringSmall_t* _s, const MemeByte_t* _buf, MemeInteger_t _buflen)
 {
 	assert(_s);
-	assert(_buf);
 
-	memcpy(_s->buffer_ + MemeStringSmall_byteSize(_s), _buf, _buflen);
+	if (_buf != NULL) {
+		memcpy(_s->buffer_ + MemeStringSmall_byteSize(_s), _buf, _buflen);
+	}
 	_s->capacity_ -= (uint8_t)_buflen;
 	_s->buffer_[MemeStringSmall_byteSize(_s)] = 0;
 

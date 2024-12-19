@@ -37,6 +37,7 @@ int
 MemeStringMedium_appendWithBytes(
 	MemeStringMedium_t* _s, const MemeByte_t* _buf, MemeInteger_t _buflen)
 {
+	
 	if (MemeStringMedium_availableByteCapacity(_s) < _buflen)
 	{
 		int result = MemeStringImpl_capacityExpansionWithModifiable(
@@ -45,7 +46,9 @@ MemeStringMedium_appendWithBytes(
 			return result;
 	}
 
-	memcpy(MemeStringMedium_iteratorEnd(_s), _buf, _buflen);
+	if (_buf != NULL) {
+		memcpy(MemeStringMedium_iteratorEnd(_s), _buf, _buflen);
+	}
 	MemeStringMedium_byteSizeOffsetAndSetZero(_s, _buflen);
 	return 0;
 }
@@ -54,6 +57,8 @@ int
 MemeStringMedium_insertWithBytes(
 	MemeStringMedium_t* _s, MemeInteger_t _pos, const MemeByte_t* _buf, MemeInteger_t _buflen)
 {
+	assert(_buf != NULL);
+
 	if (_pos + _buflen <= MemeStringMedium_frontCapacity(_s))
 	{
 		if (_pos != 0)
@@ -111,6 +116,8 @@ MemeStringMedium_initWithCapacity(
 int
 MemeStringMedium_assign(MemeStringMedium_t* _s, const MemeByte_t* _buf, MemeInteger_t _len)
 {
+	assert(_buf != NULL);
+
 	if (MemeStringMedium_maxByteCapacity(_s) < _len)
 	{
 		int result = MemeStringImpl_capacityExpansionWithModifiable(

@@ -150,11 +150,19 @@ MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_toEnUpper(
 	const mmsstk_t* _s, size_t _object_size);
 
+MEME_API mgec_t
+MEME_STDCALL MemeStringStack_toEnUpper_v2(
+	const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _obj_size);
+
 //! @param _s The string stack object, must be initialized.
 //! @deprecated 将来可能会有ABI问题
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_toEnLower(
 	const mmsstk_t* _s, size_t _object_size);
+
+MEME_API mgec_t
+MEME_STDCALL MemeStringStack_toEnLower_v2(
+	const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _obj_size);
 
 //! @param _s The string stack object, must be initialized.
 //! @deprecated 将来可能会有ABI问题
@@ -162,17 +170,29 @@ MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_trimSpace(
     const mmsstk_t* _s, size_t _object_size);
 
+MEME_API mgec_t
+MEME_STDCALL MemeStringStack_trimSpace_v2(
+	const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _obj_size);
+
 //! @param _s The string stack object, must be initialized.
 //! @deprecated 将来可能会有ABI问题
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_trimLeftSpace(
     const mmsstk_t* _s, size_t _object_size);
 
+MEME_API mgec_t
+MEME_STDCALL MemeStringStack_trimLeftSpace_v2(
+    const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _obj_size);
+
 //! @param _s The string stack object, must be initialized.
 //! @deprecated 将来可能会有ABI问题
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_trimRightSpace(
     const mmsstk_t* _s, size_t _object_size);
+
+MEME_API mgec_t
+MEME_STDCALL MemeStringStack_trimRightSpace_v2(
+    const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _obj_size);
 
 //! @param _s The string stack object, must be initialized.
 //! @deprecated 将来可能会有ABI问题
@@ -199,6 +219,10 @@ MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_getRepeat(
 	size_t _object_size, mmint_t _count, const char* _s, mmint_t _len);
 
+MEME_API mgec_t
+MEME_STDCALL MemeStringStack_getRepeat_v2(
+    mmstrstk_t* _out, mmint_t _obj_size, mmint_t _count, const char* _in, mmint_t _in_len);
+
 //! @param _s The string stack object, must be initialized.
 //! @deprecated 将来可能会有ABI问题
 MEME_API mmsstk_t
@@ -212,6 +236,10 @@ MEME_STDCALL MemeStringStack_replace(
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_toValidUtf8(
     const mmsstk_t* _s, size_t _object_size);
+
+MEME_API mgec_t
+MEME_STDCALL MemeStringStack_toValidUtf8_v2(
+    const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _obj_size);
 
 //MEME_API mmstrstk_t
 //MEME_STDCALL MemeStringStack_fromInt(

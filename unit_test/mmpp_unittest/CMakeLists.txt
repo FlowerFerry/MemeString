@@ -34,6 +34,9 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_split.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_mid.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_resize.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_repeat.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_concat.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_utf8.cpp
 )
 
 function(mmut_create_exec_for_stdcxx  exec_name cxx_standard)
@@ -80,3 +83,10 @@ if(NOT MMUT_PARENT_LIBRARY_FILE STREQUAL "")
 	$<TARGET_FILE_DIR:${MMUT_CXX11_EXEC_NAME}>
   )
 endif()
+
+enable_testing()
+
+foreach(cxx_std IN ITEMS 11 14 17)
+  add_test(NAME ${PROJECT_NAME}_cxx${cxx_std} COMMAND ${PROJECT_NAME}_cxx${cxx_std})
+	
+endforeach()

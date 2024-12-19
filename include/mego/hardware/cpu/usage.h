@@ -55,6 +55,8 @@ MG_CAPI_INLINE double __mghw_cpu_usage_calc(
 MG_CAPI_INLINE double mghw_cpu_usage()
 {
 #if MG_OS__WIN_AVAIL
+    // TO_DO: windows 10 之后的版本可以使用性能监视器API，获取 % Processor Utility 的值
+
     MEGO__THREAD_LOCAL static FILETIME prevIdleTime = { 0, 0 }, prevKernelTime = { 0, 0 }, prevUserTime = { 0, 0 };
     FILETIME currIdleTime, currKernelTime, currUserTime;
     if (GetSystemTimes(&currIdleTime, &currKernelTime, &currUserTime) == FALSE)

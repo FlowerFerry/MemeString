@@ -2,6 +2,7 @@
 #include <memepp/string.hpp>
 #include <memepp/string_view.hpp>
 #include <megopp/util/scope_cleanup.h>
+#include <memepp/convert/std/c_str.hpp>
 
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
@@ -1966,4 +1967,30 @@ TEST_CASE("memepp::string - 00", "Accidents encountered in engineering practice"
     do {
         memepp::string_view sv = memepp::string{}.to_large();
     } while (0);
+
+    memepp::string s01_01;
+    char* p01_01 = (char*)malloc(16);
+    REQUIRE(p01_01 != NULL);
+    memcpy(p01_01, "123456789ABCDEF", 15);
+    p01_01[15] = '\0';
+
+    s01_01 = memepp::convert::takeover(p01_01, -1, free);
+    REQUIRE(s01_01 == "123456789ABCDEF");
+
+    p01_01 = new char[16];
+    memcpy(p01_01, "FEDCBA987654321", 15);
+    p01_01[15] = '\0';
+    s01_01 = memepp::convert::takeover(p01_01, -1, [](void* _p) { delete[] _p; });
+    REQUIRE(s01_01 == "FEDCBA987654321");
+
+    const char cz01_02[] =
+        "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789" 
+        "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
+
+    char* p01_02 = (char*)malloc(1024);
+    REQUIRE(p01_02 != NULL);
+
+    memcpy(p01_02, cz01_02, sizeof(cz01_02));
+    s01_01 = memepp::convert::takeover(p01_02, -1, free);
+    REQUIRE(s01_01 == cz01_02);
 }
