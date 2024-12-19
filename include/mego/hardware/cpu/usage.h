@@ -41,7 +41,7 @@ MG_CAPI_INLINE double __mghw_cpu_usage_calc(
     idleDiff   = currIdle.QuadPart - prevIdle.QuadPart;
     kernelDiff = currKernel.QuadPart - prevKernel.QuadPart;
     userDiff   = currUser.QuadPart - prevUser.QuadPart;
-    totalDiff  = kernelDiff + userDiff - idleDiff;
+    totalDiff  = kernelDiff + userDiff + idleDiff;
 
     if (totalDiff == 0)
         return usage;
