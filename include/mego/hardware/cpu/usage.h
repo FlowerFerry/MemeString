@@ -5,6 +5,7 @@
 #include <mego/predef/symbol/inline.h>
 #include <mego/util/os/windows/windows_simplify.h>
 
+#define __STDC_WANT_LIB_EXT1__ 1
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -75,15 +76,21 @@ MG_CAPI_INLINE double mghw_cpu_usage()
     static double usage = nan("");
     FILE* fp = fopen("/proc/stat", "r");
     if (fp == NULL)
-        return -1.0f;
+        return nan("");
     
     fgets(buf, sizeof(buf) - 1, fp);
     buf[sizeof(buf) - 1] = '\0';
     fclose(fp);
 
+#ifdef __STDC_LIB_EXT1__
     if (sscanf_s(buf, "%s %llu %llu %llu %llu %llu %llu %llu", 
         name, sizeof(name) - 1, &user, &nice, &system, &idle, &io_wait, &irq, &soft_irq) != 8)
-        return -1.0f;
+        return nan("");
+#else
+    if (sscanf(buf, "%s %llu %llu %llu %llu %llu %llu %llu", 
+        name, &user, &nice, &system, &idle, &io_wait, &irq, &soft_irq) != 8)
+        return nan("");
+#endif
     name[sizeof(name) - 1] = '\0';
     
     curr_idle  = idle + io_wait;
