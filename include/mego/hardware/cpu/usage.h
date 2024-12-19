@@ -72,7 +72,7 @@ MG_CAPI_INLINE double mghw_cpu_usage()
 	uint64_t user = 0, nice = 0, system = 0, idle = 0, io_wait = 0, irq = 0, soft_irq = 0;
     uint64_t curr_idle = 0, curr_total = 0;
     uint64_t total_diff = 0;
-    static uint64_t prev_idle = 0; prev_total = 0;
+    static uint64_t prev_idle = 0, prev_total = 0;
     static double usage = nan("");
     FILE* fp = fopen("/proc/stat", "r");
     if (fp == NULL)
