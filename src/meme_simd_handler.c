@@ -1,5 +1,4 @@
 ﻿
-#include <mego/predef/symbol/thread_local.h>
 #include <mego/predef/architecture/x86.h>
 #include <mego/hardware/cpu/instruction.h>
 #include <mego/thrd/call_once.h>
