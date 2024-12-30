@@ -1,6 +1,7 @@
 ﻿
 #include <immintrin.h>
 #include <meme/string_fwd.h>
+#include <mego/predef/compiler/visualc.h>
 
 void mmsimd_avx2_i8_add(const int8_t* _a, const int8_t* _b, int8_t* _c, mmint_t _n)
 {
@@ -70,6 +71,7 @@ void mmsimd_avx2_i8_sub_scalar(const int8_t* _a, int8_t _b, int8_t* _c, mmint_t 
         _c[i] = _a[i] - _b;
 }
 
+#if MG_COMP__MSVC_AVAIL
 void mmsimd_avx2_i8_div(const int8_t* _a, const int8_t* _b, int8_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -86,7 +88,9 @@ void mmsimd_avx2_i8_div(const int8_t* _a, const int8_t* _b, int8_t* _c, mmint_t 
     for (; i < _n; ++i)
         _c[i] = _a[i] / _b[i];
 }
+#endif
 
+#if MG_COMP__MSVC_AVAIL
 void mmsimd_avx2_i8_div_scalar(const int8_t* _a, int8_t _b, int8_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -103,6 +107,7 @@ void mmsimd_avx2_i8_div_scalar(const int8_t* _a, int8_t _b, int8_t* _c, mmint_t 
     for (; i < _n; ++i)
         _c[i] = _a[i] / _b;
 }
+#endif
 
 void mmsimd_avx2_u8_add(const uint8_t* _a, const uint8_t* _b, uint8_t* _c, mmint_t _n)
 {
