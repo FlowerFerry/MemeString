@@ -279,13 +279,13 @@ namespace details {
         
         switch (_e->type()) {
         case basic_err::typ::desc:
-            return dynamic_cast<const desc_err*>(_e)->message_;
+            return reinterpret_cast<const desc_err*>(_e)->message_;
         case basic_err::typ::sln:
-            return dynamic_cast<const sln_err*>(_e)->message_;
+            return reinterpret_cast<const sln_err*>(_e)->message_;
         case basic_err::typ::fninfo_and_sln:
-            return dynamic_cast<const fninfo_and_sln_err*>(_e)->message_;
+            return reinterpret_cast<const fninfo_and_sln_err*>(_e)->message_;
         case basic_err::typ::full:
-            return dynamic_cast<const full_err*>(_e)->message_;
+            return reinterpret_cast<const full_err*>(_e)->message_;
         default:
             return mgpp::help::singleton<memepp::string>::instance();
         }
@@ -298,11 +298,11 @@ namespace details {
 
         switch (_e->type()) {
         case basic_err::typ::sln:
-            return dynamic_cast<const sln_err*>(_e)->solution_;
+            return reinterpret_cast<const sln_err*>(_e)->solution_;
         case basic_err::typ::fninfo_and_sln:
-            return dynamic_cast<const fninfo_and_sln_err*>(_e)->solution_;
+            return reinterpret_cast<const fninfo_and_sln_err*>(_e)->solution_;
         case basic_err::typ::full:
-            return dynamic_cast<const full_err*>(_e)->solution_;
+            return reinterpret_cast<const full_err*>(_e)->solution_;
         default:
             return mgpp::help::singleton<memepp::string>::instance();
         }
@@ -316,7 +316,7 @@ namespace details {
         switch (_e->type()) {
         case basic_err::typ::fninfo:
         case basic_err::typ::fninfo_and_sln:
-            return &dynamic_cast<const fninfo_err*>(_e)->fninfo_;
+            return &(reinterpret_cast<const fninfo_err*>(_e)->fninfo_);
         default:
             return nullptr;
         }
@@ -329,7 +329,7 @@ namespace details {
 
         switch (_e->type()) {
         case basic_err::typ::user:
-            return dynamic_cast<const user_err*>(_e)->data_;
+            return reinterpret_cast<const user_err*>(_e)->data_;
         default:
             return nullptr;
         }
@@ -342,19 +342,19 @@ namespace details {
 
         switch (_e->type()) {
         case basic_err::typ::desc:
-            dynamic_cast<desc_err*>(_e.get())->message_ = _msg;
+            reinterpret_cast<desc_err*>(_e.get())->message_ = _msg;
             break;
         case basic_err::typ::sln:
-            dynamic_cast<sln_err*>(_e.get())->message_ = _msg;
+            reinterpret_cast<sln_err*>(_e.get())->message_ = _msg;
             break;
         case basic_err::typ::fninfo:
-            _e = make_err(_msg, dynamic_cast<fninfo_err*>(_e.get())->fninfo_);
+            _e = make_err(_msg, reinterpret_cast<fninfo_err*>(_e.get())->fninfo_);
             break;
         case basic_err::typ::fninfo_and_sln:
-            dynamic_cast<fninfo_and_sln_err*>(_e.get())->message_ = _msg;
+            reinterpret_cast<fninfo_and_sln_err*>(_e.get())->message_ = _msg;
             break;
         case basic_err::typ::full:
-            dynamic_cast<full_err*>(_e.get())->message_ = _msg;
+            reinterpret_cast<full_err*>(_e.get())->message_ = _msg;
             break;
         default:
             break;
@@ -371,16 +371,16 @@ namespace details {
             _e = make_err({}, _sln);
             break;
         case basic_err::typ::sln:
-            dynamic_cast<sln_err*>(_e.get())->solution_ = _sln;
+            reinterpret_cast<sln_err*>(_e.get())->solution_ = _sln;
             break;
         case basic_err::typ::fninfo:
-            _e = make_err({}, _sln, dynamic_cast<fninfo_err*>(_e.get())->fninfo_);
+            _e = make_err({}, _sln, reinterpret_cast<fninfo_err*>(_e.get())->fninfo_);
             break;
         case basic_err::typ::fninfo_and_sln:
-            dynamic_cast<fninfo_and_sln_err*>(_e.get())->solution_ = _sln;
+            reinterpret_cast<fninfo_and_sln_err*>(_e.get())->solution_ = _sln;
             break;
         case basic_err::typ::full:
-            dynamic_cast<full_err*>(_e.get())->solution_ = _sln;
+            reinterpret_cast<full_err*>(_e.get())->solution_ = _sln;
             break;
         default:
             break;
@@ -394,21 +394,21 @@ namespace details {
 
         switch (_e->type()) {
         case basic_err::typ::desc:
-            _e = make_err(dynamic_cast<desc_err*>(_e.get())->message_, _fninfo);
+            _e = make_err(reinterpret_cast<desc_err*>(_e.get())->message_, _fninfo);
             break;
         case basic_err::typ::sln:
         {
-            auto p = dynamic_cast<sln_err*>(_e.get());
+            auto p = reinterpret_cast<sln_err*>(_e.get());
             _e = make_err(p->message_, p->solution_, _fninfo);
         } break;
         case basic_err::typ::fninfo:
-            dynamic_cast<fninfo_err*>(_e.get())->fninfo_ = _fninfo;
+            reinterpret_cast<fninfo_err*>(_e.get())->fninfo_ = _fninfo;
             break;
         case basic_err::typ::fninfo_and_sln:
-            dynamic_cast<fninfo_and_sln_err*>(_e.get())->fninfo_ = _fninfo;
+            reinterpret_cast<fninfo_and_sln_err*>(_e.get())->fninfo_ = _fninfo;
             break;
         case basic_err::typ::full:
-            dynamic_cast<full_err*>(_e.get())->fninfo_ = _fninfo;
+            reinterpret_cast<full_err*>(_e.get())->fninfo_ = _fninfo;
             break;
         default:
             break;
@@ -422,10 +422,10 @@ namespace details {
 
         switch (_e->type()) {
         case basic_err::typ::user:
-            dynamic_cast<user_err*>(_e.get())->data_ = _data;
+            reinterpret_cast<user_err*>(_e.get())->data_ = _data;
             break;
         case basic_err::typ::full:
-            dynamic_cast<full_err*>(_e.get())->data_ = _data;
+            reinterpret_cast<full_err*>(_e.get())->data_ = _data;
             break;
         default:
             break;

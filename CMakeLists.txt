@@ -60,6 +60,7 @@ set(SRC_FILES
     src/meme_variant.c
     src/meme_atomic__basics.c
     src/meme_conc_atomic.c
+    src/meme_simd_handler.c
 )
 
 add_library(${MEME_PROJECT_NAME} SHARED ${SRC_FILES})
@@ -114,6 +115,6 @@ if (MEMESTRING_UNITTEST_ENABLE)
   add_subdirectory(unit_test/mmpp_unittest)
   add_subdirectory(unit_test/mmpp_thrd_unittest)
   add_subdirectory(unit_test/meme_atomic_unittest)
-
+  add_subdirectory(unit_test/meme_simd_unittest)
 endif()
 

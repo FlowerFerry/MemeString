@@ -43,7 +43,7 @@ mghw_detect_supported_simd_instructions() {
     return MGHW_SIMD_INSTRUCTION__NEON;
 }
 
-#elif MEGO_ARCH__AMD64
+#elif MEGO_ARCH__X86 || MEGO_ARCH__X64
 
 //! @brief 检测并返回当前系统支持的 SIMD 指令集。
 //!

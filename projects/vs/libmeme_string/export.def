@@ -1,6 +1,7 @@
 ﻿LIBRARY libmeme_string
 
 EXPORTS
+    ; indexs: 0 ~ 299
     MemeStringStack_init @1
     ; DEPRECATED
     MemeStringStack_getInitObject @2
@@ -17,17 +18,29 @@ EXPORTS
     MemeStringStack_assign @13
     MemeStringStack_assignByU8bytes @14
     MemeStringStack_assignByBuffer @15
+    ; DEPRECATED
     MemeStringStack_mid @16
+    ; DEPRECATED
     MemeStringStack_toEnUpper @17
+    ; DEPRECATED
     MemeStringStack_toEnLower @18
+    ; DEPRECATED
     MemeStringStack_trimSpace @19
+    ; DEPRECATED
     MemeStringStack_trimLeftSpace @20
+    ; DEPRECATED
     MemeStringStack_trimRightSpace @21
+    ; DEPRECATED
     MemeStringStack_trimByCuts @22
+    ; DEPRECATED
     MemeStringStack_trimByCondByteFunc @23
+    ; DEPRECATED
     MemeStringStack_toValidUtf8 @24
+    ; DEPRECATED
     MemeStringStack_mappingConvert @25
+    ; DEPRECATED
     MemeStringStack_vformatInCstyle_v2 @26
+    ; DEPRECATED
     MemeStringStack_formatInCstyle_v2 @27
     MemeBufferStack_init @28
     MemeBufferStack_initByOther @29
@@ -80,6 +93,7 @@ EXPORTS
     MemeString_startsMatchWithUtf8bytes @76
     MemeString_endsMatchWithOther @77
     MemeString_endsMatchWithUtf8bytes @78
+    ; DEPRECATED
     MemeString_split @79
     MemeString_writeU16Chars @80
     MemeString_byteData @81
@@ -200,12 +214,17 @@ EXPORTS
     MemeString_checkHeadTailMemory @178
     MemeString_compare @179
     MemeStringStack_initByRune @180
+    ; DEPRECATED
     MemeStringStack_getRepeat @181
+    ; DEPRECATED
     MemeStringStack_replace @182
     MemeString_indexOfWithUtf8bytesAndSizeLimit @183
+    ; DEPRECATED
     MemeString_splitByCondByteFunc @184
     MemeString_writeBytes @185
+    ; DEPRECATED
     MemeStringStack_concat @186
+    ; DEPRECATED
     MemeString_containsOnlyAscii @187
     mmutf_u8rune_char_size @188
     mmutf_u8rune_valid @189
@@ -298,6 +317,7 @@ EXPORTS
     MemeVariantStack_convToUInt @276
     MemeVariantStack_setInt @277
     MemeVariantStack_setUInt @278
+    ; DEPRECATED
     MemeStringStack_vformatWithLimitInCstyle @279
     MemeVariableBuffer_resizeAndOverwrite @280
     MemeString_foreach @281
@@ -306,6 +326,7 @@ EXPORTS
     MemeString_runeBack @284
     MemeString_reset @285
     MemeStringOption_getStorageSmallLimit @286
+    ; mmconc_atomic_* indexs: 300 ~ 599
     mmconc_atomic_bl_base_init @300
     mmconc_atomic_i8_base_init @301
     mmconc_atomic_u8_base_init @302
@@ -440,3 +461,167 @@ EXPORTS
     MemeVariantStack_regSize @7000
     MemeVariantStack_objSize @7001
     MemeStringViewUnsafeStack_split @8002
+    ; mmsimd_* indexs: 12000 ~
+    mmsimd_i8_add @12000
+    mmsimd_i8_add_scalar @12001
+    mmsimd_i8_sub @12002
+    mmsimd_i8_sub_scalar @12003
+    mmsimd_i8_mul @12004
+    mmsimd_i8_mul_scalar @12005
+    mmsimd_i8_div @12006
+    mmsimd_i8_div_scalar @12007
+    mmsimd_u8_add @12008
+    mmsimd_u8_add_scalar @12009
+    mmsimd_u8_sub @12010
+    mmsimd_u8_sub_scalar @12011
+    mmsimd_u8_mul @12012
+    mmsimd_u8_mul_scalar @12013
+    mmsimd_u8_div @12014
+    mmsimd_u8_div_scalar @12015
+    mmsimd_i8_to_i16 @12016
+    mmsimd_i8_to_u16 @12017
+    mmsimd_i8_to_i32 @12018
+    mmsimd_i8_to_u32 @12019
+    mmsimd_i8_to_i64 @12020
+    mmsimd_i8_to_u64 @12021
+    mmsimd_i8_to_f32 @12022
+    mmsimd_i8_to_f64 @12023
+    mmsimd_u8_to_i16 @12024
+    mmsimd_u8_to_u16 @12025
+    mmsimd_u8_to_i32 @12026
+    mmsimd_u8_to_u32 @12027
+    mmsimd_u8_to_i64 @12028
+    mmsimd_u8_to_u64 @12029
+    mmsimd_u8_to_f32 @12030
+    mmsimd_u8_to_f64 @12031
+    mmsimd_i16_add @12032
+    mmsimd_i16_add_scalar @12033
+    mmsimd_i16_sub @12034
+    mmsimd_i16_sub_scalar @12035
+    mmsimd_i16_mul @12036
+    mmsimd_i16_mul_scalar @12037
+    mmsimd_i16_div @12038
+    mmsimd_i16_div_scalar @12039
+    mmsimd_u16_add @12040
+    mmsimd_u16_add_scalar @12041
+    mmsimd_u16_sub @12042
+    mmsimd_u16_sub_scalar @12043
+    mmsimd_u16_mul @12044
+    mmsimd_u16_mul_scalar @12045
+    mmsimd_u16_div @12046
+    mmsimd_u16_div_scalar @12047
+    mmsimd_i16_to_i8 @12048
+    mmsimd_i16_to_u8 @12049
+    mmsimd_i16_to_i32 @12050
+    mmsimd_i16_to_u32 @12051
+    mmsimd_i16_to_i64 @12052
+    mmsimd_i16_to_u64 @12053
+    mmsimd_i16_to_f32 @12054
+    mmsimd_i16_to_f64 @12055
+    mmsimd_u16_to_i8 @12056
+    mmsimd_u16_to_u8 @12057
+    mmsimd_u16_to_i32 @12058
+    mmsimd_u16_to_u32 @12059
+    mmsimd_u16_to_i64 @12060
+    mmsimd_u16_to_u64 @12061
+    mmsimd_u16_to_f32 @12062
+    mmsimd_u16_to_f64 @12063
+    mmsimd_i32_add @12064
+    mmsimd_i32_add_scalar @12065
+    mmsimd_i32_sub @12066
+    mmsimd_i32_sub_scalar @12067
+    mmsimd_i32_mul @12068
+    mmsimd_i32_mul_scalar @12069
+    mmsimd_i32_div @12070
+    mmsimd_i32_div_scalar @12071
+    mmsimd_u32_add @12072
+    mmsimd_u32_add_scalar @12073
+    mmsimd_u32_sub @12074
+    mmsimd_u32_sub_scalar @12075
+    mmsimd_u32_mul @12076
+    mmsimd_u32_mul_scalar @12077
+    mmsimd_u32_div @12078
+    mmsimd_u32_div_scalar @12079
+    mmsimd_i32_to_i8 @12080
+    mmsimd_i32_to_u8 @12081
+    mmsimd_i32_to_i16 @12082
+    mmsimd_i32_to_u16 @12083
+    mmsimd_i32_to_i64 @12084
+    mmsimd_i32_to_u64 @12085
+    mmsimd_i32_to_f32 @12086
+    mmsimd_i32_to_f64 @12087
+    mmsimd_u32_to_i8 @12088
+    mmsimd_u32_to_u8 @12089
+    mmsimd_u32_to_i16 @12090
+    mmsimd_u32_to_u16 @12091
+    mmsimd_u32_to_i64 @12092
+    mmsimd_u32_to_u64 @12093
+    mmsimd_u32_to_f32 @12094
+    mmsimd_u32_to_f64 @12095
+    mmsimd_i64_add @12096
+    mmsimd_i64_add_scalar @12097
+    mmsimd_i64_sub @12098
+    mmsimd_i64_sub_scalar @12099
+    mmsimd_i64_mul @12100
+    mmsimd_i64_mul_scalar @12101
+    mmsimd_i64_div @12102
+    mmsimd_i64_div_scalar @12103
+    mmsimd_u64_add @12104
+    mmsimd_u64_add_scalar @12105
+    mmsimd_u64_sub @12106
+    mmsimd_u64_sub_scalar @12107
+    mmsimd_u64_mul @12108
+    mmsimd_u64_mul_scalar @12109
+    mmsimd_u64_div @12110
+    mmsimd_u64_div_scalar @12111
+    mmsimd_i64_to_i8 @12112
+    mmsimd_i64_to_u8 @12113
+    mmsimd_i64_to_i16 @12114
+    mmsimd_i64_to_u16 @12115
+    mmsimd_i64_to_i32 @12116
+    mmsimd_i64_to_u32 @12117
+    mmsimd_i64_to_f32 @12118
+    mmsimd_i64_to_f64 @12119
+    mmsimd_u64_to_i8 @12120
+    mmsimd_u64_to_u8 @12121
+    mmsimd_u64_to_i16 @12122
+    mmsimd_u64_to_u16 @12123
+    mmsimd_u64_to_i32 @12124
+    mmsimd_u64_to_u32 @12125
+    mmsimd_u64_to_f32 @12126
+    mmsimd_u64_to_f64 @12127
+    mmsimd_f32_add @12128
+    mmsimd_f32_add_scalar @12129
+    mmsimd_f32_sub @12130
+    mmsimd_f32_sub_scalar @12131
+    mmsimd_f32_mul @12132
+    mmsimd_f32_mul_scalar @12133
+    mmsimd_f32_div @12134
+    mmsimd_f32_div_scalar @12135
+    mmsimd_f32_to_i8 @12136
+    mmsimd_f32_to_u8 @12137
+    mmsimd_f32_to_i16 @12138
+    mmsimd_f32_to_u16 @12139
+    mmsimd_f32_to_i32 @12140
+    mmsimd_f32_to_u32 @12141
+    mmsimd_f32_to_i64 @12142
+    mmsimd_f32_to_u64 @12143
+    mmsimd_f32_to_f64 @12144
+    mmsimd_f64_add @12145
+    mmsimd_f64_add_scalar @12146
+    mmsimd_f64_sub @12147
+    mmsimd_f64_sub_scalar @12148
+    mmsimd_f64_mul @12149
+    mmsimd_f64_mul_scalar @12150
+    mmsimd_f64_div @12151
+    mmsimd_f64_div_scalar @12152
+    mmsimd_f64_to_i8 @12153
+    mmsimd_f64_to_u8 @12154
+    mmsimd_f64_to_i16 @12155
+    mmsimd_f64_to_u16 @12156
+    mmsimd_f64_to_i32 @12157
+    mmsimd_f64_to_u32 @12158
+    mmsimd_f64_to_i64 @12159
+    mmsimd_f64_to_u64 @12160
+    mmsimd_f64_to_f32 @12161
+    

@@ -4,6 +4,7 @@
 
 #include "mego/predef/threads.h"
 #include <mego/predef/symbol/inline.h>
+#include <mego/util/os/windows/windows_simplify.h>
 #include <stdint.h>
 #include <assert.h>
 
@@ -14,7 +15,7 @@ extern "C" {
 #if MEGO_THR__WINTHREADS_AVAILABLE
 typedef struct {
 		long volatile status;
-		uint8_t buf[44];
+		uint8_t buf[44]; //< sizeof(RTL_CRITICAL_SECTION) + sizeof(ULONG)
 } mgthrd_once_flag;
 
 # define MGTHRD_ONCE_FLAG_INIT { 0, }

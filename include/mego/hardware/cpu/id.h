@@ -41,7 +41,7 @@
 #define MGHW_CPUID_BIT__ECX_AVX512VPOPCNTDQ    ((uint32_t)1 << 14)
 #define MGHW_CPUID_BIT__EDX_AVX512VP2INTERSECT ((uint32_t)1 <<  8)
 
-#if MEGO_ARCH__AMD64
+#if MEGO_ARCH__X86 || MEGO_ARCH__X64
 
 //! @brief 执行 CPUID 指令。
 //!
