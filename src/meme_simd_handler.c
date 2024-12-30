@@ -137,7 +137,11 @@ static mmsimd_arith8_hdlr_t* mmsimd_get_avx2_arith8_handler()
         .u8_add_fn = mmsimd_avx2_u8_add,
         .u8_sub_fn = mmsimd_avx2_u8_sub,
         .u8_mul_fn = mmsimd_default_u8_mul,
+#if MG_COMP__MSVC_AVAIL
         .u8_div_fn = mmsimd_avx2_u8_div,
+#else
+        .u8_div_fn = mmsimd_default_u8_div,
+#endif
         .i8_add_scalar_fn = mmsimd_avx2_i8_add_scalar,
         .i8_sub_scalar_fn = mmsimd_avx2_i8_sub_scalar,
         .i8_mul_scalar_fn = mmsimd_default_i8_mul_scalar,
@@ -149,7 +153,11 @@ static mmsimd_arith8_hdlr_t* mmsimd_get_avx2_arith8_handler()
         .u8_add_scalar_fn = mmsimd_avx2_u8_add_scalar,
         .u8_sub_scalar_fn = mmsimd_avx2_u8_sub_scalar,
         .u8_mul_scalar_fn = mmsimd_default_u8_mul_scalar,
+#if MG_COMP__MSVC_AVAIL
         .u8_div_scalar_fn = mmsimd_avx2_u8_div_scalar
+#else
+        .u8_div_scalar_fn = mmsimd_default_u8_div_scalar
+#endif
     };
     return &hdlr;
     

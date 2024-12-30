@@ -80,6 +80,15 @@ if (MSVC)
       "/DEF:${CMAKE_CURRENT_SOURCE_DIR}/projects/vs/libmeme_string/export.def")
 endif()
 
+if (NOT MSVC)
+  include(CheckCCompilerFlag)
+  check_c_compiler_flag("-mavx2" MMSTR_COMPILER_SUPPORTS_AVX2)
+
+  if (MMSTR_COMPILER_SUPPORTS_AVX2)
+	target_compile_options(${MEME_PROJECT_NAME} PRIVATE -mavx2)
+  endif()
+endif()
+
 # 设置 rpath
 set_target_properties(${MEME_PROJECT_NAME} PROPERTIES
     BUILD_WITH_INSTALL_RPATH TRUE

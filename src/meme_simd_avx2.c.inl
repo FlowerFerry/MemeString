@@ -129,15 +129,19 @@ void mmsimd_avx2_u8_sub_scalar(const uint8_t* _a, uint8_t _b, uint8_t* _c, mmint
     mmsimd_avx2_i8_sub_scalar((const int8_t*)_a, (int8_t)_b, (int8_t*)_c, _n);
 }
 
+#if MG_COMP__MSVC_AVAIL
 void mmsimd_avx2_u8_div(const uint8_t* _a, const uint8_t* _b, uint8_t* _c, mmint_t _n)
 {
     mmsimd_avx2_i8_div((const int8_t*)_a, (const int8_t*)_b, (int8_t*)_c, _n);
 }
+#endif
 
+#if MG_COMP__MSVC_AVAIL
 void mmsimd_avx2_u8_div_scalar(const uint8_t* _a, uint8_t _b, uint8_t* _c, mmint_t _n)
 {
     mmsimd_avx2_i8_div_scalar((const int8_t*)_a, (int8_t)_b, (int8_t*)_c, _n);
 }
+#endif
 
 void mmsimd_avx2_i8_to_i16(const int8_t* _in, int16_t* _out, mmint_t _n)
 {
