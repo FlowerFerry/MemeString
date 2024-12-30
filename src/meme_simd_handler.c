@@ -162,7 +162,7 @@ static mmsimd_arith8_hdlr_t* mmsimd_get_avx2_arith8_handler()
     return &hdlr;
     
 #else
-    return mmsimd_get_default_handler();
+    return mmsimd_get_default_arith8_handler();
 #endif
 }
 

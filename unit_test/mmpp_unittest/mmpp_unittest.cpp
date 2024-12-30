@@ -1980,7 +1980,7 @@ TEST_CASE("memepp::string - 00", "Accidents encountered in engineering practice"
     p01_01 = new char[16];
     memcpy(p01_01, "FEDCBA987654321", 15);
     p01_01[15] = '\0';
-    s01_01 = memepp::convert::takeover(p01_01, -1, [](void* _p) { delete[] _p; });
+    s01_01 = memepp::convert::takeover(p01_01, -1, [](void* _p) { delete[] (reinterpret_cast<char*>(_p)); });
     REQUIRE(s01_01 == "FEDCBA987654321");
 
     const char cz01_02[] =
