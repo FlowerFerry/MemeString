@@ -177,19 +177,19 @@ static mmsimd_arith8_hdlr_t* mmsimd_get_neon_arith8_handler()
         .i8_add_fn = mmsimd_neon_i8_add,
         .i8_sub_fn = mmsimd_neon_i8_sub,
         .i8_mul_fn = mmsimd_neon_i8_mul,
-        .i8_div_fn = mmsimd_neon_i8_div,
+        .i8_div_fn = mmsimd_default_i8_div,
         .u8_add_fn = mmsimd_neon_u8_add,
         .u8_sub_fn = mmsimd_neon_u8_sub,
         .u8_mul_fn = mmsimd_neon_u8_mul,
-        .u8_div_fn = mmsimd_neon_u8_div,
+        .u8_div_fn = mmsimd_default_u8_div,
         .i8_add_scalar_fn = mmsimd_neon_i8_add_scalar,
         .i8_sub_scalar_fn = mmsimd_neon_i8_sub_scalar,
         .i8_mul_scalar_fn = mmsimd_neon_i8_mul_scalar,
-        .i8_div_scalar_fn = mmsimd_neon_i8_div_scalar,
+        .i8_div_scalar_fn = mmsimd_default_i8_div_scalar,
         .u8_add_scalar_fn = mmsimd_neon_u8_add_scalar,
         .u8_sub_scalar_fn = mmsimd_neon_u8_sub_scalar,
         .u8_mul_scalar_fn = mmsimd_neon_u8_mul_scalar,
-        .u8_div_scalar_fn = mmsimd_neon_u8_div_scalar
+        .u8_div_scalar_fn = mmsimd_default_u8_div_scalar
     };
     return &hdlr;
 #else
@@ -204,19 +204,19 @@ static mmsimd_arith16_hdlr_t* mmsimd_get_neon_arith16_handler()
         .i16_add_fn = mmsimd_neon_i16_add,
         .i16_sub_fn = mmsimd_neon_i16_sub,
         .i16_mul_fn = mmsimd_neon_i16_mul,
-        .i16_div_fn = mmsimd_neon_i16_div,
+        .i16_div_fn = mmsimd_default_i16_div,
         .u16_add_fn = mmsimd_neon_u16_add,
         .u16_sub_fn = mmsimd_neon_u16_sub,
         .u16_mul_fn = mmsimd_neon_u16_mul,
-        .u16_div_fn = mmsimd_neon_u16_div,
+        .u16_div_fn = mmsimd_default_u16_div,
         .i16_add_scalar_fn = mmsimd_neon_i16_add_scalar,
         .i16_sub_scalar_fn = mmsimd_neon_i16_sub_scalar,
         .i16_mul_scalar_fn = mmsimd_neon_i16_mul_scalar,
-        .i16_div_scalar_fn = mmsimd_neon_i16_div_scalar,
+        .i16_div_scalar_fn = mmsimd_default_i16_div_scalar,
         .u16_add_scalar_fn = mmsimd_neon_u16_add_scalar,
         .u16_sub_scalar_fn = mmsimd_neon_u16_sub_scalar,
         .u16_mul_scalar_fn = mmsimd_neon_u16_mul_scalar,
-        .u16_div_scalar_fn = mmsimd_neon_u16_div_scalar
+        .u16_div_scalar_fn = mmsimd_default_u16_div_scalar
     };
     return &hdlr;
 #else
