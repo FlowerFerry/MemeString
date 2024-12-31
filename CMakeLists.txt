@@ -95,6 +95,7 @@ if (NOT MSVC)
     target_compile_options(${MEME_PROJECT_NAME} PRIVATE -mfpu=neon)
     message(STATUS "Compiler supports NEON")
   endif()
+
 endif()
 
 # 设置 rpath

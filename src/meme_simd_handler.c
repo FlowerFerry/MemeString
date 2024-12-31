@@ -10,7 +10,7 @@
 #if MEGO_ARCH__X86 || MEGO_ARCH__X64 
 #include "meme_simd_avx2.c.inl"
 #endif
-#if MEGO_ARCH__ARM
+#if MEGO_ARCH__ARM && defined(__ARM_NEON)
 #include "meme_simd_neon.c.inl"
 #endif
 
