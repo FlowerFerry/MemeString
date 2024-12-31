@@ -30,6 +30,8 @@ message(STATUS "MEMESTRING_SONAME_SUFFIX_ENABLE: ${MEMESTRING_SONAME_SUFFIX_ENAB
 message(STATUS "MEMESTRING_BENCHMARK_ENABLE: ${MEMESTRING_BENCHMARK_ENABLE}")
 message(STATUS "MEMESTRING_UNITTEST_ENABLE: ${MEMESTRING_UNITTEST_ENABLE}")
 
+include(CheckCCompilerFlag)
+
 # 添加链接库
 if (NOT WIN32)
   find_package(Threads REQUIRED)
@@ -81,11 +83,15 @@ if (MSVC)
 endif()
 
 if (NOT MSVC)
-  include(CheckCCompilerFlag)
   check_c_compiler_flag("-mavx2" MMSTR_COMPILER_SUPPORTS_AVX2)
+  check_c_compiler_flag("-mfpu=neon" MMSTR_COMPILER_SUPPORTS_NEON)
 
   if (MMSTR_COMPILER_SUPPORTS_AVX2)
-	target_compile_options(${MEME_PROJECT_NAME} PRIVATE -mavx2)
+	  target_compile_options(${MEME_PROJECT_NAME} PRIVATE -mavx2)
+  endif()
+
+  if (MMSTR_COMPILER_SUPPORTS_NEON)
+    target_compile_options(${MEME_PROJECT_NAME} PRIVATE -mfpu=neon)
   endif()
 endif()
 
