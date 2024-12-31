@@ -1,6 +1,8 @@
 
 #include <arm_neon.h>
 
+#if defined(__ARM_PCS_VFP) || defined(__SOFTFP__)
+
 void mmsimd_neon_i8_add(const int8_t* _a, const int8_t* _b, int8_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -408,3 +410,5 @@ void mmsimd_neon_u16_mul_scalar(const uint16_t* _a, uint16_t _b, uint16_t* _c, m
     for (; i < _n; ++i)
         _c[i] = _a[i] * _b;
 }
+
+#endif // defined(__ARM_PCS_VFP)
