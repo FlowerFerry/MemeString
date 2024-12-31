@@ -1,5 +1,5 @@
 
-#if defined(__ARM_PCS_VFP) || defined(__ARM_NEON)
+#if defined(__ARM_NEON)
 
 #include <arm_neon.h>
 
