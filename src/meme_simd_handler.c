@@ -1,5 +1,6 @@
 ﻿
 #include <mego/predef/architecture/x86.h>
+#include <mego/predef/architecture/arm.h>
 #include <mego/hardware/cpu/instruction.h>
 #include <mego/thrd/call_once.h>
 #include <meme/simd/simd.h>
@@ -8,6 +9,9 @@
 #include "meme_simd_default.c.inl"
 #if MEGO_ARCH__X86 || MEGO_ARCH__X64 
 #include "meme_simd_avx2.c.inl"
+#endif
+#if MEGO_ARCH__ARM
+#include "meme_simd_neon.c.inl"
 #endif
 
 #include <stdlib.h>
@@ -166,6 +170,60 @@ static mmsimd_arith8_hdlr_t* mmsimd_get_avx2_arith8_handler()
 #endif
 }
 
+static mmsimd_arith8_hdlr_t* mmsimd_get_neon_arith8_handler()
+{
+#if MEGO_ARCH__ARM
+    static mmsimd_arith8_hdlr_t hdlr = {
+        .i8_add_fn = mmsimd_neon_i8_add,
+        .i8_sub_fn = mmsimd_neon_i8_sub,
+        .i8_mul_fn = mmsimd_neon_i8_mul,
+        .i8_div_fn = mmsimd_neon_i8_div,
+        .u8_add_fn = mmsimd_neon_u8_add,
+        .u8_sub_fn = mmsimd_neon_u8_sub,
+        .u8_mul_fn = mmsimd_neon_u8_mul,
+        .u8_div_fn = mmsimd_neon_u8_div,
+        .i8_add_scalar_fn = mmsimd_neon_i8_add_scalar,
+        .i8_sub_scalar_fn = mmsimd_neon_i8_sub_scalar,
+        .i8_mul_scalar_fn = mmsimd_neon_i8_mul_scalar,
+        .i8_div_scalar_fn = mmsimd_neon_i8_div_scalar,
+        .u8_add_scalar_fn = mmsimd_neon_u8_add_scalar,
+        .u8_sub_scalar_fn = mmsimd_neon_u8_sub_scalar,
+        .u8_mul_scalar_fn = mmsimd_neon_u8_mul_scalar,
+        .u8_div_scalar_fn = mmsimd_neon_u8_div_scalar
+    };
+    return &hdlr;
+#else
+    return mmsimd_get_default_arith8_handler();
+#endif
+}
+
+static mmsimd_arith16_hdlr_t* mmsimd_get_neon_arith16_handler()
+{
+#if MEGO_ARCH__ARM
+    static mmsimd_arith16_hdlr_t hdlr = {
+        .i16_add_fn = mmsimd_neon_i16_add,
+        .i16_sub_fn = mmsimd_neon_i16_sub,
+        .i16_mul_fn = mmsimd_neon_i16_mul,
+        .i16_div_fn = mmsimd_neon_i16_div,
+        .u16_add_fn = mmsimd_neon_u16_add,
+        .u16_sub_fn = mmsimd_neon_u16_sub,
+        .u16_mul_fn = mmsimd_neon_u16_mul,
+        .u16_div_fn = mmsimd_neon_u16_div,
+        .i16_add_scalar_fn = mmsimd_neon_i16_add_scalar,
+        .i16_sub_scalar_fn = mmsimd_neon_i16_sub_scalar,
+        .i16_mul_scalar_fn = mmsimd_neon_i16_mul_scalar,
+        .i16_div_scalar_fn = mmsimd_neon_i16_div_scalar,
+        .u16_add_scalar_fn = mmsimd_neon_u16_add_scalar,
+        .u16_sub_scalar_fn = mmsimd_neon_u16_sub_scalar,
+        .u16_mul_scalar_fn = mmsimd_neon_u16_mul_scalar,
+        .u16_div_scalar_fn = mmsimd_neon_u16_div_scalar
+    };
+    return &hdlr;
+#else
+    return mmsimd_get_default_arith16_handler();
+#endif
+}
+
 static mgthrd_once_flag* __mmsimd_get_arith8_startup_once_flag()
 {
     static mgthrd_once_flag f = MGTHRD_ONCE_FLAG_INIT;
@@ -221,6 +279,12 @@ static void __mmsimd_arith8_startup(void)
     if (instructions & MGHW_SIMD_INSTRUCTION__AVX2)
     {
         *__mmsimd_get_arith8_handler_pointer() = (uintptr_t)mmsimd_get_avx2_arith8_handler();
+        return;
+    }
+
+    if (instructions & MGHW_SIMD_INSTRUCTION__NEON)
+    {
+        *__mmsimd_get_arith8_handler_pointer() = (uintptr_t)mmsimd_get_neon_arith8_handler();
         return;
     }
 
