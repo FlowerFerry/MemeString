@@ -172,7 +172,7 @@ static mmsimd_arith8_hdlr_t* mmsimd_get_avx2_arith8_handler()
 
 static mmsimd_arith8_hdlr_t* mmsimd_get_neon_arith8_handler()
 {
-#if MEGO_ARCH__ARM && defined(__ARM_PCS_VFP)
+#if MEGO_ARCH__ARM && (defined(__ARM_PCS_VFP) || defined(__ARM_NEON))
     static mmsimd_arith8_hdlr_t hdlr = {
         .i8_add_fn = mmsimd_neon_i8_add,
         .i8_sub_fn = mmsimd_neon_i8_sub,
@@ -199,7 +199,7 @@ static mmsimd_arith8_hdlr_t* mmsimd_get_neon_arith8_handler()
 
 static mmsimd_arith16_hdlr_t* mmsimd_get_neon_arith16_handler()
 {
-#if MEGO_ARCH__ARM && defined(__ARM_PCS_VFP)
+#if MEGO_ARCH__ARM && (defined(__ARM_PCS_VFP) || defined(__ARM_NEON))
     static mmsimd_arith16_hdlr_t hdlr = {
         .i16_add_fn = mmsimd_neon_i16_add,
         .i16_sub_fn = mmsimd_neon_i16_sub,

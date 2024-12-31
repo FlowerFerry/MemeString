@@ -1,7 +1,7 @@
 
-#include <arm_neon.h>
+#if defined(__ARM_PCS_VFP) || defined(__ARM_NEON)
 
-#if defined(__ARM_PCS_VFP)
+#include <arm_neon.h>
 
 void mmsimd_neon_i8_add(const int8_t* _a, const int8_t* _b, int8_t* _c, mmint_t _n)
 {
