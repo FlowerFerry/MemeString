@@ -88,10 +88,12 @@ if (NOT MSVC)
 
   if (MMSTR_COMPILER_SUPPORTS_AVX2)
 	  target_compile_options(${MEME_PROJECT_NAME} PRIVATE -mavx2)
+    message(STATUS "Compiler supports AVX2")
   endif()
 
   if (MMSTR_COMPILER_SUPPORTS_NEON)
     target_compile_options(${MEME_PROJECT_NAME} PRIVATE -mfpu=neon)
+    message(STATUS "Compiler supports NEON")
   endif()
 endif()
 
