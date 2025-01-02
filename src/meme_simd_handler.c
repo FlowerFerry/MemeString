@@ -629,10 +629,10 @@ static mmsimd_other32_hdlr_t* mmsimd_get_default_other32_handler()
         .f32_fill_fn = mmsimd_default_f32_fill,
         .i32_find_fn = mmsimd_default_i32_find,
         .u32_find_fn = mmsimd_default_u32_find,
-        .f32_find_fn = mmsimd_default_f32_find,
+        //.f32_find_fn = mmsimd_default_f32_find,
         .i32_rfind_fn = mmsimd_default_i32_rfind,
         .u32_rfind_fn = mmsimd_default_u32_rfind,
-        .f32_rfind_fn = mmsimd_default_f32_rfind
+        //.f32_rfind_fn = mmsimd_default_f32_rfind
     };
     return &hdlr;
 }
@@ -645,10 +645,10 @@ static mmsimd_other64_hdlr_t* mmsimd_get_default_other64_handler()
         .f64_fill_fn = mmsimd_default_f64_fill,
         .i64_find_fn = mmsimd_default_i64_find,
         .u64_find_fn = mmsimd_default_u64_find,
-        .f64_find_fn = mmsimd_default_f64_find,
+        //.f64_find_fn = mmsimd_default_f64_find,
         .i64_rfind_fn = mmsimd_default_i64_rfind,
         .u64_rfind_fn = mmsimd_default_u64_rfind,
-        .f64_rfind_fn = mmsimd_default_f64_rfind
+        //.f64_rfind_fn = mmsimd_default_f64_rfind
     };
     return &hdlr;
 }
@@ -694,10 +694,10 @@ static mmsimd_other32_hdlr_t* mmsimd_get_avx2_other32_handler()
         .f32_fill_fn  = mmsimd_avx2_f32_fill,
         .i32_find_fn  = mmsimd_avx2_i32_find,
         .u32_find_fn  = mmsimd_avx2_u32_find,
-        .f32_find_fn  = mmsimd_default_f32_find,
+        //.f32_find_fn  = mmsimd_default_f32_find,
         .i32_rfind_fn = mmsimd_default_i32_rfind,
         .u32_rfind_fn = mmsimd_default_u32_rfind,
-        .f32_rfind_fn = mmsimd_default_f32_rfind
+        //.f32_rfind_fn = mmsimd_default_f32_rfind
     };
     return &hdlr;
 #else
@@ -714,10 +714,10 @@ static mmsimd_other64_hdlr_t* mmsimd_get_avx2_other64_handler()
         .f64_fill_fn  = mmsimd_avx2_f64_fill,
         .i64_find_fn  = mmsimd_avx2_i64_find,
         .u64_find_fn  = mmsimd_avx2_u64_find,
-        .f64_find_fn  = mmsimd_default_f64_find,
+        //.f64_find_fn  = mmsimd_default_f64_find,
         .i64_rfind_fn = mmsimd_default_i64_rfind,
         .u64_rfind_fn = mmsimd_default_u64_rfind,
-        .f64_rfind_fn = mmsimd_default_f64_rfind
+        //.f64_rfind_fn = mmsimd_default_f64_rfind
     };
     return &hdlr;
 #else
@@ -987,8 +987,8 @@ MMSIMD_FIND_FUNC(32, i32, int32_t)
 MMSIMD_FIND_FUNC(32, u32, uint32_t)
 MMSIMD_FIND_FUNC(64, i64, int64_t)
 MMSIMD_FIND_FUNC(64, u64, uint64_t)
-MMSIMD_FIND_FUNC(32, f32, float)
-MMSIMD_FIND_FUNC(64, f64, double)
+//MMSIMD_FIND_FUNC(32, f32, float)
+//MMSIMD_FIND_FUNC(64, f64, double)
 
 #undef MMSIMD_FIND_FUNC
 

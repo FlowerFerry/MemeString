@@ -686,17 +686,17 @@ MEME_STDCALL mmsimd_u64_find(const uint64_t* _buf, mmint_t _len, uint64_t _val);
 MEME_API mmint_t
 MEME_STDCALL mmsimd_u64_rfind(const uint64_t* _buf, mmint_t _len, uint64_t _val);
 
-MEME_API mmint_t
-MEME_STDCALL mmsimd_f32_find(const float* _buf, mmint_t _len, float _val);
+// MEME_API mmint_t
+// MEME_STDCALL mmsimd_f32_find(const float* _buf, mmint_t _len, float _val);
 
-MEME_API mmint_t
-MEME_STDCALL mmsimd_f32_rfind(const float* _buf, mmint_t _len, float _val);
+// MEME_API mmint_t
+// MEME_STDCALL mmsimd_f32_rfind(const float* _buf, mmint_t _len, float _val);
 
-MEME_API mmint_t
-MEME_STDCALL mmsimd_f64_find(const double* _buf, mmint_t _len, double _val);
+// MEME_API mmint_t
+// MEME_STDCALL mmsimd_f64_find(const double* _buf, mmint_t _len, double _val);
 
-MEME_API mmint_t
-MEME_STDCALL mmsimd_f64_rfind(const double* _buf, mmint_t _len, double _val);
+// MEME_API mmint_t
+// MEME_STDCALL mmsimd_f64_rfind(const double* _buf, mmint_t _len, double _val);
 
 #if INTPTR_MAX == INT64_MAX
 #define mmsimd_iptr_find  mmsimd_i64_find

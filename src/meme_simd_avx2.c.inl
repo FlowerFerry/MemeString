@@ -366,8 +366,7 @@ mmint_t mmsimd_avx2_i8_find(const int8_t* _buf, mmint_t _len, int8_t _val)
         }
     }
 
-    for (; idx < _len; ++idx)
-    {
+    for (; idx < _len; ++idx) {
         if (_buf[idx] == _val)
             return idx;
     }
@@ -402,8 +401,7 @@ mmint_t mmsimd_avx2_i16_find(const int16_t* _buf, mmint_t _len, int16_t _val)
         }
     }
 
-    for (; idx < _len; ++idx)
-    {
+    for (; idx < _len; ++idx) {
         if (_buf[idx] == _val)
             return idx;
     }
@@ -438,8 +436,7 @@ mmint_t mmsimd_avx2_i32_find(const int32_t* _buf, mmint_t _len, int32_t _val)
         }
     }
 
-    for (; idx < _len; ++idx)
-    {
+    for (; idx < _len; ++idx) {
         if (_buf[idx] == _val)
             return idx;
     }
@@ -474,8 +471,7 @@ mmint_t mmsimd_avx2_i64_find(const int64_t* _buf, mmint_t _len, int64_t _val)
         }
     }
 
-    for (; idx < _len; ++idx)
-    {
+    for (; idx < _len; ++idx) {
         if (_buf[idx] == _val)
             return idx;
     }
