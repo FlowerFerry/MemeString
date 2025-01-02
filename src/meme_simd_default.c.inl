@@ -118,6 +118,28 @@ MMSIMD_DEFAULT_DIV_FUNC(u64, uint64_t)
 MMSIMD_DEFAULT_DIV_FUNC(f32, float)
 MMSIMD_DEFAULT_DIV_FUNC(f64, double)
 
+#undef MMSIMD_DEFAULT_DIV_FUNC
+
+#define MMSIMD_DEFAULT_FILL_FUNC(NAME, TYPE) \
+    static void mmsimd_default_##NAME##_fill(TYPE* _o, mmint_t _n, TYPE _v) \
+    { \
+        for (mmint_t i = 0; i < _n; ++i) \
+        { \
+            _o[i] = _v; \
+        } \
+    }
+
+MMSIMD_DEFAULT_FILL_FUNC(i16, int16_t)
+MMSIMD_DEFAULT_FILL_FUNC(u16, uint16_t)
+MMSIMD_DEFAULT_FILL_FUNC(i32, int32_t)
+MMSIMD_DEFAULT_FILL_FUNC(u32, uint32_t)
+MMSIMD_DEFAULT_FILL_FUNC(i64, int64_t)
+MMSIMD_DEFAULT_FILL_FUNC(u64, uint64_t)
+MMSIMD_DEFAULT_FILL_FUNC(f32, float)
+MMSIMD_DEFAULT_FILL_FUNC(f64, double)
+
+#undef MMSIMD_DEFAULT_FILL_FUNC
+
 #define MMSIMD_DEFAULT_CONV_FUNC(SRC_NAME, DST_NAME, SRC_TYPE, DST_TYPE) \
 static void mmsimd_default_##SRC_NAME##_to_##DST_NAME(const SRC_TYPE* _in, DST_TYPE* _out, mmint_t _n) \
 { \
@@ -214,5 +236,56 @@ MMSIMD_DEFAULT_CONV_FUNC(f64, f32, double, float)
 
 #undef MMSIMD_DEFAULT_CONV_FUNC
 
+#define MMSIMD_DEFAULT_FIND_FUNC(NAME, TYPE) \
+    static mmint_t mmsimd_default_##NAME##_find(const TYPE* _buf, mmint_t _len, TYPE _val) \
+    { \
+        for (mmint_t i = 0; i < _len; ++i) \
+        { \
+            if (_buf[i] == _val) \
+            { \
+                return i; \
+            } \
+        } \
+        return -1; \
+    }
+
+MMSIMD_DEFAULT_FIND_FUNC(i8, int8_t)
+MMSIMD_DEFAULT_FIND_FUNC(u8, uint8_t)
+MMSIMD_DEFAULT_FIND_FUNC(i16, int16_t)
+MMSIMD_DEFAULT_FIND_FUNC(u16, uint16_t)
+MMSIMD_DEFAULT_FIND_FUNC(i32, int32_t)
+MMSIMD_DEFAULT_FIND_FUNC(u32, uint32_t)
+MMSIMD_DEFAULT_FIND_FUNC(i64, int64_t)
+MMSIMD_DEFAULT_FIND_FUNC(u64, uint64_t)
+MMSIMD_DEFAULT_FIND_FUNC(f32, float)
+MMSIMD_DEFAULT_FIND_FUNC(f64, double)
+
+#undef MMSIMD_DEFAULT_FIND_FUNC
+
+#define MMSIMD_DEFAULT_RFIND_FUNC(NAME, TYPE) \
+    static mmint_t mmsimd_default_##NAME##_rfind(const TYPE* _buf, mmint_t _len, TYPE _val) \
+    { \
+        for (mmint_t i = _len - 1; i >= 0; --i) \
+        { \
+            if (_buf[i] == _val) \
+            { \
+                return i; \
+            } \
+        } \
+        return -1; \
+    }
+
+MMSIMD_DEFAULT_RFIND_FUNC(i8, int8_t)
+MMSIMD_DEFAULT_RFIND_FUNC(u8, uint8_t)
+MMSIMD_DEFAULT_RFIND_FUNC(i16, int16_t)
+MMSIMD_DEFAULT_RFIND_FUNC(u16, uint16_t)
+MMSIMD_DEFAULT_RFIND_FUNC(i32, int32_t)
+MMSIMD_DEFAULT_RFIND_FUNC(u32, uint32_t)
+MMSIMD_DEFAULT_RFIND_FUNC(i64, int64_t)
+MMSIMD_DEFAULT_RFIND_FUNC(u64, uint64_t)
+MMSIMD_DEFAULT_RFIND_FUNC(f32, float)
+MMSIMD_DEFAULT_RFIND_FUNC(f64, double)
+
+#undef MMSIMD_DEFAULT_RFIND_FUNC
 
 MEME_EXTERN_C_SCOPE_ENDED

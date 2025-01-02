@@ -1,6 +1,7 @@
 ﻿
 #include "meme/impl/algorithm.h"
 #include <meme/impl/string.h>
+#include <meme/simd/simd.h>
 #include <mego/predef/symbol/likely.h>
 
 #include <assert.h>
@@ -36,9 +37,11 @@ static void __MemeBoyerMoore_makeBadDelta(
     MemeInteger_t* _delta1, MemeInteger_t _delta1_len,
     const uint8_t* _pat, MemeInteger_t _pat_len) 
 {
+    mmsimd_iptr_fill(_delta1, _delta1_len, _pat_len);
+
     // TO_DO : It can also be optimized
-    for (MemeInteger_t index = 0; index < _delta1_len; ++index) 
-        _delta1[index] = _pat_len;
+    //for (MemeInteger_t index = 0; index < _delta1_len; ++index) 
+    //    _delta1[index] = _pat_len;
     
     for (MemeInteger_t index = 0; index < _pat_len - 1; ++index)
         _delta1[_pat[index]] = _pat_len - 1 - index;
@@ -142,8 +145,9 @@ static inline void __MemeReverseBoyerMoore_makeBadDelta(
     const MemeByte_t* _pat_rbegin, const MemeByte_t* _pat_rend)
 {
     MemeInteger_t diff = mbit_rDistance(_pat_rend, _pat_rbegin);
-    for (MemeInteger_t index = 0; index < _delta1_len; ++index)
-        _delta1[index] = diff;
+    //for (MemeInteger_t index = 0; index < _delta1_len; ++index)
+    //    _delta1[index] = diff;
+    mmsimd_iptr_fill(_delta1, _delta1_len, diff);
 
     for (const MemeByte_t *it = _pat_rbegin, *last = mbit_rPrev(_pat_rend);
         mbit_rDistance(last, it) > 0; it = mbit_rNext(it))
@@ -383,9 +387,11 @@ mmint_t MemeImpl_SearchByViolenceWithSensitivity(
                     return index;
         }
         else {
-            for (MemeInteger_t index = 0; index < _source_len; ++index)
-                if (_source[index] == _key)
-                    return index;
+            //for (MemeInteger_t index = 0; index < _source_len; ++index)
+            //    if (_source[index] == _key)
+            //        return index;
+
+            return mmsimd_u8_find(_source, _source_len, _key);
         }
     }
     return -1;
@@ -405,9 +411,11 @@ mmint_t MemeImpl_ReverseSearchByViolenceWithSensitivity(
                 return index;
     }
     else {
-        for (MemeInteger_t index = _source_len - 1; index >= 0; --index)
-            if (_source[index] == _key)
-                return index;
+        //for (MemeInteger_t index = _source_len - 1; index >= 0; --index)
+        //    if (_source[index] == _key)
+        //        return index;
+
+        return mmsimd_u8_rfind(_source, _source_len, _key);
     }
 
     return -1;

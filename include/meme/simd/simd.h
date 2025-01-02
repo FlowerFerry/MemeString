@@ -327,6 +327,62 @@ MEME_API void
     MEME_STDCALL mmsimd_f64_div_scalar(
         const double* _a, double _b, double* _out, mmint_t _len);
 
+#if INTPTR_MAX == INT64_MAX
+#define mmsimd_iptr_add             mmsimd_i64_add
+#define mmsimd_iptr_add_scalar      mmsimd_i64_add_scalar
+#define mmsimd_iptr_sub             mmsimd_i64_sub
+#define mmsimd_iptr_sub_scalar      mmsimd_i64_sub_scalar
+#define mmsimd_iptr_mul             mmsimd_i64_mul
+#define mmsimd_iptr_mul_scalar      mmsimd_i64_mul_scalar
+#define mmsimd_iptr_div             mmsimd_i64_div
+#define mmsimd_iptr_div_scalar      mmsimd_i64_div_scalar
+#define mmsimd_uptr_add             mmsimd_u64_add
+#define mmsimd_uptr_add_scalar      mmsimd_u64_add_scalar
+#define mmsimd_uptr_sub             mmsimd_u64_sub
+#define mmsimd_uptr_sub_scalar      mmsimd_u64_sub_scalar
+#define mmsimd_uptr_mul             mmsimd_u64_mul
+#define mmsimd_uptr_mul_scalar      mmsimd_u64_mul_scalar
+#define mmsimd_uptr_div             mmsimd_u64_div
+#define mmsimd_uptr_div_scalar      mmsimd_u64_div_scalar
+#define mmsimd_size_add             mmsimd_u64_add
+#define mmsimd_size_add_scalar      mmsimd_u64_add_scalar
+#define mmsimd_size_sub             mmsimd_u64_sub
+#define mmsimd_size_sub_scalar      mmsimd_u64_sub_scalar
+#define mmsimd_size_mul             mmsimd_u64_mul
+#define mmsimd_size_mul_scalar      mmsimd_u64_mul_scalar
+#define mmsimd_size_div             mmsimd_u64_div
+#define mmsimd_size_div_scalar      mmsimd_u64_div_scalar
+
+#endif
+
+#if INTPTR_MAX == INT32_MAX
+#define mmsimd_iptr_add             mmsimd_i32_add
+#define mmsimd_iptr_add_scalar      mmsimd_i32_add_scalar
+#define mmsimd_iptr_sub             mmsimd_i32_sub
+#define mmsimd_iptr_sub_scalar      mmsimd_i32_sub_scalar
+#define mmsimd_iptr_mul             mmsimd_i32_mul
+#define mmsimd_iptr_mul_scalar      mmsimd_i32_mul_scalar
+#define mmsimd_iptr_div             mmsimd_i32_div
+#define mmsimd_iptr_div_scalar      mmsimd_i32_div_scalar
+#define mmsimd_uptr_add             mmsimd_u32_add
+#define mmsimd_uptr_add_scalar      mmsimd_u32_add_scalar
+#define mmsimd_uptr_sub             mmsimd_u32_sub
+#define mmsimd_uptr_sub_scalar      mmsimd_u32_sub_scalar
+#define mmsimd_uptr_mul             mmsimd_u32_mul
+#define mmsimd_uptr_mul_scalar      mmsimd_u32_mul_scalar
+#define mmsimd_uptr_div             mmsimd_u32_div
+#define mmsimd_uptr_div_scalar      mmsimd_u32_div_scalar
+#define mmsimd_size_add             mmsimd_u32_add
+#define mmsimd_size_add_scalar      mmsimd_u32_add_scalar
+#define mmsimd_size_sub             mmsimd_u32_sub
+#define mmsimd_size_sub_scalar      mmsimd_u32_sub_scalar
+#define mmsimd_size_mul             mmsimd_u32_mul
+#define mmsimd_size_mul_scalar      mmsimd_u32_mul_scalar
+#define mmsimd_size_div             mmsimd_u32_div
+#define mmsimd_size_div_scalar      mmsimd_u32_div_scalar
+
+#endif
+
 MEME_API void MEME_STDCALL mmsimd_i8_to_i16(const int8_t* _in, int16_t* _out, mmint_t _len);
 
 MEME_API void MEME_STDCALL mmsimd_i8_to_u16(const int8_t* _in, uint16_t* _out, mmint_t _len);
@@ -490,6 +546,175 @@ MEME_API void MEME_STDCALL mmsimd_f64_to_i64(const double* _in, int64_t* _out, m
 MEME_API void MEME_STDCALL mmsimd_f64_to_u64(const double* _in, uint64_t* _out, mmint_t _len);
 
 MEME_API void MEME_STDCALL mmsimd_f64_to_f32(const double* _in, float* _out, mmint_t _len);
+
+
+#if INTPTR_MAX == INT64_MAX
+#define mmsimd_iptr_to_i8           mmsimd_i64_to_i8
+#define mmsimd_iptr_to_u8           mmsimd_i64_to_u8
+#define mmsimd_iptr_to_i16          mmsimd_i64_to_i16
+#define mmsimd_iptr_to_u16          mmsimd_i64_to_u16
+#define mmsimd_iptr_to_i32          mmsimd_i64_to_i32
+#define mmsimd_iptr_to_u32          mmsimd_i64_to_u32
+#define mmsimd_iptr_to_f32          mmsimd_i64_to_f32
+#define mmsimd_iptr_to_f64          mmsimd_i64_to_f64
+#define mmsimd_uptr_to_i8           mmsimd_u64_to_i8
+#define mmsimd_uptr_to_u8           mmsimd_u64_to_u8
+#define mmsimd_uptr_to_i16          mmsimd_u64_to_i16
+#define mmsimd_uptr_to_u16          mmsimd_u64_to_u16
+#define mmsimd_uptr_to_i32          mmsimd_u64_to_i32
+#define mmsimd_uptr_to_u32          mmsimd_u64_to_u32
+#define mmsimd_uptr_to_f32          mmsimd_u64_to_f32
+#define mmsimd_uptr_to_f64          mmsimd_u64_to_f64
+#define mmsimd_size_to_i8           mmsimd_u64_to_i8
+#define mmsimd_size_to_u8           mmsimd_u64_to_u8
+#define mmsimd_size_to_i16          mmsimd_u64_to_i16
+#define mmsimd_size_to_u16          mmsimd_u64_to_u16
+#define mmsimd_size_to_i32          mmsimd_u64_to_i32
+#define mmsimd_size_to_u32          mmsimd_u64_to_u32
+#define mmsimd_size_to_f32          mmsimd_u64_to_f32
+#define mmsimd_size_to_f64          mmsimd_u64_to_f64
+#endif
+
+#if INTPTR_MAX == INT32_MAX
+#define mmsimd_iptr_to_i8           mmsimd_i32_to_i8
+#define mmsimd_iptr_to_u8           mmsimd_i32_to_u8
+#define mmsimd_iptr_to_i16          mmsimd_i32_to_i16
+#define mmsimd_iptr_to_u16          mmsimd_i32_to_u16
+#define mmsimd_iptr_to_i64          mmsimd_i32_to_i64
+#define mmsimd_iptr_to_u64          mmsimd_i32_to_u64
+#define mmsimd_iptr_to_f32          mmsimd_i32_to_f32
+#define mmsimd_iptr_to_f64          mmsimd_i32_to_f64
+#define mmsimd_uptr_to_i8           mmsimd_u32_to_i8
+#define mmsimd_uptr_to_u8           mmsimd_u32_to_u8
+#define mmsimd_uptr_to_i16          mmsimd_u32_to_i16
+#define mmsimd_uptr_to_u16          mmsimd_u32_to_u16
+#define mmsimd_uptr_to_i64          mmsimd_u32_to_i64
+#define mmsimd_uptr_to_u64          mmsimd_u32_to_u64
+#define mmsimd_uptr_to_f32          mmsimd_u32_to_f32
+#define mmsimd_uptr_to_f64          mmsimd_u32_to_f64
+#define mmsimd_size_to_i8           mmsimd_u32_to_i8
+#define mmsimd_size_to_u8           mmsimd_u32_to_u8
+#define mmsimd_size_toi16           mmsimd_u32_to_i16
+#define mmsimd_size_to_u16          mmsimd_u32_to_u16
+#define mmsimd_size_to_i64          mmsimd_u32_to_i64
+#define mmsimd_size_to_u64          mmsimd_u32_to_u64
+#define mmsimd_size_to_f32          mmsimd_u32_to_f32
+#define mmsimd_size_to_f64          mmsimd_u32_to_f64
+#endif
+
+MEME_API void
+MEME_STDCALL mmsimd_i16_fill(int16_t* _out, mmint_t _len, int16_t _val);
+
+MEME_API void
+MEME_STDCALL mmsimd_u16_fill(uint16_t* _out, mmint_t _len, uint16_t _val);
+
+MEME_API void
+MEME_STDCALL mmsimd_i32_fill(int32_t* _out, mmint_t _len, int32_t _val);
+
+MEME_API void
+MEME_STDCALL mmsimd_u32_fill(uint32_t* _out, mmint_t _len, uint32_t _val);
+
+MEME_API void
+MEME_STDCALL mmsimd_i64_fill(int64_t* _out, mmint_t _len, int64_t _val);
+
+MEME_API void
+MEME_STDCALL mmsimd_u64_fill(uint64_t* _out, mmint_t _len, uint64_t _val);
+
+MEME_API void
+MEME_STDCALL mmsimd_f32_fill(float* _out, mmint_t _len, float _val);
+
+MEME_API void
+MEME_STDCALL mmsimd_f64_fill(double* _out, mmint_t _len, double _val);
+
+#if INTPTR_MAX == INT64_MAX
+#define mmsimd_iptr_fill mmsimd_i64_fill
+#define mmsimd_uptr_fill mmsimd_u64_fill
+#define mmsimd_size_fill mmsimd_u64_fill
+#endif
+
+#if INTPTR_MAX == INT32_MAX
+#define mmsimd_iptr_fill mmsimd_i32_fill
+#define mmsimd_uptr_fill mmsimd_u32_fill
+#define mmsimd_size_fill mmsimd_u32_fill
+#endif
+
+MEME_API mmint_t
+MEME_STDCALL mmsimd_i8_find(const int8_t* _buf, mmint_t _len, int8_t _val);
+
+MEME_API mmint_t
+MEME_STDCALL mmsimd_i8_rfind(const int8_t* _buf, mmint_t _len, int8_t _val);
+
+MEME_API mmint_t
+MEME_STDCALL mmsimd_u8_find(const uint8_t* _buf, mmint_t _len, uint8_t _val);
+
+MEME_API mmint_t
+MEME_STDCALL mmsimd_u8_rfind(const uint8_t* _buf, mmint_t _len, uint8_t _val);
+
+MEME_API mmint_t
+MEME_STDCALL mmsimd_i16_find(const int16_t* _buf, mmint_t _len, int16_t _val);
+
+MEME_API mmint_t
+MEME_STDCALL mmsimd_i16_rfind(const int16_t* _buf, mmint_t _len, int16_t _val);
+
+MEME_API mmint_t
+MEME_STDCALL mmsimd_u16_find(const uint16_t* _buf, mmint_t _len, uint16_t _val);
+
+MEME_API mmint_t
+MEME_STDCALL mmsimd_u16_rfind(const uint16_t* _buf, mmint_t _len, uint16_t _val);
+
+MEME_API mmint_t
+MEME_STDCALL mmsimd_i32_find(const int32_t* _buf, mmint_t _len, int32_t _val);
+
+MEME_API mmint_t
+MEME_STDCALL mmsimd_i32_rfind(const int32_t* _buf, mmint_t _len, int32_t _val);
+
+MEME_API mmint_t
+MEME_STDCALL mmsimd_u32_find(const uint32_t* _buf, mmint_t _len, uint32_t _val);
+
+MEME_API mmint_t
+MEME_STDCALL mmsimd_u32_rfind(const uint32_t* _buf, mmint_t _len, uint32_t _val);
+
+MEME_API mmint_t
+MEME_STDCALL mmsimd_i64_find(const int64_t* _buf, mmint_t _len, int64_t _val);
+
+MEME_API mmint_t
+MEME_STDCALL mmsimd_i64_rfind(const int64_t* _buf, mmint_t _len, int64_t _val);
+
+MEME_API mmint_t
+MEME_STDCALL mmsimd_u64_find(const uint64_t* _buf, mmint_t _len, uint64_t _val);
+
+MEME_API mmint_t
+MEME_STDCALL mmsimd_u64_rfind(const uint64_t* _buf, mmint_t _len, uint64_t _val);
+
+MEME_API mmint_t
+MEME_STDCALL mmsimd_f32_find(const float* _buf, mmint_t _len, float _val);
+
+MEME_API mmint_t
+MEME_STDCALL mmsimd_f32_rfind(const float* _buf, mmint_t _len, float _val);
+
+MEME_API mmint_t
+MEME_STDCALL mmsimd_f64_find(const double* _buf, mmint_t _len, double _val);
+
+MEME_API mmint_t
+MEME_STDCALL mmsimd_f64_rfind(const double* _buf, mmint_t _len, double _val);
+
+#if INTPTR_MAX == INT64_MAX
+#define mmsimd_iptr_find  mmsimd_i64_find
+#define mmsimd_iptr_rfind mmsimd_i64_rfind
+#define mmsimd_uptr_find  mmsimd_u64_find
+#define mmsimd_uptr_rfind mmsimd_u64_rfind
+#define mmsimd_size_find  mmsimd_u64_find
+#define mmsimd_size_rfind mmsimd_u64_rfind
+#endif
+
+#if INTPTR_MAX == INT32_MAX
+#define mmsimd_iptr_find  mmsimd_i32_find
+#define mmsimd_iptr_rfind mmsimd_i32_rfind
+#define mmsimd_uptr_find  mmsimd_u32_find
+#define mmsimd_uptr_rfind mmsimd_u32_rfind
+#define mmsimd_size_find  mmsimd_u32_find
+#define mmsimd_size_rfind mmsimd_u32_rfind
+#endif
 
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_SIMD_SIMD_H_INCLUDED

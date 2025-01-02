@@ -686,6 +686,7 @@ MEME_STDCALL MemeString_isOnlyAscii(mmstr_cptr_t _s, int* _result)
 	src = MemeString_byteData(_s);
 	len = MemeString_byteSize(_s);
 
+	// TO_DO : It can also be optimized
 	for (; len > 0; --len, ++src) {
 		if (*src > 127) {
 			*_result = 0;

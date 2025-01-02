@@ -250,25 +250,25 @@ static mgthrd_once_flag* __mmsimd_get_arith64_startup_once_flag()
 
 static volatile uintptr_t* __mmsimd_get_arith8_handler_pointer()
 {
-    static volatile mmint_t pointer = 0;
+    static volatile uintptr_t pointer = 0;
     return &pointer;
 }
 
 static volatile uintptr_t* __mmsimd_get_arith16_handler_pointer()
 {
-    static volatile mmint_t pointer = 0;
+    static volatile uintptr_t pointer = 0;
     return &pointer;
 }
 
 static volatile uintptr_t* __mmsimd_get_arith32_handler_pointer()
 {
-    static volatile mmint_t pointer = 0;
+    static volatile uintptr_t pointer = 0;
     return &pointer;
 }
 
 static volatile uintptr_t* __mmsimd_get_arith64_handler_pointer()
 {
-    static volatile mmint_t pointer = 0;
+    static volatile uintptr_t pointer = 0;
     return &pointer;
 }
 
@@ -499,25 +499,25 @@ static mgthrd_once_flag* __mmsimd_get_conv64_startup_once_flag()
 
 static volatile uintptr_t* __mmsimd_get_conv8_handler_pointer()
 {
-    static volatile mmint_t pointer = 0;
+    static volatile uintptr_t pointer = 0;
     return &pointer;
 }
 
 static volatile uintptr_t* __mmsimd_get_conv16_handler_pointer()
 {
-    static volatile mmint_t pointer = 0;
+    static volatile uintptr_t pointer = 0;
     return &pointer;
 }
 
 static volatile uintptr_t* __mmsimd_get_conv32_handler_pointer()
 {
-    static volatile mmint_t pointer = 0;
+    static volatile uintptr_t pointer = 0;
     return &pointer;
 }
 
 static volatile uintptr_t* __mmsimd_get_conv64_handler_pointer()
 {
-    static volatile mmint_t pointer = 0;
+    static volatile uintptr_t pointer = 0;
     return &pointer;
 }
 
@@ -595,6 +595,235 @@ static mmsimd_conv64_hdlr_t* mmsimd_get_best_conv64_handler()
 {
     mgthrd_call_once(__mmsimd_get_conv64_startup_once_flag(), __mmsimd_conv64_startup);
     return (mmsimd_conv64_hdlr_t*)*__mmsimd_get_conv64_handler_pointer();
+}
+
+static mmsimd_other8_hdlr_t* mmsimd_get_default_other8_handler()
+{
+    static mmsimd_other8_hdlr_t hdlr = {
+        .i8_find_fn = mmsimd_default_i8_find,
+        .u8_find_fn = mmsimd_default_u8_find,
+        .i8_rfind_fn = mmsimd_default_i8_rfind,
+        .u8_rfind_fn = mmsimd_default_u8_rfind
+    };
+    return &hdlr;
+}
+
+static mmsimd_other16_hdlr_t* mmsimd_get_default_other16_handler()
+{
+    static mmsimd_other16_hdlr_t hdlr = {
+        .i16_fill_fn = mmsimd_default_i16_fill,
+        .u16_fill_fn = mmsimd_default_u16_fill,
+        .i16_find_fn = mmsimd_default_i16_find,
+        .u16_find_fn = mmsimd_default_u16_find,
+        .i16_rfind_fn = mmsimd_default_i16_rfind,
+        .u16_rfind_fn = mmsimd_default_u16_rfind
+    };
+    return &hdlr;
+}
+
+static mmsimd_other32_hdlr_t* mmsimd_get_default_other32_handler()
+{
+    static mmsimd_other32_hdlr_t hdlr = {
+        .i32_fill_fn = mmsimd_default_i32_fill,
+        .u32_fill_fn = mmsimd_default_u32_fill,
+        .f32_fill_fn = mmsimd_default_f32_fill,
+        .i32_find_fn = mmsimd_default_i32_find,
+        .u32_find_fn = mmsimd_default_u32_find,
+        .f32_find_fn = mmsimd_default_f32_find,
+        .i32_rfind_fn = mmsimd_default_i32_rfind,
+        .u32_rfind_fn = mmsimd_default_u32_rfind,
+        .f32_rfind_fn = mmsimd_default_f32_rfind
+    };
+    return &hdlr;
+}
+
+static mmsimd_other64_hdlr_t* mmsimd_get_default_other64_handler()
+{
+    static mmsimd_other64_hdlr_t hdlr = {
+        .i64_fill_fn = mmsimd_default_i64_fill,
+        .u64_fill_fn = mmsimd_default_u64_fill,
+        .f64_fill_fn = mmsimd_default_f64_fill,
+        .i64_find_fn = mmsimd_default_i64_find,
+        .u64_find_fn = mmsimd_default_u64_find,
+        .f64_find_fn = mmsimd_default_f64_find,
+        .i64_rfind_fn = mmsimd_default_i64_rfind,
+        .u64_rfind_fn = mmsimd_default_u64_rfind,
+        .f64_rfind_fn = mmsimd_default_f64_rfind
+    };
+    return &hdlr;
+}
+
+static mmsimd_other16_hdlr_t* mmsimd_get_avx2_other16_handler()
+{
+#if MEGO_ARCH__X86 || MEGO_ARCH__X64 
+    static mmsimd_other16_hdlr_t hdlr = {
+        .i16_fill_fn  = mmsimd_avx2_i16_fill,
+        .u16_fill_fn  = mmsimd_avx2_u16_fill,
+        .i16_find_fn  = mmsimd_default_i16_find,
+        .u16_find_fn  = mmsimd_default_u16_find,
+        .i16_rfind_fn = mmsimd_default_i16_rfind,
+        .u16_rfind_fn = mmsimd_default_u16_rfind
+    };
+    return &hdlr;
+#else
+    return mmsimd_get_default_other16_handler();
+#endif
+}
+
+static mmsimd_other32_hdlr_t* mmsimd_get_avx2_other32_handler()
+{
+#if MEGO_ARCH__X86 || MEGO_ARCH__X64 
+    static mmsimd_other32_hdlr_t hdlr = {
+        .i32_fill_fn  = mmsimd_avx2_i32_fill,
+        .u32_fill_fn  = mmsimd_avx2_u32_fill,
+        .f32_fill_fn  = mmsimd_avx2_f32_fill,
+        .i32_find_fn  = mmsimd_default_i32_find,
+        .u32_find_fn  = mmsimd_default_u32_find,
+        .f32_find_fn  = mmsimd_default_f32_find,
+        .i32_rfind_fn = mmsimd_default_i32_rfind,
+        .u32_rfind_fn = mmsimd_default_u32_rfind,
+        .f32_rfind_fn = mmsimd_default_f32_rfind
+    };
+    return &hdlr;
+#else
+    return mmsimd_get_default_other32_handler();
+#endif
+}
+
+static mmsimd_other64_hdlr_t* mmsimd_get_avx2_other64_handler()
+{
+#if MEGO_ARCH__X86 || MEGO_ARCH__X64 
+    static mmsimd_other64_hdlr_t hdlr = {
+        .i64_fill_fn  = mmsimd_avx2_i64_fill,
+        .u64_fill_fn  = mmsimd_avx2_u64_fill,
+        .f64_fill_fn  = mmsimd_avx2_f64_fill,
+        .i64_find_fn  = mmsimd_default_i64_find,
+        .u64_find_fn  = mmsimd_default_u64_find,
+        .f64_find_fn  = mmsimd_default_f64_find,
+        .i64_rfind_fn = mmsimd_default_i64_rfind,
+        .u64_rfind_fn = mmsimd_default_u64_rfind,
+        .f64_rfind_fn = mmsimd_default_f64_rfind
+    };
+    return &hdlr;
+#else
+    return mmsimd_get_default_other64_handler();
+#endif
+}
+
+static mgthrd_once_flag* __mmsimd_get_other8_startup_once_flag()
+{
+    static mgthrd_once_flag f = MGTHRD_ONCE_FLAG_INIT;
+    return &f;
+}
+
+static mgthrd_once_flag* __mmsimd_get_other16_startup_once_flag()
+{
+    static mgthrd_once_flag f = MGTHRD_ONCE_FLAG_INIT;
+    return &f;
+}
+
+static mgthrd_once_flag* __mmsimd_get_other32_startup_once_flag()
+{
+    static mgthrd_once_flag f = MGTHRD_ONCE_FLAG_INIT;
+    return &f;
+}
+
+static mgthrd_once_flag* __mmsimd_get_other64_startup_once_flag()
+{
+    static mgthrd_once_flag f = MGTHRD_ONCE_FLAG_INIT;
+    return &f;
+}
+
+static volatile uintptr_t* __mmsimd_get_other8_handler_pointer()
+{
+    static volatile uintptr_t pointer = 0;
+    return &pointer;
+}
+
+static volatile uintptr_t* __mmsimd_get_other16_handler_pointer()
+{
+    static volatile uintptr_t pointer = 0;
+    return &pointer;
+}
+
+static volatile uintptr_t* __mmsimd_get_other32_handler_pointer()
+{
+    static volatile uintptr_t pointer = 0;
+    return &pointer;
+}
+
+static volatile uintptr_t* __mmsimd_get_other64_handler_pointer()
+{
+    static volatile uintptr_t pointer = 0;
+    return &pointer;
+}
+
+static void __mmsimd_other8_startup(void)
+{
+    *__mmsimd_get_other8_handler_pointer() = (uintptr_t)mmsimd_get_default_other8_handler();
+}
+
+static void __mmsimd_other16_startup(void)
+{
+    mghw_simd_instruction_t instructions = mghw_detect_supported_simd_instructions();
+
+    if (instructions & MGHW_SIMD_INSTRUCTION__AVX2)
+    {
+        *__mmsimd_get_other16_handler_pointer() = (uintptr_t)mmsimd_get_avx2_other16_handler();
+        return;
+    }
+
+    *__mmsimd_get_other16_handler_pointer() = (uintptr_t)mmsimd_get_default_other16_handler();
+}
+
+static void __mmsimd_other32_startup(void)
+{
+    mghw_simd_instruction_t instructions = mghw_detect_supported_simd_instructions();
+
+    if (instructions & MGHW_SIMD_INSTRUCTION__AVX2)
+    {
+        *__mmsimd_get_other32_handler_pointer() = (uintptr_t)mmsimd_get_avx2_other32_handler();
+        return;
+    }
+
+    *__mmsimd_get_other32_handler_pointer() = (uintptr_t)mmsimd_get_default_other32_handler();
+}
+
+static void __mmsimd_other64_startup(void)
+{
+    mghw_simd_instruction_t instructions = mghw_detect_supported_simd_instructions();
+
+    if (instructions & MGHW_SIMD_INSTRUCTION__AVX2)
+    {
+        *__mmsimd_get_other64_handler_pointer() = (uintptr_t)mmsimd_get_avx2_other64_handler();
+        return;
+    }
+    
+    *__mmsimd_get_other64_handler_pointer() = (uintptr_t)mmsimd_get_default_other64_handler();
+}
+
+static mmsimd_other8_hdlr_t* mmsimd_get_best_other8_handler()
+{
+    mgthrd_call_once(__mmsimd_get_other8_startup_once_flag(), __mmsimd_other8_startup);
+    return (mmsimd_other8_hdlr_t*)*__mmsimd_get_other8_handler_pointer();
+}
+
+static mmsimd_other16_hdlr_t* mmsimd_get_best_other16_handler()
+{
+    mgthrd_call_once(__mmsimd_get_other16_startup_once_flag(), __mmsimd_other16_startup);
+    return (mmsimd_other16_hdlr_t*)*__mmsimd_get_other16_handler_pointer();
+}
+
+static mmsimd_other32_hdlr_t* mmsimd_get_best_other32_handler()
+{
+    mgthrd_call_once(__mmsimd_get_other32_startup_once_flag(), __mmsimd_other32_startup);
+    return (mmsimd_other32_hdlr_t*)*__mmsimd_get_other32_handler_pointer();
+}
+
+static mmsimd_other64_hdlr_t* mmsimd_get_best_other64_handler()
+{
+    mgthrd_call_once(__mmsimd_get_other64_startup_once_flag(), __mmsimd_other64_startup);
+    return (mmsimd_other64_hdlr_t*)*__mmsimd_get_other64_handler_pointer();
 }
 
 #define MMSIMD_ADD_FUNC(BIT, NAME, TYPE) \
@@ -697,6 +926,49 @@ MMSIMD_DIV_FUNC(64, f64, double)
 
 #undef MMSIMD_DIV_FUNC
 
+#define MMSIMD_FILL_FUNC(BIT, NAME, TYPE) \
+    MEME_API void MEME_STDCALL mmsimd_##NAME##_fill(TYPE* _out, mmint_t _len, TYPE _val) \
+    { \
+        mmsimd_other##BIT##_hdlr_t* hdlr = mmsimd_get_best_other##BIT##_handler(); \
+        hdlr->NAME##_fill_fn(_out, _len, _val); \
+    }
+
+MMSIMD_FILL_FUNC(16, i16, int16_t)
+MMSIMD_FILL_FUNC(16, u16, uint16_t)
+MMSIMD_FILL_FUNC(32, i32, int32_t)
+MMSIMD_FILL_FUNC(32, u32, uint32_t)
+MMSIMD_FILL_FUNC(64, i64, int64_t)
+MMSIMD_FILL_FUNC(64, u64, uint64_t)
+MMSIMD_FILL_FUNC(32, f32, float)
+MMSIMD_FILL_FUNC(64, f64, double)
+
+#undef MMSIMD_FILL_FUNC
+
+#define MMSIMD_FIND_FUNC(BIT, NAME, TYPE) \
+    MEME_API mmint_t MEME_STDCALL mmsimd_##NAME##_find(const TYPE* _in, mmint_t _len, TYPE _val) \
+    { \
+        mmsimd_other##BIT##_hdlr_t* hdlr = mmsimd_get_best_other##BIT##_handler(); \
+        return hdlr->NAME##_find_fn(_in, _len, _val); \
+    } \
+    MEME_API mmint_t MEME_STDCALL mmsimd_##NAME##_rfind(const TYPE* _in, mmint_t _len, TYPE _val) \
+    { \
+        mmsimd_other##BIT##_hdlr_t* hdlr = mmsimd_get_best_other##BIT##_handler(); \
+        return hdlr->NAME##_rfind_fn(_in, _len, _val); \
+    }
+
+MMSIMD_FIND_FUNC(8, i8, int8_t)
+MMSIMD_FIND_FUNC(8, u8, uint8_t)
+MMSIMD_FIND_FUNC(16, i16, int16_t)
+MMSIMD_FIND_FUNC(16, u16, uint16_t)
+MMSIMD_FIND_FUNC(32, i32, int32_t)
+MMSIMD_FIND_FUNC(32, u32, uint32_t)
+MMSIMD_FIND_FUNC(64, i64, int64_t)
+MMSIMD_FIND_FUNC(64, u64, uint64_t)
+MMSIMD_FIND_FUNC(32, f32, float)
+MMSIMD_FIND_FUNC(64, f64, double)
+
+#undef MMSIMD_FIND_FUNC
+
 #define MMSIMD_CONV_FUNC(BIT, SRC_NAME, DST_NAME, SRC_TYPE, DST_TYPE) \
     MEME_API void MEME_STDCALL mmsimd_##SRC_NAME##_to_##DST_NAME(const SRC_TYPE* _in, DST_TYPE* _out, mmint_t _len) \
     { \
@@ -787,7 +1059,8 @@ MMSIMD_CONV_FUNC(64, f64, i64, double, int64_t)
 MMSIMD_CONV_FUNC(64, f64, u64, double, uint64_t)
 MMSIMD_CONV_FUNC(64, f64, f32, double, float)
 
-
 #undef MMSIMD_CONV_FUNC
+
+
 
 MEME_EXTERN_C_SCOPE_ENDED

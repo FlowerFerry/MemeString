@@ -624,4 +624,32 @@ EXPORTS
     mmsimd_f64_to_i64 @12159
     mmsimd_f64_to_u64 @12160
     mmsimd_f64_to_f32 @12161
+    mmsimd_i16_fill @12162
+    mmsimd_u16_fill @12163
+    mmsimd_i32_fill @12164
+    mmsimd_u32_fill @12165
+    mmsimd_i64_fill @12166
+    mmsimd_u64_fill @12167
+    mmsimd_f32_fill @12168
+    mmsimd_f64_fill @12169
+    mmsimd_i8_find @12170
+    mmsimd_u8_find @12171
+    mmsimd_i16_find @12172
+    mmsimd_u16_find @12173
+    mmsimd_i32_find @12174
+    mmsimd_u32_find @12175
+    mmsimd_i64_find @12176
+    mmsimd_u64_find @12177
+    mmsimd_f32_find @12178
+    mmsimd_f64_find @12179
+    mmsimd_i8_rfind @12180
+    mmsimd_u8_rfind @12181
+    mmsimd_i16_rfind @12182
+    mmsimd_u16_rfind @12183
+    mmsimd_i32_rfind @12184
+    mmsimd_u32_rfind @12185
+    mmsimd_i64_rfind @12186
+    mmsimd_u64_rfind @12187
+    mmsimd_f32_rfind @12188
+    mmsimd_f64_rfind @12189
     

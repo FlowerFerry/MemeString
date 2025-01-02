@@ -210,5 +210,49 @@ struct mmsimd_conv64_hdlr
     mmsimd_f64_to_f32_func_t* f64_to_f32_fn;
 };
 
+struct mmsimd_other8_hdlr
+{
+    mmsimd_i8_find_func_t* i8_find_fn;
+    mmsimd_u8_find_func_t* u8_find_fn;
+    mmsimd_i8_find_func_t* i8_rfind_fn;
+    mmsimd_u8_find_func_t* u8_rfind_fn;
+};
+
+struct mmsimd_other16_hdlr
+{
+    mmsimd_i16_fill_func_t* i16_fill_fn;
+    mmsimd_u16_fill_func_t* u16_fill_fn;
+    mmsimd_i16_find_func_t* i16_find_fn;
+    mmsimd_u16_find_func_t* u16_find_fn;
+    mmsimd_i16_find_func_t* i16_rfind_fn;
+    mmsimd_u16_find_func_t* u16_rfind_fn;
+};
+
+struct mmsimd_other32_hdlr
+{
+    mmsimd_i32_fill_func_t* i32_fill_fn;
+    mmsimd_u32_fill_func_t* u32_fill_fn;
+    mmsimd_f32_fill_func_t* f32_fill_fn;
+    mmsimd_i32_find_func_t* i32_find_fn;
+    mmsimd_u32_find_func_t* u32_find_fn;
+    mmsimd_f32_find_func_t* f32_find_fn;
+    mmsimd_i32_find_func_t* i32_rfind_fn;
+    mmsimd_u32_find_func_t* u32_rfind_fn;
+    mmsimd_f32_find_func_t* f32_rfind_fn;
+};
+
+struct mmsimd_other64_hdlr
+{
+    mmsimd_i64_fill_func_t* i64_fill_fn;
+    mmsimd_u64_fill_func_t* u64_fill_fn;
+    mmsimd_f64_fill_func_t* f64_fill_fn;
+    mmsimd_i64_find_func_t* i64_find_fn;
+    mmsimd_u64_find_func_t* u64_find_fn;
+    mmsimd_f64_find_func_t* f64_find_fn;
+    mmsimd_i64_find_func_t* i64_rfind_fn;
+    mmsimd_u64_find_func_t* u64_rfind_fn;
+    mmsimd_f64_find_func_t* f64_rfind_fn;
+};
+
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_IMPL_SIMD_SIMD_H_INCLUDED

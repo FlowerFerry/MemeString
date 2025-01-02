@@ -1,6 +1,6 @@
 ﻿
 #include <meme/impl/string_p__small.h>
-
+#include <mego/predef/symbol/likely.h>
 
 int MemeStringSmall_initByU8bytes(
 	MemeStringSmall_t* _s, const MemeByte_t* _utf8, size_t _len)
@@ -120,12 +120,15 @@ int MemeStringSmall_resizeWithByte(MemeStringSmall_t* _s, MemeInteger_t _size, M
 int MemeStringSmall_appendWithByte(MemeStringSmall_t* _s, MemeInteger_t _count, MemeByte_t _byte)
 {
 	MemeByte_t* pointer = NULL;
+	if (MG_SYM__UNLIKELY(_count <= 0))
+		return 0;
 
 	pointer = _s->buffer_ + MemeStringSmall_byteSize(_s);
 	MemeStringSmall_byteSizeOffsetAndSetZero(_s, _count);
-	for (; 0 <= --_count; ) {
-		*pointer++ = _byte;
-	}
+	//for (; 0 <= --_count; ) {
+	//	*pointer++ = _byte;
+	//}
+	memset(pointer, _byte, _count);
 	return 0;
 }
 

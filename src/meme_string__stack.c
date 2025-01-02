@@ -807,6 +807,7 @@ MemeStringStack_toEnUpper_v2(const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _
 	it = MemeStringImpl_forcedData(_out);
 	end = it + MemeString_byteSize((mmstr_cptr_t)_out);
 
+	// TO_DO : It can also be optimized
 	for (; it != end; ++it)
 		*it = (MemeByte_t)toupper(*it);
 
@@ -870,6 +871,7 @@ MemeStringStack_toEnLower_v2(const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _
 	it = MemeStringImpl_forcedData(_out);
 	end = it + MemeString_byteSize((mmstr_cptr_t)_out);
 
+	// TO_DO : It can also be optimized
 	for (; it != end; ++it)
 		*it = (MemeByte_t)tolower(*it);
 

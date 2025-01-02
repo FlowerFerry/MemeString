@@ -16,6 +16,9 @@ MemeStringMedium_canBeAppendIt(const MemeStringMedium_t* _s, MemeInteger_t _bufl
 int MemeStringMedium_appendWithByte(MemeStringMedium_t* _s, MemeInteger_t _count, MemeByte_t _byte)
 {
 	MemeByte_t* pointer = NULL;
+	if (MG_SYM__UNLIKELY(_count <= 0))
+		return 0;
+
 	if (MemeStringMedium_availableByteCapacity(_s) < _count)
 	{
 		int result = MemeStringImpl_capacityExpansionWithModifiable(
@@ -26,9 +29,10 @@ int MemeStringMedium_appendWithByte(MemeStringMedium_t* _s, MemeInteger_t _count
 
 	pointer = MemeStringMedium_iteratorEnd(_s);
 	MemeStringMedium_byteSizeOffset(_s, _count);
-	for (; 0 <= --_count; ) {
-		*pointer++ = _byte;
-	}
+	//for (; 0 <= --_count; ) {
+	//	*pointer++ = _byte;
+	//}
+	memset(pointer, _byte, _count);
 	*(MemeStringMedium_iteratorEnd(_s)) = '\0';
 	return 0;
 }

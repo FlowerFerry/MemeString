@@ -23,14 +23,16 @@ void mmsimd_avx2_i8_add(const int8_t* _a, const int8_t* _b, int8_t* _c, mmint_t 
 void mmsimd_avx2_i8_add_scalar(const int8_t* _a, int8_t _b, int8_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
-    __m256i vb = _mm256_set1_epi8(_b);
-    for (; i + (mmint_t)sizeof(__m256i) <= _n; i += (mmint_t)sizeof(__m256i))
+    if (_n >= (mmint_t)sizeof(__m256i))
     {
-        __m256i va = _mm256_loadu_si256((__m256i*) & _a[i]);
+        __m256i vb = _mm256_set1_epi8(_b);
+        for (; i + (mmint_t)sizeof(__m256i) <= _n; i += (mmint_t)sizeof(__m256i))
+        {
+            __m256i va = _mm256_loadu_si256((__m256i*) & _a[i]);
+            __m256i vr = _mm256_add_epi8(va, vb);
 
-        __m256i vr = _mm256_add_epi8(va, vb);
-
-        _mm256_storeu_si256((__m256i*) & _c[i], vr);
+            _mm256_storeu_si256((__m256i*) & _c[i], vr);
+        }
     }
 
     for (; i < _n; ++i)
@@ -57,16 +59,18 @@ void mmsimd_avx2_i8_sub(const int8_t* _a, const int8_t* _b, int8_t* _c, mmint_t 
 void mmsimd_avx2_i8_sub_scalar(const int8_t* _a, int8_t _b, int8_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
-    __m256i vb = _mm256_set1_epi8(_b);
-    for (; i + (mmint_t)sizeof(__m256i) <= _n; i += (mmint_t)sizeof(__m256i))
+    if (_n >= (mmint_t)sizeof(__m256i))
     {
-        __m256i va = _mm256_loadu_si256((__m256i*) & _a[i]);
+        __m256i vb = _mm256_set1_epi8(_b);
+        for (; i + (mmint_t)sizeof(__m256i) <= _n; i += (mmint_t)sizeof(__m256i))
+        {
+            __m256i va = _mm256_loadu_si256((__m256i*) & _a[i]);
+            __m256i vr = _mm256_sub_epi8(va, vb);
 
-        __m256i vr = _mm256_sub_epi8(va, vb);
-
-        _mm256_storeu_si256((__m256i*) & _c[i], vr);
+            _mm256_storeu_si256((__m256i*) & _c[i], vr);
+        }
     }
-
+    
     for (; i < _n; ++i)
         _c[i] = _a[i] - _b;
 }
@@ -94,16 +98,18 @@ void mmsimd_avx2_i8_div(const int8_t* _a, const int8_t* _b, int8_t* _c, mmint_t 
 void mmsimd_avx2_i8_div_scalar(const int8_t* _a, int8_t _b, int8_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
-    __m256i vb = _mm256_set1_epi8(_b);
-    for (; i + (mmint_t)sizeof(__m256i) <= _n; i += (mmint_t)sizeof(__m256i))
+    if (_n >= (mmint_t)sizeof(__m256i))
     {
-        __m256i va = _mm256_loadu_si256((__m256i*) &_a[i]);
+        __m256i vb = _mm256_set1_epi8(_b);
+        for (; i + (mmint_t)sizeof(__m256i) <= _n; i += (mmint_t)sizeof(__m256i))
+        {
+            __m256i va = _mm256_loadu_si256((__m256i*) & _a[i]);
+            __m256i vr = _mm256_div_epi8(va, vb);
 
-        __m256i vr = _mm256_div_epi8(va, vb);
-
-        _mm256_storeu_si256((__m256i*) &_c[i], vr);
+            _mm256_storeu_si256((__m256i*) & _c[i], vr);
+        }
     }
-
+    
     for (; i < _n; ++i)
         _c[i] = _a[i] / _b;
 }
@@ -247,4 +253,94 @@ void mmsimd_sse2_avx2_i8_to_f32(const int8_t* _in, float* _out, mmint_t _n)
 
     for (; idx < _n; ++idx)
         _out[idx] = (float)_in[idx];
+}
+
+void mmsimd_avx2_i16_fill(int16_t* _out, mmint_t _len, int16_t _val)
+{
+    mmint_t idx = 0;
+    mmint_t offset = (mmint_t)(sizeof(__m256i) / sizeof(int16_t));
+    if (_len >= offset)
+    {
+        __m256i vval = _mm256_set1_epi16(_val);
+        for (; idx + offset <= _len; idx += offset)
+            _mm256_storeu_si256((__m256i*)&_out[idx], vval);
+    }
+
+    for (; idx < _len; ++idx)
+        _out[idx] = _val;
+}
+
+void mmsimd_avx2_u16_fill(uint16_t* _out, mmint_t _len, uint16_t _val)
+{
+    mmsimd_avx2_i16_fill((int16_t*)_out, _len, (int16_t)_val);
+}
+
+void mmsimd_avx2_i32_fill(int32_t* _out, mmint_t _len, int32_t _val)
+{
+    mmint_t idx = 0;
+    mmint_t offset = (mmint_t)(sizeof(__m256i) / sizeof(int32_t));
+    if (_len >= offset)
+    {
+        __m256i vval = _mm256_set1_epi32(_val);
+        for (; idx + offset <= _len; idx += offset)
+            _mm256_storeu_si256((__m256i*)&_out[idx], vval);
+    }
+
+    for (; idx < _len; ++idx)
+        _out[idx] = _val;
+}
+
+void mmsimd_avx2_u32_fill(uint32_t* _out, mmint_t _len, uint32_t _val)
+{
+    mmsimd_avx2_i32_fill((int32_t*)_out, _len, (int32_t)_val);
+}
+
+void mmsimd_avx2_i64_fill(int64_t* _out, mmint_t _len, int64_t _val)
+{
+    mmint_t idx = 0;
+    mmint_t offset = (mmint_t)(sizeof(__m256i) / sizeof(int64_t));
+    if (_len >= offset)
+    {
+        __m256i vval = _mm256_set1_epi64x(_val);
+        for (; idx + offset <= _len; idx += offset)
+            _mm256_storeu_si256((__m256i*)&_out[idx], vval);
+    }
+
+    for (; idx < _len; ++idx)
+        _out[idx] = _val;
+}
+
+void mmsimd_avx2_u64_fill(uint64_t* _out, mmint_t _len, uint64_t _val)
+{
+    mmsimd_avx2_i64_fill((int64_t*)_out, _len, (int64_t)_val);
+}
+
+void mmsimd_avx2_f32_fill(float* _out, mmint_t _len, float _val)
+{
+    mmint_t idx = 0;
+    mmint_t offset = (mmint_t)(sizeof(__m256) / sizeof(float));
+    if (_len >= offset)
+    {
+        __m256 vval = _mm256_set1_ps(_val);
+        for (; idx + offset <= _len; idx += offset)
+            _mm256_storeu_ps(&_out[idx], vval);
+    }
+
+    for (; idx < _len; ++idx)
+        _out[idx] = _val;
+}
+
+void mmsimd_avx2_f64_fill(double* _out, mmint_t _len, double _val)
+{
+    mmint_t idx = 0;
+    mmint_t offset = (mmint_t)(sizeof(__m256d) / sizeof(double));
+    if (_len >= offset)
+    {
+        __m256d vval = _mm256_set1_pd(_val);
+        for (; idx + offset <= _len; idx += offset)
+            _mm256_storeu_pd(&_out[idx], vval);
+    }
+
+    for (; idx < _len; ++idx)
+        _out[idx] = _val;
 }
