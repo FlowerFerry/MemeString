@@ -344,3 +344,208 @@ void mmsimd_avx2_f64_fill(double* _out, mmint_t _len, double _val)
     for (; idx < _len; ++idx)
         _out[idx] = _val;
 }
+
+mmint_t mmsimd_avx2_i8_find(const int8_t* _buf, mmint_t _len, int8_t _val)
+{
+    mmint_t idx = 0;
+    if (_len >= (mmint_t)sizeof(__m256i))
+    {
+        __m256i vval = _mm256_set1_epi8(_val);
+        for (; idx + (mmint_t)sizeof(__m256i) <= _len; idx += (mmint_t)sizeof(__m256i))
+        {
+            __m256i vi = _mm256_loadu_si256((__m256i*) & _buf[idx]);
+            __m256i vm = _mm256_cmpeq_epi8(vi, vval);
+            int mask = _mm256_movemask_epi8(vm);
+            if (mask) {
+                for (int i = 0; i < sizeof(__m256i); ++i)
+                {
+                    if (_buf[idx + i] == _val)
+                        return idx + i;
+                }
+            }
+        }
+    }
+
+    for (; idx < _len; ++idx)
+    {
+        if (_buf[idx] == _val)
+            return idx;
+    }
+
+    return -1;
+}
+
+mmint_t mmsimd_avx2_u8_find(const uint8_t* _buf, mmint_t _len, uint8_t _val)
+{
+    return mmsimd_avx2_i8_find((const int8_t*)_buf, _len, (int8_t)_val);
+}
+
+mmint_t mmsimd_avx2_i16_find(const int16_t* _buf, mmint_t _len, int16_t _val)
+{
+    mmint_t idx = 0;
+    mmint_t offset = (mmint_t)(sizeof(__m256i) / sizeof(int16_t));
+    if (_len >= offset)
+    {
+        __m256i vval = _mm256_set1_epi16(_val);
+        for (; idx + offset <= _len; idx += offset)
+        {
+            __m256i vi = _mm256_loadu_si256((__m256i*) & _buf[idx]);
+            __m256i vm = _mm256_cmpeq_epi16(vi, vval);
+            int mask = _mm256_movemask_epi8(vm);
+            if (mask) {
+                for (int i = 0; i < offset; ++i)
+                {
+                    if (_buf[idx + i] == _val)
+                        return idx + i;
+                }
+            }
+        }
+    }
+
+    for (; idx < _len; ++idx)
+    {
+        if (_buf[idx] == _val)
+            return idx;
+    }
+
+    return -1;
+}
+
+mmint_t mmsimd_avx2_u16_find(const uint16_t* _buf, mmint_t _len, uint16_t _val)
+{
+    return mmsimd_avx2_i16_find((const int16_t*)_buf, _len, (int16_t)_val);
+}
+
+mmint_t mmsimd_avx2_i32_find(const int32_t* _buf, mmint_t _len, int32_t _val)
+{
+    mmint_t idx = 0;
+    mmint_t offset = (mmint_t)(sizeof(__m256i) / sizeof(int32_t));
+    if (_len >= offset)
+    {
+        __m256i vval = _mm256_set1_epi32(_val);
+        for (; idx + offset <= _len; idx += offset)
+        {
+            __m256i vi = _mm256_loadu_si256((__m256i*) & _buf[idx]);
+            __m256i vm = _mm256_cmpeq_epi32(vi, vval);
+            int mask = _mm256_movemask_epi8(vm);
+            if (mask) {
+                for (int i = 0; i < offset; ++i)
+                {
+                    if (_buf[idx + i] == _val)
+                        return idx + i;
+                }
+            }
+        }
+    }
+
+    for (; idx < _len; ++idx)
+    {
+        if (_buf[idx] == _val)
+            return idx;
+    }
+
+    return -1;
+}
+
+mmint_t mmsimd_avx2_u32_find(const uint32_t* _buf, mmint_t _len, uint32_t _val)
+{
+    return mmsimd_avx2_i32_find((const int32_t*)_buf, _len, (int32_t)_val);
+}
+
+mmint_t mmsimd_avx2_i64_find(const int64_t* _buf, mmint_t _len, int64_t _val)
+{
+    mmint_t idx = 0;
+    mmint_t offset = (mmint_t)(sizeof(__m256i) / sizeof(int64_t));
+    if (_len >= offset)
+    {
+        __m256i vval = _mm256_set1_epi64x(_val);
+        for (; idx + offset <= _len; idx += offset)
+        {
+            __m256i vi = _mm256_loadu_si256((__m256i*) & _buf[idx]);
+            __m256i vm = _mm256_cmpeq_epi64(vi, vval);
+            int mask = _mm256_movemask_epi8(vm);
+            if (mask) {
+                for (int i = 0; i < offset; ++i)
+                {
+                    if (_buf[idx + i] == _val)
+                        return idx + i;
+                }
+            }
+        }
+    }
+
+    for (; idx < _len; ++idx)
+    {
+        if (_buf[idx] == _val)
+            return idx;
+    }
+
+    return -1;
+}
+
+mmint_t mmsimd_avx2_u64_find(const uint64_t* _buf, mmint_t _len, uint64_t _val)
+{
+    return mmsimd_avx2_i64_find((const int64_t*)_buf, _len, (int64_t)_val);
+}
+
+//mmint_t mmsimd_avx2_f32_find(const float* _buf, mmint_t _len, float _val)
+//{
+//    mmint_t idx = 0;
+//    mmint_t offset = (mmint_t)(sizeof(__m256) / sizeof(float));
+//    if (_len >= offset)
+//    {
+//        __m256 vval = _mm256_set1_ps(_val);
+//        for (; idx + offset <= _len; idx += offset)
+//        {
+//            __m256 vi = _mm256_loadu_ps(&_buf[idx]);
+//            __m256 vm = _mm256_cmp_ps(vi, vval, _CMP_EQ_OQ);
+//            int mask = _mm256_movemask_ps(vm);
+//            if (mask) {
+//                for (int i = 0; i < offset; ++i)
+//                {
+//                    if (_buf[idx + i] == _val)
+//                        return idx + i;
+//                }
+//            }
+//        }
+//    }
+//
+//    for (; idx < _len; ++idx)
+//    {
+//        if (_buf[idx] == _val)
+//            return idx;
+//    }
+//
+//    return -1;
+//}
+//
+//mmint_t mmsimd_avx2_f64_find(const double* _buf, mmint_t _len, double _val)
+//{
+//    mmint_t idx = 0;
+//    mmint_t offset = (mmint_t)(sizeof(__m256d) / sizeof(double));
+//    if (_len >= offset)
+//    {
+//        __m256d vval = _mm256_set1_pd(_val);
+//        for (; idx + offset <= _len; idx += offset)
+//        {
+//            __m256d vi = _mm256_loadu_pd(&_buf[idx]);
+//            __m256d vm = _mm256_cmp_pd(vi, vval, _CMP_EQ_OQ);
+//            int mask = _mm256_movemask_pd(vm);
+//            if (mask) {
+//                for (int i = 0; i < offset; ++i)
+//                {
+//                    if (_buf[idx + i] == _val)
+//                        return idx + i;
+//                }
+//            }
+//        }
+//    }
+//
+//    for (; idx < _len; ++idx)
+//    {
+//        if (_buf[idx] == _val)
+//            return idx;
+//    }
+//
+//    return -1;
+//}

@@ -544,6 +544,422 @@ MU_TEST(ctest_mmsimd_f64_fill_004)
     mu_assert(memcmp(a, c, 65 * sizeof(double)) == 0, "Error: memcmp(a, c, 65 * sizeof(double)) == 0 failed");
 }
 
+MU_TEST(ctest_mmsimd_i8_find_001)
+{
+    int8_t a[65];
+    int8_t b = 0;
+    mmint_t c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int8_t)i;
+    }
+
+    c = mmsimd_i8_find(a, 65, b);
+
+    mu_assert(c == 0, "Error: c == 0 failed");
+    
+    b = 64;
+    c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int8_t)i;
+    }
+
+    c = mmsimd_i8_find(a, 65, b);
+
+    mu_assert(c == 64, "Error: c == 64 failed");
+
+    b = 31;
+    c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int8_t)i;
+    }
+
+    c = mmsimd_i8_find(a, 65, b);
+
+    mu_assert(c == 31, "Error: c == 64 failed");
+}
+
+MU_TEST(ctest_mmsimd_i8_find_002)
+{
+    int8_t a[65];
+    int8_t b = -1;
+    mmint_t c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int8_t)i;
+    }
+
+    c = mmsimd_i8_find(a, 65, b);
+
+    mu_assert(c == -1, "Error: c == -1 failed");
+}
+
+MU_TEST(ctest_mmsimd_u8_find_001)
+{
+    uint8_t a[65];
+    uint8_t b = 0;
+    mmint_t c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint8_t)i;
+    }
+
+    c = mmsimd_u8_find(a, 65, b);
+
+    mu_assert(c == 0, "Error: c == 0 failed");
+    
+    b = 64;
+    c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint8_t)i;
+    }
+
+    c = mmsimd_u8_find(a, 65, b);
+
+    mu_assert(c == 64, "Error: c == 64 failed");
+
+    b = 31;
+    c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint8_t)i;
+    }
+
+    c = mmsimd_u8_find(a, 65, b);
+
+    mu_assert(c == 31, "Error: c == 64 failed");
+}
+
+MU_TEST(ctest_mmsimd_u8_find_002)
+{
+    uint8_t a[65];
+    uint8_t b = UINT8_MAX;
+    mmint_t c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint8_t)i;
+    }
+
+    c = mmsimd_u8_find(a, 65, b);
+
+    mu_assert(c == -1, "Error: c == -1 failed");
+}
+
+MU_TEST(ctest_mmsimd_i16_find_001)
+{
+    int16_t a[65];
+    int16_t b = 0;
+    mmint_t c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int16_t)i;
+    }
+
+    c = mmsimd_i16_find(a, 65, b);
+
+    mu_assert(c == 0, "Error: c == 0 failed");
+    
+    b = 64;
+    c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int16_t)i;
+    }
+
+    c = mmsimd_i16_find(a, 65, b);
+
+    mu_assert(c == 64, "Error: c == 64 failed");
+
+    b = 31;
+    c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int16_t)i;
+    }
+
+    c = mmsimd_i16_find(a, 65, b);
+
+    mu_assert(c == 31, "Error: c == 64 failed");
+}
+
+MU_TEST(ctest_mmsimd_i16_find_002)
+{
+    int16_t a[65];
+    int16_t b = -1;
+    mmint_t c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int16_t)i;
+    }
+
+    c = mmsimd_i16_find(a, 65, b);
+
+    mu_assert(c == -1, "Error: c == -1 failed");
+}
+
+MU_TEST(ctest_mmsimd_u16_find_001)
+{
+    uint16_t a[65];
+    uint16_t b = 0;
+    mmint_t c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint16_t)i;
+    }
+
+    c = mmsimd_u16_find(a, 65, b);
+
+    mu_assert(c == 0, "Error: c == 0 failed");
+    
+    b = 64;
+    c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint16_t)i;
+    }
+
+    c = mmsimd_u16_find(a, 65, b);
+
+    mu_assert(c == 64, "Error: c == 64 failed");
+
+    b = 31;
+    c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint16_t)i;
+    }
+
+    c = mmsimd_u16_find(a, 65, b);
+
+    mu_assert(c == 31, "Error: c == 64 failed");   
+}
+
+MU_TEST(ctest_mmsimd_u16_find_002)
+{
+    uint16_t a[65];
+    uint16_t b = UINT16_MAX;
+    mmint_t c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint16_t)i;
+    }
+
+    c = mmsimd_u16_find(a, 65, b);
+
+    mu_assert(c == -1, "Error: c == -1 failed");
+}
+
+MU_TEST(ctest_mmsimd_i32_find_001)
+{
+    int32_t a[65];
+    int32_t b = 0;
+    mmint_t c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int32_t)i;
+    }
+
+    c = mmsimd_i32_find(a, 65, b);
+
+    mu_assert(c == 0, "Error: c == 0 failed");
+    
+    b = 64;
+    c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int32_t)i;
+    }
+
+    c = mmsimd_i32_find(a, 65, b);
+
+    mu_assert(c == 64, "Error: c == 64 failed");
+
+    b = 31;
+    c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int32_t)i;
+    }
+
+    c = mmsimd_i32_find(a, 65, b);
+
+    mu_assert(c == 31, "Error: c == 64 failed");
+}
+
+MU_TEST(ctest_mmsimd_i32_find_002)
+{
+    int32_t a[65];
+    int32_t b = -1;
+    mmint_t c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int32_t)i;
+    }
+
+    c = mmsimd_i32_find(a, 65, b);
+
+    mu_assert(c == -1, "Error: c == -1 failed");
+}
+
+MU_TEST(ctest_mmsimd_u32_find_001)
+{
+    uint32_t a[65];
+    uint32_t b = 0;
+    mmint_t c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint32_t)i;
+    }
+
+    c = mmsimd_u32_find(a, 65, b);
+
+    mu_assert(c == 0, "Error: c == 0 failed");
+    
+    b = 64;
+    c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint32_t)i;
+    }
+
+    c = mmsimd_u32_find(a, 65, b);
+
+    mu_assert(c == 64, "Error: c == 64 failed");
+
+    b = 31;
+    c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint32_t)i;
+    }
+
+    c = mmsimd_u32_find(a, 65, b);
+
+    mu_assert(c == 31, "Error: c == 64 failed");   
+}
+
+MU_TEST(ctest_mmsimd_u32_find_002)
+{
+    uint32_t a[65];
+    uint32_t b = UINT32_MAX;
+    mmint_t c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint32_t)i;
+    }
+
+    c = mmsimd_u32_find(a, 65, b);
+
+    mu_assert(c == -1, "Error: c == -1 failed");
+}
+
+MU_TEST(ctest_mmsimd_i64_find_001)
+{
+    int64_t a[65];
+    int64_t b = 0;
+    mmint_t c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int64_t)i;
+    }
+
+    c = mmsimd_i64_find(a, 65, b);
+
+    mu_assert(c == 0, "Error: c == 0 failed");
+    
+    b = 64;
+    c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int64_t)i;
+    }
+
+    c = mmsimd_i64_find(a, 65, b);
+
+    mu_assert(c == 64, "Error: c == 64 failed");
+
+    b = 31;
+    c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int64_t)i;
+    }
+
+    c = mmsimd_i64_find(a, 65, b);
+
+    mu_assert(c == 31, "Error: c == 64 failed");
+}
+
+MU_TEST(ctest_mmsimd_i64_find_002)
+{
+    int64_t a[65];
+    int64_t b = -1;
+    mmint_t c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int64_t)i;
+    }
+
+    c = mmsimd_i64_find(a, 65, b);
+
+    mu_assert(c == -1, "Error: c == -1 failed");
+}
+
+MU_TEST(ctest_mmsimd_u64_find_001)
+{
+    uint64_t a[65];
+    uint64_t b = 0;
+    mmint_t c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint64_t)i;
+    }
+
+    c = mmsimd_u64_find(a, 65, b);
+
+    mu_assert(c == 0, "Error: c == 0 failed");
+    
+    b = 64;
+    c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint64_t)i;
+    }
+
+    c = mmsimd_u64_find(a, 65, b);
+
+    mu_assert(c == 64, "Error: c == 64 failed");
+
+    b = 31;
+    c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint64_t)i;
+    }
+
+    c = mmsimd_u64_find(a, 65, b);
+
+    mu_assert(c == 31, "Error: c == 64 failed");   
+}
+
+MU_TEST(ctest_mmsimd_u64_find_002)
+{
+    uint64_t a[65];
+    uint64_t b = UINT64_MAX;
+    mmint_t c = -1;
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint64_t)i;
+    }
+
+    c = mmsimd_u64_find(a, 65, b);
+
+    mu_assert(c == -1, "Error: c == -1 failed");
+}
+
 MU_TEST_SUITE(ctest_suite) {
     MU_RUN_TEST(ctest_mmsimd_i8_add_001);
     MU_RUN_TEST(ctest_mmsimd_i8_add_002);
@@ -584,6 +1000,23 @@ MU_TEST_SUITE(ctest_suite) {
     MU_RUN_TEST(ctest_mmsimd_f64_fill_002);
     MU_RUN_TEST(ctest_mmsimd_f64_fill_003);
     MU_RUN_TEST(ctest_mmsimd_f64_fill_004);
+
+    MU_RUN_TEST(ctest_mmsimd_i8_find_001);
+    MU_RUN_TEST(ctest_mmsimd_i8_find_002);
+    MU_RUN_TEST(ctest_mmsimd_u8_find_001);
+    MU_RUN_TEST(ctest_mmsimd_u8_find_002);
+    MU_RUN_TEST(ctest_mmsimd_i16_find_001);
+    MU_RUN_TEST(ctest_mmsimd_i16_find_002);
+    MU_RUN_TEST(ctest_mmsimd_u16_find_001);
+    MU_RUN_TEST(ctest_mmsimd_u16_find_002);
+    MU_RUN_TEST(ctest_mmsimd_i32_find_001);
+    MU_RUN_TEST(ctest_mmsimd_i32_find_002);
+    MU_RUN_TEST(ctest_mmsimd_u32_find_001);
+    MU_RUN_TEST(ctest_mmsimd_u32_find_002);
+    MU_RUN_TEST(ctest_mmsimd_i64_find_001);
+    MU_RUN_TEST(ctest_mmsimd_i64_find_002);
+    MU_RUN_TEST(ctest_mmsimd_u64_find_001);
+    MU_RUN_TEST(ctest_mmsimd_u64_find_002);
 }
 
 int main() {

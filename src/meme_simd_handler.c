@@ -653,14 +653,29 @@ static mmsimd_other64_hdlr_t* mmsimd_get_default_other64_handler()
     return &hdlr;
 }
 
+static mmsimd_other8_hdlr_t* mmsimd_get_avx2_other8_handler()
+{
+#if MEGO_ARCH__X86 || MEGO_ARCH__X64 
+    static mmsimd_other8_hdlr_t hdlr = {
+        .i8_find_fn = mmsimd_avx2_i8_find,
+        .u8_find_fn = mmsimd_avx2_u8_find,
+        .i8_rfind_fn = mmsimd_default_i8_rfind,
+        .u8_rfind_fn = mmsimd_default_u8_rfind
+    };
+    return &hdlr;
+#else
+    return mmsimd_get_default_other8_handler();
+#endif
+}
+
 static mmsimd_other16_hdlr_t* mmsimd_get_avx2_other16_handler()
 {
 #if MEGO_ARCH__X86 || MEGO_ARCH__X64 
     static mmsimd_other16_hdlr_t hdlr = {
         .i16_fill_fn  = mmsimd_avx2_i16_fill,
         .u16_fill_fn  = mmsimd_avx2_u16_fill,
-        .i16_find_fn  = mmsimd_default_i16_find,
-        .u16_find_fn  = mmsimd_default_u16_find,
+        .i16_find_fn  = mmsimd_avx2_i16_find,
+        .u16_find_fn  = mmsimd_avx2_u16_find,
         .i16_rfind_fn = mmsimd_default_i16_rfind,
         .u16_rfind_fn = mmsimd_default_u16_rfind
     };
@@ -677,8 +692,8 @@ static mmsimd_other32_hdlr_t* mmsimd_get_avx2_other32_handler()
         .i32_fill_fn  = mmsimd_avx2_i32_fill,
         .u32_fill_fn  = mmsimd_avx2_u32_fill,
         .f32_fill_fn  = mmsimd_avx2_f32_fill,
-        .i32_find_fn  = mmsimd_default_i32_find,
-        .u32_find_fn  = mmsimd_default_u32_find,
+        .i32_find_fn  = mmsimd_avx2_i32_find,
+        .u32_find_fn  = mmsimd_avx2_u32_find,
         .f32_find_fn  = mmsimd_default_f32_find,
         .i32_rfind_fn = mmsimd_default_i32_rfind,
         .u32_rfind_fn = mmsimd_default_u32_rfind,
@@ -697,8 +712,8 @@ static mmsimd_other64_hdlr_t* mmsimd_get_avx2_other64_handler()
         .i64_fill_fn  = mmsimd_avx2_i64_fill,
         .u64_fill_fn  = mmsimd_avx2_u64_fill,
         .f64_fill_fn  = mmsimd_avx2_f64_fill,
-        .i64_find_fn  = mmsimd_default_i64_find,
-        .u64_find_fn  = mmsimd_default_u64_find,
+        .i64_find_fn  = mmsimd_avx2_i64_find,
+        .u64_find_fn  = mmsimd_avx2_u64_find,
         .f64_find_fn  = mmsimd_default_f64_find,
         .i64_rfind_fn = mmsimd_default_i64_rfind,
         .u64_rfind_fn = mmsimd_default_u64_rfind,
@@ -760,6 +775,14 @@ static volatile uintptr_t* __mmsimd_get_other64_handler_pointer()
 
 static void __mmsimd_other8_startup(void)
 {
+    mghw_simd_instruction_t instructions = mghw_detect_supported_simd_instructions();
+
+    if (instructions & MGHW_SIMD_INSTRUCTION__AVX2)
+    {
+        *__mmsimd_get_other8_handler_pointer() = (uintptr_t)mmsimd_get_avx2_other8_handler();
+        return;
+    }
+
     *__mmsimd_get_other8_handler_pointer() = (uintptr_t)mmsimd_get_default_other8_handler();
 }
 
