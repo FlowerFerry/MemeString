@@ -51,10 +51,12 @@ target("meme_string")
     
             if supports_avx2 then
                 target:add("clags", "-mavx2")
+                print("supports avx2")
             end
     
             if supports_neon then
                 target:add("clags", "-mfpu=neon")
+                print("supports neon")
             end
         end
     end)
