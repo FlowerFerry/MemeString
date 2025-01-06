@@ -7,7 +7,7 @@ function check_c_compiler_flag(flag)
 
     io.writefile(test_file, "int main(int argc, char **argv) { return 0; }")
 
-    local ok = os.runv(compiler.features("cc"):binary(), {flag, "-o", testprog, testfile})
+    local ok = compiler.compile(test_file, test_prog, {flags = flag})
 
     os.rm(test_file)
     os.rm(test_prog)
