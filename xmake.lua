@@ -56,7 +56,7 @@ target("meme_string")
         add_cxxflags("-fPIC", "-fexceptions")
         add_ldflags ("-fPIC", "-fexceptions")
     end
-    if config.get("cc") != "cl" then
+    if config.get("cc") ~= "cl" then
         local supports_avx2 = check_c_compiler_flag("-mavx2")
         local supports_neon = check_c_compiler_flag("-mfpu=neon")
 
