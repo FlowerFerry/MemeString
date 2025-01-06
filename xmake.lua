@@ -54,22 +54,25 @@ target("meme_string")
         add_cxxflags("-fPIC", "-fexceptions")
         add_ldflags ("-fPIC", "-fexceptions")
     end
-    import("core.project.config")    
-    if config.get("cc") ~= "cl" then
-        local supports_avx2 = check_c_compiler_flag("-mavx2")
-        local supports_neon = check_c_compiler_flag("-mfpu=neon")
-
-        if supports_avx2 then
-            add_cflags("-mavx2")
-        end
-
-        if supports_neon then
-            add_cflags("-mfpu=neon")
-        end
-    end
     set_kind("shared")
     set_symbols("hidden")
     add_rpathdirs("$ORIGIN")
+    after_load(function (target)
+        import("core.project.config")  
+
+        if config.get("cc") ~= "cl" then
+            local supports_avx2 = check_c_compiler_flag("-mavx2")
+            local supports_neon = check_c_compiler_flag("-mfpu=neon")
+    
+            if supports_avx2 then
+                target:add("clags", "-mavx2")
+            end
+    
+            if supports_neon then
+                target:add("clags", "-mfpu=neon")
+            end
+        end
+    end)
 target_end()
 
 target("mmpp_unittest")
