@@ -7,9 +7,13 @@
 #include <meme/impl/simd/simd.h>
 
 #include "meme_simd_default.c.inl"
+
+//! Intel® Intrinsics Guide:
+//!     https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html
 #if MEGO_ARCH__X86 || MEGO_ARCH__X64 
 #include "meme_simd_avx2.c.inl"
 #endif
+
 #if MEGO_ARCH__ARM && defined(__ARM_NEON)
 #include "meme_simd_neon.c.inl"
 #endif
@@ -224,53 +228,29 @@ static mmsimd_arith16_hdlr_t* mmsimd_get_neon_arith16_handler()
 #endif
 }
 
-static mgthrd_once_flag* __mmsimd_get_arith8_startup_once_flag()
-{
-    static mgthrd_once_flag f = MGTHRD_ONCE_FLAG_INIT;
-    return &f;
+#define MMSIMD_GET_ONCE_FLAG_FUNC(NAME) \
+static mgthrd_once_flag* __mmsimd_get_##NAME##_startup_once_flag() \
+{ \
+    static mgthrd_once_flag f = MGTHRD_ONCE_FLAG_INIT; \
+    return &f; \
 }
 
-static mgthrd_once_flag* __mmsimd_get_arith16_startup_once_flag()
-{
-    static mgthrd_once_flag f = MGTHRD_ONCE_FLAG_INIT;
-    return &f;
+#define MMSIMD_GET_HDLR_PTR_FUNC(NAME) \
+static volatile uintptr_t* __mmsimd_get_##NAME##_handler_pointer() \
+{ \
+    static volatile uintptr_t pointer = 0; \
+    return &pointer; \
 }
 
-static mgthrd_once_flag* __mmsimd_get_arith32_startup_once_flag()
-{
-    static mgthrd_once_flag f = MGTHRD_ONCE_FLAG_INIT;
-    return &f;
-}
+MMSIMD_GET_ONCE_FLAG_FUNC(arith8)
+MMSIMD_GET_ONCE_FLAG_FUNC(arith16)
+MMSIMD_GET_ONCE_FLAG_FUNC(arith32)
+MMSIMD_GET_ONCE_FLAG_FUNC(arith64)
 
-static mgthrd_once_flag* __mmsimd_get_arith64_startup_once_flag()
-{
-    static mgthrd_once_flag f = MGTHRD_ONCE_FLAG_INIT;
-    return &f;
-}
-
-static volatile uintptr_t* __mmsimd_get_arith8_handler_pointer()
-{
-    static volatile uintptr_t pointer = 0;
-    return &pointer;
-}
-
-static volatile uintptr_t* __mmsimd_get_arith16_handler_pointer()
-{
-    static volatile uintptr_t pointer = 0;
-    return &pointer;
-}
-
-static volatile uintptr_t* __mmsimd_get_arith32_handler_pointer()
-{
-    static volatile uintptr_t pointer = 0;
-    return &pointer;
-}
-
-static volatile uintptr_t* __mmsimd_get_arith64_handler_pointer()
-{
-    static volatile uintptr_t pointer = 0;
-    return &pointer;
-}
+MMSIMD_GET_HDLR_PTR_FUNC(arith8)
+MMSIMD_GET_HDLR_PTR_FUNC(arith16)
+MMSIMD_GET_HDLR_PTR_FUNC(arith32)
+MMSIMD_GET_HDLR_PTR_FUNC(arith64)
 
 static void __mmsimd_arith8_startup(void)
 {
@@ -473,53 +453,15 @@ static mmsimd_conv8_hdlr_t* mmsimd_get_avx2_conv8_handler()
 #endif
 }
 
-static mgthrd_once_flag* __mmsimd_get_conv8_startup_once_flag()
-{
-    static mgthrd_once_flag f = MGTHRD_ONCE_FLAG_INIT;
-    return &f;
-}
+MMSIMD_GET_ONCE_FLAG_FUNC(conv8)
+MMSIMD_GET_ONCE_FLAG_FUNC(conv16)
+MMSIMD_GET_ONCE_FLAG_FUNC(conv32)
+MMSIMD_GET_ONCE_FLAG_FUNC(conv64)
 
-static mgthrd_once_flag* __mmsimd_get_conv16_startup_once_flag()
-{
-    static mgthrd_once_flag f = MGTHRD_ONCE_FLAG_INIT;
-    return &f;
-}
-
-static mgthrd_once_flag* __mmsimd_get_conv32_startup_once_flag()
-{
-    static mgthrd_once_flag f = MGTHRD_ONCE_FLAG_INIT;
-    return &f;
-}
-
-static mgthrd_once_flag* __mmsimd_get_conv64_startup_once_flag()
-{
-    static mgthrd_once_flag f = MGTHRD_ONCE_FLAG_INIT;
-    return &f;
-}
-
-static volatile uintptr_t* __mmsimd_get_conv8_handler_pointer()
-{
-    static volatile uintptr_t pointer = 0;
-    return &pointer;
-}
-
-static volatile uintptr_t* __mmsimd_get_conv16_handler_pointer()
-{
-    static volatile uintptr_t pointer = 0;
-    return &pointer;
-}
-
-static volatile uintptr_t* __mmsimd_get_conv32_handler_pointer()
-{
-    static volatile uintptr_t pointer = 0;
-    return &pointer;
-}
-
-static volatile uintptr_t* __mmsimd_get_conv64_handler_pointer()
-{
-    static volatile uintptr_t pointer = 0;
-    return &pointer;
-}
+MMSIMD_GET_HDLR_PTR_FUNC(conv8)
+MMSIMD_GET_HDLR_PTR_FUNC(conv16)
+MMSIMD_GET_HDLR_PTR_FUNC(conv32)
+MMSIMD_GET_HDLR_PTR_FUNC(conv64)
 
 static void __mmsimd_conv8_startup(void)
 {
@@ -725,53 +667,15 @@ static mmsimd_other64_hdlr_t* mmsimd_get_avx2_other64_handler()
 #endif
 }
 
-static mgthrd_once_flag* __mmsimd_get_other8_startup_once_flag()
-{
-    static mgthrd_once_flag f = MGTHRD_ONCE_FLAG_INIT;
-    return &f;
-}
+MMSIMD_GET_ONCE_FLAG_FUNC(other8)
+MMSIMD_GET_ONCE_FLAG_FUNC(other16)
+MMSIMD_GET_ONCE_FLAG_FUNC(other32)
+MMSIMD_GET_ONCE_FLAG_FUNC(other64)
 
-static mgthrd_once_flag* __mmsimd_get_other16_startup_once_flag()
-{
-    static mgthrd_once_flag f = MGTHRD_ONCE_FLAG_INIT;
-    return &f;
-}
-
-static mgthrd_once_flag* __mmsimd_get_other32_startup_once_flag()
-{
-    static mgthrd_once_flag f = MGTHRD_ONCE_FLAG_INIT;
-    return &f;
-}
-
-static mgthrd_once_flag* __mmsimd_get_other64_startup_once_flag()
-{
-    static mgthrd_once_flag f = MGTHRD_ONCE_FLAG_INIT;
-    return &f;
-}
-
-static volatile uintptr_t* __mmsimd_get_other8_handler_pointer()
-{
-    static volatile uintptr_t pointer = 0;
-    return &pointer;
-}
-
-static volatile uintptr_t* __mmsimd_get_other16_handler_pointer()
-{
-    static volatile uintptr_t pointer = 0;
-    return &pointer;
-}
-
-static volatile uintptr_t* __mmsimd_get_other32_handler_pointer()
-{
-    static volatile uintptr_t pointer = 0;
-    return &pointer;
-}
-
-static volatile uintptr_t* __mmsimd_get_other64_handler_pointer()
-{
-    static volatile uintptr_t pointer = 0;
-    return &pointer;
-}
+MMSIMD_GET_HDLR_PTR_FUNC(other8)
+MMSIMD_GET_HDLR_PTR_FUNC(other16)
+MMSIMD_GET_HDLR_PTR_FUNC(other32)
+MMSIMD_GET_HDLR_PTR_FUNC(other64)
 
 static void __mmsimd_other8_startup(void)
 {
@@ -1085,5 +989,7 @@ MMSIMD_CONV_FUNC(64, f64, f32, double, float)
 #undef MMSIMD_CONV_FUNC
 
 
+#undef MMSIMD_GET_ONCE_FLAG_FUNC
+#undef MMSIMD_GET_HDLR_PTR_FUNC
 
 MEME_EXTERN_C_SCOPE_ENDED

@@ -37,7 +37,7 @@ struct physical_address
 
     inline void assign(const uint8_t* _data, uint8_t _len)
     {
-        if (MG_SYM__UNLIKELY(_data == NULL || _len = 0))
+        if (MG_SYM__UNLIKELY(_data == NULL || _len == 0))
         {
             len_ = 0;
             return;

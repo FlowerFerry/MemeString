@@ -175,85 +175,85 @@ void mmsimd_avx2_i8_to_u16(const int8_t* _in, uint16_t* _out, mmint_t _n)
 }
 
 //! _mm_loadu_si128 and _mm_srli_si128 is SSE2 instruction
-void mmsimd_sse2_avx2_i8_to_i32(const int8_t* _in, int32_t* _out, mmint_t _n)
-{
-    mmint_t idx = 0;
-    for (; idx + (mmint_t)sizeof(__m128i) <= _n; idx += (mmint_t)sizeof(__m128i))
-    {
-        __m128i vi_l = _mm_loadu_si128((__m128i*)&_in[idx]);
-        __m128i vi_h = _mm_srli_si128(vi_l, 8);
-        __m256i vo;
+//void mmsimd_sse2_avx2_i8_to_i32(const int8_t* _in, int32_t* _out, mmint_t _n)
+//{
+//    mmint_t idx = 0;
+//    for (; idx + (mmint_t)sizeof(__m128i) <= _n; idx += (mmint_t)sizeof(__m128i))
+//    {
+//        __m128i vi_l = _mm_loadu_si128((__m128i*)&_in[idx]);
+//        __m128i vi_h = _mm_srli_si128(vi_l, 8);
+//        __m256i vo;
+//
+//        vo = _mm256_cvtepi8_epi32(vi_l);
+//        _mm256_storeu_si256((__m256i*)&_out[idx], vo);
+//
+//        vo = _mm256_cvtepi8_epi32(vi_h);
+//        _mm256_storeu_si256((__m256i*)&_out[idx + 8], vo);
+//    }
+//
+//    for (; idx < _n; ++idx)
+//        _out[idx] = _in[idx];
+//}
 
-        vo = _mm256_cvtepi8_epi32(vi_l);
-        _mm256_storeu_si256((__m256i*)&_out[idx], vo);
-
-        vo = _mm256_cvtepi8_epi32(vi_h);
-        _mm256_storeu_si256((__m256i*)&_out[idx + 8], vo);
-    }
-
-    for (; idx < _n; ++idx)
-        _out[idx] = _in[idx];
-}
-
-void mmsimd_sse2_avx2_i8_to_u32(const int8_t* _in, uint32_t* _out, mmint_t _n)
-{
-    mmsimd_sse2_avx2_i8_to_i32(_in, (int32_t*)_out, _n);
-}
-
-//! _mm_loadu_si128 and _mm_srli_si128 is SSE2 instruction
-void mmsimd_sse2_avx2_i8_to_i64(const int8_t* _in, int64_t* _out, mmint_t _n)
-{
-    mmint_t idx = 0;
-    for (; idx + (mmint_t)sizeof(__m128i) <= _n; idx += (mmint_t)sizeof(__m128i))
-    {
-        __m128i vi_1 = _mm_loadu_si128((__m128i*)&_in[idx]);
-        __m128i vi_2 = _mm_srli_si128(vi_1, 4);
-        __m128i vi_3 = _mm_srli_si128(vi_1, 8);
-        __m128i vi_4 = _mm_srli_si128(vi_1, 12);
-        __m256i vo;
-
-        vo = _mm256_cvtepi8_epi64(vi_1);
-        _mm256_storeu_si256((__m256i*)&_out[idx], vo);
-
-        vo = _mm256_cvtepi8_epi64(vi_2);
-        _mm256_storeu_si256((__m256i*)&_out[idx + 4], vo);
-
-        vo = _mm256_cvtepi8_epi64(vi_3);
-        _mm256_storeu_si256((__m256i*)&_out[idx + 8], vo);
-
-        vo = _mm256_cvtepi8_epi64(vi_4);
-        _mm256_storeu_si256((__m256i*)&_out[idx + 12], vo);
-    }
-
-    for (; idx < _n; ++idx)
-        _out[idx] = _in[idx];
-}
-
-void mmsimd_sse2_avx2_i8_to_u64(const int8_t* _in, uint64_t* _out, mmint_t _n)
-{
-    mmsimd_sse2_avx2_i8_to_i64(_in, (int64_t*)_out, _n);
-}
+//void mmsimd_sse2_avx2_i8_to_u32(const int8_t* _in, uint32_t* _out, mmint_t _n)
+//{
+//    mmsimd_sse2_avx2_i8_to_i32(_in, (int32_t*)_out, _n);
+//}
 
 //! _mm_loadu_si128 and _mm_srli_si128 is SSE2 instruction
-void mmsimd_sse2_avx2_i8_to_f32(const int8_t* _in, float* _out, mmint_t _n)
-{
-    mmint_t idx = 0;
-    for (; idx + (mmint_t)sizeof(__m256) <= _n; idx += (mmint_t)sizeof(__m256))
-    {
-        __m128i vi_l = _mm_loadu_si128((__m128i*) & _in[idx]);
-        __m128i vi_h = _mm_srli_si128(vi_l, 8);
-        __m256 vo;
+//void mmsimd_sse2_avx2_i8_to_i64(const int8_t* _in, int64_t* _out, mmint_t _n)
+//{
+//    mmint_t idx = 0;
+//    for (; idx + (mmint_t)sizeof(__m128i) <= _n; idx += (mmint_t)sizeof(__m128i))
+//    {
+//        __m128i vi_1 = _mm_loadu_si128((__m128i*)&_in[idx]);
+//        __m128i vi_2 = _mm_srli_si128(vi_1, 4);
+//        __m128i vi_3 = _mm_srli_si128(vi_1, 8);
+//        __m128i vi_4 = _mm_srli_si128(vi_1, 12);
+//        __m256i vo;
+//
+//        vo = _mm256_cvtepi8_epi64(vi_1);
+//        _mm256_storeu_si256((__m256i*)&_out[idx], vo);
+//
+//        vo = _mm256_cvtepi8_epi64(vi_2);
+//        _mm256_storeu_si256((__m256i*)&_out[idx + 4], vo);
+//
+//        vo = _mm256_cvtepi8_epi64(vi_3);
+//        _mm256_storeu_si256((__m256i*)&_out[idx + 8], vo);
+//
+//        vo = _mm256_cvtepi8_epi64(vi_4);
+//        _mm256_storeu_si256((__m256i*)&_out[idx + 12], vo);
+//    }
+//
+//    for (; idx < _n; ++idx)
+//        _out[idx] = _in[idx];
+//}
+//
+//void mmsimd_sse2_avx2_i8_to_u64(const int8_t* _in, uint64_t* _out, mmint_t _n)
+//{
+//    mmsimd_sse2_avx2_i8_to_i64(_in, (int64_t*)_out, _n);
+//}
 
-        vo = _mm256_cvtepi32_ps(_mm256_cvtepi8_epi32(vi_l));
-        _mm256_storeu_ps(&_out[idx], vo);
-
-        vo = _mm256_cvtepi32_ps(_mm256_cvtepi8_epi32(vi_h));
-        _mm256_storeu_ps(&_out[idx + 8], vo);
-    }
-
-    for (; idx < _n; ++idx)
-        _out[idx] = (float)_in[idx];
-}
+//! _mm_loadu_si128 and _mm_srli_si128 is SSE2 instruction
+//void mmsimd_sse2_avx2_i8_to_f32(const int8_t* _in, float* _out, mmint_t _n)
+//{
+//    mmint_t idx = 0;
+//    for (; idx + (mmint_t)sizeof(__m256) <= _n; idx += (mmint_t)sizeof(__m256))
+//    {
+//        __m128i vi_l = _mm_loadu_si128((__m128i*) & _in[idx]);
+//        __m128i vi_h = _mm_srli_si128(vi_l, 8);
+//        __m256 vo;
+//
+//        vo = _mm256_cvtepi32_ps(_mm256_cvtepi8_epi32(vi_l));
+//        _mm256_storeu_ps(&_out[idx], vo);
+//
+//        vo = _mm256_cvtepi32_ps(_mm256_cvtepi8_epi32(vi_h));
+//        _mm256_storeu_ps(&_out[idx + 8], vo);
+//    }
+//
+//    for (; idx < _n; ++idx)
+//        _out[idx] = (float)_in[idx];
+//}
 
 void mmsimd_avx2_i16_fill(int16_t* _out, mmint_t _len, int16_t _val)
 {
