@@ -40,8 +40,6 @@ end
 
 add_includedirs("include", {public = true})
 
-import("core.project.config")
-
 target("meme_string")
     add_defines("MEME_OPTION__BUILD_SHARED")
     set_languages("c11")
@@ -56,6 +54,7 @@ target("meme_string")
         add_cxxflags("-fPIC", "-fexceptions")
         add_ldflags ("-fPIC", "-fexceptions")
     end
+    import("core.project.config")    
     if config.get("cc") ~= "cl" then
         local supports_avx2 = check_c_compiler_flag("-mavx2")
         local supports_neon = check_c_compiler_flag("-mfpu=neon")
