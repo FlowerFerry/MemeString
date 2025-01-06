@@ -51,12 +51,12 @@ target("meme_string")
     
             if supports_avx2 then
                 target:add("cflags", "-mavx2")
-                print("supports avx2")
+                print("Supports AVX2")
             end
     
             if supports_neon then
                 target:add("cflags", "-mfpu=neon")
-                print("supports neon")
+                print("Supports NEON")
             end
         else
             print("MSVC compiler detected, skipping AVX2/NEON flag checks")
