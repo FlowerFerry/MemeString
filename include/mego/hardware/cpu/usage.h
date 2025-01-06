@@ -6,7 +6,9 @@
 #include <mego/util/os/windows/windows_simplify.h>
 #include <mego/predef/symbol/thread_local.h>
 
+#ifndef __STDC_WANT_LIB_EXT1__
 #define __STDC_WANT_LIB_EXT1__ 1
+#endif
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
