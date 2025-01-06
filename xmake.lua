@@ -50,14 +50,16 @@ target("meme_string")
             local supports_neon = xmake_check.check_c_compiler_flag("-mfpu=neon")
     
             if supports_avx2 then
-                target:add("clags", "-mavx2")
+                target:add("cflags", "-mavx2")
                 print("supports avx2")
             end
     
             if supports_neon then
-                target:add("clags", "-mfpu=neon")
+                target:add("cflags", "-mfpu=neon")
                 print("supports neon")
             end
+        else
+            print("MSVC compiler detected, skipping AVX2/NEON flag checks")
         end
     end)
 target_end()
