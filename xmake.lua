@@ -41,27 +41,29 @@ target("meme_string")
     set_kind("shared")
     set_symbols("hidden")
     add_rpathdirs("$ORIGIN")
-    after_load(function (target)
-        import("core.project.config")  
-        import("xmake_check")
+    add_cflags("-mavx2")
+    add_cflags("-mfpu=neon")
+    -- after_load(function (target)
+    --     import("core.project.config")  
+    --     import("xmake_check")
 
-        if config.get("cc") ~= "cl" then
-            local supports_avx2 = xmake_check.check_c_compiler_flag("-mavx2")
-            local supports_neon = xmake_check.check_c_compiler_flag("-mfpu=neon")
+    --     if config.get("cc") ~= "cl" then
+    --         local supports_avx2 = xmake_check.check_c_compiler_flag("-mavx2")
+    --         local supports_neon = xmake_check.check_c_compiler_flag("-mfpu=neon")
     
-            if supports_avx2 then
-                target:add("cflags", "-mavx2")
-                print("Supports AVX2")
-            end
+    --         if supports_avx2 then
+    --             target:add("cflags", "-mavx2")
+    --             print("Supports AVX2")
+    --         end
     
-            if supports_neon then
-                target:add("cflags", "-mfpu=neon")
-                print("Supports NEON")
-            end
-        else
-            print("MSVC compiler detected, skipping AVX2/NEON flag checks")
-        end
-    end)
+    --         if supports_neon then
+    --             target:add("cflags", "-mfpu=neon")
+    --             print("Supports NEON")
+    --         end
+    --     else
+    --         print("MSVC compiler detected, skipping AVX2/NEON flag checks")
+    --     end
+    -- end)
 target_end()
 
 target("mmpp_unittest")
