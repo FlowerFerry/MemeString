@@ -43,6 +43,7 @@ endif()
 
 # 生成 shared 库
 set(SRC_FILES
+    src/meme_other.c
     src/meme_string__basics.c
     src/meme_string__stack.c
     src/meme_string_builder.c

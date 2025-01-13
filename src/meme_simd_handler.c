@@ -201,6 +201,49 @@ static mmsimd_arith8_hdlr_t* mmsimd_get_neon_arith8_handler()
 #endif
 }
 
+static mmsimd_arith16_hdlr_t* mmsimd_get_avx2_arith16_handler()
+{
+#if MEGO_ARCH__X86 || MEGO_ARCH__X64 
+    static mmsimd_arith16_hdlr_t hdlr = {
+        .i16_add_fn = mmsimd_avx2_i16_add,
+        .i16_sub_fn = mmsimd_avx2_i16_sub,
+        .i16_mul_fn = mmsimd_default_i16_mul,
+#if MG_COMP__MSVC_AVAIL
+        .i16_div_fn = mmsimd_avx2_i16_div,
+#else
+        .i16_div_fn = mmsimd_default_i16_div,
+#endif
+        .u16_add_fn = mmsimd_avx2_u16_add,
+        .u16_sub_fn = mmsimd_avx2_u16_sub,
+        .u16_mul_fn = mmsimd_default_u16_mul,
+#if MG_COMP__MSVC_AVAIL
+        .u16_div_fn = mmsimd_avx2_u16_div,
+#else
+        .u16_div_fn = mmsimd_default_u16_div,
+#endif
+        .i16_add_scalar_fn = mmsimd_avx2_i16_add_scalar,
+        .i16_sub_scalar_fn = mmsimd_avx2_i16_sub_scalar,
+        .i16_mul_scalar_fn = mmsimd_default_i16_mul_scalar,
+#if MG_COMP__MSVC_AVAIL
+        .i16_div_scalar_fn = mmsimd_avx2_i16_div_scalar,
+#else
+        .i16_div_scalar_fn = mmsimd_default_i16_div_scalar,
+#endif
+        .u16_add_scalar_fn = mmsimd_avx2_u16_add_scalar,
+        .u16_sub_scalar_fn = mmsimd_avx2_u16_sub_scalar,
+        .u16_mul_scalar_fn = mmsimd_default_u16_mul_scalar,
+#if MG_COMP__MSVC_AVAIL
+        .u16_div_scalar_fn = mmsimd_avx2_u16_div_scalar
+#else
+        .u16_div_scalar_fn = mmsimd_default_u16_div_scalar
+#endif
+    };
+    return &hdlr;
+#else
+    return mmsimd_get_default_arith16_handler();
+#endif
+}
+
 static mmsimd_arith16_hdlr_t* mmsimd_get_neon_arith16_handler()
 {
 #if MEGO_ARCH__ARM && (defined(__ARM_NEON))
@@ -225,6 +268,57 @@ static mmsimd_arith16_hdlr_t* mmsimd_get_neon_arith16_handler()
     return &hdlr;
 #else
     return mmsimd_get_default_arith16_handler();
+#endif
+}
+
+static mmsimd_arith32_hdlr_t* mmsimd_get_avx2_arith32_handler()
+{
+#if MEGO_ARCH__X86 || MEGO_ARCH__X64 
+    static mmsimd_arith32_hdlr_t hdlr = {
+        .i32_add_fn = mmsimd_avx2_i32_add,
+        .i32_sub_fn = mmsimd_avx2_i32_sub,
+        .i32_mul_fn = mmsimd_default_i32_mul,
+#if MG_COMP__MSVC_AVAIL
+        .i32_div_fn = mmsimd_avx2_i32_div,
+#else
+        .i32_div_fn = mmsimd_default_i32_div,
+#endif
+        .u32_add_fn = mmsimd_avx2_u32_add,
+        .u32_sub_fn = mmsimd_avx2_u32_sub,
+        .u32_mul_fn = mmsimd_default_u32_mul,
+#if MG_COMP__MSVC_AVAIL
+        .u32_div_fn = mmsimd_avx2_u32_div,
+#else
+        .u32_div_fn = mmsimd_default_u32_div,
+#endif
+        .f32_add_fn = mmsimd_avx2_f32_add,
+        .f32_sub_fn = mmsimd_avx2_f32_sub,
+        .f32_mul_fn = mmsimd_avx2_f32_mul,
+        .f32_div_fn = mmsimd_avx2_f32_div,
+        .i32_add_scalar_fn = mmsimd_avx2_i32_add_scalar,
+        .i32_sub_scalar_fn = mmsimd_avx2_i32_sub_scalar,
+        .i32_mul_scalar_fn = mmsimd_default_i32_mul_scalar,
+#if MG_COMP__MSVC_AVAIL
+        .i32_div_scalar_fn = mmsimd_avx2_i32_div_scalar,
+#else
+        .i32_div_scalar_fn = mmsimd_default_i32_div_scalar,
+#endif
+        .u32_add_scalar_fn = mmsimd_avx2_u32_add_scalar,
+        .u32_sub_scalar_fn = mmsimd_avx2_u32_sub_scalar,
+        .u32_mul_scalar_fn = mmsimd_default_u32_mul_scalar,
+#if MG_COMP__MSVC_AVAIL
+        .u32_div_scalar_fn = mmsimd_avx2_u32_div_scalar,
+#else
+        .u32_div_scalar_fn = mmsimd_default_u32_div_scalar,
+#endif
+        .f32_add_scalar_fn = mmsimd_avx2_f32_add_scalar,
+        .f32_sub_scalar_fn = mmsimd_avx2_f32_sub_scalar,
+        .f32_mul_scalar_fn = mmsimd_avx2_f32_mul_scalar,
+        .f32_div_scalar_fn = mmsimd_avx2_f32_div_scalar
+    };
+    return &hdlr;
+#else
+    return mmsimd_get_default_arith32_handler();
 #endif
 }
 
@@ -275,11 +369,11 @@ static void __mmsimd_arith16_startup(void)
 {
     mghw_simd_instruction_t instructions = mghw_detect_supported_simd_instructions();
 
-    //if (instructions & MGHW_SIMD_INSTRUCTION__AVX2)
-    //{
-    //    *__mmsimd_get_arith16_handler_pointer() = (uintptr_t)mmsimd_get_avx2_arith16_handler();
-    //    return;
-    //}
+    if (instructions & MGHW_SIMD_INSTRUCTION__AVX2)
+    {
+        *__mmsimd_get_arith16_handler_pointer() = (uintptr_t)mmsimd_get_avx2_arith16_handler();
+        return;
+    }
 
     *__mmsimd_get_arith16_handler_pointer() = (uintptr_t)mmsimd_get_default_arith16_handler();
 }
@@ -288,11 +382,11 @@ static void __mmsimd_arith32_startup(void)
 {
     mghw_simd_instruction_t instructions = mghw_detect_supported_simd_instructions();
 
-    //if (instructions & MGHW_SIMD_INSTRUCTION__AVX2)
-    //{
-    //    *__mmsimd_get_arith32_handler_pointer() = (uintptr_t)mmsimd_get_avx2_arith32_handler();
-    //    return;
-    //}
+    if (instructions & MGHW_SIMD_INSTRUCTION__AVX2)
+    {
+        *__mmsimd_get_arith32_handler_pointer() = (uintptr_t)mmsimd_get_avx2_arith32_handler();
+        return;
+    }
 
     *__mmsimd_get_arith32_handler_pointer() = (uintptr_t)mmsimd_get_default_arith32_handler();
 }

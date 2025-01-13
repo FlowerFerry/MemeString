@@ -455,6 +455,9 @@
     <ClCompile Include="..\..\..\src\meme_simd_handler.c">
       <Filter>源文件\src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\meme_other.c">
+      <Filter>源文件\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="export.def">

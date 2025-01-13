@@ -142,6 +142,2217 @@ MU_TEST(ctest_mmsimd_u8_add_004)
 
 }
 
+MU_TEST(ctest_mmsimd_i16_add_001)
+{
+    int16_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int16_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int16_t c[15] = { 0 };
+    int16_t d[15] = { 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30 };
+    mmsimd_i16_add(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i16_add_002)
+{
+    int16_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int16_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int16_t c[32] = { 0 };
+    int16_t d[32] = { 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32,
+        34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64 };
+    mmsimd_i16_add(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i16_add_003)
+{
+    int16_t a[63];
+    int16_t b[63];
+    int16_t c[63] = { 0 };
+    int16_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (int16_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (int16_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = 64;
+    }
+
+    mmsimd_i16_add(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i16_add_004)
+{
+    int16_t a[65];
+    int16_t b[65];
+    int16_t c[65] = { 0 };
+    int16_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int16_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (int16_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = 2 * i + 126;
+    }
+
+    mmsimd_i16_add(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_u16_add_001)
+{
+    uint16_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint16_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint16_t c[15] = { 0 };
+    uint16_t d[15] = { 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30 };
+    mmsimd_u16_add(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u16_add_002)
+{
+    uint16_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint16_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint16_t c[32] = { 0 };
+    uint16_t d[32] = { 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32,
+        34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64 };
+    mmsimd_u16_add(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u16_add_003)
+{
+    uint16_t a[63];
+    uint16_t b[63];
+    uint16_t c[63] = { 0 };
+    uint16_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (uint16_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (uint16_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = 64;
+    }
+
+    mmsimd_u16_add(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u16_add_004)
+{
+    uint16_t a[65];
+    uint16_t b[65];
+    uint16_t c[65] = { 0 };
+    uint16_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint16_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (uint16_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = 2 * i + 126;
+    }
+
+    mmsimd_u16_add(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_i32_add_001)
+{
+    int32_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int32_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int32_t c[15] = { 0 };
+    int32_t d[15] = { 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30 };
+    mmsimd_i32_add(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i32_add_002)
+{
+    int32_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int32_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int32_t c[32] = { 0 };
+    int32_t d[32] = { 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32,
+        34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64 };
+    mmsimd_i32_add(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i32_add_003)
+{
+    int32_t a[63];
+    int32_t b[63];
+    int32_t c[63] = { 0 };
+    int32_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (int32_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (int32_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = 64;
+    }
+
+    mmsimd_i32_add(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i32_add_004)
+{
+    int32_t a[65];
+    int32_t b[65];
+    int32_t c[65] = { 0 };
+    int32_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int32_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (int32_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = 2 * i + 126;
+    }
+
+    mmsimd_i32_add(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_u32_add_001)
+{
+    uint32_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint32_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint32_t c[15] = { 0 };
+    uint32_t d[15] = { 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30 };
+    mmsimd_u32_add(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u32_add_002)
+{
+    uint32_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint32_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint32_t c[32] = { 0 };
+    uint32_t d[32] = { 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32,
+        34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64 };
+    mmsimd_u32_add(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u32_add_003)
+{
+    uint32_t a[63];
+    uint32_t b[63];
+    uint32_t c[63] = { 0 };
+    uint32_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (uint32_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (uint32_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = 64;
+    }
+
+    mmsimd_u32_add(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u32_add_004)
+{
+    uint32_t a[65];
+    uint32_t b[65];
+    uint32_t c[65] = { 0 };
+    uint32_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint32_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (uint32_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = 2 * i + 126;
+    }
+
+    mmsimd_u32_add(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_i64_add_001)
+{
+    int64_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int64_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int64_t c[15] = { 0 };
+    int64_t d[15] = { 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30 };
+    mmsimd_i64_add(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i64_add_002)
+{
+    int64_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int64_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int64_t c[32] = { 0 };
+    int64_t d[32] = { 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32,
+        34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64 };
+    mmsimd_i64_add(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i64_add_003)
+{
+    int64_t a[63];
+    int64_t b[63];
+    int64_t c[63] = { 0 };
+    int64_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (int64_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (int64_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = 64;
+    }
+
+    mmsimd_i64_add(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i64_add_004)
+{
+    int64_t a[65];
+    int64_t b[65];
+    int64_t c[65] = { 0 };
+    int64_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int64_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (int64_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = 2 * i + 126;
+    }
+
+    mmsimd_i64_add(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_u64_add_001)
+{
+    uint64_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint64_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint64_t c[15] = { 0 };
+    uint64_t d[15] = { 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30 };
+    mmsimd_u64_add(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u64_add_002)
+{
+    uint64_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint64_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint64_t c[32] = { 0 };
+    uint64_t d[32] = { 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32,
+        34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64 };
+    mmsimd_u64_add(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u64_add_003)
+{
+    uint64_t a[63];
+    uint64_t b[63];
+    uint64_t c[63] = { 0 };
+    uint64_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (uint64_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (uint64_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = 64;
+    }
+
+    mmsimd_u64_add(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u64_add_004)
+{
+    uint64_t a[65];
+    uint64_t b[65];
+    uint64_t c[65] = { 0 };
+    uint64_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint64_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (uint64_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = 2 * i + 126;
+    }
+
+    mmsimd_u64_add(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_i8_sub_001)
+{
+    int8_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int8_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int8_t c[15] = { 0 };
+    int8_t d[15] = { 0 };
+    mmsimd_i8_sub(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i8_sub_002)
+{
+    int8_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int8_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int8_t c[32] = { 0 };
+    int8_t d[32] = { 0 };
+    mmsimd_i8_sub(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i8_sub_003)
+{
+    int8_t a[63];
+    int8_t b[63];
+    int8_t c[63] = { 0 };
+    int8_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (int8_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (int8_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = -62 + 2 * i;
+    }
+
+    mmsimd_i8_sub(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i8_sub_004)
+{
+    int8_t a[65];
+    int8_t b[65];
+    int8_t c[65] = { 0 };
+    int8_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int8_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (int8_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = 0;
+    }
+
+    mmsimd_i8_sub(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_u8_sub_001)
+{
+    uint8_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint8_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint8_t c[15] = { 0 };
+    uint8_t d[15] = { 0 };
+    mmsimd_u8_sub(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u8_sub_002)
+{
+    uint8_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint8_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint8_t c[32] = { 0 };
+    uint8_t d[32] = { 0 };
+    mmsimd_u8_sub(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u8_sub_003)
+{
+    uint8_t a[63];
+    uint8_t b[63];
+    uint8_t c[63] = { 0 };
+    uint8_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (uint8_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (uint8_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = (uint8_t)(i + 1) - (uint8_t)(63 - i);
+    }
+
+    mmsimd_u8_sub(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u8_sub_004)
+{
+    uint8_t a[65];
+    uint8_t b[65];
+    uint8_t c[65] = { 0 };
+    uint8_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint8_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (uint8_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = 0;
+    }
+
+    mmsimd_u8_sub(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_i16_sub_001)
+{
+    int16_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int16_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int16_t c[15] = { 0 };
+    int16_t d[15] = { 0 };
+    mmsimd_i16_sub(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i16_sub_002)
+{
+    int16_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int16_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int16_t c[32] = { 0 };
+    int16_t d[32] = { 0 };
+    mmsimd_i16_sub(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i16_sub_003)
+{
+    int16_t a[63];
+    int16_t b[63];
+    int16_t c[63] = { 0 };
+    int16_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (int16_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (int16_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = (int16_t)(i + 1) - (int16_t)(63 - i);
+    }
+
+    mmsimd_i16_sub(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i16_sub_004)
+{
+    int16_t a[65];
+    int16_t b[65];
+    int16_t c[65] = { 0 };
+    int16_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int16_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (int16_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = 0;
+    }
+
+    mmsimd_i16_sub(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_u16_sub_001)
+{
+    uint16_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint16_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint16_t c[15] = { 0 };
+    uint16_t d[15] = { 0 };
+    mmsimd_u16_sub(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u16_sub_002)
+{
+    uint16_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint16_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint16_t c[32] = { 0 };
+    uint16_t d[32] = { 0 };
+    mmsimd_u16_sub(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u16_sub_003)
+{
+    uint16_t a[63];
+    uint16_t b[63];
+    uint16_t c[63] = { 0 };
+    uint16_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (uint16_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (uint16_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = (uint16_t)(i + 1) - (uint16_t)(63 - i);
+    }
+
+    mmsimd_u16_sub(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u16_sub_004)
+{
+    uint16_t a[65];
+    uint16_t b[65];
+    uint16_t c[65] = { 0 };
+    uint16_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint16_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (uint16_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = 0;
+    }
+
+    mmsimd_u16_sub(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_i32_sub_001)
+{
+    int32_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int32_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int32_t c[15] = { 0 };
+    int32_t d[15] = { 0 };
+    mmsimd_i32_sub(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i32_sub_002)
+{
+    int32_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int32_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int32_t c[32] = { 0 };
+    int32_t d[32] = { 0 };
+    mmsimd_i32_sub(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i32_sub_003)
+{
+    int32_t a[63];
+    int32_t b[63];
+    int32_t c[63] = { 0 };
+    int32_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (int32_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (int32_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = (int32_t)(i + 1) - (int32_t)(63 - i);
+    }
+
+    mmsimd_i32_sub(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i32_sub_004)
+{
+    int32_t a[65];
+    int32_t b[65];
+    int32_t c[65] = { 0 };
+    int32_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int32_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (int32_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = 0;
+    }
+
+    mmsimd_i32_sub(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_u32_sub_001)
+{
+    uint32_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint32_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint32_t c[15] = { 0 };
+    uint32_t d[15] = { 0 };
+    mmsimd_u32_sub(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u32_sub_002)
+{
+    uint32_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint32_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint32_t c[32] = { 0 };
+    uint32_t d[32] = { 0 };
+    mmsimd_u32_sub(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u32_sub_003)
+{
+    uint32_t a[63];
+    uint32_t b[63];
+    uint32_t c[63] = { 0 };
+    uint32_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (uint32_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (uint32_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = (uint32_t)(i + 1) - (uint32_t)(63 - i);
+    }
+
+    mmsimd_u32_sub(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u32_sub_004)
+{
+    uint32_t a[65];
+    uint32_t b[65];
+    uint32_t c[65] = { 0 };
+    uint32_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint32_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (uint32_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = 0;
+    }
+
+    mmsimd_u32_sub(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_i64_sub_001)
+{
+    int64_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int64_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int64_t c[15] = { 0 };
+    int64_t d[15] = { 0 };
+    mmsimd_i64_sub(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i64_sub_002)
+{
+    int64_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int64_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int64_t c[32] = { 0 };
+    int64_t d[32] = { 0 };
+    mmsimd_i64_sub(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i64_sub_003)
+{
+    int64_t a[63];
+    int64_t b[63];
+    int64_t c[63] = { 0 };
+    int64_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (int64_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (int64_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = (int64_t)(i + 1) - (int64_t)(63 - i);
+    }
+
+    mmsimd_i64_sub(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i64_sub_004)
+{
+    int64_t a[65];
+    int64_t b[65];
+    int64_t c[65] = { 0 };
+    int64_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int64_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (int64_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = 0;
+    }
+
+    mmsimd_i64_sub(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_u64_sub_001)
+{
+    uint64_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint64_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint64_t c[15] = { 0 };
+    uint64_t d[15] = { 0 };
+    mmsimd_u64_sub(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u64_sub_002)
+{
+    uint64_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint64_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint64_t c[32] = { 0 };
+    uint64_t d[32] = { 0 };
+    mmsimd_u64_sub(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u64_sub_003)
+{
+    uint64_t a[63];
+    uint64_t b[63];
+    uint64_t c[63] = { 0 };
+    uint64_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (uint64_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (uint64_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = (uint64_t)(i + 1) - (uint64_t)(63 - i);
+    }
+
+    mmsimd_u64_sub(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u64_sub_004)
+{
+    uint64_t a[65];
+    uint64_t b[65];
+    uint64_t c[65] = { 0 };
+    uint64_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint64_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (uint64_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = 0;
+    }
+
+    mmsimd_u64_sub(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_i8_mul_001)
+{
+    int8_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int8_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int8_t c[15] = { 0 };
+    int8_t d[15] = { 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225 };
+    mmsimd_i8_mul(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i8_mul_002)
+{
+    int8_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int8_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int8_t c[32] = { 0 };
+    int8_t d[32] = { 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256,
+        289, 324, 361, 400, 441, 484, 529, 576, 625, 676, 729, 784, 841, 900, 961, 1024 };
+    mmsimd_i8_mul(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i8_mul_003)
+{
+    int8_t a[63];
+    int8_t b[63];
+    int8_t c[63] = { 0 };
+    int8_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (int8_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (int8_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = (int8_t)((i + 1) * (63 - i));
+    }
+
+    mmsimd_i8_mul(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i8_mul_004)
+{
+    int8_t a[65];
+    int8_t b[65];
+    int8_t c[65] = { 0 };
+    int8_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int8_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (int8_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = (int8_t)((i + 63) * (i + 63));
+    }
+
+    mmsimd_i8_mul(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_u8_mul_001)
+{
+    uint8_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint8_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint8_t c[15] = { 0 };
+    uint8_t d[15] = { 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225 };
+    mmsimd_u8_mul(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u8_mul_002)
+{
+    uint8_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint8_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint8_t c[32] = { 0 };
+    uint8_t d[32];
+
+    for (int i = 0; i < 32; ++i) {
+        d[i] = (uint8_t)((i + 1) * (i + 1));
+    }
+
+    mmsimd_u8_mul(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u8_mul_003)
+{
+    uint8_t a[63];
+    uint8_t b[63];
+    uint8_t c[63] = { 0 };
+    uint8_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (uint8_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (uint8_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = (uint8_t)((i + 1) * (63 - i));
+    }
+
+    mmsimd_u8_mul(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u8_mul_004)
+{
+    uint8_t a[65];
+    uint8_t b[65];
+    uint8_t c[65] = { 0 };
+    uint8_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint8_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (uint8_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = (uint8_t)((i + 63) * (i + 63));
+    }
+
+    mmsimd_u8_mul(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_i16_mul_001)
+{
+    int16_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int16_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int16_t c[15] = { 0 };
+    int16_t d[15] = { 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225 };
+    mmsimd_i16_mul(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i16_mul_002)
+{
+    int16_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int16_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int16_t c[32] = { 0 };
+    int16_t d[32] = { 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256,
+        289, 324, 361, 400, 441, 484, 529, 576, 625, 676, 729, 784, 841, 900, 961, 1024 };
+    mmsimd_i16_mul(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i16_mul_003)
+{
+    int16_t a[63];
+    int16_t b[63];
+    int16_t c[63] = { 0 };
+    int16_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (int16_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (int16_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = (int16_t)((i + 1) * (63 - i));
+    }
+
+    mmsimd_i16_mul(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i16_mul_004)
+{
+    int16_t a[65];
+    int16_t b[65];
+    int16_t c[65] = { 0 };
+    int16_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int16_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (int16_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = (int16_t)((i + 63) * (i + 63));
+    }
+
+    mmsimd_i16_mul(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_u16_mul_001)
+{
+    uint16_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint16_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint16_t c[15] = { 0 };
+    uint16_t d[15] = { 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225 };
+    mmsimd_u16_mul(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u16_mul_002)
+{
+    uint16_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint16_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint16_t c[32] = { 0 };
+    uint16_t d[32] = { 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256,
+        289, 324, 361, 400, 441, 484, 529, 576, 625, 676, 729, 784, 841, 900, 961, 1024 };
+    mmsimd_u16_mul(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u16_mul_003)
+{
+    uint16_t a[63];
+    uint16_t b[63];
+    uint16_t c[63] = { 0 };
+    uint16_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (uint16_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (uint16_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = (uint16_t)((i + 1) * (63 - i));
+    }
+
+    mmsimd_u16_mul(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u16_mul_004)
+{
+    uint16_t a[65];
+    uint16_t b[65];
+    uint16_t c[65] = { 0 };
+    uint16_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint16_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (uint16_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = (uint16_t)((i + 63) * (i + 63));
+    }
+
+    mmsimd_u16_mul(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_i32_mul_001)
+{
+    int32_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int32_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int32_t c[15] = { 0 };
+    int32_t d[15];
+
+    for (int i = 0; i < 15; ++i) {
+        d[i] = (int32_t)((i + 1) * (i + 1));
+    }
+
+    mmsimd_i32_mul(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i32_mul_002)
+{
+    int32_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int32_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int32_t c[32] = { 0 };
+    int32_t d[32] = { 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256,
+        289, 324, 361, 400, 441, 484, 529, 576, 625, 676, 729, 784, 841, 900, 961, 1024 };
+    mmsimd_i32_mul(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i32_mul_003)
+{
+    int32_t a[63];
+    int32_t b[63];
+    int32_t c[63] = { 0 };
+    int32_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (int32_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (int32_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = (int32_t)((i + 1) * (63 - i));
+    }
+
+    mmsimd_i32_mul(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i32_mul_004)
+{
+    int32_t a[65];
+    int32_t b[65];
+    int32_t c[65] = { 0 };
+    int32_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int32_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (int32_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = (int32_t)((i + 63) * (i + 63));
+    }
+
+    mmsimd_i32_mul(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_u32_mul_001)
+{
+    uint32_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint32_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint32_t c[15] = { 0 };
+    uint32_t d[15] = { 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225 };
+    mmsimd_u32_mul(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u32_mul_002)
+{
+    uint32_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint32_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint32_t c[32] = { 0 };
+    uint32_t d[32] = { 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256,
+        289, 324, 361, 400, 441, 484, 529, 576, 625, 676, 729, 784, 841, 900, 961, 1024 };
+    mmsimd_u32_mul(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u32_mul_003)
+{
+    uint32_t a[63];
+    uint32_t b[63];
+    uint32_t c[63] = { 0 };
+    uint32_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (uint32_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (uint32_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = (uint32_t)((i + 1) * (63 - i));
+    }
+
+    mmsimd_u32_mul(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u32_mul_004)
+{
+    uint32_t a[65];
+    uint32_t b[65];
+    uint32_t c[65] = { 0 };
+    uint32_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint32_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (uint32_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = (uint32_t)((i + 63) * (i + 63));
+    }
+
+    mmsimd_u32_mul(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_i64_mul_001)
+{
+    int64_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int64_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int64_t c[15] = { 0 };
+    int64_t d[15] = { 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225 };
+    mmsimd_i64_mul(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i64_mul_002)
+{
+    int64_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int64_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int64_t c[32] = { 0 };
+    int64_t d[32] = { 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256,
+        289, 324, 361, 400, 441, 484, 529, 576, 625, 676, 729, 784, 841, 900, 961, 1024 };
+    mmsimd_i64_mul(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i64_mul_003)
+{
+    int64_t a[63];
+    int64_t b[63];
+    int64_t c[63] = { 0 };
+    int64_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (int64_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (int64_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = (int64_t)((i + 1) * (63 - i));
+    }
+
+    mmsimd_i64_mul(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i64_mul_004)
+{
+    int64_t a[65];
+    int64_t b[65];
+    int64_t c[65] = { 0 };
+    int64_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int64_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (int64_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = (int64_t)((i + 63) * (i + 63));
+    }
+
+    mmsimd_i64_mul(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_u64_mul_001)
+{
+    uint64_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint64_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint64_t c[15] = { 0 };
+    uint64_t d[15] = { 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225 };
+    mmsimd_u64_mul(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u64_mul_002)
+{
+    uint64_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint64_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint64_t c[32] = { 0 };
+    uint64_t d[32] = { 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225, 256,
+        289, 324, 361, 400, 441, 484, 529, 576, 625, 676, 729, 784, 841, 900, 961, 1024 };
+    mmsimd_u64_mul(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u64_mul_003)
+{
+    uint64_t a[63];
+    uint64_t b[63];
+    uint64_t c[63] = { 0 };
+    uint64_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (uint64_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (uint64_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = (uint64_t)((i + 1) * (63 - i));
+    }
+
+    mmsimd_u64_mul(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u64_mul_004)
+{
+    uint64_t a[65];
+    uint64_t b[65];
+    uint64_t c[65] = { 0 };
+    uint64_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint64_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (uint64_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = (uint64_t)((i + 63) * (i + 63));
+    }
+
+    mmsimd_u64_mul(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_i8_div_001)
+{
+    int8_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int8_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int8_t c[15] = { 0 };
+    int8_t d[15] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+
+    mmsimd_i8_div(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_i8_div_002)
+{
+    int8_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int8_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int8_t c[32] = { 0 };
+    int8_t d[32];
+    
+    for (int i = 0; i < 32; ++i) {
+        d[i] = 1;
+    }
+
+    mmsimd_i8_div(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_i8_div_003)
+{
+    int8_t a[63];
+    int8_t b[63];
+    int8_t c[63] = { 0 };
+    int8_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (int8_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (int8_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = (int8_t)(i + 1) / (int8_t)(63 - i);
+    }
+
+    mmsimd_i8_div(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i8_div_004)
+{
+    int8_t a[65];
+    int8_t b[65];
+    int8_t c[65] = { 0 };
+    int8_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int8_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (int8_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = 1;
+    }
+
+    mmsimd_i8_div(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_u8_div_001)
+{
+    uint8_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint8_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint8_t c[15] = { 0 };
+    uint8_t d[15];
+
+    for (int i = 0; i < 15; ++i) {
+        d[i] = 1;
+    }
+
+    mmsimd_u8_div(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_u8_div_002)
+{
+    uint8_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint8_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint8_t c[32] = { 0 };
+    uint8_t d[32];
+    
+    for (int i = 0; i < 32; ++i) {
+        d[i] = 1;
+    }
+
+    mmsimd_u8_div(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_u8_div_003)
+{
+    uint8_t a[63];
+    uint8_t b[63];
+    uint8_t c[63] = { 0 };
+    uint8_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (uint8_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (uint8_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = (uint8_t)(i + 1) / (uint8_t)(63 - i);
+    }
+
+    mmsimd_u8_div(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u8_div_004)
+{
+    uint8_t a[65];
+    uint8_t b[65];
+    uint8_t c[65] = { 0 };
+    uint8_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint8_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (uint8_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = 1;
+    }
+
+    mmsimd_u8_div(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_i16_div_001)
+{
+    int16_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int16_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int16_t c[15] = { 0 };
+    int16_t d[15];
+
+    for (int i = 0; i < 15; ++i) {
+        d[i] = 1;
+    }
+
+    mmsimd_i16_div(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_i16_div_002)
+{
+    int16_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int16_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int16_t c[32] = { 0 };
+    int16_t d[32];
+    
+    for (int i = 0; i < 32; ++i) {
+        d[i] = 1;
+    }
+
+    mmsimd_i16_div(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_i16_div_003)
+{
+    int16_t a[63];
+    int16_t b[63];
+    int16_t c[63] = { 0 };
+    int16_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (int16_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (int16_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = (int16_t)(i + 1) / (int16_t)(63 - i);
+    }
+
+    mmsimd_i16_div(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i16_div_004)
+{
+    int16_t a[65];
+    int16_t b[65];
+    int16_t c[65] = { 0 };
+    int16_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int16_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (int16_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = 1;
+    }
+
+    mmsimd_i16_div(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_u16_div_001)
+{
+    uint16_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint16_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint16_t c[15] = { 0 };
+    uint16_t d[15];
+
+    for (int i = 0; i < 15; ++i) {
+        d[i] = 1;
+    }
+
+    mmsimd_u16_div(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_u16_div_002)
+{
+    uint16_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint16_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint16_t c[32] = { 0 };
+    uint16_t d[32];
+    
+    for (int i = 0; i < 32; ++i) {
+        d[i] = 1;
+    }
+
+    mmsimd_u16_div(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_u16_div_003)
+{
+    uint16_t a[63];
+    uint16_t b[63];
+    uint16_t c[63] = { 0 };
+    uint16_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (uint16_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (uint16_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = (uint16_t)(i + 1) / (uint16_t)(63 - i);
+    }
+
+    mmsimd_u16_div(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u16_div_004)
+{
+    uint16_t a[65];
+    uint16_t b[65];
+    uint16_t c[65] = { 0 };
+    uint16_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint16_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (uint16_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = 1;
+    }
+
+    mmsimd_u16_div(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_i32_div_001)
+{
+    int32_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int32_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int32_t c[15] = { 0 };
+    int32_t d[15];
+
+    for (int i = 0; i < 15; ++i) {
+        d[i] = 1;
+    }
+
+    mmsimd_i32_div(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_i32_div_002)
+{
+    int32_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int32_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int32_t c[32] = { 0 };
+    int32_t d[32];
+    
+    for (int i = 0; i < 32; ++i) {
+        d[i] = 1;
+    }
+
+    mmsimd_i32_div(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_i32_div_003)
+{
+    int32_t a[63];
+    int32_t b[63];
+    int32_t c[63] = { 0 };
+    int32_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (int32_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (int32_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = (int32_t)(i + 1) / (int32_t)(63 - i);
+    }
+
+    mmsimd_i32_div(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i32_div_004)
+{
+    int32_t a[65];
+    int32_t b[65];
+    int32_t c[65] = { 0 };
+    int32_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int32_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (int32_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = 1;
+    }
+
+    mmsimd_i32_div(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_u32_div_001)
+{
+    uint32_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint32_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint32_t c[15] = { 0 };
+    uint32_t d[15];
+
+    for (int i = 0; i < 15; ++i) {
+        d[i] = 1;
+    }
+
+    mmsimd_u32_div(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_u32_div_002)
+{
+    uint32_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint32_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint32_t c[32] = { 0 };
+    uint32_t d[32];
+    
+    for (int i = 0; i < 32; ++i) {
+        d[i] = 1;
+    }
+
+    mmsimd_u32_div(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_u32_div_003)
+{
+    uint32_t a[63];
+    uint32_t b[63];
+    uint32_t c[63] = { 0 };
+    uint32_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (uint32_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (uint32_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = (uint32_t)(i + 1) / (uint32_t)(63 - i);
+    }
+
+    mmsimd_u32_div(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u32_div_004)
+{
+    uint32_t a[65];
+    uint32_t b[65];
+    uint32_t c[65] = { 0 };
+    uint32_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint32_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (uint32_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = 1;
+    }
+
+    mmsimd_u32_div(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_i64_div_001)
+{
+    int64_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int64_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    int64_t c[15] = { 0 };
+    int64_t d[15];
+
+    for (int i = 0; i < 15; ++i) {
+        d[i] = 1;
+    }
+
+    mmsimd_i64_div(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i64_div_002)
+{
+    int64_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int64_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    int64_t c[32] = { 0 };
+    int64_t d[32];
+    
+    for (int i = 0; i < 32; ++i) {
+        d[i] = 1;
+    }
+
+    mmsimd_i64_div(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i64_div_003)
+{
+    int64_t a[63];
+    int64_t b[63];
+    int64_t c[63] = { 0 };
+    int64_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (int64_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (int64_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = (int64_t)(i + 1) / (int64_t)(63 - i);
+    }
+
+    mmsimd_i64_div(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_i64_div_004)
+{
+    int64_t a[65];
+    int64_t b[65];
+    int64_t c[65] = { 0 };
+    int64_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (int64_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (int64_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = 1;
+    }
+
+    mmsimd_i64_div(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
+MU_TEST(ctest_mmsimd_u64_div_001)
+{
+    uint64_t a[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint64_t b[15] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    uint64_t c[15] = { 0 };
+    uint64_t d[15];
+
+    for (int i = 0; i < 15; ++i) {
+        d[i] = 1;
+    }
+
+    mmsimd_u64_div(a, b, c, 15);
+    mu_assert(memcmp(c, d, 15) == 0, "Error: memcmp(c, d, 16) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u64_div_002)
+{
+    uint64_t a[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint64_t b[32] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32 };
+    uint64_t c[32] = { 0 };
+    uint64_t d[32];
+    
+    for (int i = 0; i < 32; ++i) {
+        d[i] = 1;
+    }
+
+    mmsimd_u64_div(a, b, c, 32);
+    mu_assert(memcmp(c, d, 32) == 0, "Error: memcmp(c, d, 32) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u64_div_003)
+{
+    uint64_t a[63];
+    uint64_t b[63];
+    uint64_t c[63] = { 0 };
+    uint64_t d[63];
+
+    for (int i = 0; i < 63; ++i) {
+        a[i] = (uint64_t)i + 1;
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        b[i] = (uint64_t)(63 - i);
+    }
+
+    for (int i = 0; i < 63; ++i) {
+        d[i] = (uint64_t)(i + 1) / (uint64_t)(63 - i);
+    }
+
+    mmsimd_u64_div(a, b, c, 63);
+    mu_assert(memcmp(c, d, 63) == 0, "Error: memcmp(c, d, 63) == 0 failed");
+}
+
+MU_TEST(ctest_mmsimd_u64_div_004)
+{
+    uint64_t a[65];
+    uint64_t b[65];
+    uint64_t c[65] = { 0 };
+    uint64_t d[65];
+
+    for (int i = 0; i < 65; ++i) {
+        a[i] = (uint64_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        b[i] = (uint64_t)i + 63;
+    }
+
+    for (int i = 0; i < 65; ++i) {
+        d[i] = 1;
+    }
+
+    mmsimd_u64_div(a, b, c, 65);
+
+    mu_assert(memcmp(c, d, 65) == 0, "Error: memcmp(c, d, 65) == 0 failed");
+
+}
+
 MU_TEST(ctest_mmsimd_i8_to_i16_001)
 {
     int8_t  a[65];
@@ -969,6 +3180,141 @@ MU_TEST_SUITE(ctest_suite) {
     MU_RUN_TEST(ctest_mmsimd_u8_add_002);
     MU_RUN_TEST(ctest_mmsimd_u8_add_003);
     MU_RUN_TEST(ctest_mmsimd_u8_add_004);
+
+    MU_RUN_TEST(ctest_mmsimd_i16_add_001);
+    MU_RUN_TEST(ctest_mmsimd_i16_add_002);
+    MU_RUN_TEST(ctest_mmsimd_i16_add_003);
+    MU_RUN_TEST(ctest_mmsimd_i16_add_004);
+    MU_RUN_TEST(ctest_mmsimd_u16_add_001);
+    MU_RUN_TEST(ctest_mmsimd_u16_add_002);
+    MU_RUN_TEST(ctest_mmsimd_u16_add_003);
+    MU_RUN_TEST(ctest_mmsimd_u16_add_004);
+
+    MU_RUN_TEST(ctest_mmsimd_i32_add_001);
+    MU_RUN_TEST(ctest_mmsimd_i32_add_002);
+    MU_RUN_TEST(ctest_mmsimd_i32_add_003);
+    MU_RUN_TEST(ctest_mmsimd_i32_add_004);
+    MU_RUN_TEST(ctest_mmsimd_u32_add_001);
+    MU_RUN_TEST(ctest_mmsimd_u32_add_002);
+    MU_RUN_TEST(ctest_mmsimd_u32_add_003);
+    MU_RUN_TEST(ctest_mmsimd_u32_add_004);
+
+    MU_RUN_TEST(ctest_mmsimd_i64_add_001);
+    MU_RUN_TEST(ctest_mmsimd_i64_add_002);
+    MU_RUN_TEST(ctest_mmsimd_i64_add_003);
+    MU_RUN_TEST(ctest_mmsimd_i64_add_004);
+    MU_RUN_TEST(ctest_mmsimd_u64_add_001);
+    MU_RUN_TEST(ctest_mmsimd_u64_add_002);
+    MU_RUN_TEST(ctest_mmsimd_u64_add_003);
+    MU_RUN_TEST(ctest_mmsimd_u64_add_004);
+
+    MU_RUN_TEST(ctest_mmsimd_i8_sub_001);
+    MU_RUN_TEST(ctest_mmsimd_i8_sub_002);
+    MU_RUN_TEST(ctest_mmsimd_i8_sub_003);
+    MU_RUN_TEST(ctest_mmsimd_i8_sub_004);
+    MU_RUN_TEST(ctest_mmsimd_u8_sub_001);
+    MU_RUN_TEST(ctest_mmsimd_u8_sub_002);
+    MU_RUN_TEST(ctest_mmsimd_u8_sub_003);
+    MU_RUN_TEST(ctest_mmsimd_u8_sub_004);
+
+    MU_RUN_TEST(ctest_mmsimd_i16_sub_001);
+    MU_RUN_TEST(ctest_mmsimd_i16_sub_002);
+    MU_RUN_TEST(ctest_mmsimd_i16_sub_003);
+    MU_RUN_TEST(ctest_mmsimd_i16_sub_004);
+    MU_RUN_TEST(ctest_mmsimd_u16_sub_001);
+    MU_RUN_TEST(ctest_mmsimd_u16_sub_002);
+    MU_RUN_TEST(ctest_mmsimd_u16_sub_003);
+    MU_RUN_TEST(ctest_mmsimd_u16_sub_004);
+
+    MU_RUN_TEST(ctest_mmsimd_i32_sub_001);
+    MU_RUN_TEST(ctest_mmsimd_i32_sub_002);
+    MU_RUN_TEST(ctest_mmsimd_i32_sub_003);
+    MU_RUN_TEST(ctest_mmsimd_i32_sub_004);
+    MU_RUN_TEST(ctest_mmsimd_u32_sub_001);
+    MU_RUN_TEST(ctest_mmsimd_u32_sub_002);
+    MU_RUN_TEST(ctest_mmsimd_u32_sub_003);
+    MU_RUN_TEST(ctest_mmsimd_u32_sub_004);
+
+    MU_RUN_TEST(ctest_mmsimd_i64_sub_001);
+    MU_RUN_TEST(ctest_mmsimd_i64_sub_002);
+    MU_RUN_TEST(ctest_mmsimd_i64_sub_003);
+    MU_RUN_TEST(ctest_mmsimd_i64_sub_004);
+    MU_RUN_TEST(ctest_mmsimd_u64_sub_001);
+    MU_RUN_TEST(ctest_mmsimd_u64_sub_002);
+    MU_RUN_TEST(ctest_mmsimd_u64_sub_003);
+    MU_RUN_TEST(ctest_mmsimd_u64_sub_004);
+
+    MU_RUN_TEST(ctest_mmsimd_i8_mul_001);
+    MU_RUN_TEST(ctest_mmsimd_i8_mul_002);
+    MU_RUN_TEST(ctest_mmsimd_i8_mul_003);
+    MU_RUN_TEST(ctest_mmsimd_i8_mul_004);
+    MU_RUN_TEST(ctest_mmsimd_u8_mul_001);
+    MU_RUN_TEST(ctest_mmsimd_u8_mul_002);
+    MU_RUN_TEST(ctest_mmsimd_u8_mul_003);
+    MU_RUN_TEST(ctest_mmsimd_u8_mul_004);
+    
+    MU_RUN_TEST(ctest_mmsimd_i16_mul_001);
+    MU_RUN_TEST(ctest_mmsimd_i16_mul_002);
+    MU_RUN_TEST(ctest_mmsimd_i16_mul_003);
+    MU_RUN_TEST(ctest_mmsimd_i16_mul_004);
+    MU_RUN_TEST(ctest_mmsimd_u16_mul_001);
+    MU_RUN_TEST(ctest_mmsimd_u16_mul_002);
+    MU_RUN_TEST(ctest_mmsimd_u16_mul_003);
+    MU_RUN_TEST(ctest_mmsimd_u16_mul_004);
+
+    MU_RUN_TEST(ctest_mmsimd_i32_mul_001);
+    MU_RUN_TEST(ctest_mmsimd_i32_mul_002);
+    MU_RUN_TEST(ctest_mmsimd_i32_mul_003);
+    MU_RUN_TEST(ctest_mmsimd_i32_mul_004);
+    MU_RUN_TEST(ctest_mmsimd_u32_mul_001);
+    MU_RUN_TEST(ctest_mmsimd_u32_mul_002);
+    MU_RUN_TEST(ctest_mmsimd_u32_mul_003);
+    MU_RUN_TEST(ctest_mmsimd_u32_mul_004);
+
+    MU_RUN_TEST(ctest_mmsimd_i64_mul_001);
+    MU_RUN_TEST(ctest_mmsimd_i64_mul_002);
+    MU_RUN_TEST(ctest_mmsimd_i64_mul_003);
+    MU_RUN_TEST(ctest_mmsimd_i64_mul_004);
+    MU_RUN_TEST(ctest_mmsimd_u64_mul_001);
+    MU_RUN_TEST(ctest_mmsimd_u64_mul_002);
+    MU_RUN_TEST(ctest_mmsimd_u64_mul_003);
+    MU_RUN_TEST(ctest_mmsimd_u64_mul_004);
+
+    MU_RUN_TEST(ctest_mmsimd_i8_div_001);
+    MU_RUN_TEST(ctest_mmsimd_i8_div_002);
+    MU_RUN_TEST(ctest_mmsimd_i8_div_003);
+    MU_RUN_TEST(ctest_mmsimd_i8_div_004);
+    MU_RUN_TEST(ctest_mmsimd_u8_div_001);
+    MU_RUN_TEST(ctest_mmsimd_u8_div_002);
+    MU_RUN_TEST(ctest_mmsimd_u8_div_003);
+    MU_RUN_TEST(ctest_mmsimd_u8_div_004);
+
+    MU_RUN_TEST(ctest_mmsimd_i16_div_001);
+    MU_RUN_TEST(ctest_mmsimd_i16_div_002);
+    MU_RUN_TEST(ctest_mmsimd_i16_div_003);
+    MU_RUN_TEST(ctest_mmsimd_i16_div_004);
+    MU_RUN_TEST(ctest_mmsimd_u16_div_001);
+    MU_RUN_TEST(ctest_mmsimd_u16_div_002);
+    MU_RUN_TEST(ctest_mmsimd_u16_div_003);
+    MU_RUN_TEST(ctest_mmsimd_u16_div_004);
+
+    MU_RUN_TEST(ctest_mmsimd_i32_div_001);
+    MU_RUN_TEST(ctest_mmsimd_i32_div_002);
+    MU_RUN_TEST(ctest_mmsimd_i32_div_003);
+    MU_RUN_TEST(ctest_mmsimd_i32_div_004);
+    MU_RUN_TEST(ctest_mmsimd_u32_div_001);
+    MU_RUN_TEST(ctest_mmsimd_u32_div_002);
+    MU_RUN_TEST(ctest_mmsimd_u32_div_003);
+    MU_RUN_TEST(ctest_mmsimd_u32_div_004);
+
+    MU_RUN_TEST(ctest_mmsimd_i64_div_001);
+    MU_RUN_TEST(ctest_mmsimd_i64_div_002);
+    MU_RUN_TEST(ctest_mmsimd_i64_div_003);
+    MU_RUN_TEST(ctest_mmsimd_i64_div_004);
+    MU_RUN_TEST(ctest_mmsimd_u64_div_001);
+    MU_RUN_TEST(ctest_mmsimd_u64_div_002);
+    MU_RUN_TEST(ctest_mmsimd_u64_div_003);
+    MU_RUN_TEST(ctest_mmsimd_u64_div_004);
 
     MU_RUN_TEST(ctest_mmsimd_i8_to_i16_001);
 

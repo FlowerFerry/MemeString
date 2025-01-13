@@ -1,7 +1,7 @@
 ﻿LIBRARY libmeme_string
 
 EXPORTS
-    ; indexs: 0 ~ 299
+    ; indexs: 1 ~ 299
     MemeStringStack_init @1
     ; DEPRECATED
     MemeStringStack_getInitObject @2
@@ -326,6 +326,8 @@ EXPORTS
     MemeString_runeBack @284
     MemeString_reset @285
     MemeStringOption_getStorageSmallLimit @286
+    mmver_num @298
+    mmver_str @299
     ; mmconc_atomic_* indexs: 300 ~ 599
     mmconc_atomic_bl_base_init @300
     mmconc_atomic_i8_base_init @301
