@@ -1055,6 +1055,7 @@ void mmsimd_avx2_i16_sub_scalar(const int16_t* _a, int16_t _b, int16_t* _c, mmin
         _c[i] = _a[i] - _b;
 }
 
+#if MG_COMP__MSVC_AVAIL
 void mmsimd_avx2_i16_div(const int16_t* _a, const int16_t* _b, int16_t* _c, mmint_t _n)
 {
     mmint_t i = __mmsimd_avx2_i16_div(_a, _b, _c, _n);
@@ -1062,7 +1063,9 @@ void mmsimd_avx2_i16_div(const int16_t* _a, const int16_t* _b, int16_t* _c, mmin
     for (; i < _n; ++i)
         _c[i] = _a[i] / _b[i];
 }
+#endif
 
+#if MG_COMP__MSVC_AVAIL
 void mmsimd_avx2_i16_div_scalar(const int16_t* _a, int16_t _b, int16_t* _c, mmint_t _n)
 {
     mmint_t i = __mmsimd_avx2_i16_div_scalar(_a, _b, _c, _n);
@@ -1070,6 +1073,7 @@ void mmsimd_avx2_i16_div_scalar(const int16_t* _a, int16_t _b, int16_t* _c, mmin
     for (; i < _n; ++i)
         _c[i] = _a[i] / _b;
 }
+#endif
 
 void mmsimd_avx2_u16_add(const uint16_t* _a, const uint16_t* _b, uint16_t* _c, mmint_t _n)
 {
