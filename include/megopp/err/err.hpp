@@ -859,12 +859,14 @@ public:
     err (const err &_e)
         : code_{ _e.code_ }
         , user_code_{ _e.user_code_ }
+        , global_cat_{ _e.global_cat_ }
         , err_{ _e.err_ ? _e.err_->clone() : nullptr }
     {}
 
     err (err &&_e) noexcept
         : code_{ _e.code_ }
         , user_code_{ _e.user_code_ }
+        , global_cat_{ _e.global_cat_ }
         , err_{ std::move(_e.err_) }
     {}
 
@@ -872,6 +874,7 @@ public:
     {
         code_ = _e.code_;
         user_code_ = _e.user_code_;
+        global_cat_ = _e.global_cat_;
         err_ = _e.err_ ? _e.err_->clone() : nullptr;
         return *this;
     }
@@ -880,6 +883,7 @@ public:
     {
         code_ = _e.code_;
         user_code_ = _e.user_code_;
+        global_cat_ = _e.global_cat_;
         err_ = std::move(_e.err_);
         return *this;
     }
@@ -913,7 +917,7 @@ public:
     explicit operator bool() const noexcept;
 
     //void set_last(const err &e);
-    void set_message(const memepp::string &message);
+    void set_message (const memepp::string &message);
     void set_solution(const memepp::string &solution);
 
     void set_funcinfo(const fninfo&info);
