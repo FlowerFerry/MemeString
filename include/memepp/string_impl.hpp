@@ -1063,8 +1063,20 @@ namespace memepp {
 	
 	MEMEPP__IMPL_INLINE string from_hexadecimals(const uint8_t* _buf, size_t _len)
 	{
-		MemeStringStack_t stack;
+		mmstrstk_t stack;
 		int result = MemeStringStack_initWithHexadecimals(&stack, sizeof(stack), NULL, 0, _buf, _len);
+		if (result)
+			return string{};
+
+		return string{ std::move(stack) };
+	}
+
+	MEMEPP__IMPL_INLINE string from_hexadecimals(
+		const memepp::string_view& _interval, const uint8_t* _buf, size_t _len)
+	{
+		mmstrstk_t stack;
+		int result = MemeStringStack_initWithHexadecimals(
+			&stack, sizeof(stack), _interval.bytes(), _interval.size(), _buf, _len);
 		if (result)
 			return string{};
 

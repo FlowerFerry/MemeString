@@ -394,6 +394,7 @@ namespace memepp {
     bool operator>=(const rune& _lhs, const string& _rhs) noexcept;
 
 	memepp::string from_hexadecimals(const uint8_t* _buf, size_t _len);
+	memepp::string from_hexadecimals(const memepp::string_view& _interval, const uint8_t* _buf, size_t _len);
 
 	//! \brief Format the string in C style with the specified formatting string
     //! \param _fmt The formatting string
