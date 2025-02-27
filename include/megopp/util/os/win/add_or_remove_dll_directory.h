@@ -38,9 +38,6 @@ struct dll_directory_cookies
     inline DLL_DIRECTORY_COOKIE add(const memepp::string_view& _path)
     {
 #if MG_OS__WIN_AVAIL
-#if defined(_WIN32_WINNT) && _WIN32_WINNT < _WIN32_WINNT_WIN8
-    static_assert(false, "AddDllDirectory is not available on this version of Windows.");
-#endif
 
         auto path = _path.replace("/", "\\");
         auto it = cookies_.find(path);
@@ -62,9 +59,6 @@ struct dll_directory_cookies
     inline bool remove(const memepp::string& _path)
     {
 #if MG_OS__WIN_AVAIL
-#if defined(_WIN32_WINNT) && _WIN32_WINNT < _WIN32_WINNT_WIN8
-    static_assert(false, "AddDllDirectory is not available on this version of Windows.");
-#endif
 
         auto it = cookies_.find(_path);
         if (it == cookies_.end())
