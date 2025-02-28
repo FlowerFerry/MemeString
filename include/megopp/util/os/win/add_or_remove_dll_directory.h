@@ -109,7 +109,6 @@ struct dll_directory_cookies
                 return !!ret;
             }
         }
-        return true;
 #endif
         return true;
     }
