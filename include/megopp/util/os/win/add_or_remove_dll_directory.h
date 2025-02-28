@@ -117,16 +117,12 @@ struct dll_directory_cookies
     inline bool remove_all()
     {
 #if MG_OS__WIN_AVAIL
-#if defined(_WIN32_WINNT) && _WIN32_WINNT >= _WIN32_WINNT_WIN8
         if (remove_dll_dir_fn_) {
             for (auto& it : cookies_)
                 remove_dll_dir_fn_(it.second);
         }
 
         cookies_.clear();
-#else
-
-#endif
 #endif
         return true;
     }
