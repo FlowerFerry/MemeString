@@ -16,36 +16,62 @@
 namespace mgpp {
 namespace os {
 namespace win {
-
 struct dll_directory_cookies
 {
-#if !MG_OS__WIN_AVAIL
+#if MG_OS__WIN_AVAIL
+    typedef DLL_DIRECTORY_COOKIE ( *AddDllDirectoryPtr)(PCWSTR);
+    typedef BOOL (*RemoveDllDirectoryPtr)(DLL_DIRECTORY_COOKIE);
+#else
     using DLL_DIRECTORY_COOKIE = void*;
 #endif
 
-    dll_directory_cookies() = default;
+#if MG_OS__WIN_AVAIL
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= _WIN32_WINNT_WIN8
+    dll_directory_cookies()
+        : add_dll_dir_fn_{ ::AddDllDirectory }
+        , remove_dll_dir_fn_{ ::RemoveDllDirectory }
+    {}
+#else
+    dll_directory_cookies()
+        : kernel32_{ ::LoadLibraryW(L"kernel32.dll") }
+    {
+        if (kernel32_ == NULL)
+            return;
+
+        add_dll_dir_fn_ = (AddDllDirectoryPtr)::GetProcAddress(kernel32_, "AddDllDirectory");
+        remove_dll_dir_fn_ = (RemoveDllDirectoryPtr)::GetProcAddress(kernel32_, "RemoveDllDirectory");
+    }
+#endif
+#else
+    dll_directory_cookies()
+    {}
+#endif
+
     dll_directory_cookies(const dll_directory_cookies&) = delete;
     dll_directory_cookies& operator= (const dll_directory_cookies&) = delete;
     
     ~dll_directory_cookies()
     {
+        remove_all();
+
 #if MG_OS__WIN_AVAIL
-        for (auto& it : cookies_)
-            ::RemoveDllDirectory(it.second);
+#if defined(_WIN32_WINNT) && _WIN32_WINNT < _WIN32_WINNT_WIN8
+        if (kernel32_ != NULL)
+            ::FreeLibrary(kernel32_);
+#endif
 #endif
     }
 
     inline DLL_DIRECTORY_COOKIE add(const memepp::string_view& _path)
     {
 #if MG_OS__WIN_AVAIL
-
         auto path = _path.replace("/", "\\");
         auto it = cookies_.find(path);
         if (it != cookies_.end())
             return it->second;
 
         auto native = mm_to<memepp::native_string>(path);
-        auto cookie = ::AddDllDirectory(native.data());
+        auto cookie = (add_dll_dir_fn_ ? add_dll_dir_fn_(native.data()) : NULL);
         if (cookie == NULL)
             return NULL;
 
@@ -59,12 +85,11 @@ struct dll_directory_cookies
     inline bool remove(const memepp::string& _path)
     {
 #if MG_OS__WIN_AVAIL
-
         auto it = cookies_.find(_path);
         if (it == cookies_.end())
             return true;
 
-        auto ret = ::RemoveDllDirectory(it->second);
+        auto ret = (remove_dll_dir_fn_ ? remove_dll_dir_fn_(it->second) : false);
         cookies_.erase(it);
         return !!ret;
 #else
@@ -79,7 +104,7 @@ struct dll_directory_cookies
         {
             if (it->second == _cookie)
             {
-                auto ret = ::RemoveDllDirectory(it->second);
+                auto ret = (remove_dll_dir_fn_ ? remove_dll_dir_fn_(it->second) : false);
                 cookies_.erase(it);
                 return !!ret;
             }
@@ -92,10 +117,16 @@ struct dll_directory_cookies
     inline bool remove_all()
     {
 #if MG_OS__WIN_AVAIL
-        for (auto& it : cookies_)
-            ::RemoveDllDirectory(it.second);
+#if defined(_WIN32_WINNT) && _WIN32_WINNT >= _WIN32_WINNT_WIN8
+        if (remove_dll_dir_fn_) {
+            for (auto& it : cookies_)
+                remove_dll_dir_fn_(it.second);
+        }
 
         cookies_.clear();
+#else
+
+#endif
 #endif
         return true;
     }
@@ -103,6 +134,11 @@ struct dll_directory_cookies
 private:
 #if MG_OS__WIN_AVAIL
     std::unordered_map<memepp::string, DLL_DIRECTORY_COOKIE> cookies_;
+    AddDllDirectoryPtr    add_dll_dir_fn_;
+    RemoveDllDirectoryPtr remove_dll_dir_fn_;
+#if defined(_WIN32_WINNT) && _WIN32_WINNT < _WIN32_WINNT_WIN8
+    HMODULE kernel32_;
+#endif
 #endif
 };
 
