@@ -135,7 +135,7 @@ MemeStringBuilder_generateWithParts(mmsbldr_cptr_t _builder, mmstr_ptr_t _out)
     return result;
 }
 
-MEME_API int MEME_STDCALL 
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 MemeStringBuilderStack_init(MemeStringBuilderStack_t* _builder, size_t _builder_size)
 {
     mgec_t result = 0;
@@ -158,7 +158,7 @@ MemeStringBuilderStack_init(MemeStringBuilderStack_t* _builder, size_t _builder_
     return result;
 }
 
-MEME_API int MEME_STDCALL 
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 MemeStringBuilderStack_initByOther(
     mmsbldrstk_t* _builder, size_t _builder_size, mmsbldr_const_t _other)
 {
@@ -204,7 +204,7 @@ MemeStringBuilderStack_initByOther(
     return result;
 }
 
-MEME_API int MEME_STDCALL 
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 MemeStringBuilderStack_unInit(MemeStringBuilderStack_t* _builder, size_t _builder_size)
 {
     mmsbldr_t builder = (mmsbldr_t)_builder;
@@ -226,7 +226,7 @@ MemeStringBuilderStack_unInit(MemeStringBuilderStack_t* _builder, size_t _builde
     return result;
 }
 
-MEME_API int MEME_STDCALL 
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 MemeStringBuilderStack_assignByOther(
     mmsbldrstk_t* _builder, size_t _builder_size, mmsbldr_const_t _other)
 {
@@ -242,7 +242,7 @@ MemeStringBuilderStack_assignByOther(
     return result;
 }
 
-MEME_API int MEME_STDCALL MemeStringBuilderStack_swap(
+MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringBuilderStack_swap(
 	MemeStringBuilderStack_t* _editor, MemeStringBuilderStack_t* _other, size_t _editor_size)
 {
 	assert(_editor	&& MemeStringBuilderStack_swap);
@@ -255,19 +255,19 @@ MEME_API int MEME_STDCALL MemeStringBuilderStack_swap(
 	return 0;
 }
 
-MEME_API int MEME_STDCALL MemeStringBuilderStack_regSize(const mmsbldrstk_t* _obj)
+MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringBuilderStack_regSize(const mmsbldrstk_t* _obj)
 {
     assert(_obj && "MemeStringBuilderStack_regSize");
     return ((mmsbldr_cptr_t)_obj)->reg_size_;
 }
 
-MEME_API int MEME_STDCALL MemeStringBuilderStack_objSize(const mmsbldrstk_t* _obj)
+MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringBuilderStack_objSize(const mmsbldrstk_t* _obj)
 {
     assert(_obj && "MemeStringBuilderStack_objSize");
     return ((mmsbldr_cptr_t)_obj)->reg_size_ * sizeof(mmint_t);
 }
 
-MEME_API int MEME_STDCALL 
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 MemeStringBuilder_generate(mmsbldr_const_t _builder, mms_t _out)
 {
     // TO_DO
@@ -282,7 +282,7 @@ MemeStringBuilder_generate(mmsbldr_const_t _builder, mms_t _out)
     }
 }
 
-MEME_API int MEME_STDCALL 
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 MemeStringBuilder_appendArgWithString(mmsbldr_t _builder, mms_const_t _arg)
 {
     int result = 0;
@@ -299,7 +299,7 @@ MemeStringBuilder_appendArgWithString(mmsbldr_t _builder, mms_const_t _arg)
     return result;
 }
 
-MEME_API int MEME_STDCALL 
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 MemeStringBuilder_appendArgByOther(mmsbldr_ptr_t _builder, mmsbldr_cptr_t _other)
 {
     mgec_t result = 0;
@@ -316,7 +316,7 @@ MemeStringBuilder_appendArgByOther(mmsbldr_ptr_t _builder, mmsbldr_cptr_t _other
     return result;
 }
 
-MEME_API int MEME_STDCALL 
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 MemeStringBuilder_prependArgWithString(mmsbldr_t _builder, mms_const_t _arg)
 {
     int result = 0;

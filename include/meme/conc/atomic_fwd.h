@@ -136,8 +136,8 @@ static_assert(sizeof(mmconc_atomic_int16_t)  == MMCONC_ATOMIC_INT16_OBJ_SIZE,  "
 static_assert(sizeof(mmconc_atomic_uint16_t) == MMCONC_ATOMIC_UINT16_OBJ_SIZE, "mmconc_atomic_uint16_t size must be 6 bytes");
 static_assert(sizeof(mmconc_atomic_int32_t)  == MMCONC_ATOMIC_INT32_OBJ_SIZE,  "mmconc_atomic_int32_t size must be 8 bytes");
 static_assert(sizeof(mmconc_atomic_uint32_t) == MMCONC_ATOMIC_UINT32_OBJ_SIZE, "mmconc_atomic_uint32_t size must be 8 bytes");
-static_assert(sizeof(mmconc_atomic_int64_t)  == MMCONC_ATOMIC_INT64_OBJ_SIZE,  "mmconc_atomic_int64_t size must be 12 bytes");
-static_assert(sizeof(mmconc_atomic_uint64_t) == MMCONC_ATOMIC_UINT64_OBJ_SIZE, "mmconc_atomic_uint64_t size must be 12 bytes");
+static_assert(sizeof(mmconc_atomic_int64_t)  == MMCONC_ATOMIC_INT64_OBJ_SIZE,  "mmconc_atomic_int64_t size must be 16 bytes");
+static_assert(sizeof(mmconc_atomic_uint64_t) == MMCONC_ATOMIC_UINT64_OBJ_SIZE, "mmconc_atomic_uint64_t size must be 16 bytes");
 
 
 #if INTPTR_MAX == INT64_MAX

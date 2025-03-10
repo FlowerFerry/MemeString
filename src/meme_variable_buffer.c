@@ -9,13 +9,13 @@
 
 #include <assert.h>
 
-MEME_API int 
+MEME_EXTERN_C MEME_API int
 MEME_STDCALL MemeVariableBufferStack_init(mmvbstk_t* _out, size_t _object_size)
 {
 	return MemeStringStack_init((MemeStringStack_t*)_out, _object_size);
 }
 
-MEME_API int 
+MEME_EXTERN_C MEME_API int
 MEME_STDCALL MemeVariableBufferStack_initByOther(
 	mmvbstk_t* _out, size_t _object_size, const mmvbstk_t* _other)
 {
@@ -44,7 +44,7 @@ MEME_STDCALL MemeVariableBufferStack_initByOther(
 	return 0;
 }
 
-MEME_API int 
+MEME_EXTERN_C MEME_API int
 MEME_STDCALL MemeVariableBufferStack_initByBytes(
 	mmvbstk_t* _out, size_t _object_size, const MemeByte_t* _buf, MemeInteger_t _len)
 {
@@ -56,7 +56,7 @@ MEME_STDCALL MemeVariableBufferStack_initByBytes(
 	return (int)MemeVariableBuffer_appendWithBytes((MemeVariableBuffer_t)_out, _buf, _len);
 }
 
-MEME_API int 
+MEME_EXTERN_C MEME_API int
 MEME_STDCALL MemeVariableBufferStack_initWithRepeatBytes(
 	mmvbstk_t* _out, size_t _object_size, MemeInteger_t _count, MemeByte_t _byte)
 {
@@ -68,36 +68,36 @@ MEME_STDCALL MemeVariableBufferStack_initWithRepeatBytes(
 	return (int)MemeVariableBuffer_appendWithRepeatBytes((MemeVariableBuffer_t)_out, _count, _byte);
 }
 
-MEME_API int 
+MEME_EXTERN_C MEME_API int
 MEME_STDCALL MemeVariableBufferStack_unInit(mmvbstk_t* _out, size_t _object_size)
 {
 	return MemeStringStack_unInit((MemeStringStack_t*)_out, _object_size);
 }
 
-MEME_API int 
+MEME_EXTERN_C MEME_API int
 MEME_STDCALL MemeVariableBufferStack_reset(MemeVariableBufferStack_t* _out, size_t _object_size)
 {
 	return MemeStringStack_reset((MemeStringStack_t*)_out, _object_size);
 }
 
-MEME_API int 
+MEME_EXTERN_C MEME_API int
 MEME_STDCALL MemeVariableBufferStack_assign(
 	mmvbstk_t* _s, size_t _object_size, const mmvbstk_t* _other)
 {
 	return MemeStringStack_assign((MemeStringStack_t*)_s, _object_size, (MemeString_Const_t)_other);
 }
 
-MEME_API int MEME_STDCALL MemeVariableBufferStack_regSize(const mmvbstk_t* _obj)
+MEME_EXTERN_C MEME_API int MEME_STDCALL MemeVariableBufferStack_regSize(const mmvbstk_t* _obj)
 {
 	return MemeStringStack_regSize((const mmstrstk_t*)_obj);
 }
 
-MEME_API int MEME_STDCALL MemeVariableBufferStack_objSize(const mmvbstk_t* _obj)
+MEME_EXTERN_C MEME_API int MEME_STDCALL MemeVariableBufferStack_objSize(const mmvbstk_t* _obj)
 {
     return MemeStringStack_objSize((const mmstrstk_t*)_obj);
 }
 
-MEME_API mmint_t 
+MEME_EXTERN_C MEME_API mmint_t
 MEME_STDCALL MemeVariableBufferStack_split(
 	const mmvbstk_t* _buf, const mmbyte_t* _key, mmint_t _key_len, 
 	mmflag_split_behav_t _sb,
@@ -110,60 +110,60 @@ MEME_STDCALL MemeVariableBufferStack_split(
 		(mmstrstk_t*)_out, _obj_size, _out_count, _search_index);
 }
 
-MEME_API MemeVariableBuffer_Storage_t
+MEME_EXTERN_C MEME_API MemeVariableBuffer_Storage_t
 MEME_STDCALL MemeVariableBuffer_storageType(MemeVariableBuffer_Const_t _s)
 {
 	return MemeString_storageType((MemeString_Const_t)_s);
 }
 
-MEME_API int
+MEME_EXTERN_C MEME_API int
 MEME_STDCALL MemeVariableBuffer_swap(MemeVariableBuffer_t _lhs, MemeVariableBuffer_t _rhs)
 {
 	return MemeString_swap((MemeString_t)_lhs, (MemeString_t)_rhs);
 }
 
-MEME_API int
+MEME_EXTERN_C MEME_API int
 MEME_STDCALL MemeVariableBuffer_isNonempty(MemeVariableBuffer_Const_t _s)
 {
 	return MemeString_isNonempty((MemeString_Const_t)_s);
 }
 
-MEME_API int MEME_STDCALL MemeVariableBuffer_isEmpty(MemeVariableBuffer_Const_t _s)
+MEME_EXTERN_C MEME_API int MEME_STDCALL MemeVariableBuffer_isEmpty(MemeVariableBuffer_Const_t _s)
 {
 	return MemeString_isEmpty((MemeString_Const_t)_s);
 }
 
-MEME_API const MemeByte_t*
+MEME_EXTERN_C MEME_API const MemeByte_t*
 MEME_STDCALL MemeVariableBuffer_data(MemeVariableBuffer_Const_t _s)
 {
 	return MemeString_byteData((MemeString_Const_t)_s);
 }
 
-MEME_API MemeByte_t* MEME_STDCALL MemeVariableBuffer_dataWithNotConst(MemeVariableBuffer_t _s)
+MEME_EXTERN_C MEME_API MemeByte_t* MEME_STDCALL MemeVariableBuffer_dataWithNotConst(MemeVariableBuffer_t _s)
 {
 	return (MemeByte_t*)MemeString_byteData((MemeString_Const_t)_s);
 }
 
-MEME_API MemeInteger_t
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_size(MemeVariableBuffer_Const_t _s)
 {
 	return MemeString_byteSize((MemeString_Const_t)_s);
 }
 
-MEME_API MemeInteger_t 
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_maxByteSize(MemeVariableBuffer_Const_t _s)
 {
 	return MemeString_maxByteSize((MemeString_Const_t)_s);
 }
 
-MEME_API int
+MEME_EXTERN_C MEME_API int
 MEME_STDCALL MemeVariableBuffer_isEqual(
 	MemeVariableBuffer_Const_t _s, const MemeByte_t* _buf, MemeInteger_t _len, int* _result)
 {
 	return MemeString_isEqual((MemeString_Const_t)_s, (const char*)_buf, _len, _result);
 }
 
-MEME_API int
+MEME_EXTERN_C MEME_API int
 MEME_STDCALL MemeVariableBuffer_isEqualWithOther(
 	MemeVariableBuffer_Const_t _lhs, MemeVariableBuffer_Const_t _rhs, int* _result)
 {
@@ -171,27 +171,27 @@ MEME_STDCALL MemeVariableBuffer_isEqualWithOther(
 		(MemeString_Const_t)_lhs, (MemeString_Const_t)_rhs, _result);
 }
 
-MEME_API MemeInteger_t 
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_availableByteCapacity(MemeVariableBuffer_Const_t _s)
 {
 	return MemeString_availableByteCapacity((MemeString_t)_s);
 }
 
-MEME_API const MemeByte_t* 
+MEME_EXTERN_C MEME_API const MemeByte_t*
 MEME_STDCALL MemeVariableBuffer_constBackItem(MemeVariableBuffer_Const_t _s)
 {
 	const MemeByte_t* p = MemeVariableBuffer_data(_s) + MemeVariableBuffer_size(_s) - 1;
 	return p;
 }
 
-MEME_API MemeByte_t* 
+MEME_EXTERN_C MEME_API MemeByte_t*
 MEME_STDCALL MemeVariableBuffer_backItem(MemeVariableBuffer_t _s)
 {
 	const MemeByte_t* p = MemeVariableBuffer_data(_s) + MemeVariableBuffer_size(_s) - 1;
 	return (MemeByte_t*)p;
 }
 
-MEME_API const MemeByte_t* 
+MEME_EXTERN_C MEME_API const MemeByte_t*
 MEME_STDCALL MemeVariableBuffer_constAt(MemeVariableBuffer_Const_t _s, MemeInteger_t _pos)
 {
 	if (!_s)
@@ -202,7 +202,7 @@ MEME_STDCALL MemeVariableBuffer_constAt(MemeVariableBuffer_Const_t _s, MemeInteg
 	return MemeVariableBuffer_data(_s) + _pos;
 }
 
-MEME_API MemeByte_t* 
+MEME_EXTERN_C MEME_API MemeByte_t*
 MEME_STDCALL MemeVariableBuffer_at(MemeVariableBuffer_t _s, MemeInteger_t _pos)
 {
 	if (!_s)
@@ -213,7 +213,7 @@ MEME_STDCALL MemeVariableBuffer_at(MemeVariableBuffer_t _s, MemeInteger_t _pos)
 	return MemeVariableBuffer_dataWithNotConst(_s) + _pos;
 }
 
-MEME_API MemeInteger_t
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_indexOfWithBytes(
 	MemeVariableBuffer_Const_t _s, MemeInteger_t _offset, const MemeByte_t* _needle, MemeInteger_t _needle_len)
 {
@@ -221,7 +221,7 @@ MEME_STDCALL MemeVariableBuffer_indexOfWithBytes(
 		(MemeString_Const_t)_s, _offset, _needle, _needle_len, MemeFlag_AllSensitive);
 }
 
-MEME_API MemeInteger_t
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_indexOfWithOther(
 	MemeVariableBuffer_Const_t _s, MemeInteger_t _offset, MemeVariableBuffer_Const_t _other)
 {
@@ -229,7 +229,7 @@ MEME_STDCALL MemeVariableBuffer_indexOfWithOther(
 		(MemeString_Const_t)_s, _offset, (MemeString_Const_t)_other, MemeFlag_AllSensitive);
 }
 
-MEME_API MemeInteger_t 
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_indexOfWithByte(
 	MemeVariableBuffer_Const_t _s, MemeInteger_t _offset, MemeByte_t _byte)
 {
@@ -237,7 +237,7 @@ MEME_STDCALL MemeVariableBuffer_indexOfWithByte(
         (MemeString_Const_t)_s, _offset, _byte, MemeFlag_AllSensitive);
 }
 
-MEME_API MemeInteger_t 
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_appendWithByte(MemeVariableBuffer_t _s, MemeByte_t _byte)
 {
 	assert(_s && MemeVariableBuffer_appendWithByte);
@@ -245,7 +245,7 @@ MEME_STDCALL MemeVariableBuffer_appendWithByte(MemeVariableBuffer_t _s, MemeByte
 	return MemeVariableBuffer_appendWithBytes(_s, &_byte, 1);
 }
 
-MEME_API MemeInteger_t 
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_appendWithBytes(
 	MemeVariableBuffer_t _s, const MemeByte_t* _buf, MemeInteger_t _len)
 {
@@ -316,7 +316,7 @@ MEME_STDCALL MemeVariableBuffer_appendWithBytes(
 	//return 0;
 }
 
-MEME_API MemeInteger_t 
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_appendWithRepeatBytes(
 	MemeVariableBuffer_t _s, MemeInteger_t _count, MemeByte_t _byte)
 {
@@ -356,7 +356,7 @@ MEME_STDCALL MemeVariableBuffer_appendWithRepeatBytes(
 	//return 0;
 }
 
-MEME_API MemeInteger_t 
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_appendWithOther(
 	MemeVariableBuffer_t _s, MemeVariableBuffer_Const_t _other)
 {
@@ -427,7 +427,7 @@ MEME_STDCALL MemeVariableBuffer_appendWithOther(
 	//return 0;
 }
 
-MEME_API MemeInteger_t 
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_insertWithBytes(
 	MemeVariableBuffer_t _s, MemeInteger_t _pos, const MemeByte_t* _buf, MemeInteger_t _len)
 {
@@ -473,7 +473,7 @@ MEME_STDCALL MemeVariableBuffer_insertWithBytes(
     //return 0;
 }
 
-MEME_API MemeInteger_t 
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_clear(MemeVariableBuffer_t _s)
 {
 	MemeString_t s = (MemeString_t)_s;
@@ -498,13 +498,13 @@ MEME_STDCALL MemeVariableBuffer_clear(MemeVariableBuffer_t _s)
 	return 0;
 }
 
-MEME_API MemeInteger_t 
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_resize(MemeVariableBuffer_t _s, MemeInteger_t _size)
 {
 	return MemeVariableBuffer_resizeWithByte(_s, _size, 0);
 }
 
-MEME_API mgec_t MEME_STDCALL MemeVariableBuffer_resizeAndOverwrite(mmvb_ptr_t _b, mmint_t _size)
+MEME_EXTERN_C MEME_API mgec_t MEME_STDCALL MemeVariableBuffer_resizeAndOverwrite(mmvb_ptr_t _b, mmint_t _size)
 {
     mmstr_ptr_t s = (mmstr_ptr_t)_b;
 	
@@ -535,7 +535,7 @@ MEME_API mgec_t MEME_STDCALL MemeVariableBuffer_resizeAndOverwrite(mmvb_ptr_t _b
 	//return 0;
 }
 
-MEME_API MemeInteger_t 
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_resizeWithByte(MemeVariableBuffer_t _s, MemeInteger_t _size, MemeByte_t _byte)
 {
 	MemeString_t s = (MemeString_t)_s;
@@ -570,7 +570,7 @@ MEME_STDCALL MemeVariableBuffer_resizeWithByte(MemeVariableBuffer_t _s, MemeInte
 	//return 0;
 }
 
-MEME_API MemeInteger_t 
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_remove(
 	MemeVariableBuffer_t _s, MemeInteger_t _pos, MemeInteger_t _count)
 {
@@ -602,7 +602,7 @@ MEME_STDCALL MemeVariableBuffer_remove(
     //return 0;
 }
 
-MEME_API MemeInteger_t 
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_releaseToBuffer(
 	MemeVariableBuffer_t _s, MemeBufferStack_t* _out, MemeInteger_t _objectSize)
 {
@@ -644,7 +644,7 @@ MEME_STDCALL MemeVariableBuffer_releaseToBuffer(
 	}
 }
 
-MEME_API MemeInteger_t 
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_releaseToString(
 	MemeVariableBuffer_t _s, MemeStringStack_t* _out, MemeInteger_t _objectSize)
 {
@@ -686,7 +686,7 @@ MEME_STDCALL MemeVariableBuffer_releaseToString(
 	//return 0;
 }
 
-MEME_API MemeInteger_t
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_split(
 	MemeVariableBuffer_Const_t _s, const MemeByte_t* _key, MemeInteger_t _key_len,
 	MemeFlag_SplitBehavior_t _sb, MemeVariableBufferStack_t* _out, MemeInteger_t* _out_count,
@@ -698,7 +698,7 @@ MEME_STDCALL MemeVariableBuffer_split(
 		(mmstrstk_t*)_out, MMSTR__OBJ_SIZE, _out_count, _search_index);
 }
 
-MEME_API MemeInteger_t 
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_reserve(MemeVariableBuffer_t _s, MemeInteger_t _size)
 {
 	assert(_s != NULL && MemeVariableBuffer_reserve);
@@ -708,7 +708,7 @@ MEME_STDCALL MemeVariableBuffer_reserve(MemeVariableBuffer_t _s, MemeInteger_t _
 	return MemeStringImpl_capacityExpansionWithModifiable((MemeStringStack_t*)_s, _size);
 }
 
-MEME_API MemeInteger_t MEME_STDCALL MemeVariableBuffer_selfChop(MemeVariableBuffer_t _s, MemeInteger_t _n)
+MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL MemeVariableBuffer_selfChop(MemeVariableBuffer_t _s, MemeInteger_t _n)
 {
 	assert(_s != NULL && MemeVariableBuffer_selfChop);
 	assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE((MemeString_t)_s)) == 1);
@@ -738,7 +738,7 @@ MEME_API MemeInteger_t MEME_STDCALL MemeVariableBuffer_selfChop(MemeVariableBuff
 	return 0;
 }
 
-MEME_API MemeInteger_t MEME_STDCALL MemeVariableBuffer_capacityCorrectness(MemeVariableBuffer_Const_t _s)
+MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL MemeVariableBuffer_capacityCorrectness(MemeVariableBuffer_Const_t _s)
 {
 	if (_s == NULL)
 		return 0;

@@ -1,24 +1,24 @@
-
+ï»¿
 #include <meme/utf/u8rune.h>
 #include <meme/utf/u16rune.h>
 
-MEME_API int MEME_STDCALL
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 mmutf_u16rune_char_size(uint16_t _ch)
 {
-    if (_ch < 0xD800) // [0x0000¨E0xD7FF]
+    if (_ch < 0xD800) // [0x0000â€¥0xD7FF]
         return 1;
 
-    if (_ch < 0xDC00) // [0xD800¨E0xDBFF] [0xDC00¨E0xDFFF]
+    if (_ch < 0xDC00) // [0xD800â€¥0xDBFF] [0xDC00â€¥0xDFFF]
         return 2;
 
     if (_ch < 0xE000)
         return -1;
 
-    // [0xE000¨E0xFFFF]
+    // [0xE000â€¥0xFFFF]
     return 1;
 }
 
-MEME_API int MEME_STDCALL
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 mmutf_u16rune_valid(const uint16_t* _buf, MemeInteger_t _len)
 {
     uint16_t ch0;
@@ -28,10 +28,10 @@ mmutf_u16rune_valid(const uint16_t* _buf, MemeInteger_t _len)
 
     ch0 = _buf[0];
 
-    if (ch0 < 0xD800) // [0x0000¨E0xD7FF]
+    if (ch0 < 0xD800) // [0x0000â€¥0xD7FF]
         return 1;
 
-    if (ch0 < 0xDC00) { // [0xD800¨E0xDBFF] [0xDC00¨E0xDFFF]
+    if (ch0 < 0xDC00) { // [0xD800â€¥0xDBFF] [0xDC00â€¥0xDFFF]
         if (_len < 2)
             return -1;
         if (_buf[1] >> 10 != 0x37)
@@ -42,11 +42,11 @@ mmutf_u16rune_valid(const uint16_t* _buf, MemeInteger_t _len)
     if (ch0 < 0xE000)
         return -1;
 
-    // [0xE000¨E0xFFFF]
+    // [0xE000â€¥0xFFFF]
     return 1;
 }
 
-MEME_API int MEME_STDCALL
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 mmutf_u16char_size_from8(const MemeByte_t* _ch, MemeInteger_t _len, int* _ch_size)
 {
     uint32_t ch = 0;
@@ -64,10 +64,10 @@ mmutf_u16char_size_from8(const MemeByte_t* _ch, MemeInteger_t _len, int* _ch_siz
     return dstCharSize;
 }
 
-MEME_API int MEME_STDCALL
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 mmutf_u16char_size_from32(const uint32_t* _ch, MemeInteger_t _len, int* _ch_size)
 {
-    if (*_ch < 0xD800) {  // [0x0000¨E0xD7FF]
+    if (*_ch < 0xD800) {  // [0x0000â€¥0xD7FF]
         if (_ch_size)
             *_ch_size = 1;
         return 1;
@@ -91,7 +91,7 @@ mmutf_u16char_size_from32(const uint32_t* _ch, MemeInteger_t _len, int* _ch_size
     return -1;
 }
 
-MEME_API int MEME_STDCALL
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 mmutf_u16rune_get_u32(
     const uint16_t* _buf, MemeInteger_t _len, uint32_t* _value)
 {
@@ -102,12 +102,12 @@ mmutf_u16rune_get_u32(
 
     ch0 = _buf[0];
 
-    if (ch0 < 0xD800) {  // [0x0000¨E0xD7FF]
+    if (ch0 < 0xD800) {  // [0x0000â€¥0xD7FF]
         *_value = ch0;
         return 1;
     }
 
-    if (ch0 < 0xDC00) {  // [0xD800¨E0xDBFF] [0xDC00¨E0xDFFF]
+    if (ch0 < 0xDC00) {  // [0xD800â€¥0xDBFF] [0xDC00â€¥0xDFFF]
         if (_len < 2)
             return -1;
         if (_buf[1] >> 10 != 0x37)
@@ -124,11 +124,11 @@ mmutf_u16rune_get_u32(
     return 1;
 }
 
-MEME_API int MEME_STDCALL
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 mmutf_u16rune_set_u32(
     uint16_t* _buf, MemeInteger_t _len, uint32_t _value)
 {
-    if (_value < 0xD800) {  // [0x0000¨E0xD7FF]
+    if (_value < 0xD800) {  // [0x0000â€¥0xD7FF]
         if (_len < 1)
             return -1;
 

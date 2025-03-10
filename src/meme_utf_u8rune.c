@@ -1,9 +1,9 @@
-
+﻿
 #include <meme/utf/u8rune.h>
 #include <meme/utf/u16rune.h>
 
 
-MEME_API int MEME_STDCALL
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 mmutf_u8rune_char_size(uint8_t _ch)
 {
     if (_ch < 0x80) // 0XXXXXXX
@@ -25,7 +25,7 @@ mmutf_u8rune_char_size(uint8_t _ch)
     return -1;
 }
 
-MEME_API int MEME_STDCALL
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 mmutf_u8rune_valid(const MemeByte_t* _buf, MemeInteger_t _len)
 {
     uint8_t ch0;
@@ -96,7 +96,7 @@ mmutf_u8rune_valid(const MemeByte_t* _buf, MemeInteger_t _len)
     return -1;
 }
 
-MEME_API int MEME_STDCALL
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 mmutf_u8char_size_from16(const uint16_t* _ch, MemeInteger_t _len, int* _ch_size)
 {
     uint32_t ch = 0;
@@ -114,7 +114,7 @@ mmutf_u8char_size_from16(const uint16_t* _ch, MemeInteger_t _len, int* _ch_size)
     return dstCharSize;
 }
 
-MEME_API int MEME_STDCALL
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 mmutf_u8char_size_from32(const uint32_t* _ch, MemeInteger_t _len, int* _ch_size)
 {
     (void*)_len;
@@ -158,7 +158,7 @@ mmutf_u8char_size_from32(const uint32_t* _ch, MemeInteger_t _len, int* _ch_size)
     return -1;
 }
 
-MEME_API int MEME_STDCALL
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 mmutf_u8rune_get_u32(
     const MemeByte_t* _buf, MemeInteger_t _len, uint32_t* _value)
 {
@@ -235,7 +235,7 @@ mmutf_u8rune_get_u32(
     return -1;
 }
 
-MEME_API int MEME_STDCALL
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 mmutf_u8rune_set_u32(
     MemeByte_t* _buf, MemeInteger_t _len, uint32_t _value)
 {
@@ -301,7 +301,7 @@ mmutf_u8rune_set_u32(
     return byteSize;
 }
 
-MEME_API int MEME_STDCALL
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 mmutf_u8rune_prev_char_size(const mmbyte_t* _first, const mmbyte_t* _last)
 {
     int count = 0;

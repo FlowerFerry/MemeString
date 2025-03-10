@@ -1,22 +1,22 @@
-
+﻿
 #include <meme/utf/u8rune.h>
 #include <meme/utf/u16rune.h>
 #include <meme/utf/u32rune.h>
 
 
-MEME_API int MEME_STDCALL
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 mmutf_u32rune_char_size(uint32_t _ch)
 {
     return 1;
 }
 
-MEME_API int MEME_STDCALL
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 mmutf_u32rune_valid(const uint32_t* _buf, MemeInteger_t _len)
 {
     return 1;
 }
 
-MEME_API int MEME_STDCALL
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 mmutf_u32char_size_from8(const MemeByte_t* _ch, MemeInteger_t _len, int* _ch_size)
 {
     int size = mmutf_u8rune_char_size(*_ch);
@@ -28,7 +28,7 @@ mmutf_u32char_size_from8(const MemeByte_t* _ch, MemeInteger_t _len, int* _ch_siz
     return 1;
 }
 
-MEME_API int MEME_STDCALL
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 mmutf_u32char_size_from16(const uint16_t* _ch, MemeInteger_t _len, int* _ch_size)
 {
     int size = mmutf_u16rune_char_size(*_ch);
@@ -40,7 +40,7 @@ mmutf_u32char_size_from16(const uint16_t* _ch, MemeInteger_t _len, int* _ch_size
     return 1;
 }
 
-MEME_API int MEME_STDCALL
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 mmutf_u32rune_get_u32(
     const uint32_t* _buf, MemeInteger_t _len, uint32_t* _value)
 {
@@ -51,7 +51,7 @@ mmutf_u32rune_get_u32(
     return 1;
 }
 
-MEME_API int MEME_STDCALL
+MEME_EXTERN_C MEME_API int MEME_STDCALL
 mmutf_u32rune_set_u32(
     uint32_t* _buf, MemeInteger_t _len, uint32_t _value)
 {

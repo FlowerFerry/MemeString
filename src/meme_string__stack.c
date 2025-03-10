@@ -1187,7 +1187,7 @@ MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL MemeStringStack_getRepeat(
  //   return stack;
 }
 
-MEME_API mgec_t
+MEME_EXTERN_C MEME_API mgec_t
 MEME_STDCALL MemeStringStack_getRepeat_v2(
 	mmstrstk_t* _out, mmint_t _obj_size, mmint_t _count, const char* _in, mmint_t _in_len)
 {
