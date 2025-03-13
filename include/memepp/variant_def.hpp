@@ -4,6 +4,7 @@
 
 #include <meme/string_fwd.h>
 #include <meme/variant_fwd.h>
+#include <mego/err/ec.h>
 
 #include <memepp/metatype_fwd.hpp>
 #include <memepp/variant_fwd.hpp>
