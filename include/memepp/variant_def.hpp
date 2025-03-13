@@ -57,7 +57,10 @@ namespace memepp {
         variant& operator=(const rune& _v);
 
         template<typename _Ty>
-        mgec_t try_get(_Ty& _out) const noexcept;
+        inline mgec_t try_get(_Ty& _out) const noexcept
+        {
+            return MGEC__OPNOTSUPP;
+        }
         
         template<typename _Ty>
         inline _Ty get_or(const _Ty& _default = {}) const noexcept
@@ -69,7 +72,10 @@ namespace memepp {
         }
         
         template<typename _Ty>
-        mgec_t try_convert(_Ty& _out) const noexcept;
+        inline mgec_t try_convert(_Ty& _out) const noexcept
+        {
+            return MGEC__OPNOTSUPP;
+        }
 
         template<typename _Ty>
         inline _Ty convert_or(const _Ty& _default = {}) const noexcept

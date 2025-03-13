@@ -15,11 +15,11 @@
 
 namespace memepp {
 
-    template<typename _Ty>
-    inline mgec_t variant::try_get(_Ty& _out) const noexcept
-    {
-        return MGEC__OPNOTSUPP;
-    }
+    // template<typename _Ty>
+    // inline mgec_t variant::try_get(_Ty& _out) const noexcept
+    // {
+    //     return MGEC__OPNOTSUPP;
+    // }
     
     template<>
     inline mgec_t variant::try_get<mmbyte_t>(mmbyte_t& _out) const noexcept
@@ -98,11 +98,11 @@ namespace memepp {
             &data_, MMVAR__OBJ_SIZE, &const_cast<mmbufstk_t&>(_out.native_handle()), 1);
     }
 
-    template<typename _Ty>
-    inline mgec_t variant::try_convert(_Ty& _out) const noexcept
-    {
-        return MGEC__OPNOTSUPP;
-    }
+    // template<typename _Ty>
+    // inline mgec_t variant::try_convert(_Ty& _out) const noexcept
+    // {
+    //     return MGEC__OPNOTSUPP;
+    // }
 
     template<>
     inline mgec_t variant::try_convert<bool>(bool& _out) const noexcept
