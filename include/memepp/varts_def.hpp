@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEME_VARTS_DEF_H_INCLUDED
 #define MEME_VARTS_DEF_H_INCLUDED
 
