@@ -1201,7 +1201,7 @@ MEME_STDCALL MemeStringStack_getRepeat_v2(
 		mmstrstk_uninit_v0(_out, _obj_size);
 	}
 
-	result = (mgec_t)MemeVariableBufferStack_init(&vb, _obj_size);
+	result = (mgec_t)MemeVariableBufferStack_init(&vb, MMSTR__OBJ_SIZE);
 	if (result) {
 		mmstrstk_init_v0(_out, _obj_size);
 		return result;
@@ -1214,6 +1214,7 @@ MEME_STDCALL MemeStringStack_getRepeat_v2(
 		result = (mgec_t)MemeVariableBuffer_appendWithBytes((mmvb_ptr_t)&vb, (const mmbyte_t*)_in, _in_len);
 		if (result) {
 			mmstrstk_init_v0(_out, _obj_size);
+			MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
 			return result;
 		}
 	}
@@ -1221,9 +1222,11 @@ MEME_STDCALL MemeStringStack_getRepeat_v2(
 	result = (mgec_t)MemeVariableBuffer_releaseToString((mmvb_ptr_t)&vb, _out, _obj_size);
 	if (result) {
 		mmstrstk_init_v0(_out, _obj_size);
+		MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
 		return result;
 	}
-	
+
+	MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
 	return 0;
 }
 
