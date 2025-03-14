@@ -1232,95 +1232,206 @@ MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL MemeStringStack_replace(
 	const char* _from, mmint_t _from_len, 
 	const char* _to, mmint_t _to_len, mmint_t _max_count)
 {
+    mmstrstk_t stack;
+	MemeStringStack_replace_v2(
+		_s, _from, _from_len, _to, _to_len, _max_count, &stack, MMSTR__OBJ_SIZE);
+	return stack;
+
+	//mmint_t result = 0;
+	//mmsstk_t stack;
+	//mmvbstk_t vb;
+	//mms_t s = (mms_t)_s;
+	//const mmbyte_t* it = NULL;
+	//const mmbyte_t* end = NULL;
+	//const mmbyte_t* from = NULL;
+	//const mmbyte_t* to = NULL;
+	//const mmbyte_t* from_end = NULL;
+	//const mmbyte_t* to_end = NULL;
+	//mmint_t count = 0;
+	//mmint_t size = 0;
+
+ //   assert(_s != NULL && MemeStringStack_replace != NULL);
+
+ //   if (_from_len < 0)
+ //       _from_len = strlen(_from);
+ //   if (_to_len < 0)
+ //       _to_len = strlen(_to);
+
+ //   it = MemeString_byteData(s);
+ //   end = it + MemeString_byteSize(s);
+ //   from = (const MemeByte_t*)_from;
+ //   to = (const MemeByte_t*)_to;
+ //   from_end = from + _from_len;
+ //   to_end = to + _to_len;
+
+ //   for (; it != end; ++it) {
+	//	
+ //       if (it + _from_len > end)
+ //           break;
+	//	
+ //       if (memcmp(it, from, _from_len) == 0)
+ //       {
+ //           ++count;
+ //           if (_max_count > 0 && count >= _max_count)
+ //               break;
+ //           it += _from_len - 1;
+ //       }
+ //   }
+	//MemeVariableBufferStack_init(&vb, _object_size);
+
+ //   size = MemeString_byteSize(s) + (_to_len - _from_len) * count;
+ //   it = MemeString_byteData(s);
+ //   end = it + MemeString_byteSize(s);
+ //   
+	//for (; it != end; ++it) {
+	//	
+ //       if (it + _from_len > end)
+ //           break;
+	//	
+ //       if (memcmp(it, from, _from_len) == 0)
+ //       {
+	//		result = MemeVariableBuffer_appendWithBytes((mmvb_t)&vb, to, _to_len);
+	//		if (result) {
+ //               MemeStringStack_init(&stack, _object_size);
+ //               return stack;
+	//		}
+	//		
+ //           ++count;
+ //           if (_max_count > 0 && count >= _max_count)
+ //               break;
+ //           it += _from_len - 1;
+ //       }
+	//	else {
+	//		result = MemeVariableBuffer_appendWithBytes((mmvb_t)&vb, it, 1);
+	//		if (result) {
+	//			MemeStringStack_init(&stack, _object_size);
+	//			return stack;
+	//		}
+
+	//	}
+ //   }
+	//
+ //   if (it != end) {
+	//	result = MemeVariableBuffer_appendWithBytes((mmvb_t)&vb, it, end - it);
+	//	if (result) {
+	//		MemeStringStack_init(&stack, _object_size);
+	//		return stack;
+	//	}
+	//}
+	//
+	//result = MemeVariableBuffer_releaseToString((mmvb_t)&vb, &stack, _object_size);
+ //   if (result) {
+ //       MemeStringStack_init(&stack, _object_size);
+ //       return stack;
+ //   }
+ //   return stack;
+}
+
+MEME_EXTERN_C MEME_API mgec_t
+MEME_STDCALL MemeStringStack_replace_v2(
+	const mmstrstk_t* _str, 
+	const char* _from, mmint_t _from_len, 
+	const char* _to, mmint_t _to_len, mmint_t _max_count, 
+	mmstrstk_t* _out, mmint_t _obj_size)
+{
 	mmint_t result = 0;
-    mmsstk_t stack;
 	mmvbstk_t vb;
-    mms_t s = (mms_t)_s;
-    const mmbyte_t* it   = NULL;
-    const mmbyte_t* end  = NULL;
-    const mmbyte_t* from = NULL;
-    const mmbyte_t* to   = NULL;
-    const mmbyte_t* from_end = NULL;
-    const mmbyte_t* to_end = NULL;
+	mmstr_ptr_t str = (mmstr_ptr_t)_str;
+	const mmbyte_t* it = NULL;
+	const mmbyte_t* end = NULL;
+	const mmbyte_t* from = NULL;
+	const mmbyte_t* to = NULL;
+	const mmbyte_t* from_end = NULL;
+	const mmbyte_t* to_end = NULL;
 	mmint_t count = 0;
-	mmint_t size = 0;
-	//mmint_t pos = 0;
+	mmint_t size  = 0;
 
-    assert(_s != NULL && MemeStringStack_replace != NULL);
+	assert(_str != NULL && "MemeStringStack_replace_v2");
 
-    if (_from_len < 0)
-        _from_len = strlen(_from);
-    if (_to_len < 0)
-        _to_len = strlen(_to);
+	if (_from_len < 0)
+		_from_len = strlen(_from);
+	if (_to_len < 0)
+		_to_len = strlen(_to);
 
-    it = MemeString_byteData(s);
-    end = it + MemeString_byteSize(s);
-    from = (const MemeByte_t*)_from;
-    to = (const MemeByte_t*)_to;
-    from_end = from + _from_len;
-    to_end = to + _to_len;
+	if (_obj_size <= 0) {
+		_obj_size = MemeStringStack_regSize(_out);
+		mmstrstk_uninit_v0(_out, _obj_size);
+	}
 
-    for (; it != end; ++it) {
-		
-        if (it + _from_len > end)
-            break;
-		
-        if (memcmp(it, from, _from_len) == 0)
-        {
-            ++count;
-            if (_max_count > 0 && count >= _max_count)
-                break;
-            it += _from_len - 1;
-        }
-    }
-	MemeVariableBufferStack_init(&vb, _object_size);
+	it = MemeString_byteData(str);
+	end = it + MemeString_byteSize(str);
+	from = (const MemeByte_t*)_from;
+	to = (const MemeByte_t*)_to;
+	from_end = from + _from_len;
+	to_end = to + _to_len;
 
-    size = MemeString_byteSize(s) + (_to_len - _from_len) * count;
-    it = MemeString_byteData(s);
-    end = it + MemeString_byteSize(s);
-    
 	for (; it != end; ++it) {
-		
-        if (it + _from_len > end)
-            break;
-		
-        if (memcmp(it, from, _from_len) == 0)
-        {
+
+		if (it + _from_len > end)
+			break;
+
+		if (memcmp(it, from, _from_len) == 0)
+		{
+			++count;
+			if (_max_count > 0 && count >= _max_count)
+				break;
+			it += _from_len - 1;
+		}
+	}
+	MemeVariableBufferStack_init(&vb, MMSTR__OBJ_SIZE);
+
+	size = MemeString_byteSize(str) + (_to_len - _from_len) * count;
+	it = MemeString_byteData(str);
+	end = it + MemeString_byteSize(str);
+
+	for (; it != end; ++it) {
+
+		if (it + _from_len > end)
+			break;
+
+		if (memcmp(it, from, _from_len) == 0)
+		{
 			result = MemeVariableBuffer_appendWithBytes((mmvb_t)&vb, to, _to_len);
 			if (result) {
-                MemeStringStack_init(&stack, _object_size);
-                return stack;
+				MemeStringStack_init(_out, _obj_size);
+				MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+				return result;
 			}
-			
-            ++count;
-            if (_max_count > 0 && count >= _max_count)
-                break;
-            it += _from_len - 1;
-        }
+
+			++count;
+			if (_max_count > 0 && count >= _max_count)
+				break;
+			it += _from_len - 1;
+		}
 		else {
 			result = MemeVariableBuffer_appendWithBytes((mmvb_t)&vb, it, 1);
 			if (result) {
-				MemeStringStack_init(&stack, _object_size);
-				return stack;
+				MemeStringStack_init(_out, _obj_size);
+				MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+				return result;
 			}
 
 		}
-    }
-	
-    if (it != end) {
+	}
+
+	if (it != end) {
 		result = MemeVariableBuffer_appendWithBytes((mmvb_t)&vb, it, end - it);
 		if (result) {
-			MemeStringStack_init(&stack, _object_size);
-			return stack;
+			MemeStringStack_init(_out, _obj_size);
+			MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+			return result;
 		}
 	}
-	
-	result = MemeVariableBuffer_releaseToString((mmvb_t)&vb, &stack, _object_size);
-    if (result) {
-        MemeStringStack_init(&stack, _object_size);
-        return stack;
-    }
-    return stack;
+
+	result = MemeVariableBuffer_releaseToString((mmvb_t)&vb, _out, _obj_size);
+	if (result) {
+		MemeStringStack_init(_out, _obj_size);
+		MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+		return result;
+	}
+
+	MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+	return 0;
 }
 
 MEME_EXTERN_C MEME_API mmsstk_t

@@ -231,6 +231,16 @@ MEME_STDCALL MemeStringStack_replace(
     const char* _from, mmint_t _from_len,
     const char* _to, mmint_t _to_len, mmint_t _max_count);
 
+//! @param _str 必须已经初始化
+//! @param _obj_size 如果为负数，内部则认为@c _out已经初始化；若_out未初始化，请传入@c _out的对象大小
+MEME_API mgec_t
+MEME_STDCALL MemeStringStack_replace_v2(
+    const mmstrstk_t* _str, 
+    const char* _from, mmint_t _from_len,
+    const char* _to, mmint_t _to_len, mmint_t _max_count,
+	mmstrstk_t* _out, mmint_t _obj_size
+);
+
 //! @param _s The string stack object, must be initialized.
 //! @deprecated 将来可能会有ABI问题
 MEME_API mmsstk_t
