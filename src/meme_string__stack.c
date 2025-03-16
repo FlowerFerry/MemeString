@@ -1094,29 +1094,59 @@ MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL
 MemeStringStack_trimByCuts(
 	const mmsstk_t* _s, size_t _object_size, const char* _cuts, MemeInteger_t _cuts_len)
 {
-    int result = 0;
-	mmsstk_t stack;
-    mms_t s = (mms_t)_s;
-    const MemeByte_t* it  = NULL;
-    const MemeByte_t* end = NULL;
-
-    assert(_s != NULL && MemeStringStack_trimByCuts != NULL);
-
-    it = MemeString_byteData(s);
-    end = it + MemeString_byteSize(s);
-
-    for (; it != end; ++it)
-        if (!memchr(_cuts, *it, _cuts_len))
-            break;
-
-    if (it != end)
-        --end;
-    for (; it - 1 != end; --end)
-        if (!memchr(_cuts, *it, _cuts_len))
-            break;
-
-    stack = MemeStringStack_mid(_s, _object_size, it - MemeString_byteData(s), end - it + 1);
+	mmstrstk_t stack;
+    MemeStringStack_trimByCuts_v2(_s, _cuts, _cuts_len, &stack, MMSTR__OBJ_SIZE);
     return stack;
+
+ //   int result = 0;
+	//mmsstk_t stack;
+ //   mms_t s = (mms_t)_s;
+ //   const MemeByte_t* it  = NULL;
+ //   const MemeByte_t* end = NULL;
+
+ //   assert(_s != NULL && MemeStringStack_trimByCuts != NULL);
+
+ //   it = MemeString_byteData(s);
+ //   end = it + MemeString_byteSize(s);
+
+ //   for (; it != end; ++it)
+ //       if (!memchr(_cuts, *it, _cuts_len))
+ //           break;
+
+ //   if (it != end)
+ //       --end;
+ //   for (; it - 1 != end; --end)
+ //       if (!memchr(_cuts, *it, _cuts_len))
+ //           break;
+
+ //   stack = MemeStringStack_mid(_s, _object_size, it - MemeString_byteData(s), end - it + 1);
+ //   return stack;
+}
+
+MEME_API mgec_t MEME_STDCALL 
+MemeStringStack_trimByCuts_v2(
+	const mmstrstk_t* _str, const char* _cuts, mmint_t _cuts_len, mmstrstk_t* _out, mmint_t _obj_size)
+{
+	mmstr_ptr_t str = (mmstr_ptr_t)_str;
+	const MemeByte_t* it = NULL;
+	const MemeByte_t* end = NULL;
+
+	assert(_str != NULL && "MemeStringStack_trimByCuts_v2");
+
+	it = MemeString_byteData(str);
+	end = it + MemeString_byteSize(str);
+
+	for (; it != end; ++it)
+		if (!memchr(_cuts, *it, _cuts_len))
+			break;
+
+	if (it != end)
+		--end;
+	for (; it - 1 != end; --end)
+		if (!memchr(_cuts, *it, _cuts_len))
+			break;
+
+	return MemeStringStack_mid_v2(_str, it - MemeString_byteData(str), end - it + 1, _out, _obj_size);
 }
 
 MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL

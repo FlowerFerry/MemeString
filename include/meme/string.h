@@ -201,6 +201,10 @@ MEME_STDCALL MemeStringStack_trimByCuts(
     const mmsstk_t* _s, size_t _object_size,
 	const char* _cuts, MemeInteger_t _cuts_len);
 
+MEME_API mgec_t
+MEME_STDCALL MemeStringStack_trimByCuts_v2(
+    const mmstrstk_t* _str, const char* _cuts, mmint_t _cuts_len, mmstrstk_t* _out, mmint_t _obj_size);
+
 //! @param _s The string stack object, must be initialized.
 //! @param _cond_func The condition function; if the function returns true, the byte will be skipped.
 //! @deprecated 将来可能会有ABI问题
