@@ -213,6 +213,11 @@ MEME_STDCALL MemeStringStack_trimByCondByteFunc(
     const mmsstk_t* _s, size_t _object_size,
 	MemeString_MatchCondByteFunc_t* _cond_func, void* _user_data);
 
+MEME_API mgec_t
+MEME_STDCALL MemeStringStack_trimByCondByteFunc_v2(
+    const mmstrstk_t* _str, mmstr_match_cond_byte_cb_t* _cond_func, void* _user_data, 
+	mmstrstk_t* _out, mmint_t _obj_size);
+
 //! \code
 //! MemeStringStack_t s = MemeStringStack_getRepeat(MEME_STRING__OBJECT_SIZE, 3, "abc", 3);
 //! // s is "abcabcabc";

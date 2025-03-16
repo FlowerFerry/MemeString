@@ -454,8 +454,8 @@ EXPORTS
     MemeStringStack_toValidUtf8_v2 @3013
     MemeStringStack_replace_v2 @3014
     MemeStringStack_trimByCuts_v2 @3015
+    MemeStringStack_trimByCondByteFunc_v2 @3016
     ; 等待实现
-    ; MemeStringStack_trimByCondByteFunc_v2
     ; MemeStringStack_mappingConvert_v2
     ; MemeStringStack_splitByCondByteFunc
     MemeBufferStack_regSize @4000

@@ -1154,29 +1154,61 @@ MemeStringStack_trimByCondByteFunc(
 	const mmsstk_t* _s, size_t _object_size,
 	MemeString_MatchCondByteFunc_t* _cond_func, void* _user_data)
 {
-    int result = 0;
-	mmsstk_t stack;
-    mms_t s = (mms_t)_s;
-    const MemeByte_t* it = NULL;
-    const MemeByte_t* end = NULL;
-
-    assert(_s != NULL && MemeStringStack_trimByCondByteFunc != NULL);
-
-    it = MemeString_byteData(s);
-    end = it + MemeString_byteSize(s);
-
-    for (; it != end; ++it)
-        if (!_cond_func(*it, _user_data))
-            break;
-
-    if (it != end)
-        --end;
-    for (; it - 1 != end; --end)
-        if (!_cond_func(*end, _user_data))
-            break;
-
-    stack = MemeStringStack_mid(_s, _object_size, it - MemeString_byteData(s), end - it + 1);
+	mmstrstk_t stack;
+    MemeStringStack_trimByCondByteFunc_v2(_s, _cond_func, _user_data, &stack, MMSTR__OBJ_SIZE);
     return stack;
+
+ //   int result = 0;
+	//mmsstk_t stack;
+ //   mms_t s = (mms_t)_s;
+ //   const MemeByte_t* it = NULL;
+ //   const MemeByte_t* end = NULL;
+
+ //   assert(_s != NULL && MemeStringStack_trimByCondByteFunc != NULL);
+
+ //   it = MemeString_byteData(s);
+ //   end = it + MemeString_byteSize(s);
+
+ //   for (; it != end; ++it)
+ //       if (!_cond_func(*it, _user_data))
+ //           break;
+
+ //   if (it != end)
+ //       --end;
+ //   for (; it - 1 != end; --end)
+ //       if (!_cond_func(*end, _user_data))
+ //           break;
+
+ //   stack = MemeStringStack_mid(_s, _object_size, it - MemeString_byteData(s), end - it + 1);
+ //   return stack;
+}
+
+MEME_API mgec_t MEME_STDCALL 
+MemeStringStack_trimByCondByteFunc_v2(
+	const mmstrstk_t* _str, mmstr_match_cond_byte_cb_t* _cond_func, void* _user_data, 
+	mmstrstk_t* _out, mmint_t _obj_size)
+{
+	mmsstk_t stack;
+	mmstr_ptr_t str = (mmstr_ptr_t)_str;
+	const MemeByte_t* it = NULL;
+	const MemeByte_t* end = NULL;
+
+	assert(_str != NULL && "MemeStringStack_trimByCondByteFunc_v2");
+
+	it = MemeString_byteData(str);
+	end = it + MemeString_byteSize(str);
+
+	for (; it != end; ++it)
+		if (!_cond_func(*it, _user_data))
+			break;
+
+	if (it != end)
+		--end;
+	for (; it - 1 != end; --end)
+		if (!_cond_func(*end, _user_data))
+			break;
+
+	return MemeStringStack_mid_v2(_str, it - MemeString_byteData(str), end - it + 1, _out, _obj_size);
 }
 
 MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL MemeStringStack_getRepeat(
