@@ -304,6 +304,11 @@ MEME_STDCALL MemeStringStack_mappingConvert(
     const mmsstk_t* _s, size_t _object_size,
     MemeString_MappingConvertFunc_t _mapping_fn, void* _user_data);
 
+MEME_API mgec_t 
+MEME_STDCALL MemeStringStack_mappingConvert_v2(
+    const mmstrstk_t* _str, mmstr_mapping_conv_cb_t* _mapping_fn, void* _user_data,
+    mmstrstk_t* _out, mmint_t _obj_size);
+
 //! @deprecated 将来可能会有ABI问题
 MEME_API MemeStringStack_t 
 MemeStringStack_vformatInCstyle(
@@ -385,6 +390,15 @@ MEME_STDCALL MemeStringStack_split(
 	const char* _key, mmint_t _key_len,
 	mmflag_split_behav_t, mmflag_case_sensit_t,
 	mmstrstk_t* MEGO_SYMBOL__RESTRICT _out, mmint_t _obj_size,
+	mmint_t* MEGO_SYMBOL__RESTRICT _out_count,
+	mmint_t* MEGO_SYMBOL__RESTRICT _search_index
+);
+
+MEME_API mmint_t
+MEME_STDCALL MemeStringStack_splitByCondByteFunc(
+	const mmstrstk_t* _str,
+	mmstr_match_cond_byte_cb_t* _cond_func, void* _user_data,
+    mmstrstk_t* MEGO_SYMBOL__RESTRICT _out, mmint_t _obj_size,
 	mmint_t* MEGO_SYMBOL__RESTRICT _out_count,
 	mmint_t* MEGO_SYMBOL__RESTRICT _search_index
 );

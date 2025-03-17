@@ -1322,68 +1322,72 @@ MEME_EXTERN_C MEME_API mmint_t MEME_STDCALL MemeString_splitByCondByteFunc(
 	mmint_t* MEGO_SYMBOL__RESTRICT _out_count, 
 	mmint_t* MEGO_SYMBOL__RESTRICT _search_index)
 {
-    int result = 0;
-    mmint_t last_index = (_search_index == NULL ? 0 : *_search_index);
-    mmint_t curr_index = -1;
-    mmint_t output_index = 0;
+	return MemeStringStack_splitByCondByteFunc(
+		(const mmstrstk_t*)_s, _cond_func, _user_data,
+		_out, MMSTR__OBJ_SIZE, _out_count, _search_index);
 
-    assert(_s != NULL && MemeString_splitByCondByteFunc);
-    assert(_out != NULL && MemeString_splitByCondByteFunc);
-    assert(_out_count != NULL && MemeString_splitByCondByteFunc);
+    //int result = 0;
+    //mmint_t last_index = (_search_index == NULL ? 0 : *_search_index);
+    //mmint_t curr_index = -1;
+    //mmint_t output_index = 0;
 
-    if (*_out_count < 1)
-        return (MGEC__INVAL);
+    //assert(_s != NULL && MemeString_splitByCondByteFunc);
+    //assert(_out != NULL && MemeString_splitByCondByteFunc);
+    //assert(_out_count != NULL && MemeString_splitByCondByteFunc);
 
-    while (output_index < *_out_count)
-    {
-        curr_index =
-            MemeString_indexByCondByteFunc(
-                _s, last_index, _cond_func, _user_data);
-        if (curr_index < 0) {
-            if (last_index < MemeString_byteSize(_s))
-            {
-                MemeStringStack_initByU8bytes(_out + output_index,
-                    MEME_STRING__OBJECT_SIZE, MemeString_byteData(_s) + last_index,
-                    MemeString_byteSize(_s) - last_index);
-                *_out_count = output_index + 1;
-            }
-            else {
-                *_out_count = output_index;
-            }
-            if (_search_index)
-                *_search_index = -1;
-            return 0;
-        }
+    //if (*_out_count < 1)
+    //    return (MGEC__INVAL);
 
-        if ((curr_index - last_index) == 0)
-        {
-            last_index += 1;
-            continue;
-        }
+    //while (output_index < *_out_count)
+    //{
+    //    curr_index =
+    //        MemeString_indexByCondByteFunc(
+    //            _s, last_index, _cond_func, _user_data);
+    //    if (curr_index < 0) {
+    //        if (last_index < MemeString_byteSize(_s))
+    //        {
+    //            MemeStringStack_initByU8bytes(_out + output_index,
+    //                MEME_STRING__OBJECT_SIZE, MemeString_byteData(_s) + last_index,
+    //                MemeString_byteSize(_s) - last_index);
+    //            *_out_count = output_index + 1;
+    //        }
+    //        else {
+    //            *_out_count = output_index;
+    //        }
+    //        if (_search_index)
+    //            *_search_index = -1;
+    //        return 0;
+    //    }
 
-        result = MemeStringStack_initByU8bytes(_out + output_index,
-            MEME_STRING__OBJECT_SIZE, MemeString_byteData(_s) + last_index, curr_index - last_index);
-        if (result != 0) {
-            for (mmint_t i = 0; i < output_index; ++i)
-                MemeStringStack_unInit(_out + i, MMS__OBJECT_SIZE);
-            return result;
-        }
-        last_index = curr_index + 1;
-        ++output_index;
-    }
+    //    if ((curr_index - last_index) == 0)
+    //    {
+    //        last_index += 1;
+    //        continue;
+    //    }
 
-    *_out_count = output_index;
-    if (last_index < MemeString_byteSize(_s))
-    {
-        if (_search_index)
-            *_search_index = last_index;
-        return 0;
-    }
-    else {
-        if (_search_index)
-            *_search_index = -1;
-        return 0;
-    }
+    //    result = MemeStringStack_initByU8bytes(_out + output_index,
+    //        MEME_STRING__OBJECT_SIZE, MemeString_byteData(_s) + last_index, curr_index - last_index);
+    //    if (result != 0) {
+    //        for (mmint_t i = 0; i < output_index; ++i)
+    //            MemeStringStack_unInit(_out + i, MMS__OBJECT_SIZE);
+    //        return result;
+    //    }
+    //    last_index = curr_index + 1;
+    //    ++output_index;
+    //}
+
+    //*_out_count = output_index;
+    //if (last_index < MemeString_byteSize(_s))
+    //{
+    //    if (_search_index)
+    //        *_search_index = last_index;
+    //    return 0;
+    //}
+    //else {
+    //    if (_search_index)
+    //        *_search_index = -1;
+    //    return 0;
+    //}
 }
 
 MEME_EXTERN_C MEME_API mmint_t MEME_STDCALL MemeString_writeBytes(
