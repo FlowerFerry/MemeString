@@ -37,6 +37,7 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_repeat.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_concat.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_utf8.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_replace.cpp
 )
 
 function(mmut_create_exec_for_stdcxx  exec_name cxx_standard)

@@ -7,6 +7,8 @@
 #include <list>
 #include <deque>
 
+#include <megopp/util/scope_cleanup.h>
+
 TEST_CASE("memepp::string - 07", "string split")
 {
 	memepp::string s01 = "11"":"":""22"":3:""444";
