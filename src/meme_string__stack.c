@@ -1133,6 +1133,9 @@ MemeStringStack_trimByCuts_v2(
 
 	assert(_str != NULL && "MemeStringStack_trimByCuts_v2");
 
+	if (_cuts_len < 0)
+        _cuts_len = strlen(_cuts);
+
 	it = MemeString_byteData(str);
 	end = it + MemeString_byteSize(str);
 
@@ -1143,7 +1146,7 @@ MemeStringStack_trimByCuts_v2(
 	if (it != end)
 		--end;
 	for (; it - 1 != end; --end)
-		if (!memchr(_cuts, *it, _cuts_len))
+		if (!memchr(_cuts, *end, _cuts_len))
 			break;
 
 	return MemeStringStack_mid_v2(_str, it - MemeString_byteData(str), end - it + 1, _out, _obj_size);
