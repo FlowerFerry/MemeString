@@ -193,6 +193,8 @@ namespace memepp {
 
 		string replace(const string_view& _from, const string_view& _to) const noexcept;
 
+		string repeat(size_type _count) const;
+
 		template<class _Container>
 		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container> _inserter) const;

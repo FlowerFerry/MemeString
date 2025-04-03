@@ -7,6 +7,8 @@
 
 #include <megopp/predef/namespace_alias.h>
 
+#include <cmath>
+
 namespace mgpp {
 namespace endian {
  

@@ -691,6 +691,11 @@ namespace memepp {
 			_from.data(), _from.size(), _to.data(), _to.size(), -1) };
 	}
 
+	MEMEPP__IMPL_INLINE string string_view::repeat(size_type _count) const
+	{
+		return string::repeat(*this, _count);
+	}
+
 	MEMEPP__IMPL_INLINE const string_view::native_handle_type& 
 		string_view::native_handle() const noexcept
 	{

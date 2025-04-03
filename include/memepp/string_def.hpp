@@ -37,7 +37,7 @@ namespace memepp {
 		static const size_type npos = static_cast<size_type>(-1);
         
 		string() noexcept;
-		string(mmstr_const_t _other);
+		string(mmstr_cptr_t _other);
 		string(native_handle_type&& _other);
 		string(const native_handle_type& _other);
 
@@ -255,6 +255,8 @@ namespace memepp {
 
         string replace(const string_view& _from, const string_view& _to) const noexcept;
 		
+		string repeat(size_type _count) const;
+
 		template<typename _Func>
 		inline string mapping_convert(_Func&& _func) const;
 
@@ -341,6 +343,7 @@ namespace memepp {
 		
 		const native_handle_type& native_handle() const noexcept;
 
+		static string repeat(const string_view& _str, size_type _count);
 	private:
 		native_handle_type data_;
 	};

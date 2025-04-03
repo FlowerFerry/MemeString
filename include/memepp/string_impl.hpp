@@ -20,7 +20,7 @@ namespace memepp {
 		MemeStringStack_init(&data_, MEME_STRING__OBJECT_SIZE);
 	}
 
-	MEMEPP__IMPL_INLINE string::string(mmstr_const_t _other)
+	MEMEPP__IMPL_INLINE string::string(mmstr_cptr_t _other)
 	{
         *errc() = MemeStringStack_initByOther(&data_, MMSTR__OBJ_SIZE, _other);
 #if !MMOPT__EXCEPTION_DISABLED
@@ -796,6 +796,11 @@ namespace memepp {
             _from.data(), _from.size(), _to.data(), _to.size(), -1) };
 	}
 
+	MEMEPP__IMPL_INLINE string string::repeat(size_type _count) const
+	{
+		return repeat(*this, _count);
+	}
+
 	MEMEPP__IMPL_INLINE string string::to_en_upper() const noexcept
 	{
 		return MemeStringStack_toEnUpper(&native_handle(), sizeof(data_));
@@ -809,6 +814,15 @@ namespace memepp {
 	MEMEPP__IMPL_INLINE const string::native_handle_type & string::native_handle() const noexcept
 	{
 		return data_;
+	}
+
+	MEMEPP__IMPL_INLINE string string::repeat(const string_view& _str, size_type _count)
+	{
+		mmstrstk_t stk;
+		*errc() = MemeStringStack_getRepeat_v2(
+			&stk, MMSTR__OBJ_SIZE, _count, _str.data(), _str.size());
+		throw_errc(*errc());
+		return string{ std::move(stk) };
 	}
 
 	MEMEPP__IMPL_INLINE bool operator==(const string& _lhs, const string& _rhs) noexcept
