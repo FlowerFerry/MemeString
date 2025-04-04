@@ -83,6 +83,7 @@ int main(int argc, char *argv[])
     printf("MG_OS__LINUX_AVAIL: %d\n", MG_OS__LINUX_AVAIL);
     printf("MG_OS__MACOS_AVAIL: %d\n", MG_OS__MACOS_AVAIL);
     printf("MG_OS__WIN_AVAIL: %d\n", MG_OS__WIN_AVAIL);
+    printf("MEGO_ARCH__STRING: %s\n", MEGO_ARCH__STRING);
 
     printf("MG_THR__THREADS_AVAIL: %d\n", MG_THR__THREADS_AVAIL);
     printf("MG_THR__PTHREADS_AVAIL: %d\n", MG_THR__PTHREADS_AVAIL);
