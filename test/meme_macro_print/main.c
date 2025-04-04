@@ -6,6 +6,10 @@
 #include <mego/predef/hdr/unistd.h>
 #include <mego/predef/threads.h>
 
+#if MG_HDR__UNISTD_AVAIL
+#include <unistd.h>
+#endif
+
 int main(int argc, char *argv[]) 
 {
     printf("MG_OS__LINUX_AVAIL: %d\n", MG_OS__LINUX_AVAIL);
@@ -18,4 +22,9 @@ int main(int argc, char *argv[])
     printf("MG_COMP__GCC_AVAIL: %d\n", MG_COMP__GCC_AVAIL);
     printf("MG_COMP__MSVC_AVAIL: %d\n", MG_COMP__MSVC_AVAIL);
 
+#ifdef _POSIX_THREADS
+    printf("_POSIX_THREADS: %d\n", _POSIX_THREADS);
+#else
+    printf("_POSIX_THREADS: not defined\n");
+#endif
 }
