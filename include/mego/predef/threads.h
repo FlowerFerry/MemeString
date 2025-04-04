@@ -1,10 +1,11 @@
-
+﻿
 #ifndef MEGO_PREDEF_THREADS_H_INCLUDED
 #define MEGO_PREDEF_THREADS_H_INCLUDED
 
 #include "mego/predef/compiler.h"
 #include "mego/predef/os/windows.h"
 #include "mego/predef/hdr/unistd.h"
+#include <mego/predef/helper_macros.h>
 
 #include <stddef.h>
 
@@ -16,7 +17,13 @@
 #    define MEGO_THR__PTHREADS_AVAILABLE (1)
 
 #    if !defined(__GLIBCXX__) && defined(__GLIBC__) && defined(__GLIBC_MINOR__) \
-            && ((__GLIBC__+0) > 2 || ((__GLIBC__+0) == 2 && (__GLIBC_MINOR__+0) >= 3))
+        && MEGO__MAKE_VERSION_NUMBER(__GLIBC__+0, __GLIBC_MINOR__+0, 0) >= MEGO__MAKE_VERSION_NUMBER(2, 3, 0)
+#      define MEGO_THR__THREADS_AVAILABLE (1)
+#    endif
+
+#    if defined(__UCLIBC__) \
+        && defined(__UCLIBC_MAJOR__) && defined(__UCLIBC_MINOR__) && defined(__UCLIBC_SUBLEVEL__) \
+        && MEGO__MAKE_VERSION_NUMBER(__UCLIBC_MAJOR__+0, __UCLIBC_MINOR__+0, __UCLIBC_SUBLEVEL__+0) >= MEGO__MAKE_VERSION_NUMBER(0, 9, 33)
 #      define MEGO_THR__THREADS_AVAILABLE (1)
 #    endif
 
