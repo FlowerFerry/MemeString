@@ -54,6 +54,7 @@ int main(int argc, char *argv[])
     printf("MEGO_ARCH__X86: %d\n", MEGO_ARCH__X86);
     printf("MEGO_ARCH__AMD64: %d\n", MEGO_ARCH__AMD64);
     printf("MEGO_ARCH__Z: %d\n", MEGO_ARCH__Z);
+    printf("MEGO_ARCH__STRING: %s\n", MEGO_ARCH__STRING);
 
     printf("MG_HDR__UNISTD_AVAIL: %d\n", MG_HDR__UNISTD_AVAIL);
     
@@ -83,7 +84,6 @@ int main(int argc, char *argv[])
     printf("MG_OS__LINUX_AVAIL: %d\n", MG_OS__LINUX_AVAIL);
     printf("MG_OS__MACOS_AVAIL: %d\n", MG_OS__MACOS_AVAIL);
     printf("MG_OS__WIN_AVAIL: %d\n", MG_OS__WIN_AVAIL);
-    printf("MEGO_ARCH__STRING: %s\n", MEGO_ARCH__STRING);
 
     printf("MG_THR__THREADS_AVAIL: %d\n", MG_THR__THREADS_AVAIL);
     printf("MG_THR__PTHREADS_AVAIL: %d\n", MG_THR__PTHREADS_AVAIL);
