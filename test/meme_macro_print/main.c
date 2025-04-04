@@ -128,6 +128,70 @@ int main(int argc, char *argv[])
     printf("__UCLIBC_SUBLEVEL__: not defined\n");
 #endif
 
+#ifdef i386
+    printf("i386: defined\n");
+#endif
+
+#ifdef __i386
+    printf("__i386: defined\n");
+#endif
+
+#ifdef __i386__
+    printf("__i386__: defined\n");
+#endif
+
+#ifdef __IA32__
+    printf("__IA32__: defined\n");
+#endif
+
+#ifdef _M_IX86
+    printf("_M_IX86: defined\n");
+#endif
+
+#ifdef __X86__
+    printf("__X86__: defined\n");
+#endif
+
+#ifdef _X86_
+    printf("_X86_: defined\n");
+#endif
+
+#ifdef __THW_INTEL__
+    printf("__THW_INTEL__: defined\n");
+#endif
+
+#ifdef __I86__
+    printf("__I86__: defined\n");
+#endif
+
+#ifdef __386
+    printf("__386: defined\n");
+#endif
+
+#ifdef __INTEL__
+    printf("__INTEL__: defined\n");
+#endif
+
+#ifdef __amd64__
+    printf("__amd64__: defined\n");
+#endif
+
+#ifdef __amd64
+    printf("__amd64: defined\n");
+#endif
+
+#ifdef __x86_64__
+    printf("__x86_64__: defined\n");
+#endif
+
+#ifdef __x86_64
+    printf("__x86_64: defined\n");
+#endif
+
+#ifdef _M_X64
+    printf("_M_X64: defined\n");
+#endif
+
 #ifdef _MSVC_VER
     printf("_MSC_VER: %d\n", _MSC_VER);
 #else
