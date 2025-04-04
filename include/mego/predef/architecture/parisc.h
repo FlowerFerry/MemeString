@@ -18,9 +18,9 @@
 #       define MEGO_ARCH__PARISC (1)
 #   endif
 
-#endif
+#   define MEGO_ARCH__STRING "HP/PA RISC"
 
-#define MEGO_ARCH__STRING "HP/PA RISC"
+#endif
 
 #endif
 
