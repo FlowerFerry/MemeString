@@ -232,9 +232,12 @@ struct _MemeString_t
 #define MMSTR__GET_IMPLTYPE(S) ((S)->none_.type_)
 #endif 
 
-MEGO__STATIC_ASSERT(sizeof(struct _MemeString_t) == MMSTR__OBJ_SIZE, "MemeString_t size mismatch");
-MEGO__STATIC_ASSERT(sizeof(MemeRune_t) == 8, "MemeRune_t size is mismatch");
-MEGO__STATIC_ASSERT(sizeof(MemeRuneIndex_t) == (sizeof(void*) * 2), "MemeRuneIndex_t size mismatch");
+MEGO__STATIC_ASSERT(
+	sizeof(struct _MemeString_t) == MMSTR__OBJ_SIZE, MemeStringSizeMismatch, "MemeString_t size mismatch");
+MEGO__STATIC_ASSERT(
+	sizeof(MemeRune_t) == 8, MemeRuneSizeMismatch, "MemeRune_t size is mismatch");
+MEGO__STATIC_ASSERT(
+	sizeof(MemeRuneIndex_t) == (sizeof(void*) * 2), MemeRuneIndexSizeMismatch, "MemeRuneIndex_t size mismatch");
 
 const uint8_t* 
 MemeStringImpl_default();

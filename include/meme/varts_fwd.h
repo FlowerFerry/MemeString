@@ -3,6 +3,7 @@
 #define MEME_VARTS_FWD_H_INCLUDED
 
 #include <mego/util/std/time.h>
+#include <mego/predef/symbol/static_assert.h>
 #include "meme/common.h"
 #include <meme/variant_fwd.h>
 #include <limits.h>
@@ -25,7 +26,10 @@ typedef struct MemeVariantTimestampStack_t mmvtsstk_t;
 typedef struct MemeVariantTimestamp_t* mmvts_ptr_t;
 typedef const struct MemeVariantTimestamp_t* mmvts_cptr_t;
 
-static_assert(sizeof(MemeVariantTimestampStack_t) == 8 + MMVAR__OBJ_SIZE, "MemeVariantTimestampStack_t size mismatch");
+MEGO__STATIC_ASSERT(
+    sizeof(MemeVariantTimestampStack_t) == 8 + MMVAR__OBJ_SIZE, 
+    MemeVariantTimestampStackSizeMismatch,
+    "MemeVariantTimestampStack_t size mismatch");
 
 #ifndef MMVTS__OBJ_SIZE
 #define MMVTS__OBJ_SIZE (8 + MMVAR__OBJ_SIZE)

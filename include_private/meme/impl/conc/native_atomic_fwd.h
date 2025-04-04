@@ -3,6 +3,7 @@
 #define MEME_IMPL_CONC_NATIVE_ATOMIC_FWD_H_INCLUDED
 
 #include <meme/conc/atomic_fwd.h>
+#include <mego/predef/symbol/static_assert.h>
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -15,8 +16,9 @@ typedef struct mmconc_native_atmc_bl {
     bool data;
 } mmconc_native_atmc_bl_t;
 
-static_assert(
+MEGO__STATIC_ASSERT(
     sizeof(mmconc_native_atmc_bl_t) == sizeof(mmconc_atomic_bool_t),
+    mmconc_native_atmc_bl_size_mismatch,
     "Native 'bool' size mismatch");
 
 typedef struct mmconc_native_atmc_i8 {
@@ -25,8 +27,9 @@ typedef struct mmconc_native_atmc_i8 {
     int8_t data;
 } mmconc_native_atmc_i8_t;
 
-static_assert(
+MEGO__STATIC_ASSERT(
     sizeof(mmconc_native_atmc_i8_t) == sizeof(mmconc_atomic_int8_t),
+    mmconc_native_atmc_i8_size_mismatch,
     "Native 'int8_t' size mismatch");
 
 typedef struct mmconc_native_atmc_u8 {
@@ -35,8 +38,9 @@ typedef struct mmconc_native_atmc_u8 {
     uint8_t data;
 } mmconc_native_atmc_u8_t;
 
-static_assert(
+MEGO__STATIC_ASSERT(
     sizeof(mmconc_native_atmc_u8_t) == sizeof(mmconc_atomic_uint8_t),
+    mmconc_native_atmc_u8_size_mismatch,
     "Native 'uint8_t' size mismatch");
 
 typedef struct mmconc_native_atmc_i16 {
@@ -45,8 +49,9 @@ typedef struct mmconc_native_atmc_i16 {
     int16_t data;
 } mmconc_native_atmc_i16_t;
 
-static_assert(
+MEGO__STATIC_ASSERT(
     sizeof(mmconc_native_atmc_i16_t) == sizeof(mmconc_atomic_int16_t),
+    mmconc_native_atmc_i16_size_mismatch,
     "Native 'int16_t' size mismatch");
 
 typedef struct mmconc_native_atmc_u16 {
@@ -55,8 +60,9 @@ typedef struct mmconc_native_atmc_u16 {
     uint16_t data;
 } mmconc_native_atmc_u16_t;
 
-static_assert(
+MEGO__STATIC_ASSERT(
     sizeof(mmconc_native_atmc_u16_t) == sizeof(mmconc_atomic_uint16_t),
+    mmconc_native_atmc_u16_size_mismatch,
     "Native 'uin16_t' size mismatch");
 
 typedef struct mmconc_native_atmc_i32 {
@@ -65,8 +71,9 @@ typedef struct mmconc_native_atmc_i32 {
     int32_t data;
 } mmconc_native_atmc_i32_t;
 
-static_assert(
+MEGO__STATIC_ASSERT(
     sizeof(mmconc_native_atmc_i32_t) == sizeof(mmconc_atomic_int32_t),
+    mmconc_native_atmc_i32_size_mismatch,
     "Native 'int32_t' size mismatch");
 
 typedef struct mmconc_native_atmc_u32 {
@@ -75,8 +82,9 @@ typedef struct mmconc_native_atmc_u32 {
     uint32_t data;
 } mmconc_native_atmc_u32_t;
 
-static_assert(
+MEGO__STATIC_ASSERT(
     sizeof(mmconc_native_atmc_u32_t) == sizeof(mmconc_atomic_uint32_t),
+    mmconc_native_atmc_u32_size_mismatch,
     "Native 'uint32_t' size mismatch");
 
 typedef struct mmconc_native_atmc_i64 {
@@ -91,12 +99,14 @@ typedef struct mmconc_native_atmc_u64 {
     uint64_t data;
 } mmconc_native_atmc_u64_t;
 
-static_assert(
+MEGO__STATIC_ASSERT(
     sizeof(mmconc_native_atmc_i64_t) == sizeof(mmconc_atomic_int64_t),
+    mmconc_native_atmc_i64_size_mismatch,
     "Native 'int64_t' size mismatch");
 
-static_assert(
+MEGO__STATIC_ASSERT(
     sizeof(mmconc_native_atmc_u64_t) == sizeof(mmconc_atomic_uint64_t),
+    mmconc_native_atmc_u64_size_mismatch,
     "Native 'uint64_t' size mismatch");
 
 

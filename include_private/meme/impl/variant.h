@@ -2,6 +2,7 @@
 #ifndef MEME_IMPL_VARIANT_H_INCLUDED
 #define MEME_IMPL_VARIANT_H_INCLUDED
 
+#include <mego/predef/symbol/static_assert.h>
 #include <meme/common.h>
 #include <meme/variant_fwd.h>
 #include <meme/string_fwd.h>
@@ -46,8 +47,14 @@ typedef struct _MemeVariant_t
     MemeVariantData_t d;
 } MemeVariant_t;
 
-static_assert(sizeof(MemeVariant_t) == MMVAR__OBJ_SIZE, "MemeVariant_t size mismatch");
-static_assert(sizeof(MemeVariantData_t) == MMSTR__OBJ_SIZE, "MemeVariantData_t size mismatch");
+MEGO__STATIC_ASSERT(
+    sizeof(MemeVariant_t) == MMVAR__OBJ_SIZE, 
+    MemeVariantSizeMismatch,
+    "MemeVariant_t size mismatch");
+MEGO__STATIC_ASSERT(
+    sizeof(MemeVariantData_t) == MMSTR__OBJ_SIZE, 
+    MemeVariantDataSizeMismatch,
+    "MemeVariantData_t size mismatch");
 
 mmint_t MemeVariantImpl_basicNumberToInt (const MemeVariant_t* _var);
 size_t  MemeVariantImpl_basicNumberToUInt(const MemeVariant_t* _var);

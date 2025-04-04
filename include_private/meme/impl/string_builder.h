@@ -2,8 +2,10 @@
 #ifndef MEME_IMPL_STRING_BUILDER_H_INCLUDED
 #define MEME_IMPL_STRING_BUILDER_H_INCLUDED
 
+#include <mego/predef/symbol/static_assert.h>
 #include <meme/string_fwd.h>
 #include <meme/string_memory.h>
+#include <meme/string_builder_fwd.h>
 
 #include <stdlib.h>
 #include <assert.h>
@@ -48,7 +50,9 @@ struct _MemeStringBuilder_t
     mmstr_ptr_t out_;
 };
 
-static_assert(sizeof(struct _MemeStringBuilder_t) == MMSBLDR__OBJ_SIZE,
+MEGO__STATIC_ASSERT(
+    sizeof(struct _MemeStringBuilder_t) == MMSBLDR__OBJ_SIZE,
+    MemeStringBuilderSizeMismatch,
     "MemeStringBuilder_t size is not equal to MMSBUILDER__OBJECT_SIZE");
 
 int 

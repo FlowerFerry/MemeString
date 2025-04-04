@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <assert.h>
 
+#include <mego/predef/symbol/static_assert.h>
 #include <meme/common.h>
 
 MEME_EXTERN_C_SCOPE_START
@@ -129,15 +130,42 @@ typedef struct mmconc_atomic_flag {
     uint8_t byte[MMCONC_ATOMIC_BOOL_OBJ_SIZE - sizeof(mmconc_atomic_none_t)];
 } mmconc_atomic_flag_t;
 
-static_assert(sizeof(mmconc_atomic_bool_t)   == MMCONC_ATOMIC_BOOL_OBJ_SIZE,   "mmconc_atomic_bool_t size must be 4 bytes");
-static_assert(sizeof(mmconc_atomic_int8_t)   == MMCONC_ATOMIC_INT8_OBJ_SIZE,   "mmconc_atomic_int8_t size must be 4 bytes");
-static_assert(sizeof(mmconc_atomic_uint8_t)  == MMCONC_ATOMIC_UINT8_OBJ_SIZE,  "mmconc_atomic_uint8_t size must be 4 bytes");
-static_assert(sizeof(mmconc_atomic_int16_t)  == MMCONC_ATOMIC_INT16_OBJ_SIZE,  "mmconc_atomic_int16_t size must be 6 bytes");
-static_assert(sizeof(mmconc_atomic_uint16_t) == MMCONC_ATOMIC_UINT16_OBJ_SIZE, "mmconc_atomic_uint16_t size must be 6 bytes");
-static_assert(sizeof(mmconc_atomic_int32_t)  == MMCONC_ATOMIC_INT32_OBJ_SIZE,  "mmconc_atomic_int32_t size must be 8 bytes");
-static_assert(sizeof(mmconc_atomic_uint32_t) == MMCONC_ATOMIC_UINT32_OBJ_SIZE, "mmconc_atomic_uint32_t size must be 8 bytes");
-static_assert(sizeof(mmconc_atomic_int64_t)  == MMCONC_ATOMIC_INT64_OBJ_SIZE,  "mmconc_atomic_int64_t size must be 16 bytes");
-static_assert(sizeof(mmconc_atomic_uint64_t) == MMCONC_ATOMIC_UINT64_OBJ_SIZE, "mmconc_atomic_uint64_t size must be 16 bytes");
+MEGO__STATIC_ASSERT(
+    sizeof(mmconc_atomic_bool_t)   == MMCONC_ATOMIC_BOOL_OBJ_SIZE,  
+     mmconc_atomic_bool_size_mismatch,
+    "mmconc_atomic_bool_t size must be 4 bytes");
+MEGO__STATIC_ASSERT(
+    sizeof(mmconc_atomic_int8_t)   == MMCONC_ATOMIC_INT8_OBJ_SIZE,   
+    mmconc_atomic_int8_size_mismatch,
+    "mmconc_atomic_int8_t size must be 4 bytes");
+MEGO__STATIC_ASSERT(
+    sizeof(mmconc_atomic_uint8_t)  == MMCONC_ATOMIC_UINT8_OBJ_SIZE,  
+    mmconc_atomic_uint8_size_mismatch,
+    "mmconc_atomic_uint8_t size must be 4 bytes");
+MEGO__STATIC_ASSERT(
+    sizeof(mmconc_atomic_int16_t)  == MMCONC_ATOMIC_INT16_OBJ_SIZE,  
+    mmconc_atomic_int16_size_mismatch,
+    "mmconc_atomic_int16_t size must be 6 bytes");
+MEGO__STATIC_ASSERT(
+    sizeof(mmconc_atomic_uint16_t) == MMCONC_ATOMIC_UINT16_OBJ_SIZE, 
+    mmconc_atomic_uint16_size_mismatch,
+    "mmconc_atomic_uint16_t size must be 6 bytes");
+MEGO__STATIC_ASSERT(
+    sizeof(mmconc_atomic_int32_t)  == MMCONC_ATOMIC_INT32_OBJ_SIZE,  
+    mmconc_atomic_int32_size_mismatch,
+    "mmconc_atomic_int32_t size must be 8 bytes");
+MEGO__STATIC_ASSERT(
+    sizeof(mmconc_atomic_uint32_t) == MMCONC_ATOMIC_UINT32_OBJ_SIZE, 
+    mmconc_atomic_uint32_size_mismatch,
+    "mmconc_atomic_uint32_t size must be 8 bytes");
+MEGO__STATIC_ASSERT(
+    sizeof(mmconc_atomic_int64_t)  == MMCONC_ATOMIC_INT64_OBJ_SIZE,  
+    mmconc_atomic_int64_size_mismatch,
+    "mmconc_atomic_int64_t size must be 16 bytes");
+MEGO__STATIC_ASSERT(
+    sizeof(mmconc_atomic_uint64_t) == MMCONC_ATOMIC_UINT64_OBJ_SIZE, 
+    mmconc_atomic_uint64_size_mismatch,
+    "mmconc_atomic_uint64_t size must be 16 bytes");
 
 
 #if INTPTR_MAX == INT64_MAX
