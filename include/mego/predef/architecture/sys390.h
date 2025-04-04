@@ -8,8 +8,8 @@
 #   define MEGO_ARCH__STRING "System/390"
 #endif
 
+#endif 
+
 #ifndef MEGO_ARCH__SYS390
 #define MEGO_ARCH__SYS390 (0)
 #endif
-
-#endif 

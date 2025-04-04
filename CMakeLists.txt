@@ -79,7 +79,7 @@ set_target_properties(${MEME_PROJECT_NAME} PROPERTIES C_VISIBILITY_PRESET hidden
 set_target_properties(${MEME_PROJECT_NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 if (MSVC)
-  target_link_options(${MEME_PROJECT_NAME}  PRIVATE 
+  target_link_options(${MEME_PROJECT_NAME} PRIVATE 
       "/DEF:${CMAKE_CURRENT_SOURCE_DIR}/projects/vs/libmeme_string/export.def")
 endif()
 
