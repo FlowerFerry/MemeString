@@ -95,38 +95,26 @@ int main(int argc, char *argv[])
 
 #ifdef __GLIBC__
     printf("__GLIBC__: %d\n", __GLIBC__);
-#else
-    printf("__GLIBC__: not defined\n");
 #endif
 
 #ifdef __GLIBC_MINOR__
     printf("__GLIBC_MINOR__: %d\n", __GLIBC_MINOR__);
-#else
-    printf("__GLIBC_MINOR__: not defined\n");
 #endif
 
 #ifdef __UCLIBC__
     printf("__UCLIBC__: %d\n", __UCLIBC__);
-#else
-    printf("__UCLIBC__: not defined\n");
 #endif
 
 #ifdef __UCLIBC_MAJOR__
     printf("__UCLIBC_MAJOR__: %d\n", __UCLIBC_MAJOR__);
-#else
-    printf("__UCLIBC_MAJOR__: not defined\n");
 #endif
 
 #ifdef __UCLIBC_MINOR__
     printf("__UCLIBC_MINOR__: %d\n", __UCLIBC_MINOR__);
-#else
-    printf("__UCLIBC_MINOR__: not defined\n");
 #endif
 
 #ifdef __UCLIBC_SUBLEVEL__
     printf("__UCLIBC_SUBLEVEL__: %d\n", __UCLIBC_SUBLEVEL__);
-#else
-    printf("__UCLIBC_SUBLEVEL__: not defined\n");
 #endif
 
 #ifdef i386
@@ -195,13 +183,9 @@ int main(int argc, char *argv[])
 
 #ifdef _MSVC_VER
     printf("_MSC_VER: %d\n", _MSC_VER);
-#else
-    printf("_MSC_VER: not defined\n");
 #endif
 
 #ifdef _POSIX_THREADS
     printf("_POSIX_THREADS: %d\n", _POSIX_THREADS);
-#else
-    printf("_POSIX_THREADS: not defined\n");
 #endif
 }
