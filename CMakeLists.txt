@@ -16,6 +16,7 @@ project(${MEME_PROJECT_NAME} VERSION 0.0.1 LANGUAGES C)
 option(MEMESTRING_SONAME_SUFFIX_ENABLE "Enable soname suffix of  of meme library" ON)
 option(MEMESTRING_BENCHMARK_ENABLE "Enable benchmark of meme library" OFF)
 option(MEMESTRING_UNITTEST_ENABLE  "Enable unit test of meme library"  OFF)
+option(MEMESTRING_TEST_ENABLE "Enable test of meme library" OFF)
 
 set(MMSTR_GIT_HOST "github.com" CACHE STRING "")
 
@@ -137,3 +138,11 @@ if (MEMESTRING_UNITTEST_ENABLE)
   add_subdirectory(unit_test/meme_simd_unittest)
 endif()
 
+if (MEMESTRING_TEST_ENABLE)
+  enable_testing()
+  set(MMTEST_PARENT_HEADER_DIR   ${CMAKE_CURRENT_SOURCE_DIR}/include CACHE PATH "" FORCE)
+  set(MMTEST_PARENT_LIBRARY_FILE $<TARGET_FILE:${MEME_PROJECT_NAME}> CACHE FILEPATH "" FORCE)
+  set(MMTEST_PARENT_LINKER_FILE  $<TARGET_LINKER_FILE:${MEME_PROJECT_NAME}> CACHE FILEPATH "" FORCE)
+  add_subdirectory(test/mego_statvfs_print)
+
+endif()

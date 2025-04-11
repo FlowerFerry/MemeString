@@ -210,10 +210,10 @@ MG_CAPI_INLINE mmstrstk_t mghw_get_harddisk_mountpoint_by_path(const char* _file
 
     mmstrstk_uninit(&path);
     return s;
-#else // MEGO_OS__Linux__AVAILABLE
+#else // MEGO_OS__LINUX__AVAILABLE
     mmstrstk_init(&s);
     return s;
-#endif // MEGO_OS__Linux__AVAILABLE
+#endif // MEGO_OS__LINUX__AVAILABLE
 }
 
 //! 根据文件路径获取其所在硬盘的空间信息

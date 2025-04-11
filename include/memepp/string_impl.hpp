@@ -1099,6 +1099,9 @@ namespace memepp {
 
 	MEMEPP__IMPL_INLINE string c_format(size_t _size_limit, MEGO_SYMBOL__MSVC_FORMAT_STRING(const char* _fmt),  ...)
 	{
+		if (!_fmt)
+			return string{};
+		
         va_list args;
         va_start(args, _fmt);
         string result = MemeStringStack_vformatInCstyle_v2(
@@ -1113,6 +1116,9 @@ namespace memepp {
 		MEGO_SYMBOL__MSVC_FORMAT_STRING(const char* _fmt),
 		...)
 	{
+		if (!_fmt)
+			return string{};
+
 		va_list args;
 		va_start(args, _fmt);
 		string result = MemeStringStack_vformatWithLimitInCstyle(
