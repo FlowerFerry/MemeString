@@ -20,13 +20,6 @@ option(MEMESTRING_TEST_ENABLE "Enable test of meme library" OFF)
 
 set(MMSTR_GIT_HOST "github.com" CACHE STRING "")
 
-# 设置 C 语言标准
-# set(CMAKE_C_STANDARD 11)
-# set(CMAKE_C_STANDARD_REQUIRED ON)
-
-# 添加 include 路径
-# include_directories(3rdparty/cvector/include include include_private)
-
 message(STATUS "MEMESTRING_SONAME_SUFFIX_ENABLE: ${MEMESTRING_SONAME_SUFFIX_ENABLE}")
 message(STATUS "MEMESTRING_BENCHMARK_ENABLE: ${MEMESTRING_BENCHMARK_ENABLE}")
 message(STATUS "MEMESTRING_UNITTEST_ENABLE: ${MEMESTRING_UNITTEST_ENABLE}")
