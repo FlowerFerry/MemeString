@@ -59,8 +59,11 @@ template<size_t _PreSize = 128>
 inline ::std::string snprintf(
     mmint_t _limit, const char* _fmt, mmint_t _fmt_len, ...)
 {
+    if (!_fmt)
+        return {};
+
     va_list args;
-    va_start(args, _fmt);
+    va_start(args, _fmt_len);
     MEGOPP_UTIL__ON_SCOPE_CLEANUP([&] { va_end(args); });
     return vsnprintf<_PreSize>(_limit, _fmt, _fmt_len, args);
 }
