@@ -22,23 +22,26 @@ FetchContent_Declare(
 	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/deps/Catch2-v2.13.9
 	GIT_PROGRESS TRUE
 )
-FetchContent_GetProperties(Catch2)
+FetchContent_GetProperties(catch2)
 if (NOT catch2_POPULATED)
-	FetchContent_Populate(Catch2)
+	FetchContent_Populate(catch2)
 endif()
 
 set(SRC_FILES 
 	${CMAKE_CURRENT_SOURCE_DIR}/mmpp_unittest.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_at.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_compare.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_frontback.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_split.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_mid.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_resize.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_repeat.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_concat.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_utf8.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_replace.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_trim.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_leftright.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_reset.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_resize.cpp
 )
 
 function(mmut_create_exec_for_stdcxx  exec_name cxx_standard)

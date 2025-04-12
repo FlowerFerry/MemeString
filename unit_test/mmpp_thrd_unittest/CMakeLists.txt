@@ -7,6 +7,26 @@ set(MMUT_PARENT_HEADER_DIR   CACHE PATH "")
 set(MMUT_PARENT_LIBRARY_FILE CACHE FILEPATH "")
 set(MMUT_PARENT_LINKER_FILE  CACHE FILEPATH "")
 
+set(MMUT_GIT_HOST "github.com" CACHE STRING "")
+
+set(FETCHCONTENT_TIMEOUT 120)
+set(FETCHCONTENT_QUIET FALSE)
+
+include(FetchContent)
+
+set(FETCHCONTENT_UPDATES_DISCONNECTED_MINUNIT ON)
+FetchContent_Declare(
+	Catch2
+	GIT_REPOSITORY https://${MMUT_GIT_HOST}/catchorg/Catch2.git
+	GIT_TAG v2.13.9
+	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/deps/Catch2-v2.13.9
+	GIT_PROGRESS TRUE
+)
+FetchContent_GetProperties(catch2)
+if (NOT catch2_POPULATED)
+	FetchContent_Populate(catch2)
+endif()
+
 function(mmut_create_exec_for_stdcxx  exec_name cxx_standard)
 
   add_executable(${exec_name} ${ARGN})
@@ -15,7 +35,7 @@ function(mmut_create_exec_for_stdcxx  exec_name cxx_standard)
 
   target_include_directories(${exec_name} PRIVATE 
 	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}/../../3rdparty/catch2/include
+	${catch2_SOURCE_DIR}/single_include
 	${MMUT_PARENT_HEADER_DIR}
   )
 

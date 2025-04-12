@@ -757,6 +757,9 @@ namespace memepp {
 
     MEMEPP__IMPL_INLINE string string::right(size_type _count) const noexcept
     {
+		if (MG_SYM__UNLIKELY(_count < 0))
+			return *this;
+
         return substr(size() - _count, _count);
     }
     
