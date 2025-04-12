@@ -26,6 +26,11 @@ message(STATUS "MEMESTRING_UNITTEST_ENABLE: ${MEMESTRING_UNITTEST_ENABLE}")
 
 include(CheckCCompilerFlag)
 
+set(FETCHCONTENT_TIMEOUT 120)
+set(FETCHCONTENT_QUIET FALSE)
+
+include(FetchContent)
+
 # 添加链接库
 if (NOT WIN32)
   find_package(Threads REQUIRED)
@@ -112,6 +117,26 @@ install(TARGETS ${MMSTR_PROJECT_NAME}
     )
 install(DIRECTORY include/ DESTINATION include)
 
+
+function(MemeCheckLibraryDirectoryExistOrRemoveCache libdir libname result)
+	file(GLOB libfiles CONFIGURE_DEPENDS "${libdir}/*")
+	if (NOT EXISTS ${libdir} OR NOT libfiles)
+		file(REMOVE_RECURSE ${FETCHCONTENT_BASE_DIR}/${libname}-build)
+		file(REMOVE_RECURSE ${FETCHCONTENT_BASE_DIR}/${libname}-subbuild)
+		set(${result} FALSE PARENT_SCOPE)
+	else()
+		list(LENGTH libfiles file_count)
+		if (file_count EQUAL 1 AND EXISTS "${libdir}/.git")
+			file(REMOVE_RECURSE ${libdir})
+			file(REMOVE_RECURSE ${FETCHCONTENT_BASE_DIR}/${libname}-build)
+			file(REMOVE_RECURSE ${FETCHCONTENT_BASE_DIR}/${libname}-subbuild)
+			set(${result} FALSE PARENT_SCOPE)
+		else()
+			set(${result} TRUE PARENT_SCOPE)
+		endif()
+	endif()
+endfunction()
+
 if (MEMESTRING_BENCHMARK_ENABLE)
   set(MMBM_PARENT_HEADER_DIR   ${CMAKE_CURRENT_SOURCE_DIR}/include CACHE PATH "" FORCE)
   set(MMBM_PARENT_LIBRARY_FILE $<TARGET_FILE:${MMSTR_PROJECT_NAME}> CACHE FILEPATH "" FORCE)
@@ -130,10 +155,34 @@ if (MEMESTRING_TEST_ENABLE)
 endif()
 
 if (MEMESTRING_UNITTEST_ENABLE)  
+
   set(MMUT_PARENT_HEADER_DIR   ${CMAKE_CURRENT_SOURCE_DIR}/include CACHE PATH "" FORCE)
   set(MMUT_PARENT_LIBRARY_FILE $<TARGET_FILE:${MMSTR_PROJECT_NAME}> CACHE FILEPATH "" FORCE)
   set(MMUT_PARENT_LINKER_FILE  $<TARGET_LINKER_FILE:${MMSTR_PROJECT_NAME}> CACHE FILEPATH "" FORCE)
   set(MMUT_GIT_HOST ${MMSTR_GIT_HOST} CACHE STRING "" FORCE)
+
+  set(MMSTR_CATCH2_SOURCE_LOCAL_DIR ${CMAKE_CURRENT_SOURCE_DIR}/deps/Catch2-v2.13.9)
+  MemeCheckLibraryDirectoryExistOrRemoveCache(
+    ${MMSTR_CATCH2_SOURCE_LOCAL_DIR} catch2 MMSTR_CATCH2_SOURCE_LOCAL_EXISTS)
+  if (NOT MMSTR_CATCH2_SOURCE_LOCAL_EXISTS)
+    FetchContent_Declare(
+      Catch2
+      GIT_REPOSITORY https://${MMUT_GIT_HOST}/catchorg/Catch2.git
+      GIT_TAG v2.13.9
+      SOURCE_DIR ${MMSTR_CATCH2_SOURCE_LOCAL_DIR}
+      GIT_PROGRESS TRUE
+    )
+  else()
+    FetchContent_Declare(
+      Catch2
+      SOURCE_DIR ${MMSTR_CATCH2_SOURCE_LOCAL_DIR}
+    )
+  endif()
+  FetchContent_GetProperties(catch2)
+  if (NOT catch2_POPULATED)
+    FetchContent_MakeAvailable(catch2)
+  endif()
+
   add_subdirectory(unit_test/mmpp_unittest)
   add_subdirectory(unit_test/mmpp_thrd_unittest)
   add_subdirectory(unit_test/meme_atomic_unittest)
