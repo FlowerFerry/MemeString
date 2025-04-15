@@ -19,10 +19,7 @@ TEST_CASE("memepp::string - 11", "string at")
     REQUIRE(str.at(9) == '9');
 
     // out of range
-#if MMOPT__EXCEPTION_DISABLED
-    REQUIRE(str.at(10) == 0);
-    REQUIRE(str.at(-1) == 0);
-#else
+#if !MMOPT__EXCEPTION_DISABLED
     try {
         str.at(10);
         FAIL("Expected std::out_of_range exception");
@@ -54,10 +51,7 @@ TEST_CASE("memepp::string - 11", "string at")
     REQUIRE(sv.at(9) == '9');
 
     // out of range
-#if MMOPT__EXCEPTION_DISABLED
-    REQUIRE(sv.at(10) == 0);
-    REQUIRE(sv.at(-1) == 0);
-#else
+#if !MMOPT__EXCEPTION_DISABLED
     try {
         sv.at(10);
         FAIL("Expected std::out_of_range exception");

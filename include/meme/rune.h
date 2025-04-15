@@ -212,6 +212,8 @@ MG_CAPI_INLINE int
         return MGEC__INVAL;
     if (_len < 0)
         _len = mmutf_u8rune_char_size(_buf[0]);
+    if (_len < 0)
+        _len = 0;
 
     _out->attr.capacity = (mmbyte_t)(7 - _len);
     _out->attr.invalid  = 0;

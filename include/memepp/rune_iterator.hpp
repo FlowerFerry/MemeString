@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEMEPP_RUNE_ITERATOR_HPP_INCLUDED
 #define MEMEPP_RUNE_ITERATOR_HPP_INCLUDED
 
@@ -46,6 +46,8 @@ namespace memepp {
             , prev_size_((_ptr > _begin && _begin < _end) ? invalid_size : invalid_code)
             , curr_size_((_ptr < _end   && _begin < _end) ? invalid_size : invalid_code)
         {
+            if (curr_size_ == invalid_size)
+                curr_size_ = static_cast<int8_t>(mmutf_u8rune_valid(_ptr, _end - _ptr));
         }
 
         const_rune_iterator(const const_rune_iterator& _other) noexcept = default;

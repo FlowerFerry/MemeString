@@ -205,7 +205,7 @@ MG_CAPI_INLINE mgec_t mgfs__check_and_create_dirs_if_needed(
             {
                 char ch = p[index];
                 p[index] = '\0';
-                if (mkdir(p, 0777) != 0) {
+                if (mkdir(p, 0755) != 0) {
                     if (errno != EEXIST) {
                         p[index] = ch;
                         mgu__free_cns(_path, path);
@@ -215,7 +215,7 @@ MG_CAPI_INLINE mgec_t mgfs__check_and_create_dirs_if_needed(
                 p[index] = ch;
             }
         }
-        if (mkdir(path, 0777) != 0) {
+        if (mkdir(path, 0755) != 0) {
             if (errno != EEXIST) {
                 mgu__free_cns(_path, path);
                 return mgec__from_posix_err(errno);

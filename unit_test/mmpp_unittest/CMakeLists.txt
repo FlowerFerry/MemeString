@@ -23,6 +23,9 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_trim.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_leftright.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_reset.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_iterator.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_is_only_ascii.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_from_hexadecimals.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_resize.cpp
 )
 
