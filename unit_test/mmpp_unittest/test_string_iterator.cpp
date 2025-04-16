@@ -4,7 +4,7 @@
 #include <memepp/string_view.hpp>
 #include <memepp/string.hpp>
 
-TEST_CASE("memepp::string - 46", "string begin/end")
+TEST_CASE("memepp::string begin/end", "[string]")
 {
     memepp::string str01 = "0123456789";
     memepp::string_view sv01 = str01;

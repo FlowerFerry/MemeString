@@ -5,7 +5,7 @@
 #include <memepp/string.hpp>
 #include <megopp/util/scope_cleanup.h>
 
-TEST_CASE("memepp::string - 37", "string concat")
+TEST_CASE("memepp::string concat", "[string]")
 {
     mmstrstk_t str01_01;
     mmstrstk_t str01_02;

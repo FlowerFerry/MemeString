@@ -4,7 +4,7 @@
 #include <memepp/string_view.hpp>
 #include <memepp/string.hpp>
 
-TEST_CASE("memepp::string - 11", "string at")
+TEST_CASE("memepp::string at", "[string]")
 {
     memepp::string str = "0123456789";
     REQUIRE(str.at(0) == '0');

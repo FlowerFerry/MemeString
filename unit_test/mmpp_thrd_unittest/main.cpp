@@ -9,7 +9,7 @@
 
 bool MulitThreadRead__isSucc01 = false;
 
-TEST_CASE("memepp::string - 200", "mulit thread read")
+TEST_CASE("memepp::string mulit thread read", "[string]")
 {
 	do {
 

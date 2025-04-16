@@ -2,7 +2,7 @@
 #include <catch2/catch.hpp>
 #include <megopp/endian/bit_field_member.h>
 
-TEST_CASE("bit_field_member", "[bit_field_member]")
+TEST_CASE("bit_field_member basic", "[bit_field_member]")
 {
     mgpp::endian::bit_field_member<0, 8, mgpp::endian_t::little_byte> bfm_0_1;
     bfm_0_1 = 1;

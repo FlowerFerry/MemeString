@@ -4,7 +4,7 @@
 #include <memepp/string_view.hpp>
 #include <memepp/string.hpp>
 
-TEST_CASE("memepp::string - 44", "string is_only_ascii")
+TEST_CASE("memepp::string is_only_ascii", "[string]")
 {
     memepp::string str;
     REQUIRE(str.is_only_ascii() == true);

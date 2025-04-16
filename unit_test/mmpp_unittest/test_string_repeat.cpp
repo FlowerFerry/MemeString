@@ -5,7 +5,7 @@
 #include <memepp/string.hpp>
 #include <megopp/util/scope_cleanup.h>
 
-TEST_CASE("memepp::string - 36", "string repeat")
+TEST_CASE("memepp::string repeat", "[string]")
 {
     mgec_t ec;
     mmstrstk_t stk01_01;

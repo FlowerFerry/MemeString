@@ -6,7 +6,7 @@
 #include <memepp/string.hpp>
 #include <megopp/util/scope_cleanup.h>
 
-TEST_CASE("memepp::string - 40", "string trim by cuts")
+TEST_CASE("memepp::string trim by cuts", "[string]")
 {
     mmstrstk_t stk01_01;
     mgec_t ec = 0;

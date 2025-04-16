@@ -5,7 +5,7 @@
 #include <memepp/string.hpp>
 #include <megopp/util/scope_cleanup.h>
 
-TEST_CASE("memepp::string - 38", "string to vaild utf8") 
+TEST_CASE("memepp::string to vaild utf8", "[string]") 
 {
     mmstrstk_t str01_01;
     MemeStringStack_init(&str01_01, MMSTR__OBJ_SIZE);

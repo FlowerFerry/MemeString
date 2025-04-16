@@ -22,7 +22,7 @@ const char test_large_string_01[] =
 		"目前最新标准为ISO / IEC 14882 : 2020。根据《C++编程思想》（Thinking in C++）一书，"
 		"C++与C的代码执行效率往往相差在 ±5% 之间。";
 
-TEST_CASE("memepp::string - 01", "string constructions") 
+TEST_CASE("memepp::string constructors 01", "[string]") 
 {
 	REQUIRE(sizeof(memepp::string) == MEME_STRING__OBJECT_SIZE);
 
@@ -106,7 +106,7 @@ TEST_CASE("memepp::string - 01", "string constructions")
 
 }
 
-TEST_CASE("memepp::string - 02", "string constructions")
+TEST_CASE("memepp::string constructors 02", "[string]")
 {
 
 	memepp::string s03(test_large_string_01);
@@ -125,7 +125,7 @@ TEST_CASE("memepp::string - 02", "string constructions")
 
 }
 
-TEST_CASE("memepp::string - 03", "string move or swap")
+TEST_CASE("memepp::string move or swap", "[string]")
 {
 	memepp::string s01(memepp::string { test_large_string_01 });
 	REQUIRE(s01.empty() == false);
@@ -176,7 +176,7 @@ TEST_CASE("memepp::string - 03", "string move or swap")
 #include <memepp/convert/std/string.hpp>
 #include <memepp/compare/std/string.hpp>
 
-TEST_CASE("memepp::string - 04", "string mutual convert of std::string")
+TEST_CASE("memepp::string mutual convert of std::string", "[string]")
 {
 	std::string stdstr01;
 	auto s01 = memepp::from(stdstr01);
@@ -269,11 +269,11 @@ TEST_CASE("memepp::string - 04", "string mutual convert of std::string")
 
 #include <memepp/compare/std/vector.hpp>
 
-TEST_CASE("memepp::string - 05", "string mutual convert of std::vector")
+TEST_CASE("memepp::string mutual convert of std::vector", "[string]")
 {
 }
 
-TEST_CASE("memepp::string - 06", "string index of")
+TEST_CASE("memepp::string index of", "[string]")
 {
 	memepp::string s01 = "etebjkgdodoijnakccv";
     
@@ -337,7 +337,7 @@ TEST_CASE("memepp::string - 06", "string index of")
 
 #include <memepp/variable_buffer.hpp>
 
-TEST_CASE("memepp::string - 08", "variable_buffer constructions")
+TEST_CASE("memepp::variable_buffer constructions", "[variable_buffer]")
 {
 	memepp::variable_buffer b01;
 	REQUIRE(sizeof(memepp::variable_buffer) == MEME_STRING__OBJECT_SIZE);
@@ -407,7 +407,7 @@ TEST_CASE("memepp::string - 08", "variable_buffer constructions")
 
 }
 
-TEST_CASE("memepp::string - 10", "variable_buffer append")
+TEST_CASE("memepp::variable_buffer append", "[variable_buffer]")
 {
 	memepp::variable_buffer b01;
 	b01.resize(10, 1);
@@ -490,7 +490,7 @@ TEST_CASE("memepp::string - 10", "variable_buffer append")
 
 #include <memepp/buffer.hpp>
 
-TEST_CASE("memepp::string - 12", "buffer to_string")
+TEST_CASE("memepp::buffer to_string", "[buffer]")
 {
 	memepp::buffer b00;
 	REQUIRE(b00.storage_type() == memepp::buffer_storage_t::small);
@@ -576,7 +576,7 @@ TEST_CASE("memepp::string - 12", "buffer to_string")
 		(MemeString_Const_t)memepp::to_pointer(b03.native_handle())) == 1);
 }
 
-TEST_CASE("memepp::string - 13", "en lower an en upper")
+TEST_CASE("memepp::string en lower an en upper", "[string]")
 {
 	memepp::string s01 = "aHbjhjhhkKhhkhAAA";
 	auto l01 = s01.to_en_lower();
@@ -607,7 +607,7 @@ TEST_CASE("memepp::string - 13", "en lower an en upper")
 	REQUIRE(u02 == "SDJODSJASSNKLDSLKDSSFDHKGDHKGDNKDSKJDDASHUHISFFSKJFBKGDASGK好");
 }
 
-TEST_CASE("memepp::string - 14", "starts_with")
+TEST_CASE("memepp::string starts_with", "[string]")
 {
     memepp::string s01 = "aHbjhjhhkKhhkhAAA";
     REQUIRE(s01.starts_with("aHbjhjhhkKhhkhAAA"));
@@ -638,7 +638,7 @@ TEST_CASE("memepp::string - 14", "starts_with")
     
 }
 
-TEST_CASE("memepp::string - 15", "ends_with")
+TEST_CASE("memepp::string ends_with", "[string]")
 {
     memepp::string s01 = "aHbjhjhhkKhhkhAAA";
     
@@ -670,7 +670,7 @@ TEST_CASE("memepp::string - 15", "ends_with")
 
 }
 
-TEST_CASE("memepp::string - 16", "contains") 
+TEST_CASE("memepp::string contains", "[string]") 
 {
     memepp::string s01 = "aHbjhjhhkKhhkhAAA";
 
@@ -701,7 +701,7 @@ TEST_CASE("memepp::string - 16", "contains")
     
 }
 
-TEST_CASE("memepp::string - 17", "trim_space")
+TEST_CASE("memepp::string trim_space", "[string]")
 {
     memepp::string s01 = "  aHbjhjhhkKhhkhAAA  ";
     REQUIRE(s01.trim_space() == "aHbjhjhhkKhhkhAAA");
@@ -742,7 +742,7 @@ TEST_CASE("memepp::string - 17", "trim_space")
     //REQUIRE(sv08_trimmed.storage_type() == memepp::string_storage_t::medium);
 }
 
-TEST_CASE("memepp::string - 18", "trim_left_space")
+TEST_CASE("memepp::string trim_left_space", "[string]")
 {
     memepp::string s01 = "  aHbjhjhhkKhhkhAAA  ";
     REQUIRE(s01.trim_left_space() == "aHbjhjhhkKhhkhAAA  ");
@@ -767,7 +767,7 @@ TEST_CASE("memepp::string - 18", "trim_left_space")
 
 }
 
-TEST_CASE("memepp::string - 19", "trim_right_space")
+TEST_CASE("memepp::string trim_right_space", "[string]")
 {
     memepp::string s01 = "  aHbjhjhhkKhhkhAAA  ";
     REQUIRE(s01.trim_right_space() == "  aHbjhjhhkKhhkhAAA");
@@ -791,7 +791,7 @@ TEST_CASE("memepp::string - 19", "trim_right_space")
     REQUIRE(s07.trim_right_space() == "");
 }
 
-TEST_CASE("memepp::string - 20", "substr")
+TEST_CASE("memepp::string substr", "[string]")
 {
     memepp::string s01 = "aHbjhjhhkKhhkhAAA";
     REQUIRE(s01.substr(0, 0)  == "");
@@ -883,7 +883,7 @@ TEST_CASE("memepp::string - 20", "substr")
 	REQUIRE(s01.substr(18) == "");
 }
 
-TEST_CASE("memepp::string - 21", "operator=")
+TEST_CASE("memepp::string operator=", "[string]")
 {
 	auto sz01 = "C++ (pronounced \"C plus plus\") is a general-purpose programming language created by Danish computer scientist Bjarne Stroustrup as an extension of the C programming language, "
 		"or \"C with Classes\". The language has expanded significantly over time, "
@@ -917,7 +917,7 @@ TEST_CASE("memepp::string - 21", "operator=")
 		(MemeString_Const_t)memepp::to_pointer(s12.native_handle())) == 1);
 }
 
-TEST_CASE("memepp::string - 22", "rfind")
+TEST_CASE("memepp::string rfind", "[string]")
 {
     char sz01[] = "C++ (pronounced \"C plus plus\") is a general-purpose programming language created by Danish computer scientist Bjarne Stroustrup as an extension of the C programming language, "
         "or \"C with Classes\". The language has expanded significantly over time, "
@@ -950,7 +950,7 @@ TEST_CASE("memepp::string - 22", "rfind")
 	REQUIRE(s02_01.last_index_of("fd", true) == 0);
 }
 
-TEST_CASE("memepp::string - 23", "variable_buffer insert")
+TEST_CASE("memepp::variable_buffer insert", "[variable_buffer]")
 {
 	srand((unsigned int)time(NULL));
 
@@ -1068,7 +1068,7 @@ TEST_CASE("memepp::string - 23", "variable_buffer insert")
 #include <memepp/string_builder.hpp>
 #include <memepp/operation/std/string.hpp>
 
-TEST_CASE("memepp::string - 24", "string_builder append & prepend")
+TEST_CASE("memepp::string_builder append & prepend", "[string_builder]")
 {
     memepp::string s1 = u8"1234567890";
 	memepp::string s2 = u8"abcdefghij";
@@ -1125,7 +1125,7 @@ TEST_CASE("memepp::string - 24", "string_builder append & prepend")
 
 #include <memepp/buffer_view.hpp>
 
-TEST_CASE("memepp::string - 25", "buffer_view constructor")
+TEST_CASE("memepp::buffer_view constructors", "[buffer_view]")
 {
     memepp::buffer_view bv1;
     REQUIRE(bv1.size() == 0);
@@ -1166,7 +1166,7 @@ TEST_CASE("memepp::string - 25", "buffer_view constructor")
 
 #include <memepp/convert/std/u16string.hpp>
 
-TEST_CASE("memepp::string - 26", "utf16")
+TEST_CASE("memepp::string utf16", "[string]")
 {
 	auto c16_01_01 = u"\u7684\u4E00\u4E0D\u662F\u4E86\u4EBA\u5728\u6709\u6211\u4ED6\u8FD9\u4E3A\u4E4B\u6765\u5927\u4EE5\u4E2A\u4E2D\u4E0A\u4EEC";
 	auto c8_01_01 = "\xE7\x9A\x84\xE4\xB8\x80\xE4\xB8\x8D\xE6\x98\xAF\xE4\xBA\x86\xE4\xBA\xBA\xE5\x9C\xA8\xE6\x9C\x89\xE6\x88\x91\xE4\xBB\x96\xE8\xBF\x99\xE4\xB8\xBA\xE4\xB9\x8B\xE6\x9D\xA5\xE5\xA4\xA7\xE4\xBB\xA5\xE4\xB8\xAA\xE4\xB8\xAD\xE4\xB8\x8A\xE4\xBB\xAC";
@@ -1232,7 +1232,7 @@ TEST_CASE("memepp::string - 26", "utf16")
 
 }
 
-TEST_CASE("memepp::string - 27", "utf8")
+TEST_CASE("memepp::string utf8", "[string]")
 {
 	auto c8_01_01 = "\xE7\x9A\x84\xE4\xB8\x80\xE4\xB8\x8D\xE6\x98\xAF\xE4\xBA\x86\xE4\xBA\xBA\xE5\x9C\xA8\xE6\x9C\x89\xE6\x88\x91\xE4\xBB\x96\xE8\xBF\x99\xE4\xB8\xBA\xE4\xB9\x8B\xE6\x9D\xA5\xE5\xA4\xA7\xE4\xBB\xA5\xE4\xB8\xAA\xE4\xB8\xAD\xE4\xB8\x8A\xE4\xBB\xAC";
 	auto c8_01_02 = "\xE7\x9A\x84\xE4\xB8\x80\xE4\xB8\x8D\xE6\x98\xAF\xE4\xB8\x8D\xE4\xBA\xBA\xE5\x9C\xA8\xE6\x9C\x89\xE6\x88\x91\xE4\xBB\x96\xE8\xBF\x99\xE4\xB8\xBA\xE4\xB9\x8B\xE6\x9D\xA5\xE5\xA4\xA7\xE4\xBB\xA5\xE4\xB8\xAA\xE4\xB8\xAD\xE4\xB8\x8A\xE4\xBB\xAC";
@@ -1334,7 +1334,7 @@ TEST_CASE("memepp::string - 27", "utf8")
 	
 }
 
-TEST_CASE("memepp::string - 28", "variable_buffer remove")
+TEST_CASE("memepp::variable_buffer remove", "[variable_buffer]")
 {
     memepp::variable_buffer vb01_01;
 	vb01_01.append(mm_view("1234567890", 10));
@@ -1463,7 +1463,7 @@ TEST_CASE("memepp::string - 28", "variable_buffer remove")
 
 #include <memepp/convert/std/vector.hpp>
 
-TEST_CASE("memepp::string - 29", "import from dll and export into dll")
+TEST_CASE("memepp::string import from dll and export into dll", "[string]")
 {
 	memepp::string_view sv01_01 { "123456789" };
     auto str01_01 = memepp::import_from_dll<memepp::string>(sv01_01.native_handle(), MMSTR__OBJ_SIZE);
@@ -1570,7 +1570,7 @@ TEST_CASE("memepp::string - 29", "import from dll and export into dll")
     REQUIRE(MemeString_storageType(memepp::to_pointer(stk04_01)) == MemeString_StorageType_medium);
 }
 
-TEST_CASE("memepp::string - 30", "operator+")
+TEST_CASE("memepp::string operator+", "[string]")
 {
     memepp::string str01 = "   Hello";
     memepp::string str02 = "  World!";
@@ -1586,7 +1586,7 @@ TEST_CASE("memepp::string - 30", "operator+")
 
 }
 
-TEST_CASE("memepp::string - 31", "format")
+TEST_CASE("memepp::string format", "[string]")
 {
     auto str01_01 = memepp::c_format(-1, -1, "Hello %s", "World");
     REQUIRE(str01_01 == "Hello World");
@@ -1650,7 +1650,7 @@ TEST_CASE("memepp::string - 31", "format")
 	
 }
 
-TEST_CASE("memepp::string - 32", "foreach")
+TEST_CASE("memepp::string foreach", "[string]")
 {
     mmint_t pos = 0;
     auto runeCount = 0;
@@ -1696,7 +1696,7 @@ TEST_CASE("memepp::string - 32", "foreach")
 
 #include <memepp/variant.hpp>
 
-TEST_CASE("memepp::variant - 01", "variant basic operations")
+TEST_CASE("memepp::variant basic operations", "[variant]")
 {
 	mgec_t ec = 0;
 	memepp::variant v01_01;
@@ -1860,7 +1860,7 @@ TEST_CASE("memepp::variant - 01", "variant basic operations")
 
 }
 
-TEST_CASE("memepp::variant - 02", "import from dll and export into dll")
+TEST_CASE("memepp::variant import from dll and export into dll", "[variant]")
 {
 	auto str01_01 = mm_from(std::string{ 
         "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789" 
@@ -1879,7 +1879,7 @@ TEST_CASE("memepp::variant - 02", "import from dll and export into dll")
 }
 
 
-TEST_CASE("memepp::string_view - 00", "Accidents encountered in engineering practice")
+TEST_CASE("memepp::string_view Accidents encountered in engineering practice 01", "[string_view]")
 {
 #if INTPTR_MAX == INT64_MAX
 	memepp::string s01 = "0123456789012345678";
@@ -1903,7 +1903,7 @@ TEST_CASE("memepp::string_view - 00", "Accidents encountered in engineering prac
     
 }
 
-TEST_CASE("memepp::string - 00", "Accidents encountered in engineering practice")
+TEST_CASE("memepp::string Accidents encountered in engineering practice 01", "[string]")
 {
 
 	std::string std02 = "01234567890123456789012345678901234567890123456789";

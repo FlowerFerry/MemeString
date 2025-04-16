@@ -70,7 +70,7 @@ template<typename _IntTy, _IntTy _Value>
 constexpr bool is_value_in_test01_enum_v = is_value_in_enum_v<_IntTy, _Value,
     Test01_01, Test01_01::A, Test01_01::B, Test01_01::C, Test01_01::D, Test01_01::E, Test01_01::F, Test01_01::G, Test01_01::H, Test01_01::I, Test01_01::J, Test01_01::K, Test01_01::L, Test01_01::M, Test01_01::N, Test01_01::O, Test01_01::P, Test01_01::Q, Test01_01::R, Test01_01::S, Test01_01::T, Test01_01::U, Test01_01::V, Test01_01::W, Test01_01::X, Test01_01::Y, Test01_01::Z>;
 
-TEST_CASE("mgpp::type_traits - 01", "is_value_in_enum")
+TEST_CASE("mgpp::type_traits is_value_in_enum", "[type_traits]")
 {
     REQUIRE(is_enum_value_in_test01_enum_v<Test01_01::A> == true);
     

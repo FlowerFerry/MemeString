@@ -3,7 +3,7 @@
 #include <memepp/string.hpp>
 #include <megopp/util/scope_cleanup.h>
 
-TEST_CASE("memepp::string - 39", "string replace")
+TEST_CASE("memepp::string replace", "[string]")
 {
     memepp::string str01_01 { "Hello, World!" };
     memepp::string str01_02 { "World" };

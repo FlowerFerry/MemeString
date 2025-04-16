@@ -9,7 +9,7 @@
 
 #include <megopp/util/scope_cleanup.h>
 
-TEST_CASE("memepp::string - 07", "string split")
+TEST_CASE("memepp::string split", "[string]")
 {
 	memepp::string s01 = "11"":"":""22"":3:""444";
 

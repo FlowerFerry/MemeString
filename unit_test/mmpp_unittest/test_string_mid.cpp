@@ -5,7 +5,7 @@
 #include <memepp/string_view.hpp>
 #include <memepp/string.hpp>
 
-TEST_CASE("memepp::string - 35", "string mid")
+TEST_CASE("memepp::string mid", "[string]")
 {
     mgec_t ec = 0;
     memepp::string str01_01 = "Hello, World! ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz";

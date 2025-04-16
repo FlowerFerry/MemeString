@@ -20,22 +20,35 @@ int main(int _argc, char *_argv[])
 
 #if MG_OS__LINUX_AVAIL
     struct statvfs buf;
+    memset(&buf, 0, sizeof(buf));
     result = statvfs(_argv[1], &buf);
     if (result != 0) {
         printf("Failed to get file system information.\n");
     }
     else {
-        printf("statvfs.f_bsize: %llu\n", buf.f_bsize);
-        printf("statvfs.f_frsize: %llu\n", buf.f_frsize);
-        printf("statvfs.f_blocks: %llu\n", buf.f_blocks);
-        printf("statvfs.f_bfree: %llu\n", buf.f_bfree);
-        printf("statvfs.f_bavail: %llu\n", buf.f_bavail);
-        printf("statvfs.f_files: %llu\n", buf.f_files);
-        printf("statvfs.f_ffree: %llu\n", buf.f_ffree);
-        printf("statvfs.f_favail: %llu\n", buf.f_favail);
-        printf("statvfs.f_fsid: %llu\n", buf.f_fsid);
-        printf("statvfs.f_flag: %u\n", buf.f_flag);
-        printf("statvfs.f_namemax: %u\n", buf.f_namemax);
+        printf("statvfs.f_bsize field size: %zu\n",   sizeof(buf.f_bsize));
+        printf("statvfs.f_frsize field size: %zu\n",  sizeof(buf.f_frsize));
+        printf("statvfs.f_blocks field size: %zu\n",  sizeof(buf.f_blocks));
+        printf("statvfs.f_bfree field size: %zu\n",   sizeof(buf.f_bfree));
+        printf("statvfs.f_bavail field size: %zu\n",  sizeof(buf.f_bavail));
+        printf("statvfs.f_files field size: %zu\n",   sizeof(buf.f_files));
+        printf("statvfs.f_ffree field size: %zu\n",   sizeof(buf.f_ffree));
+        printf("statvfs.f_favail field size: %zu\n",  sizeof(buf.f_favail));
+        printf("statvfs.f_fsid field size: %zu\n",    sizeof(buf.f_fsid));
+        printf("statvfs.f_flag field size: %zu\n",    sizeof(buf.f_flag));
+        printf("statvfs.f_namemax field size: %zu\n", sizeof(buf.f_namemax));
+
+        printf("statvfs.f_bsize value: %u\n", buf.f_bsize);
+        printf("statvfs.f_frsize value: %u\n", buf.f_frsize);
+        printf("statvfs.f_blocks value: %llu\n", (uint64_t)buf.f_blocks);
+        printf("statvfs.f_bfree value: %llu\n",  (uint64_t)buf.f_bfree);
+        printf("statvfs.f_bavail value: %llu\n", (uint64_t)buf.f_bavail);
+        printf("statvfs.f_files value: %llu\n",  (uint64_t)buf.f_files);
+        printf("statvfs.f_ffree value: %llu\n",  (uint64_t)buf.f_ffree);
+        printf("statvfs.f_favail value: %llu\n", (uint64_t)buf.f_favail);
+        printf("statvfs.f_fsid value value: %u\n", buf.f_fsid);
+        printf("statvfs.f_flag value: %u\n", buf.f_flag);
+        printf("statvfs.f_namemax value: %u\n", buf.f_namemax);
 
     }
 #endif

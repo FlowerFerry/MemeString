@@ -5,7 +5,7 @@
 #include <memepp/string.hpp>
 
 
-TEST_CASE("memepp::string - 45", "string from_hexadecimals")
+TEST_CASE("memepp::string from_hexadecimals", "[string]")
 {
     REQUIRE(memepp::from_hexadecimals(NULL,  0) == "");
     REQUIRE(memepp::from_hexadecimals(NULL,  1) == "");

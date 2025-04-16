@@ -27,6 +27,7 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_is_only_ascii.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_from_hexadecimals.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_resize.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_push_front.cpp
 )
 
 function(mmut_create_exec_for_stdcxx  exec_name cxx_standard)

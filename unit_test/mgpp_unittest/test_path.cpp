@@ -23,7 +23,7 @@ static std::string WideStringToUTF8(const std::wstring_view& wstr) {
     return str;
 }
 
-TEST_CASE("Get module path", "[get_module_path]") 
+TEST_CASE("Get module path", "[path]") 
 {
     wchar_t path_0_1[MAX_PATH * 10];
     wchar_t path_0_2[MAX_PATH * 10];

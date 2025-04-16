@@ -4,7 +4,7 @@
 #include <memepp/string_view.hpp>
 #include <memepp/string.hpp>
 
-TEST_CASE("memepp::string - 41", "string left")
+TEST_CASE("memepp::string left", "[string]")
 {
     memepp::string str = "0123456789";
     REQUIRE(str.left(0) == "");
@@ -22,7 +22,7 @@ TEST_CASE("memepp::string - 41", "string left")
     REQUIRE(str.left(-1) == "0123456789");
 }
 
-TEST_CASE("memepp::string - 42", "string right")
+TEST_CASE("memepp::string right", "[string]")
 {
     memepp::string str = "0123456789";
     REQUIRE(str.right(0) == "");

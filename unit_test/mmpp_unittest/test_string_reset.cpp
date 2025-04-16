@@ -4,7 +4,7 @@
 #include <memepp/string_view.hpp>
 #include <memepp/string.hpp>
 
-TEST_CASE("memepp::string - 43", "string reset")
+TEST_CASE("memepp::string reset", "[string]")
 {
     memepp::string str01 = "0123456789";
     str01.reset();

@@ -3,7 +3,7 @@
 
 #include <memepp/variable_buffer.hpp>
 
-TEST_CASE("memepp::string - 09", "variable_buffer resize")
+TEST_CASE("memepp::variable_buffer resize", "[variable_buffer]")
 {
 	memepp::variable_buffer b01;
 

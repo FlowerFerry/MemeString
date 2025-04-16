@@ -4,7 +4,7 @@
 #include <memepp/string_view.hpp>
 #include <memepp/string.hpp>
 
-TEST_CASE("memepp::string - 34", "string front/back")
+TEST_CASE("memepp::string front/back", "[string]")
 {
     //memepp::string s01_01 = "Hello World.";
     //memepp::string s02_01 = "Hello World!";
