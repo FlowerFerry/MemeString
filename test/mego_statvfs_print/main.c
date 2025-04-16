@@ -1,4 +1,4 @@
-
+﻿
 #include <mego/hardware/disk/disk.h>
 
 #include <stdio.h>
@@ -6,7 +6,7 @@
 int main(int _argc, char *_argv[])
 {
     mmstrstk_t mountPoint;
-    mghw_harddisk_freespace_t freeSpace = { 0 };
+    mghw_harddisk_freespace_t freeSpace = { sizeof(mghw_harddisk_freespace_t), 0 };
     int result = 0;
 
     if (_argc < 2) {
