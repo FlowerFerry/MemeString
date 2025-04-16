@@ -46,7 +46,7 @@ int main(int _argc, char *_argv[])
         printf("statvfs.f_files value: %llu\n",  (uint64_t)buf.f_files);
         printf("statvfs.f_ffree value: %llu\n",  (uint64_t)buf.f_ffree);
         printf("statvfs.f_favail value: %llu\n", (uint64_t)buf.f_favail);
-        printf("statvfs.f_fsid value value: %u\n", buf.f_fsid);
+        printf("statvfs.f_fsid value: %u\n", buf.f_fsid);
         printf("statvfs.f_flag value: %u\n", buf.f_flag);
         printf("statvfs.f_namemax value: %u\n", buf.f_namemax);
 

@@ -235,6 +235,7 @@ MG_CAPI_INLINE int mghw_get_harddisk_freespace_by_path(
     }
     
     struct statvfs buf;
+    memset(&buf, 0, sizeof(buf));
     if (statvfs(MemeString_cStr((mmstr_t)&mountpoint), &buf) != 0)
     {
         mmstrstk_uninit(&mountpoint);
