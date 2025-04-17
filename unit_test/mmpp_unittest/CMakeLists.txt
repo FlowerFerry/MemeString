@@ -28,6 +28,9 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_from_hexadecimals.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_resize.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_push_front.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_push_back.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_clear.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_reserve.cpp
 )
 
 function(mmut_create_exec_for_stdcxx  exec_name cxx_standard)
