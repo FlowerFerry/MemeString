@@ -144,12 +144,12 @@ namespace endian {
 
         inline constexpr _Type get_value() const noexcept
         {
-            return data_.get_value();
+            return static_cast<_Type>(data_.get_value());
         }
 
         inline constexpr void set_value(const _Type& _value) noexcept
         {
-            data_.set_value(_value);
+            data_.set_value(static_cast<uint_type>(_value));
         }
 
         template<typename _Ty>
