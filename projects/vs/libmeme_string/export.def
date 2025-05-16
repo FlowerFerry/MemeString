@@ -659,4 +659,13 @@ EXPORTS
     mmsimd_u64_rfind @12187
     ; mmsimd_f32_rfind @12188
     ; mmsimd_f64_rfind @12189
-    
+    mmsimd_i8_clamp @12190
+    mmsimd_u8_clamp @12191
+    mmsimd_i16_clamp @12192
+    mmsimd_u16_clamp @12193
+    mmsimd_i32_clamp @12194
+    mmsimd_u32_clamp @12195
+    mmsimd_i64_clamp @12196
+    mmsimd_u64_clamp @12197
+    mmsimd_f32_clamp @12198
+    mmsimd_f64_clamp @12199

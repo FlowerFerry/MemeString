@@ -88,12 +88,12 @@ namespace memepp {
 		void clear() MEGOPP__NOEXCEPT;
 
 		variable_buffer& push_back(const value_type& value);
-		//variable_buffer& pop_back() MEGOPP__NOEXCEPT;
+		variable_buffer& pop_back();
 		template<typename _Ty>
 		inline variable_buffer& push_back(const _Ty& _v, megopp::endian_t _endian);
 
 		variable_buffer& push_front(const value_type& value);
-		//variable_buffer& pop_front() MEGOPP__NOEXCEPT;
+		variable_buffer& pop_front();
 		template<typename _Ty>
 		inline variable_buffer& push_front(const _Ty& _v, megopp::endian_t _endian);
 
@@ -101,7 +101,6 @@ namespace memepp {
 
 		variable_buffer& append(const_pointer _buf, size_type _len);
 		variable_buffer& append(const variable_buffer& _other);
-		variable_buffer& append(variable_buffer&& _other);
 		variable_buffer& append(const string& _other);
 		variable_buffer& append(const string_view& _other);
         variable_buffer& append(const buffer& _other);
@@ -109,14 +108,22 @@ namespace memepp {
 		template<typename _Ty>
 		inline variable_buffer& append(const _Ty& _v, megopp::endian_t _endian);
 
-		//iterator insert(const_iterator _pos, const value_type& _value);
-  //      iterator insert(const_iterator _pos, size_type _count, const value_type& _value);
+		iterator insert(const_iterator _pos, const value_type& _value);
         iterator insert(const_iterator _pos, const_pointer _buf, size_type _count);
-        //iterator insert(const_iterator _pos, const variable_buffer& _other);
-        //iterator insert(const_iterator _pos, variable_buffer&& _other);
-        //iterator insert(const_iterator _pos, const string& _other);
-        //iterator insert(const_iterator _pos, const string_view& _other);
+		//iterator insert(const_iterator _pos, size_type _count, const value_type& _value);
+        iterator insert(const_iterator _pos, const variable_buffer& _other);
+        iterator insert(const_iterator _pos, const string& _other);
+        iterator insert(const_iterator _pos, const string_view& _other);
+		iterator insert(const_iterator _pos, const buffer& _other);
+		iterator insert(const_iterator _pos, const buffer_view& _other);
+		template<typename _Ty>
+		inline iterator insert(const_iterator _pos, const _Ty& _v, megopp::endian_t _endian);
 		variable_buffer& insert(size_type _pos, const_pointer _buf, size_type _count);
+		variable_buffer& insert(size_type _pos, const variable_buffer& _other);
+		variable_buffer& insert(size_type _pos, const string& _other);
+		variable_buffer& insert(size_type _pos, const string_view& _other);
+		variable_buffer& insert(size_type _pos, const buffer& _other);
+		variable_buffer& insert(size_type _pos, const buffer_view& _other);
 		template<typename _Ty>
 		inline variable_buffer& insert(size_type _pos, const _Ty& _v, megopp::endian_t _endian);
 
@@ -167,6 +174,26 @@ namespace memepp {
         return append(reinterpret_cast<const_pointer>(&value), static_cast<size_type>(sizeof(value)));
 	}
     
+	template<typename _Ty>
+	inline iterator variable_buffer::insert(const_iterator _pos, const _Ty& _v, megopp::endian_t _endian)
+	{
+		typename megopp::type_with_size<sizeof(_Ty)>::uint value = 0;
+		memcpy(&value, &_v, sizeof(value));
+
+#if MEGO_ENDIAN__LITTLE_BYTE
+		if (_endian == megopp::endian_t::big_byte)
+		{
+			value = megopp::endian::byte_swap(value);
+		}
+#elif MEGO_ENDIAN__BIG_BYTE
+		if (_endian == megopp::endian_t::little_byte)
+		{
+			value = megopp::endian::byte_swap(value);
+		}
+#endif
+		return insert(_pos, reinterpret_cast<const_pointer>(&value), static_cast<size_type>(sizeof(value)));
+	}
+
 	template<typename _Ty>
 	inline variable_buffer& variable_buffer::insert(size_type _pos, const _Ty& _v, megopp::endian_t _endian)
 	{

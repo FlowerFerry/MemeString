@@ -258,6 +258,15 @@ namespace memepp {
 		return *this;
 	}
 
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::pop_back()
+	{
+		*errc() = static_cast<int>(MemeVariableBuffer_remove(to_pointer(data_), size() - 1, 1));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+#endif
+		return *this;
+	}
+
 	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::push_front(const value_type& value)
 	{
         *errc() = static_cast<int>(MemeVariableBuffer_insertWithBytes(to_pointer(data_), 0, &value, 1));
@@ -265,6 +274,15 @@ namespace memepp {
 		throw_errc(get_errc());
 #endif
         return *this;
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::pop_front()
+	{
+		*errc() = static_cast<int>(MemeVariableBuffer_remove(to_pointer(data_), 0, 1));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+#endif
+		return *this;
 	}
 
 	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::append(const_pointer _buf, size_type _len)
@@ -277,15 +295,6 @@ namespace memepp {
 	}
 
 	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::append(const variable_buffer& _other)
-	{
-		*errc() = static_cast<int>(MemeVariableBuffer_appendWithOther(to_pointer(data_), to_pointer(_other.data_)));
-#if !MMOPT__EXCEPTION_DISABLED
-		throw_errc(get_errc());
-#endif
-		return *this;
-	}
-
-	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::append(variable_buffer&& _other)
 	{
 		*errc() = static_cast<int>(MemeVariableBuffer_appendWithOther(to_pointer(data_), to_pointer(_other.data_)));
 #if !MMOPT__EXCEPTION_DISABLED
@@ -335,6 +344,17 @@ namespace memepp {
 	}
 
 	MEMEPP__IMPL_INLINE iterator variable_buffer::insert(
+		const_iterator _pos, const value_type& _value)
+	{
+		*errc() = static_cast<int>(MemeVariableBuffer_insertWithByte(
+			to_pointer(data_), _pos - cbegin(), _value));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+#endif
+		return iterator(data() + (_pos - cbegin()));
+	}
+
+	MEMEPP__IMPL_INLINE iterator variable_buffer::insert(
 		const_iterator _pos, const_pointer _buf, size_type _count)
 	{
 		*errc() = static_cast<int>(MemeVariableBuffer_insertWithBytes(
@@ -345,6 +365,61 @@ namespace memepp {
         return iterator(data() + (_pos - cbegin()));
 	}
 
+	MEMEPP__IMPL_INLINE iterator variable_buffer::insert(
+		const_iterator _pos, const variable_buffer& _other)
+	{
+		*errc() = static_cast<int>(MemeVariableBuffer_insertWithBytes(
+			to_pointer(data_), _pos - cbegin(), _other.data(), _other.size()));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+#endif
+		return iterator(data() + (_pos - cbegin()));
+	}
+
+	MEMEPP__IMPL_INLINE iterator variable_buffer::insert(
+		const_iterator _pos, const string& _other)
+	{
+		*errc() = static_cast<int>(MemeVariableBuffer_insertWithBytes(
+			to_pointer(data_), _pos - cbegin(), _other.bytes(), _other.size()));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+#endif
+		return iterator(data() + (_pos - cbegin()));
+	}
+
+	MEMEPP__IMPL_INLINE iterator variable_buffer::insert(
+		const_iterator _pos, const string_view& _other)
+	{
+		*errc() = static_cast<int>(MemeVariableBuffer_insertWithBytes(
+			to_pointer(data_), _pos - cbegin(), _other.bytes(), _other.size()));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+#endif
+		return iterator(data() + (_pos - cbegin()));
+	}
+
+	MEMEPP__IMPL_INLINE iterator variable_buffer::insert(
+		const_iterator _pos, const buffer& _other)
+	{
+		*errc() = static_cast<int>(MemeVariableBuffer_insertWithBytes(
+			to_pointer(data_), _pos - cbegin(), _other.data(), _other.size()));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+#endif
+		return iterator(data() + (_pos - cbegin()));
+	}
+
+	MEMEPP__IMPL_INLINE iterator variable_buffer::insert(
+		const_iterator _pos, const buffer_view& _other)
+	{
+		*errc() = static_cast<int>(MemeVariableBuffer_insertWithBytes(
+			to_pointer(data_), _pos - cbegin(), _other.data(), _other.size()));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+#endif
+		return iterator(data() + (_pos - cbegin()));
+	}
+
 	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::insert(
 		size_type _pos, const_pointer _buf, size_type _count)
 	{
@@ -353,6 +428,56 @@ namespace memepp {
         throw_errc(get_errc());
 #endif
         return *this;
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::insert(
+		size_type _pos, const variable_buffer& _other)
+	{
+		*errc() = static_cast<int>(MemeVariableBuffer_insertWithBytes(to_pointer(data_), _pos, _other.data(), _other.size()));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+#endif
+		return *this;
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::insert(
+		size_type _pos, const string& _other)
+	{
+		*errc() = static_cast<int>(MemeVariableBuffer_insertWithBytes(to_pointer(data_), _pos, _other.bytes(), _other.size()));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+#endif
+		return *this;
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::insert(
+		size_type _pos, const string_view& _other)
+	{
+		*errc() = static_cast<int>(MemeVariableBuffer_insertWithBytes(to_pointer(data_), _pos, _other.bytes(), _other.size()));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+#endif
+		return *this;
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::insert(
+		size_type _pos, const buffer& _other)
+	{
+		*errc() = static_cast<int>(MemeVariableBuffer_insertWithBytes(to_pointer(data_), _pos, _other.data(), _other.size()));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+#endif
+		return *this;
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::insert(
+		size_type _pos, const buffer_view& _other)
+	{
+		*errc() = static_cast<int>(MemeVariableBuffer_insertWithBytes(to_pointer(data_), _pos, _other.data(), _other.size()));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+#endif
+		return *this;
 	}
 
 	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::remove(size_type _pos, size_type _count)

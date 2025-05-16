@@ -716,5 +716,36 @@ MEME_STDCALL mmsimd_u64_rfind(const uint64_t* _buf, mmint_t _len, uint64_t _val)
 #define mmsimd_size_rfind mmsimd_u32_rfind
 #endif
 
+
+MEME_API void
+MEME_STDCALL mmsimd_i8_clamp(const int8_t* _in, int8_t _min, int8_t _max, int8_t* _out, mmint_t _len);
+
+MEME_API void
+MEME_STDCALL mmsimd_u8_clamp(const uint8_t* _in, uint8_t _min, uint8_t _max, uint8_t* _out, mmint_t _len);
+
+MEME_API void
+MEME_STDCALL mmsimd_i16_clamp(const int16_t* _in, int16_t _min, int16_t _max, int16_t* _out, mmint_t _len);
+
+MEME_API void
+MEME_STDCALL mmsimd_u16_clamp(const uint16_t* _in, uint16_t _min, uint16_t _max, uint16_t* _out, mmint_t _len);
+
+MEME_API void
+MEME_STDCALL mmsimd_i32_clamp(const int32_t* _in, int32_t _min, int32_t _max, int32_t* _out, mmint_t _len);
+
+MEME_API void
+MEME_STDCALL mmsimd_u32_clamp(const uint32_t* _in, uint32_t _min, uint32_t _max, uint32_t* _out, mmint_t _len);
+
+MEME_API void
+MEME_STDCALL mmsimd_i64_clamp(const int64_t* _in, int64_t _min, int64_t _max, int64_t* _out, mmint_t _len);
+
+MEME_API void
+MEME_STDCALL mmsimd_u64_clamp(const uint64_t* _in, uint64_t _min, uint64_t _max, uint64_t* _out, mmint_t _len);
+
+MEME_API void
+MEME_STDCALL mmsimd_f32_clamp(const float* _in, float _min, float _max, float* _out, mmint_t _len);
+
+MEME_API void
+MEME_STDCALL mmsimd_f64_clamp(const double* _in, double _min, double _max, double* _out, mmint_t _len);
+
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_SIMD_SIMD_H_INCLUDED

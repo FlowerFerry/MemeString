@@ -205,5 +205,16 @@ typedef void(mmsimd_f64_to_i64_func_t)(const double* _in, int64_t*  _out, mmint_
 typedef void(mmsimd_f64_to_u64_func_t)(const double* _in, uint64_t* _out, mmint_t _len);
 typedef void(mmsimd_f64_to_f32_func_t)(const double* _in, float*    _out, mmint_t _len);
 
+typedef void(mmsimd_i8_clamp_func_t )(const int8_t*   _in, int8_t   _min, int8_t   _max, int8_t*   _out, mmint_t _len);
+typedef void(mmsimd_u8_clamp_func_t )(const uint8_t*  _in, uint8_t  _min, uint8_t  _max, uint8_t*  _out, mmint_t _len);
+typedef void(mmsimd_i16_clamp_func_t)(const int16_t*  _in, int16_t  _min, int16_t  _max, int16_t*  _out, mmint_t _len);
+typedef void(mmsimd_u16_clamp_func_t)(const uint16_t* _in, uint16_t _min, uint16_t _max, uint16_t* _out, mmint_t _len);
+typedef void(mmsimd_i32_clamp_func_t)(const int32_t*  _in, int32_t  _min, int32_t  _max, int32_t*  _out, mmint_t _len);
+typedef void(mmsimd_u32_clamp_func_t)(const uint32_t* _in, uint32_t _min, uint32_t _max, uint32_t* _out, mmint_t _len);
+typedef void(mmsimd_i64_clamp_func_t)(const int64_t*  _in, int64_t  _min, int64_t  _max, int64_t*  _out, mmint_t _len);
+typedef void(mmsimd_u64_clamp_func_t)(const uint64_t* _in, uint64_t _min, uint64_t _max, uint64_t* _out, mmint_t _len);
+typedef void(mmsimd_f32_clamp_func_t)(const float*    _in, float    _min, float    _max, float*    _out, mmint_t _len);
+typedef void(mmsimd_f64_clamp_func_t)(const double*   _in, double   _min, double   _max, double*   _out, mmint_t _len);
+
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_IMPL_SIMD_SIMD_FWD_H_INCLUDED

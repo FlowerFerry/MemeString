@@ -882,6 +882,150 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_f64_div_scalar(
     return _i;
 }
 
+MG_CAPI_INLINE mmint_t __mmsimd_avx2_i8_clamp(
+    const int8_t* _a, int8_t _min, int8_t _max, int8_t* _c, mmint_t _i, mmint_t _n)
+{
+    if (_n >= (mmint_t)sizeof(__m256i) + _i)
+    {
+        __m256i vmin = _mm256_set1_epi8(_min);
+        __m256i vmax = _mm256_set1_epi8(_max);
+        for (; _i + (mmint_t)sizeof(__m256i) <= _n; _i += (mmint_t)sizeof(__m256i))
+        {
+            __m256i va = _mm256_loadu_si256((__m256i*) & _a[_i]);
+            __m256i vr = _mm256_min_epi8(_mm256_max_epi8(va, vmin), vmax);
+
+            _mm256_storeu_si256((__m256i*) & _c[_i], vr);
+        }
+    }
+    return _i;
+}
+
+MG_CAPI_INLINE mmint_t __mmsimd_avx2_u8_clamp(
+    const uint8_t* _a, uint8_t _min, uint8_t _max, uint8_t* _c, mmint_t _i, mmint_t _n)
+{
+    if (_n >= (mmint_t)sizeof(__m256i) + _i)
+    {
+        __m256i vmin = _mm256_set1_epi8(_min);
+        __m256i vmax = _mm256_set1_epi8(_max);
+        for (; _i + (mmint_t)sizeof(__m256i) <= _n; _i += (mmint_t)sizeof(__m256i))
+        {
+            __m256i va = _mm256_loadu_si256((__m256i*) & _a[_i]);
+            __m256i vr = _mm256_min_epu8(_mm256_max_epu8(va, vmin), vmax);
+
+            _mm256_storeu_si256((__m256i*) & _c[_i], vr);
+        }
+    }
+    return _i;
+}
+
+MG_CAPI_INLINE mmint_t __mmsimd_avx2_i16_clamp(
+    const int16_t* _a, int16_t _min, int16_t _max, int16_t* _c, mmint_t _i, mmint_t _n)
+{
+    if (_n >= MMSIMD_AVX2_I16_OFFSET + _i)
+    {
+        __m256i vmin = _mm256_set1_epi16(_min);
+        __m256i vmax = _mm256_set1_epi16(_max);
+        for (; _i + MMSIMD_AVX2_I16_OFFSET <= _n; _i += MMSIMD_AVX2_I16_OFFSET)
+        {
+            __m256i va = _mm256_loadu_si256((__m256i*) & _a[_i]);
+            __m256i vr = _mm256_min_epi16(_mm256_max_epi16(va, vmin), vmax);
+
+            _mm256_storeu_si256((__m256i*) & _c[_i], vr);
+        }
+    }
+    return _i;
+}
+
+MG_CAPI_INLINE mmint_t __mmsimd_avx2_u16_clamp(
+    const uint16_t* _a, uint16_t _min, uint16_t _max, uint16_t* _c, mmint_t _i, mmint_t _n)
+{
+    if (_n >= MMSIMD_AVX2_U16_OFFSET + _i)
+    {
+        __m256i vmin = _mm256_set1_epi16(_min);
+        __m256i vmax = _mm256_set1_epi16(_max);
+        for (; _i + MMSIMD_AVX2_U16_OFFSET <= _n; _i += MMSIMD_AVX2_U16_OFFSET)
+        {
+            __m256i va = _mm256_loadu_si256((__m256i*) & _a[_i]);
+            __m256i vr = _mm256_min_epu16(_mm256_max_epu16(va, vmin), vmax);
+
+            _mm256_storeu_si256((__m256i*) & _c[_i], vr);
+        }
+    }
+    return _i;
+}
+
+MG_CAPI_INLINE mmint_t __mmsimd_avx2_i32_clamp(
+    const int32_t* _a, int32_t _min, int32_t _max, int32_t* _c, mmint_t _i, mmint_t _n)
+{
+    if (_n >= MMSIMD_AVX2_I32_OFFSET + _i)
+    {
+        __m256i vmin = _mm256_set1_epi32(_min);
+        __m256i vmax = _mm256_set1_epi32(_max);
+        for (; _i + MMSIMD_AVX2_I32_OFFSET <= _n; _i += MMSIMD_AVX2_I32_OFFSET)
+        {
+            __m256i va = _mm256_loadu_si256((__m256i*) & _a[_i]);
+            __m256i vr = _mm256_min_epi32(_mm256_max_epi32(va, vmin), vmax);
+
+            _mm256_storeu_si256((__m256i*) & _c[_i], vr);
+        }
+    }
+    return _i;
+}
+
+MG_CAPI_INLINE mmint_t __mmsimd_avx2_u32_clamp(
+    const uint32_t* _a, uint32_t _min, uint32_t _max, uint32_t* _c, mmint_t _i, mmint_t _n)
+{
+    if (_n >= MMSIMD_AVX2_U32_OFFSET + _i)
+    {
+        __m256i vmin = _mm256_set1_epi32(_min);
+        __m256i vmax = _mm256_set1_epi32(_max);
+        for (; _i + MMSIMD_AVX2_U32_OFFSET <= _n; _i += MMSIMD_AVX2_U32_OFFSET)
+        {
+            __m256i va = _mm256_loadu_si256((__m256i*) & _a[_i]);
+            __m256i vr = _mm256_min_epu32(_mm256_max_epu32(va, vmin), vmax);
+
+            _mm256_storeu_si256((__m256i*) & _c[_i], vr);
+        }
+    }
+    return _i;
+}
+
+MG_CAPI_INLINE mmint_t __mmsimd_avx2_f32_clamp(
+    const float* _a, float _min, float _max, float* _c, mmint_t _i, mmint_t _n)
+{
+    if (_n >= MMSIMD_AVX2_F32_OFFSET + _i)
+    {
+        __m256 vmin = _mm256_set1_ps(_min);
+        __m256 vmax = _mm256_set1_ps(_max);
+        for (; _i + MMSIMD_AVX2_F32_OFFSET <= _n; _i += MMSIMD_AVX2_F32_OFFSET)
+        {
+            __m256 va = _mm256_loadu_ps(& _a[_i]);
+            __m256 vr = _mm256_min_ps(_mm256_max_ps(va, vmin), vmax);
+
+            _mm256_storeu_ps(& _c[_i], vr);
+        }
+    }
+    return _i;
+}
+
+MG_CAPI_INLINE mmint_t __mmsimd_avx2_f64_clamp(
+    const double* _a, double _min, double _max, double* _c, mmint_t _i, mmint_t _n)
+{
+    if (_n >= MMSIMD_AVX2_F64_OFFSET + _i)
+    {
+        __m256d vmin = _mm256_set1_pd(_min);
+        __m256d vmax = _mm256_set1_pd(_max);
+        for (; _i + MMSIMD_AVX2_F64_OFFSET <= _n; _i += MMSIMD_AVX2_F64_OFFSET)
+        {
+            __m256d va = _mm256_loadu_pd(& _a[_i]);
+            __m256d vr = _mm256_min_pd(_mm256_max_pd(va, vmin), vmax);
+
+            _mm256_storeu_pd(& _c[_i], vr);
+        }
+    }
+    return _i;
+}
+
 void mmsimd_avx2_i8_add(const int8_t* _a, const int8_t* _b, int8_t* _c, mmint_t _n)
 {
     mmint_t i = __mmsimd_avx2_i8_add(_a, _b, _c, 0, _n);
@@ -1806,6 +1950,78 @@ mmint_t mmsimd_avx2_u64_find(const uint64_t* _buf, mmint_t _len, uint64_t _val)
 //
 //    return -1;
 //}
+
+void mmsimd_avx2_i8_clamp(
+    const int8_t* _a, int8_t _min, int8_t _max, int8_t* _c, mmint_t _n)
+{
+    mmint_t i = __mmsimd_avx2_i8_clamp(_a, _min, _max, _c, 0, _n);
+
+    for (; i < _n; ++i)
+        _c[i] = (_a[i] < _min) ? _min : (_a[i] > _max) ? _max : _a[i];
+}
+
+void mmsimd_avx2_u8_clamp(
+    const uint8_t* _a, uint8_t _min, uint8_t _max, uint8_t* _c, mmint_t _n)
+{
+    mmint_t i = __mmsimd_avx2_u8_clamp(_a, _min, _max, _c, 0, _n);
+
+    for (; i < _n; ++i)
+        _c[i] = (_a[i] < _min) ? _min : (_a[i] > _max) ? _max : _a[i];
+}
+
+void mmsimd_avx2_i16_clamp(
+    const int16_t* _a, int16_t _min, int16_t _max, int16_t* _c, mmint_t _n)
+{
+    mmint_t i = __mmsimd_avx2_i16_clamp(_a, _min, _max, _c, 0, _n);
+
+    for (; i < _n; ++i)
+        _c[i] = (_a[i] < _min) ? _min : (_a[i] > _max) ? _max : _a[i];
+}
+
+void mmsimd_avx2_u16_clamp(
+    const uint16_t* _a, uint16_t _min, uint16_t _max, uint16_t* _c, mmint_t _n)
+{
+    mmint_t i = __mmsimd_avx2_u16_clamp(_a, _min, _max, _c, 0, _n);
+
+    for (; i < _n; ++i)
+        _c[i] = (_a[i] < _min) ? _min : (_a[i] > _max) ? _max : _a[i];
+}
+
+void mmsimd_avx2_i32_clamp(
+    const int32_t* _a, int32_t _min, int32_t _max, int32_t* _c, mmint_t _n)
+{
+    mmint_t i = __mmsimd_avx2_i32_clamp(_a, _min, _max, _c, 0, _n);
+
+    for (; i < _n; ++i)
+        _c[i] = (_a[i] < _min) ? _min : (_a[i] > _max) ? _max : _a[i];
+}
+
+void mmsimd_avx2_u32_clamp(
+    const uint32_t* _a, uint32_t _min, uint32_t _max, uint32_t* _c, mmint_t _n)
+{
+    mmint_t i = __mmsimd_avx2_u32_clamp(_a, _min, _max, _c, 0, _n);
+
+    for (; i < _n; ++i)
+        _c[i] = (_a[i] < _min) ? _min : (_a[i] > _max) ? _max : _a[i];
+}
+
+void mmsimd_avx2_f32_clamp(
+    const float* _a, float _min, float _max, float* _c, mmint_t _n)
+{
+    mmint_t i = __mmsimd_avx2_f32_clamp(_a, _min, _max, _c, 0, _n);
+
+    for (; i < _n; ++i)
+        _c[i] = (_a[i] < _min) ? _min : (_a[i] > _max) ? _max : _a[i];
+}
+
+void mmsimd_avx2_f64_clamp(
+    const double* _a, double _min, double _max, double* _c, mmint_t _n)
+{
+    mmint_t i = __mmsimd_avx2_f64_clamp(_a, _min, _max, _c, 0, _n);
+
+    for (; i < _n; ++i)
+        _c[i] = (_a[i] < _min) ? _min : (_a[i] > _max) ? _max : _a[i];
+}
 
 #undef MMSIMD_AVX2_I16_OFFSET
 #undef MMSIMD_AVX2_I32_OFFSET

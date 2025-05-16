@@ -638,8 +638,12 @@ static mmsimd_other8_hdlr_t* mmsimd_get_default_other8_handler()
     static mmsimd_other8_hdlr_t hdlr = {
         .i8_find_fn = mmsimd_default_i8_find,
         .u8_find_fn = mmsimd_default_u8_find,
+        
         .i8_rfind_fn = mmsimd_default_i8_rfind,
-        .u8_rfind_fn = mmsimd_default_u8_rfind
+        .u8_rfind_fn = mmsimd_default_u8_rfind,
+
+        .i8_clamp_fn = mmsimd_default_i8_clamp,
+        .u8_clamp_fn = mmsimd_default_u8_clamp
     };
     return &hdlr;
 }
@@ -649,10 +653,15 @@ static mmsimd_other16_hdlr_t* mmsimd_get_default_other16_handler()
     static mmsimd_other16_hdlr_t hdlr = {
         .i16_fill_fn = mmsimd_default_i16_fill,
         .u16_fill_fn = mmsimd_default_u16_fill,
+
         .i16_find_fn = mmsimd_default_i16_find,
         .u16_find_fn = mmsimd_default_u16_find,
+
         .i16_rfind_fn = mmsimd_default_i16_rfind,
-        .u16_rfind_fn = mmsimd_default_u16_rfind
+        .u16_rfind_fn = mmsimd_default_u16_rfind,
+
+        .i16_clamp_fn = mmsimd_default_i16_clamp,
+        .u16_clamp_fn = mmsimd_default_u16_clamp
     };
     return &hdlr;
 }
@@ -663,12 +672,18 @@ static mmsimd_other32_hdlr_t* mmsimd_get_default_other32_handler()
         .i32_fill_fn = mmsimd_default_i32_fill,
         .u32_fill_fn = mmsimd_default_u32_fill,
         .f32_fill_fn = mmsimd_default_f32_fill,
+
         .i32_find_fn = mmsimd_default_i32_find,
         .u32_find_fn = mmsimd_default_u32_find,
         //.f32_find_fn = mmsimd_default_f32_find,
+
         .i32_rfind_fn = mmsimd_default_i32_rfind,
         .u32_rfind_fn = mmsimd_default_u32_rfind,
         //.f32_rfind_fn = mmsimd_default_f32_rfind
+
+        .i32_clamp_fn = mmsimd_default_i32_clamp,
+        .u32_clamp_fn = mmsimd_default_u32_clamp,
+        .f32_clamp_fn = mmsimd_default_f32_clamp
     };
     return &hdlr;
 }
@@ -679,12 +694,18 @@ static mmsimd_other64_hdlr_t* mmsimd_get_default_other64_handler()
         .i64_fill_fn = mmsimd_default_i64_fill,
         .u64_fill_fn = mmsimd_default_u64_fill,
         .f64_fill_fn = mmsimd_default_f64_fill,
+
         .i64_find_fn = mmsimd_default_i64_find,
         .u64_find_fn = mmsimd_default_u64_find,
         //.f64_find_fn = mmsimd_default_f64_find,
+
         .i64_rfind_fn = mmsimd_default_i64_rfind,
         .u64_rfind_fn = mmsimd_default_u64_rfind,
         //.f64_rfind_fn = mmsimd_default_f64_rfind
+
+        .i64_clamp_fn = mmsimd_default_i64_clamp,
+        .u64_clamp_fn = mmsimd_default_u64_clamp,
+        .f64_clamp_fn = mmsimd_default_f64_clamp
     };
     return &hdlr;
 }
@@ -695,8 +716,12 @@ static mmsimd_other8_hdlr_t* mmsimd_get_avx2_other8_handler()
     static mmsimd_other8_hdlr_t hdlr = {
         .i8_find_fn = mmsimd_avx2_i8_find,
         .u8_find_fn = mmsimd_avx2_u8_find,
+
         .i8_rfind_fn = mmsimd_default_i8_rfind,
-        .u8_rfind_fn = mmsimd_default_u8_rfind
+        .u8_rfind_fn = mmsimd_default_u8_rfind,
+
+        .i8_clamp_fn = mmsimd_avx2_i8_clamp,
+        .u8_clamp_fn = mmsimd_avx2_u8_clamp
     };
     return &hdlr;
 #else
@@ -710,10 +735,15 @@ static mmsimd_other16_hdlr_t* mmsimd_get_avx2_other16_handler()
     static mmsimd_other16_hdlr_t hdlr = {
         .i16_fill_fn  = mmsimd_avx2_i16_fill,
         .u16_fill_fn  = mmsimd_avx2_u16_fill,
+
         .i16_find_fn  = mmsimd_avx2_i16_find,
         .u16_find_fn  = mmsimd_avx2_u16_find,
+
         .i16_rfind_fn = mmsimd_default_i16_rfind,
-        .u16_rfind_fn = mmsimd_default_u16_rfind
+        .u16_rfind_fn = mmsimd_default_u16_rfind,
+
+        .i16_clamp_fn = mmsimd_avx2_i16_clamp,
+        .u16_clamp_fn = mmsimd_avx2_u16_clamp
     };
     return &hdlr;
 #else
@@ -728,12 +758,18 @@ static mmsimd_other32_hdlr_t* mmsimd_get_avx2_other32_handler()
         .i32_fill_fn  = mmsimd_avx2_i32_fill,
         .u32_fill_fn  = mmsimd_avx2_u32_fill,
         .f32_fill_fn  = mmsimd_avx2_f32_fill,
+
         .i32_find_fn  = mmsimd_avx2_i32_find,
         .u32_find_fn  = mmsimd_avx2_u32_find,
         //.f32_find_fn  = mmsimd_default_f32_find,
+
         .i32_rfind_fn = mmsimd_default_i32_rfind,
         .u32_rfind_fn = mmsimd_default_u32_rfind,
         //.f32_rfind_fn = mmsimd_default_f32_rfind
+
+        .i32_clamp_fn = mmsimd_avx2_i32_clamp,
+        .u32_clamp_fn = mmsimd_avx2_u32_clamp,
+        .f32_clamp_fn = mmsimd_avx2_f32_clamp
     };
     return &hdlr;
 #else
@@ -748,12 +784,18 @@ static mmsimd_other64_hdlr_t* mmsimd_get_avx2_other64_handler()
         .i64_fill_fn  = mmsimd_avx2_i64_fill,
         .u64_fill_fn  = mmsimd_avx2_u64_fill,
         .f64_fill_fn  = mmsimd_avx2_f64_fill,
+
         .i64_find_fn  = mmsimd_avx2_i64_find,
         .u64_find_fn  = mmsimd_avx2_u64_find,
         //.f64_find_fn  = mmsimd_default_f64_find,
+
         .i64_rfind_fn = mmsimd_default_i64_rfind,
         .u64_rfind_fn = mmsimd_default_u64_rfind,
         //.f64_rfind_fn = mmsimd_default_f64_rfind
+
+        .i64_clamp_fn = mmsimd_default_i64_clamp,
+        .u64_clamp_fn = mmsimd_default_u64_clamp,
+        .f64_clamp_fn = mmsimd_avx2_f64_clamp
     };
     return &hdlr;
 #else
@@ -1082,6 +1124,25 @@ MMSIMD_CONV_FUNC(64, f64, f32, double, float)
 
 #undef MMSIMD_CONV_FUNC
 
+#define MMSIMD_CLAMP_FUNC(BIT, NAME, TYPE) \
+    MEME_API void MEME_STDCALL mmsimd_##NAME##_clamp(const TYPE* _in, TYPE _min, TYPE _max, TYPE* _out, mmint_t _len) \
+    { \
+        mmsimd_other##BIT##_hdlr_t* hdlr = mmsimd_get_best_other##BIT##_handler(); \
+        hdlr->NAME##_clamp_fn(_in, _min, _max, _out, _len); \
+    }
+
+MMSIMD_CLAMP_FUNC(8, i8, int8_t)
+MMSIMD_CLAMP_FUNC(8, u8, uint8_t)
+MMSIMD_CLAMP_FUNC(16, i16, int16_t)
+MMSIMD_CLAMP_FUNC(16, u16, uint16_t)
+MMSIMD_CLAMP_FUNC(32, i32, int32_t)
+MMSIMD_CLAMP_FUNC(32, u32, uint32_t)
+MMSIMD_CLAMP_FUNC(32, f32, float)
+MMSIMD_CLAMP_FUNC(64, i64, int64_t)
+MMSIMD_CLAMP_FUNC(64, u64, uint64_t)
+MMSIMD_CLAMP_FUNC(64, f64, double)
+
+#undef MMSIMD_CLAMP_FUNC
 
 #undef MMSIMD_GET_ONCE_FLAG_FUNC
 #undef MMSIMD_GET_HDLR_PTR_FUNC

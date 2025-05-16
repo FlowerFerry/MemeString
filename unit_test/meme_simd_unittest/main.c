@@ -3171,6 +3171,324 @@ MU_TEST(ctest_mmsimd_u64_find_002)
     mu_assert(c == -1, "Error: c == -1 failed");
 }
 
+// 检查数组辅助函数
+#define CHECK_ARRAY(type, expect, result, len) \
+    for(size_t i = 0; i < (len); ++i) { \
+        mu_assert_int_eq((expect)[i], (result)[i]); \
+    }
+
+#define CHECK_ARRAY_FLOAT(expect, result, len) \
+    for(size_t i = 0; i < (len); ++i) { \
+        mu_assert_double_eq((expect)[i], (result)[i]); \
+    }
+
+// -------------------- 各类型clamp函数的测试用例 --------------------
+
+MU_TEST(test_i8_clamp_basic_001) {
+    int8_t in[] = {-128, -10, 0, 10, 127};
+    int8_t expect[] = {-10, -10, 0, 10, 10};
+    int8_t out[5] = {0};
+    mmsimd_i8_clamp(in, -10, 10, out, 5);
+    CHECK_ARRAY(int8_t, expect, out, 5);
+}
+
+MU_TEST(test_u8_clamp_basic_001) {
+    uint8_t in[] = {0, 5, 100, 200, 255};
+    uint8_t expect[] = {5, 5, 100, 200, 200};
+    uint8_t out[5] = {0};
+    mmsimd_u8_clamp(in, 5, 200, out, 5);
+    CHECK_ARRAY(uint8_t, expect, out, 5);
+}
+
+MU_TEST(test_i16_clamp_basic_001) {
+    int16_t in[] = {-32000, -100, 0, 100, 32000};
+    int16_t expect[] = {-100, -100, 0, 100, 100};
+    int16_t out[5] = {0};
+    mmsimd_i16_clamp(in, -100, 100, out, 5);
+    CHECK_ARRAY(int16_t, expect, out, 5);
+}
+
+MU_TEST(test_u16_clamp_basic_001) {
+    uint16_t in[] = {0, 100, 1000, 60000, 65535};
+    uint16_t expect[] = {100, 100, 1000, 6000, 6000};
+    uint16_t out[5] = {0};
+    mmsimd_u16_clamp(in, 100, 6000, out, 5);
+    CHECK_ARRAY(uint16_t, expect, out, 5);
+}
+
+MU_TEST(test_i32_clamp_basic_001) {
+    int32_t in[] = {-100000, -50, 0, 50, 100000};
+    int32_t expect[] = {-50, -50, 0, 50, 50};
+    int32_t out[5] = {0};
+    mmsimd_i32_clamp(in, -50, 50, out, 5);
+    CHECK_ARRAY(int32_t, expect, out, 5);
+}
+
+MU_TEST(test_u32_clamp_basic_001) {
+    uint32_t in[] = {0, 100, 1000, 70000, 100000};
+    uint32_t expect[] = {100, 100, 1000, 7000, 7000};
+    uint32_t out[5] = {0};
+    mmsimd_u32_clamp(in, 100, 7000, out, 5);
+    CHECK_ARRAY(uint32_t, expect, out, 5);
+}
+
+MU_TEST(test_i64_clamp_basic_001) {
+    int64_t in[] = {-10000000000LL, -100, 0, 100, 10000000000LL};
+    int64_t expect[] = {-100, -100, 0, 100, 100};
+    int64_t out[5] = {0};
+    mmsimd_i64_clamp(in, -100, 100, out, 5);
+    CHECK_ARRAY(int64_t, expect, out, 5);
+}
+
+MU_TEST(test_u64_clamp_basic_001) {
+    uint64_t in[] = {0, 100, 10000, 200000, 100000000000ULL};
+    uint64_t expect[] = {100, 100, 10000, 50000, 50000};
+    uint64_t out[5] = {0};
+    mmsimd_u64_clamp(in, 100, 50000, out, 5);
+    CHECK_ARRAY(uint64_t, expect, out, 5);
+}
+
+MU_TEST(test_f32_clamp_basic_001) {
+    float in[] = {-10.5f, 0.0f, 2.5f, 10.0f, 20.0f};
+    float expect[] = {0.0f, 0.0f, 2.5f, 10.0f, 10.0f};
+    float out[5] = {0};
+    mmsimd_f32_clamp(in, 0.0f, 10.0f, out, 5);
+    CHECK_ARRAY_FLOAT(expect, out, 5);
+}
+
+MU_TEST(test_f64_clamp_basic_001) {
+    double in[] = {-1.0, 0.0, 1.5, 2.0, 3.0};
+    double expect[] = {0.0, 0.0, 1.5, 2.0, 2.0};
+    double out[5] = {0};
+    mmsimd_f64_clamp(in, 0.0, 2.0, out, 5);
+    CHECK_ARRAY_FLOAT(expect, out, 5);
+}
+
+// 0长度、边界、全等等特殊情况
+MU_TEST(test_clamp_zero_length_001) {
+    int8_t in[1], out[1];
+    mmsimd_i8_clamp(in, -1, 1, out, 0); // 不应崩溃
+}
+
+MU_TEST(test_clamp_min_eq_max_001) {
+    int16_t in[] = {1, 2, 3};
+    int16_t expect[] = {2, 2, 2};
+    int16_t out[3] = {0};
+    mmsimd_i16_clamp(in, 2, 2, out, 3);
+    CHECK_ARRAY(int16_t, expect, out, 3);
+}
+
+MU_TEST(test_clamp_all_within_range_001) {
+    int32_t in[] = {1, 2, 3};
+    int32_t expect[] = {1, 2, 3};
+    int32_t out[3] = {0};
+    mmsimd_i32_clamp(in, 0, 10, out, 3);
+    CHECK_ARRAY(int32_t, expect, out, 3);
+}
+
+MU_TEST(test_i8_clamp_large_001) {
+    int8_t in[256];
+    int8_t out[256];
+    int8_t expect[256];
+    int8_t min = -50, max = 50;
+
+    // 填充输入数据，范围覆盖[-128, 127]
+    for (size_t i = 0; i < 256; ++i) {
+        in[i] = (int8_t)((i * 2) - 128); // -128, -126, ..., 126
+        if (in[i] < min)
+            expect[i] = min;
+        else if (in[i] > max)
+            expect[i] = max;
+        else
+            expect[i] = in[i];
+    }
+    mmsimd_i8_clamp(in, min, max, out, 256);
+    for (size_t i = 0; i < 256; ++i) {
+        mu_assert_int_eq(expect[i], out[i]);
+    }
+}
+
+MU_TEST(test_u8_clamp_large_001) {
+    uint8_t in[256];
+    uint8_t out[256];
+    uint8_t expect[256];
+    uint8_t min = 64, max = 192;
+
+    for (size_t i = 0; i < 256; ++i) {
+        in[i] = (uint8_t)i; // 0~255
+        if (in[i] < min)
+            expect[i] = min;
+        else if (in[i] > max)
+            expect[i] = max;
+        else
+            expect[i] = in[i];
+    }
+    mmsimd_u8_clamp(in, min, max, out, 256);
+    for (size_t i = 0; i < 256; ++i) {
+        mu_assert_int_eq(expect[i], out[i]);
+    }
+}
+
+MU_TEST(test_i16_clamp_large_001) {
+    int16_t in[256];
+    int16_t out[256];
+    int16_t expect[256];
+    int16_t min = -1000, max = 1000;
+    for (size_t i = 0; i < 256; ++i) {
+        in[i] = (int16_t)((i - 128) * 10); // -1280, -1270, ..., 1270
+        if (in[i] < min)
+            expect[i] = min;
+        else if (in[i] > max)
+            expect[i] = max;
+        else
+            expect[i] = in[i];
+    }
+    mmsimd_i16_clamp(in, min, max, out, 256);
+    for (size_t i = 0; i < 256; ++i) {
+        mu_assert_int_eq(expect[i], out[i]);
+    }
+}
+
+MU_TEST(test_f32_clamp_large_001) {
+    float in[256];
+    float out[256];
+    float expect[256];
+    float min = -5.5f, max = 7.75f;
+    for (size_t i = 0; i < 256; ++i) {
+        in[i] = (float)(i - 128) / 10.0f; // -12.8 ~ 12.7
+        if (in[i] < min)
+            expect[i] = min;
+        else if (in[i] > max)
+            expect[i] = max;
+        else
+            expect[i] = in[i];
+    }
+    mmsimd_f32_clamp(in, min, max, out, 256);
+    for (size_t i = 0; i < 256; ++i) {
+        mu_assert_double_eq(expect[i], out[i]);
+    }
+}
+
+MU_TEST(test_u16_clamp_large_001) {
+    uint16_t in[256];
+    uint16_t out[256];
+    uint16_t expect[256];
+    uint16_t min = 1000, max = 50000;
+    for (size_t i = 0; i < 256; ++i) {
+        in[i] = (uint16_t)(i * 300); // 0, 300, ..., 300*255
+        if (in[i] < min)
+            expect[i] = min;
+        else if (in[i] > max)
+            expect[i] = max;
+        else
+            expect[i] = in[i];
+    }
+    mmsimd_u16_clamp(in, min, max, out, 256);
+    for (size_t i = 0; i < 256; ++i) {
+        mu_assert_int_eq(expect[i], out[i]);
+    }
+}
+
+MU_TEST(test_i32_clamp_large_001) {
+    int32_t in[256];
+    int32_t out[256];
+    int32_t expect[256];
+    int32_t min = -1234567, max = 654321;
+    for (size_t i = 0; i < 256; ++i) {
+        in[i] = (int32_t)((int32_t)i * 10000 - 1500000); // -1,500,000 ... 1,110,000
+        if (in[i] < min)
+            expect[i] = min;
+        else if (in[i] > max)
+            expect[i] = max;
+        else
+            expect[i] = in[i];
+    }
+    mmsimd_i32_clamp(in, min, max, out, 256);
+    for (size_t i = 0; i < 256; ++i) {
+        mu_assert_int_eq(expect[i], out[i]);
+    }
+}
+
+MU_TEST(test_u32_clamp_large_001) {
+    uint32_t in[256];
+    uint32_t out[256];
+    uint32_t expect[256];
+    uint32_t min = 12345, max = 7654321;
+    for (size_t i = 0; i < 256; ++i) {
+        in[i] = (uint32_t)(i * 70000); // 0, 70000, ..., 70000*255
+        if (in[i] < min)
+            expect[i] = min;
+        else if (in[i] > max)
+            expect[i] = max;
+        else
+            expect[i] = in[i];
+    }
+    mmsimd_u32_clamp(in, min, max, out, 256);
+    for (size_t i = 0; i < 256; ++i) {
+        mu_assert_int_eq(expect[i], out[i]);
+    }
+}
+
+MU_TEST(test_i64_clamp_large_001) {
+    int64_t in[256];
+    int64_t out[256];
+    int64_t expect[256];
+    int64_t min = -10000000000LL, max = 20000000000LL;
+    for (size_t i = 0; i < 256; ++i) {
+        in[i] = (int64_t)i * 100000000 - 12000000000LL; // -12e9, -11.9e9, ..., 13.4e9
+        if (in[i] < min)
+            expect[i] = min;
+        else if (in[i] > max)
+            expect[i] = max;
+        else
+            expect[i] = in[i];
+    }
+    mmsimd_i64_clamp(in, min, max, out, 256);
+    for (size_t i = 0; i < 256; ++i) {
+        mu_assert_int_eq(expect[i], out[i]);
+    }
+}
+
+MU_TEST(test_u64_clamp_large_001) {
+    uint64_t in[256];
+    uint64_t out[256];
+    uint64_t expect[256];
+    uint64_t min = 4000000000ULL, max = 90000000000ULL;
+    for (size_t i = 0; i < 256; ++i) {
+        in[i] = (uint64_t)i * 500000000ULL; // 0, 5e8, ..., 1.275e11
+        if (in[i] < min)
+            expect[i] = min;
+        else if (in[i] > max)
+            expect[i] = max;
+        else
+            expect[i] = in[i];
+    }
+    mmsimd_u64_clamp(in, min, max, out, 256);
+    for (size_t i = 0; i < 256; ++i) {
+        mu_assert_int_eq(expect[i], out[i]);
+    }
+}
+
+MU_TEST(test_f64_clamp_large_001) {
+    double in[256];
+    double out[256];
+    double expect[256];
+    double min = -123.456, max = 789.123;
+    for (size_t i = 0; i < 256; ++i) {
+        in[i] = (double)i * 10.1 - 400.0; // -400.0, -389.9, ..., 2185.5
+        if (in[i] < min)
+            expect[i] = min;
+        else if (in[i] > max)
+            expect[i] = max;
+        else
+            expect[i] = in[i];
+    }
+    mmsimd_f64_clamp(in, min, max, out, 256);
+    for (size_t i = 0; i < 256; ++i) {
+        mu_assert_double_eq(expect[i], out[i]);
+    }
+}
+
 MU_TEST_SUITE(ctest_suite) {
     MU_RUN_TEST(ctest_mmsimd_i8_add_001);
     MU_RUN_TEST(ctest_mmsimd_i8_add_002);
@@ -3363,6 +3681,32 @@ MU_TEST_SUITE(ctest_suite) {
     MU_RUN_TEST(ctest_mmsimd_i64_find_002);
     MU_RUN_TEST(ctest_mmsimd_u64_find_001);
     MU_RUN_TEST(ctest_mmsimd_u64_find_002);
+
+    MU_RUN_TEST(test_i8_clamp_basic_001);
+    MU_RUN_TEST(test_u8_clamp_basic_001);
+    MU_RUN_TEST(test_i16_clamp_basic_001);
+    MU_RUN_TEST(test_u16_clamp_basic_001);
+    MU_RUN_TEST(test_i32_clamp_basic_001);
+    MU_RUN_TEST(test_u32_clamp_basic_001);
+    MU_RUN_TEST(test_i64_clamp_basic_001);
+    MU_RUN_TEST(test_u64_clamp_basic_001);
+    MU_RUN_TEST(test_f32_clamp_basic_001);
+    MU_RUN_TEST(test_f64_clamp_basic_001);
+    MU_RUN_TEST(test_clamp_zero_length_001);
+    MU_RUN_TEST(test_clamp_min_eq_max_001);
+    MU_RUN_TEST(test_clamp_all_within_range_001);
+
+    MU_RUN_TEST(test_i8_clamp_large_001);
+    MU_RUN_TEST(test_u8_clamp_large_001);
+    MU_RUN_TEST(test_i16_clamp_large_001);
+    MU_RUN_TEST(test_f32_clamp_large_001);
+    MU_RUN_TEST(test_u16_clamp_large_001);
+    MU_RUN_TEST(test_i32_clamp_large_001);
+    MU_RUN_TEST(test_u32_clamp_large_001);
+    MU_RUN_TEST(test_i64_clamp_large_001);
+    MU_RUN_TEST(test_u64_clamp_large_001);
+    MU_RUN_TEST(test_f64_clamp_large_001);
+    
 }
 
 int main() {

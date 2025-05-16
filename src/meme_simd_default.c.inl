@@ -288,4 +288,33 @@ MMSIMD_DEFAULT_RFIND_FUNC(u64, uint64_t)
 
 #undef MMSIMD_DEFAULT_RFIND_FUNC
 
+#define MMSIMD_DEFAULT_CLAMP_FUNC(NAME, TYPE) \
+    static void mmsimd_default_##NAME##_clamp(const TYPE* _a, TYPE _min, TYPE _max, TYPE* _o, mmint_t _n) \
+    { \
+        TYPE tmp = 0; \
+        for (mmint_t i = 0; i < _n; ++i) \
+        { \
+            if (_a[i] < _min) \
+                tmp = _min; \
+            else if (_a[i] > _max) \
+                tmp = _max; \
+            else \
+                tmp = _a[i]; \
+            _o[i] = tmp; \
+        } \
+    }
+
+MMSIMD_DEFAULT_CLAMP_FUNC(i8,  int8_t)
+MMSIMD_DEFAULT_CLAMP_FUNC(u8,  uint8_t)
+MMSIMD_DEFAULT_CLAMP_FUNC(i16, int16_t)
+MMSIMD_DEFAULT_CLAMP_FUNC(u16, uint16_t)
+MMSIMD_DEFAULT_CLAMP_FUNC(i32, int32_t)
+MMSIMD_DEFAULT_CLAMP_FUNC(u32, uint32_t)
+MMSIMD_DEFAULT_CLAMP_FUNC(i64, int64_t)
+MMSIMD_DEFAULT_CLAMP_FUNC(u64, uint64_t)
+MMSIMD_DEFAULT_CLAMP_FUNC(f32, float)
+MMSIMD_DEFAULT_CLAMP_FUNC(f64, double)
+
+#undef MMSIMD_DEFAULT_CLAMP_FUNC
+
 MEME_EXTERN_C_SCOPE_ENDED
