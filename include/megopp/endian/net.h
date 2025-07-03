@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include "mego/predef/endian.h"
+#include <mego/predef/lang/version.h>
 #include "megopp/endian/byte_swap.h"
 #include <megopp/predef/namespace_alias.h>
 
@@ -64,7 +65,11 @@ namespace endian {
 		case endian_t::big_word:
 		{
 #if MEGO_ENDIAN__LITTLE_BYTE || MEGO_ENDIAN__BIG_BYTE
+#if MG_LANG__CXX17_AVAIL
 			if constexpr (sizeof(_Ty) >= 4)
+#else
+			if (sizeof(_Ty) >= 4)
+#endif
 			{
 				_v = word_swap(_v);
 			}
@@ -78,7 +83,11 @@ namespace endian {
 		case endian_t::little_word:
 		{
 #if MEGO_ENDIAN__LITTLE_BYTE || MEGO_ENDIAN__BIG_BYTE
+#if MG_LANG__CXX17_AVAIL
 			if constexpr (sizeof(_Ty) >= 4)
+#else
+			if (sizeof(_Ty) >= 4)
+#endif
 			{
 				_v = word_swap(_v);
 			}

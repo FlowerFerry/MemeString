@@ -175,6 +175,11 @@ extern "C" {
         return tz;
     }
 
+    MG_CAPI_INLINE int mgu_timezone_hour()
+    {
+        return mgu_hour_timezone();
+    }
+
     MG_CAPI_INLINE int mgu_minute_timezone()
     {
         int diff = 0;
@@ -196,6 +201,11 @@ extern "C" {
             diff -= 24 * 60 * 60;
         
         return diff / 60;
+    }
+
+    MG_CAPI_INLINE int mgu_timezone_minute()
+    {
+        return mgu_minute_timezone();
     }
 
     MG_CAPI_INLINE mgu_time_t mgu_mktime_utc(struct tm * _tm)
@@ -328,6 +338,11 @@ extern "C" {
         return _result;
     }
 
+    MG_CAPI_INLINE struct tm *mgu_gmtime_from_ts(mgu_timestamp_t _ts, struct tm * _result, int* _ms)
+    {
+        return mgu_gmtime_from_timestamp(_ts, _result, _ms);
+    }
+
     MG_CAPI_INLINE struct tm *mgu_localtime_from_timestamp(mgu_timestamp_t _ts, struct tm * _result, int* _ms)
     {
         mgu_time_t tv = (mgu_time_t)(_ts / 1000);
@@ -335,6 +350,11 @@ extern "C" {
             return NULL;
         if (_ms) *_ms = (int)(_ts % 1000);
         return _result;
+    }
+
+    MG_CAPI_INLINE struct tm *mgu_localtime_from_ts(mgu_timestamp_t _ts, struct tm * _result, int* _ms)
+    {
+        return mgu_localtime_from_timestamp(_ts, _result, _ms);
     }
 
     MG_CAPI_INLINE mgu_timestamp_t mgu_timestamp_from_gmtime(struct tm * _tm, int _ms)

@@ -19,6 +19,12 @@ option("memestr_benchmark_enable")
     set_description("Enable benchmark of meme library")
 option_end()
 
+option("simd_enable")
+    set_default(true)
+    set_showmenu(true)
+    set_description("Enable SIMD optimizations for meme_string")
+option_end()
+
 -- stdc = "c11"
 -- set_languages(stdc)
 
@@ -41,7 +47,9 @@ target("meme_string")
     set_kind("shared")
     set_symbols("hidden")
     add_rpathdirs("$ORIGIN")
-    add_cflags("-mavx2", { force = false })
+    if has_config("simd_enable") then
+        add_cflags("-mavx2", { force = false })
+    end
     add_cflags("-mfpu=neon", { force = false })
     -- after_load(function (target)
     --     import("core.project.config")  

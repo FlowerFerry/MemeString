@@ -13,9 +13,9 @@ endif()
 
 project(${MMSTR_PROJECT_NAME} VERSION 0.0.3 LANGUAGES C)
 
-option(MEMESTRING_SONAME_SUFFIX_ENABLE "Enable soname suffix of  of meme library" ON)
+option(MEMESTRING_SONAME_SUFFIX_ENABLE "Enable soname suffix of meme library" ON)
 option(MEMESTRING_BENCHMARK_ENABLE "Enable benchmark of meme library" OFF)
-option(MEMESTRING_UNITTEST_ENABLE  "Enable unit test of meme library"  OFF)
+option(MEMESTRING_UNITTEST_ENABLE  "Enable unit test of meme library" OFF)
 option(MEMESTRING_TEST_ENABLE "Enable test of meme library" OFF)
 
 set(MMSTR_GIT_HOST "github.com" CACHE STRING "")
