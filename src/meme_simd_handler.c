@@ -133,7 +133,7 @@ static mmsimd_arith64_hdlr_t* mmsimd_get_default_arith64_handler()
 
 static mmsimd_arith8_hdlr_t* mmsimd_get_avx2_arith8_handler()
 {
-#if MEGO_ARCH__X86 || MEGO_ARCH__X64 
+#if !MMOPT__SIMD_DISABLED && (MEGO_ARCH__X86 || MEGO_ARCH__X64)
     static mmsimd_arith8_hdlr_t hdlr = {
         .i8_add_fn = mmsimd_avx2_i8_add,
         .i8_sub_fn = mmsimd_avx2_i8_sub,
@@ -177,7 +177,7 @@ static mmsimd_arith8_hdlr_t* mmsimd_get_avx2_arith8_handler()
 
 static mmsimd_arith8_hdlr_t* mmsimd_get_neon_arith8_handler()
 {
-#if MEGO_ARCH__ARM && (defined(__ARM_NEON))
+#if !MMOPT__SIMD_DISABLED && MEGO_ARCH__ARM && defined(__ARM_NEON)
     static mmsimd_arith8_hdlr_t hdlr = {
         .i8_add_fn = mmsimd_neon_i8_add,
         .i8_sub_fn = mmsimd_neon_i8_sub,
@@ -204,7 +204,7 @@ static mmsimd_arith8_hdlr_t* mmsimd_get_neon_arith8_handler()
 
 static mmsimd_arith16_hdlr_t* mmsimd_get_avx2_arith16_handler()
 {
-#if MEGO_ARCH__X86 || MEGO_ARCH__X64 
+#if !MMOPT__SIMD_DISABLED && (MEGO_ARCH__X86 || MEGO_ARCH__X64)
     static mmsimd_arith16_hdlr_t hdlr = {
         .i16_add_fn = mmsimd_avx2_i16_add,
         .i16_sub_fn = mmsimd_avx2_i16_sub,
@@ -247,7 +247,7 @@ static mmsimd_arith16_hdlr_t* mmsimd_get_avx2_arith16_handler()
 
 static mmsimd_arith16_hdlr_t* mmsimd_get_neon_arith16_handler()
 {
-#if MEGO_ARCH__ARM && (defined(__ARM_NEON))
+#if !MMOPT__SIMD_DISABLED && MEGO_ARCH__ARM && defined(__ARM_NEON)
     static mmsimd_arith16_hdlr_t hdlr = {
         .i16_add_fn = mmsimd_neon_i16_add,
         .i16_sub_fn = mmsimd_neon_i16_sub,
@@ -274,7 +274,7 @@ static mmsimd_arith16_hdlr_t* mmsimd_get_neon_arith16_handler()
 
 static mmsimd_arith32_hdlr_t* mmsimd_get_avx2_arith32_handler()
 {
-#if MEGO_ARCH__X86 || MEGO_ARCH__X64 
+#if !MMOPT__SIMD_DISABLED && (MEGO_ARCH__X86 || MEGO_ARCH__X64)
     static mmsimd_arith32_hdlr_t hdlr = {
         .i32_add_fn = mmsimd_avx2_i32_add,
         .i32_sub_fn = mmsimd_avx2_i32_sub,
@@ -523,7 +523,7 @@ static mmsimd_conv64_hdlr_t* mmsimd_get_default_conv64_handler()
 
 static mmsimd_conv8_hdlr_t* mmsimd_get_avx2_conv8_handler()
 {
-#if MEGO_ARCH__X86 || MEGO_ARCH__X64 
+#if !MMOPT__SIMD_DISABLED && (MEGO_ARCH__X86 || MEGO_ARCH__X64)
     static mmsimd_conv8_hdlr_t hdlr = {
         .i8_to_i16_fn = mmsimd_avx2_i8_to_i16,
         .i8_to_u16_fn = mmsimd_default_i8_to_u16,
@@ -713,7 +713,7 @@ static mmsimd_other64_hdlr_t* mmsimd_get_default_other64_handler()
 
 static mmsimd_other8_hdlr_t* mmsimd_get_avx2_other8_handler()
 {
-#if MEGO_ARCH__X86 || MEGO_ARCH__X64 
+#if !MMOPT__SIMD_DISABLED && (MEGO_ARCH__X86 || MEGO_ARCH__X64)
     static mmsimd_other8_hdlr_t hdlr = {
         .i8_find_fn = mmsimd_avx2_i8_find,
         .u8_find_fn = mmsimd_avx2_u8_find,
@@ -732,7 +732,7 @@ static mmsimd_other8_hdlr_t* mmsimd_get_avx2_other8_handler()
 
 static mmsimd_other16_hdlr_t* mmsimd_get_avx2_other16_handler()
 {
-#if MEGO_ARCH__X86 || MEGO_ARCH__X64 
+#if !MMOPT__SIMD_DISABLED && (MEGO_ARCH__X86 || MEGO_ARCH__X64)
     static mmsimd_other16_hdlr_t hdlr = {
         .i16_fill_fn  = mmsimd_avx2_i16_fill,
         .u16_fill_fn  = mmsimd_avx2_u16_fill,
@@ -754,7 +754,7 @@ static mmsimd_other16_hdlr_t* mmsimd_get_avx2_other16_handler()
 
 static mmsimd_other32_hdlr_t* mmsimd_get_avx2_other32_handler()
 {
-#if MEGO_ARCH__X86 || MEGO_ARCH__X64 
+#if !MMOPT__SIMD_DISABLED && (MEGO_ARCH__X86 || MEGO_ARCH__X64)
     static mmsimd_other32_hdlr_t hdlr = {
         .i32_fill_fn  = mmsimd_avx2_i32_fill,
         .u32_fill_fn  = mmsimd_avx2_u32_fill,
@@ -780,7 +780,7 @@ static mmsimd_other32_hdlr_t* mmsimd_get_avx2_other32_handler()
 
 static mmsimd_other64_hdlr_t* mmsimd_get_avx2_other64_handler()
 {
-#if MEGO_ARCH__X86 || MEGO_ARCH__X64 
+#if !MMOPT__SIMD_DISABLED && (MEGO_ARCH__X86 || MEGO_ARCH__X64)
     static mmsimd_other64_hdlr_t hdlr = {
         .i64_fill_fn  = mmsimd_avx2_i64_fill,
         .u64_fill_fn  = mmsimd_avx2_u64_fill,
