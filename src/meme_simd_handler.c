@@ -5,16 +5,17 @@
 #include <mego/thrd/call_once.h>
 #include <meme/simd/simd.h>
 #include <meme/impl/simd/simd.h>
+#include <meme/predef/macro_option.h>
 
 #include "meme_simd_default.c.inl"
 
 //! Intel® Intrinsics Guide:
 //!     https://www.intel.com/content/www/us/en/docs/intrinsics-guide/index.html
-#if MEGO_ARCH__X86 || MEGO_ARCH__X64 
+#if !MMOPT__SIMD_DISABLED && (MEGO_ARCH__X86 || MEGO_ARCH__X64)
 #include "meme_simd_avx2.c.inl"
 #endif
 
-#if MEGO_ARCH__ARM && defined(__ARM_NEON)
+#if !MMOPT__SIMD_DISABLED && MEGO_ARCH__ARM && defined(__ARM_NEON)
 #include "meme_simd_neon.c.inl"
 #endif
 

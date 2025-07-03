@@ -49,8 +49,11 @@ target("meme_string")
     add_rpathdirs("$ORIGIN")
     if has_config("simd_enable") then
         add_cflags("-mavx2", { force = false })
+        add_cflags("-mfpu=neon", { force = false })
+        add_defines("MMOPT__SIMD_DISABLED=0")
+    else
+        add_defines("MMOPT__SIMD_DISABLED=1")
     end
-    add_cflags("-mfpu=neon", { force = false })
     -- after_load(function (target)
     --     import("core.project.config")  
     --     import("xmake_check")
