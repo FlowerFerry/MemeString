@@ -4,6 +4,7 @@
 
 #include "memory_def.h"
 #include <mego/util/os/windows/windows_simplify.h>
+#include <mego/util/std/file.h>
 #include <mego/predef/os/linux.h>
 #include <mego/predef/symbol/inline.h>
 
