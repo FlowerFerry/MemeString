@@ -109,20 +109,20 @@ struct usr_act_watcher
             {
                 if (pSessionInfo[idx].State == WTSActive) 
                 {
-                    BYTE* pBuffer = nullptr;
+                    PWTSINFOW pInfo = nullptr;
                     DWORD bytesReturned = 0;
                     BOOL ok = WTSQuerySessionInformationW(
                         WTS_CURRENT_SERVER_HANDLE, pSessionInfo[idx].SessionId,
-                        WTSIdleTime, (LPWSTR*)&pBuffer, &bytesReturned);
+                        WTSSessionInfo, (LPWSTR*)&pInfo, &bytesReturned);
                     MEGOPP_UTIL__ON_SCOPE_CLEANUP([&] { 
-                        if (pBuffer) 
-                            WTSFreeMemory(pBuffer);
+                        if (pInfo) 
+                            WTSFreeMemory(pInfo);
                     });
-                    if (ok && pBuffer && bytesReturned >= sizeof(DWORD)) 
-                    {
-                        DWORD idleTime = 0;
-                        memcpy(&idleTime, pBuffer, sizeof(DWORD));
-                        if (idleTime < idle_timeout_sec_ * 1000) 
+                    if (ok && pInfo) {
+                        auto idle_time = 
+                            static_cast<int64_t>(GetTickCount()) -
+                            pInfo->LastInputTime.QuadPart;
+                        if (idle_time < idle_timeout_sec_ * 1000)
                         {
                             return;
                         }
@@ -146,7 +146,8 @@ struct usr_act_watcher
             return;
         }
 
-        auto idle_time = static_cast<int64_t>(GetTickCount()) -
+        auto idle_time = 
+            static_cast<int64_t>(GetTickCount()) -
             static_cast<int64_t>(lastInputInfo.dwTime);
         if (idle_time < idle_timeout_sec_ * 1000)
         {
