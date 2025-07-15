@@ -67,21 +67,79 @@ struct usr_act_watcher
         if (!fn_)
             return;
 
+        auto cleanup = megopp::util::scope_cleanup__create([&] 
+        {
+            if (current_state_ != act_state::act) {
+                current_state_  = act_state::act;
+                fn_(*this, act_state::act, {});
+            }
+        });
+
+        DWORD sessionId = 0xFFFFFFFF;
+        if (!ProcessIdToSessionId(GetCurrentProcessId(), &sessionId)) {
+            fn_(*this, act_state::none, { MGEC__ERR, "ProcessIdToSessionId" });
+            cleanup.cancel();
+            return;
+        }
+
+        if (sessionId == 0) {
+            
+            for (int idx = 0; idx < XUSER_MAX_COUNT; ++idx)
+            {
+                XINPUT_STATE state;
+                ZeroMemory(&state, sizeof(XINPUT_STATE));
+                DWORD result = XInputGetState(idx, &state);
+                if (result != ERROR_DEVICE_NOT_CONNECTED)
+                {
+                    return;
+                }
+            }
+
+            PWTS_SESSION_INFOW pSessionInfo = nullptr;
+            DWORD sessionCount = 0;
+            if (!WTSEnumerateSessionsW(
+                WTS_CURRENT_SERVER_HANDLE, 0, 1, &pSessionInfo, &sessionCount)) {
+                fn_(*this, act_state::none, { MGEC__ERR, "WTSEnumerateSessions" });
+                cleanup.cancel();
+                return;
+            }
+            MEGOPP_UTIL__ON_SCOPE_CLEANUP([&] { WTSFreeMemory(pSessionInfo); });
+
+            for (DWORD idx = 0; idx < sessionCount; ++idx) 
+            {
+                if (pSessionInfo[idx].State == WTSActive) 
+                {
+                    BYTE* pBuffer = nullptr;
+                    DWORD bytesReturned = 0;
+                    BOOL ok = WTSQuerySessionInformationW(
+                        WTS_CURRENT_SERVER_HANDLE, pSessionInfo[idx].SessionId,
+                        WTSIdleTime, (LPWSTR*)&pBuffer, &bytesReturned);
+                    MEGOPP_UTIL__ON_SCOPE_CLEANUP([&] { 
+                        if (pBuffer) 
+                            WTSFreeMemory(pBuffer);
+                    });
+                    if (ok && pBuffer && bytesReturned >= sizeof(DWORD)) 
+                    {
+                        DWORD idleTime = 0;
+                        memcpy(&idleTime, pBuffer, sizeof(DWORD));
+                        if (idleTime < idle_timeout_sec_ * 1000) 
+                        {
+                            return;
+                        }
+                    }
+                }
+            }
+
+            return;
+        }
+
         LASTINPUTINFO lastInputInfo;
         lastInputInfo.cbSize = sizeof(LASTINPUTINFO);
         if (!GetLastInputInfo(&lastInputInfo)) {
             fn_(*this, act_state::none, { MGEC__ERR, "GetLastInputInfo" });
+            cleanup.cancel();
             return;
         }
-
-        auto cleanup = megopp::util::scope_cleanup__create([&] 
-        {
-            if (current_state_ != act_state::act)
-            {
-                current_state_ = act_state::act;
-                fn_(*this, act_state::act, {});
-            }
-        });
 
         auto idle_time = static_cast<int64_t>(GetTickCount()) -
             static_cast<int64_t>(lastInputInfo.dwTime);
@@ -114,29 +172,6 @@ struct usr_act_watcher
                 return;
             }
         }
-
-        //PWTS_SESSION_INFOW pSessionInfo = NULL;
-        //DWORD sessionCount = 0;
-        //DWORD sessionId = 0;
-        //// 枚举所有会话
-        //if (WTSEnumerateSessionsW(
-        //    WTS_CURRENT_SERVER_HANDLE, 0, 1, &pSessionInfo, &sessionCount) == FALSE)
-        //{
-        //    return;
-        //}
-        //MEGOPP_UTIL__ON_SCOPE_CLEANUP([&] { WTSFreeMemory(pSessionInfo); });
-
-        //for (DWORD idx = 0; idx < sessionCount; idx++)
-        //{
-        //    auto& info = pSessionInfo[idx];
-        //    if (info.State == WTSActive)
-        //    {
-        //        info.pWinStationName;
-        //        if (wcsstr(info.pWinStationName, L"RDP"))
-        //            return;
-        //        
-        //    }
-        //}
 
         if (current_state_ != act_state::idle)
         {
