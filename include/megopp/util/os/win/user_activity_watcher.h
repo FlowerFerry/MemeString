@@ -130,6 +130,11 @@ struct usr_act_watcher
                 }
             }
 
+            if (current_state_ != act_state::idle) {
+                current_state_  = act_state::idle;
+                fn_(*this, act_state::idle, {});
+            }
+            cleanup.cancel();
             return;
         }
 
