@@ -83,60 +83,7 @@ struct usr_act_watcher
         }
 
         if (sessionId == 0) {
-            
-            for (int idx = 0; idx < XUSER_MAX_COUNT; ++idx)
-            {
-                XINPUT_STATE state;
-                ZeroMemory(&state, sizeof(XINPUT_STATE));
-                DWORD result = XInputGetState(idx, &state);
-                if (result != ERROR_DEVICE_NOT_CONNECTED)
-                {
-                    return;
-                }
-            }
-
             // TO_DO
-
-            // PWTS_SESSION_INFOW pSessionInfo = nullptr;
-            // DWORD sessionCount = 0;
-            // if (!WTSEnumerateSessionsW(
-            //     WTS_CURRENT_SERVER_HANDLE, 0, 1, &pSessionInfo, &sessionCount)) {
-            //     fn_(*this, act_state::none, { MGEC__ERR, "WTSEnumerateSessions" });
-            //     cleanup.cancel();
-            //     return;
-            // }
-            // MEGOPP_UTIL__ON_SCOPE_CLEANUP([&] { WTSFreeMemory(pSessionInfo); });
-
-            // for (DWORD idx = 0; idx < sessionCount; ++idx) 
-            // {
-            //     if (pSessionInfo[idx].State == WTSActive) 
-            //     {
-            //         PWTSINFOW pInfo = nullptr;
-            //         DWORD bytesReturned = 0;
-            //         BOOL ok = WTSQuerySessionInformationW(
-            //             WTS_CURRENT_SERVER_HANDLE, pSessionInfo[idx].SessionId,
-            //             WTSSessionInfo, (LPWSTR*)&pInfo, &bytesReturned);
-            //         MEGOPP_UTIL__ON_SCOPE_CLEANUP([&] { 
-            //             if (pInfo) 
-            //                 WTSFreeMemory(pInfo);
-            //         });
-            //         if (ok && pInfo) {
-            //             auto idle_time = 
-            //                 static_cast<int64_t>(GetTickCount()) -
-            //                 pInfo->LastInputTime.QuadPart;
-            //             if (idle_time < idle_timeout_sec_ * 1000)
-            //             {
-            //                 return;
-            //             }
-            //         }
-            //     }
-            // }
-
-            // if (current_state_ != act_state::idle) {
-            //     current_state_  = act_state::idle;
-            //     fn_(*this, act_state::idle, {});
-            // }
-            // cleanup.cancel();
             return;
         }
 

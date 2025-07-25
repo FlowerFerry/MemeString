@@ -23,7 +23,7 @@
 #define MMSIMD_AVX2_F64_OFFSET (mmint_t)(sizeof(__m256d) / sizeof(double))
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_i8_add(
+mmint_t __mmsimd_avx2_i8_add(
     const int8_t* _a, const int8_t* _b, int8_t* _c, mmint_t _i, mmint_t _n)
 {
     for (; _i + (mmint_t)sizeof(__m256i) <= _n; _i += (mmint_t)sizeof(__m256i))
@@ -39,7 +39,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_i8_add(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_i8_add_scalar(
+mmint_t __mmsimd_avx2_i8_add_scalar(
     const int8_t* _a, int8_t _b, int8_t* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= (mmint_t)sizeof(__m256i) + _i)
@@ -57,7 +57,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_i8_add_scalar(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_i8_sub(
+mmint_t __mmsimd_avx2_i8_sub(
     const int8_t* _a, const int8_t* _b, int8_t* _c, mmint_t _i, mmint_t _n)
 {
     for (; _i + (mmint_t)sizeof(__m256i) <= _n; _i += (mmint_t)sizeof(__m256i))
@@ -73,7 +73,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_i8_sub(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_i8_sub_scalar(
+mmint_t __mmsimd_avx2_i8_sub_scalar(
     const int8_t* _a, int8_t _b, int8_t* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= (mmint_t)sizeof(__m256i) + _i)
@@ -127,7 +127,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_i8_div_scalar(
 #endif
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_i16_add(
+mmint_t __mmsimd_avx2_i16_add(
     const int16_t* _a, const int16_t* _b, int16_t* _c, mmint_t _i, mmint_t _n)
 {
     for (; _i + MMSIMD_AVX2_I16_OFFSET <= _n; _i += MMSIMD_AVX2_I16_OFFSET)
@@ -143,7 +143,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_i16_add(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_i16_add_scalar(
+mmint_t __mmsimd_avx2_i16_add_scalar(
     const int16_t* _a, int16_t _b, int16_t* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= MMSIMD_AVX2_I16_OFFSET + _i)
@@ -161,7 +161,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_i16_add_scalar(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_i16_sub(
+mmint_t __mmsimd_avx2_i16_sub(
     const int16_t* _a, const int16_t* _b, int16_t* _c, mmint_t _i, mmint_t _n)
 {
     for (; _i + MMSIMD_AVX2_I16_OFFSET <= _n; _i += MMSIMD_AVX2_I16_OFFSET)
@@ -177,7 +177,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_i16_sub(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_i16_sub_scalar(
+mmint_t __mmsimd_avx2_i16_sub_scalar(
     const int16_t* _a, int16_t _b, int16_t* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= MMSIMD_AVX2_I16_OFFSET + _i)
@@ -231,7 +231,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_i16_div_scalar(
 #endif
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_i32_add(
+mmint_t __mmsimd_avx2_i32_add(
     const int32_t* _a, const int32_t* _b, int32_t* _c, mmint_t _i, mmint_t _n)
 {
     for (; _i + MMSIMD_AVX2_I32_OFFSET <= _n; _i += MMSIMD_AVX2_I32_OFFSET)
@@ -247,7 +247,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_i32_add(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_i32_add_scalar(
+mmint_t __mmsimd_avx2_i32_add_scalar(
     const int32_t* _a, int32_t _b, int32_t* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= MMSIMD_AVX2_I32_OFFSET + _i)
@@ -265,7 +265,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_i32_add_scalar(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_i32_sub(
+mmint_t __mmsimd_avx2_i32_sub(
     const int32_t* _a, const int32_t* _b, int32_t* _c, mmint_t _i, mmint_t _n)
 {
     for (; _i + MMSIMD_AVX2_I32_OFFSET <= _n; _i += MMSIMD_AVX2_I32_OFFSET)
@@ -281,7 +281,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_i32_sub(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_i32_sub_scalar(
+mmint_t __mmsimd_avx2_i32_sub_scalar(
     const int32_t* _a, int32_t _b, int32_t* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= MMSIMD_AVX2_I32_OFFSET + _i)
@@ -369,7 +369,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_i32_div_scalar(
 #endif
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_i64_add(
+mmint_t __mmsimd_avx2_i64_add(
     const int64_t* _a, const int64_t* _b, int64_t* _c, mmint_t _i, mmint_t _n)
 {
     for (; _i + MMSIMD_AVX2_I64_OFFSET <= _n; _i += MMSIMD_AVX2_I64_OFFSET)
@@ -385,7 +385,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_i64_add(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_i64_add_scalar(
+mmint_t __mmsimd_avx2_i64_add_scalar(
     const int64_t* _a, int64_t _b, int64_t* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= MMSIMD_AVX2_I64_OFFSET + _i)
@@ -403,7 +403,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_i64_add_scalar(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_i64_sub(
+mmint_t __mmsimd_avx2_i64_sub(
     const int64_t* _a, const int64_t* _b, int64_t* _c, mmint_t _i, mmint_t _n)
 {
     for (; _i + MMSIMD_AVX2_I64_OFFSET <= _n; _i += MMSIMD_AVX2_I64_OFFSET)
@@ -419,7 +419,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_i64_sub(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_i64_sub_scalar(
+mmint_t __mmsimd_avx2_i64_sub_scalar(
     const int64_t* _a, int64_t _b, int64_t* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= MMSIMD_AVX2_I64_OFFSET + _i)
@@ -651,7 +651,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_u64_div_scalar(
 #endif
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_f32_add(
+mmint_t __mmsimd_avx2_f32_add(
     const float* _a, const float* _b, float* _c, mmint_t _i, mmint_t _n)
 {
     for (; _i + MMSIMD_AVX2_F32_OFFSET <= _n; _i += MMSIMD_AVX2_F32_OFFSET)
@@ -667,7 +667,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_f32_add(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_f32_add_scalar(
+mmint_t __mmsimd_avx2_f32_add_scalar(
     const float* _a, float _b, float* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= MMSIMD_AVX2_F32_OFFSET + _i)
@@ -685,7 +685,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_f32_add_scalar(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_f32_sub(
+mmint_t __mmsimd_avx2_f32_sub(
     const float* _a, const float* _b, float* _c, mmint_t _i, mmint_t _n)
 {
     for (; _i + MMSIMD_AVX2_F32_OFFSET <= _n; _i += MMSIMD_AVX2_F32_OFFSET)
@@ -701,7 +701,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_f32_sub(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_f32_sub_scalar(
+mmint_t __mmsimd_avx2_f32_sub_scalar(
     const float* _a, float _b, float* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= MMSIMD_AVX2_F32_OFFSET + _i)
@@ -719,7 +719,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_f32_sub_scalar(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_f32_mul(
+mmint_t __mmsimd_avx2_f32_mul(
     const float* _a, const float* _b, float* _c, mmint_t _i, mmint_t _n)
 {
     for (; _i + MMSIMD_AVX2_F32_OFFSET <= _n; _i += MMSIMD_AVX2_F32_OFFSET)
@@ -735,7 +735,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_f32_mul(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_f32_mul_scalar(
+mmint_t __mmsimd_avx2_f32_mul_scalar(
     const float* _a, float _b, float* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= MMSIMD_AVX2_F32_OFFSET + _i)
@@ -753,7 +753,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_f32_mul_scalar(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_f32_div(
+mmint_t __mmsimd_avx2_f32_div(
     const float* _a, const float* _b, float* _c, mmint_t _i, mmint_t _n)
 {
     for (; _i + MMSIMD_AVX2_F32_OFFSET <= _n; _i += MMSIMD_AVX2_F32_OFFSET)
@@ -769,7 +769,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_f32_div(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_f32_div_scalar(
+mmint_t __mmsimd_avx2_f32_div_scalar(
     const float* _a, float _b, float* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= MMSIMD_AVX2_F32_OFFSET + _i)
@@ -787,7 +787,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_f32_div_scalar(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_f64_add(
+mmint_t __mmsimd_avx2_f64_add(
     const double* _a, const double* _b, double* _c, mmint_t _i, mmint_t _n)
 {
     for (; _i + MMSIMD_AVX2_F64_OFFSET <= _n; _i += MMSIMD_AVX2_F64_OFFSET)
@@ -803,7 +803,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_f64_add(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_f64_add_scalar(
+mmint_t __mmsimd_avx2_f64_add_scalar(
     const double* _a, double _b, double* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= MMSIMD_AVX2_F64_OFFSET + _i)
@@ -821,7 +821,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_f64_add_scalar(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_f64_sub(
+mmint_t __mmsimd_avx2_f64_sub(
     const double* _a, const double* _b, double* _c, mmint_t _i, mmint_t _n)
 {
     for (; _i + MMSIMD_AVX2_F64_OFFSET <= _n; _i += MMSIMD_AVX2_F64_OFFSET)
@@ -837,7 +837,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_f64_sub(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_f64_sub_scalar(
+mmint_t __mmsimd_avx2_f64_sub_scalar(
     const double* _a, double _b, double* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= MMSIMD_AVX2_F64_OFFSET + _i)
@@ -855,7 +855,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_f64_sub_scalar(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_f64_mul(
+mmint_t __mmsimd_avx2_f64_mul(
     const double* _a, const double* _b, double* _c, mmint_t _i, mmint_t _n)
 {
     for (; _i + MMSIMD_AVX2_F64_OFFSET <= _n; _i += MMSIMD_AVX2_F64_OFFSET)
@@ -871,7 +871,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_f64_mul(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_f64_mul_scalar(
+mmint_t __mmsimd_avx2_f64_mul_scalar(
     const double* _a, double _b, double* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= MMSIMD_AVX2_F64_OFFSET + _i)
@@ -889,7 +889,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_f64_mul_scalar(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_f64_div(
+mmint_t __mmsimd_avx2_f64_div(
     const double* _a, const double* _b, double* _c, mmint_t _i, mmint_t _n)
 {
     for (; _i + MMSIMD_AVX2_F64_OFFSET <= _n; _i += MMSIMD_AVX2_F64_OFFSET)
@@ -905,7 +905,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_f64_div(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_f64_div_scalar(
+mmint_t __mmsimd_avx2_f64_div_scalar(
     const double* _a, double _b, double* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= MMSIMD_AVX2_F64_OFFSET + _i)
@@ -923,7 +923,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_f64_div_scalar(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_i8_clamp(
+mmint_t __mmsimd_avx2_i8_clamp(
     const int8_t* _a, int8_t _min, int8_t _max, int8_t* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= (mmint_t)sizeof(__m256i) + _i)
@@ -942,7 +942,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_i8_clamp(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_u8_clamp(
+mmint_t __mmsimd_avx2_u8_clamp(
     const uint8_t* _a, uint8_t _min, uint8_t _max, uint8_t* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= (mmint_t)sizeof(__m256i) + _i)
@@ -961,7 +961,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_u8_clamp(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_i16_clamp(
+mmint_t __mmsimd_avx2_i16_clamp(
     const int16_t* _a, int16_t _min, int16_t _max, int16_t* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= MMSIMD_AVX2_I16_OFFSET + _i)
@@ -980,7 +980,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_i16_clamp(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_u16_clamp(
+mmint_t __mmsimd_avx2_u16_clamp(
     const uint16_t* _a, uint16_t _min, uint16_t _max, uint16_t* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= MMSIMD_AVX2_U16_OFFSET + _i)
@@ -999,7 +999,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_u16_clamp(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_i32_clamp(
+mmint_t __mmsimd_avx2_i32_clamp(
     const int32_t* _a, int32_t _min, int32_t _max, int32_t* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= MMSIMD_AVX2_I32_OFFSET + _i)
@@ -1018,7 +1018,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_i32_clamp(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_u32_clamp(
+mmint_t __mmsimd_avx2_u32_clamp(
     const uint32_t* _a, uint32_t _min, uint32_t _max, uint32_t* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= MMSIMD_AVX2_U32_OFFSET + _i)
@@ -1037,7 +1037,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_u32_clamp(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_f32_clamp(
+mmint_t __mmsimd_avx2_f32_clamp(
     const float* _a, float _min, float _max, float* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= MMSIMD_AVX2_F32_OFFSET + _i)
@@ -1056,7 +1056,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_f32_clamp(
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_f64_clamp(
+mmint_t __mmsimd_avx2_f64_clamp(
     const double* _a, double _min, double _max, double* _c, mmint_t _i, mmint_t _n)
 {
     if (_n >= MMSIMD_AVX2_F64_OFFSET + _i)
@@ -1604,7 +1604,7 @@ void mmsimd_avx2_f64_div_scalar(const double* _a, double _b, double* _c, mmint_t
 }
 
 MMSIMD_AVX2_TARGET_ATTRIBUTES
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_i8_to_i16(const int8_t* _in, int16_t* _out, mmint_t _n)
+mmint_t __mmsimd_avx2_i8_to_i16(const int8_t* _in, int16_t* _out, mmint_t _n)
 {
     mmint_t idx = 0;
     for (; idx + (mmint_t)sizeof(__m256i) <= _n; idx += (mmint_t)sizeof(__m256i))
