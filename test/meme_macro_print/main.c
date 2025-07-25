@@ -37,12 +37,16 @@
 
 #include <mego/predef/threads.h>
 
+#include <mego/hardware/cpu/instruction.h>
+
 #if MG_HDR__UNISTD_AVAIL
 #include <unistd.h>
 #endif
 
 int main(int argc, char *argv[]) 
 {
+    mghw_simd_instruction_t simd_instr;
+
     printf("MEGO_ARCH__ARM: %d\n", MEGO_ARCH__ARM);
     printf("MEGO_ARCH__BLACKFIN: %d\n", MEGO_ARCH__BLACKFIN);
     printf("MEGO_ARCH__IA64: %d\n", MEGO_ARCH__IA64);
@@ -92,6 +96,53 @@ int main(int argc, char *argv[])
     printf("MG_COMP__CLANG_AVAIL: %d\n", MG_COMP__CLANG_AVAIL);
     printf("MG_COMP__GCC_AVAIL: %d\n", MG_COMP__GCC_AVAIL);
     printf("MG_COMP__MSVC_AVAIL: %d\n", MG_COMP__MSVC_AVAIL);
+
+//     #define MGHW_SIMD_INSTRUCTION__SSE2      (0x0001)
+// #define MGHW_SIMD_INSTRUCTION__SSE42     (0x0002)
+// #define MGHW_SIMD_INSTRUCTION__AVX2      (0x0008)
+// #define MGHW_SIMD_INSTRUCTION__AVX512F   (0x0010)
+// #define MGHW_SIMD_INSTRUCTION__AVX512BW  (0x0020)
+// #define MGHW_SIMD_INSTRUCTION__AVX512DQ  (0x0040)
+// #define MGHW_SIMD_INSTRUCTION__BMI1      (0x0200)
+// #define MGHW_SIMD_INSTRUCTION__BMI2      (0x0400)
+// #define MGHW_SIMD_INSTRUCTION__ALTIVEC   (0x0800)
+// #define MGHW_SIMD_INSTRUCTION__PCLMULQDQ (0x1000)
+// #define MGHW_SIMD_INSTRUCTION__NEON      (0x2000)
+    simd_instr = mghw_detect_supported_simd_instructions();
+    printf("Supported SIMD instructions: 0x%llx\n", simd_instr);
+    if (simd_instr & MGHW_SIMD_INSTRUCTION__SSE2) {
+        printf("SSE2 is supported\n");
+    }
+    if (simd_instr & MGHW_SIMD_INSTRUCTION__SSE42) {
+        printf("SSE4.2 is supported\n");
+    }
+    if (simd_instr & MGHW_SIMD_INSTRUCTION__AVX2) {
+        printf("AVX2 is supported\n");
+    }
+    if (simd_instr & MGHW_SIMD_INSTRUCTION__AVX512F) {
+        printf("AVX-512F is supported\n");
+    }
+    if (simd_instr & MGHW_SIMD_INSTRUCTION__AVX512BW) {
+        printf("AVX-512BW is supported\n");
+    }
+    if (simd_instr & MGHW_SIMD_INSTRUCTION__AVX512DQ) {
+        printf("AVX-512DQ is supported\n");
+    }
+    if (simd_instr & MGHW_SIMD_INSTRUCTION__BMI1) {
+        printf("BMI1 is supported\n");
+    }
+    if (simd_instr & MGHW_SIMD_INSTRUCTION__BMI2) {
+        printf("BMI2 is supported\n");
+    }
+    if (simd_instr & MGHW_SIMD_INSTRUCTION__ALTIVEC) {
+        printf("AltiVec is supported\n");
+    }
+    if (simd_instr & MGHW_SIMD_INSTRUCTION__PCLMULQDQ) {
+        printf("PCLMULQDQ is supported\n");
+    }
+    if (simd_instr & MGHW_SIMD_INSTRUCTION__NEON) {
+        printf("NEON is supported\n");
+    }
 
 #ifdef __GLIBC__
     printf("__GLIBC__: %d\n", __GLIBC__);
