@@ -1,7 +1,18 @@
 
 #include <arm_neon.h>
 #include <meme/string_fwd.h>
+#include <mego/predef/compiler/gcc.h>
+#include <mego/predef/compiler/clang.h>
+#include <mego/predef/architecture/arm.h>
 
+#if !MEGO_ARCH__ARM64 && (MG_COMP__GCC_AVAIL || MG_COMP__CLANG_AVAIL)
+#define MMSIMD_NEON_TARGET_ATTRIBUTES \
+    __attribute__((target("neon")))
+#else
+#define MMSIMD_NEON_TARGET_ATTRIBUTES
+#endif
+
+MMSIMD_NEON_TARGET_ATTRIBUTES
 mmint_t __mmsimd_neon_i8_add(const int8_t* _a, const int8_t* _b, int8_t* _c, mmint_t _i, mmint_t _n)
 {
     for (; _i + (mmint_t)sizeof(int8x16_t) <= _n; _i += (mmint_t)sizeof(int8x16_t))
@@ -17,6 +28,7 @@ mmint_t __mmsimd_neon_i8_add(const int8_t* _a, const int8_t* _b, int8_t* _c, mmi
     return _i;
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 mmint_t __mmsimd_neon_i8_add_scalar(const int8_t* _a, int8_t _b, int8_t* _c, mmint_t _i, mmint_t _n)
 {
     int8x16_t vb = vdupq_n_s8(_b);
@@ -32,6 +44,7 @@ mmint_t __mmsimd_neon_i8_add_scalar(const int8_t* _a, int8_t _b, int8_t* _c, mmi
     return _i;
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 mmint_t __mmsimd_neon_i8_sub(const int8_t* _a, const int8_t* _b, int8_t* _c, mmint_t _i, mmint_t _n)
 {
     for (; _i + (mmint_t)sizeof(int8x16_t) <= _n; _i += (mmint_t)sizeof(int8x16_t))
@@ -47,6 +60,7 @@ mmint_t __mmsimd_neon_i8_sub(const int8_t* _a, const int8_t* _b, int8_t* _c, mmi
     return _i;
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 mmint_t __mmsimd_neon_i8_sub_scalar(const int8_t* _a, int8_t _b, int8_t* _c, mmint_t _i, mmint_t _n)
 {
     int8x16_t vb = vdupq_n_s8(_b);
@@ -62,6 +76,7 @@ mmint_t __mmsimd_neon_i8_sub_scalar(const int8_t* _a, int8_t _b, int8_t* _c, mmi
     return _i;
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 mmint_t __mmsimd_neon_i8_mul(const int8_t* _a, const int8_t* _b, int8_t* _c, mmint_t _i, mmint_t _n)
 {
     for (; _i + (mmint_t)sizeof(int8x16_t) <= _n; _i += (mmint_t)sizeof(int8x16_t))
@@ -77,6 +92,7 @@ mmint_t __mmsimd_neon_i8_mul(const int8_t* _a, const int8_t* _b, int8_t* _c, mmi
     return _i;
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 mmint_t __mmsimd_neon_i8_mul_scalar(const int8_t* _a, int8_t _b, int8_t* _c, mmint_t _i, mmint_t _n)
 {
     int8x16_t vb = vdupq_n_s8(_b);
@@ -92,6 +108,7 @@ mmint_t __mmsimd_neon_i8_mul_scalar(const int8_t* _a, int8_t _b, int8_t* _c, mmi
     return _i;
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_i8_add(const int8_t* _a, const int8_t* _b, int8_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -109,6 +126,7 @@ void mmsimd_neon_i8_add(const int8_t* _a, const int8_t* _b, int8_t* _c, mmint_t 
         _c[i] = _a[i] + _b[i];
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_i8_add_scalar(const int8_t* _a, int8_t _b, int8_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -126,6 +144,7 @@ void mmsimd_neon_i8_add_scalar(const int8_t* _a, int8_t _b, int8_t* _c, mmint_t 
         _c[i] = _a[i] + _b;
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_i8_sub(const int8_t* _a, const int8_t* _b, int8_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -143,6 +162,7 @@ void mmsimd_neon_i8_sub(const int8_t* _a, const int8_t* _b, int8_t* _c, mmint_t 
         _c[i] = _a[i] - _b[i];
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_i8_sub_scalar(const int8_t* _a, int8_t _b, int8_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -160,6 +180,7 @@ void mmsimd_neon_i8_sub_scalar(const int8_t* _a, int8_t _b, int8_t* _c, mmint_t 
         _c[i] = _a[i] - _b;
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_i8_mul(const int8_t* _a, const int8_t* _b, int8_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -177,6 +198,7 @@ void mmsimd_neon_i8_mul(const int8_t* _a, const int8_t* _b, int8_t* _c, mmint_t 
         _c[i] = _a[i] * _b[i];
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_i8_mul_scalar(const int8_t* _a, int8_t _b, int8_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -194,6 +216,7 @@ void mmsimd_neon_i8_mul_scalar(const int8_t* _a, int8_t _b, int8_t* _c, mmint_t 
         _c[i] = _a[i] * _b;
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_u8_add(const uint8_t* _a, const uint8_t* _b, uint8_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -211,6 +234,7 @@ void mmsimd_neon_u8_add(const uint8_t* _a, const uint8_t* _b, uint8_t* _c, mmint
         _c[i] = _a[i] + _b[i];
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_u8_add_scalar(const uint8_t* _a, uint8_t _b, uint8_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -228,6 +252,7 @@ void mmsimd_neon_u8_add_scalar(const uint8_t* _a, uint8_t _b, uint8_t* _c, mmint
         _c[i] = _a[i] + _b;
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_u8_sub(const uint8_t* _a, const uint8_t* _b, uint8_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -245,6 +270,7 @@ void mmsimd_neon_u8_sub(const uint8_t* _a, const uint8_t* _b, uint8_t* _c, mmint
         _c[i] = _a[i] - _b[i];
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_u8_sub_scalar(const uint8_t* _a, uint8_t _b, uint8_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -262,6 +288,7 @@ void mmsimd_neon_u8_sub_scalar(const uint8_t* _a, uint8_t _b, uint8_t* _c, mmint
         _c[i] = _a[i] - _b;
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_u8_mul(const uint8_t* _a, const uint8_t* _b, uint8_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -279,6 +306,7 @@ void mmsimd_neon_u8_mul(const uint8_t* _a, const uint8_t* _b, uint8_t* _c, mmint
         _c[i] = _a[i] * _b[i];
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_u8_mul_scalar(const uint8_t* _a, uint8_t _b, uint8_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -296,6 +324,7 @@ void mmsimd_neon_u8_mul_scalar(const uint8_t* _a, uint8_t _b, uint8_t* _c, mmint
         _c[i] = _a[i] * _b;
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_i16_add(const int16_t* _a, const int16_t* _b, int16_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -313,6 +342,7 @@ void mmsimd_neon_i16_add(const int16_t* _a, const int16_t* _b, int16_t* _c, mmin
         _c[i] = _a[i] + _b[i];
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_i16_add_scalar(const int16_t* _a, int16_t _b, int16_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -330,6 +360,7 @@ void mmsimd_neon_i16_add_scalar(const int16_t* _a, int16_t _b, int16_t* _c, mmin
         _c[i] = _a[i] + _b;
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_i16_sub(const int16_t* _a, const int16_t* _b, int16_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -347,6 +378,7 @@ void mmsimd_neon_i16_sub(const int16_t* _a, const int16_t* _b, int16_t* _c, mmin
         _c[i] = _a[i] - _b[i];
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_i16_sub_scalar(const int16_t* _a, int16_t _b, int16_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -364,6 +396,7 @@ void mmsimd_neon_i16_sub_scalar(const int16_t* _a, int16_t _b, int16_t* _c, mmin
         _c[i] = _a[i] - _b;
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_i16_mul(const int16_t* _a, const int16_t* _b, int16_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -381,6 +414,7 @@ void mmsimd_neon_i16_mul(const int16_t* _a, const int16_t* _b, int16_t* _c, mmin
         _c[i] = _a[i] * _b[i];
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_i16_mul_scalar(const int16_t* _a, int16_t _b, int16_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -398,6 +432,7 @@ void mmsimd_neon_i16_mul_scalar(const int16_t* _a, int16_t _b, int16_t* _c, mmin
         _c[i] = _a[i] * _b;
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_u16_add(const uint16_t* _a, const uint16_t* _b, uint16_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -415,6 +450,7 @@ void mmsimd_neon_u16_add(const uint16_t* _a, const uint16_t* _b, uint16_t* _c, m
         _c[i] = _a[i] + _b[i];
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_u16_add_scalar(const uint16_t* _a, uint16_t _b, uint16_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -432,6 +468,7 @@ void mmsimd_neon_u16_add_scalar(const uint16_t* _a, uint16_t _b, uint16_t* _c, m
         _c[i] = _a[i] + _b;
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_u16_sub(const uint16_t* _a, const uint16_t* _b, uint16_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -449,6 +486,7 @@ void mmsimd_neon_u16_sub(const uint16_t* _a, const uint16_t* _b, uint16_t* _c, m
         _c[i] = _a[i] - _b[i];
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_u16_sub_scalar(const uint16_t* _a, uint16_t _b, uint16_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -466,6 +504,7 @@ void mmsimd_neon_u16_sub_scalar(const uint16_t* _a, uint16_t _b, uint16_t* _c, m
         _c[i] = _a[i] - _b;
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_u16_mul(const uint16_t* _a, const uint16_t* _b, uint16_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -483,6 +522,7 @@ void mmsimd_neon_u16_mul(const uint16_t* _a, const uint16_t* _b, uint16_t* _c, m
         _c[i] = _a[i] * _b[i];
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_u16_mul_scalar(const uint16_t* _a, uint16_t _b, uint16_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -500,6 +540,7 @@ void mmsimd_neon_u16_mul_scalar(const uint16_t* _a, uint16_t _b, uint16_t* _c, m
         _c[i] = _a[i] * _b;
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_i32_add(const int32_t* _a, const int32_t* _b, int32_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -517,6 +558,7 @@ void mmsimd_neon_i32_add(const int32_t* _a, const int32_t* _b, int32_t* _c, mmin
         _c[i] = _a[i] + _b[i];
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_i32_add_scalar(const int32_t* _a, int32_t _b, int32_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -534,6 +576,7 @@ void mmsimd_neon_i32_add_scalar(const int32_t* _a, int32_t _b, int32_t* _c, mmin
         _c[i] = _a[i] + _b;
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_i32_sub(const int32_t* _a, const int32_t* _b, int32_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -551,6 +594,7 @@ void mmsimd_neon_i32_sub(const int32_t* _a, const int32_t* _b, int32_t* _c, mmin
         _c[i] = _a[i] - _b[i];
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_i32_sub_scalar(const int32_t* _a, int32_t _b, int32_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -568,6 +612,7 @@ void mmsimd_neon_i32_sub_scalar(const int32_t* _a, int32_t _b, int32_t* _c, mmin
         _c[i] = _a[i] - _b;
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_i32_mul(const int32_t* _a, const int32_t* _b, int32_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -585,6 +630,7 @@ void mmsimd_neon_i32_mul(const int32_t* _a, const int32_t* _b, int32_t* _c, mmin
         _c[i] = _a[i] * _b[i];
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_i32_mul_scalar(const int32_t* _a, int32_t _b, int32_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -602,6 +648,7 @@ void mmsimd_neon_i32_mul_scalar(const int32_t* _a, int32_t _b, int32_t* _c, mmin
         _c[i] = _a[i] * _b;
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_u32_add(const uint32_t* _a, const uint32_t* _b, uint32_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -619,6 +666,7 @@ void mmsimd_neon_u32_add(const uint32_t* _a, const uint32_t* _b, uint32_t* _c, m
         _c[i] = _a[i] + _b[i];
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_u32_add_scalar(const uint32_t* _a, uint32_t _b, uint32_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -636,6 +684,7 @@ void mmsimd_neon_u32_add_scalar(const uint32_t* _a, uint32_t _b, uint32_t* _c, m
         _c[i] = _a[i] + _b;
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_u32_sub(const uint32_t* _a, const uint32_t* _b, uint32_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -653,6 +702,7 @@ void mmsimd_neon_u32_sub(const uint32_t* _a, const uint32_t* _b, uint32_t* _c, m
         _c[i] = _a[i] - _b[i];
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_u32_sub_scalar(const uint32_t* _a, uint32_t _b, uint32_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -670,6 +720,7 @@ void mmsimd_neon_u32_sub_scalar(const uint32_t* _a, uint32_t _b, uint32_t* _c, m
         _c[i] = _a[i] - _b;
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_u32_mul(const uint32_t* _a, const uint32_t* _b, uint32_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -687,6 +738,7 @@ void mmsimd_neon_u32_mul(const uint32_t* _a, const uint32_t* _b, uint32_t* _c, m
         _c[i] = _a[i] * _b[i];
 }
 
+MMSIMD_NEON_TARGET_ATTRIBUTES
 void mmsimd_neon_u32_mul_scalar(const uint32_t* _a, uint32_t _b, uint32_t* _c, mmint_t _n)
 {
     mmint_t i = 0;
@@ -703,3 +755,5 @@ void mmsimd_neon_u32_mul_scalar(const uint32_t* _a, uint32_t _b, uint32_t* _c, m
     for (; i < _n; ++i)
         _c[i] = _a[i] * _b;
 }
+
+#undef MMSIMD_NEON_TARGET_ATTRIBUTES

@@ -60,3 +60,13 @@
 #ifndef MEGO_ARCH__ARM
 #define MEGO_ARCH__ARM (0)
 #endif
+
+#if defined(MEGO_ARCH__ARM) && ( \
+    defined(__arm64) || defined(_M_ARM64) || defined(__aarch64__) || \
+    defined(__AARCH64EL__) )
+#define MEGO_ARCH__ARM64 (1)
+#endif 
+
+#ifndef MEGO_ARCH__ARM64
+#define MEGO_ARCH__ARM64 (0)
+#endif

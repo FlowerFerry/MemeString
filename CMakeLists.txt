@@ -87,17 +87,17 @@ endif()
 
 if (NOT MSVC)
   # check_c_compiler_flag("-mavx2" MMSTR_COMPILER_SUPPORTS_AVX2)
-  check_c_compiler_flag("-mfpu=neon" MMSTR_COMPILER_SUPPORTS_NEON)
+  # check_c_compiler_flag("-mfpu=neon" MMSTR_COMPILER_SUPPORTS_NEON)
 
   # if (MMSTR_COMPILER_SUPPORTS_AVX2)
 	#   target_compile_options(${MMSTR_PROJECT_NAME} PRIVATE -mavx2)
   #   message(STATUS "Compiler supports AVX2")
   # endif()
 
-  if (MMSTR_COMPILER_SUPPORTS_NEON)
-    target_compile_options(${MMSTR_PROJECT_NAME} PRIVATE -mfpu=neon)
-    message(STATUS "Compiler supports NEON")
-  endif()
+  # if (MMSTR_COMPILER_SUPPORTS_NEON)
+  #   target_compile_options(${MMSTR_PROJECT_NAME} PRIVATE -mfpu=neon)
+  #   message(STATUS "Compiler supports NEON")
+  # endif()
 
 endif()
 
