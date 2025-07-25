@@ -3,15 +3,7 @@
 #include <meme/string_fwd.h>
 #include <mego/predef/compiler/visualc.h>
 #include <mego/predef/symbol/inline.h>
-#include <mego/predef/compiler/gcc.h>
-#include <mego/predef/compiler/clang.h>
-
-#if MG_COMP__GCC_AVAIL || MG_COMP__CLANG_AVAIL
-#define MMSIMD_AVX2_TARGET_ATTRIBUTES        \
-    __attribute__((target("avx2")))
-#else
-#define MMSIMD_AVX2_TARGET_ATTRIBUTES
-#endif
+#include <mego/predef/symbol/target_avx2.h>
 
 #define MMSIMD_AVX2_I16_OFFSET (mmint_t)(sizeof(__m256i) / sizeof(int16_t))
 #define MMSIMD_AVX2_I32_OFFSET (mmint_t)(sizeof(__m256i) / sizeof(int32_t))
@@ -22,7 +14,7 @@
 #define MMSIMD_AVX2_F32_OFFSET (mmint_t)(sizeof(__m256)  / sizeof(float))
 #define MMSIMD_AVX2_F64_OFFSET (mmint_t)(sizeof(__m256d) / sizeof(double))
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_i8_add(
     const int8_t* _a, const int8_t* _b, int8_t* _c, mmint_t _i, mmint_t _n)
 {
@@ -38,7 +30,7 @@ mmint_t __mmsimd_avx2_i8_add(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_i8_add_scalar(
     const int8_t* _a, int8_t _b, int8_t* _c, mmint_t _i, mmint_t _n)
 {
@@ -56,7 +48,7 @@ mmint_t __mmsimd_avx2_i8_add_scalar(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_i8_sub(
     const int8_t* _a, const int8_t* _b, int8_t* _c, mmint_t _i, mmint_t _n)
 {
@@ -72,7 +64,7 @@ mmint_t __mmsimd_avx2_i8_sub(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_i8_sub_scalar(
     const int8_t* _a, int8_t _b, int8_t* _c, mmint_t _i, mmint_t _n)
 {
@@ -126,7 +118,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_i8_div_scalar(
 }
 #endif
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_i16_add(
     const int16_t* _a, const int16_t* _b, int16_t* _c, mmint_t _i, mmint_t _n)
 {
@@ -142,7 +134,7 @@ mmint_t __mmsimd_avx2_i16_add(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_i16_add_scalar(
     const int16_t* _a, int16_t _b, int16_t* _c, mmint_t _i, mmint_t _n)
 {
@@ -160,7 +152,7 @@ mmint_t __mmsimd_avx2_i16_add_scalar(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_i16_sub(
     const int16_t* _a, const int16_t* _b, int16_t* _c, mmint_t _i, mmint_t _n)
 {
@@ -176,7 +168,7 @@ mmint_t __mmsimd_avx2_i16_sub(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_i16_sub_scalar(
     const int16_t* _a, int16_t _b, int16_t* _c, mmint_t _i, mmint_t _n)
 {
@@ -230,7 +222,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_i16_div_scalar(
 }
 #endif
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_i32_add(
     const int32_t* _a, const int32_t* _b, int32_t* _c, mmint_t _i, mmint_t _n)
 {
@@ -246,7 +238,7 @@ mmint_t __mmsimd_avx2_i32_add(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_i32_add_scalar(
     const int32_t* _a, int32_t _b, int32_t* _c, mmint_t _i, mmint_t _n)
 {
@@ -264,7 +256,7 @@ mmint_t __mmsimd_avx2_i32_add_scalar(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_i32_sub(
     const int32_t* _a, const int32_t* _b, int32_t* _c, mmint_t _i, mmint_t _n)
 {
@@ -280,7 +272,7 @@ mmint_t __mmsimd_avx2_i32_sub(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_i32_sub_scalar(
     const int32_t* _a, int32_t _b, int32_t* _c, mmint_t _i, mmint_t _n)
 {
@@ -368,7 +360,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_i32_div_scalar(
 }
 #endif
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_i64_add(
     const int64_t* _a, const int64_t* _b, int64_t* _c, mmint_t _i, mmint_t _n)
 {
@@ -384,7 +376,7 @@ mmint_t __mmsimd_avx2_i64_add(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_i64_add_scalar(
     const int64_t* _a, int64_t _b, int64_t* _c, mmint_t _i, mmint_t _n)
 {
@@ -402,7 +394,7 @@ mmint_t __mmsimd_avx2_i64_add_scalar(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_i64_sub(
     const int64_t* _a, const int64_t* _b, int64_t* _c, mmint_t _i, mmint_t _n)
 {
@@ -418,7 +410,7 @@ mmint_t __mmsimd_avx2_i64_sub(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_i64_sub_scalar(
     const int64_t* _a, int64_t _b, int64_t* _c, mmint_t _i, mmint_t _n)
 {
@@ -650,7 +642,7 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_u64_div_scalar(
 }
 #endif
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_f32_add(
     const float* _a, const float* _b, float* _c, mmint_t _i, mmint_t _n)
 {
@@ -666,7 +658,7 @@ mmint_t __mmsimd_avx2_f32_add(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_f32_add_scalar(
     const float* _a, float _b, float* _c, mmint_t _i, mmint_t _n)
 {
@@ -684,7 +676,7 @@ mmint_t __mmsimd_avx2_f32_add_scalar(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_f32_sub(
     const float* _a, const float* _b, float* _c, mmint_t _i, mmint_t _n)
 {
@@ -700,7 +692,7 @@ mmint_t __mmsimd_avx2_f32_sub(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_f32_sub_scalar(
     const float* _a, float _b, float* _c, mmint_t _i, mmint_t _n)
 {
@@ -718,7 +710,7 @@ mmint_t __mmsimd_avx2_f32_sub_scalar(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_f32_mul(
     const float* _a, const float* _b, float* _c, mmint_t _i, mmint_t _n)
 {
@@ -734,7 +726,7 @@ mmint_t __mmsimd_avx2_f32_mul(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_f32_mul_scalar(
     const float* _a, float _b, float* _c, mmint_t _i, mmint_t _n)
 {
@@ -752,7 +744,7 @@ mmint_t __mmsimd_avx2_f32_mul_scalar(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_f32_div(
     const float* _a, const float* _b, float* _c, mmint_t _i, mmint_t _n)
 {
@@ -768,7 +760,7 @@ mmint_t __mmsimd_avx2_f32_div(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_f32_div_scalar(
     const float* _a, float _b, float* _c, mmint_t _i, mmint_t _n)
 {
@@ -786,7 +778,7 @@ mmint_t __mmsimd_avx2_f32_div_scalar(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_f64_add(
     const double* _a, const double* _b, double* _c, mmint_t _i, mmint_t _n)
 {
@@ -802,7 +794,7 @@ mmint_t __mmsimd_avx2_f64_add(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_f64_add_scalar(
     const double* _a, double _b, double* _c, mmint_t _i, mmint_t _n)
 {
@@ -820,7 +812,7 @@ mmint_t __mmsimd_avx2_f64_add_scalar(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_f64_sub(
     const double* _a, const double* _b, double* _c, mmint_t _i, mmint_t _n)
 {
@@ -836,7 +828,7 @@ mmint_t __mmsimd_avx2_f64_sub(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_f64_sub_scalar(
     const double* _a, double _b, double* _c, mmint_t _i, mmint_t _n)
 {
@@ -854,7 +846,7 @@ mmint_t __mmsimd_avx2_f64_sub_scalar(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_f64_mul(
     const double* _a, const double* _b, double* _c, mmint_t _i, mmint_t _n)
 {
@@ -870,7 +862,7 @@ mmint_t __mmsimd_avx2_f64_mul(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_f64_mul_scalar(
     const double* _a, double _b, double* _c, mmint_t _i, mmint_t _n)
 {
@@ -888,7 +880,7 @@ mmint_t __mmsimd_avx2_f64_mul_scalar(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_f64_div(
     const double* _a, const double* _b, double* _c, mmint_t _i, mmint_t _n)
 {
@@ -904,7 +896,7 @@ mmint_t __mmsimd_avx2_f64_div(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_f64_div_scalar(
     const double* _a, double _b, double* _c, mmint_t _i, mmint_t _n)
 {
@@ -922,7 +914,7 @@ mmint_t __mmsimd_avx2_f64_div_scalar(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_i8_clamp(
     const int8_t* _a, int8_t _min, int8_t _max, int8_t* _c, mmint_t _i, mmint_t _n)
 {
@@ -941,7 +933,7 @@ mmint_t __mmsimd_avx2_i8_clamp(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_u8_clamp(
     const uint8_t* _a, uint8_t _min, uint8_t _max, uint8_t* _c, mmint_t _i, mmint_t _n)
 {
@@ -960,7 +952,7 @@ mmint_t __mmsimd_avx2_u8_clamp(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_i16_clamp(
     const int16_t* _a, int16_t _min, int16_t _max, int16_t* _c, mmint_t _i, mmint_t _n)
 {
@@ -979,7 +971,7 @@ mmint_t __mmsimd_avx2_i16_clamp(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_u16_clamp(
     const uint16_t* _a, uint16_t _min, uint16_t _max, uint16_t* _c, mmint_t _i, mmint_t _n)
 {
@@ -998,7 +990,7 @@ mmint_t __mmsimd_avx2_u16_clamp(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_i32_clamp(
     const int32_t* _a, int32_t _min, int32_t _max, int32_t* _c, mmint_t _i, mmint_t _n)
 {
@@ -1017,7 +1009,7 @@ mmint_t __mmsimd_avx2_i32_clamp(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_u32_clamp(
     const uint32_t* _a, uint32_t _min, uint32_t _max, uint32_t* _c, mmint_t _i, mmint_t _n)
 {
@@ -1036,7 +1028,7 @@ mmint_t __mmsimd_avx2_u32_clamp(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_f32_clamp(
     const float* _a, float _min, float _max, float* _c, mmint_t _i, mmint_t _n)
 {
@@ -1055,7 +1047,7 @@ mmint_t __mmsimd_avx2_f32_clamp(
     return _i;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_f64_clamp(
     const double* _a, double _min, double _max, double* _c, mmint_t _i, mmint_t _n)
 {
@@ -1603,7 +1595,7 @@ void mmsimd_avx2_f64_div_scalar(const double* _a, double _b, double* _c, mmint_t
         _c[i] = _a[i] / _b;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t __mmsimd_avx2_i8_to_i16(const int8_t* _in, int16_t* _out, mmint_t _n)
 {
     mmint_t idx = 0;
@@ -1717,7 +1709,7 @@ void mmsimd_avx2_i8_to_u16(const int8_t* _in, uint16_t* _out, mmint_t _n)
 //        _out[idx] = (float)_in[idx];
 //}
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 void mmsimd_avx2_i16_fill(int16_t* _out, mmint_t _len, int16_t _val)
 {
     mmint_t idx = 0;
@@ -1737,7 +1729,7 @@ void mmsimd_avx2_u16_fill(uint16_t* _out, mmint_t _len, uint16_t _val)
     mmsimd_avx2_i16_fill((int16_t*)_out, _len, (int16_t)_val);
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 void mmsimd_avx2_i32_fill(int32_t* _out, mmint_t _len, int32_t _val)
 {
     mmint_t idx = 0;
@@ -1757,7 +1749,7 @@ void mmsimd_avx2_u32_fill(uint32_t* _out, mmint_t _len, uint32_t _val)
     mmsimd_avx2_i32_fill((int32_t*)_out, _len, (int32_t)_val);
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 void mmsimd_avx2_i64_fill(int64_t* _out, mmint_t _len, int64_t _val)
 {
     mmint_t idx = 0;
@@ -1777,7 +1769,7 @@ void mmsimd_avx2_u64_fill(uint64_t* _out, mmint_t _len, uint64_t _val)
     mmsimd_avx2_i64_fill((int64_t*)_out, _len, (int64_t)_val);
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 void mmsimd_avx2_f32_fill(float* _out, mmint_t _len, float _val)
 {
     mmint_t idx = 0;
@@ -1792,7 +1784,7 @@ void mmsimd_avx2_f32_fill(float* _out, mmint_t _len, float _val)
         _out[idx] = _val;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 void mmsimd_avx2_f64_fill(double* _out, mmint_t _len, double _val)
 {
     mmint_t idx = 0;
@@ -1807,7 +1799,7 @@ void mmsimd_avx2_f64_fill(double* _out, mmint_t _len, double _val)
         _out[idx] = _val;
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t mmsimd_avx2_i8_find(const int8_t* _buf, mmint_t _len, int8_t _val)
 {
     mmint_t idx = 0;
@@ -1842,7 +1834,7 @@ mmint_t mmsimd_avx2_u8_find(const uint8_t* _buf, mmint_t _len, uint8_t _val)
     return mmsimd_avx2_i8_find((const int8_t*)_buf, _len, (int8_t)_val);
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t mmsimd_avx2_i16_find(const int16_t* _buf, mmint_t _len, int16_t _val)
 {
     mmint_t idx = 0;
@@ -1877,7 +1869,7 @@ mmint_t mmsimd_avx2_u16_find(const uint16_t* _buf, mmint_t _len, uint16_t _val)
     return mmsimd_avx2_i16_find((const int16_t*)_buf, _len, (int16_t)_val);
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t mmsimd_avx2_i32_find(const int32_t* _buf, mmint_t _len, int32_t _val)
 {
     mmint_t idx = 0;
@@ -1912,7 +1904,7 @@ mmint_t mmsimd_avx2_u32_find(const uint32_t* _buf, mmint_t _len, uint32_t _val)
     return mmsimd_avx2_i32_find((const int32_t*)_buf, _len, (int32_t)_val);
 }
 
-MMSIMD_AVX2_TARGET_ATTRIBUTES
+MG_SYM__TARGET_AVX2
 mmint_t mmsimd_avx2_i64_find(const int64_t* _buf, mmint_t _len, int64_t _val)
 {
     mmint_t idx = 0;
@@ -2089,4 +2081,3 @@ void mmsimd_avx2_f64_clamp(
 #undef MMSIMD_AVX2_U64_OFFSET
 #undef MMSIMD_AVX2_F32_OFFSET
 #undef MMSIMD_AVX2_F64_OFFSET
-#undef MMSIMD_AVX2_TARGET_ATTRIBUTES
