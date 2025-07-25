@@ -48,8 +48,8 @@ target("meme_string")
     set_symbols("hidden")
     add_rpathdirs("$ORIGIN")
     if has_config("simd_enable") then
-        add_cflags("-mavx2", { force = false })
-        add_cflags("-mfpu=neon", { force = false })
+        -- add_cflags("-mavx2", { force = false })
+        -- add_cflags("-mfpu=neon", { force = false })
         add_defines("MMOPT__SIMD_DISABLED=0")
     else
         add_defines("MMOPT__SIMD_DISABLED=1")
