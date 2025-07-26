@@ -96,7 +96,7 @@ void MemeStringSmall_shrinkTailZero(MemeStringSmall_t* _s)
 
 mgec_t MemeStringSmall_resizeAndOverwrite(MemeStringSmall_t* _s, mmint_t _size)
 {
-	assert(_size > MMSTR__GET_SMALL_BUF_MAX_SIZE && "MemeStringSmall_resizeAndOverwrite");
+	assert(_size <= MMSTR__GET_SMALL_BUF_MAX_SIZE && "MemeStringSmall_resizeAndOverwrite");
 
 	MemeStringSmall_byteSizeOffsetAndSetZero(_s, _size - (MemeStringSmall_byteSize(_s)));
 	return 0;

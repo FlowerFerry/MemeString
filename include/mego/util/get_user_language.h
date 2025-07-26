@@ -37,7 +37,7 @@ MG_CAPI_INLINE mgec_t mgu__get_user_language(char* _language, size_t _size)
         if (pos == NULL)
             return MGEC__ERR;
 
-        mgu_strncpy_s(_language, _size, lang, MGU_MATH__MIN(lang - pos, _size - 1));
+        mgu_strncpy_s(_language, _size, lang, MGU_MATH__MIN(pos - lang, _size - 1));
 
     } while (0);
     return 0;

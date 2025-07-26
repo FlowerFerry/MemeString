@@ -594,7 +594,7 @@ MEME_API void MEME_STDCALL mmsimd_f64_to_f32(const double* _in, float* _out, mmi
 #define mmsimd_uptr_to_f64          mmsimd_u32_to_f64
 #define mmsimd_size_to_i8           mmsimd_u32_to_i8
 #define mmsimd_size_to_u8           mmsimd_u32_to_u8
-#define mmsimd_size_toi16           mmsimd_u32_to_i16
+#define mmsimd_size_to_i16          mmsimd_u32_to_i16
 #define mmsimd_size_to_u16          mmsimd_u32_to_u16
 #define mmsimd_size_to_i64          mmsimd_u32_to_i64
 #define mmsimd_size_to_u64          mmsimd_u32_to_u64

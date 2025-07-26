@@ -142,7 +142,7 @@ MG_CAPI_INLINE bool mgfs__is_w_dir_writable(const wchar_t *_path, mmint_t _slen)
         return false;
     }
     
-    _snwprintf(temp, sizeof(temp), 
+    _snwprintf(temp, sizeof(temp) / sizeof(temp[0]), 
         L"%s\\~%s.%d.%s", path, L"test", rand(), L"temp");
     temp[MAX_PATH - 1] = L'\0';
     mgu_w__free_cns(_path, path);

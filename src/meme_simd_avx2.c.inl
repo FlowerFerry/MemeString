@@ -1111,7 +1111,7 @@ void mmsimd_avx2_i8_div(const int8_t* _a, const int8_t* _b, int8_t* _c, mmint_t 
 #if MG_COMP__MSVC_AVAIL
 void mmsimd_avx2_i8_div_scalar(const int8_t* _a, int8_t _b, int8_t* _c, mmint_t _n)
 {
-    mmint_t i = __mmsimd_avx2_i8_sub_scalar(_a, _b, _c, 0, _n);
+    mmint_t i = __mmsimd_avx2_i8_div_scalar(_a, _b, _c, 0, _n);
     
     for (; i < _n; ++i)
         _c[i] = _a[i] / _b;

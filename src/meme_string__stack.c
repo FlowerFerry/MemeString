@@ -507,7 +507,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_assign(
 	} break;
 	case MemeString_ImplType_large: {
 		MemeStringLarge_RefCount_increment(_other->large_.ref_);
-		memcpy(_s, &(_other->user_), MEME_STRING__OBJECT_SIZE);
+		memcpy(_s, &(_other->large_), MEME_STRING__OBJECT_SIZE);
 	} break;
 	case MemeString_ImplType_user: {
 		MemeStringUser_RefCount_increment(_other->user_.ref_);

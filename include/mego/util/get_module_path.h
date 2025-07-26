@@ -24,6 +24,8 @@ extern "C" {
 
         if (!_out)
             _capacity = 0;
+
+        if (_dirname_pos) *_dirname_pos = -1;
         
         do {
             int w2mb_len = 0;
@@ -47,9 +49,7 @@ extern "C" {
                     result = GetModuleFileNameW(_module, path, capacity);
                 }
                 if (result == capacity)
-                {
                     break;
-                }
             }
             else {
                 path = buf;
@@ -61,27 +61,19 @@ extern "C" {
             if (w2mb_eno == ERROR_INSUFFICIENT_BUFFER)
             {
                 w2mb_len = WideCharToMultiByte(CP_UTF8, 0, path, result, NULL, 0, NULL, NULL);
-                if (w2mb_len <= 0) {
-                    break;
-                }
-
             }
-            else if (w2mb_len <= 0) {
+            if (w2mb_len <= 0) {
                 break;
             }
             
-            if (w2mb_len <= _capacity)
+            if (_out && _dirname_pos && w2mb_len <= _capacity)
             {
-                _out[w2mb_len] = '\0';
-                
-                if (_dirname_pos) {
-                    for (int idx = w2mb_len - 1; idx >= 0; --idx)
+                for (int idx = w2mb_len - 1; idx >= 0; --idx)
+                {
+                    if (_out[idx] == '\\')
                     {
-                        if (_out[idx] == '\\')
-                        {
-                            *_dirname_pos = idx;
-                            break;
-                        }
+                        *_dirname_pos = idx;
+                        break;
                     }
                 }
             }
@@ -92,8 +84,15 @@ extern "C" {
         if (path && path != buf)
             free(path);
 
-        if (_out && _capacity != 0 && length >= _capacity)
-            _out[_capacity - 1] = '\0';
+        if (_out && _capacity > 0) {
+
+            if (length >= _capacity)
+                _out[_capacity - 1] = '\0';
+            else if (length < 0)
+                _out[0] = '\0';
+            else
+                _out[length] = '\0';
+        }
         
         return length;
     }

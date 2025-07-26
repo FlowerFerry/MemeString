@@ -127,7 +127,7 @@ int MemeStringImpl_capacityExpansionSmallToMedium(MemeStringStack_t* _s, MemeInt
 	
 	MemeStringStack_t newString;
 	result = MemeStringMedium_initWithCapacity((MemeStringMedium_t*)&newString, dstlen);
-	if ((result != 0)) 
+	if (MG_SYM__UNLIKELY(result != 0)) 
 		return result;
 
 	result = MemeStringMedium_assign((MemeStringMedium_t*)&newString, 
@@ -146,8 +146,8 @@ int MemeStringImpl_capacityExpansionSmallToMedium(MemeStringStack_t* _s, MemeInt
 int MemeStringImpl_capacityExpansionWithModifiable(
 	MemeStringStack_t* _s, MemeInteger_t _minSizeRequest)
 {
-	assert(_s != NULL && MemeStringImpl_capacityExpansionWithModifiable);
-	assert(_minSizeRequest > 0 && MemeStringImpl_capacityExpansionWithModifiable);
+	assert(_s != NULL && "MemeStringImpl_capacityExpansionWithModifiable");
+	assert(_minSizeRequest > 0 && "MemeStringImpl_capacityExpansionWithModifiable");
 
 	switch (MMSTR__GET_IMPLTYPE((mmstr_cptr_t)_s))
 	{
@@ -719,8 +719,10 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeString_compare(mmstr_cptr_t _s, mmst
     rlen = MemeMath_Min(srclen, dstlen);
 
 	rlen = memcmp(src, dst, rlen);
-	if (rlen)
-		return (int)rlen;
+	if (rlen < 0)
+		return -1;
+	if (rlen > 0)
+		return 1;
 
     if (srclen == dstlen)
         return 0;

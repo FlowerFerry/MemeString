@@ -95,8 +95,11 @@ int MemeStringLarge_init(
 int MemeStringLarge_initByOther(
 	MemeStringLarge_t* _s, const MemeStringLarge_t* _other)
 {
-	assert(_s != NULL && MemeStringLarge_initByOther);
-	assert(_other != NULL && MemeStringLarge_initByOther);
+	assert(_s != NULL && "MemeStringLarge_initByOther");
+	assert(_other != NULL && "MemeStringLarge_initByOther");
+
+	if (MG_SYM__UNLIKELY(_s == _other))
+		return MGEC__INVAL;
 
 	MemeStringLarge_RefCount_increment(_other->ref_);
 	memcpy(_s, _other, MEME_STRING__OBJECT_SIZE);
