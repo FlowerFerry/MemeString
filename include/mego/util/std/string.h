@@ -28,16 +28,45 @@ MG_CAPI_INLINE errno_t mgu_strncpy_s(
     if (MG_SYM__UNLIKELY(_dest == NULL || _destsz == 0)) 
         return EINVAL;
     
-    if (MG_SYM__UNLIKELY(_src == NULL)) 
+    if (MG_SYM__UNLIKELY(_src == NULL)) {
+        _dest[0] = '\0';
+        return EINVAL;
+    }
+
+    if (MG_SYM__UNLIKELY(_destsz > RSIZE_MAX)) 
+        return EINVAL;
+
+    if (MG_SYM__UNLIKELY(_count  > RSIZE_MAX)) 
     {
         _dest[0] = '\0';
         return EINVAL;
     }
 
-    if (MG_SYM__UNLIKELY(_count >= _destsz || _destsz > RSIZE_MAX)) 
+    if (_count == 0) {
+        _dest[0] = '\0';
+        return 0;
+    }
+
+    if (MG_SYM__UNLIKELY(_count > _destsz)) 
     {
         _dest[0] = '\0';
         return ERANGE;
+    }
+
+    if (MG_SYM__UNLIKELY(_count == _destsz)) 
+    {
+        rsize_t slen = 0;
+        while (_src[slen] != '\0' && slen < _count)
+            ++slen;
+        
+        if (slen >= _count) {
+            _dest[0] = '\0';
+            return ERANGE;
+        }
+
+        strncpy(_dest, _src, slen);
+        _dest[slen] = '\0';
+        return 0;
     }
 
     strncpy(_dest, _src, _count);
