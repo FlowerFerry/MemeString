@@ -36,15 +36,14 @@ MG_CAPI_INLINE mgrc_t mgu_get_proc_name_by_pid(uint32_t _pid, char* _buf, size_t
     {
         int w2mbLen;
         do {
-            if (namePtr) {
-                free(namePtr);
-                namePtr = nullptr;
-            }
-            namePtr = (wchar_t*)malloc(nameLen * sizeof(wchar_t));
-            if (namePtr == nullptr) {
+            wchar_t* newPtr = (wchar_t*)realloc(namePtr, nameLen * sizeof(wchar_t));
+            if (newPtr == nullptr) {
+                if (namePtr)
+                    free(namePtr);
                 CloseHandle(hProcess);
                 return MGEC__ERR;
             }
+            namePtr = newPtr;
 
             result = GetModuleBaseNameW(hProcess, hMod, namePtr, nameLen);
             if (result == 0) {
@@ -53,7 +52,7 @@ MG_CAPI_INLINE mgrc_t mgu_get_proc_name_by_pid(uint32_t _pid, char* _buf, size_t
                 return MGEC__ERR;
             }
 
-            if (result == nameLen) {
+            if (result >= nameLen - 1) {
                 nameLen *= 2;
                 continue;
             }
@@ -74,11 +73,14 @@ MG_CAPI_INLINE mgrc_t mgu_get_proc_name_by_pid(uint32_t _pid, char* _buf, size_t
             nameLen = _buf_size - 1;
         
         _buf[nameLen] = '\0';
-        if (namePtr)
-            free(namePtr);
+        free(namePtr);
+        CloseHandle(hProcess);
+        return nameLen;
     }
-    CloseHandle(hProcess);
-    return nameLen;
+    else {
+        CloseHandle(hProcess);
+        return MGEC__ERR;
+    }
 #else
     char path[256];
     int  len;
@@ -96,8 +98,14 @@ MG_CAPI_INLINE mgrc_t mgu_get_proc_name_by_pid(uint32_t _pid, char* _buf, size_t
     fclose(fp);
 
     len = strcspn(_buf, "\n");
-    _buf[len] = '\0';
-    return len;
+    if (len < _buf_size) {
+        _buf[len] = '\0';
+        return len;
+    }
+    else {
+        _buf[_buf_size - 1] = '\0';
+        return _buf_size - 1;
+    }
 #endif
 
 }
