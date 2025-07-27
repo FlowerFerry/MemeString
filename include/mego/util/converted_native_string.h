@@ -28,25 +28,37 @@ MG_CAPI_INLINE mgec_t mgu__to_converted_native_string(
     mmint_t u16len = 0;
     wchar_t * path = NULL;
 
-    if (MEGO_SYMBOL__UNLIKELY(_src == NULL))
-        return MGEC__INVAL;
     if (MEGO_SYMBOL__UNLIKELY(_out == NULL))
         return MGEC__INVAL;
+    if (MEGO_SYMBOL__UNLIKELY(_src == NULL))
+    {
+        *_out = NULL;
+        if (_out_slen != NULL) *_out_slen = 0;
+        return MGEC__INVAL;
+    }
 
     if (_slen < 0)
         _slen = strlen(_src);
 
     u16len = mmutf_char_size_u16from8((const uint8_t*)_src, _slen);
-    if (u16len < 1)
+    if (u16len < 1) {
+        *_out = NULL;
+        if (_out_slen != NULL) *_out_slen = 0;
         return MGEC__INVAL;
+    }
 
     path = (wchar_t*)malloc(sizeof(wchar_t) * (u16len + 1));
-    if (path == NULL)
+    if (path == NULL) {
+        *_out = NULL;
+        if (_out_slen != NULL) *_out_slen = 0;
         return MGEC__NOMEM;
+    }
 
     if (mmutf_convert_u8to16((const uint8_t*)_src, _slen, (uint16_t*)path) == 0)
     {
         free(path);
+        *_out = NULL;
+        if (_out_slen != NULL) *_out_slen = 0;
         return MGEC__INVAL;
     }
 

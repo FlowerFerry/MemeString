@@ -23,6 +23,7 @@ MG_CAPI_INLINE mgec_t mgu__get_user_language(char* _language, size_t _size)
 #if MG_OS__WIN_AVAIL
     if (!GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME, _language, _size)) 
     {
+        _language[0] = '\0';
         return mgec__from_sys_err(GetLastError());
     }
     return 0;
@@ -30,18 +31,23 @@ MG_CAPI_INLINE mgec_t mgu__get_user_language(char* _language, size_t _size)
     do {
         const char* pos = NULL;
         char* lang = getenv("LANG");
-        if (lang == NULL) 
+        if (lang == NULL) {
+            _language[0] = '\0'; 
             return MGEC__ERR;
-        
+        }
+
         pos = strchr(lang, '_');
-        if (pos == NULL)
+        if (pos == NULL) {
+            _language[0] = '\0'; 
             return MGEC__ERR;
+        }
 
         mgu_strncpy_s(_language, _size, lang, MGU_MATH__MIN(pos - lang, _size - 1));
 
     } while (0);
     return 0;
 #else
+    _language[0] = '\0';
     return MGEC__OPNOTSUPP;
 #endif
     

@@ -127,7 +127,7 @@ MG_CAPI_INLINE int mgu_fclose(FILE* _fp, bool _flush)
         ret = fflush(_fp);
 
 #if MG_OS__LINUX_AVAIL
-        if (ret == 0 && fd != -1)
+        if (fd != -1)
             ret = fsync(fd);
 #endif
     }

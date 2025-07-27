@@ -23,6 +23,7 @@ MG_CAPI_INLINE mgec_t mgu__get_user_country(char* _country, size_t _size)
 #if MG_OS__WIN_AVAIL
     if (!GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SISO3166CTRYNAME, _country, _size)) 
     {
+        _country[0] = '\0';
         return mgec__from_sys_err(GetLastError());
     }
     return 0;
@@ -31,12 +32,16 @@ MG_CAPI_INLINE mgec_t mgu__get_user_country(char* _country, size_t _size)
         const char* pos1 = NULL;
         const char* pos2 = NULL;
         char* lang = getenv("LANG");
-        if (lang == NULL) 
+        if (lang == NULL) {
+            _country[0] = '\0';
             return MGEC__ERR;
+        }
 
         pos1 = strchr(lang, '_');
-        if (pos1 == NULL) 
+        if (pos1 == NULL) {
+            _country[0] = '\0';
             return MGEC__ERR;
+        }
 
         pos2 = strchr(pos1 + 1, '.');
         if (pos2 == NULL) 
@@ -46,6 +51,7 @@ MG_CAPI_INLINE mgec_t mgu__get_user_country(char* _country, size_t _size)
     } while (0);
     return 0;
 #else
+    _country[0] = '\0';
     return MGEC__OPNOTSUPP;
 #endif
 

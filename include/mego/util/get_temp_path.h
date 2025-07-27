@@ -19,29 +19,38 @@ extern "C" {
 #if MG_OS__WIN_AVAIL
         mmint_t result = 0;
         WCHAR wpath[MAX_PATH];
+        
+        if (_out == NULL || _capacity < 1)
+            return -1; // Invalid output buffer or capacity
+
         if (GetTempPathW(MAX_PATH, wpath) == 0)
         {
+            _out[0] = '\0';
             return -1;
         }
 
         result = mmutf_char_size_u8from16((const uint16_t*)wpath, wcslen(wpath));
-        if (result < 0)
+        if (result < 0) {
+            _out[0] = '\0';
             return -1;
+        }
 
         if (result == 0) {
-            if (_capacity < 1)
-                return -1;
             _out[0] = '\0';
             return 0;
         }
         
-        if (result + 1 > _capacity)
+        if (result + 1 > _capacity) {
+            _out[0] = '\0';
             return -1;
+        }
         
         result = mmutf_convert_u16to8((const uint16_t*)wpath, wcslen(wpath), (mmbyte_t*)_out);
-        if (result < 0)
+        if (result < 0) {
+            _out[0] = '\0';
             return -1;
-        
+        }
+
         for (int i = 0; i < result; ++i)
         {
             if (_out[i] == '\\')
@@ -50,8 +59,13 @@ extern "C" {
         _out[result] = '\0';
 #else
         const char* tmp_path = "/tmp/";
+        
+        if (_out == NULL || _capacity < 1)
+            return -1; // Invalid output buffer or capacity
+            
         if (_capacity < strlen(tmp_path) + 1)
         {
+            _out[0] = '\0';
             return -1;
         }
 

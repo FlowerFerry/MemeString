@@ -9,6 +9,7 @@
 #include <mego/predef/symbol/inline.h>
 #include <mego/predef/os/windows.h>
 #include <mego/predef/os/linux.h>
+#include <mego/predef/os/macos.h>
 #include <mego/err/ec.h>
 #include <errno.h>
 #include <limits.h>
@@ -56,24 +57,33 @@ extern "C" {
 #else   
     MG_CAPI_INLINE int mgu_timespec_get(mgu_timespec_t* _ts, int _base)
     {
-        if (!_ts) return 0;
+#if MG_OS__WIN_AVAIL
+        struct _timeb tb;
+#elif defined(CLOCK_REALTIME)
+        struct timespec ts = { 0 };
+#else
+        struct timeval tv;
+#endif
+
+        if (!_ts) {
+            errno = EINVAL;
+            return 0;
+        }
 
         if (_base != MGU_TIME_UTC) {
+            errno = EINVAL;
             return 0;
         }
 
 #if MG_OS__WIN_AVAIL
-        struct _timeb tb;
         _ftime_s(&tb);
         _ts->tv_sec = (time_t)tb.time;
         _ts->tv_nsec = 1000000L * (long)tb.millitm;
 #elif defined(CLOCK_REALTIME)
-        struct timespec ts;
         _base = (clock_gettime(CLOCK_REALTIME, &ts) == 0) ? _base : 0;
         _ts->tv_sec = ts.tv_sec;
         _ts->tv_nsec = ts.tv_nsec;
 #else
-        struct timeval tv;
         gettimeofday(&tv, NULL);
         _ts->tv_sec = (time_t)tv.tv_sec;
         _ts->tv_nsec = 1000L * (long)tv.tv_usec;
@@ -156,51 +166,25 @@ extern "C" {
     #endif 
     }
 
-    MG_CAPI_INLINE int mgu_hour_timezone()
-    {
-        int tz = INT_MIN;
-        struct tm ltm;
-        struct tm gtm;
-        mgu_time_t nowt = time(NULL);
-        if (mgu_localtime_s(&nowt, &ltm) == NULL)
-            return -1;
-        if (mgu_gmtime_s(&nowt, &gtm) == NULL)
-            return -1;
-        
-        tz = ltm.tm_hour - gtm.tm_hour;
-        if (tz < -12)
-            tz += 24;
-        if (tz >  12)
-            tz -= 24;
-        return tz;
-    }
-
-    MG_CAPI_INLINE int mgu_timezone_hour()
-    {
-        return mgu_hour_timezone();
-    }
-
     MG_CAPI_INLINE int mgu_minute_timezone()
     {
-        int diff = 0;
         struct tm ltm;
         struct tm gtm;
-        mgu_time_t nowt = time(NULL);
-        if (mgu_localtime_s(&nowt, &ltm) == NULL)
-            return INT_MIN;
-        if (mgu_gmtime_s(&nowt, &gtm) == NULL)
+        mgu_time_t t_now = time(NULL);
+        mgu_time_t t_g2l = -1;
+        if (t_now == (mgu_time_t)-1)
             return INT_MIN;
 
-        diff =  (ltm.tm_hour - gtm.tm_hour) * 60 * 60 +
-                (ltm.tm_min  - gtm.tm_min ) * 60 +
-                (ltm.tm_sec  - gtm.tm_sec );
+        if (mgu_localtime_s(&t_now, &ltm) == NULL)
+            return INT_MIN;
+        if (mgu_gmtime_s(&t_now, &gtm) == NULL)
+            return INT_MIN;
 
-        if (diff < -12 * 60 * 60)
-            diff += 24 * 60 * 60;
-        if (diff >  12 * 60 * 60)
-            diff -= 24 * 60 * 60;
-        
-        return diff / 60;
+        t_g2l = mktime(&gtm);
+        if (t_g2l == (mgu_time_t)-1)
+            return INT_MIN;
+
+        return (int)((t_now - t_g2l) / 60);
     }
 
     MG_CAPI_INLINE int mgu_timezone_minute()
@@ -208,21 +192,51 @@ extern "C" {
         return mgu_minute_timezone();
     }
 
-    MG_CAPI_INLINE mgu_time_t mgu_mktime_utc(struct tm * _tm)
+    MG_CAPI_INLINE int mgu_hour_timezone()
     {
-        mgu_time_t tv = -1;
         int tz = mgu_minute_timezone();
         if (tz == INT_MIN)
+            return INT_MIN;
+        return tz / 60;
+    }
+
+    MG_CAPI_INLINE int mgu_timezone_hour()
+    {
+        return mgu_hour_timezone();
+    }
+
+    MG_CAPI_INLINE mgu_time_t mgu_mkgmtime_fallback(struct tm * _tm)
+    {
+        struct tm ttm = *_tm;
+        mgu_time_t tv = -1;
+        int tz = mgu_minute_timezone() * 60; // convert to seconds
+        ttm.tm_isdst = -1;
+
+        if (tz == INT_MIN)
             return -1;
-        if (!_tm) 
-            return -1;
-            
-        tv = (mgu_time_t)mktime(_tm);
+
+        tv = mktime(&ttm);
         if (tv == -1)
             return -1;
-    
-        return tv + tz * 60;
+        
+        return tv + tz;
     }
+
+    MG_CAPI_INLINE mgu_time_t mgu_mkgmtime(struct tm * _tm)
+    {
+#if MG_OS__WIN_AVAIL
+        return _mkgmtime(_tm);
+#elif MG_OS__LINUX_AVAIL || MG_OS__MACOS_AVAIL
+        return timegm(_tm);
+#else
+        return mgu_mkgmtime_fallback(_tm);
+#endif
+    }
+
+    // MG_CAPI_INLINE mgu_time_t mgu_mktime_utc(struct tm * _tm)
+    // {
+    //     return mgu_mkgmtime(_tm);
+    // }
 
     MG_CAPI_INLINE mgu_timestamp_t mgu_timestamp_round_to_minute(
         mgu_timestamp_t _ts, int _min_interval, mgu_round_t _round) 
@@ -251,7 +265,7 @@ extern "C" {
         }
     
         gtm.tm_sec = 0;
-        tv = mgu_mktime_utc(&gtm);
+        tv = mgu_mkgmtime(&gtm);
         if (tv == -1)
             return _ts;
         return tv * 1000;
@@ -285,7 +299,7 @@ extern "C" {
     
         gtm.tm_min = 0;
         gtm.tm_sec = 0;
-        tv = mgu_mktime_utc(&gtm);
+        tv = mgu_mkgmtime(&gtm);
         if (tv == -1)
             return _ts;
         return tv * 1000;
@@ -303,7 +317,7 @@ extern "C" {
         gtm.tm_min  = 0;
         gtm.tm_sec  = 0;
         
-        tv = mgu_mktime_utc(&gtm);
+        tv = mgu_mkgmtime(&gtm);
         if (tv == -1)
             return _ts;
 
@@ -359,7 +373,7 @@ extern "C" {
 
     MG_CAPI_INLINE mgu_timestamp_t mgu_timestamp_from_gmtime(struct tm * _tm, int _ms)
     {
-        mgu_time_t tv = mgu_mktime_utc(_tm);
+        mgu_time_t tv = mgu_mkgmtime(_tm);
         if (tv == -1)
             return -1;
         return (mgu_timestamp_t)tv * 1000 + _ms % 1000;

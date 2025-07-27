@@ -41,6 +41,9 @@ MG_CAPI_INLINE mgec_t mgu_get_self_handle_count(size_t* _count)
     size_t count = 0;
     struct dirent* entry;
     while ((entry = readdir(dir)) != NULL) {
+        if (entry->d_name[0] == '.') 
+            continue; // Skip . and .. entries
+
         if (entry->d_type == DT_LNK) {
             ++count;
         }
