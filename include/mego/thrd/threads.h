@@ -184,9 +184,9 @@ MG_CAPI_INLINE void mgthrd_exit(int _res)
 //! 等待线程终止。
 //! 函数通过阻塞等待线程与当前线程合并，直到目标线程终止。
 //! @param _thr 要合并的线程。
-//! @param _res 如果该指针不为NULL，函数会将线程的返回结果存入 @c res 指向的整数中。
+//! @param _res 如果该指针不为NULL，函数会将线程的返回结果存入 @c _res 指向的整数中。
 //! @return 成功返回 @ref mgthrd_success，失败返回 @ref mgthrd_error。
-MG_CAPI_INLINE int mgthrd_join(mgthrd_t _thr, int *_res)
+MG_CAPI_INLINE int mgthrd_join(mgthrd_t _thr, int64_t *_res)
 {
 #if MG_THR__WINTHREADS_AVAIL
 	DWORD dwRes;
@@ -200,7 +200,7 @@ MG_CAPI_INLINE int mgthrd_join(mgthrd_t _thr, int *_res)
 		return mgthrd_error;
 	}
 	if (_res != NULL) {
-		*_res = (int)dwRes;
+		*_res = dwRes;
 	}
 	CloseHandle(_thr);
 #elif MG_THR__PTHREADS_AVAIL
@@ -210,7 +210,7 @@ MG_CAPI_INLINE int mgthrd_join(mgthrd_t _thr, int *_res)
 		return mgthrd_error;
 	}
 	if (_res != NULL) {
-		*_res = (int)(intptr_t)pres;
+		*_res = (intptr_t)pres;
 	}
 #endif
 	return mgthrd_success;

@@ -72,6 +72,9 @@ struct atomic_counter
     inline _Ty get_and_inc(_Ty _inc) noexcept
     {
         _Ty curr = val_.load(std::memory_order_relaxed);
+        if (_inc == 0) {
+            return curr;
+        }
         _Ty next = (curr + _inc > maxVal_) ? minVal_ : (curr + _inc < minVal_) ? maxVal_ : curr + _inc;
         while (!val_.compare_exchange_weak(curr, next, std::memory_order_release, std::memory_order_relaxed))
         {
@@ -83,6 +86,9 @@ struct atomic_counter
     inline _Ty get_and_dec(_Ty _dec) noexcept
     {
         _Ty curr = val_.load(std::memory_order_relaxed);
+        if (_dec == 0) {
+            return curr;
+        }
         _Ty next = (curr - _dec > maxVal_) ? minVal_ : (curr - _dec < minVal_) ? maxVal_ : curr - _dec;
         while (!val_.compare_exchange_weak(curr, next, std::memory_order_release, std::memory_order_relaxed))
         {

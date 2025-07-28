@@ -61,6 +61,9 @@ struct hashable_weak_ptr {
 
     inline bool operator<(const hashable_weak_ptr<T>& _other) const noexcept 
     {
+        if (ptr_.expired() || _other.ptr_.expired()) {
+            return false; // If either is expired, we consider them equal for comparison purposes
+        }
         return ptr_.owner_before(_other.ptr_);
     }
 

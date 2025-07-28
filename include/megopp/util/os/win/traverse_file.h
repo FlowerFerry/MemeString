@@ -66,6 +66,7 @@ namespace win {
         const memepp::native_string& _dir,
         const memepp::native_string& _subDir,
         const memepp::native_string& _wildcard,
+        mmint_t _depth,
         std::back_insert_iterator<_Ty> _subDirIt,
         mgpp::err& _err)
     {
@@ -93,8 +94,13 @@ namespace win {
                 }
 
                 *_subDirIt++ = path = (_subDir + memepp::native_string{ _subDir.empty() ? L"" : MMN_PATH_SEP_STR } + findFileData.cFileName);
+                
+                if (_depth <= 0) {
+                    continue;
+                }
+
                 recursive_directorys_u16(
-                    _dir, path, _wildcard, _subDirIt, _err);
+                    _dir, path, _wildcard, _depth - 1, _subDirIt, _err);
                 if (_err) {
                     return;
                 }
@@ -116,20 +122,24 @@ namespace win {
     inline void recursive_directorys_u16(
         const memepp::native_string& _dir,
         const memepp::native_string& _wildcard,
+        mmint_t _depth,
         std::back_insert_iterator<_Ty> _subDirIt,
         mgpp::err& _err)
     {
-        recursive_directorys_u16(_dir, {}, _wildcard, _subDirIt, _err);
+        recursive_directorys_u16(_dir, {}, _wildcard, _depth, _subDirIt, _err);
     }
 
     template<typename _Fn>
     inline void list_files_by_recursive_directory_u16(
-        const memepp::native_string& _dir, 
-        const memepp::native_string& _wildcard, _Fn&& _fn, mgpp::err& _err)
+        const memepp::native_string& _dir,
+        const memepp::native_string& _wildcard,
+        mmint_t _depth,
+        _Fn&& _fn,
+        mgpp::err& _err)
     {
         std::deque<memepp::native_string> _subDirs;
         auto subDirIt = std::back_inserter(_subDirs);
-        recursive_directorys_u16(_dir, L"*", subDirIt, _err);
+        recursive_directorys_u16(_dir, L"*", _depth, subDirIt, _err);
         if (_err) {
             return;
         }

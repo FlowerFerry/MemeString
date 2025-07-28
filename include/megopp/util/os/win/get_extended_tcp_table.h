@@ -195,9 +195,14 @@ namespace win  {
         DWORD dwResult = 0;
         DWORD dwSize = 0;
         dwResult = GetExtendedTcpTable(nullptr, &dwSize, _order, __mib_tcp_tb_traits<_Ty>::af, _TableClass, 0);
-        if (dwResult != ERROR_INSUFFICIENT_BUFFER)
+        if (dwResult != ERROR_INSUFFICIENT_BUFFER && dwResult != NO_ERROR)
         {
             return MGEC__ERR;
+        }
+
+        if (dwSize == 0) {
+            _numEntries = 0;
+            return MGEC__OK;
         }
 
         std::vector<uint8_t> buffer(dwSize);

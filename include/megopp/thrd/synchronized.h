@@ -2,6 +2,8 @@
 #ifndef MEGOPP_THRD_SYNCHRONIZED_H_INCLUDED
 #define MEGOPP_THRD_SYNCHRONIZED_H_INCLUDED
 
+#include <megopp/util/scope_cleanup.h>
+
 #include <mutex>
 #include <shared_mutex>
 
@@ -354,8 +356,10 @@ namespace synchronized_details {
         if constexpr (!std::is_same_v<_SharedLock, _UniqueLock>)
         {
             if (upgrade_ptr_) {
+                MEGOPP_UTIL__ON_SCOPE_CLEANUP([this] {
+                    upgrade_ptr_->lock();
+                });
                 unlock();
-                upgrade_ptr_->lock();
             }
         }
     }
