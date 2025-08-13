@@ -147,7 +147,10 @@ int MemeStringImpl_capacityExpansionWithModifiable(
 	MemeStringStack_t* _s, MemeInteger_t _minSizeRequest)
 {
 	assert(_s != NULL && "MemeStringImpl_capacityExpansionWithModifiable");
-	assert(_minSizeRequest > 0 && "MemeStringImpl_capacityExpansionWithModifiable");
+	assert(_minSizeRequest >= 0 && "MemeStringImpl_capacityExpansionWithModifiable");
+
+	if (_minSizeRequest == 0)
+		return 0;
 
 	switch (MMSTR__GET_IMPLTYPE((mmstr_cptr_t)_s))
 	{
