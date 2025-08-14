@@ -7,7 +7,7 @@
 #include <mego/predef/compiler/clang.h>
 
 #if MEGO_ARCH__ARM && defined(__ARM_NEON) && !MEGO_ARCH__ARM64 && (MG_COMP__GCC_AVAIL || MG_COMP__CLANG_AVAIL)
-#define MEGO_SYMBOL__TARGET_NEON __attribute__((target("neon")))
+#define MEGO_SYMBOL__TARGET_NEON __attribute__((target("fpu=neon")))
 #else
 #define MEGO_SYMBOL__TARGET_NEON
 #endif
