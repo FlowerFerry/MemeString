@@ -38,9 +38,10 @@ TEST_CASE("memepp::string mulit thread read", "[string]")
 
 		std::vector<std::thread> thrs_;
 		std::atomic_bool stop{ false };
+		bool not_equal = false;
 		for (auto index = 0; index < 64; ++index)
 		{
-			thrs_.push_back(std::thread([&s01, &stop]
+			thrs_.push_back(std::thread([&s01, &stop, &not_equal]
 			{
 				auto src = s01.data();
 				auto dst = (const char*)(NULL);
@@ -50,7 +51,9 @@ TEST_CASE("memepp::string mulit thread read", "[string]")
 					std::this_thread::yield();
 					dst = s.data();
 				}
-				REQUIRE(dst == src);
+				if (dst != src) {
+					not_equal = true;
+				}
 			}));
 		}
 
@@ -60,6 +63,8 @@ TEST_CASE("memepp::string mulit thread read", "[string]")
 		for (auto& thr : thrs_) {
 			thr.join();
 		}
+
+		REQUIRE(not_equal == false);
 
 	} while (0);
 	REQUIRE(MulitThreadRead__isSucc01 == true);
@@ -77,9 +82,10 @@ TEST_CASE("memepp::string mulit thread read", "[string]")
 
 		std::vector<std::thread> thrs_;
 		std::atomic_bool stop{ false };
+		bool not_equal = false;
 		for (auto index = 0; index < 64; ++index)
 		{
-			thrs_.push_back(std::thread([&s02, &stop]
+			thrs_.push_back(std::thread([&s02, &stop, &not_equal]
 			{
 				auto src = s02.data();
 				auto dst = (const char*)(NULL);
@@ -89,7 +95,9 @@ TEST_CASE("memepp::string mulit thread read", "[string]")
 					std::this_thread::yield();
 					dst = s.data();
 				}
-				REQUIRE((void*)dst == (void*)src);
+				if (dst != src) {
+					not_equal = true;
+				}
 			}));
 		}
 
@@ -101,6 +109,7 @@ TEST_CASE("memepp::string mulit thread read", "[string]")
 			thr.join();
 		}
 
+		REQUIRE(not_equal == false);
 	} while (0);
 
 }

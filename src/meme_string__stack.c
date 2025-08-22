@@ -203,23 +203,26 @@ MEME_STDCALL MemeStringStack_initByU16bytesAndType(
             return 0;
 	} break;
 	default: {
-		MemeInteger_t pos = 0;
+		mmint_t pos = 0;
 		mmvbstk_t vbuf;
 		int result = 0;
-		MemeVariableBufferStack_init(&vbuf, MMS__OBJECT_SIZE);
-		result = (int)MemeVariableBuffer_resize((mmvb_t)&vbuf, u8len);
+		MemeVariableBufferStack_init(&vbuf, MMSTR__OBJ_SIZE);
+		result = (int)MemeVariableBuffer_resize((mmvb_ptr_t)&vbuf, u8len);
 		if (result) {
-			MemeVariableBufferStack_unInit(&vbuf, MMS__OBJECT_SIZE);
+			MemeVariableBufferStack_unInit(&vbuf, MMSTR__OBJ_SIZE);
 			return result;
 		}
-        pos = mmutf_convert_u16to8(_buf, _len, MemeVariableBuffer_dataWithNotConst((mmvb_t)&vbuf));
-        result = (int)MemeVariableBuffer_resize((mmvb_t)&vbuf, pos);
+        pos = mmutf_convert_u16to8(_buf, _len, MemeVariableBuffer_dataWithNotConst((mmvb_ptr_t)&vbuf));
+        result = (int)MemeVariableBuffer_resize((mmvb_ptr_t)&vbuf, pos);
 		if (result) {
-			MemeVariableBufferStack_unInit(&vbuf, MMS__OBJECT_SIZE);
+			MemeVariableBufferStack_unInit(&vbuf, MMSTR__OBJ_SIZE);
 			return result;
 		}
 
-		result = (int)MemeVariableBuffer_releaseToString((mmvb_t)&vbuf, _out, _object_size);
+		// result = (int)MemeVariableBuffer_releaseToString((mmvb_ptr_t)&vbuf, _out, _object_size);
+		result = (int)MemeStringLarge_initByU8bytes(
+			(MemeStringLarge_t*)_out, MemeVariableBuffer_data((mmvb_ptr_t)&vbuf), pos, NULL, NULL, 0, 0);
+		MemeVariableBufferStack_unInit(&vbuf, MMSTR__OBJ_SIZE);
 		if (result) {
 			return result;
 		}
