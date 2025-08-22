@@ -11,6 +11,7 @@ set(MMUT_GIT_HOST "github.com" CACHE STRING "")
 
 set(SRC_FILES 
 	${CMAKE_CURRENT_SOURCE_DIR}/mmpp_unittest.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_at.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_compare.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_frontback.cpp
@@ -31,6 +32,7 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_push_back.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_clear.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_reserve.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_multi_buffer_view.cpp
 )
 
 function(mmut_create_exec_for_stdcxx  exec_name cxx_standard)
