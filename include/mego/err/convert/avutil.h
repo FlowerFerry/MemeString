@@ -17,7 +17,7 @@ MG_CAPI_INLINE mgec_t mgec__from_averr(int _err)
 		return 0;
 	
     switch (_err) {
-    default:                return mgec__from_posix_err(AVUNERROR(_err));
+    default: return mgec__from_posix_err(AVUNERROR(_err));
     }
 }
 

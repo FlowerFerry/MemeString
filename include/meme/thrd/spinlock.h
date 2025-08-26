@@ -27,13 +27,25 @@ MG_CAPI_INLINE bool mmthrd_spinlock_lock(mmthrd_spinlock_t*_lock)
         mmconc_atomic_size_load_explicit(&_lock->locked, mmconc_memory_order_acquire) == tid)
         return false;
 
-    while (!mmconc_atomic_size_compare_exchange_weak_explicit(
-        &_lock->locked, &expected, tid, 
-        mmconc_memory_order_acquire, mmconc_memory_order_acquire))
-    {
+    while (true) {
+        while (mmconc_atomic_size_load_explicit(&_lock->locked, mmconc_memory_order_acquire) != SIZE_MAX)
+            mgthrd_spinwait_once(&spinwait);
+
+        if (mmconc_atomic_size_compare_exchange_weak_explicit(
+            &_lock->locked, &expected, tid,
+            mmconc_memory_order_acquire, mmconc_memory_order_acquire))
+            break;
+
         expected = SIZE_MAX;
-        mgthrd_spinwait_once(&spinwait);
     }
+
+    // while (!mmconc_atomic_size_compare_exchange_weak_explicit(
+    //     &_lock->locked, &expected, tid, 
+    //     mmconc_memory_order_acquire, mmconc_memory_order_acquire))
+    // {
+    //     expected = SIZE_MAX;
+    //     mgthrd_spinwait_once(&spinwait);
+    // }
     return true;
 }
 

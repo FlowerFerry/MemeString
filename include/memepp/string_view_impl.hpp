@@ -295,7 +295,7 @@ namespace memepp {
 		if (MemeString_storageType(to_pointer(data_)) == MemeString_UnsafeStorageType_view)
 			return string { data(), size() };
 
-		mmsstk_t stack;
+		mmstrstk_t stack;
 		MemeStringStack_initByOther(
 			&stack, MMS__OBJECT_SIZE, to_pointer(data_));
 		// TO_DO

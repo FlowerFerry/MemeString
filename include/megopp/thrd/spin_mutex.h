@@ -27,7 +27,7 @@ struct spin_mutex
     inline void lock()
     {
         auto tid = numeric_id();
-        size_t expected = SIZE_MAX;
+        // size_t expected = SIZE_MAX;
 
         mgthrd_spinwait_t spinwait;
         mgthrd_spinwait_reset(&spinwait);
@@ -35,17 +35,21 @@ struct spin_mutex
         if (tid != 0 && locked.load(std::memory_order_acquire) == tid)
             throw std::logic_error("deadlock detected");
         
-        while (!locked.compare_exchange_weak(
-            expected, tid, std::memory_order_acquire))
-        {
-            expected = SIZE_MAX;
-            mgthrd_spinwait_once(&spinwait);
-        }
-
-        // while (locked.test_and_set(std::memory_order_acquire)) 
+        // while (!locked.compare_exchange_weak(
+        //     expected, tid, std::memory_order_acquire))
         // {
+        //     expected = SIZE_MAX;
         //     mgthrd_spinwait_once(&spinwait);
         // }
+
+        while (true) {
+            while (locked.load(std::memory_order_acquire) != SIZE_MAX)
+                mgthrd_spinwait_once(&spinwait);
+            
+            size_t expected = SIZE_MAX;
+            if (locked.compare_exchange_weak(expected, tid, std::memory_order_acquire))
+                break;
+        }
     }
 
     inline bool try_lock()

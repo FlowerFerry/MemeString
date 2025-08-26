@@ -5,7 +5,7 @@
 
 int main(int _argc, char *_argv[])
 {
-    mmstrstk_t mountPoint;
+    char mountPoint[512];
     mghw_harddisk_freespace_t freeSpace = { sizeof(mghw_harddisk_freespace_t), 0 };
     int result = 0;
 
@@ -14,9 +14,8 @@ int main(int _argc, char *_argv[])
         return -1;
     }
 
-    mountPoint = mghw_get_harddisk_mountpoint_by_path(_argv[1], -1);
-    printf("Mount point: %s\n", MemeString_cStr((mmstr_t)&mountPoint));
-    mmstrstk_uninit(&mountPoint);
+    mghw_get_harddisk_mountpoint_by_path(_argv[1], -1, mountPoint, sizeof(mountPoint));
+    printf("Mount point: %s\n", mountPoint);
 
 #if MG_OS__LINUX_AVAIL
     struct statvfs buf;

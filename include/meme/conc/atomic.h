@@ -1182,7 +1182,7 @@ MG_CAPI_INLINE void mmconc_atomic_flag_clear_explicit(volatile mmconc_atomic_fla
 
 
 #if INTPTR_MAX == INT64_MAX
-#  define mmconc_atomic_iptr_init mmconc_atomic_i64_init
+#  define mmconc_atomic_iptr_init(obj,desired) mmconc_atomic_i64_init(obj,sizeof(mmconc_atomic_int64_t),desired)
 #  define mmconc_atomic_iptr_is_lock_free mmconc_atomic_i64_is_lock_free
 #  define mmconc_atomic_iptr_store_explicit mmconc_atomic_i64_store_explicit
 #  define mmconc_atomic_iptr_load_explicit mmconc_atomic_i64_load_explicit
@@ -1205,7 +1205,7 @@ MG_CAPI_INLINE void mmconc_atomic_flag_clear_explicit(volatile mmconc_atomic_fla
 #  define mmconc_atomic_iptr_fetch_xor mmconc_atomic_i64_fetch_xor
 #  define mmconc_atomic_iptr_fetch_and mmconc_atomic_i64_fetch_and
 
-#  define mmconc_atomic_uptr_init mmconc_atomic_u64_init
+#  define mmconc_atomic_uptr_init(obj,desired) mmconc_atomic_u64_init(obj,sizeof(mmconc_atomic_uint64_t),desired)
 #  define mmconc_atomic_uptr_is_lock_free mmconc_atomic_u64_is_lock_free
 #  define mmconc_atomic_uptr_store_explicit mmconc_atomic_u64_store_explicit
 #  define mmconc_atomic_uptr_load_explicit mmconc_atomic_u64_load_explicit
@@ -1228,7 +1228,7 @@ MG_CAPI_INLINE void mmconc_atomic_flag_clear_explicit(volatile mmconc_atomic_fla
 #  define mmconc_atomic_uptr_fetch_xor mmconc_atomic_u64_fetch_xor
 #  define mmconc_atomic_uptr_fetch_and mmconc_atomic_u64_fetch_and
 
-#  define mmconc_atomic_size_init mmconc_atomic_u64_init
+#  define mmconc_atomic_size_init(obj,desired) mmconc_atomic_u64_init(obj,sizeof(mmconc_atomic_uint64_t),desired)
 #  define mmconc_atomic_size_is_lock_free mmconc_atomic_u64_is_lock_free
 #  define mmconc_atomic_size_store_explicit mmconc_atomic_u64_store_explicit
 #  define mmconc_atomic_size_load_explicit mmconc_atomic_u64_load_explicit
@@ -1252,7 +1252,7 @@ MG_CAPI_INLINE void mmconc_atomic_flag_clear_explicit(volatile mmconc_atomic_fla
 #  define mmconc_atomic_size_fetch_and mmconc_atomic_u64_fetch_and
 
 #elif INTPTR_MAX == INT32_MAX
-#  define mmconc_atomic_iptr_init mmconc_atomic_i32_init
+#  define mmconc_atomic_iptr_init(obj,desired) mmconc_atomic_i32_init(obj,sizeof(mmconc_atomic_int32_t),desired)
 #  define mmconc_atomic_iptr_is_lock_free mmconc_atomic_i32_is_lock_free
 #  define mmconc_atomic_iptr_store_explicit mmconc_atomic_i32_store_explicit
 #  define mmconc_atomic_iptr_load_explicit mmconc_atomic_i32_load_explicit
@@ -1275,7 +1275,7 @@ MG_CAPI_INLINE void mmconc_atomic_flag_clear_explicit(volatile mmconc_atomic_fla
 #  define mmconc_atomic_iptr_fetch_xor mmconc_atomic_i32_fetch_xor
 #  define mmconc_atomic_iptr_fetch_and mmconc_atomic_i32_fetch_and
 
-#  define mmconc_atomic_uptr_init mmconc_atomic_u32_init
+#  define mmconc_atomic_uptr_init(obj,desired) mmconc_atomic_u32_init(obj,sizeof(mmconc_atomic_uint32_t),desired)
 #  define mmconc_atomic_uptr_is_lock_free mmconc_atomic_u32_is_lock_free
 #  define mmconc_atomic_uptr_store_explicit mmconc_atomic_u32_store_explicit
 #  define mmconc_atomic_uptr_load_explicit mmconc_atomic_u32_load_explicit
@@ -1298,7 +1298,7 @@ MG_CAPI_INLINE void mmconc_atomic_flag_clear_explicit(volatile mmconc_atomic_fla
 #  define mmconc_atomic_uptr_fetch_xor mmconc_atomic_u32_fetch_xor
 #  define mmconc_atomic_uptr_fetch_and mmconc_atomic_u32_fetch_and
 
-#  define mmconc_atomic_size_init mmconc_atomic_u32_init
+#  define mmconc_atomic_size_init(obj,desired) mmconc_atomic_u32_init(obj,sizeof(mmconc_atomic_uint32_t),desired)
 #  define mmconc_atomic_size_is_lock_free mmconc_atomic_u32_is_lock_free
 #  define mmconc_atomic_size_store_explicit mmconc_atomic_u32_store_explicit
 #  define mmconc_atomic_size_load_explicit mmconc_atomic_u32_load_explicit
