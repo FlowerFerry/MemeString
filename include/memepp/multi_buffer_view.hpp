@@ -33,7 +33,7 @@ struct multi_buffer_view
 #if MG_LANG__CXX17_AVAIL
     inline static constexpr size_type npos = static_cast<size_type>(-1);
 #else
-	static const size_type npos = static_cast<size_type>(-1);
+	static constexpr size_type npos = static_cast<size_type>(-1);
 #endif
 
     struct position {
