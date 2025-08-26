@@ -71,7 +71,7 @@ TEST_CASE("multi_buffer_view: default constructor and null", "[multi_buffer_view
     REQUIRE_THROWS_AS(mv.back(), std::out_of_range);
 
     auto pos_invalid = mv.erase(0);
-    REQUIRE(pos_invalid == memepp::multi_buffer_view::npos);
+    REQUIRE(pos_invalid == mv.npos);
 }
 
 TEST_CASE("multi_buffer_view: append/prepend/pop and size/empty/data/back_data", "[multi_buffer_view]")
@@ -192,8 +192,8 @@ TEST_CASE("multi_buffer_view: convert_position / normalize / end_position / is_e
 
     // negative/out-of-bounds positions
     auto inv = mv.convert_position(static_cast<memepp::multi_buffer_view::size_type>(-1));
-    REQUIRE(inv.index == memepp::multi_buffer_view::npos);
-    REQUIRE(inv.offset == memepp::multi_buffer_view::npos);
+    REQUIRE(inv.index == mv.npos);
+    REQUIRE(inv.offset == mv.npos);
 
     // end_position and is_end
     auto endp = mv.end_position();
@@ -325,9 +325,9 @@ TEST_CASE("multi_buffer_view: erase / remove_byte (cross-view deletion, return p
 
     SECTION("erase(size_type) out of bounds and invalid positions") {
         auto bad = mv.erase(static_cast<memepp::multi_buffer_view::size_type>(-1));
-        REQUIRE(bad == memepp::multi_buffer_view::npos);
+        REQUIRE(bad == mv.npos);
         bad = mv.erase(mv.size()); // equal to size -> invalid
-        REQUIRE(bad == memepp::multi_buffer_view::npos);
+        REQUIRE(bad == mv.npos);
     }
 }
 
@@ -530,7 +530,7 @@ TEST_CASE("multi_buffer_view: operator[](position) Boundary offset and out-of-bo
     // convert_position(position) should return npos after the end of the last view
     memepp::multi_buffer_view::position end_after_last{1, 1}; // b.size()==1, offset==1 => past the end view
     auto glob = mv.convert_position(end_after_last);
-    REQUIRE(glob == memepp::multi_buffer_view::npos);
+    REQUIRE(glob == mv.npos);
 }
 
 TEST_CASE("multi_buffer_view: const_iterator's --begin() behavior and post-increment/decrement", "[multi_buffer_view][iterator]") 
@@ -1807,7 +1807,7 @@ TEST_CASE("multi_buffer_view: normalize({npos,npos}) yields end_position", "[mul
     std::array<uint8_t, 2> a{ 1,2 };
     mv.append(a.data(), 2);
 
-    memepp::multi_buffer_view::position p{ memepp::multi_buffer_view::npos, memepp::multi_buffer_view::npos };
+    memepp::multi_buffer_view::position p{ mv.npos, mv.npos };
     auto n = mv.normalize(p);
     REQUIRE(mv.is_end(n));
     REQUIRE(n.index == mv.end_position().index);
@@ -1965,7 +1965,7 @@ TEST_CASE("multi_buffer_view: position operator== and !=", "[multi_buffer_view][
     REQUIRE(p1 != p3);
     REQUIRE_FALSE(p1 == p3);
 
-    memepp::multi_buffer_view::position pn{ memepp::multi_buffer_view::npos, memepp::multi_buffer_view::npos };
+    memepp::multi_buffer_view::position pn{ };
     REQUIRE(pn == pn);
     REQUIRE(pn != p1);
 }
@@ -2555,7 +2555,7 @@ TEST_CASE("multi_buffer_view: handling large sizes near size_type max", "[multi_
     REQUIRE(mv.size() == 100);
 
     // Test slice large count
-    auto s = mv.slice(0, memepp::multi_buffer_view::npos);
+    auto s = mv.slice(0, mv.npos);
     REQUIRE(s.size() == 100);
 }
 
@@ -2565,7 +2565,7 @@ TEST_CASE("multi_buffer_view: position equality and inequality operators", "[mul
     memepp::multi_buffer_view::position p1{1, 2};
     memepp::multi_buffer_view::position p2{1, 2};
     memepp::multi_buffer_view::position p3{1, 3};
-    memepp::multi_buffer_view::position p_npos{memepp::multi_buffer_view::npos, memepp::multi_buffer_view::npos};
+    memepp::multi_buffer_view::position p_npos{ };
 
     REQUIRE(p1 == p2);
     REQUIRE_FALSE(p1 != p2);
@@ -2733,7 +2733,7 @@ TEST_CASE("multi_buffer_view: operations on completely empty (no views)", "[mult
 
     // erase on empty does nothing
     auto pos = mv.erase(0);
-    REQUIRE(pos == memepp::multi_buffer_view::npos);
+    REQUIRE(pos == mv.npos);
 
     // find on empty returns end
     uint8_t pat = 1;

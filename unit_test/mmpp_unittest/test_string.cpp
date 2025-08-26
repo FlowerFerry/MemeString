@@ -112,8 +112,8 @@ TEST_CASE("memepp::string boundary cases", "[string]")
     REQUIRE(empty.substr(0, 10) == "");
 
     // find on empty
-    REQUIRE(empty.find("A") == memepp::string::npos);
-    REQUIRE(empty.rfind("A") == memepp::string::npos);
+    REQUIRE(empty.find("A") == empty.npos);
+    REQUIRE(empty.rfind("A") == empty.npos);
 
     // capacity on empty
     REQUIRE(empty.capacity() >= 0);
