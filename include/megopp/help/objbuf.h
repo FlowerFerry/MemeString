@@ -9,7 +9,7 @@ namespace mgpp {
 namespace help {
 
 template <typename _Ty, typename _Alloc = std::allocator<uint8_t>>
-class objbuf
+class object_buffer
 {
 public:
     using value_type = std::remove_reference_t<std::remove_cv_t<_Ty>>;
@@ -18,23 +18,23 @@ public:
 
     static_assert(std::is_trivially_copyable_v<value_type>, "Invalid type");
 
-    objbuf()
+    object_buffer()
         : buf_(_Alloc())
     {}
 
-    objbuf(const objbuf&) = delete;
+    object_buffer(const object_buffer&) = delete;
 
-    objbuf(std::vector<uint8_t, _Alloc>&& _buf)
+    object_buffer(std::vector<uint8_t, _Alloc>&& _buf)
         : buf_(std::move(_buf))
     {
     }
 
-    objbuf(size_t _size, const _Alloc& _alloc = _Alloc())
+    object_buffer(size_t _size, const _Alloc& _alloc = _Alloc())
         : buf_(_size / sizeof(item_type) + sizeof(item_type), _alloc)
     {
     }
 
-    objbuf& operator=(const objbuf&) = delete;
+    object_buffer& operator=(const object_buffer&) = delete;
 
     inline const value_type* get() const noexcept
     {
@@ -56,6 +56,9 @@ public:
 private:
     std::vector<uint8_t, _Alloc> buf_;
 };
+
+template<typename _Ty, typename _Alloc = std::allocator<uint8_t>>
+using objbuf = object_buffer<_Ty, _Alloc>;
 
 }
 }

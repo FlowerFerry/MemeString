@@ -1745,7 +1745,7 @@ TEST_CASE("multi_buffer_view: to_buffer produces contiguous copy equal to flatte
     std::vector<uint8_t> flat = flatten(mv);
     REQUIRE(buf.size() == mv.size());
     REQUIRE(buf.size() == static_cast<memepp::multi_buffer_view::size_type>(flat.size()));
-    REQUIRE(std::memcmp(buf.data(), flat.data(), flat.size()) == 0);
+    REQUIRE(memcmp(buf.data(), flat.data(), flat.size()) == 0);
 }
 
 TEST_CASE("multi_buffer_view: insert(count=0) is no-op and returns insertion anchor", "[multi_buffer_view][insert][count0]") {
@@ -2374,7 +2374,7 @@ TEST_CASE("multi_buffer_view: read<Ty> for various types and endian, error on in
         auto err = mv.read(memepp::multi_buffer_view::position{0, 0}, val, mgpp::endian_t::little_byte);
         REQUIRE(err == mgpp::err{});
         uint32_t expected;
-        std::memcpy(&expected, a.data(), sizeof(float));
+        memcpy(&expected, a.data(), sizeof(float));
 #if MEGO_ENDIAN__BIG_BYTE
         expected = megopp::endian::byte_swap(expected);
 #endif
