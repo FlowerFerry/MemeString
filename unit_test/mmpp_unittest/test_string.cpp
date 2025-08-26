@@ -23,7 +23,7 @@ TEST_CASE("memepp::string count", "[string]")
     //REQUIRE(str.count("cc", 2, memepp::case_sensit_t::all_insensitive) == 3);
 
     // count with pointer (MemeByte_t*)
-    REQUIRE(str.count(reinterpret_cast<const memepp::string::pointer>("Aa"), 2) == 3);
+    REQUIRE(str.count(reinterpret_cast<memepp::string::const_pointer>("Aa"), 2) == 3);
 
     // count with rune
     memepp::rune r = 'A';
