@@ -30,7 +30,11 @@ struct multi_buffer_view
     using size_type = mmint_t;
     using difference_type = ptrdiff_t;
 
+#if MG_LANG__CXX17_AVAIL
+    inline static constexpr size_type npos = static_cast<size_type>(-1);
+#else
 	static const size_type npos = static_cast<size_type>(-1);
+#endif
 
     struct position {
 
@@ -1379,6 +1383,10 @@ private:
     std::vector< std::pair<const uint8_t*, size_type> > views_;
     size_type total_size_ = 0;
 };
+
+#if !MG_LANG__CXX17_AVAIL
+const multi_buffer_view::size_type multi_buffer_view::npos;
+#endif
 
 inline multi_buffer_view::size_type multi_buffer_view::split_at(position _pos)
 {

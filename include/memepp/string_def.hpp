@@ -2,6 +2,7 @@
 #ifndef MEMEPP_STRING_DEF_HPP_INCLUDED
 #define MEMEPP_STRING_DEF_HPP_INCLUDED
 
+#include <mego/predef/lang/version.h>
 #include "meme/string.h"
 #include "meme/unsafe/string_view.h"
 #include "memepp/rune_fwd.hpp"
@@ -34,7 +35,11 @@ namespace memepp {
 
 		using native_handle_type = MemeStringStack_t;
 
+#if MG_LANG__CXX17_AVAIL
+		inline static constexpr size_type npos = static_cast<size_type>(-1);
+#else
 		static const size_type npos = static_cast<size_type>(-1);
+#endif
         
 		string() noexcept;
 		string(mmstr_cptr_t _other);
@@ -347,6 +352,10 @@ namespace memepp {
 	private:
 		native_handle_type data_;
 	};
+
+#if !MG_LANG__CXX17_AVAIL
+	const string::size_type string::npos;
+#endif
 
 	bool operator==(const string& _lhs, const string& _rhs) noexcept;
 	bool operator==(const char* _lhs, const string& _rhs) noexcept;
