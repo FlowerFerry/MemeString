@@ -38,7 +38,7 @@ namespace memepp {
 #if MG_LANG__CXX17_AVAIL
 		inline static constexpr size_type npos = static_cast<size_type>(-1);
 #else
-		static const size_type npos = static_cast<size_type>(-1);
+		static const size_type npos;
 #endif
         
 		string() noexcept;
@@ -354,7 +354,7 @@ namespace memepp {
 	};
 
 #if !MG_LANG__CXX17_AVAIL
-	const string::size_type string::npos;
+	string::size_type string::npos = static_cast<size_type>(-1);
 #endif
 
 	bool operator==(const string& _lhs, const string& _rhs) noexcept;

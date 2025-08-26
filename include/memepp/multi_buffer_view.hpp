@@ -33,7 +33,7 @@ struct multi_buffer_view
 #if MG_LANG__CXX17_AVAIL
     inline static constexpr size_type npos = static_cast<size_type>(-1);
 #else
-	static const size_type npos = static_cast<size_type>(-1);
+	static const size_type npos;
 #endif
 
     struct position {
@@ -1385,7 +1385,7 @@ private:
 };
 
 #if !MG_LANG__CXX17_AVAIL
-const multi_buffer_view::size_type multi_buffer_view::npos;
+multi_buffer_view::size_type multi_buffer_view::npos = static_cast<size_type>(-1);
 #endif
 
 inline multi_buffer_view::size_type multi_buffer_view::split_at(position _pos)
