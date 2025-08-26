@@ -354,7 +354,6 @@ namespace memepp {
 	};
 
 #if !MG_LANG__CXX17_AVAIL
-	const string::size_type string::npos;
 #endif
 
 	bool operator==(const string& _lhs, const string& _rhs) noexcept;

@@ -1385,7 +1385,6 @@ private:
 };
 
 #if !MG_LANG__CXX17_AVAIL
-const multi_buffer_view::size_type multi_buffer_view::npos;
 #endif
 
 inline multi_buffer_view::size_type multi_buffer_view::split_at(position _pos)
