@@ -2,6 +2,7 @@
 #ifndef MEMEPP_BUFFER_DEF_HPP_INCLUDED
 #define MEMEPP_BUFFER_DEF_HPP_INCLUDED
 
+#include <mego/predef/lang/version.h>
 #include "meme/buffer_fwd.h"
 #include "memepp/buffer_fwd.hpp"
 #include "memepp/string_fwd.hpp"
@@ -25,7 +26,11 @@ namespace memepp {
 
 		using native_handle_type = MemeBufferStack_t;
 
-		static const size_type npos = static_cast<size_type>(-1);
+#if MG_LANG__CXX17_AVAIL
+		inline static constexpr size_type npos = static_cast<size_type>(-1);
+#else
+		enum : size_type { npos = static_cast<size_type>(-1) };
+#endif
 
 		buffer() MEGOPP__NOEXCEPT;
 		buffer(native_handle_type&& _other);

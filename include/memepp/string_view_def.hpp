@@ -2,6 +2,7 @@
 #ifndef MEMEPP_STRING_VIEW_DEF_HPP_INCLUDED
 #define MEMEPP_STRING_VIEW_DEF_HPP_INCLUDED
 
+#include <mego/predef/lang/version.h>
 #include "meme/string.h"
 #include "meme/unsafe/string_view.h"
 #include "memepp/string_fwd.hpp"
@@ -30,8 +31,12 @@ namespace memepp {
 		using const_pointer = const value_type*;
 
 		using native_handle_type = MemeStringStack_t;
-
-		static const size_type npos = static_cast<size_type>(-1);
+		
+#if MG_LANG__CXX17_AVAIL
+		inline static constexpr size_type npos = static_cast<size_type>(-1);
+#else
+		enum : size_type { npos = static_cast<size_type>(-1) };
+#endif
 
 		string_view() noexcept;
 		string_view(mmstr_const_t _other) noexcept;
