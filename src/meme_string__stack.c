@@ -1264,7 +1264,7 @@ MEME_STDCALL MemeStringStack_getRepeat_v2(
 	assert(_out != NULL && "MemeStringStack_getRepeat_v2");
 
 	if (_obj_size <= 0) {
-		_obj_size = MemeStringStack_regSize(_out);
+		_obj_size = MemeStringStack_regSize(_out) * sizeof(mmint_t);
 		mmstrstk_uninit_v0(_out, _obj_size);
 	}
 
@@ -1424,7 +1424,7 @@ MEME_STDCALL MemeStringStack_replace_v2(
 		_to_len = strlen(_to);
 
 	if (_obj_size <= 0) {
-		_obj_size = MemeStringStack_regSize(_out);
+		_obj_size = MemeStringStack_regSize(_out) * sizeof(mmint_t);
 		mmstrstk_uninit_v0(_out, _obj_size);
 	}
 
@@ -1535,7 +1535,7 @@ MEME_STDCALL MemeStringStack_toValidUtf8_v2(const mmstrstk_t* _str, mmstrstk_t* 
 		return MGEC__INVAL;
 
 	if (_obj_size <= 0) {
-		_obj_size = MemeStringStack_regSize(_out);
+		_obj_size = MemeStringStack_regSize(_out) * sizeof(mmint_t);
 		mmstrstk_uninit_v0(_out, _obj_size);
 	}
 
@@ -1610,7 +1610,7 @@ MemeStringStack_mappingConvert_v2(
 	assert(_str != NULL && "MemeStringStack_mappingConvert_v2");
 
 	if (_obj_size <= 0) {
-		_obj_size = MemeStringStack_regSize(_out);
+		_obj_size = MemeStringStack_regSize(_out) * sizeof(mmint_t);
 		mmstrstk_uninit_v0(_out, _obj_size);
 	}
 
@@ -1999,6 +1999,7 @@ MEME_STDCALL MemeStringStack_split(
 	mmint_t last_index = (_search_index == NULL ? 0 : *_search_index);
 	mmint_t curr_index = -1;
 	mmint_t output_index = 0;
+	mmstrstk_t* output_item = NULL;
 	mmstr_cptr_t str = (mmstr_cptr_t)_str;
 
 	assert(_str != NULL && "MemeStringStack_split");
@@ -2013,6 +2014,8 @@ MEME_STDCALL MemeStringStack_split(
 
 	while (output_index < *_out_count)
 	{
+		output_item = (mmstrstk_t*)((uint8_t*)_out + output_index * _obj_size);
+
 		curr_index =
 			MemeString_indexOfWithUtf8bytes(
 				str, last_index, (const mmbyte_t*)_key, _key_len, _sensitivity);
@@ -2020,14 +2023,14 @@ MEME_STDCALL MemeStringStack_split(
 			if (last_index < MemeString_byteSize(str))
 			{
 				MemeStringStack_initByU8bytes(
-					_out + output_index, _obj_size, 
+					output_item, _obj_size,
 					MemeString_byteData(str) + last_index,
 					MemeString_byteSize(str) - last_index);
 				*_out_count = output_index + 1;
 			}
 			else if (_behavior == MemeFlag_KeepEmptyParts)
 			{
-				MemeStringStack_init(_out + output_index, _obj_size);
+				MemeStringStack_init(output_item, _obj_size);
 				*_out_count = output_index + 1;
 			}
 			else {
@@ -2045,7 +2048,7 @@ MEME_STDCALL MemeStringStack_split(
 		}
 
 		result = MemeStringStack_initByU8bytes(
-			_out + output_index, _obj_size, MemeString_byteData(str) + last_index, curr_index - last_index);
+			output_item, _obj_size, MemeString_byteData(str) + last_index, curr_index - last_index);
 		if (result != 0) {
 			for (mmint_t i = 0; i < output_index; ++i)
 				MemeStringStack_unInit(_out + i, _obj_size);
@@ -2089,6 +2092,7 @@ MemeStringStack_splitByCondByteFunc(
 	mmint_t last_index = (_search_index == NULL ? 0 : *_search_index);
 	mmint_t curr_index = -1;
 	mmint_t output_index = 0;
+	mmstrstk_t* output_item = NULL;
 	mmstr_cptr_t str = (mmstr_cptr_t)_str;
 
 	assert(_str != NULL && "MemeStringStack_splitByCondByteFunc");
@@ -2100,6 +2104,7 @@ MemeStringStack_splitByCondByteFunc(
 
 	while (output_index < *_out_count)
 	{
+		output_item = (mmstrstk_t*)((uint8_t*)_out + output_index * _obj_size);
 		curr_index =
 			MemeString_indexByCondByteFunc(
 				str, last_index, _cond_func, _user_data);
@@ -2107,7 +2112,7 @@ MemeStringStack_splitByCondByteFunc(
 			if (last_index < MemeString_byteSize(str))
 			{
 				MemeStringStack_initByU8bytes(
-					_out + output_index, _obj_size, MemeString_byteData(str) + last_index,
+					output_item, _obj_size, MemeString_byteData(str) + last_index,
 					MemeString_byteSize(str) - last_index);
 				*_out_count = output_index + 1;
 			}
@@ -2126,7 +2131,7 @@ MemeStringStack_splitByCondByteFunc(
 		}
 
 		result = MemeStringStack_initByU8bytes(
-			_out + output_index, _obj_size, 
+			output_item, _obj_size, 
 			MemeString_byteData(str) + last_index, curr_index - last_index);
 		if (result != 0) {
 			for (mmint_t i = 0; i < output_index; ++i)
@@ -2243,6 +2248,7 @@ MEME_STDCALL MemeStringViewUnsafeStack_split(
 	mmint_t last_index = (_search_index == NULL ? 0 : *_search_index);
 	mmint_t curr_index = -1;
 	mmint_t output_index = 0;
+	mmstrstk_t* output_item = NULL;
     mmstr_cptr_t str = (mmstr_cptr_t)_str;
 
 	assert(_str != NULL && "MemeStringViewUnsafeStack_split");
@@ -2257,20 +2263,21 @@ MEME_STDCALL MemeStringViewUnsafeStack_split(
 
 	while (output_index < *_out_count)
 	{
+		output_item = (mmstrstk_t*)((uint8_t*)_out + output_index * _obj_size);
 		curr_index = MemeString_indexOfWithUtf8bytes(
 				str, last_index, (const mmbyte_t*)_key, _key_len, _sensitivity);
 		if (curr_index == -1) {
 			if (last_index < MemeString_byteSize(str))
 			{
 				MemeStringViewUnsafeStack_init(
-					_out + output_index, _obj_size, 
+					output_item, _obj_size, 
 					MemeString_byteData(str) + last_index,
 					MemeString_byteSize(str) - last_index);
 				*_out_count = output_index + 1;
 			}
 			else if (_behavior == MemeFlag_KeepEmptyParts)
 			{
-				MemeStringStack_init(_out + output_index, _obj_size);
+				MemeStringStack_init(output_item, _obj_size);
 				*_out_count = output_index + 1;
 			}
 			else {
@@ -2288,7 +2295,7 @@ MEME_STDCALL MemeStringViewUnsafeStack_split(
 		}
 
 		MemeStringViewUnsafeStack_init(
-			_out + output_index, _obj_size, MemeString_byteData(str) + last_index, curr_index - last_index);
+			output_item, _obj_size, MemeString_byteData(str) + last_index, curr_index - last_index);
 		last_index = curr_index + _key_len;
 		++output_index;
 	}
