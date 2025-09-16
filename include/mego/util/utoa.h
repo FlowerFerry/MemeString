@@ -5,6 +5,7 @@
 #include <mego/predef/symbol/likely.h>
 #include <mego/predef/symbol/inline.h>
 
+#include <stddef.h>
 #include <stdint.h>
 #include <assert.h>
 #include <limits.h>
