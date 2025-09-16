@@ -77,24 +77,24 @@ namespace memepp {
         return _a = _a ^ _b;
     }
 
-	inline MemeString_t to_pointer(MemeStringStack_t& _s) noexcept
+	inline mmstr_ptr_t to_pointer(mmstrstk_t& _s) noexcept
 	{
-		return reinterpret_cast<MemeString_t>(&_s);
+		return reinterpret_cast<mmstr_ptr_t>(&_s);
 	}
 
-	inline MemeString_Const_t to_pointer(const MemeStringStack_t& _s) noexcept
+	inline mmstr_cptr_t to_pointer(const mmstrstk_t& _s) noexcept
 	{
-		return reinterpret_cast<MemeString_Const_t>(&_s);
+		return reinterpret_cast<mmstr_cptr_t>(&_s);
 	}
 
-	inline mmsbldr_t to_pointer(mmsbldrstk_t& _s) noexcept
+	inline mmsbldr_ptr_t to_pointer(mmsbldrstk_t& _s) noexcept
 	{
-		return reinterpret_cast<mmsbldr_t>(&_s);
+		return reinterpret_cast<mmsbldr_ptr_t>(&_s);
 	}
 
-    inline mmsbldr_const_t to_pointer(const mmsbldrstk_t& _s) noexcept
+    inline mmsbldr_cptr_t to_pointer(const mmsbldrstk_t& _s) noexcept
     {
-        return reinterpret_cast<mmsbldr_const_t>(&_s);
+        return reinterpret_cast<mmsbldr_cptr_t>(&_s);
     }
 
     static_assert(sizeof(mmstrstk_t) == MMSTR__OBJ_SIZE, "mmstrstk_t size mismatch");

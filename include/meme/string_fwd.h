@@ -48,6 +48,8 @@ typedef struct _MemeRuneIndex_t
 } MemeRuneIndex_t;
 typedef MemeRuneIndex_t mmrune_idx_t;
 
+#define MEME_RUNE__MAX_CHAR_SIZE 7
+
 typedef struct _MemeRune_t {
 	MemeByte_t byte[7];
 	struct {

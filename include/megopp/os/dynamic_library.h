@@ -1,7 +1,8 @@
-
+﻿
 #ifndef MEGOPP_DYNAMIC_LIBRARY_H_INCLUDED
 #define MEGOPP_DYNAMIC_LIBRARY_H_INCLUDED
 
+#include <mego/predef/os/linux.h>
 #include <mego/predef/os/windows.h>
 #include <mego/util/os/windows/windows_simplify.h>
 
@@ -114,7 +115,12 @@ namespace os {
 			return NULL;
 		}
 #else
-		handle = ::dlopen(_path.c_str(), _dependentLibraryMode ? RTLD_NOW | RTLD_GLOBAL : RTLD_NOW);
+		handle = ::dlopen(_path.c_str(), 
+#if MG_OS__LINUX_AVAIL
+				RTLD_NOW | RTLD_LOCAL | RTLD_DEEPBIND);
+#else
+				RTLD_NOW | RTLD_LOCAL);
+#endif
 		if (!handle) {
 			memepp::string dlErrorString;
 			const char *zErrorString = ::dlerror();

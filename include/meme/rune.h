@@ -170,7 +170,7 @@ MG_CAPI_INLINE MemeRune_t
 {
     MemeRune_t w;
     memset(&w, 0, sizeof(w));
-    w.attr.capacity = 7;
+    w.attr.capacity = MEME_RUNE__MAX_CHAR_SIZE;
     return w;
 }
 
@@ -179,7 +179,7 @@ MG_CAPI_INLINE MemeInteger_t
 {
     assert(_s != NULL);
 
-    return 7 - _s->attr.capacity;
+    return MEME_RUNE__MAX_CHAR_SIZE - _s->attr.capacity;
 }
 
 MG_CAPI_INLINE int
@@ -196,7 +196,7 @@ MG_CAPI_INLINE int
 {
     assert(_out != NULL);
 
-    _out->attr.capacity = 6;
+    _out->attr.capacity = MEME_RUNE__MAX_CHAR_SIZE - 1;
     _out->attr.invalid  = 0;
     _out->byte[0] = _ch;
     _out->byte[1] = '\0';
@@ -208,14 +208,14 @@ MG_CAPI_INLINE int
 {
     assert(_out != NULL && _buf != NULL);
 
-    if ((_len > 7))
+    if ((_len > MEME_RUNE__MAX_CHAR_SIZE))
         return MGEC__INVAL;
     if (_len < 0)
         _len = mmutf_u8rune_char_size(_buf[0]);
     if (_len < 0)
         _len = 0;
 
-    _out->attr.capacity = (mmbyte_t)(7 - _len);
+    _out->attr.capacity = (mmbyte_t)(MEME_RUNE__MAX_CHAR_SIZE - _len);
     _out->attr.invalid  = 0;
     memcpy(_out->byte, _buf, _len);
     _out->byte[MemeRune_size(_out)] = '\0';
@@ -228,7 +228,7 @@ MG_CAPI_INLINE int
     assert(_out != NULL);
 
     memset(_out, 0, sizeof(*_out));
-    _out->attr.capacity = 7;
+    _out->attr.capacity = MEME_RUNE__MAX_CHAR_SIZE;
     return 0;
 }
 
@@ -257,7 +257,7 @@ MG_CAPI_INLINE int
 {
     assert(_s != NULL);
 
-    return _s->attr.capacity == 7;
+    return _s->attr.capacity == MEME_RUNE__MAX_CHAR_SIZE;
 }
 
 MG_CAPI_INLINE const MemeByte_t*
@@ -303,10 +303,10 @@ MG_CAPI_INLINE int
 {
     assert(_s != NULL);
 
-    if ((_count > 7))
+    if ((_count > MEME_RUNE__MAX_CHAR_SIZE))
         return MGEC__INVAL;
 
-    _s->attr.capacity = 7 - _count;
+    _s->attr.capacity = MEME_RUNE__MAX_CHAR_SIZE - _count;
     _s->byte[MemeRune_size(_s)] = '\0';
     return 0;
 }
@@ -316,7 +316,7 @@ MG_CAPI_INLINE int
 {
     assert(_s != NULL);
 
-    return !!(_s->byte[0] & 0x80);
+    return (_s->byte[0] & 0x80) && (MemeRune_size(_s) > 1);
 }
 
 //MG_CAPI_INLINE int
