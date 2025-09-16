@@ -276,17 +276,18 @@ MEME_STDCALL MemeStringStack_toValidUtf8_v2(
 //MEME_STDCALL MemeStringStack_fromInt64(
 //    size_t _object_size, int64_t _value, int _radix);
 //
-//MEME_API mmstrstk_t
-//MEME_STDCALL MemeStringStack_fromUInt16(
-//    size_t _object_size, uint16_t _value, int _radix);
-//
-//MEME_API mmstrstk_t
-//MEME_STDCALL MemeStringStack_fromUInt32(
-//    size_t _object_size, uint32_t _value, int _radix);
-//
-//MEME_API mmstrstk_t
-//MEME_STDCALL MemeStringStack_fromUInt64(
-//    size_t _object_size, uint64_t _value, int _radix);
+
+MEME_API mgec_t
+MEME_STDCALL MemeStringStack_fromUInt16(
+   uint16_t _value, int _radix, mmstrstk_t* _out, mmint_t _obj_size);
+
+MEME_API mgec_t
+MEME_STDCALL MemeStringStack_fromUInt32(
+   uint32_t _value, int _radix, mmstrstk_t* _out, mmint_t _obj_size);
+
+MEME_API mgec_t
+MEME_STDCALL MemeStringStack_fromUInt64(
+   uint64_t _value, int _radix, mmstrstk_t* _out, mmint_t _obj_size);
 
 //MEME_API mmstrstk_t
 //MEME_STDCALL MemeStringStack_fromFloat(

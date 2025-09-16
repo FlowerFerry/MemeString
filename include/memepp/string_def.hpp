@@ -20,20 +20,20 @@
 namespace memepp {
 
     //! \brief A string class.
-    //! \details This class is a wrapper of MemeStringStack_t.
+    //! \details This class is a wrapper of mmstrstk_t.
 	//! \note This class is not Thread-safe.
 	class string
 	{
 	public:
-		using value_type = MemeByte_t;
-		using size_type = MemeInteger_t;
+		using value_type = mmbyte_t;
+		using size_type = mmint_t;
 		using difference_type = ptrdiff_t;
 		using reference = value_type & ;
 		using const_reference = const value_type&;
 		using pointer = value_type * ;
 		using const_pointer = const value_type*;
 
-		using native_handle_type = MemeStringStack_t;
+		using native_handle_type = mmstrstk_t;
 
 #if MG_LANG__CXX17_AVAIL
 		inline static constexpr size_type npos = static_cast<size_type>(-1);
@@ -236,6 +236,8 @@ namespace memepp {
         //bool ends_with(char _ch) const noexcept;
         bool ends_with(const rune& _ch) const noexcept;
 
+		int compare(const string& _other) const noexcept;
+
 		template<typename _Func>
         size_type rune_foreach(_Func&& _func) const noexcept;
 
@@ -266,15 +268,15 @@ namespace memepp {
 		inline string mapping_convert(_Func&& _func) const;
 
 		template<class _Container>
-		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,
+		inline mmint_t split(string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container> _inserter) const;
 
 		//template<class _Container>
-		//inline MemeInteger_t split(string_view _key, 
+		//inline mmint_t split(string_view _key, 
 		//	std::back_insert_iterator<_Container> _inserter) const;
 
 		//template<template<class, class...> class _Container, typename _Ty, class... _Arg>
-		//inline MemeInteger_t split(
+		//inline mmint_t split(
 		//	string_view _key, split_behavior_t _behavior,
 		//	std::back_insert_iterator<_Container<_Ty, _Arg...>> _inserter) const;
 
@@ -285,11 +287,11 @@ namespace memepp {
 		//! \return The error code.
 		template<template<class> class _Container,
             typename = std::enable_if_t<std::is_same<string, typename _Container<string>::value_type>::value>>
-		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,
+		inline mmint_t split(string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string>> _inserter) const;
 
 		//template<template<class> class _Container>
-		//inline MemeInteger_t split(string_view _key, 
+		//inline mmint_t split(string_view _key, 
 		//	std::back_insert_iterator<_Container<string>> _inserter) const;
 
 		//! \brief Split string with key.
@@ -299,11 +301,11 @@ namespace memepp {
 		//! \return The error code.
 		template<template<class> class _Container,
             typename = std::enable_if_t<std::is_same<string_view, typename _Container<string_view>::value_type>::value>>
-		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,
+		inline mmint_t split(string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string_view>> _inserter) const MEGOPP__NOEXCEPT;
 
 		//template<template<class> class _Container>
-		//inline MemeInteger_t split(string_view _key, 
+		//inline mmint_t split(string_view _key, 
 		//	std::back_insert_iterator<_Container<string_view>> _inserter) const;
 
 		//! \brief Split string with key.
@@ -313,7 +315,7 @@ namespace memepp {
 		//! \return The error code.
 		template<template<class, class...> class _Container, class... _Arg,
             typename = std::enable_if_t<std::is_same<string, typename _Container<string, _Arg...>::value_type>::value>>
-		inline MemeInteger_t split(
+		inline mmint_t split(
 			string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string, _Arg...>> _inserter) const;
 
@@ -330,7 +332,7 @@ namespace memepp {
 		//! \return The error code.
 		template<template<class, class...> class _Container, class... _Arg,
             typename = std::enable_if_t<std::is_same<string_view, typename _Container<string_view, _Arg...>::value_type>::value>>
-		inline MemeInteger_t split(
+		inline mmint_t split(
 			string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const MEGOPP__NOEXCEPT;
 		
@@ -341,7 +343,7 @@ namespace memepp {
 			std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const MEGOPP__NOEXCEPT;
 
 		//template<typename _Function, template<class> class _Container>
-		//inline MemeInteger_t split(
+		//inline mmint_t split(
 		//	split_behavior_t _behavior,
 		//	std::back_insert_iterator<_Container<string_view>> _inserter, 
 		//	const _Function& _fn) const;

@@ -457,6 +457,9 @@ EXPORTS
     MemeStringStack_trimByCondByteFunc_v2 @3016
     MemeStringStack_splitByCondByteFunc @3017
     MemeStringStack_mappingConvert_v2 @3018
+    MemeStringStack_fromUInt16 @3019
+    MemeStringStack_fromUInt32 @3020
+    MemeStringStack_fromUInt64 @3021
     MemeBufferStack_regSize @4000
     MemeBufferStack_objSize @4001
     MemeBufferStack_split @4002

@@ -1,5 +1,6 @@
 ﻿
 #include "mego/predef/symbol/likely.h"
+#include <mego/util/itoa.h>
 #include "meme/string.h"
 #include "meme/buffer.h"
 #include <meme/rune.h>
@@ -1545,6 +1546,99 @@ MEME_STDCALL MemeStringStack_toValidUtf8_v2(const mmstrstk_t* _str, mmstrstk_t* 
 		return MemeStringStack_initByOther(_out, _obj_size, (mmstr_cptr_t)_str);
 	}
 	return MemeStringStack_mid_v2(_str, 0, pos, _out, _obj_size);
+}
+
+MEME_EXTERN_C MEME_API mgec_t MEME_STDCALL 
+	MemeStringStack_fromUInt16(uint16_t _value, int _radix, mmstrstk_t* _out, mmint_t _obj_size)
+{
+	mgec_t result;
+	mmvbstk_t vb;
+	
+	MemeVariableBufferStack_init(&vb, MMSTR__OBJ_SIZE);
+	result = (mgec_t)MemeVariableBuffer_reserve(
+		(mmvb_ptr_t)&vb, MGU_MAX_UNSIGNED_BASESTRLEN(sizeof(uint16_t) * CHAR_BIT, _radix));
+	if (result) {
+		MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+		return result;
+	}
+
+	if (mgu_utoa16(_value, _radix, 
+		MemeVariableBuffer_dataWithNotConst((mmvb_ptr_t)&vb),
+		MemeVariableBuffer_size((mmvb_cptr_t)&vb)) == NULL)
+	{
+		MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+		return MGEC__INVAL;
+	}
+	
+	if (_obj_size <= 0) {
+		_obj_size = MemeStringStack_regSize(_out) * sizeof(mmint_t);
+		mmstrstk_uninit_v0(_out, _obj_size);
+	}
+	
+	result = (mgec_t)MemeVariableBuffer_releaseToString((mmvb_ptr_t)&vb, _out, _obj_size);
+	return result;
+}
+
+MEME_EXTERN_C MEME_API mgec_t MEME_STDCALL 
+	MemeStringStack_fromUInt32(uint32_t _value, int _radix, mmstrstk_t* _out, mmint_t _obj_size)
+{
+	mgec_t result;
+	mmvbstk_t vb;
+	
+	MemeVariableBufferStack_init(&vb, MMSTR__OBJ_SIZE);
+	result = (mgec_t)MemeVariableBuffer_reserve(
+		(mmvb_ptr_t)&vb, MGU_MAX_UNSIGNED_BASESTRLEN(sizeof(uint32_t) * CHAR_BIT, _radix));
+	if (result) {
+		MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+		return result;
+	}
+
+	if (mgu_utoa32(_value, _radix, 
+		MemeVariableBuffer_dataWithNotConst((mmvb_ptr_t)&vb),
+		MemeVariableBuffer_size((mmvb_cptr_t)&vb)) == NULL)
+	{
+		MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+		return MGEC__INVAL;
+	}
+	
+	if (_obj_size <= 0) {
+		_obj_size = MemeStringStack_regSize(_out) * sizeof(mmint_t);
+		mmstrstk_uninit_v0(_out, _obj_size);
+	}
+	
+	result = (mgec_t)MemeVariableBuffer_releaseToString((mmvb_ptr_t)&vb, _out, _obj_size);
+	return result;
+}
+
+MEME_EXTERN_C MEME_API mgec_t MEME_STDCALL 
+	MemeStringStack_fromUInt64(uint64_t _value, int _radix, mmstrstk_t* _out, mmint_t _obj_size)
+{
+	mgec_t result;
+	mmvbstk_t vb;
+	
+	MemeVariableBufferStack_init(&vb, MMSTR__OBJ_SIZE);
+	result = (mgec_t)MemeVariableBuffer_reserve(
+		(mmvb_ptr_t)&vb, MGU_MAX_UNSIGNED_BASESTRLEN(sizeof(uint64_t) * CHAR_BIT, _radix));
+	if (result) {
+		MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+		return result;
+	}
+
+	if (mgu_utoa64(_value, _radix, 
+		MemeVariableBuffer_dataWithNotConst((mmvb_ptr_t)&vb),
+		MemeVariableBuffer_size((mmvb_cptr_t)&vb)) == NULL)
+	{
+		MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+		return MGEC__INVAL;
+	}
+	
+	if (_obj_size <= 0) {
+		_obj_size = MemeStringStack_regSize(_out) * sizeof(mmint_t);
+		mmstrstk_uninit_v0(_out, _obj_size);
+	}
+	
+	result = (mgec_t)MemeVariableBuffer_releaseToString((mmvb_ptr_t)&vb, _out, _obj_size);
+	return result;
 }
 
 MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL MemeStringStack_mappingConvert(

@@ -750,6 +750,11 @@ namespace memepp {
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
     }
     
+	MEMEPP__IMPL_INLINE int string::compare(const string& _other) const noexcept
+	{
+		return MemeString_compare(to_pointer(data_), to_pointer(_other.data_));
+	}
+
     MEMEPP__IMPL_INLINE string string::left (size_type _count) const noexcept
     {
         return substr(0, _count);
@@ -1134,12 +1139,12 @@ namespace memepp {
 
 	MEMEPP__IMPL_INLINE memepp::string mm_from(const char* _str, size_t _len)
 	{
-		return memepp::string{ _str, static_cast<MemeInteger_t>(_len) };
+		return memepp::string{ _str, static_cast<mmint_t>(_len) };
 	}
 
 	MEMEPP__IMPL_INLINE memepp::string mm_from(const MemeByte_t* _str, size_t _len)
 	{
-		return memepp::string{ _str, static_cast<MemeInteger_t>(_len) };
+		return memepp::string{ _str, static_cast<mmint_t>(_len) };
 	}
 
 	MEMEPP__IMPL_INLINE memepp::string_builder operator+(const char* _lhs, const memepp::string& _rhs)
@@ -1151,7 +1156,7 @@ namespace memepp {
 
 	MEMEPP__IMPL_INLINE memepp::string operator""_meme(const char* _str, size_t _len)
 	{
-		return memepp::string{ _str, static_cast<MemeInteger_t>(_len) };
+		return memepp::string{ _str, static_cast<mmint_t>(_len) };
 	}
 
 #endif // !MEMEPP_STRING_IMPL_HPP_INCLUDED

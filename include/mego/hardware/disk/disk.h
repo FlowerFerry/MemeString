@@ -95,7 +95,7 @@ MG_CAPI_INLINE mgrc_t mghw_get_harddisk_mountpoint_by_path(const char* _filepath
     char* pos  = NULL;
     mgec_t ec;
 
-    ec = mgmem__cstr_alloc_if_no_end_zero(_filepath, _len, &path, NULL, 1);
+    ec = mgmem__cstr_alloc_if_no_end_zero(_filepath, _len, (const char**)&path, NULL, 1);
     if (ec != 0) {
         return ec;
     }

@@ -6,25 +6,80 @@
 
 namespace memepp {
 
-    MEMEPP__IMPL_INLINE rune::rune()
+    MEMEPP__IMPL_INLINE rune::rune() noexcept
     {
         data_ = MemeRune_getInitObject();
     }
 
-    MEMEPP__IMPL_INLINE rune::rune(char _ch)
+    MEMEPP__IMPL_INLINE rune::rune(char _ch) noexcept
     {
         MemeRune_initByByte(&data_, _ch);
     }
 
-    MEMEPP__IMPL_INLINE rune::rune(const_pointer _u8, size_type _size)
+    MEMEPP__IMPL_INLINE rune::rune(const_pointer _u8, size_type _size) noexcept
     {
         data_ = MemeRune_getInitObject();
         MemeRune_initByUtf8Bytes(&data_, _u8, _size);
     }
 
-    MEMEPP__IMPL_INLINE rune::rune(const MemeRune_t& _rune)
+    MEMEPP__IMPL_INLINE rune::rune(const MemeRune_t& _rune) noexcept:
+        data_(_rune)
+    {
+    }
+
+    MEMEPP__IMPL_INLINE rune::rune(MemeRune_t&& _rune) noexcept:
+        data_(std::move(_rune))
+    {
+    }
+
+    MEMEPP__IMPL_INLINE rune::rune(const rune& _other) noexcept:
+        data_(_other.data_)
+    {
+    }
+
+    MEMEPP__IMPL_INLINE rune::rune(rune&& _other) noexcept:
+        data_(std::move(_other.data_))
+    {
+    }
+
+    MEMEPP__IMPL_INLINE rune& rune::operator=(char _ch) noexcept
+    {
+        MemeRune_initByByte(&data_, _ch);
+        return *this;
+    }
+    
+    MEMEPP__IMPL_INLINE rune& rune::operator=(const_pointer _u8) noexcept
+    {
+        MemeRune_initByUtf8Bytes(&data_, _u8, -1);
+        return *this;
+    }
+
+    MEMEPP__IMPL_INLINE rune& rune::operator=(const MemeRune_t& _rune) noexcept
     {
         data_ = _rune;
+        return *this;
+    }
+
+    MEMEPP__IMPL_INLINE rune& rune::operator=(MemeRune_t&& _rune) noexcept
+    {
+        data_ = std::move(_rune);
+        return *this;
+    }
+
+    MEMEPP__IMPL_INLINE rune& rune::operator=(const rune& _other) noexcept
+    {
+        if (this != &_other) {
+            data_ = _other.data_;
+        }
+        return *this;
+    }
+
+    MEMEPP__IMPL_INLINE rune& rune::operator=(rune&& _other) noexcept
+    {
+        if (this != &_other) {
+            data_ = std::move(_other.data_);
+        }
+        return *this;
     }
 
     MEMEPP__IMPL_INLINE rune::const_pointer rune::data() const noexcept
@@ -115,6 +170,14 @@ namespace memepp {
         data_.data = _u8;
         data_.size = (int8_t)_size;
     }
+
+    MEMEPP__IMPL_INLINE rune_index::rune_index(const MemeRuneIndex_t& other) noexcept : data_(other) {}
+
+    MEMEPP__IMPL_INLINE rune_index::rune_index(MemeRuneIndex_t&& other) noexcept : data_(std::move(other)) {}
+
+    MEMEPP__IMPL_INLINE rune_index::rune_index(const rune_index& other) noexcept : data_(other.data_) {}
+
+    MEMEPP__IMPL_INLINE rune_index::rune_index(rune_index&& other) noexcept : data_(std::move(other.data_)) {}
 
     MEMEPP__IMPL_INLINE rune_index::const_pointer rune_index::data() const noexcept
     {
