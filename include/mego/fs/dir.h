@@ -85,7 +85,7 @@ MG_CAPI_INLINE mgec_t mgfs__check_and_create_w_dirs_if_needed(
         int eno = mgu_get_w_stat(path, path_len, &st);
         if (eno != 0) {
             mgu_w__free_cns(_path, path);
-            return mgec__from_posix_err(eno);
+            return eno;
         }
         if (!MGU__S_ISDIR(st.st_mode)) {
             mgu_w__free_cns(_path, path);
@@ -230,7 +230,7 @@ MG_CAPI_INLINE mgec_t mgfs__check_and_create_dirs_if_needed(
         int eno = mgu_get_stat(path, path_len, &st);
         if (eno != 0) {
             mgu__free_cns(_path, path);
-            return mgec__from_posix_err(eno);
+            return eno;
         }
         if (!MGU__S_ISDIR(st.st_mode)) {
             mgu__free_cns(_path, path);
