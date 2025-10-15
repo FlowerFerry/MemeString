@@ -69,7 +69,8 @@ struct spin_mutex
     inline void unlock()
     {
         auto tid = numeric_id();
-        if (tid != 0 && locked.load(std::memory_order_acquire) != tid)
+        size_t current = locked.load(std::memory_order_acquire);
+        if (tid != 0 && current != tid && current != SIZE_MAX)
             throw std::logic_error("unlocking an unowned mutex");
 
         locked.store(SIZE_MAX, std::memory_order_release);

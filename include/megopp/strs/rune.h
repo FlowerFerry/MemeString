@@ -3,6 +3,7 @@
 #define MEGOPP_STRS_RUNE_H_INCLUDED
 
 #include <mego/predef/lang/version.h>
+#include <mego/predef/symbol/visibility_hidden.h>
 #include <mego/strs/rune.h>
 
 #include <string.h>
@@ -12,7 +13,7 @@
 namespace mgpp {
 namespace strs {
 
-class rune
+class MG_SYM__OPT_VIS_HIDDEN rune
 {
 public:
     using value_type = uint8_t;

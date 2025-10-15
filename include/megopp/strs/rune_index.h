@@ -3,12 +3,13 @@
 #define MEGOPP_STRS_RUNE_INDEX_H_INCLUDED
 
 #include <mego/predef/lang/version.h>
+#include <mego/predef/symbol/visibility_hidden.h>
 #include <mego/strs/rune_index.h>
 
 namespace mgpp {
 namespace strs {
 
-class rune_index
+class MG_SYM__OPT_VIS_HIDDEN rune_index
 {
 public:
     using value_type = uint8_t;

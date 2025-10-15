@@ -2,6 +2,7 @@
 #ifndef MEGO_PREDEF_SYMBOL_VISIBILITY_HIDDEN_H_INCLUDED
 #define MEGO_PREDEF_SYMBOL_VISIBILITY_HIDDEN_H_INCLUDED
 
+#include <mego/common.h>
 #include <mego/predef/compiler/clang.h>
 #include <mego/predef/compiler/gcc.h>
 
@@ -13,6 +14,12 @@
 
 #ifndef MG_SYM__VIS_HIDDEN
 #define MG_SYM__VIS_HIDDEN MEGO_SYMBOL__VISIBILITY_HIDDEN
+#endif
+
+#if MGOPT__SYM_VIS_HIDDEN_ENABLED
+#   define MG_SYM__OPT_VIS_HIDDEN MG_SYM__VIS_HIDDEN
+#else
+#   define MG_SYM__OPT_VIS_HIDDEN
 #endif
 
 #endif // !MEGO_PREDEF_SYMBOL_VISIBILITY_HIDDEN_H_INCLUDED
