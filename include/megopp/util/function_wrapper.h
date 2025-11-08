@@ -15,7 +15,7 @@ struct function_wrapper
 {
     using func_type   = std::function<_Func>;
     using trans_type  = _Transformer;
-    using return_type = typename mgpp::function_traits<func_type>::result_type;
+    using return_type = typename mgpp::function_traits<_Func>::result_type;
 
     explicit function_wrapper(const func_type& _fn)
         : func_(_fn)
