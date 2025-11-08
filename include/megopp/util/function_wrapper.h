@@ -18,6 +18,15 @@ namespace function_wrapper_details {
     template <class T, class Arg>
     struct has_transform_out<T, Arg, std::void_t<decltype(T::transform_out(std::declval<Arg>()))>> : std::true_type {};
 
+    template<typename _Transformer, typename R, bool = false>
+    struct final_return_impl {
+        using type = void;
+    };
+
+    template<typename _Transformer, typename R>
+    struct final_return_impl<_Transformer, R, true> {
+        using type = decltype(_Transformer::transform_out(std::declval<R>()));
+    };
 }
 
 template<typename _Func, typename _Transformer>
@@ -26,12 +35,11 @@ struct function_wrapper
     using func_type   = std::function<_Func>;
     using trans_type  = _Transformer;
     using return_type = typename mgpp::function_traits<_Func>::result_type;
-    using final_return_type = 
-        std::conditional_t<
-            std::is_void<return_type>::value || !function_wrapper_details::has_transform_out<trans_type, return_type>::value,
-            void,
-            decltype(trans_type::transform_out(std::declval<return_type>()))
-        >;
+    using final_return_type = typename function_wrapper_details::final_return_impl<
+        trans_type, return_type, 
+        (!std::is_void<return_type>::value && 
+            function_wrapper_details::has_transform_out<trans_type, return_type>::value)
+    >::type;
 
     explicit function_wrapper(const func_type& _fn)
         : func_(_fn)
