@@ -10,12 +10,28 @@
 namespace mgpp {
 namespace util {
 
+namespace function_wrapper_details {
+
+    template <class T, class Arg, class = void>
+    struct has_transform_out : std::false_type {};
+
+    template <class T, class Arg>
+    struct has_transform_out<T, Arg, std::void_t<decltype(T::transform_out(std::declval<Arg>()))>> : std::true_type {};
+
+}
+
 template<typename _Func, typename _Transformer>
 struct function_wrapper 
 {
     using func_type   = std::function<_Func>;
     using trans_type  = _Transformer;
     using return_type = typename mgpp::function_traits<_Func>::result_type;
+    using final_return_type = 
+        std::conditional_t<
+            std::is_void<return_type>::value || !function_wrapper_details::has_transform_out<trans_type, return_type>::value,
+            void,
+            decltype(trans_type::transform_out(std::declval<return_type>()))
+        >;
 
     explicit function_wrapper(const func_type& _fn)
         : func_(_fn)
@@ -36,13 +52,13 @@ struct function_wrapper
     }
 
     template<typename... _Args>
-    static return_type invoke(void* _user_data, _Args&&... _args) 
+    static final_return_type invoke(void* _user_data, _Args&&... _args) 
     {
         if (!_user_data) {
-            if constexpr (std::is_void_v<return_type>) {
+            if constexpr (std::is_void_v<final_return_type>) {
                 return;
-            } else if constexpr (std::is_default_constructible_v<return_type>) {
-                return return_type{};
+            } else if constexpr (std::is_default_constructible_v<final_return_type>) {
+                return final_return_type{};
             } else {
                 throw std::runtime_error("function_wrapper::invoke: no user data and return type is not default constructible");
             }
@@ -50,17 +66,22 @@ struct function_wrapper
 
         auto* wrapper = static_cast<function_wrapper*>(_user_data);
         if (!wrapper->func_) {
-            if constexpr (std::is_void_v<return_type>) {
+            if constexpr (std::is_void_v<final_return_type>) {
                 return;
-            } else if constexpr (std::is_default_constructible_v<return_type>) {
-                return return_type{};
+            } else if constexpr (std::is_default_constructible_v<final_return_type>) {
+                return final_return_type{};
             } else {
                 throw std::runtime_error("function_wrapper::invoke: function is not set and return type is not default constructible");
             }
         }
 
-        auto tuple_args = trans_type::transform(std::forward<_Args>(_args)...);
-        return std::apply(wrapper->func_, tuple_args);
+        auto tuple_args = trans_type::transform_in(std::forward<_Args>(_args)...);
+        if constexpr (std::is_void_v<final_return_type>) {
+            std::apply(wrapper->func_, tuple_args);
+        } else {
+            auto result = std::apply(wrapper->func_, tuple_args);
+            return trans_type::transform_out(result);
+        }
     }
 
     static void destroy(void* _wrapper)
