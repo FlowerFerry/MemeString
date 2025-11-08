@@ -85,6 +85,24 @@ using type_by_size = type_with_size<_ByteSize>;
 template<size_t _BeginBit, size_t _BitSize>
 using type_by_bit_size = type_with_size<(_BeginBit + _BitSize + 7) / 8>;
 
+template <class T>
+struct function_traits;
+
+template <class R, class... Args>
+struct function_traits<R(Args...)>
+{
+    using result_type = R;
+	using args_tuple_type = std::tuple<Args...>;
+    static constexpr std::size_t arity = sizeof...(Args);
+
+    template <std::size_t N>
+    struct arg
+    {
+        static_assert(N < arity, "parameter index is out of range");
+        using type = typename std::tuple_element<N, std::tuple<Args...>>::type;
+    };
+};
+
 } // namespace megopp
 
 #endif // MEGOPP_AUXILIARY_NULL_TYPETRAITS_HPP_INCLUDED
