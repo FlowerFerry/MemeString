@@ -84,7 +84,7 @@ struct function_wrapper
         }
 
         auto tuple_args = trans_type::transform_in(std::forward<_Args>(_args)...);
-        if (!std::is_void<return_type>::value && 
+        if constexpr (!std::is_void<return_type>::value && 
             function_wrapper_details::has_transform_out<trans_type, return_type>::value) 
         {
             auto result = std::apply(wrapper->func_, tuple_args);
