@@ -18,14 +18,14 @@ namespace function_wrapper_details {
     template <class T, class Arg>
     struct has_transform_out<T, Arg, std::void_t<decltype(T::transform_out(std::declval<Arg>()))>> : std::true_type {};
 
-    template<typename _Transformer, typename R, bool = false>
+    template<typename T, typename R, bool = false>
     struct final_return_impl {
-        using type = void;
+        using type = R;
     };
 
-    template<typename _Transformer, typename R>
-    struct final_return_impl<_Transformer, R, true> {
-        using type = decltype(_Transformer::transform_out(std::declval<R>()));
+    template<typename T, typename R>
+    struct final_return_impl<T, R, true> {
+        using type = decltype(T::transform_out(std::declval<R>()));
     };
 }
 
@@ -63,7 +63,7 @@ struct function_wrapper
     static final_return_type invoke(void* _user_data, _Args&&... _args) 
     {
         if (!_user_data) {
-            if constexpr (std::is_void_v<final_return_type>) {
+            if constexpr (std::is_void<final_return_type>::value) {
                 return;
             } else if constexpr (std::is_default_constructible_v<final_return_type>) {
                 return final_return_type{};
@@ -74,7 +74,7 @@ struct function_wrapper
 
         auto* wrapper = static_cast<function_wrapper*>(_user_data);
         if (!wrapper->func_) {
-            if constexpr (std::is_void_v<final_return_type>) {
+            if constexpr (std::is_void<final_return_type>::value) {
                 return;
             } else if constexpr (std::is_default_constructible_v<final_return_type>) {
                 return final_return_type{};
@@ -84,9 +84,11 @@ struct function_wrapper
         }
 
         auto tuple_args = trans_type::transform_in(std::forward<_Args>(_args)...);
-        if constexpr (std::is_void_v<final_return_type>) {
-            std::apply(wrapper->func_, tuple_args);
-        } else {
+        if constexpr (std::is_same<final_return_type, return_type>::value) 
+        {
+            return std::apply(wrapper->func_, tuple_args);
+        } 
+        else {
             auto result = std::apply(wrapper->func_, tuple_args);
             return trans_type::transform_out(result);
         }
