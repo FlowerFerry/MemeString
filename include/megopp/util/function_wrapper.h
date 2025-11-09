@@ -84,14 +84,15 @@ struct function_wrapper
         }
 
         auto tuple_args = trans_type::transform_in(std::forward<_Args>(_args)...);
-        if constexpr (std::is_same<final_return_type, return_type>::value) 
+        if (!std::is_void<return_type>::value && 
+            function_wrapper_details::has_transform_out<trans_type, return_type>::value) 
         {
-            return std::apply(wrapper->func_, tuple_args);
-        } 
-        else {
             auto result = std::apply(wrapper->func_, tuple_args);
             return trans_type::transform_out(result);
         }
+        else {
+            return std::apply(wrapper->func_, tuple_args);
+        } 
     }
 
     static void destroy(void* _wrapper)
