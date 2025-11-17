@@ -18,13 +18,13 @@
 #   include <pthread.h>
 #endif
 
-//! 函数返回值
+//! Function return value
 enum {
-    mgthrd_success  = 0, //< 请求的操作成功
-    mgthrd_nomem    = 1, //< 请求的操作因无法分配内存而失败
-    mgthrd_timedout = 2, //< 调用中的指定时间已到达，但未获取到请求的资源
-    mgthrd_busy     = 3, //< 请求的操作失败，因为由测试和返回函数请求的资源已被占用
-    mgthrd_error    = 4  //< 请求的操作失败
+    mgthrd_success  = 0, //!< The requested operation was successful
+    mgthrd_nomem    = 1, //!< The requested operation failed due to insufficient memory
+    mgthrd_timedout = 2, //!< The specified timeout was reached before the requested resource was acquired
+    mgthrd_busy     = 3, //!< The requested operation failed because the resource was already in use
+    mgthrd_error    = 4  //!< The requested operation failed
 };
 
 #if MG_THR__THREADS_AVAIL
@@ -37,14 +37,14 @@ typedef pthread_t mgthrd_t;
 #  endif
 #endif
 
-//! 线程启动函数。
-//! 任何通过 @ref mgthrd_create() 函数启动的线程必须通过此类型的函数启动。
-//! @param arg 线程参数（对应 @ref mgthrd_create() 调用中的 @c arg 参数）。
-//! @return 线程的返回值，可以通过 @ref mgthrd_join() 函数由其他线程获取。
+//! Thread start function.
+//! Any thread started through the @ref mgthrd_create() function must be started with a function of this type.
+//! @param arg The thread argument (corresponding to the @c arg parameter in the @ref mgthrd_create() call).
+//! @return The return value of the thread, which can be obtained by other threads through the @ref mgthrd_join() function.
 //!
 typedef int (*mgthrd_start_fn_t)(void *arg);
 
-//! 线程特定存储 (TSS) 清理函数
+//! Thread-specific storage (TSS) cleanup function
 typedef void(*mgthrd_tss_clear_fn_t)();
 
 struct __mgthrd_start_params {
@@ -116,19 +116,19 @@ MG_CAPI_INLINE int __mgthrd_create(mgthrd_t* _thr, mgthrd_start_fn_t _exec_fn, m
 }
 
 
-//! 创建一个新线程。
-//! @param _thr 新创建的线程标识符。
-//! @param _func 线程执行的函数指针。
-//! @param _arg 传递给线程函数的参数。
-//! @return 成功返回 @ref mgthrd_success，内存不足返回 @ref mgthrd_nomem，失败返回 @ref mgthrd_error。
+//! Create a new thread.
+//! @param _thr The identifier of the newly created thread.
+//! @param _func A pointer to the function to be executed by the thread.
+//! @param _arg The argument to be passed to the thread function.
+//! @return Returns @ref mgthrd_success on success, @ref mgthrd_nomem if memory is insufficient, or @ref mgthrd_error on failure.
 //!
 MG_CAPI_INLINE int mgthrd_create(mgthrd_t *_thr, mgthrd_start_fn_t _func, void *_arg)
 {
     return __mgthrd_create(_thr, _func, NULL, _arg);
 }
 
-//! 获取当前线程的标识符。
-//! @return 当前线程的标识符。
+//! Get the identifier of the current thread.
+//! @return The identifier of the current thread.
 MG_CAPI_INLINE mgthrd_t mgthrd_current(void)
 {
 #if MG_THR__WINTHREADS_AVAIL
@@ -148,9 +148,9 @@ MG_CAPI_INLINE int mgthrd_detach(mgthrd_t _thr)
 #endif
 }
 
-//! 比较两个线程标识符。
-//! 函数判断两个线程标识符是否引用同一个线程。
-//! @return 如果两个线程标识符引用不同的线程，则返回0；否则返回非0值。
+//! Compare two thread identifiers.
+//! This function determines whether two thread identifiers refer to the same thread.
+//! @return Returns 0 if the two thread identifiers refer to different threads; otherwise, returns a non-zero value.
 MG_CAPI_INLINE int mgthrd_equal(mgthrd_t _lhs, mgthrd_t _rhs)
 {
 #if MG_THR__WINTHREADS_AVAIL
@@ -174,18 +174,18 @@ MG_CAPI_INLINE void __mgthrd_exit(int _res, mgthrd_tss_clear_fn_t _clear_fn)
 }
 
 
-//! 终止调用线程的执行。
-//! @param _res 调用线程的结果代码。
+//! Terminate the execution of the calling thread.
+//! @param _res The result code of the calling thread.
 MG_CAPI_INLINE void mgthrd_exit(int _res)
 {
     __mgthrd_exit(_res, NULL);
 }
 
-//! 等待线程终止。
-//! 函数通过阻塞等待线程与当前线程合并，直到目标线程终止。
-//! @param _thr 要合并的线程。
-//! @param _res 如果该指针不为NULL，函数会将线程的返回结果存入 @c _res 指向的整数中。
-//! @return 成功返回 @ref mgthrd_success，失败返回 @ref mgthrd_error。
+//! Wait for a thread to terminate.
+//! This function blocks the calling thread until the specified thread terminates.
+//! @param _thr The thread to join.
+//! @param _res If this pointer is not NULL, the function stores the thread's return result in the integer pointed to by @c _res.
+//! @return Returns @ref mgthrd_success on success, or @ref mgthrd_error on failure.
 MG_CAPI_INLINE int mgthrd_join(mgthrd_t _thr, int64_t *_res)
 {
 #if MG_THR__WINTHREADS_AVAIL
@@ -218,13 +218,13 @@ MG_CAPI_INLINE int mgthrd_join(mgthrd_t _thr, int64_t *_res)
 
 #endif
 
-//! 使当前线程休眠指定的时间。
+//! Put the current thread to sleep for a specified duration.
 //!
-//! 此函数根据操作系统实现线程的休眠功能。它可以选择性地返回剩余时间，如果休眠被中断。
+//! This function implements thread sleep functionality based on the operating system. It can optionally return the remaining time if the sleep is interrupted.
 //!
-//! @param[in] _duration 指向指定休眠时间的`mgu_timespec_t`结构体。
-//! @param[out] _remaining 如果不为NULL，存储被中断时剩余的休眠时间。
-//! @return 成功时返回0；如果被信号中断返回-1；如果发生错误返回-2。
+//! @param[in] _duration A pointer to an `mgu_timespec_t` structure specifying the sleep duration.
+//! @param[out] _remaining If not NULL, stores the remaining sleep time if interrupted.
+//! @return Returns 0 on success; -1 if interrupted by a signal; -2 on error.
 MG_CAPI_INLINE int mgthrd_sleep(const struct mgu_timespec_t *_duration, struct mgu_timespec_t *_remaining)
 {
 #if MG_OS__WIN_AVAIL
@@ -293,10 +293,10 @@ MG_CAPI_INLINE int mgthrd_sleep(const struct mgu_timespec_t *_duration, struct m
 #endif
 }
 
-//! 让出当前线程的执行。
+//! Yield the execution of the current thread.
 //!
-//! 此函数用于在多线程环境中让出当前线程的执行权限，以便其他线程可以运行。
-//! 这个操作有助于提高多线程程序的响应性和性能。
+//! This function yields the execution of the current thread in a multithreaded environment, allowing other threads to run.
+//! This operation helps improve the responsiveness and performance of multithreaded programs.
 MG_CAPI_INLINE void mguthrd_yield(void)
 {
 #if MG_OS__WIN_AVAIL

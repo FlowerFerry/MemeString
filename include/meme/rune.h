@@ -288,7 +288,7 @@ MG_CAPI_INLINE int
     return MemeRuneIndex_isSpace(MemeRune_data(_s), (int)MemeRune_size(_s)) == 0 ? 0 : 1;
 }
 
-//! 使用国家标准GB/T15834-2011出现的标点符号进行判断
+//! Perform judgment using punctuation marks defined in the national standard GB/T15834-2011
 //! 
 MG_CAPI_INLINE int
     MemeRune_isChPunct(const MemeRune_t* _s)

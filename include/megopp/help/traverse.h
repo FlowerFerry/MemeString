@@ -10,14 +10,14 @@
 namespace mgpp {
 namespace help {
 
-    //! 遍历容器并在满足特定条件时执行操作的模板函数
+    //! Template function to iterate over a container and perform actions when specific conditions are met
     //!
-    //! @param _locker 共享锁，用于控制对容器的并发访问
-    //! @param _container 要遍历的容器
-    //! @param _begin 遍历的起始点，可选类型。如果没有提供，将从容器的开始位置遍历
-    //! @param _count 要遍历的元素数量
-    //! @param _out 输出参数，用于存储遍历过程中找到的符合条件的元素
-    //! @param _pred 谓词函数，用于判断元素是否符合条件
+    //! @param _locker Shared lock used to control concurrent access to the container
+    //! @param _container The container to iterate over
+    //! @param _begin The starting point of the iteration, optional. If not provided, the iteration starts from the beginning of the container
+    //! @param _count The number of elements to iterate over
+    //! @param _out Output parameter to store elements that meet the specified condition during iteration
+    //! @param _pred Predicate function used to determine whether an element meets the condition
     template <typename _Container, typename _SharedLocker, typename _Ty, typename _Pred>
     inline void foreach_with_small_step
         (

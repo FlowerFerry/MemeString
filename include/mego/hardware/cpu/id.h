@@ -43,16 +43,16 @@
 
 #if MEGO_ARCH__X86 || MEGO_ARCH__X64
 
-//! @brief 执行 CPUID 指令。
+//! @brief Execute the CPUID instruction.
 //!
-//! 该函数执行 x86 的 CPUID 指令，并将结果存储在提供的寄存器变量中。
+//! This function executes the x86 CPUID instruction and stores the results in the provided register variables.
 //!
-//! @param[in,out] _eax 指向 eax 寄存器值的指针。在输入时指定 CPUID 的功能号，在输出时存储 CPUID 指令的返回值。
-//! @param[in,out] _ebx 指向 ebx 寄存器值的指针。在输出时存储 CPUID 指令的返回值。
-//! @param[in,out] _ecx 指向 ecx 寄存器值的指针。在输入时指定 CPUID 的子功能号，在输出时存储 CPUID 指令的返回值。
-//! @param[in,out] _edx 指向 edx 寄存器值的指针。在输出时存储 CPUID 指令的返回值。
+//! @param[in,out] _eax A pointer to the value of the eax register. On input, specifies the CPUID function number, and on output, stores the return value of the CPUID instruction.
+//! @param[in,out] _ebx A pointer to the value of the ebx register. On output, stores the return value of the CPUID instruction.
+//! @param[in,out] _ecx A pointer to the value of the ecx register. On input, specifies the CPUID subfunction number, and on output, stores the return value of the CPUID instruction.
+//! @param[in,out] _edx A pointer to the value of the edx register. On output, stores the return value of the CPUID instruction.
 //!
-//! 根据不同的编译器和系统环境，选择合适的方法执行 CPUID 指令。对于 MSVC 编译器，使用 `__cpuid` 内联函数。对于支持 `cpuid.h` 头文件的系统，使用 `__get_cpuid` 函数。否则，使用内联汇编代码执行 CPUID 指令。
+//! Depending on the compiler and system environment, the appropriate method is chosen to execute the CPUID instruction. For MSVC compilers, the `__cpuid` intrinsic function is used. For systems that support the `cpuid.h` header file, the `__get_cpuid` function is used. Otherwise, inline assembly code is used to execute the CPUID instruction.
 MG_CAPI_INLINE void mghw_cpuid(uint32_t *_eax, uint32_t *_ebx, uint32_t *_ecx, uint32_t *_edx) 
 {
 #if MEGO_COMP__MSVC__AVAILABLE

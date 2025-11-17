@@ -11,7 +11,7 @@
 #include <mego/util/math.h>
 #include <mego/util/std/string.h>
 
-//! @brief 获取当前用户的语言设置。
+//! @brief Get the current user's language settings.
 MG_CAPI_INLINE mgec_t mgu__get_user_language(char* _language, size_t _size) 
 {
     if (MEGO_SYMBOL__UNLIKELY(_language == NULL)) 

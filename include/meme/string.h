@@ -31,8 +31,9 @@ MEME_STDCALL MemeStringOption_getStorageSmallLimit();
 MEME_API int 
 	MEME_STDCALL MemeStringStack_init(mmsstk_t* _out, size_t _object_size);
 
-//! 当外部对象大小与内部对象大小不同时，不能按外部对象大小初始化，与设计不符
-//! @deprecated 请使用 MemeStringStack_init
+//! When the size of the external object differs from the size of the internal object, 
+//! initialization based on the size of the external object is not allowed, as it does not conform to the design.
+//! @deprecated Please use MemeStringStack_init instead.
 MEME_API mmsstk_t
 MEGO_SYMBOL__DEPRECATED
 	MEME_STDCALL MemeStringStack_getInitObject(size_t _object_size);
@@ -119,53 +120,56 @@ MEME_API int
 MEME_STDCALL MemeStringStack_objSize(const mmstrstk_t* _str);
 
 //! @param _s The string stack object, must be initialized.
-//! @deprecated 将来可能会有ABI问题
+//! @deprecated May cause ABI issues in the future
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_mid(
 	const mmsstk_t* _s, size_t _object_size, MemeInteger_t _offset, MemeInteger_t _len);
 
-//! @param _str 必须已经初始化
-//! @param _obj_size 如果为负数，内部则认为@c _out已经初始化；若_out未初始化，请传入@c _out的对象大小
+//! @param _str Must be initialized
+//! @param _obj_size If negative, it is assumed internally that @c _out is already initialized; if _out is not initialized, please pass the object size of @c _out
 MEME_API mgec_t
 MEME_STDCALL MemeStringStack_mid_v2(
     const mmstrstk_t* _str, mmint_t _offset, mmint_t _count, mmstrstk_t* _out, mmint_t _obj_size);
 
 //! @param _s The string stack object, must be initialized.
 //! @param _other The string stack object, must be initialized.
-//! @deprecated 将来可能会有ABI问题
+//! @deprecated May cause ABI issues in the future
 MEME_API mmstrstk_t
 MEME_STDCALL MemeStringStack_concat(
     const mmstrstk_t* _s, size_t _object_size, const mmstrstk_t* _other);
 
-//! @param _str 必须已经初始化
-//! @param _other 必须已经初始化
-//! @param _obj_size 如果为负数，内部则认为@c _out已经初始化；若_out未初始化，请传入@c _out的对象大小
+//! @param _str Must be initialized
+//! @param _other Must be initialized
+//! @param _out The output string stack object. If the function returns an error, it will initialize the @c _out parameter.
+//! @param _obj_size If negative, it is assumed internally that @c _out is already initialized; if _out is not initialized, please pass the object size of @c _out
 MEME_API mgec_t 
 MEME_STDCALL MemeStringStack_concat_v2(
     const mmstrstk_t* _str, const mmstrstk_t* _other, mmstrstk_t* _out, mmint_t _obj_size);
 
 //! @param _s The string stack object, must be initialized.
-//! @deprecated 将来可能会有ABI问题
+//! @deprecated May cause ABI issues in the future
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_toEnUpper(
 	const mmsstk_t* _s, size_t _object_size);
 
+//! @param _out The output string stack object. If the function returns an error, it will initialize the @c _out parameter.
 MEME_API mgec_t
 MEME_STDCALL MemeStringStack_toEnUpper_v2(
 	const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _obj_size);
 
 //! @param _s The string stack object, must be initialized.
-//! @deprecated 将来可能会有ABI问题
+//! @deprecated May cause ABI issues in the future
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_toEnLower(
 	const mmsstk_t* _s, size_t _object_size);
 
+//! @param _out The output string stack object. If the function returns an error, it will initialize the @c _out parameter.
 MEME_API mgec_t
 MEME_STDCALL MemeStringStack_toEnLower_v2(
 	const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _obj_size);
 
 //! @param _s The string stack object, must be initialized.
-//! @deprecated 将来可能会有ABI问题
+//! @deprecated May cause ABI issues in the future
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_trimSpace(
     const mmsstk_t* _s, size_t _object_size);
@@ -175,7 +179,7 @@ MEME_STDCALL MemeStringStack_trimSpace_v2(
 	const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _obj_size);
 
 //! @param _s The string stack object, must be initialized.
-//! @deprecated 将来可能会有ABI问题
+//! @deprecated May cause ABI issues in the future
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_trimLeftSpace(
     const mmsstk_t* _s, size_t _object_size);
@@ -185,7 +189,7 @@ MEME_STDCALL MemeStringStack_trimLeftSpace_v2(
     const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _obj_size);
 
 //! @param _s The string stack object, must be initialized.
-//! @deprecated 将来可能会有ABI问题
+//! @deprecated May cause ABI issues in the future
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_trimRightSpace(
     const mmsstk_t* _s, size_t _object_size);
@@ -195,7 +199,7 @@ MEME_STDCALL MemeStringStack_trimRightSpace_v2(
     const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _obj_size);
 
 //! @param _s The string stack object, must be initialized.
-//! @deprecated 将来可能会有ABI问题
+//! @deprecated May cause ABI issues in the future
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_trimByCuts(
     const mmsstk_t* _s, size_t _object_size,
@@ -207,7 +211,7 @@ MEME_STDCALL MemeStringStack_trimByCuts_v2(
 
 //! @param _s The string stack object, must be initialized.
 //! @param _cond_func The condition function; if the function returns true, the byte will be skipped.
-//! @deprecated 将来可能会有ABI问题
+//! @deprecated May cause ABI issues in the future
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_trimByCondByteFunc(
     const mmsstk_t* _s, size_t _object_size,
@@ -223,25 +227,27 @@ MEME_STDCALL MemeStringStack_trimByCondByteFunc_v2(
 //! // s is "abcabcabc";
 //! \endcode
 //! @param _s The string stack object, must be initialized.
-//! @deprecated 将来可能会有ABI问题
+//! @deprecated May cause ABI issues in the future
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_getRepeat(
 	size_t _object_size, mmint_t _count, const char* _s, mmint_t _len);
 
+//! @param _out The output string stack object. If the function returns an error, it will initialize the @c _out parameter.
 MEME_API mgec_t
 MEME_STDCALL MemeStringStack_getRepeat_v2(
     mmstrstk_t* _out, mmint_t _obj_size, mmint_t _count, const char* _in, mmint_t _in_len);
 
 //! @param _s The string stack object, must be initialized.
-//! @deprecated 将来可能会有ABI问题
+//! @deprecated May cause ABI issues in the future
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_replace(
     const mmsstk_t* _s, size_t _object_size,
     const char* _from, mmint_t _from_len,
     const char* _to, mmint_t _to_len, mmint_t _max_count);
 
-//! @param _str 必须已经初始化
-//! @param _obj_size 如果为负数，内部则认为@c _out已经初始化；若_out未初始化，请传入@c _out的对象大小
+//! @param _str Must be initialized
+//! @param _out The output string stack object. If the function returns an error, it will initialize the @c _out parameter.
+//! @param _obj_size If negative, it is assumed internally that @c _out is already initialized; if _out is not initialized, please pass the object size of @c _out
 MEME_API mgec_t
 MEME_STDCALL MemeStringStack_replace_v2(
     const mmstrstk_t* _str, 
@@ -251,7 +257,7 @@ MEME_STDCALL MemeStringStack_replace_v2(
 );
 
 //! @param _s The string stack object, must be initialized.
-//! @deprecated 将来可能会有ABI问题
+//! @deprecated May cause ABI issues in the future
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_toValidUtf8(
     const mmsstk_t* _s, size_t _object_size);
@@ -299,7 +305,7 @@ MEME_STDCALL MemeStringStack_fromUInt64(
 
 //! @param _s The string stack object, must be initialized.
 //! @param _mapping_fn The mapping function; if the function returns less than 0, the rune will be convert.
-//! @deprecated 将来可能会有ABI问题
+//! @deprecated May cause ABI issues in the future
 MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_mappingConvert(
     const mmsstk_t* _s, size_t _object_size,
@@ -310,14 +316,14 @@ MEME_STDCALL MemeStringStack_mappingConvert_v2(
     const mmstrstk_t* _str, mmstr_mapping_conv_cb_t* _mapping_fn, void* _user_data,
     mmstrstk_t* _out, mmint_t _obj_size);
 
-//! @deprecated 将来可能会有ABI问题
+//! @deprecated May cause ABI issues in the future
 MEME_API MemeStringStack_t 
 MemeStringStack_vformatInCstyle(
     size_t _object_size, 
 	const char* _format,
 	MemeInteger_t _size_limit, va_list _args);
 
-//! @deprecated 将来可能会有ABI问题
+//! @deprecated May cause ABI issues in the future
 MEME_API MemeStringStack_t
 MemeStringStack_formatInCstyle(
     size_t _object_size, 
@@ -325,7 +331,7 @@ MemeStringStack_formatInCstyle(
 	MemeInteger_t _size_limit, ...);
 
 //! @param _s The string stack object, must be initialized.
-//! @deprecated 将来可能会有ABI问题
+//! @deprecated May cause ABI issues in the future
 MEME_API mmsstk_t MEME_STDCALL
 MemeStringStack_vformatInCstyle_v2(
 	size_t _object_size,
@@ -333,7 +339,7 @@ MemeStringStack_vformatInCstyle_v2(
 	MEGO_SYMBOL__MSVC_FORMAT_STRING(const char* _format),
 	va_list _args);
 
-//! @deprecated 将来可能会有ABI问题
+//! @deprecated May cause ABI issues in the future
 MEME_API mmstrstk_t MEME_STDCALL
 MemeStringStack_vformatWithLimitInCstyle(
 	size_t _object_size,
@@ -362,7 +368,7 @@ MemeStringStack_formatWithLimitInCstyle(
 	MG_SYM__GCC_ATTR_FMT(printf, 5, 6);
 
 //! @param _s The string stack object, must be initialized.
-//! @deprecated 将来可能会有ABI问题
+//! @deprecated May cause ABI issues in the future
 MEME_API mmsstk_t
 MemeStringStack_formatInCstyle_v2(
 	size_t _object_size,
@@ -489,7 +495,7 @@ MEME_API int
 	MEME_STDCALL MemeString_isEqualWithOther(
 		MemeString_Const_t _lhs, MemeString_Const_t _rhs, int* _result);
 
-//! @deprecated 函数名有歧义，不建议使用。
+//! @deprecated The function name is ambiguous and is not recommended for use.
 MEME_API int
 	MEME_STDCALL MemeString_containsOnlyAscii(mmstr_cptr_t _s, int* _result);
 
@@ -646,7 +652,7 @@ MEME_API MemeInteger_t
 //! ...
 //! 
 //! \endcode
-//! @deprecated 将来可能会有ABI问题
+//! @deprecated May cause ABI issues in the future
 MEME_API mmint_t
 	MEME_STDCALL MemeString_splitByCondByteFunc
 	(

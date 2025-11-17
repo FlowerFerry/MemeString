@@ -10,12 +10,12 @@ extern "C" {
 
 typedef struct mghw_memory_status
 {
-    uint32_t st_size;             //! 结构体的大小
-    uint32_t load_physical;       //! 物理内存的使用率
-    uint64_t total_physical;      //! 系统总的物理内存量
-    uint64_t available_physical;  //! 系统可用的物理内存量
-    uint64_t total_virtual;       //! 系统总的虚拟内存量
-    uint64_t available_virtual;   //! 系统可用的虚拟内存量
+    uint32_t st_size;             //!< The size of the structure
+    uint32_t load_physical;       //!< The usage rate of physical memory
+    uint64_t total_physical;      //!< The total amount of physical memory in the system
+    uint64_t available_physical;  //!< The available amount of physical memory in the system
+    uint64_t total_virtual;       //!< The total amount of virtual memory in the system
+    uint64_t available_virtual;   //!< The available amount of virtual memory in the system
 } mghw_memory_status_t;
 
 // inline int mghw_get_memory_status(struct mghw_memory_status *status);

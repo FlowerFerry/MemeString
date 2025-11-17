@@ -51,19 +51,17 @@ MG_CAPI_INLINE FILE* mgu_w_fopen(
 }
 #endif
 
-//! @brief 打开一个文件，并返回文件指针。
+//! @brief Open a file and return a file pointer.
 //!
-//! 此函数打开指定路径的文件，并以指定的模式进行操作。如果路径或模式的长度
-//! 不为零，则会考虑相应的长度参数。
+//! This function opens a file at the specified path and operates on it in the specified mode. If the length of the path or mode is not zero, the corresponding length parameters will be considered.
 //!
-//! @param _path 要打开的文件的路径。
-//! @param _slen 路径字符串的长度。如果小于零，则假定路径是以空字符结尾的字符串。
-//! @param _mode 打开文件的模式（例如 "r", "w", "a" 等）。
-//! @param _mlen 模式字符串的长度。如果小于零，则假定模式是以空字符结尾的字符串。
-//! @return 成功时返回指向文件的 `FILE` 指针，失败时返回 `NULL`。
+//! @param _path The path of the file to be opened.
+//! @param _slen The length of the path string. If less than zero, the path is assumed to be a null-terminated string.
+//! @param _mode The mode in which the file is to be opened (e.g., "r", "w", "a", etc.).
+//! @param _mlen The length of the mode string. If less than zero, the mode is assumed to be a null-terminated string.
+//! @return On success, returns a `FILE` pointer to the file. On failure, returns `NULL`.
 //!
-//! @note 此函数主要用于处理路径和模式的长度可变的情况，适用于需要精确控制字符串
-//! 长度的场景。
+//! @note This function is primarily designed to handle cases where the lengths of the path and mode strings are variable. It is suitable for scenarios requiring precise control over string lengths.
 MG_CAPI_INLINE FILE* mgu_fopen(
     const char* _path, mmint_t _slen, const char* _mode, mmint_t _mlen)
 {
@@ -102,17 +100,17 @@ MG_CAPI_INLINE FILE* mgu_fopen(
     return fp;
 }
 
-//! @brief 关闭文件流并可选地进行刷新操作。
+//! @brief Close a file stream with an optional flush operation.
 //!
-//! 此函数关闭给定的文件流。如果 `_flush` 参数为 `true`，则在关闭之前刷新该流。
-//! 在 Linux 系统上，如果刷新成功，还会对文件描述符进行同步操作 (`fsync`)。
+//! This function closes the given file stream. If the `_flush` parameter is `true`, it flushes the stream before closing.
+//! On Linux systems, if the flush is successful, it also synchronizes the file descriptor using `fsync`.
 //!
-//! @param _fp 指向要关闭的 `FILE` 对象的指针。
-//! @param _flush 一个布尔标志，指示是否在关闭之前刷新流。
-//! @return 成功时返回 `0`，失败时返回 `EOF`。如果 `_fp` 为 `NULL`，函数立即返回 `EOF`。
+//! @param _fp A pointer to the `FILE` object to be closed.
+//! @param _flush A boolean flag indicating whether to flush the stream before closing.
+//! @return Returns `0` on success, `EOF` on failure. If `_fp` is `NULL`, the function returns `EOF` immediately.
 //!
-//! @note 此函数使用 `fflush` 来刷新流，而在 Linux 系统上，如果刷新成功，还会使用 `fsync` 
-//! 来同步文件描述符。`fsync` 确保所有修改的数据都写入到底层存储设备。
+//! @note This function uses `fflush` to flush the stream, and on Linux systems, if the flush is successful, it also uses `fsync` 
+//! to synchronize the file descriptor. `fsync` ensures that all modified data is written to the underlying storage device.
 MG_CAPI_INLINE int mgu_fclose(FILE* _fp, bool _flush)
 {
     int ret = 0;

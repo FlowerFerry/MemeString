@@ -23,22 +23,22 @@ typedef struct mgthrd_spinwait {
     rsize_t count_;
 } mgthrd_spinwait_t;
 
-//! 重置自旋等待结构体的计数器。
+//! Reset the counter of a spin-wait structure.
 //!
-//! 该函数用于将自旋等待结构体的计数器重置为0，通常在自旋等待开始时调用。
-//! 
-//! @param[in,out] _spinwait 指向需要重置的自旋等待结构体。
+//! This function resets the counter of the spin-wait structure to 0, typically called at the start of a spin-wait operation.
+//!
+//! @param[in,out] _spinwait A pointer to the spin-wait structure that needs to be reset.
 MG_CAPI_INLINE void mgthrd_spinwait_reset(mgthrd_spinwait_t* _spinwait)
 {
     _spinwait->count_ = 0;
 }
 
-//! 自旋等待一次，根据计数器选择合适的操作。
+//! Perform one spin-wait operation, choosing the appropriate action based on the counter.
 //!
-//! 该函数用于在多线程环境中进行自旋等待。根据当前计数器的值，
-//! 它会选择进行线程让步、短暂休眠或长时间休眠，以避免过度占用CPU。
+//! This function is used for spin-waiting in a multithreaded environment. Based on the current counter value,
+//! it chooses to yield the thread, sleep briefly, or sleep for a longer duration to avoid excessive CPU usage.
 //!
-//! @param[in,out] _spinwait 指向自旋等待结构体。
+//! @param[in,out] _spinwait A pointer to the spin-wait structure.
 MG_CAPI_INLINE void mgthrd_spinwait_once(mgthrd_spinwait_t* _spinwait)
 {    
     if (_spinwait->count_ > MGTHRD_SPINWAIT_YIELD_THRESHOLD

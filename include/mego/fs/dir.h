@@ -24,15 +24,15 @@ extern "C" {
 
 #if MG_OS__WIN_AVAIL
 
-//! @brief 检查指定路径是否存在并在需要时创建目录。
+//! @brief Check if the specified path exists and create directories if needed.
 //!
-//! 该函数检查给定路径是否存在，并在路径不存在且需要创建时，创建所需的目录。
+//! This function checks whether the given path exists. If the path does not exist and directory creation is needed, it creates the necessary directories.
 //!
-//! @param[in] _path 一个指向路径字符串的指针。
-//! @param[in] _slen 路径字符串的长度。
-//! @param[in] _create_if_needed 如果为非零值且路径不存在，则创建目录。
-//! @param[in] _path_allow_modified 如果为非零值，则允许修改传入的路径字符串。
-//! @return 成功时返回0；如果发生错误，返回相应的错误码。
+//! @param[in] _path A pointer to the path string.
+//! @param[in] _slen The length of the path string.
+//! @param[in] _create_if_needed If non-zero and the path does not exist, the function creates the directories.
+//! @param[in] _path_allow_modified If non-zero, the function allows modifications to the input path string.
+//! @return Returns 0 on success; if an error occurs, it returns the corresponding error code.
 MG_CAPI_INLINE mgec_t mgfs__check_and_create_w_dirs_if_needed(
     const wchar_t *_path, mmint_t _slen, int _create_if_needed, int _path_allow_modified)
 {
@@ -96,13 +96,13 @@ MG_CAPI_INLINE mgec_t mgfs__check_and_create_w_dirs_if_needed(
     }
 }
 
-//! @brief 检查给定路径是否存在且是一个目录。
+//! @brief Check if the given path exists and is a directory.
 //!
-//! 该函数检查指定路径是否存在，并且是否是一个目录。
-//! 
-//! @param[in] _path 一个指向路径字符串的指针。
-//! @param[in] _slen 路径字符串的长度。小于0表示字符串以NULL结尾。
-//! @return 如果路径存在且是目录，返回1；如果路径不存在或不是目录，返回0；如果发生错误，返回相应的错误码。
+//! This function checks whether the specified path exists and whether it is a directory.
+//!
+//! @param[in] _path A pointer to the path string.
+//! @param[in] _slen The length of the path string. A value less than 0 indicates that the string is NULL-terminated.
+//! @return Returns 1 if the path exists and is a directory; returns 0 if the path does not exist or is not a directory; returns the corresponding error code if an error occurs.
 MG_CAPI_INLINE mgrc_t mgfs__is_exist_w_dir(const wchar_t *_path, mmint_t _slen)
 {
     struct mgu_stat st;
@@ -162,15 +162,15 @@ MG_CAPI_INLINE bool mgfs__is_w_dir_writable(const wchar_t *_path, mmint_t _slen)
 
 #endif
 
-//! @brief 检查指定路径是否存在并在需要时创建目录。
+//! @brief Check if the specified path exists and create directories if needed.
 //!
-//! 该函数检查给定路径是否存在，并在路径不存在且需要创建时，创建所需的目录。
+//! This function checks whether the given path exists. If the path does not exist and directory creation is required, it creates the necessary directories.
 //!
-//! @param[in] _path 一个指向路径字符串的指针。
-//! @param[in] _slen 路径字符串的长度。
-//! @param[in] _create_if_needed 如果为非零值且路径不存在，则创建目录。
-//! @param[in] _path_allow_modified 如果为非零值，则允许修改传入的路径字符串。
-//! @return 成功时返回0；如果发生错误，返回相应的错误码。
+//! @param[in] _path A pointer to the path string.
+//! @param[in] _slen The length of the path string.
+//! @param[in] _create_if_needed If non-zero and the path does not exist, the function creates the directories.
+//! @param[in] _path_allow_modified If non-zero, the function allows modifications to the provided path string.
+//! @return Returns 0 on success; if an error occurs, it returns the corresponding error code.
 MG_CAPI_INLINE mgec_t mgfs__check_and_create_dirs_if_needed(
     const char *_path, mmint_t _slen, int _create_if_needed, int _path_allow_modified) 
 {
@@ -242,13 +242,13 @@ MG_CAPI_INLINE mgec_t mgfs__check_and_create_dirs_if_needed(
 #endif 
 }
 
-//! @brief 检查给定路径是否存在且是一个目录。
+//! @brief Check whether the given path exists and is a directory.
 //!
-//! 该函数检查指定路径是否存在，并且是否是一个目录。
-//! 
-//! @param[in] _path 一个指向路径字符串的指针。
-//! @param[in] _slen 路径字符串的长度。小于0表示字符串以NULL结尾。
-//! @return 如果路径存在且是目录，返回1；如果路径不存在或不是目录，返回0；如果发生错误，返回相应的错误码。
+//! This function checks if the specified path exists and determines whether it is a directory.
+//!
+//! @param[in] _path A pointer to the path string.
+//! @param[in] _slen The length of the path string. A value less than 0 indicates that the string is NULL-terminated.
+//! @return Returns 1 if the path exists and is a directory; returns 0 if the path does not exist or is not a directory; returns the corresponding error code if an error occurs.
 MG_CAPI_INLINE mgrc_t mgfs__is_exist_dir(const char *_path, mmint_t _slen)
 {
     struct mgu_stat st;

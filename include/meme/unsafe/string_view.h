@@ -32,7 +32,7 @@ MEME_STDCALL MemeStringViewUnsafeStack_split(
 );
 
 //! @param _out do not initialize
-//! @deprecated 将来可能会有ABI问题
+//! @deprecated May cause ABI issues in the future
 MEME_API MemeInteger_t
 MEME_STDCALL MemeStringViewUnsafe_split(
 	MemeString_Const_t _s,

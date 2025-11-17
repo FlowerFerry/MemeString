@@ -15,6 +15,7 @@
 
 namespace mgpp {
 
+//! @brief Checks whether T is a specialization of std::pair
 template <typename T>
 struct is_pair : std::false_type {};
 
@@ -25,7 +26,7 @@ template <typename T>
 constexpr bool is_pair_v = is_pair<T>::value;
 
 
-
+//! @brief Checks whether an integral value is present in a given enum type
 template<typename _IntTy, _IntTy _Value, typename _EnumTy, _EnumTy _First, _EnumTy... _Rest>
 struct is_value_in_enum
 {
@@ -45,7 +46,7 @@ template<typename _IntTy, _IntTy _Value, typename _EnumTy, _EnumTy _First, _Enum
 constexpr bool is_value_in_enum_v = is_value_in_enum<_IntTy, _Value, _EnumTy, _First, _Rest...>::value;
 
 
-
+//! @brief Provides types corresponding to specified sizes in bytes
 template<size_t _bytes>
 struct type_with_size {};
 
@@ -79,12 +80,15 @@ struct type_with_size<8>
 	typedef double   floating;
 };
 
+//! @brief Provides types corresponding to specified sizes in bytes
 template<size_t _ByteSize>
 using type_by_size = type_with_size<_ByteSize>;
 
+//! @brief Provides types corresponding to specified sizes in bits
 template<size_t _BeginBit, size_t _BitSize>
 using type_by_bit_size = type_with_size<(_BeginBit + _BitSize + 7) / 8>;
 
+//! @brief Extracts function traits
 template <class T>
 struct function_traits;
 

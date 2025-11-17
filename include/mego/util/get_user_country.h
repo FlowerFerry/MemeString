@@ -11,7 +11,7 @@
 #include <mego/util/math.h>
 #include <mego/util/std/string.h>
 
-//! @brief 获取当前用户的国家/地区设置。
+//! @brief Get the current user's country/region settings.
 MG_CAPI_INLINE mgec_t mgu__get_user_country(char* _country, size_t _size) 
 {
     if (MEGO_SYMBOL__UNLIKELY(_country == NULL)) 

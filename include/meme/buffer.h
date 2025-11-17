@@ -132,7 +132,7 @@ MEME_API MemeInteger_t
 MEME_STDCALL MemeBuffer_endsMatchWithOther(
 	MemeBuffer_Const_t _s, MemeBuffer_Const_t _other);
 
-//! @deprecated 将来可能会有ABI问题
+//! @deprecated May cause ABI issues in the future
 MEME_API MemeInteger_t
 MEME_STDCALL MemeBuffer_split(
 	MemeBuffer_Const_t _s,

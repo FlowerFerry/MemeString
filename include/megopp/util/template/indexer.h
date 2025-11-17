@@ -9,14 +9,12 @@
 namespace mgpp {
 namespace util {
 
-//! \brief Indexer for types
-//! \details
+//! @brief Indexer for types
+//! @details
 //!     This class is used to get the index of a type in a list of types.
 //!     The index is 0-based.
-//!     该类用于获取类型在类型列表中的索引。
-//!     索引从0开始。
-//! \tparam Types List of types
-//! \example
+//! @tparam Types List of types
+//! @example
 //!     using types = type_list<int, float, double>;
 //!     template_indexer<types>::index<int>(); // 0
 //!     template_indexer<types>::index<float>(); // 1

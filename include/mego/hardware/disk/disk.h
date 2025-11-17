@@ -26,17 +26,17 @@ extern "C" {
 
 typedef struct mghw_harddisk_freespace
 {
-    uint32_t st_size;  //! 结构体的大小
-    uint32_t load;     //! 硬盘的利用率（百分比）
-    uint64_t total;    //! 总空间
-    uint64_t free;     //! 可用空间
-    uint64_t avail;    //! 可用空间（考虑权限限制）
+    uint32_t st_size;  //!< The size of the structure
+    uint32_t load;     //!< The disk usage rate (percentage)
+    uint64_t total;    //!< Total space
+    uint64_t free;     //!< Free space
+    uint64_t avail;    //!< Available space (considering permission restrictions)
 } mghw_harddisk_freespace_t;
 
-//! 根据文件路径获取其挂载点
+//! Get the mount point of a file based on its file path
 //!
-//! @param _filepath 文件路径
-//! @param _len 文件路径长度；小于0时字符串必须以'\0'结尾
+//! @param _filepath The file path
+//! @param _len The length of the file path; if less than 0, the string must be '\0'-terminated
 MG_CAPI_INLINE mgrc_t mghw_get_harddisk_mountpoint_by_path(const char* _filepath, size_t _len, char* _out_buf, size_t _buf_size)
 {
 #if MG_OS__LINUX_AVAIL
@@ -122,10 +122,10 @@ MG_CAPI_INLINE mgrc_t mghw_get_harddisk_mountpoint_by_path(const char* _filepath
 #endif
 }
 
-//! 根据文件路径获取其所在硬盘的设备路径
+//! Get the device path of the hard disk where the file is located
 //!
-//! @param _filepath 文件路径
-//! @param _len 文件路径长度；小于0时字符串必须以'\0'结尾
+//! @param _filepath The file path
+//! @param _len The length of the file path; if less than 0, the string must be '\0'-terminated
 MG_CAPI_INLINE mgrc_t mghw_get_harddisk_path_by_path(const char* _filepath, size_t _len, char* _out_buf, size_t _buf_size)
 {
 #if MG_OS__LINUX_AVAIL
@@ -190,13 +190,13 @@ MG_CAPI_INLINE mgrc_t mghw_get_harddisk_path_by_path(const char* _filepath, size
 #endif
 }
 
-//! 根据文件路径获取其所在硬盘的空间信息
+//! Get the free space information of the hard disk where the file is located
 //!
-//! @param _filepath 文件路径
-//! @param _len 文件路径长度；小于0时字符串必须以'\0'结尾
-//! @param _freespace 输出参数，用于存储硬盘空间信息
-//! @return 成功返回0，失败返回-1
-//! @note 依赖于libmeme_string库
+//! @param _filepath The file path
+//! @param _len The length of the file path; if less than 0, the string must be '\0'-terminated
+//! @param _freespace Output parameter to store the hard disk space information
+//! @return Returns 0 on success, -1 on failure
+//! @note Depends on the libmeme_string library
 MG_CAPI_INLINE int mghw_get_harddisk_freespace_by_path(
     const char* _filepath, size_t _len, mghw_harddisk_freespace_t* _freespace)
 {

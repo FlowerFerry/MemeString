@@ -1203,8 +1203,6 @@ MEME_STDCALL MemeString_foreach(
 //	const mmbyte_t* _delim_left,  mmint_t _left_len, 
 //	const mmbyte_t* _delim_right, mmint_t _right_len, mmint_t* _begin, mmint_t* _end)
 //{
-//    //! 1：左右定界符相同
-//    //! 2：左右定界符部分相同
 //
 //	mmint_t pos = 0;
 //    cvector_vector_type(mmint_t) delims = NULL;

@@ -44,18 +44,18 @@
 extern "C" {
 #endif
 
-//! 定义时钟访问类型枚举
+//! Define the enumeration for clock access types
 typedef enum mghw_clock_access_t {
-    mghw_clock_access__isa,        //< ISA访问方式
-    mghw_clock_access__rtc_ioctl,  //< RTC IOCTL访问方式
-    mghw_clock_access__kd          //< KD访问方式
+    mghw_clock_access__isa,        //< ISA access method
+    mghw_clock_access__rtc_ioctl,  //< RTC IOCTL access method
+    mghw_clock_access__kd          //< KD access method
 } mghw_clock_access_e;
 
-//! 获取第一个可用的RTC设备路径，若找到有效路径则将其复制到_path中
+//! Get the first available RTC device path and copy it to _path if a valid path is found
 //!
-//! @param _path 输出参数，用来存储找到的设备路径
-//! @param _path_len _path的最大长度
-//! @return 成功返回0，失败返回-1
+//! @param _path Output parameter to store the found device path
+//! @param _path_len The maximum length of _path
+//! @return Returns 0 on success, -1 on failure
 MG_CAPI_INLINE int mghw_clock__get_first_rtc_path(
     char* _path, size_t _path_len)
 {
@@ -90,9 +90,9 @@ MG_CAPI_INLINE int mghw_clock__get_first_rtc_path(
 #endif
 }
 
-//! 确定最适合的时钟访问方式，优先级为RTC > KD > ISA
+//! Determine the most suitable clock access method, with priority RTC > KD > ISA
 //!
-//! @return 返回最合适的时钟访问类型
+//! @return Returns the most appropriate clock access type
 MG_CAPI_INLINE mghw_clock_access_e
     mghw_clock__determine_access()
 {
@@ -154,10 +154,10 @@ MG_CAPI_INLINE mghw_clock_access_e
     return access;
 }
 
-//! 从x86架构的CMOS寄存器中读取指定的寄存器值
+//! Read the specified register value from the CMOS registers of the x86 architecture
 //!
-//! @param _reg 要读取的寄存器地址
-//! @return 返回寄存器中的值
+//! @param _reg The register address to read
+//! @return Returns the value in the register
 MG_CAPI_INLINE uint8_t
     mghw_clock__x86_read_reg(uint8_t _reg)
 {
@@ -175,10 +175,10 @@ MG_CAPI_INLINE uint8_t
 #endif
 }
 
-//! 向x86架构的CMOS寄存器写入数据
+//! Write data to the CMOS registers of the x86 architecture
 //!
-//! @param _reg 要写入的寄存器地址
-//! @param _val 要写入的值
+//! @param _reg The register address to write to
+//! @param _val The value to write
 MG_CAPI_INLINE void 
     mghw_clock__x86_write(uint8_t _reg, uint8_t _val) 
 {
@@ -190,20 +190,20 @@ MG_CAPI_INLINE void
 #endif
 }
 
-//! 向x86架构的CMOS寄存器写入BCD编码的时间数据
+//! Write BCD-encoded time data to the CMOS registers of the x86 architecture
 //!
-//! @param _addr 寄存器地址
-//! @param _value 要写入的数值，将会被转换为BCD格式并写入
+//! @param _addr The register address
+//! @param _value The value to write, which will be converted to BCD format and written
 MG_CAPI_INLINE void 
     mghw_clock__x86_write_bcd(int _addr, int _value) 
 {
     mghw_clock__x86_write(_addr, ((_value / 10) << 4) + _value % 10);
 }
 
-//! 通过ISA方式设置系统时间
+//! Set the system time using the ISA method
 //!
-//! @param _new 指向结构化时间（struct tm）的指针
-//! @return 成功返回0，失败返回-1
+//! @param _new Pointer to the structured time (struct tm)
+//! @return Returns 0 on success, -1 on failure
 MG_CAPI_INLINE int
     mghw_clock__set_clock_by_isa(const struct tm* _new)
 {
@@ -234,10 +234,10 @@ MG_CAPI_INLINE int
     return 0;
 }
 
-//! 通过RTC IOCTL调用设置系统时间
+//! Set the system time using the RTC IOCTL method
 //!
-//! @param _new 指向结构化时间（struct tm）的指针
-//! @return 成功返回0，失败返回-1
+//! @param _new Pointer to the structured time (struct tm)
+//! @return Returns 0 on success, -1 on failure
 MG_CAPI_INLINE int
     mghw_clock__set_clock_by_rtc_ioctl(const struct tm* _new)
 {
@@ -265,10 +265,10 @@ MG_CAPI_INLINE int
     return 0;
 }
 
-//! 通过KD方式设置系统时间
+//! Set the system time using the KD method
 //!
-//! @param _new 指向结构化时间（struct tm）的指针
-//! @return 成功返回0，失败返回-1
+//! @param _new Pointer to the structured time (struct tm)
+//! @return Returns 0 on success, -1 on failure
 MG_CAPI_INLINE int
     mghw_clock__set_clock_by_kd(const struct tm* _new)
 {
@@ -299,12 +299,12 @@ MG_CAPI_INLINE int
     return 0;
 }
 
-//! 根据指定的访问方式设置系统时间
+//! Set the system time using the specified access method
 //!
-//! @param _access 指定的时钟访问方式
-//! @param _newtime 时间戳
-//! @param _universal 指示是否使用UTC时间
-//! @return 成功返回0，失败返回-1
+//! @param _access The specified clock access method
+//! @param _newtime The timestamp
+//! @param _universal Indicates whether to use UTC time
+//! @return Returns 0 on success, -1 on failure
 MG_CAPI_INLINE int
     mghw_clock__set_clock(
         const mghw_clock_access_e _access, time_t _newtime, int _universal)
@@ -341,13 +341,13 @@ MG_CAPI_INLINE int
 #endif
 }
 
-//! 精确地在指定的参考时间后设置系统时间，期间会阻塞执行
+//! Precisely set the system time after the specified reference time, blocking execution during the process
 //!
-//! @param _settime 目标时间戳
-//! @param _reftime 参考时间，用于计算时间偏差
-//! @param _access 时钟访问方式
-//! @param _universal 指示是否使用UTC时间
-//! @return 成功返回0，失败返回-1
+//! @param _settime The target timestamp
+//! @param _reftime The reference time used to calculate the time difference
+//! @param _access The clock access method
+//! @param _universal Indicates whether to use UTC time
+//! @return Returns 0 on success, -1 on failure
 MG_CAPI_INLINE int mghw_clock__set_clock_exact_blocked(
     time_t _settime, const struct timeval* _reftime, mghw_clock_access_e _access, int _universal)
 {
