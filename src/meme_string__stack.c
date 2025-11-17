@@ -251,13 +251,18 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByOther(
 		memcpy(_out, _other, MMS__OBJECT_SIZE);
 	} break;
 	case MemeString_ImplType_medium: {
+		mgec_t eno;
 		mmstrstk_init_v0(_out, _object_size);
-		return (int)MemeVariableBuffer_appendWithBytes((mmvb_t)_out,
+		eno = (int)MemeVariableBuffer_appendWithBytes((mmvb_t)_out,
 			MemeString_byteData(_other), MemeString_byteSize(_other));
-	};
+		if (eno) {
+			mmstrstk_uninit_v0(_out, _object_size);
+			return eno;
+		}
+	} break;
 	case MemeString_ImplType_large: {
 		return MemeStringLarge_initByOther((MemeStringLarge_t*)_out, &(_other->large_));
-	};
+	} break;
 	case MemeString_ImplType_user: {
 		return MemeStringUser_initByOther((MemeStringUser_t*)_out, &(_other->user_));
 	} break;
@@ -1948,7 +1953,11 @@ MemeStringStack_vformatWithLimitInCstyle_v2(
 	if (MG_SYM__UNLIKELY(_str == NULL))
 		return MGEC__INVAL;
 
-	mmstrstk_init_or_reset(_str, _object_size);
+	if (_object_size <= 0) {
+		_object_size = MemeStringStack_regSize(_str) * sizeof(mmint_t);
+		mmstrstk_uninit_v0(_str, _object_size);
+	}
+
 	if (_format == NULL) {
 		return 0;
 	}
@@ -1957,8 +1966,11 @@ MemeStringStack_vformatWithLimitInCstyle_v2(
 		va_copy(calcArgs, _args);
 		len = vsnprintf(NULL, 0, _format, calcArgs);
 		va_end(calcArgs);
-		if (len <= 0) {
+		if (len < 0) {
 			return MGEC__ERR;
+		}
+		if (len == 0) {
+			return mmstrstk_init_v0(_str, _object_size);
 		}
 	}
 	else {
@@ -1974,9 +1986,13 @@ MemeStringStack_vformatWithLimitInCstyle_v2(
 		va_copy(calcArgs, _args);
 		len = vsnprintf((char*)data, _pre_size + 1, _format, calcArgs);
 		va_end(calcArgs);
-		if (len <= 0) {
+		if (len < 0) {
 			MemeVariableBufferStack_unInit(&vbuf, MMSTR__OBJ_SIZE);
 			return MGEC__ERR;
+		}
+		if (len == 0) {
+			MemeVariableBufferStack_unInit(&vbuf, MMSTR__OBJ_SIZE);
+			return mmstrstk_init_v0(_str, _object_size);
 		}
 
 		if (_pre_size >= len) {
