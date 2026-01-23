@@ -36,10 +36,14 @@ public:
   {
   }
 
+  void lock_shared()
+  {
+  }
+
   void unlock_shared()
   {
   }
-  
+
 };
 
 } 
