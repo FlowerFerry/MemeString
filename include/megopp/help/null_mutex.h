@@ -35,6 +35,11 @@ public:
   void unlock()
   {
   }
+
+  void unlock_shared()
+  {
+  }
+  
 };
 
 } 
