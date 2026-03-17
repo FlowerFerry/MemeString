@@ -95,7 +95,7 @@ namespace endian {
             }
         }
 
-        type data_;
+        uint8_t data_[sizeof(type)];
     };
 
 #if MEGO_ENDIAN__LITTLE_BYTE || MEGO_ENDIAN__BIG_BYTE
