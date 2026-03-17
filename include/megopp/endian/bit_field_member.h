@@ -30,7 +30,9 @@ namespace endian {
         {
         }
 
-        uint8_t data_[sizeof(_Type)];
+        //! The implementation has now been switched to use `uint8_t[]`. 
+        //! Previously, integer types were used in conjunction with pointer type-casting to attempt to read data from an unaligned address—a practice prone to triggering bus errors.
+        uint8_t data_[sizeof(_Type)]; 
     };
 
     template<size_t _BeginBit, size_t _BitSize, typename _Type>
