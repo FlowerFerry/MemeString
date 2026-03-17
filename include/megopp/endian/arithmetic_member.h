@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEGOPP_ENDIAN_ARITHMETIC_MEMBER_H_INCLUDED
 #define MEGOPP_ENDIAN_ARITHMETIC_MEMBER_H_INCLUDED
 
@@ -8,6 +8,8 @@
 #include <megopp/predef/namespace_alias.h>
 
 #include <cmath>
+#include <cstring>
+#include <type_traits>
 
 namespace mgpp {
 namespace endian {
@@ -23,15 +25,16 @@ namespace endian {
 
         //inline arithmetic_member_private& operator=(const arithmetic_member_private&) noexcept { return *this; }
 
-        inline constexpr type get_value() const noexcept
+        inline type get_value() const noexcept
         {
             return 0;
         }
 
-        inline constexpr void set_value(type _value) noexcept
+        inline void set_value(type _value) noexcept
         {
         }
 
+        uint8_t data_[sizeof(_Ty)];
     };
 
     template<typename _Ty>
@@ -49,35 +52,47 @@ namespace endian {
     {
         using type = _Ty;
 
-        // arithmetic_member_private() noexcept :
-        //     data_(0)
-        // {
-        // }
-
-        // arithmetic_member_private(const type& _value) noexcept :
-        //     data_()
-        // {
-        // }
-
-        //arithmetic_member_private(const arithmetic_member_private& _other) noexcept :
-        //    data_(_other.data_)
-        //{
-        //}
-
-        //inline arithmetic_member_private& operator=(const arithmetic_member_private& _other) noexcept
-        //{
-        //    data_ = _other.data_;
-        //    return *this;
-        //}
-
-        inline constexpr type get_value() const noexcept
+        inline type get_value() const noexcept
         {
-            return data_;
+            if constexpr (std::is_integral_v<type> || std::is_enum_v<type>) {
+                using uint_type = typename type_by_size<sizeof(type)>::uint;
+                uint_type val = 0;
+#if MEGO_ENDIAN__LITTLE_BYTE || MEGO_ENDIAN__LITTLE_WORD
+                for (size_t i = 0; i < sizeof(type); ++i) {
+                    val |= static_cast<uint_type>(data_[i]) << (i * 8);
+                }
+#else
+                for (size_t i = 0; i < sizeof(type); ++i) {
+                    val |= static_cast<uint_type>(data_[i]) << ((sizeof(type) - 1 - i) * 8);
+                }
+#endif
+                return static_cast<type>(val);
+            }
+            else {
+                type val{};
+                std::memcpy(&val, data_, sizeof(type));
+                return val;
+            }
         }
 
-        inline constexpr void set_value(const type& _value) noexcept
+        inline void set_value(const type& _value) noexcept
         {
-            data_ = _value;
+            if constexpr (std::is_integral_v<type> || std::is_enum_v<type>) {
+                using uint_type = typename type_by_size<sizeof(type)>::uint;
+                uint_type val = static_cast<uint_type>(_value);
+#if MEGO_ENDIAN__LITTLE_BYTE || MEGO_ENDIAN__LITTLE_WORD
+                for (size_t i = 0; i < sizeof(type); ++i) {
+                    data_[i] = static_cast<uint8_t>((val >> (i * 8)) & 0xFF);
+                }
+#else
+                for (size_t i = 0; i < sizeof(type); ++i) {
+                    data_[i] = static_cast<uint8_t>((val >> ((sizeof(type) - 1 - i) * 8)) & 0xFF);
+                }
+#endif
+            }
+            else {
+                std::memcpy(data_, &_value, sizeof(type));
+            }
         }
 
         type data_;
@@ -94,39 +109,59 @@ namespace endian {
     >
     {
         using type = _Ty;
-        using uint_type = typename type_by_size<sizeof(_Ty)>::uint;
-
-        // arithmetic_member_private() noexcept :
-        //     data_(0)
-        // {
-        // }
         
-        // arithmetic_member_private(const type& _value) noexcept :
-        //     data_(byte_swap(_value))
-        // {
-        // }
-
-        //arithmetic_member_private(const arithmetic_member_private& _other) noexcept :
-        //    data_(_other.data_)
-        //{
-        //}
-        //inline arithmetic_member_private& operator=(const arithmetic_member_private& _other) noexcept
-        //{
-        //    data_ = _other.data_;
-        //    return *this;
-        //}
-            
-        inline constexpr type get_value() const noexcept
-        {
-            return byte_swap(data_);
+    private:
+        inline constexpr type _load() const noexcept {
+            if constexpr (std::is_integral_v<type> || std::is_enum_v<type>) {
+                uint_type val = 0;
+#if MEGO_ENDIAN__LITTLE_BYTE || MEGO_ENDIAN__LITTLE_WORD
+                for (size_t i = 0; i < sizeof(type); ++i) {
+                    val |= static_cast<uint_type>(data_[i]) << (i * 8);
+                }
+#else
+                for (size_t i = 0; i < sizeof(type); ++i) {
+                    val |= static_cast<uint_type>(data_[i]) << ((sizeof(type) - 1 - i) * 8);
+                }
+#endif
+                return static_cast<type>(val);
+            }
+            else {
+                type val{};
+                std::memcpy(&val, data_, sizeof(type));
+                return val;
+            }
         }
 
-        inline constexpr void set_value(const type& _value) noexcept
-        {
-            data_ = byte_swap(_value);
+        inline constexpr void _store(const type& _value) noexcept {
+            if constexpr (std::is_integral_v<type> || std::is_enum_v<type>) {
+                uint_type val = static_cast<uint_type>(_value);
+#if MEGO_ENDIAN__LITTLE_BYTE || MEGO_ENDIAN__LITTLE_WORD
+                for (size_t i = 0; i < sizeof(type); ++i) {
+                    data_[i] = static_cast<uint8_t>((val >> (i * 8)) & 0xFF);
+                }
+#else
+                for (size_t i = 0; i < sizeof(type); ++i) {
+                    data_[i] = static_cast<uint8_t>((val >> ((sizeof(type) - 1 - i) * 8)) & 0xFF);
+                }
+#endif
+            }
+            else {
+                std::memcpy(data_, &_value, sizeof(type));
+            }
         }
 
-        type data_;
+    public:
+        inline type get_value() const noexcept
+        {
+            return byte_swap(_load());
+        }
+
+        inline void set_value(const type& _value) noexcept
+        {
+            _store(byte_swap(_value));
+        }
+
+        uint8_t data_[sizeof(type)];
     };
 #else
     #error "not support"
@@ -168,17 +203,17 @@ namespace endian {
         }
 
         template<typename _Result>
-        inline constexpr _Result as() const noexcept
+        inline _Result as() const noexcept
         {
             return static_cast<_Result>(private_.get_value());
         }
         
-        inline constexpr type get_value() const noexcept
+        inline type get_value() const noexcept
         {
             return private_.get_value();
         }
 
-        inline constexpr void set_value(const type& _value) noexcept
+        inline void set_value(const type& _value) noexcept
         {
             private_.set_value(_value);
         }

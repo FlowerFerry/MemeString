@@ -30,6 +30,7 @@ namespace endian {
         {
         }
 
+        uint8_t data_[sizeof(_Type)];
     };
 
     template<size_t _BeginBit, size_t _BitSize, typename _Type>
@@ -55,17 +56,46 @@ namespace endian {
         static constexpr uint_type end_byte_index   = (end_bit_index + CHAR_BIT - 1) / CHAR_BIT;
         static constexpr uint_type byte_size        = end_byte_index - begin_byte_index;
 
+    private:
+
+        inline constexpr uint_type _load() const noexcept {
+            uint_type val = 0;
+#if MEGO_ENDIAN__LITTLE_BYTE || MEGO_ENDIAN__LITTLE_WORD
+            for (size_t i = 0; i < sizeof(_Type); ++i) {
+                val |= static_cast<uint_type>(data_[i]) << (i * 8);
+            }
+#else
+            for (size_t i = 0; i < sizeof(_Type); ++i) {
+                val |= static_cast<uint_type>(data_[i]) << ((sizeof(_Type) - 1 - i) * 8);
+            }
+#endif
+            return val;
+        }
+
+        inline constexpr void _store(uint_type val) noexcept {
+#if MEGO_ENDIAN__LITTLE_BYTE || MEGO_ENDIAN__LITTLE_WORD
+            for (size_t i = 0; i < sizeof(_Type); ++i) {
+                data_[i] = static_cast<uint8_t>((val >> (i * 8)) & 0xFF);
+            }
+#else
+            for (size_t i = 0; i < sizeof(_Type); ++i) {
+                data_[i] = static_cast<uint8_t>((val >> ((sizeof(_Type) - 1 - i) * 8)) & 0xFF);
+            }
+#endif
+        }
+
+    public:
         inline constexpr uint_type get_value() const noexcept
         {
-            return (data_ >> begin_bit_index) & mask;
+            return (_load() >> begin_bit_index) & mask;
         }
 
         inline constexpr void set_value(uint_type _value) noexcept
         {
-            data_ = (data_ & ~(mask << begin_bit_index)) | ((_value & mask) << begin_bit_index);
+            _store((_load() & ~(mask << begin_bit_index)) | ((_value & mask) << begin_bit_index));
         }
-        
-        uint_type data_;
+
+        uint8_t data_[sizeof(_Type)];
     };
 
 #if MEGO_ENDIAN__LITTLE_BYTE || MEGO_ENDIAN__BIG_BYTE
@@ -91,15 +121,42 @@ namespace endian {
         static constexpr uint_type rend_bit_index   = _BeginBit + _BitSize;
         static constexpr uint_type actual_mask      =
             byte_swap_with_size<sizeof(uint_type)>::convert(static_cast<uint_type>(~(mask << rbegin_bit_index)));
+    private:
+        inline constexpr uint_type _load() const noexcept {
+            uint_type val = 0;
+#if MEGO_ENDIAN__LITTLE_BYTE
+            for (size_t i = 0; i < sizeof(_Type); ++i) {
+                val |= static_cast<uint_type>(data_[i]) << (i * 8);
+            }
+#else
+            for (size_t i = 0; i < sizeof(_Type); ++i) {
+                val |= static_cast<uint_type>(data_[i]) << ((sizeof(_Type) - 1 - i) * 8);
+            }
+#endif
+            return val;
+        }
 
+        inline constexpr void _store(uint_type val) noexcept {
+#if MEGO_ENDIAN__LITTLE_BYTE
+            for (size_t i = 0; i < sizeof(_Type); ++i) {
+                data_[i] = static_cast<uint8_t>((val >> (i * 8)) & 0xFF);
+            }
+#else
+            for (size_t i = 0; i < sizeof(_Type); ++i) {
+                data_[i] = static_cast<uint8_t>((val >> ((sizeof(_Type) - 1 - i) * 8)) & 0xFF);
+            }
+#endif
+        }
+
+    public:
         inline constexpr uint_type get_value() const noexcept
         {
             if constexpr ((_BeginBit + _BitSize) / 8 == 0)
             {
-                return ((data_ >> (total_bit_size - CHAR_BIT)) >> rbegin_bit_index) & mask;
+                return ((_load() >> (total_bit_size - CHAR_BIT)) >> rbegin_bit_index) & mask;
             }
             else {
-                uint_type value = byte_swap_with_size<sizeof(uint_type)>::convert(data_);
+                uint_type value = byte_swap_with_size<sizeof(uint_type)>::convert(_load());
                 return (value >> rbegin_bit_index) & mask;
             }
         }
@@ -108,10 +165,10 @@ namespace endian {
         {
             _value = (_value & mask) << rbegin_bit_index;
             _value = byte_swap_with_size<sizeof(uint_type)>::convert(_value);
-            data_  = (data_ & actual_mask) | _value;
+            _store((_load() & actual_mask) | _value);
         }
 
-        uint_type data_;
+        uint8_t data_[sizeof(_Type)];
     };
 #else
     #error "not support"
