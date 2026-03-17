@@ -51,11 +51,11 @@ namespace endian {
     >
     {
         using type = _Ty;
+        using uint_type = typename type_by_size<sizeof(type)>::uint;
 
         inline type get_value() const noexcept
         {
             if constexpr (std::is_integral_v<type> || std::is_enum_v<type>) {
-                using uint_type = typename type_by_size<sizeof(type)>::uint;
                 uint_type val = 0;
 #if MEGO_ENDIAN__LITTLE_BYTE || MEGO_ENDIAN__LITTLE_WORD
                 for (size_t i = 0; i < sizeof(type); ++i) {
@@ -78,7 +78,6 @@ namespace endian {
         inline void set_value(const type& _value) noexcept
         {
             if constexpr (std::is_integral_v<type> || std::is_enum_v<type>) {
-                using uint_type = typename type_by_size<sizeof(type)>::uint;
                 uint_type val = static_cast<uint_type>(_value);
 #if MEGO_ENDIAN__LITTLE_BYTE || MEGO_ENDIAN__LITTLE_WORD
                 for (size_t i = 0; i < sizeof(type); ++i) {
@@ -111,6 +110,7 @@ namespace endian {
     >
     {
         using type = _Ty;
+        using uint_type = typename type_by_size<sizeof(type)>::uint;
         
     private:
         inline constexpr type _load() const noexcept {
