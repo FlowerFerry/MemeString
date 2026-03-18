@@ -49,8 +49,8 @@ MEME_STDCALL MemeStringBuilderStack_objSize(const mmsbldrstk_t* _obj);
 
 MEME_API int
 	MEME_STDCALL MemeStringBuilderStack_release(
-		MemeStringBuilderStack_t* _builder, size_t _builder_size, 
-		MemeStringStack_t* _out, size_t _object_size);
+		mmsbldrstk_t* _builder, size_t _builder_size, 
+		mmstrstk_t* _out, size_t _object_size);
 
 MEME_API int
 	MEME_STDCALL MemeStringBuilderStack_isEqual(

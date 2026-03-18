@@ -43,6 +43,19 @@ namespace memepp {
 			&data_, MEME_STRING__OBJECT_SIZE, &_other.data_);
 	}
 
+	MEMEPP__IMPL_INLINE buffer::buffer(const buffer& _other, size_type _pos)
+	{
+		size_type count = (_other.size() > _pos) ? _other.size() - _pos : 0;
+		MemeBufferStack_initByBytes(
+			&data_, MMSTR__OBJ_SIZE, _other.data() + _pos, count);
+	}
+
+	MEMEPP__IMPL_INLINE buffer::buffer(const buffer& _other, size_type _pos, size_type _count)
+	{
+		MemeBufferStack_initByBytes(
+			&data_, MMSTR__OBJ_SIZE, _other.data() + _pos, _count);
+	}
+
 	MEMEPP__IMPL_INLINE buffer::buffer(const_pointer _utf8, size_type _size)
 	{
 		MemeBufferStack_initByBytes(&data_, MEME_STRING__OBJECT_SIZE, _utf8, _size);

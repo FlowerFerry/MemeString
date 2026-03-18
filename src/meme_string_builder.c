@@ -3,6 +3,7 @@
 
 #include <meme/string.h>
 #include <meme/variable_buffer.h>
+#include "meme/impl/string.h"
 #include <meme/impl/string_builder.h>
 #include <meme/impl/string_memory.h>
 
@@ -333,3 +334,26 @@ MemeStringBuilder_prependArgWithString(mmsbldr_t _builder, mms_const_t _arg)
     return result;
 }
 
+MEME_EXTERN_C MEME_API int MEME_STDCALL
+MemeStringBuilderStack_release(
+    mmsbldrstk_t* _builder, size_t _builder_size,
+    mmstrstk_t* _out, size_t _object_size)
+{
+    int result = 0;
+
+    assert(_builder != NULL && MemeStringBuilderStack_release);
+    assert(_out != NULL && MemeStringBuilderStack_release);
+
+    if (_object_size <= 0) {
+		_object_size = MemeStringImpl_objByteSize((mmstr_cptr_t)_out);
+        mmstrstk_uninit_v0(_out, 0);
+	}
+
+    result = MemeStringBuilder_generate(
+        (mmsbldr_cptr_t)_builder, (mmstr_ptr_t)_out);
+    if (result != 0)
+        return result;
+
+    MemeStringBuilderStack_unInit(_builder, _builder_size);
+    return MemeStringBuilderStack_init(_builder, _builder_size);
+}
