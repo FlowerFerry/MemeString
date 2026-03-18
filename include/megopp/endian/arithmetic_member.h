@@ -19,12 +19,6 @@ namespace endian {
     {
         using type = _Ty;
 
-        // arithmetic_member_private() noexcept {}
-        // arithmetic_member_private(type _value) noexcept {}
-        //arithmetic_member_private(const arithmetic_member_private&) noexcept {}
-
-        //inline arithmetic_member_private& operator=(const arithmetic_member_private&) noexcept { return *this; }
-
         inline type get_value() const noexcept
         {
             return 0;
@@ -188,12 +182,6 @@ namespace endian {
         //{
         //}
 
-        //inline arithmetic_member& operator=(const arithmetic_member& _other) noexcept
-        //{
-        //    private_ = _other.private_;
-        //    return *this;
-        //}
-        
         inline explicit operator type() const noexcept
         {
             return private_.get_value();
@@ -218,6 +206,12 @@ namespace endian {
         inline void set_value(const type& _value) noexcept
         {
             private_.set_value(_value);
+        }
+
+        inline arithmetic_member& operator=(const type& _value) noexcept
+        {
+            set_value(_value);
+            return *this;
         }
 
         inline arithmetic_member& operator+=(const type& _value) noexcept
@@ -291,10 +285,10 @@ namespace endian {
             return *this;
         }
 
-        inline type operator++(int) noexcept
+        inline arithmetic_member operator++(int) noexcept
         {
-            type temp = get_value();
-            set_value(get_value() + 1);
+            arithmetic_member temp = *this;
+            ++*this;
             return temp;
         }
 
@@ -304,10 +298,10 @@ namespace endian {
             return *this;
         }
 
-        inline type operator--(int) noexcept
+        inline arithmetic_member operator--(int) noexcept
         {
-            type temp = get_value();
-            set_value(get_value() - 1);
+            arithmetic_member temp = *this;
+            --*this;
             return temp;
         }
         

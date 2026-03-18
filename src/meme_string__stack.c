@@ -227,7 +227,7 @@ MEME_STDCALL MemeStringStack_initByU16bytesAndType(
 		if (result) {
 			return result;
 		}
-        return result;
+        return 0;
 	} break;
 	}
 }
@@ -237,7 +237,6 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByOther(
 {
 
 	assert(_out);
-	assert(_other);
 	assert(_object_size != 0 && _object_size <= MMSTR__MAX_REG_BYTE_SIZE);
 
 	if (MEGO_SYMBOL__UNLIKELY(_other == NULL))

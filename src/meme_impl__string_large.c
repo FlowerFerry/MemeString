@@ -86,7 +86,7 @@ int MemeStringLarge_init(
 	if (_s->ref_) {
 		d_func(refCount->real_);
 		d_func(refCount);
-		return MGEC__PERM;
+		return MGEC__INVAL;
 	}
 	_s->ref_ = refCount;
 	return 0;
