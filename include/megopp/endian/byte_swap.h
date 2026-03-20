@@ -35,17 +35,17 @@ namespace endian {
 	};
 
 	template<>
-	struct byte_swap_with_size<-1>
-	{
-	};
-
-	template<>
 	struct byte_swap_with_size<1>
 	{
 		inline constexpr static uint8_t convert(uint8_t _value) noexcept
 		{
 			return _value;
 		}
+	};
+
+	template<>
+	struct byte_swap_with_size<-1>
+	{
 	};
 
 	template<int _ByteSize>
@@ -83,6 +83,11 @@ namespace endian {
 
 	template<size_t _ByteSize>
 	struct word_swap_by_size;
+
+	template<>
+	struct word_swap_by_size<-1>
+	{
+	};
 
 	template<>
 	struct word_swap_by_size<1>
