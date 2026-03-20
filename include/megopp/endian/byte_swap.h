@@ -131,6 +131,11 @@ namespace endian {
 		return _value;
 	}
 
+	template<> inline int8_t   word_swap<int8_t>  (int8_t   _value) noexcept { return _value; }
+	template<> inline uint8_t  word_swap<uint8_t> (uint8_t  _value) noexcept { return _value; }
+	template<> inline int16_t  word_swap<int16_t> (int16_t  _value) noexcept { return _value; }
+	template<> inline uint16_t word_swap<uint16_t>(uint16_t _value) noexcept { return _value; }
+
 };
 };
 

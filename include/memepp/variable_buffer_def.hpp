@@ -178,16 +178,14 @@ namespace memepp {
 #endif
 		if (_endian == megopp::endian_t::big_word)
 		{
-			if (sizeof(_Ty) > 3)
-				value = megopp::endian::word_swap(value);
+			value = megopp::endian::word_swap(value);
 #if MEGO_ENDIAN__LITTLE_BYTE
 			value = megopp::endian::byte_swap(value);
 #endif
 		}
 		if (_endian == megopp::endian_t::little_word)
 		{
-			if (sizeof(_Ty) > 3)
-				value = megopp::endian::word_swap(value);
+			value = megopp::endian::word_swap(value);
 #if MEGO_ENDIAN__BIG_BYTE
 			value = megopp::endian::byte_swap(value);
 #endif
@@ -215,16 +213,14 @@ namespace memepp {
 #endif
 		if (_endian == megopp::endian_t::big_word)
 		{
-			if (sizeof(_Ty) > 3)
-				value = megopp::endian::word_swap(value);
+			value = megopp::endian::word_swap(value);
 #if MEGO_ENDIAN__LITTLE_BYTE
 			value = megopp::endian::byte_swap(value);
 #endif
 		}
 		if (_endian == megopp::endian_t::little_word)
 		{
-			if (sizeof(_Ty) > 3)
-				value = megopp::endian::word_swap(value);
+			value = megopp::endian::word_swap(value);
 #if MEGO_ENDIAN__BIG_BYTE
 			value = megopp::endian::byte_swap(value);
 #endif
@@ -252,16 +248,14 @@ namespace memepp {
 #endif
 		if (_endian == megopp::endian_t::big_word)
 		{
-			if (sizeof(_Ty) > 3)
-				value = megopp::endian::word_swap(value);
+			value = megopp::endian::word_swap(value);
 #if MEGO_ENDIAN__LITTLE_BYTE
 			value = megopp::endian::byte_swap(value);
 #endif
 		}
 		if (_endian == megopp::endian_t::little_word)
 		{
-			if (sizeof(_Ty) > 3)
-				value = megopp::endian::word_swap(value);
+			value = megopp::endian::word_swap(value);
 #if MEGO_ENDIAN__BIG_BYTE
 			value = megopp::endian::byte_swap(value);
 #endif
