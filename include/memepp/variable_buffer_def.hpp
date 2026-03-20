@@ -165,30 +165,30 @@ namespace memepp {
 		typename megopp::type_with_size<sizeof(_Ty)>::uint value = 0;
 		memcpy(&value, &_v, sizeof(value));
 
+		switch (_endian) {
+			case megopp::endian_t::big_byte: { 
 #if MEGO_ENDIAN__LITTLE_BYTE
-        if (_endian == megopp::endian_t::big_byte)
-        {
-			value = megopp::endian::byte_swap(value);
-        }
-#elif MEGO_ENDIAN__BIG_BYTE
-        if (_endian == megopp::endian_t::little_byte)
-        {
-			value = megopp::endian::byte_swap(value);
-        }
+				value = megopp::endian::byte_swap(value);
 #endif
-		if (_endian == megopp::endian_t::big_word)
-		{
-			value = megopp::endian::word_swap(value);
-#if MEGO_ENDIAN__LITTLE_BYTE
-			value = megopp::endian::byte_swap(value);
-#endif
-		}
-		if (_endian == megopp::endian_t::little_word)
-		{
-			value = megopp::endian::word_swap(value);
+			} break;
+			case megopp::endian_t::little_byte: {
 #if MEGO_ENDIAN__BIG_BYTE
-			value = megopp::endian::byte_swap(value);
+				value = megopp::endian::byte_swap(value);
 #endif
+			} break;
+			case megopp::endian_t::big_word: {
+				value = megopp::endian::word_swap(value);
+#if MEGO_ENDIAN__LITTLE_BYTE
+				value = megopp::endian::byte_swap(value);
+#endif
+			} break;
+			case megopp::endian_t::little_word: {
+				value = megopp::endian::word_swap(value);
+#if MEGO_ENDIAN__BIG_BYTE
+				value = megopp::endian::byte_swap(value);
+#endif
+			} break;
+			default: break;
 		}
 
         return append(reinterpret_cast<const_pointer>(&value), static_cast<size_type>(sizeof(value)));
@@ -200,30 +200,30 @@ namespace memepp {
 		typename megopp::type_with_size<sizeof(_Ty)>::uint value = 0;
 		memcpy(&value, &_v, sizeof(value));
 
+		switch (_endian) {
+			case megopp::endian_t::big_byte: { 
 #if MEGO_ENDIAN__LITTLE_BYTE
-		if (_endian == megopp::endian_t::big_byte)
-		{
-			value = megopp::endian::byte_swap(value);
-		}
-#elif MEGO_ENDIAN__BIG_BYTE
-		if (_endian == megopp::endian_t::little_byte)
-		{
-			value = megopp::endian::byte_swap(value);
-		}
+				value = megopp::endian::byte_swap(value);
 #endif
-		if (_endian == megopp::endian_t::big_word)
-		{
-			value = megopp::endian::word_swap(value);
-#if MEGO_ENDIAN__LITTLE_BYTE
-			value = megopp::endian::byte_swap(value);
-#endif
-		}
-		if (_endian == megopp::endian_t::little_word)
-		{
-			value = megopp::endian::word_swap(value);
+			} break;
+			case megopp::endian_t::little_byte: {
 #if MEGO_ENDIAN__BIG_BYTE
-			value = megopp::endian::byte_swap(value);
+				value = megopp::endian::byte_swap(value);
 #endif
+			} break;
+			case megopp::endian_t::big_word: {
+				value = megopp::endian::word_swap(value);
+#if MEGO_ENDIAN__LITTLE_BYTE
+				value = megopp::endian::byte_swap(value);
+#endif
+			} break;
+			case megopp::endian_t::little_word: {
+				value = megopp::endian::word_swap(value);
+#if MEGO_ENDIAN__BIG_BYTE
+				value = megopp::endian::byte_swap(value);
+#endif
+			} break;
+			default: break;
 		}
 
 		return insert(_pos, reinterpret_cast<const_pointer>(&value), static_cast<size_type>(sizeof(value)));
@@ -235,30 +235,30 @@ namespace memepp {
         typename megopp::type_with_size<sizeof(_Ty)>::uint value = 0;
         memcpy(&value, &_v, sizeof(value));
         
+		switch (_endian) {
+			case megopp::endian_t::big_byte: { 
 #if MEGO_ENDIAN__LITTLE_BYTE
-        if (_endian == megopp::endian_t::big_byte)
-        {
-			value = megopp::endian::byte_swap(value);
-        }
-#elif MEGO_ENDIAN__BIG_BYTE
-        if (_endian == megopp::endian_t::little_byte)
-        {
-			value = megopp::endian::byte_swap(value);
-        }
+				value = megopp::endian::byte_swap(value);
 #endif
-		if (_endian == megopp::endian_t::big_word)
-		{
-			value = megopp::endian::word_swap(value);
-#if MEGO_ENDIAN__LITTLE_BYTE
-			value = megopp::endian::byte_swap(value);
-#endif
-		}
-		if (_endian == megopp::endian_t::little_word)
-		{
-			value = megopp::endian::word_swap(value);
+			} break;
+			case megopp::endian_t::little_byte: {
 #if MEGO_ENDIAN__BIG_BYTE
-			value = megopp::endian::byte_swap(value);
+				value = megopp::endian::byte_swap(value);
 #endif
+			} break;
+			case megopp::endian_t::big_word: {
+				value = megopp::endian::word_swap(value);
+#if MEGO_ENDIAN__LITTLE_BYTE
+				value = megopp::endian::byte_swap(value);
+#endif
+			} break;
+			case megopp::endian_t::little_word: {
+				value = megopp::endian::word_swap(value);
+#if MEGO_ENDIAN__BIG_BYTE
+				value = megopp::endian::byte_swap(value);
+#endif
+			} break;
+			default: break;
 		}
 
         return insert(_pos, reinterpret_cast<const_pointer>(&value), static_cast<size_type>(sizeof(value)));
