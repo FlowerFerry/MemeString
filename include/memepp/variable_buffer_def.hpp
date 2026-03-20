@@ -176,6 +176,21 @@ namespace memepp {
 			value = megopp::endian::byte_swap(value);
         }
 #endif
+		if (_endian == megopp::endian_t::big_word)
+		{
+			value = megopp::endian::word_swap(value);
+#if MEGO_ENDIAN__LITTLE_BYTE
+			value = megopp::endian::byte_swap(value);
+#endif
+		}
+		if (_endian == megopp::endian_t::little_word)
+		{
+			value = megopp::endian::word_swap(value);
+#if MEGO_ENDIAN__BIG_BYTE
+			value = megopp::endian::byte_swap(value);
+#endif
+		}
+
         return append(reinterpret_cast<const_pointer>(&value), static_cast<size_type>(sizeof(value)));
 	}
     
@@ -196,6 +211,21 @@ namespace memepp {
 			value = megopp::endian::byte_swap(value);
 		}
 #endif
+		if (_endian == megopp::endian_t::big_word)
+		{
+			value = megopp::endian::word_swap(value);
+#if MEGO_ENDIAN__LITTLE_BYTE
+			value = megopp::endian::byte_swap(value);
+#endif
+		}
+		if (_endian == megopp::endian_t::little_word)
+		{
+			value = megopp::endian::word_swap(value);
+#if MEGO_ENDIAN__BIG_BYTE
+			value = megopp::endian::byte_swap(value);
+#endif
+		}
+
 		return insert(_pos, reinterpret_cast<const_pointer>(&value), static_cast<size_type>(sizeof(value)));
 	}
 
@@ -216,6 +246,21 @@ namespace memepp {
 			value = megopp::endian::byte_swap(value);
         }
 #endif
+		if (_endian == megopp::endian_t::big_word)
+		{
+			value = megopp::endian::word_swap(value);
+#if MEGO_ENDIAN__LITTLE_BYTE
+			value = megopp::endian::byte_swap(value);
+#endif
+		}
+		if (_endian == megopp::endian_t::little_word)
+		{
+			value = megopp::endian::word_swap(value);
+#if MEGO_ENDIAN__BIG_BYTE
+			value = megopp::endian::byte_swap(value);
+#endif
+		}
+		
         return insert(_pos, reinterpret_cast<const_pointer>(&value), static_cast<size_type>(sizeof(value)));
 	}
 
