@@ -87,10 +87,6 @@ namespace endian {
 	template<>
 	struct word_swap_by_size<1>
 	{
-		inline static uint8_t convert(uint8_t _value) noexcept
-		{
-			return _value;
-		}
 	};
 
 	template<>
