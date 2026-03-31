@@ -168,18 +168,16 @@ extern "C" {
 
     MG_CAPI_INLINE int mgu_minute_timezone()
     {
-        struct tm ltm;
         struct tm gtm;
         mgu_time_t t_now = time(NULL);
         mgu_time_t t_g2l = -1;
         if (t_now == (mgu_time_t)-1)
             return INT_MIN;
 
-        if (mgu_localtime_s(&t_now, &ltm) == NULL)
-            return INT_MIN;
         if (mgu_gmtime_s(&t_now, &gtm) == NULL)
             return INT_MIN;
 
+        gtm.tm_isdst = -1;
         t_g2l = mktime(&gtm);
         if (t_g2l == (mgu_time_t)-1)
             return INT_MIN;
