@@ -85,11 +85,6 @@ namespace endian {
 	struct word_swap_by_size;
 
 	template<>
-	struct word_swap_by_size<-1>
-	{
-	};
-
-	template<>
 	struct word_swap_by_size<1>
 	{
 	};
