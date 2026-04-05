@@ -23,18 +23,18 @@ typedef int64_t mmint_t;
 # error "Environment not 32, or 64-bit."
 #endif
 
-//! @deprecated
+//! @deprecated This type is deprecated
 typedef struct _MemeString_t* MemeString_t;
-//! @deprecated
+//! @deprecated This type is deprecated
 typedef const struct _MemeString_t* MemeString_Const_t;
 
-//! @deprecated
+//! @deprecated This type is deprecated
 typedef struct _MemeString_t* mms_t;
-//! @deprecated
+//! @deprecated This type is deprecated
 typedef const struct _MemeString_t* mms_const_t;
-//! @deprecated
+//! @deprecated This type is deprecated
 typedef struct _MemeString_t* mmstr_t;
-//! @deprecated
+//! @deprecated This type is deprecated
 typedef const struct _MemeString_t* mmstr_const_t;
 
 typedef struct _MemeString_t* mmstr_ptr_t;
@@ -140,7 +140,7 @@ typedef MemeString_ForEachRuneFunc_t mmstr_foreach_rune_cb_t;
 #define MEME_STRING__OBJECT_SIZE (sizeof(mmint_t) * MMSTR__OBJ_REG_SIZE)
 
 #ifndef MMS__OBJECT_SIZE
-//! @deprecated
+//! @deprecated This macro is deprecated. Use MMSTR__OBJ_SIZE instead.
 #define MMS__OBJECT_SIZE MEME_STRING__OBJECT_SIZE
 #endif
 

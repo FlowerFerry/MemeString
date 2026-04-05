@@ -35,6 +35,30 @@ set(SRC_FILES
 	test_endian.cpp
 	test_path.cpp
 	test_type_traits.cpp
+	test_byte_swap.cpp
+	test_endian_net.cpp
+	test_iterator.cpp
+	test_objbuf.cpp
+	test_trivial_create.cpp
+	test_traverse.cpp
+	test_snprintf.cpp
+	test_atomic_shared_ptr.cpp
+	test_cow_ptr.cpp
+	test_emtx_cow_ptr.cpp
+	test_hashable_weak_ptr.cpp
+	test_atomic_counter.cpp
+	test_template_random.cpp
+	test_template_indexer.cpp
+	test_value_picker.cpp
+	test_ref_counter.cpp
+	test_spin_mutex.cpp
+	test_synchronized.cpp
+	test_function_wrapper.cpp
+	test_c_wrap_shared_ptr.cpp
+	test_c_wrap_smart_ptr.cpp
+	test_c_wrap_weak_ptr.cpp
+	test_scope_locker.cpp
+	test_numeric_id.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILES})

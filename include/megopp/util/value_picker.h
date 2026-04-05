@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEGOPP_UTIL_VALUE_PICKER_H_INCLUDED
 #define MMCWPP_UTIL_VALUE_PICKER_H_INCLUDED
 
@@ -84,6 +84,7 @@ public:
         if (lower_ <= _value && _value <= upper_) {
             return used_[_value - lower_];
         }
+        return false;
     }
 
     inline bool has_available() const {
@@ -97,7 +98,7 @@ private:
         return upper_ - lower_ + 1;
     }
 
-    _Mtx mtx_;
+    mutable _Mtx mtx_;
     _Ty  lower_;
     _Ty  upper_;
     _Ty  invalid_;
@@ -111,7 +112,7 @@ class large_range_value_picker
 {
     static_assert(std::is_integral<_Ty>::value, "large_range_value_picker requires an integral type");
 
-    _Mtx mtx_;
+    mutable _Mtx mtx_;
     _Ty  lower_;
     _Ty  upper_;
     _Ty  invalid_;
@@ -224,7 +225,7 @@ public:
     >::type;
 
     value_picker(_Ty _first, _Ty _invalid)
-        : impl_(std::make_unique<impl_t>(_first, __lower, __upper, _invalid))
+        : impl_(_first, __lower, __upper, _invalid)
     {
     }
 

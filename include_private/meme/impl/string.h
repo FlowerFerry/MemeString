@@ -224,7 +224,7 @@ struct _MemeString_t
 #endif
 
 //#ifndef MMS__GET_TYPE
-////! @deprecated
+////! @deprecated This macro is deprecated
 //#define MMS__GET_TYPE(S) ((S)->none_.type_)
 //#endif 
 

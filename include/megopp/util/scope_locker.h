@@ -190,6 +190,10 @@ public:
         return owns_lock_;
     }
 
+    bool owns_lock() const noexcept {
+        return owns_lock_;
+    }
+
 private:
     _Mtx& mtx_;
     bool owns_lock_;

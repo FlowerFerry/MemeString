@@ -109,11 +109,11 @@ extern "C" {
         
     MG_CAPI_INLINE mgec_t mgu_asctime_s(char *_buf, size_t _bufsz, const struct tm *_tm)
     {
+        if (!_buf || !_tm) return MGEC__INVAL;
+        if (_bufsz < 26)   return MGEC__INVAL;
     #if MG_OS__WIN_AVAIL
         return asctime_s(_buf, _bufsz, _tm);
     #else
-        if (!_buf || !_tm) return MGEC__INVAL;
-        if ( _bufsz < 26 ) return MGEC__INVAL;
 
         errno = 0;
         if (!asctime_r(_tm, _buf)) {
@@ -126,11 +126,13 @@ extern "C" {
     MG_CAPI_INLINE mgec_t mgu_ctime_s(char *_buf, size_t _bufsz, const mgu_time_t *_time)
     {
     #if MG_OS__WIN_AVAIL
+        if (!_buf || !_time) return MGEC__INVAL;
+        if (_bufsz < 26)     return MGEC__INVAL;
         return ctime_s(_buf, _bufsz, _time);
     #else
         time_t time;
         if (!_buf || !_time) return MGEC__INVAL;
-        if (_bufsz < 26) return MGEC__INVAL;
+        if (_bufsz < 26)     return MGEC__INVAL;
 
         time = (time_t)(*_time);
         errno = 0;

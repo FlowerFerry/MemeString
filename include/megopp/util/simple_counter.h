@@ -20,7 +20,7 @@ namespace util {
 	{
 		ref_counter() : count_(0), compare_value_(0) {}
 		ref_counter(mmint_t _count):
-			count_(_count)
+			count_(_count), compare_value_(0)
 		{}
 
         ref_counter(mmint_t _count, mmint_t _compare_value):

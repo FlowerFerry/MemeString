@@ -2519,7 +2519,7 @@ MemeStringViewUnsafe_split(
 	//}
 }
 
-//! @deprecated
+//! @deprecated This function is deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init(mmsstk_t* _out, size_t _object_size)
 {
     if (_out == NULL)
@@ -2527,7 +2527,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init(mmsstk_t* _out, size_t _obje
     return MemeStringStack_init(_out, _object_size);
 }
 
-//! @deprecated
+//! @deprecated This function is deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_other(mmsstk_t* _out, size_t _object_size, mms_const_t _other)
 {
     if (_out == NULL)
@@ -2537,7 +2537,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_other(mmsstk_t* _out, siz
     return MemeStringStack_initByOther(_out, _object_size, _other);
 }
 
-//! @deprecated
+//! @deprecated This function is deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_buf(
 	mmsstk_t* _out, size_t _object_size, mmbuf_const_t _other, mmint_t _offset)
 {
@@ -2548,7 +2548,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_buf(
     return MemeStringStack_initByBuffer(_out, _object_size, _other, _offset);
 }
 
-//! @deprecated
+//! @deprecated This function is deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_utf8(
 	mmsstk_t* _out, size_t _object_size, const mmbyte_t* _utf8, mmint_t _len)
 {
@@ -2559,7 +2559,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_utf8(
     return MemeStringStack_initByU8bytes(_out, _object_size, _utf8, _len);
 }
 
-//! @deprecated
+//! @deprecated This function is deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_utf8_v2(
 	mmsstk_t* _out, size_t _object_size,
 	const mmbyte_t* _utf8, mmint_t _len, MemeString_Storage_t _suggest)
@@ -2571,7 +2571,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_utf8_v2(
     return MemeStringStack_initByU8bytesAndType(_out, _object_size, _utf8, _len, _suggest);
 }
 
-//! @deprecated
+//! @deprecated This function is deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_hexs(
 	mmsstk_t* _out, size_t _object_size, const mmbyte_t* _interval, mmint_t _ivlen, const uint8_t* _hexs, mmint_t _len)
 {
@@ -2582,7 +2582,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_hexs(
     return MemeStringStack_initWithHexadecimals(_out, _object_size, _interval, _ivlen, _hexs, _len);
 }
 
-//! @deprecated
+//! @deprecated This function is deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_user(
 	mmsstk_t* _out, size_t _object_size, void* _user_data,
 	MemeString_UserObjectDestruct_t* _destruct_fn, 
@@ -2600,7 +2600,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_init_by_user(
 		_out, _object_size, _user_data, _destruct_fn, _data_fn, _size_fn);
 }
 
-//! @deprecated
+//! @deprecated This function is deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_uninit(mmsstk_t* _out, size_t _object_size)
 {
     if (_out == NULL)
@@ -2608,7 +2608,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_uninit(mmsstk_t* _out, size_t _ob
     return MemeStringStack_unInit(_out, _object_size);
 }
 
-//! @deprecated
+//! @deprecated This function is deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_reset(mmsstk_t* _out, size_t _object_size)
 {
     if (_out == NULL)
@@ -2616,7 +2616,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL mmsstk_reset(mmsstk_t* _out, size_t _obj
     return MemeStringStack_reset(_out, _object_size);
 }
 
-//! @deprecated
+//! @deprecated This function is deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mms_assign(mms_t _s, mms_const_t _other)
 {
     if (_s == NULL)
@@ -2626,7 +2626,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL mms_assign(mms_t _s, mms_const_t _other)
     return MemeStringStack_assign((mmsstk_t*)_s, sizeof(*_s), _other);
 }
 
-//! @deprecated
+//! @deprecated This function is deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mms_assign_by_utf8(
 	mms_t _s, const mmbyte_t* _utf8, mmint_t _len)
 {
@@ -2637,7 +2637,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL mms_assign_by_utf8(
     return MemeStringStack_assignByU8bytes((mmsstk_t*)_s, sizeof(*_s), _utf8, _len);
 }
 
-//! @deprecated
+//! @deprecated This function is deprecated
 MEME_EXTERN_C MEME_API int MEME_STDCALL mms_assign_by_buf(
 	mms_t _out, mmbuf_const_t _other, mmint_t _offset)
 {

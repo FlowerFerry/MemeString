@@ -79,7 +79,7 @@ struct c_wrap_weak_ptr
     static inline std::weak_ptr<_Ty> unwrap_struct(const _CStruct* _st) noexcept
     {
         if (MEGO_SYMBOL__UNLIKELY(_st == nullptr))
-            return nullptr;
+            return {};
 
         return reinterpret_cast<const c_wrap_weak_ptr*>(_st)->get_ptr();
     }

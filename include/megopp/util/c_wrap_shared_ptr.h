@@ -1,6 +1,6 @@
 
-#ifndef MEGOPP_UTIL_C_WRAP_SMART_PTR_H_INCLUDED
-#define MEGOPP_UTIL_C_WRAP_SMART_PTR_H_INCLUDED
+#ifndef MEGOPP_UTIL_C_WRAP_SHARED_PTR_H_INCLUDED
+#define MEGOPP_UTIL_C_WRAP_SHARED_PTR_H_INCLUDED
 
 #include <memory>
 #include <mego/predef/symbol/likely.h>
@@ -122,4 +122,4 @@ private:
 }
 }
 
-#endif // !MEGOPP_UTIL_C_WRAP_SMART_PTR_H_INCLUDED
+#endif // !MEGOPP_UTIL_C_WRAP_SHARED_PTR_H_INCLUDED

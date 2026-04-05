@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEGOPP_UTIL_OS_WIN_GET_ADAPTERS_ADDRESSES_H_INCLUDED
 #define MEGOPP_UTIL_OS_WIN_GET_ADAPTERS_ADDRESSES_H_INCLUDED
 
@@ -9,6 +9,8 @@
 
 #if MG_OS__WIN_AVAIL
 
+#include <winsock2.h>
+#include <IPTypes.h>
 #include <iphlpapi.h>
 #pragma comment(lib, "Iphlpapi.lib")
 

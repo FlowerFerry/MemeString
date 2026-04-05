@@ -55,7 +55,7 @@ public:
     {}
 
     cow_ptr(const cow_ptr& _other)
-        : ptr_(_other.read())
+        : ptr_(std::const_pointer_cast<_Ty>(_other.read()))
     {}
 
     cow_ptr(cow_ptr&& _other)
@@ -86,7 +86,7 @@ public:
     {
         if (this != &_other) {
             std::unique_lock<_GenrcMutex> locker(genrc_mutex_);
-            ptr_ = _other.read();
+            ptr_ = std::const_pointer_cast<_Ty>(_other.read());
         }
         return *this;
     }

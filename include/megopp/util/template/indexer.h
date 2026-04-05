@@ -32,7 +32,8 @@ private:
         if constexpr(std::is_same_v<T, U>) {
             return 0;
         } else {
-            return 1 + find_index<T, Rest...>();
+            constexpr int rest = find_index<T, Rest...>();
+            return (rest == -1) ? -1 : 1 + rest;
         }
     }
 

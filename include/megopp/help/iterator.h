@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEGOPP_HELP_ITERATOR_H_INCLUDED
 #define MEGOPP_HELP_ITERATOR_H_INCLUDED
 
@@ -39,7 +39,7 @@ inline T & iter_value(T & val)
 }
 
 template <typename T, typename U>
-inline U & iter_key(std::pair<T, U> & pair) 
+inline T& iter_key(std::pair<T, U> & pair)
 {
     return pair.first;
 }

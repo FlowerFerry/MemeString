@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MGPP_HW_NETIF_PHYSICAL_ADDRESS_H_INCLUDED
 #define MGPP_HW_NETIF_PHYSICAL_ADDRESS_H_INCLUDED
 
@@ -11,6 +11,7 @@
 
 #if MG_OS__WIN_AVAIL
 
+#include <IPTypes.h>
 #include <iphlpapi.h>
 #pragma comment(lib, "Iphlpapi.lib")
 

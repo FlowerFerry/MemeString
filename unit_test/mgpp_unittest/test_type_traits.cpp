@@ -1,6 +1,7 @@
 ﻿
 #include <catch2/catch.hpp>
 
+#include <megopp/help/type_traits.h>
 #include <type_traits>
 
 template<typename _EnumTy, _EnumTy _First, _EnumTy... _Rest>
@@ -79,4 +80,64 @@ TEST_CASE("mgpp::type_traits is_value_in_enum", "[type_traits]")
     
     REQUIRE(is_value_in_test01_enum_v<Test01_02, Test01_02::A> == false);
     REQUIRE(is_value_in_test01_enum_v<Test01_02, Test01_02::B> == true);
+}
+
+TEST_CASE("mgpp::is_pair - non-pair types return false", "[type_traits]")
+{
+    REQUIRE(mgpp::is_pair<int>::value == false);
+    REQUIRE(mgpp::is_pair<std::string>::value == false);
+    REQUIRE(mgpp::is_pair<double>::value == false);
+    REQUIRE(mgpp::is_pair_v<float> == false);
+}
+
+TEST_CASE("mgpp::is_pair - std::pair specializations return true", "[type_traits]")
+{
+    REQUIRE(mgpp::is_pair<std::pair<int, int>>::value == true);
+    REQUIRE(mgpp::is_pair<std::pair<std::string, double>>::value == true);
+    REQUIRE(mgpp::is_pair_v<std::pair<int, float>> == true);
+}
+
+TEST_CASE("mgpp::type_with_size - 1-byte types", "[type_traits]")
+{
+    REQUIRE((std::is_same<mgpp::type_with_size<1>::sint,  int8_t>::value));
+    REQUIRE((std::is_same<mgpp::type_with_size<1>::uint,  uint8_t>::value));
+}
+
+TEST_CASE("mgpp::type_with_size - 2-byte types", "[type_traits]")
+{
+    REQUIRE((std::is_same<mgpp::type_with_size<2>::sint,  int16_t>::value));
+    REQUIRE((std::is_same<mgpp::type_with_size<2>::uint,  uint16_t>::value));
+}
+
+TEST_CASE("mgpp::type_with_size - 4-byte types", "[type_traits]")
+{
+    REQUIRE((std::is_same<mgpp::type_with_size<4>::sint,     int32_t>::value));
+    REQUIRE((std::is_same<mgpp::type_with_size<4>::uint,     uint32_t>::value));
+    REQUIRE((std::is_same<mgpp::type_with_size<4>::floating, float>::value));
+}
+
+TEST_CASE("mgpp::type_with_size - 8-byte types", "[type_traits]")
+{
+    REQUIRE((std::is_same<mgpp::type_with_size<8>::sint,     int64_t>::value));
+    REQUIRE((std::is_same<mgpp::type_with_size<8>::uint,     uint64_t>::value));
+    REQUIRE((std::is_same<mgpp::type_with_size<8>::floating, double>::value));
+}
+
+TEST_CASE("mgpp::function_traits - arity and result_type", "[type_traits]")
+{
+    using Traits1 = mgpp::function_traits<int(float, double)>;
+    REQUIRE(Traits1::arity == 2);
+    REQUIRE((std::is_same<Traits1::result_type, int>::value));
+
+    using Traits2 = mgpp::function_traits<void()>;
+    REQUIRE(Traits2::arity == 0);
+    REQUIRE((std::is_same<Traits2::result_type, void>::value));
+}
+
+TEST_CASE("mgpp::function_traits - individual argument types", "[type_traits]")
+{
+    using Traits = mgpp::function_traits<double(int, float, char)>;
+    REQUIRE((std::is_same<Traits::arg<0>::type, int>::value));
+    REQUIRE((std::is_same<Traits::arg<1>::type, float>::value));
+    REQUIRE((std::is_same<Traits::arg<2>::type, char>::value));
 }
