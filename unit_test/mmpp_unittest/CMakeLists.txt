@@ -37,6 +37,7 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variant.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_rune.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_builder.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_err.cpp
 )
 
 function(mmut_create_exec_for_stdcxx  exec_name cxx_standard)
