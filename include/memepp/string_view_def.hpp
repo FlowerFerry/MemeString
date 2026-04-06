@@ -155,6 +155,9 @@ namespace memepp {
 		size_type last_index_of(const string_view& _other,
 			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
 
+		size_type last_index_of(const string_view& _other, bool _full_match,
+			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
+
 		size_type last_index_of(const string_view& _other,
 			size_type _offset, size_type _limit, bool _full_match,
 			case_sensitivity_t _cs = case_sensitivity_t::all_sensitive) const noexcept;
@@ -195,6 +198,14 @@ namespace memepp {
 
 		string to_en_upper() const noexcept;
 		string to_en_lower() const noexcept;
+
+		string_view to_valid_utf8() const noexcept;
+
+		template<typename _Func>
+		string_view trim_if(_Func&& _func) const noexcept;
+
+		template<typename _Func>
+		string_view trim_if_rune(_Func&& _func) const noexcept;
 
 		string_view trim_space() const noexcept;
 		string_view trim_left_space() const noexcept;
@@ -265,6 +276,23 @@ namespace memepp {
 		inline mmint_t split(
 			string_view _key, 
 			std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const MEGOPP__NOEXCEPT;
+
+		//! \brief Join items with this string_view as separator.
+		template<template<class> class _Container,
+			typename = std::enable_if_t<std::is_same<string, typename _Container<string>::value_type>::value>>
+		inline string join(const _Container<string>& _items) const;
+
+		template<template<class, class...> class _Container, class... _Arg,
+			typename = std::enable_if_t<std::is_same<string, typename _Container<string, _Arg...>::value_type>::value>>
+		inline string join(const _Container<string, _Arg...>& _items) const;
+
+		template<template<class> class _Container,
+			typename = std::enable_if_t<std::is_same<string_view, typename _Container<string_view>::value_type>::value>>
+		inline string join(const _Container<string_view>& _items) const;
+
+		template<template<class, class...> class _Container, class... _Arg,
+			typename = std::enable_if_t<std::is_same<string_view, typename _Container<string_view, _Arg...>::value_type>::value>>
+		inline string join(const _Container<string_view, _Arg...>& _items) const;
 
 		const native_handle_type& native_handle() const noexcept;
 

@@ -591,6 +591,34 @@ namespace memepp {
             to_pointer(_other.native_handle()), -1, (_full_match ? 1 : 0),
             static_cast<mmflag_case_sensit_t>(_cs));
 	}
+
+	MEMEPP__IMPL_INLINE string::size_type string::last_index_of(const string_view& _other,
+		case_sensitivity_t _cs) const noexcept
+	{
+		return MemeString_lastIndexOfOther(
+			to_pointer(native_handle()), 0, -1,
+			to_pointer(_other.native_handle()), -1, 0,
+			static_cast<mmflag_case_sensit_t>(_cs));
+	}
+
+	MEMEPP__IMPL_INLINE string::size_type string::last_index_of(const string_view& _other,
+		bool _full_match, case_sensitivity_t _cs) const noexcept
+	{
+		return MemeString_lastIndexOfOther(
+			to_pointer(native_handle()), 0, -1,
+			to_pointer(_other.native_handle()), -1, (_full_match ? 1 : 0),
+			static_cast<mmflag_case_sensit_t>(_cs));
+	}
+
+	MEMEPP__IMPL_INLINE string::size_type string::last_index_of(const string_view& _other,
+		size_type _offset, size_type _limit, bool _full_match,
+		case_sensitivity_t _cs) const noexcept
+	{
+		return MemeString_lastIndexOfOther(
+			to_pointer(native_handle()), _offset, _limit,
+			to_pointer(_other.native_handle()), -1, (_full_match ? 1 : 0),
+			static_cast<mmflag_case_sensit_t>(_cs));
+	}
 	
 	MEMEPP__IMPL_INLINE string::size_type string::last_index_of(const char* _utf8, 
 		case_sensitivity_t _cs) const noexcept
@@ -869,6 +897,18 @@ namespace memepp {
 	{
 		mmstrstk_t out;
 		mgec_t ec = *errc() = MemeStringStack_toEnLower_v2(&native_handle(), &out, sizeof(out));
+		if (ec)
+			mmstrstk_uninit(&out);
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(ec);
+#endif
+		return ec ? string{} : string{ std::move(out) };
+	}
+
+	MEMEPP__IMPL_INLINE string string::to_valid_utf8() const noexcept
+	{
+		mmstrstk_t out;
+		mgec_t ec = *errc() = MemeStringStack_toValidUtf8_v2(&native_handle(), &out, sizeof(out));
 		if (ec)
 			mmstrstk_uninit(&out);
 #if !MMOPT__EXCEPTION_DISABLED

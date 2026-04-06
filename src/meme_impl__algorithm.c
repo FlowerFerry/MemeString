@@ -323,11 +323,11 @@ mmint_t MemeImpl_SearchByBoyerMooreWithSensitivity
 {
     if ((_haystack == NULL || _needle == NULL))
         return -1;
-    if ((_haystack_len == 0 || _needle_len == 0))
-        return -1;
     if (_needle_len < 0)
         _needle_len = strlen((const char*)_needle);
-    
+    if ((_haystack_len == 0 || _needle_len == 0))
+        return -1;
+
     if (_needle_len == 1) {
         return MemeImpl_SearchByViolenceWithSensitivity(_haystack, _haystack_len, *_needle, _cs);
     }
@@ -344,10 +344,10 @@ mmint_t MemeImpl_ReverseSearchByBoyerMooreWithSensitivity(
 {
     if ((_haystack == NULL || _needle == NULL))
         return -1;
-    if ((_haystack_len == 0 || _needle_len == 0))
-        return -1;
     if (_needle_len < 0)
         _needle_len = strlen((const char*)_needle);
+    if ((_haystack_len == 0 || _needle_len == 0))
+        return -1;
 
     if (_needle_len == 1) {
         return MemeImpl_ReverseSearchByViolenceWithSensitivity(_haystack, _haystack_len, *_needle, _cs);

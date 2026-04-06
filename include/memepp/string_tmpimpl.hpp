@@ -7,7 +7,7 @@
 #include <memepp/dll.hpp>
 #include <memepp/string_def.hpp>
 #include <memepp/string_view_def.hpp>
-#include <memepp/rune_impl.hpp>
+#include <memepp/help/string_trim_if_helper.hpp>
 
 #include <type_traits>
 
@@ -170,10 +170,10 @@ namespace memepp {
 		for (MemeInteger_t index = 0; index != -1;)
 		{
 			stacksCount = sizeof(stacks) / sizeof(stacks[0]);
-			auto result = MemeString_split(to_pointer(native_handle()),
+			auto result = MemeStringStack_split(&native_handle(),
 				_key.data(), _key.size(),
 				static_cast<MemeFlag_SplitBehavior_t>(_behavior), MemeFlag_AllSensitive,
-				stacks, &stacksCount, &index);
+				stacks, MEME_STRING__OBJECT_SIZE, &stacksCount, &index);
 			if (result) {
 				return result;
 			}
@@ -222,10 +222,10 @@ namespace memepp {
 		for (MemeInteger_t index = 0; index != -1;)
 		{
 			stacksCount = sizeof(stacks) / sizeof(stacks[0]);
-			auto result = MemeString_split(to_pointer(native_handle()),
+			auto result = MemeStringStack_split(&native_handle(),
 				_key.data(), _key.size(),
 				static_cast<MemeFlag_SplitBehavior_t>(_behavior), MemeFlag_AllSensitive,
-				stacks, &stacksCount, &index);
+				stacks, MEME_STRING__OBJECT_SIZE, &stacksCount, &index);
 			if (result) {
 				return result;
 			}
@@ -278,6 +278,112 @@ namespace memepp {
 		std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const MEGOPP__NOEXCEPT
 	{
         return split(_key, split_behav_t::keep_empty_parts, _inserter);
+	}
+
+	// ---- trim_if (byte predicate) ----
+
+	template<typename _Func>
+	inline string string::trim_if(_Func&& _func) const
+	{
+		__string_trim_if_byte_helper<_Func> helper{ std::forward<_Func>(_func) };
+		mmstrstk_t out;
+		mgec_t ec = *errc() = MemeStringStack_trimByCondByteFunc_v2(
+			&native_handle(),
+			__string_trim_if_byte_helper<_Func>::callback,
+			&helper, &out, sizeof(out));
+		if (ec)
+			mmstrstk_uninit(&out);
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(ec);
+#endif
+		return ec ? string{} : string{ std::move(out) };
+	}
+
+	// ---- trim_if_rune (rune predicate) ----
+
+	template<typename _Func>
+	inline string string::trim_if_rune(_Func&& _func) const
+	{
+		__string_trim_if_rune_helper<_Func> helper{ std::forward<_Func>(_func) };
+		mmstrstk_t out;
+		mgec_t ec = *errc() = MemeStringStack_trimByCondRuneFunc(
+			&native_handle(),
+			__string_trim_if_rune_helper<_Func>::callback,
+			&helper, &out, sizeof(out));
+		if (ec)
+			mmstrstk_uninit(&out);
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(ec);
+#endif
+		return ec ? string{} : string{ std::move(out) };
+	}
+
+	// ---- join (member method, *this is separator) ----
+
+	namespace details {
+		template<typename _Container>
+		inline string join_impl(const string& _sep, const _Container& _items)
+		{
+			std::vector<mmstrstk_t> raw;
+			raw.reserve(_items.size());
+			for (const auto& item : _items)
+				raw.push_back(item.native_handle());
+			mmstrstk_t out;
+			mgec_t ec = *errc() = MemeStringStack_join(
+				&out, sizeof(out),
+				_sep.data(), _sep.size(),
+				raw.data(), static_cast<mmint_t>(raw.size()));
+			if (ec)
+				mmstrstk_uninit(&out);
+#if !MMOPT__EXCEPTION_DISABLED
+			throw_errc(ec);
+#endif
+			return ec ? string{} : string{ std::move(out) };
+		}
+
+		template<typename _Container>
+		inline string join_view_impl(const string& _sep, const _Container& _items)
+		{
+			std::vector<mmstrstk_t> raw;
+			raw.reserve(_items.size());
+			for (const auto& item : _items)
+				raw.push_back(item.native_handle());
+			mmstrstk_t out;
+			mgec_t ec = *errc() = MemeStringStack_join(
+				&out, sizeof(out),
+				_sep.data(), _sep.size(),
+				raw.data(), static_cast<mmint_t>(raw.size()));
+			if (ec)
+				mmstrstk_uninit(&out);
+#if !MMOPT__EXCEPTION_DISABLED
+			throw_errc(ec);
+#endif
+			return ec ? string{} : string{ std::move(out) };
+		}
+	}
+
+	template<template<class> class _Container, typename>
+	inline string string::join(const _Container<string>& _items) const
+	{
+		return details::join_impl(*this, _items);
+	}
+
+	template<template<class, class...> class _Container, class... _Arg, typename>
+	inline string string::join(const _Container<string, _Arg...>& _items) const
+	{
+		return details::join_impl(*this, _items);
+	}
+
+	template<template<class> class _Container, typename>
+	inline string string::join(const _Container<string_view>& _items) const
+	{
+		return details::join_view_impl(*this, _items);
+	}
+
+	template<template<class, class...> class _Container, class... _Arg, typename>
+	inline string string::join(const _Container<string_view, _Arg...>& _items) const
+	{
+		return details::join_view_impl(*this, _items);
 	}
 
 	template<>
