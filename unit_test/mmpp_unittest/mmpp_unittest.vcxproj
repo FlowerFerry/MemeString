@@ -187,11 +187,51 @@ xcopy /y "$(ProjectDir)..\..\projects\vs\libmeme_string\$(Platform)\$(Configurat
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="mmpp_string_compare.cpp" />
-    <ClCompile Include="mmpp_string_frontback.cpp" />
-    <ClCompile Include="mmpp_string_split.cpp" />
     <ClCompile Include="mmpp_unittest.cpp" />
-    <ClCompile Include="mmpp_variable_buffer_resize.cpp" />
+    <ClCompile Include="test_string.cpp" />
+    <ClCompile Include="test_string_at.cpp" />
+    <ClCompile Include="test_string_compare.cpp" />
+    <ClCompile Include="test_string_frontback.cpp" />
+    <ClCompile Include="test_string_split.cpp" />
+    <ClCompile Include="test_string_mid.cpp" />
+    <ClCompile Include="test_string_repeat.cpp" />
+    <ClCompile Include="test_string_concat.cpp" />
+    <ClCompile Include="test_string_utf8.cpp" />
+    <ClCompile Include="test_string_replace.cpp" />
+    <ClCompile Include="test_string_trim.cpp" />
+    <ClCompile Include="test_string_leftright.cpp" />
+    <ClCompile Include="test_string_reset.cpp" />
+    <ClCompile Include="test_string_iterator.cpp" />
+    <ClCompile Include="test_string_is_only_ascii.cpp" />
+    <ClCompile Include="test_string_from_hexadecimals.cpp" />
+    <ClCompile Include="test_variable_buffer_resize.cpp" />
+    <ClCompile Include="test_variable_buffer_push_front.cpp" />
+    <ClCompile Include="test_variable_buffer_push_back.cpp" />
+    <ClCompile Include="test_variable_buffer_clear.cpp" />
+    <ClCompile Include="test_variable_buffer_reserve.cpp" />
+    <ClCompile Include="test_multi_buffer_view.cpp" />
+    <ClCompile Include="test_buffer.cpp" />
+    <ClCompile Include="test_variant.cpp" />
+    <ClCompile Include="test_rune.cpp" />
+    <ClCompile Include="test_string_builder.cpp" />
+    <ClCompile Include="test_err.cpp" />
+    <ClCompile Include="test_string_trimif.cpp" />
+    <ClCompile Include="test_string_to_valid_utf8.cpp" />
+    <ClCompile Include="test_string_join.cpp" />
+    <ClCompile Include="test_string_view_to_valid_utf8.cpp" />
+    <ClCompile Include="test_string_view_trimif.cpp" />
+    <ClCompile Include="test_string_view_join.cpp" />
+    <ClCompile Include="test_string_find.cpp" />
+    <ClCompile Include="test_string_contains.cpp" />
+    <ClCompile Include="test_string_index_of.cpp" />
+    <ClCompile Include="test_string_substr.cpp" />
+    <ClCompile Include="test_string_view_find.cpp" />
+    <ClCompile Include="test_string_view_contains.cpp" />
+    <ClCompile Include="test_string_view_index_of.cpp" />
+    <ClCompile Include="test_string_view_substr.cpp" />
+    <ClCompile Include="test_string_view_replace.cpp" />
+    <ClCompile Include="test_string_view_repeat.cpp" />
+    <ClCompile Include="test_string_view_split.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

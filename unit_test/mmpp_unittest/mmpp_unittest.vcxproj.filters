@@ -18,17 +18,17 @@
     <ClCompile Include="mmpp_unittest.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="mmpp_string_split.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="mmpp_variable_buffer_resize.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="mmpp_string_compare.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="mmpp_string_frontback.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
+    <ClCompile Include="test_string.cpp"><Filter>源文件</Filter></ClCompile>
+    <ClCompile Include="test_string_find.cpp"><Filter>源文件</Filter></ClCompile>
+    <ClCompile Include="test_string_contains.cpp"><Filter>源文件</Filter></ClCompile>
+    <ClCompile Include="test_string_index_of.cpp"><Filter>源文件</Filter></ClCompile>
+    <ClCompile Include="test_string_substr.cpp"><Filter>源文件</Filter></ClCompile>
+    <ClCompile Include="test_string_view_find.cpp"><Filter>源文件</Filter></ClCompile>
+    <ClCompile Include="test_string_view_contains.cpp"><Filter>源文件</Filter></ClCompile>
+    <ClCompile Include="test_string_view_index_of.cpp"><Filter>源文件</Filter></ClCompile>
+    <ClCompile Include="test_string_view_substr.cpp"><Filter>源文件</Filter></ClCompile>
+    <ClCompile Include="test_string_view_replace.cpp"><Filter>源文件</Filter></ClCompile>
+    <ClCompile Include="test_string_view_repeat.cpp"><Filter>源文件</Filter></ClCompile>
+    <ClCompile Include="test_string_view_split.cpp"><Filter>源文件</Filter></ClCompile>
   </ItemGroup>
 </Project>

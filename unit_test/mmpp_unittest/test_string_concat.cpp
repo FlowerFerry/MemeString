@@ -64,3 +64,65 @@ TEST_CASE("memepp::string concat", "[string]")
     str01_02_cleanup.early_exec();
     str01_03_cleanup.early_exec();
 }
+
+// ---------------------------------------------------------------------------
+// memepp::string::concat  (C++ API)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string concat(string) - C++ API", "[string]")
+{
+    memepp::string s1 = "Hello, ";
+    memepp::string s2 = "World!";
+
+    auto r = s1.concat(s2);
+    REQUIRE(r == "Hello, World!");
+    REQUIRE(r.size() == 13);
+}
+
+TEST_CASE("memepp::string concat(string_view) - C++ API", "[string]")
+{
+    memepp::string s1 = "Hello, ";
+    memepp::string_view sv = "World!";
+
+    auto r = s1.concat(sv);
+    REQUIRE(r == "Hello, World!");
+    REQUIRE(r.size() == 13);
+}
+
+TEST_CASE("memepp::string concat - empty lhs", "[string]")
+{
+    memepp::string empty;
+    memepp::string s = "World!";
+
+    REQUIRE(empty.concat(s)                        == "World!");
+    REQUIRE(empty.concat(memepp::string_view("X")) == "X");
+}
+
+TEST_CASE("memepp::string concat - empty rhs", "[string]")
+{
+    memepp::string s = "Hello, ";
+    memepp::string empty;
+    memepp::string_view empty_sv;
+
+    REQUIRE(s.concat(empty)    == "Hello, ");
+    REQUIRE(s.concat(empty_sv) == "Hello, ");
+}
+
+TEST_CASE("memepp::string concat - both empty", "[string]")
+{
+    memepp::string empty1;
+    memepp::string empty2;
+
+    REQUIRE(empty1.concat(empty2)               == "");
+    REQUIRE(empty1.concat(memepp::string_view{}) == "");
+}
+
+TEST_CASE("memepp::string concat - original is not modified", "[string]")
+{
+    memepp::string s1 = "Hello";
+    memepp::string s2 = " World";
+
+    auto r = s1.concat(s2);
+    REQUIRE(r  == "Hello World");
+    REQUIRE(s1 == "Hello");  // s1 must remain unchanged
+}

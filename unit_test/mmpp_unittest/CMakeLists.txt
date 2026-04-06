@@ -38,6 +38,23 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/test_rune.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_builder.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_err.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_trimif.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_to_valid_utf8.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_join.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_view_to_valid_utf8.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_view_trimif.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_view_join.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_find.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_contains.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_index_of.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_substr.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_view_find.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_view_contains.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_view_index_of.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_view_substr.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_view_replace.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_view_repeat.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_view_split.cpp
 )
 
 function(mmut_create_exec_for_stdcxx  exec_name cxx_standard)
