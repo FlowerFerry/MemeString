@@ -15,6 +15,7 @@
 
 #if MG_OS__WIN_AVAIL
 #include <shlobj.h>
+#pragma comment(lib, "Ole32.lib")
 #endif
 
 namespace mgpp {
