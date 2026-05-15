@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEMEPP_COMPARE_STD_STRING_HPP_INCLUDED
 #define MEMEPP_COMPARE_STD_STRING_HPP_INCLUDED
 
@@ -30,6 +30,8 @@ namespace memepp {
 	{
 		return _lhs.compare(_pos1, _count1, _rhs.data(), _rhs.size());
 	}
+
+namespace MMPP_NAMESPACE {
 
 	template<class Traits, class Allocator>
 	inline bool operator==(const memepp::string& _lhs, const std::basic_string<char, Traits, Allocator>& _rhs) noexcept
@@ -67,6 +69,7 @@ namespace memepp {
 		return result == 0;
 	}
 
+} // namespace MMPP_NAMESPACE
 
 	//template<class Traits, class Allocator>
 	//int string::compare(const std::basic_string<char, Traits, Allocator>& _str) const noexcept

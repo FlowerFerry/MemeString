@@ -18,6 +18,7 @@
 #include <type_traits>
 
 namespace memepp {
+namespace MMPP_NAMESPACE {
 
     //! \brief A string class.
     //! \details This class is a wrapper of mmstrstk_t.
@@ -441,6 +442,8 @@ namespace memepp {
 	bool operator>=(const string& _lhs, const rune& _rhs) noexcept;
     bool operator>=(const rune& _lhs, const string& _rhs) noexcept;
 
+} // namespace MMPP_NAMESPACE
+
 	memepp::string from_hexadecimals(const uint8_t* _buf, size_t _len);
 	memepp::string from_hexadecimals(const memepp::string_view& _interval, const uint8_t* _buf, size_t _len);
 
@@ -467,7 +470,9 @@ namespace memepp {
 	memepp::string mm_from(const char* _str, size_t _len);
 	memepp::string mm_from(const MemeByte_t* _str, size_t _len);
 
+namespace MMPP_NAMESPACE {
     memepp::string_builder operator+(const char* _lhs, const memepp::string& _rhs);
+} // namespace MMPP_NAMESPACE
 
 	memepp::string operator""_meme(const char* _str, size_t _len);
 

@@ -14,6 +14,7 @@
 #include <string.h>
 
 namespace memepp {
+namespace MMPP_NAMESPACE {
 
 	MEMEPP__IMPL_INLINE string::string() noexcept
 	{
@@ -1184,7 +1185,9 @@ namespace memepp {
 	{
         return !(_lhs < _rhs);
 	}
-	
+
+} // namespace MMPP_NAMESPACE
+
 	MEMEPP__IMPL_INLINE string from_hexadecimals(const uint8_t* _buf, size_t _len)
 	{
 		mmstrstk_t stack;
@@ -1259,12 +1262,14 @@ namespace memepp {
 		return memepp::string{ _str, static_cast<mmint_t>(_len) };
 	}
 
+namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE memepp::string_builder operator+(const char* _lhs, const memepp::string& _rhs)
 	{
 		memepp::string_builder builder;
         (builder += _lhs) += _rhs;
         return builder;
 	}
+} // namespace MMPP_NAMESPACE
 
 	MEMEPP__IMPL_INLINE memepp::string operator""_meme(const char* _str, size_t _len)
 	{

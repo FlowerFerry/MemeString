@@ -5,6 +5,8 @@
 #include "meme/string_fwd.h"
 #include "meme/string_builder_fwd.h"
 
+#include <memepp/common.hpp>
+
 #undef small
 
 #ifndef MEMEPP__IMPL_INLINE
@@ -16,8 +18,10 @@
 #endif 
 
 namespace memepp {
-
-	class string;
+namespace MMPP_NAMESPACE {
+    class string;
+}
+    using string = MMPP_NAMESPACE::string;
 
 	enum class string_storage_t {
 		small  = MemeString_StorageType_small,

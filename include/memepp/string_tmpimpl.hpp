@@ -12,6 +12,7 @@
 #include <type_traits>
 
 namespace memepp {
+namespace MMPP_NAMESPACE {
 
 #if MG_LANG__CXX17_AVAIL
 	template<typename _Func, typename = std::enable_if_t<std::is_invocable_v<_Func, memepp::rune&>>>
@@ -385,6 +386,7 @@ namespace memepp {
 	{
 		return details::join_view_impl(*this, _items);
 	}
+} // namespace MMPP_NAMESPACE
 
 	template<>
 	inline memepp::string import_from_dll(const mmstrstk_t& _obj, mmint_t _struct_size)
