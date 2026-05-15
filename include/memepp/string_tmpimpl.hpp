@@ -5,6 +5,7 @@
 #include <mego/predef/lang/version.h>
 
 #include <memepp/dll.hpp>
+#include <memepp/errc.hpp>
 #include <memepp/string_def.hpp>
 #include <memepp/string_view_def.hpp>
 #include <memepp/help/string_trim_if_helper.hpp>
