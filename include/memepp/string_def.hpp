@@ -470,9 +470,7 @@ namespace MMPP_NAMESPACE {
 	memepp::string mm_from(const char* _str, size_t _len);
 	memepp::string mm_from(const MemeByte_t* _str, size_t _len);
 
-namespace MMPP_NAMESPACE {
     memepp::string_builder operator+(const char* _lhs, const memepp::string& _rhs);
-} // namespace MMPP_NAMESPACE
 
 	memepp::string operator""_meme(const char* _str, size_t _len);
 
