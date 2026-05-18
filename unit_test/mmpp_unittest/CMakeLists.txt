@@ -56,6 +56,8 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_view_repeat.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_view_split.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_hash.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_varts.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_view.cpp
 )
 
 function(mmut_create_exec_for_stdcxx  exec_name cxx_standard)

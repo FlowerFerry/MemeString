@@ -59,7 +59,33 @@ TEST_CASE("memepp::buffer construct from range", "[buffer]")
     memepp::buffer buf(data, data + 5);
     REQUIRE(buf.size() == 5);
     REQUIRE(buf.at(0) == 10);
+    REQUIRE(buf.at(2) == 30);
     REQUIRE(buf.at(4) == 50);
+}
+
+TEST_CASE("memepp::buffer construct from range - all bytes copied correctly", "[buffer]")
+{
+    const uint8_t data[] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08 };
+    memepp::buffer buf(data, data + 8);
+    REQUIRE(buf.size() == 8);
+    for (memepp::buffer::size_type i = 0; i < 8; ++i)
+        REQUIRE(buf.at(i) == data[i]);
+}
+
+TEST_CASE("memepp::buffer construct from range - empty range", "[buffer]")
+{
+    const uint8_t data[] = { 1, 2, 3 };
+    memepp::buffer buf(data, data); // _begin == _end
+    REQUIRE(buf.empty());
+    REQUIRE(buf.size() == 0);
+}
+
+TEST_CASE("memepp::buffer construct from range - single element", "[buffer]")
+{
+    const uint8_t data[] = { 0xAB };
+    memepp::buffer buf(data, data + 1);
+    REQUIRE(buf.size() == 1);
+    REQUIRE(buf.at(0) == 0xAB);
 }
 
 TEST_CASE("memepp::buffer copy sub-range constructor", "[buffer]")
