@@ -68,7 +68,7 @@ namespace MMPP_NAMESPACE {
 			static_cast<mmbuf_storage_t>(_suggest));
 	}
 
-	MEMEPP__IMPL_INLINE memepp::buffer::buffer(const_pointer _begin, const_pointer _end)
+	MEMEPP__IMPL_INLINE buffer::buffer(const_pointer _begin, const_pointer _end)
 	{
 		MemeBufferStack_initByBytes(&data_, MEME_STRING__OBJECT_SIZE, _begin, _end - _begin);
 	}
