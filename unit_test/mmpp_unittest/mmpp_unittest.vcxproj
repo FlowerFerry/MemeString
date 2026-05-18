@@ -232,6 +232,7 @@ xcopy /y "$(ProjectDir)..\..\projects\vs\libmeme_string\$(Platform)\$(Configurat
     <ClCompile Include="test_string_view_replace.cpp" />
     <ClCompile Include="test_string_view_repeat.cpp" />
     <ClCompile Include="test_string_view_split.cpp" />
+    <ClCompile Include="test_string_hash.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
