@@ -11,6 +11,7 @@
 #include "memepp/variable_buffer_def.hpp"
 
 namespace memepp {
+namespace MMPP_NAMESPACE {
 	
 	MEMEPP__IMPL_INLINE buffer_view::buffer_view() MEGOPP__NOEXCEPT
 	{
@@ -254,6 +255,7 @@ namespace memepp {
 		return !(_lhs == _rhs);
 	}
 
+}; // namespace MMPP_NAMESPACE
 };
 
 #endif // !MEMEPP_BUFFER_VIEW_IMPL_HPP_INCLUDED

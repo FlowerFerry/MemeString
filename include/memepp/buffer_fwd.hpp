@@ -4,6 +4,8 @@
 
 #include "meme/buffer_fwd.h"
 
+#include <memepp/common.hpp>
+
 #undef small
 
 #ifndef MEMEPP__IMPL_INLINE
@@ -15,8 +17,10 @@
 #endif 
 
 namespace memepp {
-
+namespace MMPP_NAMESPACE {
 	class buffer;
+}
+using buffer = MMPP_NAMESPACE::buffer;
 
 	enum class buffer_storage_t {
 		small  = MemeBuffer_StorageType_small,

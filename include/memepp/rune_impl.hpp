@@ -5,6 +5,7 @@
 #include "memepp/rune_def.hpp"
 
 namespace memepp {
+namespace MMPP_NAMESPACE {
 
     MEMEPP__IMPL_INLINE rune::rune() noexcept
     {
@@ -194,6 +195,7 @@ namespace memepp {
         return MemeRuneIndex_isSpace(data(), (int)size());
     }
 
+}; // namespace MMPP_NAMESPACE
 };
 
 #endif // !MEMEPP_RUNE_IMPL_HPP_INCLUDED

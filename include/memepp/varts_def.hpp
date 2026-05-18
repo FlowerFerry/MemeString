@@ -9,6 +9,7 @@
 #include <memepp/variant_def.hpp>
 
 namespace memepp {
+namespace MMPP_NAMESPACE {
     
     class varts
     {
@@ -265,6 +266,7 @@ namespace memepp {
         variant var_;
     };
 
+} // namespace MMPP_NAMESPACE
 }
 
 static_assert(sizeof(memepp::varts) == sizeof(mmvtsstk_t), "memepp::varts size mismatch");

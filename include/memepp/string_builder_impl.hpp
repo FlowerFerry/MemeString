@@ -8,7 +8,7 @@
 #include "meme/string_builder.h"
 
 namespace memepp {
-
+namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE string_builder::string_builder()
 	{
 		MemeStringBuilderStack_init(&data_, MMSBLDR__OBJ_SIZE);
@@ -260,6 +260,7 @@ namespace memepp {
         return std::move(_rhs);
     }
 
+} // namespace MMPP_NAMESPACE
 };
 
 #endif // !MEMEPP_STRING_EDITOR_IMPL_HPP_INCLUDED

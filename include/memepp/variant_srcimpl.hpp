@@ -10,6 +10,7 @@
 #include <memepp/rune_def.hpp>
 
 namespace memepp {
+namespace MMPP_NAMESPACE {
 
     MEMEPP__IMPL_INLINE variant::variant() noexcept
     {
@@ -198,6 +199,7 @@ namespace memepp {
         return data_;
     }
 
+} // namespace MMPP_NAMESPACE
 }
 
 #endif // !MEMEPP_VARIANT_SRCIMPL_HPP_INCLUDED

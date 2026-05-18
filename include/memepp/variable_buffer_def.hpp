@@ -15,6 +15,7 @@
 #include <memepp/iterator.hpp>
 
 namespace memepp {
+namespace MMPP_NAMESPACE {
 
 	class variable_buffer
 	{
@@ -264,6 +265,7 @@ namespace memepp {
         return insert(_pos, reinterpret_cast<const_pointer>(&value), static_cast<size_type>(sizeof(value)));
 	}
 
+}; // namespace MMPP_NAMESPACE
 };
 
 #endif // !MEMEPP_VARIABLE_BUFFER_DEF_HPP_INCLUDED

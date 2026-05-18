@@ -14,6 +14,7 @@
 #include "memepp/iterator.hpp"
 
 namespace memepp {
+namespace MMPP_NAMESPACE {
 
     class buffer_view
 	{
@@ -96,6 +97,7 @@ namespace memepp {
 	bool operator==(const buffer_view& _lhs, const buffer_view& _rhs) MEGOPP__NOEXCEPT;
 	bool operator!=(const buffer_view& _lhs, const buffer_view& _rhs) MEGOPP__NOEXCEPT;
 	
+}; // namespace MMPP_NAMESPACE
 };
 
 #endif // !MEMEPP_BUFFER_VIEW_DEF_HPP_INCLUDED

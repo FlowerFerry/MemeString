@@ -12,7 +12,7 @@
 #include <memepp/iterator.hpp>
 
 namespace memepp {
-
+namespace MMPP_NAMESPACE {
 	class buffer
 	{
 	public:
@@ -91,6 +91,7 @@ namespace memepp {
 	bool operator==(const buffer& _lhs, const buffer& _rhs);
 	bool operator!=(const buffer& _lhs, const buffer& _rhs);
 
+}; // namespace MMPP_NAMESPACE
 }; // namespace memepp
 
 #include <memepp/buffer_tmpimpl.hpp>

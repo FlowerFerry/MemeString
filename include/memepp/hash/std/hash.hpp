@@ -50,8 +50,8 @@ namespace details {
 
 namespace std {
 
-	template<typename _Ty>
-	struct hash;
+	// template<typename _Ty>
+	// struct hash;
 
 	template<>
 	struct hash<memepp::string>

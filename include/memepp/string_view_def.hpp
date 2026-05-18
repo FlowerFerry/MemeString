@@ -16,7 +16,7 @@
 #include <type_traits>
 
 namespace memepp {
-
+namespace MMPP_NAMESPACE {
 	class string_view
 	{
         string_view& operator=(string&& _other) = delete;
@@ -357,7 +357,7 @@ namespace memepp {
 	bool operator>=(const string_view& _lhs, const rune& _rhs) noexcept;
 	bool operator>=(const rune& _lhs, const string_view& _rhs) noexcept;
 
-    
+} // namespace MMPP_NAMESPACE    
 };
 
 	memepp::string_view mm_view(const char* _str, size_t _len);

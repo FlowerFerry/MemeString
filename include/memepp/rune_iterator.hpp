@@ -5,6 +5,7 @@
 #include "rune.hpp"
 
 namespace memepp {
+namespace MMPP_NAMESPACE {
 
     class const_rune_iterator
     {
@@ -193,6 +194,8 @@ namespace memepp {
         int8_t prev_size_;
         mutable int8_t curr_size_;
     };
+
+}; // namespace MMPP_NAMESPACE
 };
 
 #endif // !MEMEPP_RUNE_ITERATOR_HPP_INCLUDED

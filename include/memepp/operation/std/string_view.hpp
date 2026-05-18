@@ -9,6 +9,7 @@
 #include <string_view>
 
 namespace memepp {
+namespace MMPP_NAMESPACE {
 
 	inline string_builder  operator+(const string& _lhs, const std::string_view& _rhs);
 	inline string_builder  operator+(const std::string_view& _lhs, const string& _rhs);
@@ -62,7 +63,7 @@ namespace memepp {
         return std::move(_sb + memepp::string_view{ _s.data(), _s.size() });
     }
 
-    
+} // namespace MMPP_NAMESPACE
 };
 
 #endif // !MEMEPP_OPERATION_STD_STRING_VIEW_HPP_INCLUDED

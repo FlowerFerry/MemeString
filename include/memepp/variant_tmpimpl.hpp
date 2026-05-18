@@ -14,6 +14,7 @@
 #include <memepp/buffer_view_def.hpp>
 
 namespace memepp {
+namespace MMPP_NAMESPACE {
 
     // template<typename _Ty>
     // inline mgec_t variant::try_get(_Ty& _out) const noexcept
@@ -278,6 +279,8 @@ namespace memepp {
         return MemeVariantStack_setRune(&data_, MMVAR__OBJ_SIZE, &_v.native_handle());
     }
 
+} // namespace MMPP_NAMESPACE
+
     template<>
     inline memepp::variant import_from_dll(const mmvarstk_t& _obj, mmint_t _struct_size)
     {
@@ -317,6 +320,7 @@ namespace memepp {
         MemeVariantStack_initByMove(&result, _struct_size, const_cast<mmvarstk_t*>(&_obj.native_handle()));
         return result;
     }
+
 }
 
 #endif // !MEMEPP_VARIANT_TMPIMPL_HPP_INCLUDED

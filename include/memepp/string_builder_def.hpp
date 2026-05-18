@@ -9,7 +9,7 @@
 #include "meme/string_builder_fwd.h"
 
 namespace memepp { 
-
+namespace MMPP_NAMESPACE {
 	class string_builder
 	{
 	public:
@@ -87,7 +87,8 @@ namespace memepp {
     //string_builder& operator/(const string_view& _lhs, string_builder& _rhs);
     //string_builder& operator/(const char* _lhs, string_builder& _rhs);
     //string_builder& operator/(char _lhs, string_builder& _rhs);
-    
+	
+} // namespace MMPP_NAMESPACE
 };
 
 #endif // !MEMEPP_STRING_BUILDER_DEF_HPP_INCLUDED

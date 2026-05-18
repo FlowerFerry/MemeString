@@ -11,6 +11,7 @@
 #include <megopp/strs/rune_index.h>
 
 namespace memepp {
+namespace MMPP_NAMESPACE {
 
 	class rune
 	{
@@ -128,6 +129,8 @@ namespace memepp {
 	private:
 		MemeRuneIndex_t data_;
 	};
+
+}; // namespace MMPP_NAMESPACE
 };
 
 #endif // !MEMEPP_RUNE_DEF_HPP_INCLUDED

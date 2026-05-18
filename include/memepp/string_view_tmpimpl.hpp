@@ -10,7 +10,7 @@
 #include <vector>
 
 namespace memepp {
-
+namespace MMPP_NAMESPACE {
 
 	template<template<class> class _Container, typename>
 	inline MemeInteger_t string_view::split(
@@ -276,7 +276,7 @@ namespace memepp {
 	{
 		return details::join_view_sep_impl(*this, _items);
 	}
-
+} // namespace MMPP_NAMESPACE
 }
 
 #endif // !MEME_STRING_VIEW_TEMPLATEIMPL_H_INCLUDED

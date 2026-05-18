@@ -16,7 +16,7 @@
 #include <memepp/buffer_view_fwd.hpp>
 
 namespace memepp {
-
+namespace MMPP_NAMESPACE {
     class variant 
     {
     public:
@@ -111,7 +111,7 @@ namespace memepp {
     private:
         native_handle_type data_;
     };
-
+} // namespace MMPP_NAMESPACE
 }
 
 #endif // !MEMEPP_VARIANT_DEF_HPP_INCLUDED

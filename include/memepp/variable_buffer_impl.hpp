@@ -21,6 +21,7 @@
 #endif 
 
 namespace memepp {
+namespace MMPP_NAMESPACE {
 
 	MEMEPP__IMPL_INLINE variable_buffer::variable_buffer() noexcept
 	{
@@ -549,6 +550,7 @@ namespace memepp {
 		return data_;
 	}
 
+}; // namespace MMPP_NAMESPACE
 };
 
 #endif // !MEMEPP_VARIABLE_BUFFER_IMPL_HPP_INCLUDED
