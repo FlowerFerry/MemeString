@@ -125,3 +125,139 @@ TEST_CASE("memepp::string compare", "[string]")
     REQUIRE(s03_01 <  s01_01);
     REQUIRE(s03_01 <= s01_01);
 }
+
+// ---------------------------------------------------------------------------
+// operator== / operator!= (equality)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string operator== (string, string)", "[string]")
+{
+    memepp::string a("Hello");
+    memepp::string b("Hello");
+    memepp::string c("World");
+
+    REQUIRE(a == b);
+    REQUIRE_FALSE(a == c);
+}
+
+TEST_CASE("memepp::string operator!= (string, string)", "[string]")
+{
+    memepp::string a("Hello");
+    memepp::string b("World");
+    memepp::string c("Hello");
+
+    REQUIRE(a != b);
+    REQUIRE_FALSE(a != c);
+}
+
+TEST_CASE("memepp::string operator== (const char* lhs, string rhs)", "[string]")
+{
+    memepp::string s("Hello");
+
+    REQUIRE("Hello" == s);
+    REQUIRE_FALSE("World" == s);
+}
+
+TEST_CASE("memepp::string operator!= (const char* lhs, string rhs)", "[string]")
+{
+    memepp::string s("Hello");
+
+    REQUIRE("World" != s);
+    REQUIRE_FALSE("Hello" != s);
+}
+
+TEST_CASE("memepp::string operator== (string lhs, const char* rhs)", "[string]")
+{
+    memepp::string s("Hello");
+
+    REQUIRE(s == "Hello");
+    REQUIRE_FALSE(s == "World");
+}
+
+TEST_CASE("memepp::string operator!= (string lhs, const char* rhs)", "[string]")
+{
+    memepp::string s("Hello");
+
+    REQUIRE(s != "World");
+    REQUIRE_FALSE(s != "Hello");
+}
+
+TEST_CASE("memepp::string operator== (string::const_pointer lhs, string rhs)", "[string]")
+{
+    memepp::string s("Hello");
+    memepp::string s_same("Hello");
+    memepp::string s_diff("World");
+    memepp::string::const_pointer p = s.bytes();
+
+    REQUIRE(p == s_same);
+    REQUIRE_FALSE(p == s_diff);
+}
+
+TEST_CASE("memepp::string operator!= (string::const_pointer lhs, string rhs)", "[string]")
+{
+    memepp::string s("Hello");
+    memepp::string s_same("Hello");
+    memepp::string s_diff("World");
+    memepp::string::const_pointer p = s.bytes();
+
+    REQUIRE(p != s_diff);
+    REQUIRE_FALSE(p != s_same);
+}
+
+TEST_CASE("memepp::string operator== (string lhs, string::const_pointer rhs)", "[string]")
+{
+    memepp::string s("Hello");
+    memepp::string s_same("Hello");
+    memepp::string s_diff("World");
+    memepp::string::const_pointer p = s.bytes();
+
+    REQUIRE(s_same == p);
+    REQUIRE_FALSE(s_diff == p);
+}
+
+TEST_CASE("memepp::string operator!= (string lhs, string::const_pointer rhs)", "[string]")
+{
+    memepp::string s("Hello");
+    memepp::string s_same("Hello");
+    memepp::string s_diff("World");
+    memepp::string::const_pointer p = s.bytes();
+
+    REQUIRE(s_diff != p);
+    REQUIRE_FALSE(s_same != p);
+}
+
+// ---------------------------------------------------------------------------
+// operator<  operator>  operator<=  operator>=  with string::const_pointer
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string compare with string::const_pointer", "[string]")
+{
+    memepp::string s_apple("Apple");
+    memepp::string s_banana("Banana");
+    memepp::string s_apple2("Apple");
+
+    memepp::string::const_pointer p_apple  = s_apple.bytes();
+    memepp::string::const_pointer p_banana = s_banana.bytes();
+
+    // string op const_pointer
+    REQUIRE(s_apple  <  p_banana);
+    REQUIRE(s_banana >  p_apple);
+    REQUIRE(s_apple  <= p_banana);
+    REQUIRE(s_banana >= p_apple);
+
+    // const_pointer op string
+    REQUIRE(p_apple  <  s_banana);
+    REQUIRE(p_banana >  s_apple);
+    REQUIRE(p_apple  <= s_banana);
+    REQUIRE(p_banana >= s_apple);
+
+    // equal cases (<=, >= true; <, > false)
+    REQUIRE(s_apple  <= p_apple);
+    REQUIRE(s_apple  >= p_apple);
+    REQUIRE(p_apple  <= s_apple2);
+    REQUIRE(p_apple  >= s_apple2);
+    REQUIRE_FALSE(s_apple  <  p_apple);
+    REQUIRE_FALSE(s_apple  >  p_apple);
+    REQUIRE_FALSE(p_apple  <  s_apple2);
+    REQUIRE_FALSE(p_apple  >  s_apple2);
+}

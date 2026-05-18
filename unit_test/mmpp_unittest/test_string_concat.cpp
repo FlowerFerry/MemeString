@@ -5,7 +5,7 @@
 #include <memepp/string.hpp>
 #include <megopp/util/scope_cleanup.h>
 
-TEST_CASE("memepp::string concat", "[string]")
+TEST_CASE("MemeStringStack concat_v2 (C API)", "[string]")
 {
     mmstrstk_t str01_01;
     mmstrstk_t str01_02;

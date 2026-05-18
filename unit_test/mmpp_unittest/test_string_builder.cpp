@@ -173,3 +173,50 @@ TEST_CASE("memepp::string_builder accumulate many small strings", "[string_build
     memepp::string result = builder.generate();
     REQUIRE(result.size() == 100);
 }
+
+// ---------------------------------------------------------------------------
+// operator+(const char*, const memepp::string&) — free function, global scope
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder operator+(const char*, const memepp::string&) basic", "[string_builder]")
+{
+    memepp::string rhs("World!");
+    memepp::string_builder builder = "Hello, " + rhs;
+    REQUIRE(builder.generate() == "Hello, World!");
+}
+
+TEST_CASE("memepp::string_builder operator+(const char*, const memepp::string&) empty lhs", "[string_builder]")
+{
+    memepp::string rhs("abc");
+    memepp::string_builder builder = "" + rhs;
+    REQUIRE(builder.generate() == "abc");
+}
+
+TEST_CASE("memepp::string_builder operator+(const char*, const memepp::string&) empty rhs", "[string_builder]")
+{
+    memepp::string rhs("");
+    memepp::string_builder builder = "abc" + rhs;
+    REQUIRE(builder.generate() == "abc");
+}
+
+TEST_CASE("memepp::string_builder operator+(const char*, const memepp::string&) both empty", "[string_builder]")
+{
+    memepp::string rhs("");
+    memepp::string_builder builder = "" + rhs;
+    REQUIRE(builder.generate() == "");
+}
+
+TEST_CASE("memepp::string_builder operator+(const char*, const memepp::string&) UTF-8 Chinese", "[string_builder]")
+{
+    memepp::string rhs("世界");
+    memepp::string_builder builder = "你好" + rhs;
+    REQUIRE(builder.generate() == "你好世界");
+}
+
+TEST_CASE("memepp::string_builder operator+(const char*, const memepp::string&) result can be chained", "[string_builder]")
+{
+    memepp::string rhs("bar");
+    memepp::string_builder builder = "foo" + rhs;
+    builder += "baz";
+    REQUIRE(builder.generate() == "foobarbaz");
+}

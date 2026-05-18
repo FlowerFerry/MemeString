@@ -207,3 +207,68 @@ TEST_CASE("memepp::rune iterators produce correct bytes", "[rune]")
         ++count;
     REQUIRE(count == 3);
 }
+
+// ---------------------------------------------------------------------------
+// rune_index — construction, data, size, is_space
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::rune_index from bytes — space character", "[rune_index]")
+{
+    const uint8_t space_byte[] = { 0x20 }; // ASCII space
+    memepp::rune_index ri(space_byte, 1);
+
+    REQUIRE(ri.data() != nullptr);
+    REQUIRE(ri.size() == 1);
+    REQUIRE(ri.is_space());
+}
+
+TEST_CASE("memepp::rune_index from bytes — non-space character", "[rune_index]")
+{
+    const uint8_t letter[] = { static_cast<uint8_t>('A') };
+    memepp::rune_index ri(letter, 1);
+
+    REQUIRE(ri.data() != nullptr);
+    REQUIRE(ri.size() == 1);
+    REQUIRE_FALSE(ri.is_space());
+}
+
+TEST_CASE("memepp::rune_index from bytes — tab is space", "[rune_index]")
+{
+    const uint8_t tab_byte[] = { 0x09 }; // horizontal tab
+    memepp::rune_index ri(tab_byte, 1);
+
+    REQUIRE(ri.is_space());
+}
+
+TEST_CASE("memepp::rune_index copy constructor", "[rune_index]")
+{
+    const uint8_t byte[] = { static_cast<uint8_t>('X') };
+    memepp::rune_index ri(byte, 1);
+    memepp::rune_index ri2(ri);
+
+    REQUIRE(ri2.size() == ri.size());
+    REQUIRE(ri2.is_space() == ri.is_space());
+    REQUIRE(ri2.data() != nullptr);
+}
+
+TEST_CASE("memepp::rune_index move constructor", "[rune_index]")
+{
+    const uint8_t byte[] = { static_cast<uint8_t>('Y') };
+    memepp::rune_index ri(byte, 1);
+    memepp::rune_index ri2(std::move(ri));
+
+    REQUIRE(ri2.size() == 1);
+    REQUIRE_FALSE(ri2.is_space());
+    REQUIRE(ri2.data() != nullptr);
+}
+
+TEST_CASE("memepp::rune_index from UTF-8 multibyte — ideographic space", "[rune_index]")
+{
+    // U+3000 IDEOGRAPHIC SPACE — UTF-8: E3 80 80 (3 bytes)
+    const uint8_t ideo_space[] = { 0xE3, 0x80, 0x80 };
+    memepp::rune_index ri(ideo_space, 3);
+
+    REQUIRE(ri.data() != nullptr);
+    REQUIRE(ri.size() == 3);
+    REQUIRE(ri.is_space());
+}

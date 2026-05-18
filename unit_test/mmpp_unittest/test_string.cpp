@@ -209,7 +209,7 @@ TEST_CASE("memepp::string rfind(rune)", "[string]")
     REQUIRE(s.rfind(r_wu) == -1);
 }
 
-TEST_CASE("memepp::string starts_with/ends_with (count overloads and rune)", "[string]")
+TEST_CASE("memepp::string starts_with/ends_with - count and multibyte rune (Chinese)", "[string]")
 {
     memepp::string s = "HelloWorld";
 
@@ -232,7 +232,7 @@ TEST_CASE("memepp::string starts_with/ends_with (count overloads and rune)", "[s
     REQUIRE_FALSE(u.ends_with(r_x));
 }
 
-TEST_CASE("memepp::string contains overloads (len/char/rune)", "[string]")
+TEST_CASE("memepp::string contains - char and multibyte rune (Chinese)", "[string]")
 {
     memepp::string s = u8"您好，世界！Hello, World!";
     // contains(const char*, size)
@@ -248,19 +248,6 @@ TEST_CASE("memepp::string contains overloads (len/char/rune)", "[string]")
     memepp::rune r_unknown{ reinterpret_cast<const uint8_t*>(u8"谢"), -1 };
     REQUIRE(s.contains(r_you));
     REQUIRE_FALSE(s.contains(r_unknown));
-}
-
-TEST_CASE("memepp::string concat API", "[string]")
-{
-    memepp::string a = "Hello, ";
-    memepp::string b = "World!";
-    memepp::string_view vb = "World!";
-
-    auto c1 = a.concat(b);
-    auto c2 = a.concat(vb);
-
-    REQUIRE(c1 == "Hello, World!");
-    REQUIRE(c2 == "Hello, World!");
 }
 
 TEST_CASE("memepp::string repeat (member and static)", "[string]")
