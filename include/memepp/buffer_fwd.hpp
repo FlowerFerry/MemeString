@@ -17,10 +17,9 @@
 #endif 
 
 namespace memepp {
-namespace MMPP_NAMESPACE {
+inline namespace MMPP_NAMESPACE {
 	class buffer;
 }
-using buffer = MMPP_NAMESPACE::buffer;
 
 	enum class buffer_storage_t {
 		small  = MemeBuffer_StorageType_small,

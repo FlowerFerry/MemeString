@@ -23,7 +23,7 @@
 #endif
 
 namespace memepp {
-namespace MMPP_NAMESPACE {
+inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE string_view::string_view() noexcept
 	{
 		MemeStringStack_init(&data_, MEME_STRING__OBJECT_SIZE);

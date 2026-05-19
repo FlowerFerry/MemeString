@@ -5,10 +5,9 @@
 #include <memepp/common.hpp>
 
 namespace memepp {
-namespace MMPP_NAMESPACE {
+inline namespace MMPP_NAMESPACE {
     class varts;
 }
-    using varts = MMPP_NAMESPACE::varts;
 
 } // namespace memepp
 

@@ -10,7 +10,7 @@
 #include <string.h>
 
 namespace memepp {
-namespace MMPP_NAMESPACE {
+inline namespace MMPP_NAMESPACE {
 
 	MEMEPP__IMPL_INLINE buffer::buffer() MEGOPP__NOEXCEPT
 	{

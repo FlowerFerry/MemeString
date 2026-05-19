@@ -7,10 +7,9 @@
 #include <memepp/common.hpp>
 
 namespace memepp {
-namespace MMPP_NAMESPACE {
+inline namespace MMPP_NAMESPACE {
     class variant;
 }
-	using variant = MMPP_NAMESPACE::variant;
 
 	inline mmvar_ptr_t to_pointer(mmvarstk_t& _s) noexcept
 	{

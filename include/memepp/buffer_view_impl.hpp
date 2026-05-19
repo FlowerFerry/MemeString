@@ -11,7 +11,7 @@
 #include "memepp/variable_buffer_def.hpp"
 
 namespace memepp {
-namespace MMPP_NAMESPACE {
+inline namespace MMPP_NAMESPACE {
 	
 	MEMEPP__IMPL_INLINE buffer_view::buffer_view() MEGOPP__NOEXCEPT
 	{
@@ -260,6 +260,16 @@ namespace MMPP_NAMESPACE {
 		return MemeBuffer_endsMatchWithBytes(
 			to_pointer(native_handle()),
 			reinterpret_cast<const uint8_t*>(_utf8), _count);
+	}
+
+	MEMEPP__IMPL_INLINE buffer_view buffer_view::slice(size_type _pos, size_type _count) const MEGOPP__NOEXCEPT
+	{
+		const size_type sz = size();
+		if (_pos < 0 || _pos >= sz)
+			return buffer_view{};
+		const size_type avail = sz - _pos;
+		const size_type n = (_count == npos || _count > avail) ? avail : _count;
+		return buffer_view{ data() + _pos, n };
 	}
 
 	MEMEPP__IMPL_INLINE const buffer_view::native_handle_type& buffer_view::native_handle() const MEGOPP__NOEXCEPT

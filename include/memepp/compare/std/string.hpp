@@ -31,7 +31,7 @@ namespace memepp {
 		return _lhs.compare(_pos1, _count1, _rhs.data(), _rhs.size());
 	}
 
-namespace MMPP_NAMESPACE {
+inline namespace MMPP_NAMESPACE {
 
 	template<class Traits, class Allocator>
 	inline bool operator==(const memepp::string& _lhs, const std::basic_string<char, Traits, Allocator>& _rhs) noexcept

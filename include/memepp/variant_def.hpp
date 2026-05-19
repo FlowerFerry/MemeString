@@ -16,7 +16,7 @@
 #include <memepp/buffer_view_fwd.hpp>
 
 namespace memepp {
-namespace MMPP_NAMESPACE {
+inline namespace MMPP_NAMESPACE {
     class variant 
     {
     public:

@@ -9,7 +9,7 @@
 #include <memepp/variant_def.hpp>
 
 namespace memepp {
-namespace MMPP_NAMESPACE {
+inline namespace MMPP_NAMESPACE {
     
     class varts
     {

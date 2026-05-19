@@ -18,10 +18,9 @@
 #endif 
 
 namespace memepp {
-namespace MMPP_NAMESPACE {
+inline namespace MMPP_NAMESPACE {
     class string;
 }
-    using string = MMPP_NAMESPACE::string;
 
 	enum class string_storage_t {
 		small  = MemeString_StorageType_small,

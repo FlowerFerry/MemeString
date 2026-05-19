@@ -10,7 +10,7 @@
 #include <memepp/rune_def.hpp>
 
 namespace memepp {
-namespace MMPP_NAMESPACE {
+inline namespace MMPP_NAMESPACE {
 
     MEMEPP__IMPL_INLINE variant::variant() noexcept
     {

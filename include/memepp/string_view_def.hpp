@@ -16,7 +16,7 @@
 #include <type_traits>
 
 namespace memepp {
-namespace MMPP_NAMESPACE {
+inline namespace MMPP_NAMESPACE {
 	class string_view
 	{
         string_view& operator=(string&& _other) = delete;

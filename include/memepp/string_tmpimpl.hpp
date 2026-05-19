@@ -13,7 +13,7 @@
 #include <type_traits>
 
 namespace memepp {
-namespace MMPP_NAMESPACE {
+inline namespace MMPP_NAMESPACE {
 
 #if MG_LANG__CXX17_AVAIL
 	template<typename _Func, typename = std::enable_if_t<std::is_invocable_v<_Func, memepp::rune&>>>

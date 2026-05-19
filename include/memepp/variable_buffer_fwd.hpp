@@ -7,10 +7,9 @@
 #include <memepp/common.hpp>
 
 namespace memepp {
-namespace MMPP_NAMESPACE {
+inline namespace MMPP_NAMESPACE {
 	class variable_buffer;
 }
-	using variable_buffer = MMPP_NAMESPACE::variable_buffer;
 
 	inline MemeVariableBuffer_Const_t to_pointer(const MemeVariableBufferStack_t& _stack)
 	{

@@ -5,7 +5,7 @@
 #include "rune.hpp"
 
 namespace memepp {
-namespace MMPP_NAMESPACE {
+inline namespace MMPP_NAMESPACE {
 
     class const_rune_iterator
     {

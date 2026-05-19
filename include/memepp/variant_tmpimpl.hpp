@@ -14,7 +14,7 @@
 #include <memepp/buffer_view_def.hpp>
 
 namespace memepp {
-namespace MMPP_NAMESPACE {
+inline namespace MMPP_NAMESPACE {
 
     // template<typename _Ty>
     // inline mgec_t variant::try_get(_Ty& _out) const noexcept

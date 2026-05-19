@@ -18,7 +18,7 @@
 #include <type_traits>
 
 namespace memepp {
-namespace MMPP_NAMESPACE {
+inline namespace MMPP_NAMESPACE {
 
     //! \brief A string class.
     //! \details This class is a wrapper of mmstrstk_t.

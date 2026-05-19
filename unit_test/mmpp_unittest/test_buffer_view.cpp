@@ -294,6 +294,64 @@ TEST_CASE("memepp::buffer_view ends_with raw pointer", "[buffer_view]")
 }
 
 // ---------------------------------------------------------------------------
+// slice
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::buffer_view slice full range", "[buffer_view]")
+{
+    memepp::string s("abcdef");
+    memepp::buffer_view bv(s);
+    auto sl = bv.slice();
+    REQUIRE(sl.size() == 6);
+    REQUIRE(sl == bv);
+}
+
+TEST_CASE("memepp::buffer_view slice from offset", "[buffer_view]")
+{
+    memepp::string s("abcdef");
+    memepp::buffer_view bv(s);
+    auto sl = bv.slice(2);
+    REQUIRE(sl.size() == 4);
+    REQUIRE(sl.at(0) == 'c');
+    REQUIRE(sl.at(3) == 'f');
+}
+
+TEST_CASE("memepp::buffer_view slice with offset and count", "[buffer_view]")
+{
+    memepp::string s("abcdef");
+    memepp::buffer_view bv(s);
+    auto sl = bv.slice(1, 3);
+    REQUIRE(sl.size() == 3);
+    REQUIRE(sl.at(0) == 'b');
+    REQUIRE(sl.at(2) == 'd');
+}
+
+TEST_CASE("memepp::buffer_view slice at end", "[buffer_view]")
+{
+    memepp::string s("abcdef");
+    memepp::buffer_view bv(s);
+    auto sl = bv.slice(5, 1);
+    REQUIRE(sl.size() == 1);
+    REQUIRE(sl.at(0) == 'f');
+}
+
+TEST_CASE("memepp::buffer_view slice beyond size clamps", "[buffer_view]")
+{
+    memepp::string s("abcdef");
+    memepp::buffer_view bv(s);
+    auto sl = bv.slice(4, 100);
+    REQUIRE(sl.size() == 2);
+}
+
+TEST_CASE("memepp::buffer_view slice out of range returns empty", "[buffer_view]")
+{
+    memepp::string s("abcdef");
+    memepp::buffer_view bv(s);
+    REQUIRE(bv.slice(6).empty());
+    REQUIRE(bv.slice(100).empty());
+}
+
+// ---------------------------------------------------------------------------
 // to_buffer
 // ---------------------------------------------------------------------------
 

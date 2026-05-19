@@ -10,7 +10,7 @@
 #include <string>
 
 namespace memepp {
-namespace MMPP_NAMESPACE {
+inline namespace MMPP_NAMESPACE {
 	inline string_builder  operator+(const string& _lhs, const std::string& _rhs);
 	inline string_builder  operator+(const string& _lhs, std::string&& _rhs);
 	inline string_builder  operator+(const std::string& _lhs, const string& _rhs);

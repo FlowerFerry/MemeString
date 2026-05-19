@@ -11,7 +11,7 @@
 #include <megopp/strs/rune_index.h>
 
 namespace memepp {
-namespace MMPP_NAMESPACE {
+inline namespace MMPP_NAMESPACE {
 
 	class rune
 	{

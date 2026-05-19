@@ -21,7 +21,7 @@
 #endif 
 
 namespace memepp {
-namespace MMPP_NAMESPACE {
+inline namespace MMPP_NAMESPACE {
 
 	MEMEPP__IMPL_INLINE variable_buffer::variable_buffer() noexcept
 	{

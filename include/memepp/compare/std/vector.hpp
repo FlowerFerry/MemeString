@@ -6,7 +6,7 @@
 #include <memepp/string.hpp>
 
 namespace memepp {
-namespace MMPP_NAMESPACE {
+inline namespace MMPP_NAMESPACE {
 
 	template<class Allocator>
 	inline bool operator==(const memepp::string& _lhs, const std::vector<char, Allocator>& _rhs) noexcept

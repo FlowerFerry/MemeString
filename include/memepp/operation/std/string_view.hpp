@@ -9,7 +9,7 @@
 #include <string_view>
 
 namespace memepp {
-namespace MMPP_NAMESPACE {
+inline namespace MMPP_NAMESPACE {
 
 	inline string_builder  operator+(const string& _lhs, const std::string_view& _rhs);
 	inline string_builder  operator+(const std::string_view& _lhs, const string& _rhs);
