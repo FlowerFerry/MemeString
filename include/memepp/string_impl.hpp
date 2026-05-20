@@ -281,6 +281,26 @@ inline namespace MMPP_NAMESPACE {
         return MemeString_runeBack(to_pointer(data_));
 	}
 
+	MEMEPP__IMPL_INLINE string::const_reference string::front() const
+	{
+		auto p = MemeString_front(to_pointer(data_));
+		*errc() = p ? MGEC__OK : MGEC__RANGE;
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(*errc());
+#endif
+		return *p;
+	}
+
+	MEMEPP__IMPL_INLINE string::const_reference string::back() const
+	{
+		auto p = MemeString_back(to_pointer(data_));
+		*errc() = p ? MGEC__OK : MGEC__RANGE;
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(*errc());
+#endif
+		return *p;
+	}
+
 	MEMEPP__IMPL_INLINE const_iterator string::begin() const noexcept
 	{
 		return const_iterator(bytes());
@@ -779,6 +799,36 @@ inline namespace MMPP_NAMESPACE {
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
     }
     
+	MEMEPP__IMPL_INLINE std::tuple<string_view, string_view, bool> string::cut(const string_view& _sep) const noexcept
+	{
+		return string_view{ *this }.cut(_sep);
+	}
+
+	MEMEPP__IMPL_INLINE std::tuple<string_view, string_view, bool> string::cut(const char* _sep) const noexcept
+	{
+		return string_view{ *this }.cut(string_view{ _sep });
+	}
+
+	MEMEPP__IMPL_INLINE std::tuple<string_view, bool> string::cut_prefix(const string_view& _prefix) const noexcept
+	{
+		return string_view{ *this }.cut_prefix(_prefix);
+	}
+
+	MEMEPP__IMPL_INLINE std::tuple<string_view, bool> string::cut_prefix(const char* _prefix) const noexcept
+	{
+		return string_view{ *this }.cut_prefix(string_view{ _prefix });
+	}
+
+	MEMEPP__IMPL_INLINE std::tuple<string_view, bool> string::cut_suffix(const string_view& _suffix) const noexcept
+	{
+		return string_view{ *this }.cut_suffix(_suffix);
+	}
+
+	MEMEPP__IMPL_INLINE std::tuple<string_view, bool> string::cut_suffix(const char* _suffix) const noexcept
+	{
+		return string_view{ *this }.cut_suffix(string_view{ _suffix });
+	}
+
 	MEMEPP__IMPL_INLINE int string::compare(const string& _other) const noexcept
 	{
 		return MemeString_compare(to_pointer(data_), to_pointer(_other.data_));

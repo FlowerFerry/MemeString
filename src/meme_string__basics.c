@@ -357,6 +357,26 @@ MEME_EXTERN_C MEME_API const MemeByte_t* MEME_STDCALL MemeString_at(MemeString_C
     return MemeString_byteData(_s) + _index;
 }
 
+MEME_EXTERN_C MEME_API const MemeByte_t* MEME_STDCALL MemeString_front(mmstr_cptr_t _s)
+{
+    mmint_t byteSize;
+    assert(_s != NULL);
+    byteSize = MemeString_byteSize(_s);
+    if (byteSize < 1)
+        return NULL;
+    return MemeString_byteData(_s);
+}
+
+MEME_EXTERN_C MEME_API const MemeByte_t* MEME_STDCALL MemeString_back(mmstr_cptr_t _s)
+{
+    mmint_t byteSize;
+    assert(_s != NULL);
+    byteSize = MemeString_byteSize(_s);
+    if (byteSize < 1)
+        return NULL;
+    return MemeString_byteData(_s) + byteSize - 1;
+}
+
 MEME_EXTERN_C MEME_API mmrune_t MEME_STDCALL MemeString_runeFront(mmstr_cptr_t _s)
 {
 	mmrune_t runeData;
@@ -588,7 +608,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringOption_setStorageMediumLimit(M
 	return 0;
 }
 
-MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL 
+MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL
 	MemeStringOption_getStorageMediumLimit()
 {
 	return *__MemeStringOption_storageMediumLimit();

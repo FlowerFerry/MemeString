@@ -13,6 +13,7 @@
 #include "memepp/iterator.hpp"
 #include "memepp/rune_iterator.hpp"
 
+#include <tuple>
 #include <type_traits>
 
 namespace memepp {
@@ -78,6 +79,9 @@ inline namespace MMPP_NAMESPACE {
 
 		rune rune_front() const noexcept;
 		rune rune_back() const noexcept;
+
+		const_reference front() const;
+		const_reference back() const;
 
 		const_iterator begin() const noexcept;
 		const_iterator cbegin() const noexcept;
@@ -195,6 +199,15 @@ inline namespace MMPP_NAMESPACE {
 		bool ends_with(const_pointer _utf8, size_type _count) const noexcept;
 		//bool ends_with(char _ch) const noexcept;
 		bool ends_with(const rune& _ch) const noexcept;
+
+		std::tuple<string_view, string_view, bool> cut(const string_view& _sep) const noexcept;
+		std::tuple<string_view, string_view, bool> cut(const char* _sep) const noexcept;
+
+		std::tuple<string_view, bool> cut_prefix(const string_view& _prefix) const noexcept;
+		std::tuple<string_view, bool> cut_prefix(const char* _prefix) const noexcept;
+
+		std::tuple<string_view, bool> cut_suffix(const string_view& _suffix) const noexcept;
+		std::tuple<string_view, bool> cut_suffix(const char* _suffix) const noexcept;
 
 		string to_en_upper() const noexcept;
 		string to_en_lower() const noexcept;

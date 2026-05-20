@@ -215,6 +215,26 @@ inline namespace MMPP_NAMESPACE {
         return MemeString_runeBack(to_pointer(data_));
 	}
 
+	MEMEPP__IMPL_INLINE string_view::const_reference string_view::front() const
+	{
+		auto p = MemeString_front(to_pointer(data_));
+		*errc() = p ? MGEC__OK : MGEC__RANGE;
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(*errc());
+#endif
+		return *p;
+	}
+
+	MEMEPP__IMPL_INLINE string_view::const_reference string_view::back() const
+	{
+		auto p = MemeString_back(to_pointer(data_));
+		*errc() = p ? MGEC__OK : MGEC__RANGE;
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(*errc());
+#endif
+		return *p;
+	}
+
 	MEMEPP__IMPL_INLINE const_iterator string_view::begin() const noexcept
 	{
 		return const_iterator{ bytes() };
@@ -681,6 +701,43 @@ inline namespace MMPP_NAMESPACE {
             static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
 	}
 	
+	MEMEPP__IMPL_INLINE std::tuple<string_view, string_view, bool> string_view::cut(const string_view& _sep) const noexcept
+	{
+		auto pos = find(_sep);
+		if (pos == npos)
+			return { *this, string_view{}, false };
+		return { substr(0, pos), substr(pos + _sep.size()), true };
+	}
+
+	MEMEPP__IMPL_INLINE std::tuple<string_view, string_view, bool> string_view::cut(const char* _sep) const noexcept
+	{
+		return cut(string_view{ _sep });
+	}
+
+	MEMEPP__IMPL_INLINE std::tuple<string_view, bool> string_view::cut_prefix(const string_view& _prefix) const noexcept
+	{
+		if (starts_with(_prefix))
+			return { substr(_prefix.size()), true };
+		return { *this, false };
+	}
+
+	MEMEPP__IMPL_INLINE std::tuple<string_view, bool> string_view::cut_prefix(const char* _prefix) const noexcept
+	{
+		return cut_prefix(string_view{ _prefix });
+	}
+
+	MEMEPP__IMPL_INLINE std::tuple<string_view, bool> string_view::cut_suffix(const string_view& _suffix) const noexcept
+	{
+		if (ends_with(_suffix))
+			return { substr(0, size() - _suffix.size()), true };
+		return { *this, false };
+	}
+
+	MEMEPP__IMPL_INLINE std::tuple<string_view, bool> string_view::cut_suffix(const char* _suffix) const noexcept
+	{
+		return cut_suffix(string_view{ _suffix });
+	}
+
 	MEMEPP__IMPL_INLINE string string_view::to_en_upper() const noexcept
 	{
 		return MemeStringStack_toEnUpper(&native_handle(), sizeof(data_));
