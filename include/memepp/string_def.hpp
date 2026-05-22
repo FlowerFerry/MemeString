@@ -280,6 +280,9 @@ inline namespace MMPP_NAMESPACE {
         string trim_left_space() const noexcept;
         string trim_right_space() const noexcept;
 
+        string trim_prefix(const string_view& _prefix) const noexcept;
+        string trim_suffix(const string_view& _suffix) const noexcept;
+
         string left (size_type _count) const noexcept;
         string right(size_type _count) const noexcept;
         

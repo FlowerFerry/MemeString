@@ -644,6 +644,46 @@ MEME_STDCALL MemeVariableBuffer_releaseToBuffer(
 	}
 }
 
+/**
+ * @brief Transfer the content of a MemeVariableBuffer into a stack string
+ *        without copying heap memory where possible.
+ *
+ * Implementation dispatches on the internal storage type of @p _s:
+ *
+ *  <b>Small storage</b>
+ *   - @c memcpy the entire small-string struct into @p _out (fixed
+ *     @c MEME_STRING__OBJECT_SIZE bytes, regardless of @p _objectSize).
+ *   - Strip trailing null bytes via @c MemeStringSmall_shrinkTailZero().
+ *   - Clear the source slot via @c MemeStringSmall_clear().
+ *   - Return @c 0.  Cannot fail.
+ *
+ *  <b>Medium storage</b>
+ *   - Snapshot @c real_ (the heap buffer pointer) from the medium struct.
+ *   - Call @c MemeStringLarge_initAndTakeover() to hand the pointer, total
+ *     capacity, front-capacity, and content size directly to @p _out as a
+ *     large-string object — no heap allocation, no data copy.
+ *   - On failure of the takeover, return the error immediately.  @p _out is
+ *     indeterminate; @p _s still owns the buffer.
+ *   - Strip trailing null bytes via @c MemeStringLarge_shrinkTailZero().
+ *   - Null @c s->medium_.real_ and call @c MemeStringMedium_reset() to mark
+ *     the source as empty.  These steps happen only after a successful
+ *     takeover, so the source buffer is never double-freed.
+ *   - Return @c 0.
+ *
+ *  <b>All other types</b>
+ *   - Return @c MGEC__OPNOTSUPP.  Neither @p _s nor @p _out is modified.
+ *
+ * @param[in,out] _s          Variable buffer to release.  Must be non-NULL.
+ *                            Left empty on success; unchanged on failure.
+ * @param[out]    _out        Uninitialized raw storage for the result.
+ *                            Must be non-NULL.  Indeterminate on medium
+ *                            takeover failure; untouched on MGEC__OPNOTSUPP.
+ * @param[in]     _objectSize Accepted but currently unused by the
+ *                            implementation.
+ *
+ * @return @c 0 on success, @c MGEC__OPNOTSUPP for unsupported types, or a
+ *         non-zero error code from @c MemeStringLarge_initAndTakeover.
+ */
 MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_releaseToString(
 	MemeVariableBuffer_t _s, MemeStringStack_t* _out, MemeInteger_t _objectSize)

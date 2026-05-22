@@ -162,7 +162,80 @@ MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_releaseToBuffer(
 	MemeVariableBuffer_t _s, MemeBufferStack_t* _out, MemeInteger_t _objectSize);
 
-//! @param _out The string stack object, must be uninitialized.
+/**
+ * @brief Transfer the content of a MemeVariableBuffer into a stack string
+ *        without copying heap memory where possible.
+ *
+ * This is a <b>destructive move</b> operation.  On success, the byte content
+ * that was owned by @p _s is transferred to @p _out and @p _s is left in a
+ * cleared, reset state.  Callers should treat @p _s as empty after a
+ * successful call; it remains a valid (empty) buffer object and may be reused
+ * or uninitialized normally.
+ *
+ * @par Storage-type dispatch
+ * The behaviour depends on the internal storage type of @p _s:
+ *
+ * - <b>Small storage</b>: The small-string struct is copied byte-for-byte
+ *   into @p _out via @c memcpy, trailing null bytes are stripped
+ *   (@c MemeStringSmall_shrinkTailZero), and the source small-string slot
+ *   is cleared in place.  This is a shallow struct copy, not a heap transfer.
+ *
+ * - <b>Medium storage</b>: The internal heap buffer pointer is transferred to
+ *   @p _out as a large-string object via @c MemeStringLarge_initAndTakeover —
+ *   no heap allocation or data copy occurs.  Trailing null bytes are then
+ *   stripped (@c MemeStringLarge_shrinkTailZero).  Only after a successful
+ *   takeover is the source pointer nulled and the medium struct reset.
+ *
+ * - <b>All other storage types</b>: The function returns @c MGEC__OPNOTSUPP
+ *   immediately.  @p _s and @p _out are both left untouched.
+ *
+ * @par Precondition: @p _out must be uninitialized
+ * @p _out must point to raw, uninitialized storage of at least
+ * @c MMSTR__OBJ_SIZE bytes.  The function writes directly into this
+ * memory without calling any init routine first.  Passing an already-
+ * initialized @p _out leads to a resource leak or memory corruption.
+ *
+ * @par Error handling and object states after failure
+ * - <b>Small path</b>: cannot fail; always returns @c 0.
+ * - <b>Medium path</b>: if @c MemeStringLarge_initAndTakeover fails, the
+ *   function returns its error code immediately.  At that point @p _out is in
+ *   an <b>indeterminate</b> state (do not call any uninit routine on it) and
+ *   @p _s still owns the original heap buffer and retains its content.
+ * - <b>Unsupported type</b>: @c MGEC__OPNOTSUPP is returned; neither @p _s
+ *   nor @p _out is modified.
+ *
+ * @par Trailing-null stripping
+ * Both the small and medium success paths call the corresponding
+ * @c shrinkTailZero helper on @p _out after the transfer.  Any null bytes
+ * appended beyond the logical string content (e.g. by resize-with-byte
+ * operations) are removed from the reported byte length.
+ *
+ * @param[in,out] _s          The variable buffer whose content is to be
+ *                            released.  Must not be @c NULL (enforced by
+ *                            assert).  On success, left in a cleared, empty
+ *                            state.  On failure (medium path), retains its
+ *                            original content unchanged.
+ * @param[out]    _out        Pointer to <em>uninitialized</em> raw storage
+ *                            that receives the string result.  Must not be
+ *                            @c NULL (enforced by assert).  On success,
+ *                            contains the transferred string content.  On
+ *                            failure (medium path), left in an indeterminate
+ *                            state; do not call any uninit routine on it.
+ *                            Untouched on @c MGEC__OPNOTSUPP.
+ * @param[in]     _objectSize Byte size of the @p _out object.  Currently
+ *                            accepted but not used by the implementation
+ *                            (the small path uses @c MMSTR__OBJ_SIZE
+ *                            internally).  Pass @c MMSTR__OBJ_SIZE
+ *                            or @c sizeof(*_out) for forward compatibility.
+ *
+ * @return @c 0 on success, @c MGEC__OPNOTSUPP if @p _s uses an unsupported
+ *         storage type, or a non-zero error code from
+ *         @c MemeStringLarge_initAndTakeover on medium-path failure.
+ *
+ * @see MemeVariableBuffer_releaseToBuffer  Transfer content to a buffer stack instead.
+ * @see MemeStringLarge_initAndTakeover     Zero-copy heap-pointer takeover used internally.
+ * @see MEME_STRING__OBJECT_SIZE            Canonical object size constant.
+ */
 MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_releaseToString(
 	MemeVariableBuffer_t _s, MemeStringStack_t* _out, MemeInteger_t _objectSize);

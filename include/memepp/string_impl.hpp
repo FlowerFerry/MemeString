@@ -159,9 +159,9 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE string::string(const rune& _ch) noexcept
 	{
 		*errc() = MemeStringStack_initByU8bytes(&data_, MMSTR__OBJ_SIZE, _ch.data(), _ch.size());
-//#if !MMOPT__EXCEPTION_DISABLED
-//		throw_errc(*errc());
-//#endif
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(*errc());
+#endif
 	}
 
 
@@ -876,7 +876,29 @@ inline namespace MMPP_NAMESPACE {
 #endif
 		return ec ? string{} : string{ std::move(out) };
     }
-    
+
+    MEMEPP__IMPL_INLINE string string::trim_prefix(const string_view& _prefix) const noexcept
+    {
+		mmstrstk_t out;
+		mgec_t ec = *errc() = MemeStringStack_trimPrefix(
+			&native_handle(), _prefix.data(), _prefix.size(), &out, sizeof(out));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(ec);
+#endif
+		return ec ? string{} : string{ std::move(out) };
+    }
+
+    MEMEPP__IMPL_INLINE string string::trim_suffix(const string_view& _suffix) const noexcept
+    {
+		mmstrstk_t out;
+		mgec_t ec = *errc() = MemeStringStack_trimSuffix(
+			&native_handle(), _suffix.data(), _suffix.size(), &out, sizeof(out));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(ec);
+#endif
+		return ec ? string{} : string{ std::move(out) };
+    }
+
 	MEMEPP__IMPL_INLINE string string::substr(size_type _pos, size_type _count) const noexcept
 	{
 		mmstrstk_t out;
@@ -960,8 +982,8 @@ inline namespace MMPP_NAMESPACE {
 	{
 		mmstrstk_t out;
 		mgec_t ec = *errc() = MemeStringStack_toValidUtf8_v2(&native_handle(), &out, sizeof(out));
-		if (ec)
-			mmstrstk_uninit(&out);
+		// if (ec)
+		// 	mmstrstk_uninit(&out);
 #if !MMOPT__EXCEPTION_DISABLED
 		throw_errc(ec);
 #endif

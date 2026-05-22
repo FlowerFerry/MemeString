@@ -117,6 +117,8 @@ MEME_STDCALL MemeStringOption_getStorageSmallLimit();
  * @note This function does **not** allocate any memory.
  * @note Pair every successful call with MemeStringStack_unInit() or
  *       MemeStringStack_reset() when done.
+ * @note On failure, @p _out is not modified and remains in an indeterminate state;
+ *       do not call MemeStringStack_unInit() on it.
  *
  * @see MemeStringStack_unInit()
  * @see MemeStringStack_reset()
@@ -169,6 +171,15 @@ MEGO_SYMBOL__DEPRECATED
  * @note All four pointer parameters (@p _user_data, @p _destruct_fn,
  *       @p _data_fn, @p _size_fn) must be non-@c NULL; passing @c NULL for
  *       any of them results in an immediate failure with return code @c MGEC__INVAL.
+ * @note On failure with @c MGEC__INVAL (any pointer argument is @c NULL),
+ *       @p _out is not modified and remains in an indeterminate state.
+ * @note On failure in the small-buffer copy path (MemeStringStack_initByU8bytes()
+ *       returns non-zero), @p _destruct_fn is **not** called and ownership of
+ *       @p _user_data is **not** transferred; the caller retains responsibility for it.
+ *       @p _out is left in an indeterminate state; do not call MemeStringStack_unInit() on it.
+ * @note On failure in the large-buffer path (MemeStringUser_initTakeOver() returns
+ *       non-zero), the ownership state of @p _user_data is unspecified; @p _out is
+ *       in an indeterminate state and must not be passed to MemeStringStack_unInit().
  *
  * @see MemeStringStack_unInit()
  */
@@ -208,6 +219,13 @@ MEME_API int
  *
  * @note @p _out and @p _other must not alias each other; doing so returns
  *       @c MGEC__CANCELED.
+ * @note On failure with @c MGEC__CANCELED or @c MGEC__OPNOTSUPP, @p _out is
+ *       not modified and remains in an indeterminate state.
+ * @note On allocation failure in the medium copy path, the implementation
+ *       explicitly uninitializes @p _out before returning; @p _out is left in
+ *       an indeterminate state and must not be passed to MemeStringStack_unInit().
+ * @note On all other failures, @p _out is in an indeterminate state;
+ *       do not call MemeStringStack_unInit() on it.
  *
  * @see MemeStringStack_unInit()
  * @see MemeStringStack_assign()
@@ -244,6 +262,14 @@ MEME_API int
  *          the same memory, @c MGEC__OPNOTSUPP for unsupported buffer storage
  *          types, or a non-zero error code on allocation failure.
  *
+ * @note On failure with @c MGEC__CANCELED or @c MGEC__OPNOTSUPP, @p _out is
+ *       not modified and remains in an indeterminate state.
+ * @note When the source buffer uses medium storage and the content-append step
+ *       fails, @p _out is explicitly uninitialized before returning; 
+ * 		 @p _out is left in an indeterminate state and must not be passed to MemeStringStack_unInit().
+ * @note For large/user source storage, if the internal copy fails, @p _out is in
+ *       an indeterminate state; do not call MemeStringStack_unInit() on it.
+ *
  * @see MemeStringStack_unInit()
  * @see MemeBuffer_data()
  * @see MemeBuffer_size()
@@ -267,6 +293,11 @@ MEME_STDCALL MemeStringStack_initByBuffer(
  *
  * @return  0 on success, @c MGEC__INVAL if @p _ch is not a valid Unicode rune,
  *          or a non-zero error code on allocation failure.
+ *
+ * @note On failure with @c MGEC__INVAL (invalid rune), @p _out is not modified
+ *       and remains in an indeterminate state; do not call MemeStringStack_unInit() on it.
+ * @note On allocation failure, @p _out is in an indeterminate state;
+ *       do not call MemeStringStack_unInit() on it.
  *
  * @see MemeRune_isValid()
  * @see MemeStringStack_initByU8bytes()
@@ -298,6 +329,8 @@ MEME_API int
  * @note The input bytes are not validated as well-formed UTF-8.  If you need
  *       guaranteed valid UTF-8 output, use MemeStringStack_toValidUtf8_v2()
  *       on the result.
+ * @note On failure, @p _out is in an indeterminate state; do not call
+ *       MemeStringStack_unInit() on it.
  *
  * @see MemeStringStack_initByU8bytesAndType()
  * @see MemeStringStack_unInit()
@@ -333,6 +366,12 @@ MEME_API int
  *
  * @return  0 on success, or a non-zero error code on allocation failure.
  *
+ * @note On failure, @p _out is in an indeterminate state.  In the medium
+ *       storage path, if capacity allocation succeeds but a subsequent resize or copy step fails,
+ *       @p _out is explicitly uninitialized before returning; it must not be passed to
+ *       MemeStringStack_unInit(). For all other failure paths, @p _out is left in an indeterminate state; do not call
+ *       MemeStringStack_unInit() on it.
+ *
  * @see MemeStringStack_initByU8bytes()
  * @see MemeStringStack_unInit()
  */
@@ -361,6 +400,9 @@ MEME_API int
  *
  * @return  0 on success, or a non-zero error code on allocation / conversion
  *          failure.
+ *
+ * @note On failure, @p _out is in an indeterminate state; do not call
+ *       MemeStringStack_unInit() on it.
  *
  * @see MemeStringStack_initByU16bytesAndType()
  * @see MemeStringStack_unInit()
@@ -392,6 +434,11 @@ MEME_API int
  *
  * @return  0 on success, or a non-zero error code on allocation / conversion
  *          failure.
+ *
+ * @note On failure, @p _out is in an indeterminate state.  In the medium
+ *       storage path, if capacity allocation succeeds but a subsequent conversion or copy step fails,
+ * 	     @p _out is explicitly uninitialized before returning; it must not be passed to
+ * 	     MemeStringStack_unInit(). For all other failure paths, @p _out is left in an indeterminate state; do not call
  *
  * @see MemeStringStack_initByU16bytes()
  * @see MemeStringStack_unInit()
@@ -430,6 +477,8 @@ MEME_API int
  *
  * @note The resulting string length is exactly
  *       @c (_len * 2 + (_len - 1) * _ivlen) characters when @p _len > 0.
+ * @note On failure, @p _out is in an indeterminate state; do not call
+ *       MemeStringStack_unInit() on it.
  *
  * @see MemeStringStack_unInit()
  */
@@ -460,6 +509,9 @@ MEME_API int
  *                          If @c NULL, @p _out is initialized to an empty string.
  *
  * @return  0 on success, or a non-zero error code on allocation failure.
+ *
+ * @note On failure, @p _out is in an indeterminate state; do not call
+ *       MemeStringStack_unInit() on it.
  *
  * @see MemeStringStack_initByOther()
  * @see MemeStringStack_initByU8bytes()
@@ -493,6 +545,8 @@ MEME_API int
  * @note @p _out must have been successfully initialized before this call.
  * @note Calling this function on an already-uninitialized object is undefined
  *       behavior.
+ * @note On failure (@c MGEC__OPNOTSUPP — unrecognized storage type), @p _out is
+ *       not modified; any resources it held are **not** released.
  *
  * @see MemeStringStack_init()
  * @see MemeStringStack_reset()
@@ -530,6 +584,8 @@ MEME_API int
  * @note @p _out must have been successfully initialized before this call.
  * @note The object remains valid and initialized after this call; it can be
  *       reused without re-calling any @c init function.
+ * @note On failure (@c MGEC__OPNOTSUPP — unrecognized storage type), @p _out is
+ *       not modified; it remains initialized in its current (unrecognized) state.
  *
  * @see MemeStringStack_init()
  * @see MemeStringStack_unInit()
@@ -547,7 +603,74 @@ MEME_API int
 MEME_STDCALL MemeStringStack_assignByU8bytes(
 	mmsstk_t* _s, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len);
 
-//! @param _s The string stack object, must be initialized.
+/**
+ * @brief Assign the content of a MemeBuffer slice to an initialized stack string.
+ *
+ * Replaces the current content of @p _out with the byte content of @p _other
+ * starting at byte offset @p _offset, stripping any trailing null bytes.
+ * The function is the assignment counterpart of MemeStringStack_initByBuffer():
+ * it first uninitializes @p _out (releasing any heap-allocated storage) and
+ * then delegates to MemeStringStack_initByBuffer() to write the new content.
+ * The storage tier of the result is chosen automatically based on the
+ * effective byte length after applying @p _offset (see MemeStringStack_initByBuffer()
+ * for the tier-selection rules).
+ *
+ * @par Null-source shortcut
+ * If @p _other is @c NULL, @p _out is reset to an empty, initialized string
+ * via @c mmstrstk_reset_v0() and the function returns @c 0.  No error is
+ * reported for a @c NULL source; the caller's object is merely cleared.
+ *
+ * @par Self-assignment guard
+ * If @p _out and @p _other refer to the same memory address, the function
+ * returns @c 0 immediately without modifying @p _out.
+ *
+ * @par Offset clamping
+ * Negative @p _offset values are treated as @c 0 by the underlying
+ * MemeStringStack_initByBuffer() call.  If the effective byte length after
+ * applying @p _offset is zero or negative, @p _out is initialized to an
+ * empty string.
+ *
+ * @par Error handling and state after failure
+ * The uninitialization step is performed before the init step, so on failure
+ * @p _out is left in an <b>indeterminate</b> state regardless of which step
+ * failed.  Callers must <b>not</b> call MemeStringStack_unInit() on @p _out
+ * if a non-zero error code is returned.
+ * - If MemeStringStack_unInit() itself fails, its error code is returned
+ *   immediately and MemeStringStack_initByBuffer() is never called.
+ * - If MemeStringStack_initByBuffer() fails, its error code is returned
+ *   (see that function's documentation for the per-failure-mode details).
+ *
+ * @param[in,out] _out         The stack string object to overwrite.  Must be
+ *                             initialized on entry.  Must not be @c NULL
+ *                             (enforced by assert).  On success, contains the
+ *                             new string content.  On failure, left in an
+ *                             indeterminate state; do not call
+ *                             MemeStringStack_unInit() on it.
+ * @param[in]     _object_size Byte size of the caller's @c mmsstk_t instance
+ *                             (typically @c sizeof(*_out) or @c MMSTR__OBJ_SIZE).
+ * @param[in]     _other       Source buffer whose byte content is copied.
+ *                             If @c NULL, @p _out is reset to an empty string
+ *                             and @c 0 is returned.  Must not alias @p _out
+ *                             (see the self-assignment guard above).
+ * @param[in]     _offset      Byte offset into @p _other at which reading begins.
+ *                             Negative values are treated as @c 0.
+ *
+ * @return @c 0 on success (including the @c NULL-source and self-assignment
+ *         short-circuit paths), or a non-zero error code on failure:
+ *         - Any error code returned by MemeStringStack_unInit().
+ *         - @c MGEC__OPNOTSUPP if @p _other uses an unsupported storage type.
+ *         - A non-zero allocation error code from MemeStringStack_initByBuffer().
+ *
+ * @note @p _out must be in a valid initialized state on entry; passing an
+ *       uninitialized object leads to undefined behaviour during the
+ *       MemeStringStack_unInit() call.
+ *
+ * @see MemeStringStack_initByBuffer   The initialization counterpart used internally.
+ * @see MemeStringStack_unInit         Called to release existing storage before reassignment.
+ * @see MemeStringStack_assign         Assign from another MemeString object.
+ * @see MemeStringStack_assignByU8bytes Assign from a raw UTF-8 byte array.
+ * @see MMSTR__OBJ_SIZE                Canonical macro for the object byte size.
+ */
 MEME_API int
 MEME_STDCALL MemeStringStack_assignByBuffer(
 	mmsstk_t* _out, size_t _object_size, MemeBuffer_Const_t _other, MemeInteger_t _offset);
@@ -564,8 +687,75 @@ MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_mid(
 	const mmsstk_t* _s, size_t _object_size, MemeInteger_t _offset, MemeInteger_t _len);
 
-//! @param _str Must be initialized
-//! @param _obj_size If negative, it is assumed internally that @c _out is already initialized; if _out is not initialized, please pass the object size of @c _out
+/**
+ * @brief Extract a byte-range substring from a string stack object.
+ *
+ * Computes the substring of @p _str that starts at byte offset @p _offset and
+ * spans at most @p _count bytes, then writes the result into @p _out.
+ *
+ * The function chooses the most efficient internal representation:
+ * - **Shared storage (zero-copy reference)** — when the source uses shared /
+ *   reference-counted storage and the requested range covers the entire string
+ *   (@p _offset == 0 and @p _count == source byte length), the output shares
+ *   the same underlying buffer.
+ * - **Unsafe view (zero-copy slice)** — when the source is a view-type string,
+ *   the output is a lightweight view that points directly into the source memory.
+ * - **Deep copy** — in all other cases the selected byte range is copied into a
+ *   newly allocated string object.
+ *
+ * @param[in]  _str      Source string stack object.  Must be initialized and
+ *                       non-NULL; behavior is undefined otherwise.
+ *
+ * @param[in]  _offset   Byte offset (0-based) at which the substring begins.
+ *                       - Negative values are clamped to @c 0.
+ *                       - If @p _offset is greater than or equal to the source
+ *                         byte length, @p _out is initialized to an empty string
+ *                         and the function returns @c 0.
+ *                       @note The offset is measured in raw **bytes**, not Unicode
+ *                         code points.  The caller is responsible for ensuring the
+ *                         offset falls on a valid UTF-8 character boundary when the
+ *                         string contains multi-byte sequences.
+ *
+ * @param[in]  _count    Number of bytes to include in the substring.
+ *                       - A negative value means "from @p _offset to the end of
+ *                         the string" (equivalent to source byte length minus
+ *                         @p _offset).
+ *                       - Values that would extend beyond the end of the source
+ *                         are silently clamped to the remaining byte length.
+ *                       @note Like @p _offset, this is a **byte** count.  Callers
+ *                         must ensure that @c _offset + _count also falls on a
+ *                         valid UTF-8 character boundary.
+ *
+ * @param[out] _out      Destination string stack object that receives the result.
+ *                       Must be non-NULL.
+ *                       - When @p _obj_size is **positive** (@p _out is
+ *                         uninitialized), the function initializes @p _out before
+ *                         writing the substring.  On failure, @p _out is in an
+ *                         indeterminate state; do not call MemeStringStack_unInit()
+ *                         on it.
+ *                       - When @p _obj_size is **non-positive** (@p _out is already
+ *                         initialized), the function uninitializes @p _out first,
+ *                         then attempts to write the new substring into it.  On
+ *                         failure, @p _out has already been uninitialized and is
+ *                         left in an indeterminate state; do not call
+ *                         MemeStringStack_unInit() on it.
+ *
+ * @param[in]  _obj_size Object size in bytes of the @p _out instance.
+ *                       - Pass a **positive** value (typically @c sizeof(*_out))
+ *                         when @p _out has not yet been initialized.
+ *                       - Pass a **non-positive** value (e.g. @c -1) when @p _out
+ *                         is already initialized; the function will query the
+ *                         actual object size from the object itself and
+ *                         uninitialize it before writing the result.
+ *
+ * @return @c 0 on success, or a non-zero ::mgec_t error code on failure.
+ *
+ * @note This function supersedes the deprecated ::MemeStringStack_mid, which
+ *       returns the result by value and can cause ABI issues.
+ *
+ * @see MemeStringStack_mid
+ * @see MemeStringStack_initByU8bytes
+ */
 MEME_API mgec_t
 MEME_STDCALL MemeStringStack_mid_v2(
     const mmstrstk_t* _str, mmint_t _offset, mmint_t _count, mmstrstk_t* _out, mmint_t _obj_size);
@@ -577,11 +767,56 @@ MEME_API mmstrstk_t
 MEME_STDCALL MemeStringStack_concat(
     const mmstrstk_t* _s, size_t _object_size, const mmstrstk_t* _other);
 
-//! @param _str Must be initialized
-//! @param _other Must be initialized
-//! @param _out The output string stack object. If the function returns an error, it will initialize the @c _out parameter.
-//! @param _obj_size If negative, it is assumed internally that @c _out is already initialized; if _out is not initialized, please pass the object size of @c _out
-MEME_API mgec_t 
+/**
+ * @brief Concatenate two stack-allocated strings into an output string.
+ *
+ * Appends the byte content of @p _other to the byte content of @p _str and
+ * writes the result into @p _out.  The function always leaves @p _out in a
+ * valid, initialized state: if an error occurs at any stage, @p _out is reset
+ * to an empty string before the error code is returned.
+ *
+ * @par Initialization contract for @p _out
+ * The @p _obj_size parameter controls how @p _out is treated on entry:
+ * - <b>Positive value</b> – @p _out is treated as <em>uninitialized</em> raw
+ *   storage.  @p _obj_size must equal the byte size of the @c mmstrstk_t
+ *   object (typically the macro @c MMSTR__OBJ_SIZE).  The function
+ *   initializes @p _out internally before writing the result.
+ * - <b>Negative value (< 0)</b> – @p _out is treated as <em>already
+ *   initialized</em>.  The function reads the object size from @p _out's
+ *   internal metadata, uninitializes it, then writes the new concatenated
+ *   content.  Passing a negative value when @p _out is not actually
+ *   initialized leads to undefined behaviour.
+ *
+ * @par Empty-string shortcut
+ * If the combined byte length of @p _str and @p _other is zero, @p _out is
+ * initialized as an empty string and the function returns @c 0 immediately
+ * without performing any heap allocation.
+ *
+ * @par Error handling
+ * On failure the function guarantees that @p _out is left in a valid,
+ * empty-initialized state so that callers may safely call the corresponding
+ * uninit routine unconditionally regardless of the return value.
+ *
+ * @param[in]  _str      Left-hand operand.  Must be initialized.  Must not be @c NULL.
+ * @param[in]  _other    Right-hand operand appended after @p _str.  Must be
+ *                       initialized.  Must not be @c NULL.
+ * @param[out] _out      Receives the concatenated result.  See the
+ *                       initialization contract above for whether @p _out
+ *                       must be pre-initialized on entry.  Always left in a
+ *                       valid state on return, even on failure.
+ * @param[in]  _obj_size Byte size of the @p _out object (e.g. @c MMSTR__OBJ_SIZE),
+ *                       or any negative value if @p _out is already initialized
+ *                       (the size is then read from the object itself).
+ *
+ * @return @c 0 on success, or a non-zero @c mgec_t error code on failure.
+ *
+ * @note This function supersedes the deprecated MemeStringStack_concat(),
+ *       which returns the result by value and may cause ABI issues.
+ *
+ * @see MemeStringStack_concat   Deprecated predecessor (by-value return).
+ * @see MMSTR__OBJ_SIZE          Canonical macro for the object byte size.
+ */
+MEME_API mgec_t
 MEME_STDCALL MemeStringStack_concat_v2(
     const mmstrstk_t* _str, const mmstrstk_t* _other, mmstrstk_t* _out, mmint_t _obj_size);
 
@@ -591,7 +826,66 @@ MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_toEnUpper(
 	const mmsstk_t* _s, size_t _object_size);
 
-//! @param _out The output string stack object. If the function returns an error, it will initialize the @c _out parameter.
+/**
+ * @brief Convert all ASCII lowercase letters in a stack string to uppercase.
+ *
+ * Produces a new string that is a byte-for-byte copy of @p _str with every
+ * ASCII byte in the range <tt>'a'</tt>–<tt>'z'</tt> (0x61–0x7A) replaced by
+ * its uppercase counterpart <tt>'A'</tt>–<tt>'Z'</tt> (0x41–0x5A) via the
+ * C standard library function @c toupper().  All other bytes — including
+ * multi-byte UTF-8 continuation bytes and any non-ASCII code point — are
+ * copied unchanged.
+ *
+ * @par Scope limitation (ASCII only)
+ * The conversion is intentionally restricted to the 26 Basic Latin letters.
+ * Non-ASCII characters such as accented Latin letters (e.g. é, ñ), Cyrillic,
+ * or CJK code points are @b not uppercased. 
+ *
+ * @par Implementation strategy
+ * The function first copies the entire byte content of @p _str into @p _out
+ * via MemeStringStack_initByU8bytes(), then iterates over every byte of
+ * @p _out's writable buffer in-place, applying @c toupper() byte by byte.
+ *
+ * @par Initialization contract for @p _out
+ * The @p _obj_size parameter controls how @p _out is treated on entry:
+ * - <b>Positive value</b> – @p _out is treated as <em>uninitialized</em> raw
+ *   storage.  @p _obj_size must equal the byte size of the @c mmstrstk_t
+ *   object (typically the macro @c MMSTR__OBJ_SIZE).  The function
+ *   initializes @p _out internally before writing the result.
+ * - <b>Non-positive value (≤ 0)</b> – @p _out is treated as <em>already
+ *   initialized</em>.  The function reads the object size from @p _out's
+ *   internal metadata, uninitializes it, then writes the converted content.
+ *   Passing a non-positive value when @p _out is not actually initialized
+ *   leads to undefined behaviour.
+ *
+ * @par Error handling and state after failure
+ * If the internal MemeStringStack_initByU8bytes() call fails, the function
+ * explicitly reinitializes @p _out to an empty string via
+ * @c mmstrstk_init_v0() before returning the error code.  Therefore, on
+ * failure @p _out is left in a <b>valid, empty-initialized</b> state and
+ * callers may safely call MemeStringStack_unInit() on it unconditionally.
+ *
+ * @param[in]  _str      Source string to convert.  Must be initialized.
+ *                       Must not be @c NULL (enforced by assert).
+ * @param[out] _out      Receives the uppercased result.  See the
+ *                       initialization contract above.  Always left in a
+ *                       valid initialized state on return, even on failure
+ *                       (empty string on failure).
+ * @param[in]  _obj_size Byte size of the @p _out object
+ *                       (e.g. @c MMSTR__OBJ_SIZE), or any non-positive value
+ *                       if @p _out is already initialized (the size is then
+ *                       read from the object itself).
+ *
+ * @return @c 0 on success, or a non-zero @c mgec_t error code on failure
+ *         (propagated from MemeStringStack_initByU8bytes()).
+ *
+ * @note This function supersedes the deprecated MemeStringStack_toEnUpper(),
+ *       which returns the result by value and may cause ABI issues.
+ *
+ * @see MemeStringStack_toEnUpper       Deprecated predecessor (by-value return).
+ * @see MemeStringStack_toEnLower_v2    Lowercase counterpart.
+ * @see MMSTR__OBJ_SIZE                 Canonical macro for the object byte size.
+ */
 MEME_API mgec_t
 MEME_STDCALL MemeStringStack_toEnUpper_v2(
 	const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _obj_size);
@@ -602,7 +896,66 @@ MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_toEnLower(
 	const mmsstk_t* _s, size_t _object_size);
 
-//! @param _out The output string stack object. If the function returns an error, it will initialize the @c _out parameter.
+/**
+ * @brief Convert all ASCII uppercase letters in a stack string to lowercase.
+ *
+ * Produces a new string that is a byte-for-byte copy of @p _str with every
+ * ASCII byte in the range <tt>'A'</tt>–<tt>'Z'</tt> (0x41–0x5A) replaced by
+ * its lowercase counterpart <tt>'a'</tt>–<tt>'z'</tt> (0x61–0x7A) via the
+ * C standard library function @c tolower().  All other bytes — including
+ * multi-byte UTF-8 continuation bytes and any non-ASCII code point — are
+ * copied unchanged.
+ *
+ * @par Scope limitation (ASCII only)
+ * The conversion is intentionally restricted to the 26 Basic Latin letters.
+ * Non-ASCII characters such as accented Latin letters (e.g. É, Ñ), Cyrillic,
+ * or CJK code points are @b not lowercased. 
+ *
+ * @par Implementation strategy
+ * The function first copies the entire byte content of @p _str into @p _out
+ * via MemeStringStack_initByU8bytes(), then iterates over every byte of
+ * @p _out's writable buffer in-place, applying @c tolower() byte by byte.
+ *
+ * @par Initialization contract for @p _out
+ * The @p _obj_size parameter controls how @p _out is treated on entry:
+ * - <b>Positive value</b> – @p _out is treated as <em>uninitialized</em> raw
+ *   storage.  @p _obj_size must equal the byte size of the @c mmstrstk_t
+ *   object (typically the macro @c MMSTR__OBJ_SIZE).  The function
+ *   initializes @p _out internally before writing the result.
+ * - <b>Non-positive value (≤ 0)</b> – @p _out is treated as <em>already
+ *   initialized</em>.  The function reads the object size from @p _out's
+ *   internal metadata, uninitializes it, then writes the converted content.
+ *   Passing a non-positive value when @p _out is not actually initialized
+ *   leads to undefined behaviour.
+ *
+ * @par Error handling and state after failure
+ * If the internal MemeStringStack_initByU8bytes() call fails, the function
+ * explicitly reinitializes @p _out to an empty string via
+ * @c mmstrstk_init_v0() before returning the error code.  Therefore, on
+ * failure @p _out is left in a <b>valid, empty-initialized</b> state and
+ * callers may safely call MemeStringStack_unInit() on it unconditionally.
+ *
+ * @param[in]  _str      Source string to convert.  Must be initialized.
+ *                       Must not be @c NULL (enforced by assert).
+ * @param[out] _out      Receives the lowercased result.  See the
+ *                       initialization contract above.  Always left in a
+ *                       valid initialized state on return, even on failure
+ *                       (empty string on failure).
+ * @param[in]  _obj_size Byte size of the @p _out object
+ *                       (e.g. @c MMSTR__OBJ_SIZE), or any non-positive value
+ *                       if @p _out is already initialized (the size is then
+ *                       read from the object itself).
+ *
+ * @return @c 0 on success, or a non-zero @c mgec_t error code on failure
+ *         (propagated from MemeStringStack_initByU8bytes()).
+ *
+ * @note This function supersedes the deprecated MemeStringStack_toEnLower(),
+ *       which returns the result by value and may cause ABI issues.
+ *
+ * @see MemeStringStack_toEnLower       Deprecated predecessor (by-value return).
+ * @see MemeStringStack_toEnUpper_v2    Uppercase counterpart.
+ * @see MMSTR__OBJ_SIZE                 Canonical macro for the object byte size.
+ */
 MEME_API mgec_t
 MEME_STDCALL MemeStringStack_toEnLower_v2(
 	const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _obj_size);
@@ -613,6 +966,72 @@ MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_trimSpace(
     const mmsstk_t* _s, size_t _object_size);
 
+/**
+ * @brief Strip leading and trailing Unicode whitespace from a stack string.
+ *
+ * Scans the UTF-8 byte content of @p _str from both ends, advancing the left
+ * pointer forward past each leading whitespace rune and retreating the right
+ * pointer backward past each trailing whitespace rune.  The whitespace
+ * predicate is @c MemeRuneIndex_isSpace, which recognises all Unicode
+ * whitespace code points (U+0009 HORIZONTAL TAB, U+000A LINE FEED,
+ * U+000B VERTICAL TAB, U+000C FORM FEED, U+000D CARRIAGE RETURN,
+ * U+0020 SPACE, U+00A0 NO-BREAK SPACE, U+3000 IDEOGRAPHIC SPACE, etc.).
+ *
+ * The resulting substring (from the first non-space rune to the last
+ * non-space rune, inclusive) is written to @p _out via
+ * @c MemeStringStack_mid_v2.
+ *
+ * @par Initialization contract for @p _out
+ * The @p _obj_size parameter controls how @p _out is treated on entry:
+ * - <b>Positive value</b> – @p _out is treated as <em>uninitialized</em> raw
+ *   storage.  @p _obj_size must equal the byte size of the @c mmstrstk_t
+ *   object (typically the macro @c MMSTR__OBJ_SIZE).  The function
+ *   initializes @p _out internally before writing the result.
+ * - <b>Negative value (< 0)</b> – @p _out is treated as <em>already
+ *   initialized</em>.  The function reads the object size from @p _out's
+ *   internal metadata, uninitializes it, then writes the new trimmed content.
+ *   Passing a negative value when @p _out is not actually initialized leads
+ *   to undefined behaviour.
+ *
+ * @par Empty / all-whitespace strings
+ * If @p _str is empty, or consists entirely of whitespace, @p _out is
+ * initialized as an empty string and the function returns @c 0.
+ *
+ * @par Error handling
+ * This function delegates the final write to @c MemeStringStack_mid_v2, which
+ * inherits that function's failure contract: on failure @p _out is left in an
+ * <b>indeterminate</b> state.  Do <b>not</b> call @c MemeStringStack_unInit()
+ * on @p _out if the function returns a non-zero error code.
+ *
+ * @par Invalid UTF-8
+ * If a negative rune size is returned by the UTF-8 rune-size helper while
+ * scanning either end, the scan stops immediately at that position.  The
+ * resulting slice is then built from whatever valid prefix/suffix was found
+ * up to that point.
+ *
+ * @param[in]  _str      The source string to trim.  Must be initialized.
+ *                       Must not be @c NULL.
+ * @param[out] _out      Receives the trimmed result.  See the initialization
+ *                       contract above for whether @p _out must be
+ *                       pre-initialized on entry.  On failure, @p _out is in
+ *                       an indeterminate state; do not call
+ *                       @c MemeStringStack_unInit() on it.
+ * @param[in]  _obj_size Byte size of the @p _out object
+ *                       (e.g. @c MMSTR__OBJ_SIZE), or any negative value if
+ *                       @p _out is already initialized (the size is then read
+ *                       from the object itself).
+ *
+ * @return @c 0 on success, or a non-zero @c mgec_t error code on failure.
+ *
+ * @note This function supersedes the deprecated MemeStringStack_trimSpace(),
+ *       which returns the result by value and may cause ABI issues.
+ *
+ * @see MemeStringStack_trimSpace        Deprecated predecessor (by-value return).
+ * @see MemeStringStack_trimLeftSpace_v2 Strip leading whitespace only.
+ * @see MemeStringStack_trimRightSpace_v2 Strip trailing whitespace only.
+ * @see MemeRuneIndex_isSpace            Whitespace predicate used for scanning.
+ * @see MMSTR__OBJ_SIZE                  Canonical macro for the object byte size.
+ */
 MEME_API mgec_t
 MEME_STDCALL MemeStringStack_trimSpace_v2(
 	const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _obj_size);
@@ -667,6 +1086,142 @@ MEME_STDCALL MemeStringStack_trimByCondRuneFunc(
     const mmstrstk_t* _str, mmstr_match_cond_rune_cb_t* _cond_func, void* _user_data,
     mmstrstk_t* _out, mmint_t _obj_size);
 
+/**
+ * @brief Return a copy of a stack string with a given byte prefix removed.
+ *
+ * Checks whether @p _str begins with the byte sequence [@p _prefix,
+ * @p _prefix + @p _prefix_len).  The comparison is a raw byte comparison
+ * (@c memcmp) and is therefore case-sensitive and encoding-agnostic.
+ *
+ * - If the prefix is found, @p _out receives the substring that starts
+ *   immediately after the prefix and extends to the end of @p _str
+ *   (equivalent to @c MemeStringStack_mid_v2 with @p _offset = @p _prefix_len
+ *   and @p _count = @c -1).
+ * - If the prefix is <b>not</b> found, @p _out receives a full copy of
+ *   @p _str unchanged.  No error is reported in this case.
+ *
+ * @par Prefix-length auto-detection
+ * If @p _prefix_len is negative, the function computes the length via
+ * @c strlen(@p _prefix).  @p _prefix must then be a valid null-terminated
+ * C string; passing @c NULL with a negative length is undefined behaviour.
+ * If @p _prefix_len is @c 0, no prefix comparison is performed and the
+ * function always returns a copy of @p _str.
+ *
+ * @par Initialization contract for @p _out
+ * The @p _obj_size parameter controls how @p _out is treated on entry:
+ * - <b>Positive value</b> – @p _out is treated as <em>uninitialized</em> raw
+ *   storage.  @p _obj_size must equal the byte size of the @c mmstrstk_t
+ *   object (typically the macro @c MMSTR__OBJ_SIZE).
+ * - <b>Non-positive value (≤ 0)</b> – @p _out is treated as <em>already
+ *   initialized</em>.  The function reads the object size from @p _out's
+ *   internal metadata and uninitializes it before writing the result.
+ *   Passing a non-positive value when @p _out is not actually initialized
+ *   leads to undefined behaviour.
+ *
+ * @par Error handling and state after failure
+ * On failure, @p _out is left in an <b>indeterminate</b> state.  Do
+ * <b>not</b> call MemeStringStack_unInit() on @p _out if a non-zero error
+ * code is returned.  The failure contract is inherited from whichever
+ * internal function is called:
+ * - MemeStringStack_mid_v2() in the prefix-found path.
+ * - MemeStringStack_initByOther() or MemeStringViewUnsafeStack_initByOther()
+ *   in the no-match path.
+ *
+ * @param[in]  _str        Source string to inspect.  Must be initialized.
+ *                         Must not be @c NULL (enforced by assert).
+ * @param[in]  _prefix     Pointer to the byte sequence to look for at the
+ *                         start of @p _str.  May be @c NULL only when
+ *                         @p _prefix_len is @c 0.
+ * @param[in]  _prefix_len Number of bytes in @p _prefix.  A negative value
+ *                         causes the length to be computed via
+ *                         @c strlen(@p _prefix).
+ * @param[out] _out        Receives the result (prefix stripped, or full copy).
+ *                         See the initialization contract above.  On failure,
+ *                         left in an indeterminate state; do not call
+ *                         MemeStringStack_unInit() on it.
+ * @param[in]  _obj_size   Byte size of the @p _out object
+ *                         (e.g. @c MMSTR__OBJ_SIZE), or any non-positive value
+ *                         if @p _out is already initialized.
+ *
+ * @return @c 0 on success (prefix found or not found), or a non-zero
+ *         @c mgec_t error code propagated from the internal copy/slice call.
+ *
+ * @see MemeStringStack_trimSuffix    Remove a matching suffix instead.
+ * @see MemeStringStack_mid_v2        Used internally when the prefix matches.
+ * @see MMSTR__OBJ_SIZE               Canonical macro for the object byte size.
+ */
+MEME_API mgec_t
+MEME_STDCALL MemeStringStack_trimPrefix(
+    const mmstrstk_t* _str, const char* _prefix, mmint_t _prefix_len, mmstrstk_t* _out, mmint_t _obj_size);
+
+/**
+ * @brief Return a copy of a stack string with a given byte suffix removed.
+ *
+ * Checks whether @p _str ends with the byte sequence [@p _suffix,
+ * @p _suffix + @p _suffix_len).  The comparison is a raw byte comparison
+ * (@c memcmp) and is therefore case-sensitive and encoding-agnostic.
+ *
+ * - If the suffix is found, @p _out receives the leading substring of
+ *   @p _str up to (but not including) the suffix bytes (equivalent to
+ *   @c MemeStringStack_mid_v2 with @p _offset = @c 0 and
+ *   @p _count = source byte length − @p _suffix_len).
+ * - If the suffix is <b>not</b> found, @p _out receives a full copy of
+ *   @p _str unchanged.  No error is reported in this case.
+ *
+ * @par Suffix-length auto-detection
+ * If @p _suffix_len is negative, the function computes the length via
+ * @c strlen(@p _suffix).  @p _suffix must then be a valid null-terminated
+ * C string; passing @c NULL with a negative length is undefined behaviour.
+ * If @p _suffix_len is @c 0, no suffix comparison is performed and the
+ * function always returns a copy of @p _str.
+ *
+ * @par Initialization contract for @p _out
+ * The @p _obj_size parameter controls how @p _out is treated on entry:
+ * - <b>Positive value</b> – @p _out is treated as <em>uninitialized</em> raw
+ *   storage.  @p _obj_size must equal the byte size of the @c mmstrstk_t
+ *   object (typically the macro @c MMSTR__OBJ_SIZE).
+ * - <b>Non-positive value (≤ 0)</b> – @p _out is treated as <em>already
+ *   initialized</em>.  The function reads the object size from @p _out's
+ *   internal metadata and uninitializes it before writing the result.
+ *   Passing a non-positive value when @p _out is not actually initialized
+ *   leads to undefined behaviour.
+ *
+ * @par Error handling and state after failure
+ * On failure, @p _out is left in an <b>indeterminate</b> state.  Do
+ * <b>not</b> call MemeStringStack_unInit() on @p _out if a non-zero error
+ * code is returned.  The failure contract is inherited from whichever
+ * internal function is called:
+ * - MemeStringStack_mid_v2() in the suffix-found path.
+ * - MemeStringStack_initByOther() or MemeStringViewUnsafeStack_initByOther()
+ *   in the no-match path.
+ *
+ * @param[in]  _str        Source string to inspect.  Must be initialized.
+ *                         Must not be @c NULL (enforced by assert).
+ * @param[in]  _suffix     Pointer to the byte sequence to look for at the
+ *                         end of @p _str.  May be @c NULL only when
+ *                         @p _suffix_len is @c 0.
+ * @param[in]  _suffix_len Number of bytes in @p _suffix.  A negative value
+ *                         causes the length to be computed via
+ *                         @c strlen(@p _suffix).
+ * @param[out] _out        Receives the result (suffix stripped, or full copy).
+ *                         See the initialization contract above.  On failure,
+ *                         left in an indeterminate state; do not call
+ *                         MemeStringStack_unInit() on it.
+ * @param[in]  _obj_size   Byte size of the @p _out object
+ *                         (e.g. @c MMSTR__OBJ_SIZE), or any non-positive value
+ *                         if @p _out is already initialized.
+ *
+ * @return @c 0 on success (suffix found or not found), or a non-zero
+ *         @c mgec_t error code propagated from the internal copy/slice call.
+ *
+ * @see MemeStringStack_trimPrefix    Remove a matching prefix instead.
+ * @see MemeStringStack_mid_v2        Used internally when the suffix matches.
+ * @see MMSTR__OBJ_SIZE               Canonical macro for the object byte size.
+ */
+MEME_API mgec_t
+MEME_STDCALL MemeStringStack_trimSuffix(
+    const mmstrstk_t* _str, const char* _suffix, mmint_t _suffix_len, mmstrstk_t* _out, mmint_t _obj_size);
+
 //! \code
 //! MemeStringStack_t s = MemeStringStack_getRepeat(MEME_STRING__OBJECT_SIZE, 3, "abc", 3);
 //! // s is "abcabcabc";
@@ -677,7 +1232,85 @@ MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_getRepeat(
 	size_t _object_size, mmint_t _count, const char* _s, mmint_t _len);
 
-//! @param _out The output string stack object. If the function returns an error, it will initialize the @c _out parameter.
+/**
+ * @brief Construct a string by repeating a byte sequence a given number of times.
+ *
+ * Appends the byte sequence [@p _in, @p _in + @p _in_len) to an internal
+ * variable buffer @p _count times, then transfers the accumulated content to
+ * @p _out via MemeVariableBuffer_releaseToString() (a move, not a copy).
+ *
+ * @par Zero or negative repeat count
+ * If @p _count is zero or negative the append loop is never entered.
+ * @p _out is initialized to an empty string and @c 0 is returned.
+ *
+ * @par Input-length semantics
+ * If @p _in_len is negative, the function calls @c strlen(@p _in) once before
+ * the repeat loop (yielding 0 when @p _in is @c NULL) so callers may
+ * conveniently pass @c -1 for NUL-terminated strings.
+ * If @p _in_len is zero, no bytes are appended and @p _out is an empty string.
+ * If @p _in_len is positive, exactly that many bytes are appended per repetition.
+ *
+ * @par Null input pointer
+ * @p _in may be @c NULL when @p _count ≤ 0, @p _in_len == 0, or
+ * @p _in_len < 0 (the negative-length path guards the @c strlen() call).
+ *
+ * @par Initialization contract for @p _out
+ * The @p _obj_size parameter controls how @p _out is treated on entry:
+ * - <b>Positive value</b> – @p _out is treated as <em>uninitialized</em> raw
+ *   storage.  @p _obj_size must equal the byte size of the @c mmstrstk_t
+ *   object (typically the macro @c MMSTR__OBJ_SIZE).
+ * - <b>Non-positive value (≤ 0)</b> – @p _out is treated as <em>already
+ *   initialized</em>.  The function reads the object size from @p _out's
+ *   internal metadata and uninitializes it before building the result.
+ *   Passing a non-positive value when @p _out is not actually initialized
+ *   leads to undefined behaviour.
+ *
+ * @par Error handling and state after failure
+ * Every failure path explicitly calls @c mmstrstk_init_v0() on @p _out before
+ * returning.  Therefore on failure @p _out is always left in a <b>valid,
+ * empty-initialized</b> state and callers may safely call
+ * MemeStringStack_unInit() on it unconditionally.  Possible failures:
+ * - Internal variable-buffer initialization fails.
+ * - Any MemeVariableBuffer_appendWithBytes() call during the repeat loop fails
+ *   (e.g. allocation failure for a large total length).
+ * - MemeVariableBuffer_releaseToString() fails after the loop.
+ *
+ * @param[out] _out      Receives the repeated string.  See the initialization
+ *                       contract above.  Always left in a valid initialized
+ *                       state on return (empty string on failure).
+ *                       Must not be @c NULL (enforced by assert).
+ * @param[in]  _obj_size Byte size of the @p _out object
+ *                       (e.g. @c MMSTR__OBJ_SIZE), or any non-positive value
+ *                       if @p _out is already initialized.
+ * @param[in]  _count    Number of times to repeat @p _in.  Values ≤ 0
+ *                       produce an empty string.
+ * @param[in]  _in       Pointer to the byte sequence to repeat.  May be
+ *                       @c NULL when @p _count ≤ 0, @p _in_len == 0, or
+ *                       @p _in_len < 0 (NULL is guarded before strlen()).
+ * @param[in]  _in_len   Number of bytes in @p _in to append per repetition.
+ *                       Pass @c 0 to produce an empty string.  A negative
+ *                       value delegates length computation to
+ *                       @c strlen() once before the repeat loop.
+ *
+ * @return @c 0 on success, or a non-zero @c mgec_t error code on failure.
+ *         @p _out is always left initialized (empty) on failure.
+ *
+ * @note This function supersedes the deprecated MemeStringStack_getRepeat(),
+ *       which returns the result by value and may cause ABI issues.
+ *
+ * @par Example
+ * @code
+ * mmstrstk_t s;
+ * MemeStringStack_getRepeat_v2(&s, MMSTR__OBJ_SIZE, 3, "abc", 3);
+ * // s contains "abcabcabc"
+ * mmstrstk_uninit_v0(&s, MMSTR__OBJ_SIZE);
+ * @endcode
+ *
+ * @see MemeStringStack_getRepeat        Deprecated predecessor (by-value return).
+ * @see MemeVariableBuffer_appendWithBytes  Append primitive used in the loop.
+ * @see MemeVariableBuffer_releaseToString  Move used to produce the final string.
+ * @see MMSTR__OBJ_SIZE                  Canonical macro for the object byte size.
+ */
 MEME_API mgec_t
 MEME_STDCALL MemeStringStack_getRepeat_v2(
     mmstrstk_t* _out, mmint_t _obj_size, mmint_t _count, const char* _in, mmint_t _in_len);
@@ -690,12 +1323,81 @@ MEME_STDCALL MemeStringStack_replace(
     const char* _from, mmint_t _from_len,
     const char* _to, mmint_t _to_len, mmint_t _max_count);
 
-//! @param _str Must be initialized
-//! @param _out The output string stack object. If the function returns an error, it will initialize the @c _out parameter.
-//! @param _obj_size If negative, it is assumed internally that @c _out is already initialized; if _out is not initialized, please pass the object size of @c _out
+/**
+ * @brief Replace non-overlapping occurrences of a byte pattern in a string,
+ *        writing the result into a caller-supplied stack object.
+ *
+ * Scans @p _str for non-overlapping occurrences of the byte sequence @p _from
+ * and replaces each with @p _to, performing at most @p _max_count substitutions.
+ * The result is written to @p _out via MemeVariableBuffer_releaseToString()
+ * (a zero-copy move, not a heap copy).
+ *
+ * @par Empty pattern
+ * If @p _from_len resolves to zero (passed as 0 or @p _from is an empty
+ * string), the function copies @p _str into @p _out unchanged via
+ * MemeStringStack_initByOther() and returns immediately without scanning.
+ *
+ * @par Replacement count limit
+ * @p _max_count controls how many substitutions are performed:
+ * - <b>Positive</b> – at most @p _max_count occurrences are replaced; bytes
+ *   after the last replacement are appended to @p _out unchanged.
+ * - <b>Zero or negative</b> – every occurrence is replaced (unlimited).
+ *
+ * @par Length semantics
+ * Both @p _from_len and @p _to_len are resolved once before scanning begins:
+ * - Negative value → @c strlen() is called once on the respective pointer.
+ * - Zero → the pattern or replacement contributes no bytes.
+ * - Positive → exactly that many bytes are used.
+ *
+ * @par Initialization contract for @p _out
+ * @p _obj_size controls how @p _out is treated on entry:
+ * - <b>Positive value</b> – @p _out is treated as <em>uninitialized</em> raw
+ *   storage.  @p _obj_size must equal the byte size of the @c mmstrstk_t
+ *   object (typically @c MMSTR__OBJ_SIZE).
+ * - <b>Non-positive value (≤ 0)</b> – @p _out is treated as <em>already
+ *   initialized</em>.  The function reads the object size from @p _out's
+ *   internal metadata and uninitializes it before building the result.
+ *   Passing a non-positive value when @p _out is not actually initialized
+ *   leads to undefined behaviour.
+ *
+ * @par Error handling and state after failure
+ * Every failure path calls @c MemeStringStack_init() on @p _out before
+ * returning, leaving it in a valid, empty-initialized state.  Callers may
+ * therefore call MemeStringStack_unInit() unconditionally after failure.
+ * Possible failures:
+ * - MemeVariableBufferStack_init() fails (internal buffer setup).
+ * - MemeVariableBuffer_appendWithBytes() fails during the replacement pass
+ *   (e.g. allocation failure for a large result).
+ * - MemeVariableBuffer_releaseToString() fails after the loop.
+ *
+ * @param[in]  _str       Input string.  Must be initialized.
+ *                        Must not be @c NULL (enforced by assert).
+ * @param[in]  _from      Byte pattern to search for.  Must not be @c NULL
+ *                        when @p _from_len resolves to a positive value.
+ * @param[in]  _from_len  Byte length of @p _from.  Negative → resolved via
+ *                        @c strlen().  Zero → @p _str is copied unchanged.
+ * @param[in]  _to        Replacement byte sequence.  May be @c NULL when
+ *                        @p _to_len resolves to zero.
+ * @param[in]  _to_len    Byte length of @p _to.  Negative → resolved via
+ *                        @c strlen().  Zero → matched patterns are deleted.
+ * @param[in]  _max_count Maximum number of replacements.  ≤ 0 means unlimited.
+ * @param[out] _out       Receives the result.  See the initialization contract
+ *                        above.  Always left in a valid initialized state on
+ *                        return (empty string on failure).
+ * @param[in]  _obj_size  Byte size of the @p _out object
+ *                        (e.g. @c MMSTR__OBJ_SIZE), or any non-positive value
+ *                        if @p _out is already initialized.
+ *
+ * @return @c 0 on success, or a non-zero @c mgec_t error code on failure.
+ *
+ * @see MemeStringStack_replace           Deprecated predecessor (by-value return).
+ * @see MemeVariableBuffer_appendWithBytes Append primitive used in the build pass.
+ * @see MemeVariableBuffer_releaseToString Move used to produce the final string.
+ * @see MMSTR__OBJ_SIZE                   Canonical macro for the object byte size.
+ */
 MEME_API mgec_t
 MEME_STDCALL MemeStringStack_replace_v2(
-    const mmstrstk_t* _str, 
+    const mmstrstk_t* _str,
     const char* _from, mmint_t _from_len,
     const char* _to, mmint_t _to_len, mmint_t _max_count,
 	mmstrstk_t* _out, mmint_t _obj_size
@@ -707,6 +1409,64 @@ MEME_API mmsstk_t
 MEME_STDCALL MemeStringStack_toValidUtf8(
     const mmsstk_t* _s, size_t _object_size);
 
+/**
+ * @brief Truncate a string to its longest valid UTF-8 prefix and store the
+ *        result in a caller-supplied stack object.
+ *
+ * Scans the raw bytes of @p _str using mmutf_u8valid() to locate the byte
+ * offset @c pos of the first ill-formed UTF-8 sequence.  The bytes in the
+ * range <tt>[0, pos)</tt> — guaranteed to form a well-formed UTF-8 string —
+ * are then extracted into @p _out via MemeStringStack_mid_v2().
+ *
+ * @par Truncation semantics
+ * This function implements a <b>truncation</b> strategy, not a replacement
+ * strategy.  Invalid bytes and everything after the first invalid byte are
+ * silently discarded.  No replacement character (U+FFFD) is inserted.
+ * - If @p _str is entirely valid UTF-8, the full content is copied unchanged
+ *   (@c pos equals the byte length, so mid_v2 returns the whole string).
+ * - If the very first byte is invalid (@c pos == 0), @p _out is initialized
+ *   to an empty string.
+ *
+ * @par UTF-8 converter
+ * The validity scan is performed by the currently active UTF-8 converter,
+ * selected via mmutf_get_best_converter().  The default converter validates
+ * sequences code-point by code-point using mmutf_u8rune_valid().
+ *
+ * @par Initialization contract for @p _out
+ * @p _obj_size controls how @p _out is treated on entry:
+ * - <b>Positive value</b> – @p _out is treated as <em>uninitialized</em> raw
+ *   storage.  @p _obj_size must equal the byte size of the @c mmstrstk_t
+ *   object (typically @c MMSTR__OBJ_SIZE).
+ * - <b>Non-positive value (≤ 0)</b> – @p _out is treated as <em>already
+ *   initialized</em>.  The function reads the object size from @p _out's
+ *   internal metadata and uninitializes it before writing the result.
+ *   Passing a non-positive value when @p _out is not actually initialized
+ *   leads to undefined behaviour.
+ *
+ * @par Error handling and state after failure
+ * This function delegates the final write to MemeStringStack_mid_v2(), whose
+ * failure contract applies here:
+ * - On failure, @p _out is left in an <b>indeterminate</b> state.
+ * - <b>Do not</b> call MemeStringStack_unInit() on @p _out if a non-zero
+ *   error code is returned.
+ *
+ * @param[in]  _str      Input string.  Must be initialized.
+ *                       Must not be @c NULL (enforced by assert).
+ * @param[out] _out      Destination stack object that receives the valid UTF-8
+ *                       prefix.  Must not be @c NULL; returns @c MGEC__INVAL
+ *                       otherwise.  See the initialization contract above.
+ * @param[in]  _obj_size Byte size of the @p _out object
+ *                       (e.g. @c MMSTR__OBJ_SIZE), or any non-positive value
+ *                       if @p _out is already initialized.
+ *
+ * @return @c 0 on success, @c MGEC__INVAL if @p _out is @c NULL, or another
+ *         non-zero @c mgec_t error code propagated from MemeStringStack_mid_v2().
+ *
+ * @see MemeStringStack_toValidUtf8    Deprecated predecessor (by-value return).
+ * @see mmutf_u8valid                  UTF-8 validity scan used internally.
+ * @see MemeStringStack_mid_v2         Substring extraction used to build the result.
+ * @see MMSTR__OBJ_SIZE                Canonical macro for the object byte size.
+ */
 MEME_API mgec_t
 MEME_STDCALL MemeStringStack_toValidUtf8_v2(
     const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _obj_size);
@@ -756,7 +1516,33 @@ MEME_STDCALL MemeStringStack_mappingConvert(
     const mmsstk_t* _s, size_t _object_size,
     MemeString_MappingConvertFunc_t _mapping_fn, void* _user_data);
 
-MEME_API mgec_t 
+/**
+ * @brief Convert a stack string by applying a mapping function to each Unicode rune.
+ *
+ * Iterates over every UTF-8 encoded rune in @p _str. For each rune, @p _mapping_fn
+ * is called with a pointer to the decoded rune and @p _user_data. The callback may
+ * modify the rune in-place. If the callback returns a value less than 0, the rune
+ * is discarded (skipped) in the output; otherwise the (possibly modified) rune is
+ * appended to the result. Runes that are invalid after the callback are also
+ * silently discarded.
+ *
+ * On success the result is written to @p _out. On failure @p _out is left in an
+ * initialised (empty) state.
+ *
+ * @param _str        Input stack string to convert. Must not be NULL.
+ * @param _mapping_fn Mapping callback invoked for each rune. Must not be NULL.
+ *                    Signature: @code int fn(MemeRune_t* rune, void* user_data) @endcode
+ *                    A return value < 0 causes the rune to be skipped entirely.
+ * @param _user_data  Arbitrary context pointer forwarded to every @p _mapping_fn call.
+ * @param _out        Output stack string that receives the converted result.
+ *                    Must not be NULL.
+ * @param _obj_size   Size in bytes of the stack string object pointed to by @p _out.
+ *                    Pass 0 to have the function infer the size from the registered
+ *                    default.
+ *
+ * @return 0 on success, or a negative @c mgec_t error code on failure.
+ */
+MEME_API mgec_t
 MEME_STDCALL MemeStringStack_mappingConvert_v2(
     const mmstrstk_t* _str, mmstr_mapping_conv_cb_t* _mapping_fn, void* _user_data,
     mmstrstk_t* _out, mmint_t _obj_size);
@@ -793,6 +1579,51 @@ MemeStringStack_vformatWithLimitInCstyle(
 	MEGO_SYMBOL__MSVC_FORMAT_STRING(const char* _format),
 	va_list _args);
 
+/**
+ * @brief Format a stack string from a printf-style format string and a @c va_list,
+ *        with an optional byte limit and a pre-allocation size hint.
+ *
+ * Produces a formatted string equivalent to @c vsnprintf and stores the result in
+ * the MemeString stack object @p _str. Two formatting strategies are available
+ * depending on @p _pre_size:
+ *
+ * - If @p _pre_size <= 0: the required byte length is first computed by calling
+ *   @c vsnprintf(NULL, 0, ...), then a buffer of exactly that size is allocated
+ *   and the format string is rendered into it (two-pass approach).
+ * - If @p _pre_size > 0: a buffer of @p _pre_size bytes is allocated upfront and
+ *   @c vsnprintf is attempted immediately. If the formatted output fits within
+ *   @p _pre_size bytes, no second pass is needed. If it does not fit, the function
+ *   falls back to the two-pass approach automatically.
+ *
+ * If @p _size_limit > 0, the stored result is silently truncated to at most
+ * @p _size_limit bytes (excluding the NUL terminator). If @p _format is NULL the
+ * function returns 0 without writing anything to @p _str.
+ *
+ * @param _str         Output stack string. Must not be NULL.
+ * @param _object_size Size in bytes of the @p _str object. Pass 0 to infer from
+ *                     the registered default.
+ * @param _size_limit  Maximum number of bytes to store in the result, excluding the
+ *                     NUL terminator. Pass <= 0 for no limit.
+ * @param _pre_size    Pre-allocation hint in bytes. When > 0 the function reserves
+ *                     this many bytes upfront to avoid a two-pass @c vsnprintf call.
+ *                     Pass <= 0 to always use the two-pass approach.
+ * @param _format      Standard C printf-style format string. May be NULL, in which
+ *                     case the function returns 0 immediately.
+ * @param _args        Argument list matching the conversion specifiers in @p _format.
+ *
+ * @return 0 on success, or a negative @c mgec_t error code on failure:
+ *         @li @c MGEC__INVAL — @p _str is NULL.
+ *         @li @c MGEC__ERR  — @c vsnprintf reported a format error (returned < 0 on
+ *             the dry-run pass or <= 0 on the final render pass).
+ *         @li Other negative codes — internal buffer allocation or resize failed.
+ *
+ * @warning On failure the state of @p _str is indeterminate. When @p _object_size
+ *          is <= 0 on entry, the object is uninitialised before the error is
+ *          detected; it must be re-initialised before further use. When
+ *          @p _object_size is > 0, @p _str is left unchanged on most failure
+ *          paths (before the final @c releaseToString step), but this is not
+ *          guaranteed. Callers should re-initialise @p _str after any failure.
+ */
 MEME_API mgec_t MEME_STDCALL
 MemeStringStack_vformatWithLimitInCstyle_v2(
 	mmstrstk_t* _str,
@@ -802,6 +1633,31 @@ MemeStringStack_vformatWithLimitInCstyle_v2(
 	MG_SYM__MSVC_FMT_STR(const char* _format),
 	va_list _args);
 
+/**
+ * @brief Format a stack string from a printf-style format string with variadic
+ *        arguments, an optional byte limit, and a pre-allocation size hint.
+ *
+ * Variadic wrapper around MemeStringStack_vformatWithLimitInCstyle_v2(). Accepts
+ * the same parameters but takes @c ... instead of a @c va_list. Refer to that
+ * function for a complete description of the formatting behaviour, the
+ * @p _size_limit truncation semantics, and the @p _pre_size optimisation hint.
+ *
+ * @param _str         Output stack string. Must not be NULL.
+ * @param _object_size Size in bytes of the @p _str object. Pass 0 to infer from
+ *                     the registered default.
+ * @param _size_limit  Maximum number of bytes to store in the result, excluding the
+ *                     NUL terminator. Pass <= 0 for no limit.
+ * @param _pre_size    Pre-allocation hint in bytes. When > 0 the function reserves
+ *                     this many bytes upfront to avoid a two-pass @c vsnprintf call.
+ *                     Pass <= 0 to always use the two-pass approach.
+ * @param _format      Standard C printf-style format string. Must not be NULL.
+ * @param ...          Format arguments corresponding to the conversion specifiers
+ *                     in @p _format.
+ *
+ * @return 0 on success, or a negative @c mgec_t error code on failure.
+ *         See MemeStringStack_vformatWithLimitInCstyle_v2() for the full list of
+ *         error codes and the state of @p _str on failure.
+ */
 MEME_API mgec_t MEME_STDCALL
 MemeStringStack_formatWithLimitInCstyle(
 	mmstrstk_t* _str,
@@ -822,20 +1678,90 @@ MemeStringStack_formatInCstyle_v2(
 	...)
 	MEGO_SYMBOL__GCC_ATTRIBUTE_FORMAT(printf, 3, 4);
 
+/**
+ * @brief Join an array of stack strings into a single stack string, inserting a
+ *        separator between consecutive elements.
+ *
+ * Concatenates @p _item_count strings from the flat array @p _items, placing the
+ * @p _separator byte sequence between each adjacent pair. The separator is not
+ * prepended before the first element nor appended after the last element. If
+ * @p _item_count is 0 the result is an empty string.
+ *
+ * The array @p _items is traversed as a flat byte array whose element stride is
+ * computed from the registered size of the first element
+ * (@c MemeStringStack_regSize(_items) * sizeof(mmint_t)), so every element must
+ * be a stack string of the same registered size.
+ *
+ * On success the joined string is written to @p _str. On failure @p _str is left
+ * in an initialised (empty) state.
+ *
+ * @param _str           Output stack string. Must not be NULL.
+ * @param _obj_size      Size in bytes of the @p _str object. Pass 0 to infer from
+ *                       the registered default.
+ * @param _separator     UTF-8 byte sequence to insert between elements. May be NULL,
+ *                       which is treated as an empty separator (no bytes inserted).
+ * @param _separator_len Byte length of @p _separator. Pass a negative value to have
+ *                       the length computed automatically via @c strlen.
+ * @param _items         Pointer to the first element of the input array. May be NULL
+ *                       only when @p _item_count is 0.
+ * @param _item_count    Number of elements in @p _items. Pass 0 to produce an empty
+ *                       result string without touching @p _items.
+ *
+ * @return 0 on success, or a negative @c mgec_t error code on failure.
+ */
 MEME_API mgec_t
 MEME_STDCALL MemeStringStack_join(
-	mmstrstk_t* _str, mmint_t _obj_size, const char* _separator, mmint_t _separator_len, 
+	mmstrstk_t* _str, mmint_t _obj_size, const char* _separator, mmint_t _separator_len,
 	const mmstrstk_t* _items, mmint_t _item_count);
 
 
-//! @brief Split the string into substrings.
-//! @param _s The string.
-//! @param _key The key to split the string.
-//! @param _key_len The length of the key.
-//! @param _behavior The behavior of the split.
-//! @param _cs The case sensitivity of the split.
-//! @param _out The output array of substrings.
-//! @param _out_count The number of substrings.
+/**
+ * @brief Split a stack string into substrings at every occurrence of a delimiter
+ *        key, writing results into a caller-provided output array.
+ *
+ * Searches @p _s for occurrences of @p _key starting at the byte offset stored in
+ * @p *_search_index (or from offset 0 when @p _search_index is NULL). Each
+ * substring between consecutive delimiter matches is stored as a newly initialised
+ * stack string in @p _out. At most @p *_out_count substrings are written per call;
+ * when the string contains more parts than the output array can hold, the function
+ * fills @p *_out_count entries, updates @p *_search_index to the byte offset of
+ * the next unprocessed position, and returns so the caller can continue with a
+ * subsequent call using the same @p _out array.
+ *
+ * Empty-part handling is governed by @p _behavior:
+ * - @c MemeFlag_KeepEmptyParts: empty substrings produced by adjacent delimiters
+ *   or a leading/trailing delimiter are written as empty stack strings.
+ * - @c MemeFlag_SkipEmptyParts: such zero-length segments are silently discarded.
+ *
+ * Each successfully written element in @p _out is initialised by this function and
+ * must eventually be released by the caller. On failure, all already-written
+ * elements are released before returning.
+ *
+ * @param _s            Input stack string to split. Must not be NULL.
+ * @param _key          Delimiter byte sequence (UTF-8). Must not be NULL.
+ * @param _key_len      Byte length of @p _key. Pass a negative value to have the
+ *                      length computed automatically via @c strlen.
+ * @param _behavior     Controls how empty substrings are handled:
+ *                      @c MemeFlag_KeepEmptyParts or @c MemeFlag_SkipEmptyParts.
+ * @param _sensitivity  Case-sensitivity mode for delimiter matching, e.g.
+ *                      @c MemeFlag_CaseSensitive or @c MemeFlag_AllInsensitive.
+ * @param _out          Caller-allocated array of stack string objects that receives
+ *                      the split substrings. Must not be NULL.
+ * @param _obj_size     Size in bytes of each element in @p _out.
+ * @param _out_count    In/out parameter. On entry: the capacity of @p _out (maximum
+ *                      number of substrings to write). On return: the actual number
+ *                      of substrings written. Must not be NULL; @p *_out_count must
+ *                      be >= 1 on entry.
+ * @param _search_index In/out parameter for incremental splitting. On entry: the
+ *                      byte offset in @p _s at which to resume (use 0 for the first
+ *                      call). On return: the byte offset of the next unprocessed
+ *                      position, or -1 when the entire string has been consumed.
+ *                      May be NULL, which is equivalent to always starting from 0
+ *                      with no resumption support.
+ *
+ * @return 0 on success, or a negative @c mgec_t error code on failure
+ *         (e.g., @c MGEC__INVAL if @p *_out_count < 1).
+ */
 MEME_API mmint_t
 MEME_STDCALL MemeStringStack_split(
 	const mmstrstk_t* _s,
@@ -846,6 +1772,53 @@ MEME_STDCALL MemeStringStack_split(
 	mmint_t* MEGO_SYMBOL__RESTRICT _search_index
 );
 
+/**
+ * @brief Split a stack string into substrings at every byte that satisfies a
+ *        user-supplied predicate, writing results into a caller-provided output array.
+ *
+ * Searches @p _str byte-by-byte starting from the offset stored in
+ * @p *_search_index (or from offset 0 when @p _search_index is NULL). Whenever
+ * @p _cond_func returns a non-zero value for a byte, that byte position is treated
+ * as a single-byte delimiter. The substring from the end of the previous delimiter
+ * up to (but not including) the current delimiter byte is stored as a newly
+ * initialised stack string in @p _out. Zero-length segments produced by adjacent
+ * delimiter bytes are always skipped (never written to @p _out).
+ *
+ * At most @p *_out_count substrings are written per call. When the string contains
+ * more parts than the output array can hold, the function fills @p *_out_count
+ * entries, updates @p *_search_index to the byte offset of the next unprocessed
+ * position, and returns so the caller can continue with a subsequent call.
+ *
+ * @note Unlike MemeStringStack_split(), which matches a fixed multi-byte key, this
+ *       function evaluates one byte at a time and is well-suited for splitting on
+ *       character classes (e.g., whitespace, punctuation, or any custom criterion).
+ *
+ * Each successfully written element in @p _out is initialised by this function and
+ * must eventually be released by the caller. On failure, all already-written
+ * elements are released before returning.
+ *
+ * @param _str          Input stack string to split. Must not be NULL.
+ * @param _cond_func    Byte predicate callback. Must not be NULL.
+ *                      Signature: @code int fn(MemeByte_t ch, void* user_data) @endcode
+ *                      Return non-zero to treat @p ch as a delimiter byte.
+ * @param _user_data    Arbitrary context pointer forwarded to every @p _cond_func call.
+ * @param _out          Caller-allocated array of stack string objects that receives
+ *                      the split substrings. Must not be NULL.
+ * @param _obj_size     Size in bytes of each element in @p _out.
+ * @param _out_count    In/out parameter. On entry: the capacity of @p _out (maximum
+ *                      number of substrings to write). On return: the actual number
+ *                      of substrings written. Must not be NULL; @p *_out_count must
+ *                      be >= 1 on entry.
+ * @param _search_index In/out parameter for incremental splitting. On entry: the
+ *                      byte offset in @p _str at which to resume (use 0 for the
+ *                      first call). On return: the byte offset of the next
+ *                      unprocessed position, or -1 when the entire string has been
+ *                      consumed. May be NULL, which is equivalent to always starting
+ *                      from 0 with no resumption support.
+ *
+ * @return 0 on success, or a negative @c mgec_t error code on failure
+ *         (e.g., @c MGEC__INVAL if @p *_out_count < 1).
+ */
 MEME_API mmint_t
 MEME_STDCALL MemeStringStack_splitByCondByteFunc(
 	const mmstrstk_t* _str,

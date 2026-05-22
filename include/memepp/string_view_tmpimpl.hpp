@@ -201,7 +201,6 @@ inline namespace MMPP_NAMESPACE {
 			__string_trim_if_byte_helper<_Func>::callback,
 			&helper, &out, sizeof(out));
 		if (ec) {
-			mmstrstk_uninit(&out);
 			return string_view{};
 		}
 		string_view result{ out };
@@ -221,7 +220,6 @@ inline namespace MMPP_NAMESPACE {
 			__string_trim_if_rune_helper<_Func>::callback,
 			&helper, &out, sizeof(out));
 		if (ec) {
-			mmstrstk_uninit(&out);
 			return string_view{};
 		}
 		string_view result{ out };

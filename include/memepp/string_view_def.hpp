@@ -224,6 +224,9 @@ inline namespace MMPP_NAMESPACE {
 		string_view trim_left_space() const noexcept;
 		string_view trim_right_space() const noexcept;
 
+		string_view trim_prefix(const string_view& _prefix) const noexcept;
+		string_view trim_suffix(const string_view& _suffix) const noexcept;
+
         string_view substr(size_type _pos = 0, size_type _count = npos) const noexcept;
 
 		string replace(const string_view& _from, const string_view& _to) const noexcept;

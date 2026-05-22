@@ -753,7 +753,6 @@ inline namespace MMPP_NAMESPACE {
 		mmstrstk_t out;
 		mgec_t ec = *errc() = MemeStringStack_toValidUtf8_v2(&native_handle(), &out, sizeof(out));
 		if (ec) {
-			mmstrstk_uninit(&out);
 			return string_view{};
 		}
 
@@ -766,7 +765,7 @@ inline namespace MMPP_NAMESPACE {
 	{
 		mmstrstk_t out;
 		mgec_t ec = *errc() = MemeStringStack_trimSpace_v2(&native_handle(), &out, sizeof(out));
-		if (ec) { mmstrstk_uninit(&out); return string_view{}; }
+		if (ec) { return string_view{}; }
 		string_view result{ out }; mmstrstk_uninit(&out); return result;
 	}
 
@@ -774,7 +773,7 @@ inline namespace MMPP_NAMESPACE {
 	{
 		mmstrstk_t out;
 		mgec_t ec = *errc() = MemeStringStack_trimLeftSpace_v2(&native_handle(), &out, sizeof(out));
-		if (ec) { mmstrstk_uninit(&out); return string_view{}; }
+		if (ec) { return string_view{}; }
 		string_view result{ out }; mmstrstk_uninit(&out); return result;
 	}
 
@@ -782,8 +781,22 @@ inline namespace MMPP_NAMESPACE {
 	{
 		mmstrstk_t out;
 		mgec_t ec = *errc() = MemeStringStack_trimRightSpace_v2(&native_handle(), &out, sizeof(out));
-		if (ec) { mmstrstk_uninit(&out); return string_view{}; }
+		if (ec) { return string_view{}; }
 		string_view result{ out }; mmstrstk_uninit(&out); return result;
+	}
+
+	MEMEPP__IMPL_INLINE string_view string_view::trim_prefix(const string_view& _prefix) const noexcept
+	{
+		if (starts_with(_prefix))
+			return substr(_prefix.size());
+		return *this;
+	}
+
+	MEMEPP__IMPL_INLINE string_view string_view::trim_suffix(const string_view& _suffix) const noexcept
+	{
+		if (ends_with(_suffix))
+			return substr(0, size() - _suffix.size());
+		return *this;
 	}
 
 	MEMEPP__IMPL_INLINE string_view string_view::substr(size_type _pos, size_type _count) const noexcept

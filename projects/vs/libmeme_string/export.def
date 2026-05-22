@@ -326,6 +326,8 @@ EXPORTS
     MemeString_runeBack @284
     MemeString_reset @285
     MemeStringOption_getStorageSmallLimit @286
+    MemeString_front @287
+    MemeString_back @288
     mmver_num @298
     mmver_str @299
     ; mmconc_atomic_* indexs: 300 ~ 599
@@ -460,6 +462,9 @@ EXPORTS
     MemeStringStack_fromUInt16 @3019
     MemeStringStack_fromUInt32 @3020
     MemeStringStack_fromUInt64 @3021
+    MemeStringStack_trimByCondRuneFunc @3022
+    MemeStringStack_trimPrefix @3023
+    MemeStringStack_trimSuffix @3024
     MemeBufferStack_regSize @4000
     MemeBufferStack_objSize @4001
     MemeBufferStack_split @4002

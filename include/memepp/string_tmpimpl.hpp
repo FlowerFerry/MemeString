@@ -182,7 +182,7 @@ inline namespace MMPP_NAMESPACE {
 			for (auto i = 0; i < stacksCount; ++i)
 			{
 				*_inserter++ = string(std::move(stacks[i]));
-				MemeStringStack_unInit(stacks + i, MEME_STRING__OBJECT_SIZE);
+				// MemeStringStack_unInit(stacks + i, MEME_STRING__OBJECT_SIZE);
 			}
 		}
 		return 0;
@@ -234,7 +234,7 @@ inline namespace MMPP_NAMESPACE {
 			for (auto i = 0; i < stacksCount; ++i)
 			{
 				*_inserter++ = memepp::string(std::move(stacks[i]));
-				MemeStringStack_unInit(stacks + i, MEME_STRING__OBJECT_SIZE);
+				// MemeStringStack_unInit(stacks + i, MEME_STRING__OBJECT_SIZE);
 			}
 		}
 		return 0;
@@ -293,8 +293,8 @@ inline namespace MMPP_NAMESPACE {
 			&native_handle(),
 			__string_trim_if_byte_helper<_Func>::callback,
 			&helper, &out, sizeof(out));
-		if (ec)
-			mmstrstk_uninit(&out);
+		// if (ec)
+		// 	mmstrstk_uninit(&out);
 #if !MMOPT__EXCEPTION_DISABLED
 		throw_errc(ec);
 #endif
@@ -312,8 +312,8 @@ inline namespace MMPP_NAMESPACE {
 			&native_handle(),
 			__string_trim_if_rune_helper<_Func>::callback,
 			&helper, &out, sizeof(out));
-		if (ec)
-			mmstrstk_uninit(&out);
+		// if (ec)
+		// 	mmstrstk_uninit(&out);
 #if !MMOPT__EXCEPTION_DISABLED
 		throw_errc(ec);
 #endif
