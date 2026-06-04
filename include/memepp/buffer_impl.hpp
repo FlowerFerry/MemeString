@@ -9,6 +9,8 @@
 
 #include <string.h>
 
+#include <mego/predef/undef_small_macro.h>
+
 namespace memepp {
 inline namespace MMPP_NAMESPACE {
 
@@ -233,5 +235,7 @@ inline namespace MMPP_NAMESPACE {
 
 }; // namespace MMPP_NAMESPACE
 }; // namespace memepp
+
+#include <mego/predef/restore_small_macro.h>
 
 #endif // !MEMEPP_BUFFER_IMPL_HPP_INCLUDED

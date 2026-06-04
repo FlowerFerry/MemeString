@@ -13,6 +13,8 @@
 
 #include <string.h>
 
+#include <mego/predef/undef_small_macro.h>
+
 namespace memepp {
 inline namespace MMPP_NAMESPACE {
 
@@ -1372,6 +1374,8 @@ inline namespace MMPP_NAMESPACE {
 	{
 		return memepp::string{ _str, static_cast<mmint_t>(_len) };
 	}
+
+#include <mego/predef/restore_small_macro.h>
 
 #endif // !MEMEPP_STRING_IMPL_HPP_INCLUDED
 
