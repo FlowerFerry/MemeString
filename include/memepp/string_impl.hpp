@@ -382,6 +382,20 @@ inline namespace MMPP_NAMESPACE {
         return storage_type() == string_storage_t::large ?
             *this : string{ data(), size(), string_storage_t::large };
 	}
+
+	MEMEPP__IMPL_INLINE string string::to_large_or_user() const noexcept
+	{
+		auto st = storage_type();
+		if (st == string_storage_t::large || st == string_storage_t::user)
+			return *this;
+		else
+			return string{ data(), size(), string_storage_t::large };
+	}
+
+	MEMEPP__IMPL_INLINE string string::cheap_copy() const noexcept
+	{
+		return storage_type() == string_storage_t::small ? *this : to_large_or_user();
+	}
     
 	MEMEPP__IMPL_INLINE void string::swap(string& _other) noexcept
 	{
@@ -941,6 +955,19 @@ inline namespace MMPP_NAMESPACE {
 		mmstrstk_t out;
 		mgec_t ec = *errc() = MemeStringStack_replace_v2(&native_handle(), 
 			_from.data(), _from.size(), _to.data(), _to.size(), -1, &out, sizeof(out));
+		if (ec)
+			mmstrstk_uninit(&out);
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(ec);
+#endif
+		return ec ? string{} : string{ std::move(out) };
+	}
+
+	MEMEPP__IMPL_INLINE string string::replace(const string_view& _from, const string_view& _to, size_type _count) const noexcept
+	{
+		mmstrstk_t out;
+		mgec_t ec = *errc() = MemeStringStack_replace_v2(&native_handle(), 
+			_from.data(), _from.size(), _to.data(), _to.size(), _count, &out, sizeof(out));
 		if (ec)
 			mmstrstk_uninit(&out);
 #if !MMOPT__EXCEPTION_DISABLED

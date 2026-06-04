@@ -73,6 +73,9 @@ inline namespace MMPP_NAMESPACE {
 		void swap(buffer& _other) MEGOPP__NOEXCEPT;
 		string to_string(size_type _front_offset = 0) const;
 		buffer to_large() const;
+		buffer to_large_or_user() const noexcept;
+
+		buffer cheap_copy() const noexcept;
 		
 		void reset();
 

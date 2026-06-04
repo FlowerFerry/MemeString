@@ -106,6 +106,7 @@ inline namespace MMPP_NAMESPACE {
 
 		string to_string() const;
         string to_large () const noexcept;
+		string to_large_or_user() const noexcept;
 
 		size_type count(const string_view& _str,
 			case_sensit_t _cs = case_sensit_t::all_sensitive) const noexcept;
@@ -230,6 +231,7 @@ inline namespace MMPP_NAMESPACE {
         string_view substr(size_type _pos = 0, size_type _count = npos) const noexcept;
 
 		string replace(const string_view& _from, const string_view& _to) const noexcept;
+		string replace(const string_view& _from, const string_view& _to, size_type _count) const noexcept;
 
 		string repeat(size_type _count) const;
 

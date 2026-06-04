@@ -20,17 +20,16 @@ namespace memepp {
 		for (MemeInteger_t index = 0; index != -1;)
 		{
 			stacksCount = sizeof(stacks) / sizeof(stacks[0]);
-			auto result = MemeString_split(to_pointer(_source.native_handle()),
+			auto result = MemeStringStack_split(&_source.native_handle(),
 				_key, _key_len,
 				static_cast<MemeFlag_SplitBehavior_t>(_behavior), MemeFlag_AllSensitive,
-				stacks, &stacksCount, &index);
+				stacks, MEME_STRING__OBJECT_SIZE, &stacksCount, &index);
 			if (result) {
 				return result;
 			}
 			for (auto i = 0; i < stacksCount; ++i)
 			{
 				*_inserter++ = memepp::string(std::move(stacks[i]));
-				MemeStringStack_unInit(stacks + i, MEME_STRING__OBJECT_SIZE);
 			}
 		}
 		return 0;
@@ -46,17 +45,16 @@ namespace memepp {
 		for (MemeInteger_t index = 0; index != -1;)
 		{
 			stacksCount = sizeof(stacks) / sizeof(stacks[0]);
-			auto result = MemeString_split(to_pointer(_source.native_handle()),
-				_key, _key_len, 
+			auto result = MemeStringStack_split(&_source.native_handle(),
+				_key, _key_len,
 				static_cast<MemeFlag_SplitBehavior_t>(_behavior), MemeFlag_AllSensitive,
-				stacks, &stacksCount, &index);
+				stacks, MEME_STRING__OBJECT_SIZE, &stacksCount, &index);
 			if (result) {
 				return result;
 			}
 			for (auto i = 0; i < stacksCount; ++i)
 			{
 				*_inserter++ = memepp::string(std::move(stacks[i]));
-				MemeStringStack_unInit(stacks + i, MEME_STRING__OBJECT_SIZE);
 			}
 		}
 		return 0;

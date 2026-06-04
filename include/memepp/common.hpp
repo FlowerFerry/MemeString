@@ -6,7 +6,7 @@
 
 #define MMPP_VER__MAJOR 0
 #define MMPP_VER__MINOR 0
-#define MMPP_VER__PATCH 5
+#define MMPP_VER__PATCH 6
 
 #define MMPP_NAMESPACE_DO_CONCAT_IMPL(MAJOR, MINOR, PATCH) \
     v ## MAJOR ## _ ## MINOR ## _ ## PATCH

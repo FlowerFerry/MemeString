@@ -125,6 +125,9 @@ inline namespace MMPP_NAMESPACE {
         const_rune_iterator to_rune_iterator(const const_iterator& _it) const noexcept;
 
         string to_large() const noexcept;
+		string to_large_or_user() const noexcept;
+
+		string cheap_copy() const noexcept;
 
 		void swap(string& _other) noexcept;
 
@@ -296,6 +299,7 @@ inline namespace MMPP_NAMESPACE {
         string concat(const string_view& _other) const noexcept;
 
         string replace(const string_view& _from, const string_view& _to) const noexcept;
+        string replace(const string_view& _from, const string_view& _to, size_type _count) const noexcept;
 		
 		string repeat(size_type _count) const;
 

@@ -117,11 +117,18 @@ inline namespace MMPP_NAMESPACE {
 	inline string string::mapping_convert(_Func&& _func) const
 	{
 		__string_mapping_convert_helper<_Func> helper{std::forward<_Func>(_func)};
-        return MemeStringStack_mappingConvert(
+		mmstrstk_t out;
+		mgec_t ec = *errc() = MemeStringStack_mappingConvert_v2(
 			&native_handle(),
-            MMS__OBJECT_SIZE, 
 			__string_mapping_convert_helper<_Func>::callback,
-			&helper);
+			&helper,
+			&out, sizeof(out));
+		if (ec)
+			mmstrstk_uninit(&out);
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(ec);
+#endif
+		return ec ? string{} : string{ std::move(out) };
 	}
 
 	template<typename _Func>

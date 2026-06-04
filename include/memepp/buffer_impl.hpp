@@ -168,7 +168,21 @@ inline namespace MMPP_NAMESPACE {
         return storage_type() == buffer_storage_t::large ?
             *this : buffer{ data(), size(), buffer_storage_t::large };
 	}
-	
+
+	MEMEPP__IMPL_INLINE buffer buffer::to_large_or_user() const noexcept
+	{
+		auto st = storage_type();
+		if (st == buffer_storage_t::large || st == buffer_storage_t::user)
+			return *this;
+		else
+			return buffer{ data(), size(), buffer_storage_t::large };
+	}
+
+	MEMEPP__IMPL_INLINE buffer buffer::cheap_copy() const noexcept
+	{
+		return storage_type() == buffer_storage_t::small ? *this : to_large_or_user();
+	}
+
 	MEMEPP__IMPL_INLINE void buffer::reset()
 	{
         MemeBufferStack_reset(&data_, MMSTR__OBJ_SIZE);

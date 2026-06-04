@@ -240,7 +240,7 @@ MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_releaseToString(
 	MemeVariableBuffer_t _s, MemeStringStack_t* _out, MemeInteger_t _objectSize);
 
-//! @deprecated 将来可能会有ABI问题
+//! @deprecated May cause ABI issues in the future
 MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_split(
 	MemeVariableBuffer_Const_t _s,

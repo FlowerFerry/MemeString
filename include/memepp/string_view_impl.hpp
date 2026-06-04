@@ -329,6 +329,15 @@ inline namespace MMPP_NAMESPACE {
             to_string() : string{ data(), size(), string_storage_t::large };
 	}
 
+	MEMEPP__IMPL_INLINE string string_view::to_large_or_user() const noexcept
+	{
+		auto st = storage_type();
+		if (st == string_storage_t::large || st == string_storage_t::user)
+			return to_string();
+		else
+			return string{ data(), size(), string_storage_t::large };
+	}
+
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::count(const string_view& _str, case_sensit_t _cs) const noexcept
 	{
 		return MemeString_matchCountWithUtf8bytes(
@@ -740,12 +749,26 @@ inline namespace MMPP_NAMESPACE {
 
 	MEMEPP__IMPL_INLINE string string_view::to_en_upper() const noexcept
 	{
-		return MemeStringStack_toEnUpper(&native_handle(), sizeof(data_));
+		mmstrstk_t out;
+		mgec_t ec = *errc() = MemeStringStack_toEnUpper_v2(&native_handle(), &out, sizeof(out));
+		if (ec)
+			mmstrstk_uninit(&out);
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(ec);
+#endif
+		return ec ? string{} : string{ std::move(out) };
 	}
 
 	MEMEPP__IMPL_INLINE string string_view::to_en_lower() const noexcept
 	{
-		return MemeStringStack_toEnLower(&native_handle(), sizeof(data_));
+		mmstrstk_t out;
+		mgec_t ec = *errc() = MemeStringStack_toEnLower_v2(&native_handle(), &out, sizeof(out));
+		if (ec)
+			mmstrstk_uninit(&out);
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(ec);
+#endif
+		return ec ? string{} : string{ std::move(out) };
 	}
 
 	MEMEPP__IMPL_INLINE string_view string_view::to_valid_utf8() const noexcept
@@ -810,8 +833,28 @@ inline namespace MMPP_NAMESPACE {
 
 	MEMEPP__IMPL_INLINE string string_view::replace(const string_view& _from, const string_view& _to) const noexcept
 	{
-		return string{ MemeStringStack_replace(&native_handle(), sizeof(data_),
-			_from.data(), _from.size(), _to.data(), _to.size(), -1) };
+		mmstrstk_t out;
+		mgec_t ec = *errc() = MemeStringStack_replace_v2(&native_handle(), 
+			_from.data(), _from.size(), _to.data(), _to.size(), -1, &out, sizeof(out));
+		if (ec)
+			mmstrstk_uninit(&out);
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(ec);
+#endif
+		return ec ? string{} : string{ std::move(out) };
+	}
+
+	MEMEPP__IMPL_INLINE string string_view::replace(const string_view& _from, const string_view& _to, size_type _count) const noexcept
+	{
+		mmstrstk_t out;
+		mgec_t ec = *errc() = MemeStringStack_replace_v2(&native_handle(), 
+			_from.data(), _from.size(), _to.data(), _to.size(), _count, &out, sizeof(out));
+		if (ec)
+			mmstrstk_uninit(&out);
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(ec);
+#endif
+		return ec ? string{} : string{ std::move(out) };
 	}
 
 	MEMEPP__IMPL_INLINE string string_view::repeat(size_type _count) const
