@@ -2,6 +2,7 @@
 #ifndef MEMEPP_BUFFER_VIEW_DEF_HPP_INCLUDED
 #define MEMEPP_BUFFER_VIEW_DEF_HPP_INCLUDED
 
+#include <mego/predef/lang/version.h>
 #include "meme/buffer_fwd.h"
 #include "memepp/buffer_view_fwd.hpp"
 
@@ -29,7 +30,11 @@ inline namespace MMPP_NAMESPACE {
 
 		using native_handle_type = mmbufstk_t;
 
-		static const size_type npos = static_cast<size_type>(-1);
+#if MG_LANG__CXX17_AVAIL
+		inline static constexpr size_type npos = static_cast<size_type>(-1);
+#else
+		enum : size_type { npos = static_cast<size_type>(-1) };
+#endif
         
 		buffer_view() MEGOPP__NOEXCEPT;
 		buffer_view(const buffer& _other) MEGOPP__NOEXCEPT;
