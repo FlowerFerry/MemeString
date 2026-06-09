@@ -904,6 +904,12 @@ MU_TEST_SUITE(test_mgu_utoa_and_itoa)
 #include "test_std_string.h"
 #include "test_win_perm.h"
 #include "test_time_extra.h"
+#include "test_ec.h"
+#include "test_helper_macros.h"
+#include "test_math.h"
+#include "test_thrd_numeric_id.h"
+#include "test_call_once.h"
+#include "test_get_exec_path.h"
 
 int main(int _argc, char *_argv[])
 {
@@ -915,6 +921,12 @@ int main(int _argc, char *_argv[])
     MU_RUN_SUITE(test_std_string);
     MU_RUN_SUITE(test_win_perm);
     MU_RUN_SUITE(test_time_extra);
+    MU_RUN_SUITE(test_ec);
+    MU_RUN_SUITE(test_helper_macros);
+    MU_RUN_SUITE(test_math);
+    MU_RUN_SUITE(test_thrd_numeric_id);
+    MU_RUN_SUITE(test_call_once);
+    MU_RUN_SUITE(test_get_exec_path);
     MU_REPORT();
     return MU_EXIT_CODE;
 }

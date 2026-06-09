@@ -91,7 +91,13 @@ MG_CAPI_INLINE size_t __mgthrd_numeric_id()
 
 MG_CAPI_INLINE size_t mgthrd_numeric_id()
 {
+#ifdef __cplusplus
     static MEGO__THREAD_LOCAL size_t tid = __mgthrd_numeric_id();
+#else
+    static MEGO__THREAD_LOCAL size_t tid = 0;
+    if (tid == 0)
+        tid = __mgthrd_numeric_id();
+#endif
     return tid;
 }
 

@@ -190,6 +190,7 @@ if (MEMESTRING_UNITTEST_ENABLE)
   add_subdirectory(unit_test/mmpp_thrd_unittest)
   add_subdirectory(unit_test/meme_atomic_unittest)
   add_subdirectory(unit_test/meme_simd_unittest)
+  add_subdirectory(unit_test/meme_unittest)
 
   if (MEMESTRING_TEST_ENABLE)
     add_test(NAME mmpp_unittest COMMAND mmpp_unittest)

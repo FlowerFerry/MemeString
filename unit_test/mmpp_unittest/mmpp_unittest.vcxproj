@@ -233,6 +233,15 @@ xcopy /y "$(ProjectDir)..\..\projects\vs\libmeme_string\$(Platform)\$(Configurat
     <ClCompile Include="test_string_view_repeat.cpp" />
     <ClCompile Include="test_string_view_split.cpp" />
     <ClCompile Include="test_string_hash.cpp" />
+    <ClCompile Include="test_varts.cpp" />
+    <ClCompile Include="test_buffer_view.cpp" />
+    <ClCompile Include="test_string_cut.cpp" />
+    <ClCompile Include="test_string_trim_prefix_suffix.cpp" />
+    <ClCompile Include="test_string_view_starts_ends.cpp" />
+    <ClCompile Include="test_string_view_extra.cpp" />
+    <ClCompile Include="test_string_extra.cpp" />
+    <ClCompile Include="test_buffer_extra.cpp" />
+    <ClCompile Include="test_rune_extra.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

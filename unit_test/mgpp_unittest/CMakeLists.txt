@@ -59,6 +59,15 @@ set(SRC_FILES
 	test_c_wrap_weak_ptr.cpp
 	test_scope_locker.cpp
 	test_numeric_id.cpp
+	test_noncopyable.cpp
+	test_null_mutex.cpp
+	test_singleton.cpp
+	test_scope_cleanup.cpp
+	test_endian_types.cpp
+	test_numeric_types.cpp
+	test_rune.cpp
+	test_rune_index.cpp
+	test_singleton_weak.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILES})

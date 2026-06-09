@@ -16,9 +16,11 @@ class noncopyable
 protected:
   noncopyable() {}
   ~noncopyable() {}
+  noncopyable(noncopyable&&) = default;
+  noncopyable& operator=(noncopyable&&) = default;
 private:
-  noncopyable(const noncopyable&);
-  const noncopyable& operator=(const noncopyable&);
+  noncopyable(const noncopyable&) = delete;
+  noncopyable& operator=(const noncopyable&) = delete;
 };
 
 } 
