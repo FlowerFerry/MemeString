@@ -48,9 +48,9 @@ MEME_EXTERN_C MEME_API int
 MEME_STDCALL MemeVariableBufferStack_initByBytes(
 	mmvbstk_t* _out, size_t _object_size, const MemeByte_t* _buf, MemeInteger_t _len)
 {
-	assert(_len >= 0 && MemeVariableBufferStack_initByBytes);
-	assert(_out && MemeVariableBufferStack_initByBytes);
-	assert(_object_size != 0 && _object_size <= MMSTR__MAX_REG_BYTE_SIZE && MemeVariableBufferStack_initByBytes);
+	assert(_len >= 0 && "MemeVariableBufferStack_initByBytes");
+	assert(_out && "MemeVariableBufferStack_initByBytes");
+	assert(_object_size != 0 && _object_size <= MMSTR__MAX_REG_BYTE_SIZE && "MemeVariableBufferStack_initByBytes");
 
 	MemeStringStack_init((MemeStringStack_t*)_out, MEME_STRING__OBJECT_SIZE);
 	return (int)MemeVariableBuffer_appendWithBytes((MemeVariableBuffer_t)_out, _buf, _len);
@@ -60,9 +60,9 @@ MEME_EXTERN_C MEME_API int
 MEME_STDCALL MemeVariableBufferStack_initWithRepeatBytes(
 	mmvbstk_t* _out, size_t _object_size, MemeInteger_t _count, MemeByte_t _byte)
 {
-	assert(_count >= 0 && MemeVariableBufferStack_initWithRepeatBytes);
-	assert(_out && MemeVariableBufferStack_initWithRepeatBytes);
-	assert(_object_size != 0 && _object_size <= MMSTR__MAX_REG_BYTE_SIZE && MemeVariableBufferStack_initWithRepeatBytes);
+	assert(_count >= 0 && "MemeVariableBufferStack_initWithRepeatBytes");
+	assert(_out && "MemeVariableBufferStack_initWithRepeatBytes");
+	assert(_object_size != 0 && _object_size <= MMSTR__MAX_REG_BYTE_SIZE && "MemeVariableBufferStack_initWithRepeatBytes");
 
 	MemeStringStack_init((MemeStringStack_t*)_out, MEME_STRING__OBJECT_SIZE);
 	return (int)MemeVariableBuffer_appendWithRepeatBytes((MemeVariableBuffer_t)_out, _count, _byte);
@@ -240,7 +240,7 @@ MEME_STDCALL MemeVariableBuffer_indexOfWithByte(
 MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_appendWithByte(MemeVariableBuffer_t _s, MemeByte_t _byte)
 {
-	assert(_s && MemeVariableBuffer_appendWithByte);
+	assert(_s && "MemeVariableBuffer_appendWithByte");
 
 	return MemeVariableBuffer_appendWithBytes(_s, &_byte, 1);
 }
@@ -251,9 +251,9 @@ MEME_STDCALL MemeVariableBuffer_appendWithBytes(
 {
 	MemeString_Const_t s = (MemeString_Const_t)_s;
 
-	assert(s && MemeVariableBuffer_appendWithBytes);
+	assert(s && "MemeVariableBuffer_appendWithBytes");
 	assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE(s)) == 1
-		&& MemeVariableBuffer_appendWithBytes);
+		&& "MemeVariableBuffer_appendWithBytes");
 
 	if (MG_SYM__UNLIKELY(_buf == NULL))
 		_len = 0;
@@ -322,10 +322,10 @@ MEME_STDCALL MemeVariableBuffer_appendWithRepeatBytes(
 {
 	MemeString_Const_t s = (MemeString_Const_t)_s;
 
-	assert(s && MemeVariableBuffer_appendWithRepeatBytes);
+	assert(s && "MemeVariableBuffer_appendWithRepeatBytes");
 	assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE(s)) == 1
-		&& MemeVariableBuffer_appendWithRepeatBytes);
-	assert(_count >= 0 && MemeVariableBuffer_appendWithRepeatBytes);
+		&& "MemeVariableBuffer_appendWithRepeatBytes");
+	assert(_count >= 0 && "MemeVariableBuffer_appendWithRepeatBytes");
 
 	switch (MMSTR__GET_IMPLTYPE(s))
 	{
@@ -363,10 +363,10 @@ MEME_STDCALL MemeVariableBuffer_appendWithOther(
 	mmstr_ptr_t  str   = (mmstr_ptr_t)_s;
     mmstr_cptr_t other = (mmstr_cptr_t)_other;
 
-	assert(str != NULL && MemeVariableBuffer_appendWithOther);
-	assert(_other != NULL && MemeVariableBuffer_appendWithOther);
+	assert(str != NULL && "MemeVariableBuffer_appendWithOther");
+	assert(_other != NULL && "MemeVariableBuffer_appendWithOther");
 	assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE(str)) == 1
-		&& MemeVariableBuffer_appendWithOther);
+		&& "MemeVariableBuffer_appendWithOther");
 
 	if (str == other) {
 		mmint_t result = 0;
@@ -433,9 +433,9 @@ MEME_STDCALL MemeVariableBuffer_insertWithBytes(
 {
     MemeString_Const_t s = (MemeString_Const_t)_s;
 
-    assert(s != 0 && MemeVariableBuffer_insertWithBytes);
+    assert(s != 0 && "MemeVariableBuffer_insertWithBytes");
     assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE(s)) == 1
-        && MemeVariableBuffer_insertWithBytes);
+        && "MemeVariableBuffer_insertWithBytes");
 
 	if ((_len < 0))
 		_len = strlen((const char*)_buf);
@@ -478,7 +478,7 @@ MEME_STDCALL MemeVariableBuffer_clear(MemeVariableBuffer_t _s)
 {
 	MemeString_t s = (MemeString_t)_s;
 
-	assert(s != NULL && MemeVariableBuffer_clear);
+	assert(s != NULL && "MemeVariableBuffer_clear");
 	assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE(s)) == 1);
 
 	switch (MMSTR__GET_IMPLTYPE(s)) {
@@ -540,8 +540,8 @@ MEME_STDCALL MemeVariableBuffer_resizeWithByte(MemeVariableBuffer_t _s, MemeInte
 {
 	MemeString_t s = (MemeString_t)_s;
 
-	assert(s != NULL && MemeVariableBuffer_resizeWithByte);
-	assert(_size >= 0 && MemeVariableBuffer_resizeWithByte);
+	assert(s != NULL && "MemeVariableBuffer_resizeWithByte");
+	assert(_size >= 0 && "MemeVariableBuffer_resizeWithByte");
 	assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE(s)) == 1);
 
 	switch (MMSTR__GET_IMPLTYPE(s)) {
@@ -576,7 +576,7 @@ MEME_STDCALL MemeVariableBuffer_remove(
 {
     MemeString_t s = (MemeString_t)_s;
 
-    assert(s != NULL && MemeVariableBuffer_remove);
+    assert(s != NULL && "MemeVariableBuffer_remove");
     assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE(s)) == 1);
 
 	if (_pos < 0)
@@ -608,8 +608,8 @@ MEME_STDCALL MemeVariableBuffer_releaseToBuffer(
 {
 	MemeString_t s = (MemeString_t)_s;
 
-	assert(s != NULL    && MemeVariableBuffer_releaseToBuffer);
-	assert(_out != NULL && MemeVariableBuffer_releaseToBuffer);
+	assert(s != NULL    && "MemeVariableBuffer_releaseToBuffer");
+	assert(_out != NULL && "MemeVariableBuffer_releaseToBuffer");
 
 	switch (MMSTR__GET_IMPLTYPE(s))
 	{
@@ -690,8 +690,8 @@ MEME_STDCALL MemeVariableBuffer_releaseToString(
 {
 	MemeString_t s = (MemeString_t)_s;
 
-	assert(s != NULL    && MemeVariableBuffer_releaseToString);
-	assert(_out != NULL && MemeVariableBuffer_releaseToString);
+	assert(s != NULL    && "MemeVariableBuffer_releaseToString");
+	assert(_out != NULL && "MemeVariableBuffer_releaseToString");
 
 	switch (MMSTR__GET_IMPLTYPE(s))
 	{
@@ -741,8 +741,8 @@ MEME_STDCALL MemeVariableBuffer_split(
 MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_reserve(MemeVariableBuffer_t _s, MemeInteger_t _size)
 {
-	assert(_s != NULL && MemeVariableBuffer_reserve);
-	assert(_size >= 0 && MemeVariableBuffer_reserve);
+	assert(_s != NULL && "MemeVariableBuffer_reserve");
+	assert(_size >= 0 && "MemeVariableBuffer_reserve");
 	assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE((MemeString_t)_s)) == 1);
 
 	return MemeStringImpl_capacityExpansionWithModifiable((MemeStringStack_t*)_s, _size);
@@ -750,7 +750,7 @@ MEME_STDCALL MemeVariableBuffer_reserve(MemeVariableBuffer_t _s, MemeInteger_t _
 
 MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL MemeVariableBuffer_selfChop(MemeVariableBuffer_t _s, MemeInteger_t _n)
 {
-	assert(_s != NULL && MemeVariableBuffer_selfChop);
+	assert(_s != NULL && "MemeVariableBuffer_selfChop");
 	assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE((MemeString_t)_s)) == 1);
 
 	if (_n <= 0)

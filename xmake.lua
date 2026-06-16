@@ -3,7 +3,7 @@ set_project("meme_string")
 
 set_xmakever("2.6.0")
 
-set_version("0.0.1", {build = "%Y%m%d%H%M"})
+set_version("0.0.5", {build = "%Y%m%d%H%M"})
 
 add_rules("mode.debug", "mode.release")
 

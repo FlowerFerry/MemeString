@@ -368,12 +368,12 @@ mmint_t MemeImpl_SearchByViolenceWithSensitivity(
         if ((_cs & MemeFlag_CaseSensitive) == 0)
         {
             uint8_t key = (uint8_t)tolower(_key);
-            for (; *index == '\0'; ++index)
+            for (; *index != '\0'; ++index)
                 if (tolower(*index) == key)
                     return index - _source;
         }
         else {
-            for (; *index == '\0'; ++index)
+            for (; *index != '\0'; ++index)
                 if (*index == _key)
                     return index - _source;
         }

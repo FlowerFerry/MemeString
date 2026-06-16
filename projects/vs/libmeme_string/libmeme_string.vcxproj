@@ -80,6 +80,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>../../../3rdparty/cvector/include;../../../include;../../../include_private;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -91,7 +92,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;LIBMEMESTRING_EXPORTS;_WINDOWS;_USRDLL;MEME_OPTION__BUILD_SHARED;MMOPT__HEADTAIL_MEMCHECK_ENABLED=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;LIBMEMESTRING_EXPORTS;_WINDOWS;_USRDLL;MEME_OPTION__BUILD_SHARED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -106,7 +107,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;LIBMEMESTRING_EXPORTS;_WINDOWS;_USRDLL;MEME_OPTION__BUILD_SHARED;MMOPT__HEADTAIL_MEMCHECK_ENABLED=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;LIBMEMESTRING_EXPORTS;_WINDOWS;_USRDLL;MEME_OPTION__BUILD_SHARED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc11</LanguageStandard_C>
@@ -125,7 +126,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;LIBMEMESTRING_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;LIBMEMESTRING_EXPORTS;_WINDOWS;_USRDLL;MEME_OPTION__BUILD_SHARED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -222,6 +223,25 @@
     <ClInclude Include="..\..\..\include\memepp\varts_fwd.hpp" />
     <ClInclude Include="..\..\..\include\memepp\varts_srcimpl.hpp" />
     <ClInclude Include="..\..\..\include\memepp\varts_tmpimpl.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\common.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\compare\std\string.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\compare\std\vector.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\convert\asio.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\convert\nlohmann_json.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\convert\qcbor.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\convert\std\c_str.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\convert\std\map.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\convert\std\wstring.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\convert\toml11.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\dll.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\hash\std\hash.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\help\string_trim_if_helper.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\join\self.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\multi_buffer_view.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\native.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\to_string.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\to_string_def.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\to_string_srcimpl.hpp" />
     <ClInclude Include="..\..\..\include\meme\buffer.h" />
     <ClInclude Include="..\..\..\include\meme\buffer_fwd.h" />
     <ClInclude Include="..\..\..\include\meme\common.h" />
@@ -249,6 +269,13 @@
     <ClInclude Include="..\..\..\include\meme\rune.h" />
     <ClInclude Include="..\..\..\include\meme\variant.h" />
     <ClInclude Include="..\..\..\include\meme\variant_fwd.h" />
+    <ClInclude Include="..\..\..\include\meme\conc\atomic.h" />
+    <ClInclude Include="..\..\..\include\meme\conc\atomic_fwd.h" />
+    <ClInclude Include="..\..\..\include\meme\native.h" />
+    <ClInclude Include="..\..\..\include\meme\predef\macro_option.h" />
+    <ClInclude Include="..\..\..\include\meme\simd\simd.h" />
+    <ClInclude Include="..\..\..\include\meme\thrd\spinlock.h" />
+    <ClInclude Include="..\..\..\include\meme\version.h" />
     <ClInclude Include="..\..\..\include\meme\varts_fwd.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\algorithm.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\atomic.h" />
@@ -264,6 +291,15 @@
     <ClInclude Include="..\..\..\include_private\meme\impl\utf\converter.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\utf\converter_list.h" />
     <ClInclude Include="..\..\..\include_private\meme\impl\variant.h" />
+    <ClInclude Include="..\..\..\include_private\meme\impl\variable_buffer.h" />
+    <ClInclude Include="..\..\..\include_private\meme\impl\conc\msvc_atomic.h" />
+    <ClInclude Include="..\..\..\include_private\meme\impl\conc\msvc_atomic_fwd.h" />
+    <ClInclude Include="..\..\..\include_private\meme\impl\conc\native_atomic.h" />
+    <ClInclude Include="..\..\..\include_private\meme\impl\conc\native_atomic_fwd.h" />
+    <ClInclude Include="..\..\..\include_private\meme\impl\conc\std_atomic.h" />
+    <ClInclude Include="..\..\..\include_private\meme\impl\conc\std_atomic_fwd.h" />
+    <ClInclude Include="..\..\..\include_private\meme\impl\simd\simd.h" />
+    <ClInclude Include="..\..\..\include_private\meme\impl\simd\simd_fwd.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>

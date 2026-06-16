@@ -67,7 +67,7 @@ MemeStringMedium_insertWithBytes(
 	{
 		if (_pos != 0)
 			memmove(MemeStringMedium_data(_s) - _buflen, MemeStringMedium_data(_s), _buflen);
-		memcpy(MemeStringMedium_data(_s) + _pos - _buflen, _buf, _buflen);
+		memmove(MemeStringMedium_data(_s) + _pos - _buflen, _buf, _buflen);
 		MemeStringMedium_modifyFrontCapacity(_s, -_buflen);
 		_s->size_ += _buflen;
 		return 0;
@@ -217,9 +217,9 @@ int MemeStringMedium_capacityExpansion(MemeStringMedium_t* _s, MemeInteger_t _mi
 	//MemeString_ReallocFunction_t* realloc_func = MemeString_getReallocFunction();
 	MemeByte_t* new_pointer = NULL;
 
-	dstlen = (MemeInteger_t)(MemeStringMedium_maxByteCapacity(_s) * 1.667);
+	dstlen = (MemeInteger_t)(MemeStringMedium_maxByteCapacity(_s) * 1667 / 1000);
 	if (dstlen < _minSizeRequest) {
-		dstlen = (MemeInteger_t)(_minSizeRequest * 1.667);
+		dstlen = (MemeInteger_t)(_minSizeRequest * 1667 / 1000);
 	}
 	dstlen = dstlen + MemeStringMedium_frontCapacity(_s) + 1;
 	dstlen = (dstlen % sizeof(size_t)) == 0 ?

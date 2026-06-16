@@ -53,7 +53,9 @@ int MemeStringLarge_init(
 	_capacity = 0; // Can not be used, first so deal with
 
 	assert(_s != NULL);
-	assert(_front_capacity + _capacity > 0);
+	// assert(_front_capacity + _capacity > 0);
+	if (_front_capacity + _capacity == 0)
+		return MGEC__INVAL;
 
 	memset(_s, 0, sizeof(MemeStringStack_t));
 
@@ -121,7 +123,6 @@ int MemeStringLarge_initByU8bytes(
 
 	assert(_s != NULL);
 	assert(_buf != NULL);
-	//assert(total_length);
 
 	total_length = ((total_length / sizeof(void*)) + 1) * (sizeof(void*));
 

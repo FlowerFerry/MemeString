@@ -10,6 +10,7 @@
 #include <memepp/string_view_def.hpp>
 #include <memepp/help/string_trim_if_helper.hpp>
 
+#include <vector>
 #include <type_traits>
 
 namespace memepp {

@@ -277,7 +277,7 @@ mmutf_u8rune_set_u32(
         if (_len < 5)
             return -1;
 
-        *_buf++ = 0x80 | ((_value >> 24) & 0x3F);
+        *_buf++ = 0xF8 | ((_value >> 24) & 0x03);
         byteSize = 5;
     }
 
