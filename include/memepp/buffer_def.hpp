@@ -74,7 +74,7 @@ inline namespace MMPP_NAMESPACE {
 		string to_string(size_type _front_offset = 0) const;
 		buffer to_large() const;
 		buffer to_large_or_user() const noexcept;
-		buffer to_internal_shared() const noexcept;
+		buffer to_shared_storage() const noexcept;
 
 		buffer cheap_copy() const noexcept;
 		

@@ -394,7 +394,7 @@ inline namespace MMPP_NAMESPACE {
 			return string{ data(), size(), string_storage_t::large };
 	}
 
-	MEMEPP__IMPL_INLINE string string::to_internal_shared() const noexcept
+	MEMEPP__IMPL_INLINE string string::to_shared_storage() const noexcept
 	{
 		auto st = storage_type();
 		if (st == string_storage_t::large || st == string_storage_t::user)
@@ -405,7 +405,7 @@ inline namespace MMPP_NAMESPACE {
 
 	MEMEPP__IMPL_INLINE string string::cheap_copy() const noexcept
 	{
-		return storage_type() == string_storage_t::small ? *this : to_internal_shared();
+		return storage_type() == string_storage_t::small ? *this : to_shared_storage();
 	}
     
 	MEMEPP__IMPL_INLINE void string::swap(string& _other) noexcept
