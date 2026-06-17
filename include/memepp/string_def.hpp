@@ -126,6 +126,7 @@ inline namespace MMPP_NAMESPACE {
 
         string to_large() const noexcept;
 		string to_large_or_user() const noexcept;
+		string to_internal_shared() const noexcept;
 
 		string cheap_copy() const noexcept;
 

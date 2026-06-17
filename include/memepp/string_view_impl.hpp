@@ -338,6 +338,15 @@ inline namespace MMPP_NAMESPACE {
 			return string{ data(), size(), string_storage_t::large };
 	}
 
+	MEMEPP__IMPL_INLINE string string_view::to_internal_shared() const noexcept
+	{
+		auto st = storage_type();
+		if (st == string_storage_t::large || st == string_storage_t::user)
+			return to_string();
+		else
+			return string{ data(), size(), string_storage_t::large };
+	}
+
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::count(const string_view& _str, case_sensit_t _cs) const noexcept
 	{
 		return MemeString_matchCountWithUtf8bytes(

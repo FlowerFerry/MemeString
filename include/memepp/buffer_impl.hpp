@@ -179,10 +179,19 @@ inline namespace MMPP_NAMESPACE {
 		else
 			return buffer{ data(), size(), buffer_storage_t::large };
 	}
+	
+	MEMEPP__IMPL_INLINE buffer buffer::to_internal_shared() const noexcept
+	{
+		auto st = storage_type();
+		if (st == buffer_storage_t::large || st == buffer_storage_t::user)
+			return *this;
+		else
+			return buffer{ data(), size(), buffer_storage_t::large };
+	}
 
 	MEMEPP__IMPL_INLINE buffer buffer::cheap_copy() const noexcept
 	{
-		return storage_type() == buffer_storage_t::small ? *this : to_large_or_user();
+		return storage_type() == buffer_storage_t::small ? *this : to_internal_shared();
 	}
 
 	MEMEPP__IMPL_INLINE void buffer::reset()

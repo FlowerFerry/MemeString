@@ -107,6 +107,7 @@ inline namespace MMPP_NAMESPACE {
 		string to_string() const;
         string to_large () const noexcept;
 		string to_large_or_user() const noexcept;
+		string to_internal_shared() const noexcept;
 
 		size_type count(const string_view& _str,
 			case_sensit_t _cs = case_sensit_t::all_sensitive) const noexcept;
