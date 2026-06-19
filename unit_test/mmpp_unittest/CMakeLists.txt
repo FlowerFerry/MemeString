@@ -63,8 +63,9 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_view_starts_ends.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_view_extra.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_extra.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/test_rune_extra.cpp
-)
+		${CMAKE_CURRENT_SOURCE_DIR}/test_rune_extra.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/test_wstring_converter.cpp
+	)
 
 function(mmut_create_exec_for_stdcxx  exec_name cxx_standard)
 

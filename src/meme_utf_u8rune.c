@@ -6,6 +6,18 @@
 MEME_EXTERN_C MEME_API int MEME_STDCALL
 mmutf_u8rune_char_size(uint8_t _ch)
 {
+    /*
+     * This project intentionally supports "long encoding" (5-byte and 6-byte
+     * UTF-8 sequences) beyond the standard Unicode maximum of 4 bytes
+     * (U+10FFFF).  Long encodings allow round-tripping arbitrary 31-bit
+     * code points, which is required by the embedding environment.
+     *
+     * The standard Unicode specification (RFC 3629) limits UTF-8 to at most
+     * 4 bytes and forbids encoding surrogate code points (U+D800-U+DFFF)
+     * and overlong forms.  This library deliberately deviates from that
+     * restriction; callers that require strict standard conformance should
+     * validate data at a higher layer.
+     */
     if (_ch < 0x80) // 0XXXXXXX
         return 1;
     if (_ch < 0xC0)
@@ -170,6 +182,8 @@ mmutf_u8rune_get_u32(
     ch0 = _buf[0];
 
     if (ch0 < 0x80) {   // 0XXXXXXX
+        if (_value == NULL)
+            return -1;
         *_value = ch0;
         return 1;
     }

@@ -21,9 +21,25 @@ namespace memepp {
 		return memepp::string{
 			reinterpret_cast<const uint16_t*>(_s.data()), static_cast<mmint_t>(_s.size()) };
 #else
-        return {};
-        // return memepp::string{
-        //     reinterpret_cast<const uint32_t*>(_s.data()), static_cast<mmint_t>(_s.size()) };
+		/* Non-Windows: wchar_t is UTF-32. Convert each code unit to UTF-8
+		   and build a memepp::string from the result. */
+		if (_s.empty())
+			return {};
+		/* Pre-allocate enough space: worst case 6 bytes per code unit. */
+		size_t maxBytes = _s.size() * 6;
+		uint8_t* u8buf = (uint8_t*)mmsmem_malloc(maxBytes);
+		if (!u8buf)
+			return {};
+		size_t used = 0;
+		for (size_t i = 0; i < _s.size() && used + 6 <= maxBytes; ++i) {
+			uint32_t ch = static_cast<uint32_t>(_s[i]);
+			int bytes = mmutf_u8rune_set_u32(u8buf + used, 6, ch);
+			if (bytes > 0)
+				used += (size_t)bytes;
+		}
+		memepp::string result{ u8buf, static_cast<mmint_t>(used) };
+		mmsmem_free(u8buf);
+		return result;
 #endif
     }
 
@@ -33,9 +49,8 @@ namespace memepp {
 		return memepp::string{ 
 			reinterpret_cast<const uint16_t*>(_s.data()), static_cast<mmint_t>(_s.size())};
 #else
-        return {};
-        // return memepp::string{
-        //     reinterpret_cast<const uint32_t*>(_s.data()), static_cast<mmint_t>(_s.size()) };
+		/* Non-Windows: same UTF-32 → UTF-8 path as lvalue variant. */
+		return memepp::from(const_cast<const std::wstring&>(_s));
 #endif
 	}
 	
@@ -64,19 +79,7 @@ namespace memepp {
 	template<>
 	inline std::wstring to<std::wstring>(const memepp::string& _s)
 	{
-#if MG_OS__WIN_AVAIL
-		auto frontSize = _s.u16char_size();
-        std::wstring u16; u16.resize(frontSize);
-		
-        auto afterSize = MemeString_writeU16Chars(
-			memepp::to_pointer(_s.native_handle()), (uint16_t*)(u16.data()));
-
-		if (afterSize != frontSize)
-			u16.resize(afterSize);
-        return u16;
-#else
-        return {};
-#endif
+		return to<std::wstring>(memepp::string_view{_s});
 	}
 
 	template<>
@@ -93,7 +96,16 @@ namespace memepp {
 			u16.resize(afterSize);
         return u16;
 #else
-        return {};
+		/* Non-Windows: wchar_t is UTF-32. Convert UTF-8 → UTF-32 code units. */
+		if (_sv.empty())
+			return {};
+		auto cnt = _sv.rune_size();
+		std::wstring u32; u32.resize(cnt);
+		auto n = MemeString_writeU32Chars(
+			memepp::to_pointer(_sv.native_handle()), reinterpret_cast<uint32_t*>(u32.data()));
+		if (n != cnt)
+			u32.resize(n);
+		return u32;
 #endif
 	}
 

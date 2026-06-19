@@ -271,15 +271,13 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringBuilderStack_objSize(const mms
 MEME_EXTERN_C MEME_API int MEME_STDCALL
 MemeStringBuilder_generate(mmsbldr_const_t _builder, mms_t _out)
 {
-    // TO_DO
-
     MemeStringStack_reset((MemeStringStack_t*)_out, MMS__OBJECT_SIZE);
     if (_builder->fmt_ == NULL) {
         return MemeStringBuilder_generateWithParts(_builder, _out);
     }
     else {
-        // TO_DO
-        return 0;
+        // Format-based generation is not yet implemented.
+        return MGEC__NOSYS;
     }
 }
 
@@ -344,7 +342,13 @@ MemeStringBuilderStack_release(
     assert(_builder != NULL && MemeStringBuilderStack_release);
     assert(_out != NULL && MemeStringBuilderStack_release);
 
-    if (_object_size <= 0) {
+    /*
+     * When _object_size == 0 the caller did not know the stack size;
+     * auto-detect it by reading the built-in size field.  When the
+     * caller passes a non-zero _object_size it already knows the
+     * correct value so we trust it — no override needed.
+     */
+    if (_object_size == 0) {
 		_object_size = MemeStringImpl_objByteSize((mmstr_cptr_t)_out);
         mmstrstk_uninit_v0(_out, 0);
 	}

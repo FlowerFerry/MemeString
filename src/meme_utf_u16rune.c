@@ -151,8 +151,10 @@ mmutf_u16rune_set_u32(
         if (_len < 2)
             return -1;
 
-        _buf[0] = (uint16_t)(0xD7C0 + (_value >> 10));
-        _buf[1] = (uint16_t)(0xDC00 + (_value & 0x3FF));
+        /* Cast through unsigned types to avoid signed integer overflow in
+           the shift expressions below, which is undefined behaviour in C. */
+        _buf[0] = (uint16_t)(0xD7C0 + ((uint32_t)_value >> 10));
+        _buf[1] = (uint16_t)(0xDC00 + ((uint32_t)_value & 0x3FF));
         return 2;
     }
 

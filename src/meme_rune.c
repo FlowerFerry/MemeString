@@ -239,8 +239,9 @@ int MemeRune_compare(const MemeRune_t* _lhs, const MemeRune_t* _rhs)
 int MemeRune_withinCjkUnifiedIdeographs(const MemeRune_t* _ch)
 {
 	// CJK Unified Ideographs U+4E00 - U+9FFF
-	MemeRune_t begin = { .byte = { 0xE0, 0xB8, 0x80, 0x00 } };
-	MemeRune_t end   = { .byte = { 0xE9, 0xBF, 0xBF, 0x00 } };
+	// U+4E00 is encoded as UTF-8: 0xE4 0xB8 0x80
+	MemeRune_t begin = { .byte = { 0xE4, 0xB8, 0x80, 0x00 } };
+	MemeRune_t end   = { .byte = { 0xE9, 0xBE, 0xBF, 0x00 } };
 	return 0 <= MemeRune_compare(_ch, &begin) && MemeRune_compare(_ch, &end) <= 0;
 }
 
@@ -254,50 +255,64 @@ int MemeRune_withinCjkUnifiedIdeographsExtensionA(const MemeRune_t* _ch)
 
 int MemeRune_withinCjkUnifiedIdeographsExtensionB(const MemeRune_t* _ch)
 {
-	return 0;
+	(void)_ch;
+	return MGEC__NOSYS;
 }
 
 int MemeRune_withinCjkUnifiedIdeographsExtensionC(const MemeRune_t* _ch)
 {
-	return 0;
+	(void)_ch;
+	return MGEC__NOSYS;
 }
 
 int MemeRune_withinCjkUnifiedIdeographsExtensionD(const MemeRune_t* _ch)
 {
-	return 0;
+	(void)_ch;
+	return MGEC__NOSYS;
 }
 
 int MemeRune_withinCjkUnifiedIdeographsExtensionE(const MemeRune_t* _ch)
 {
-	return 0;
+	(void)_ch;
+	return MGEC__NOSYS;
 }
 
 int MemeRune_withinCjkUnifiedIdeographsExtensionF(const MemeRune_t* _ch)
 {
-	return 0;
+	(void)_ch;
+	return MGEC__NOSYS;
 }
 
 int MemeRune_withinCjkUnifiedIdeographsExtensionG(const MemeRune_t* _ch)
 {
-	return 0;
+	(void)_ch;
+	return MGEC__NOSYS;
 }
 
 int MemeRune_withinCjkCompatibilityIdeographs(const MemeRune_t* _ch)
 {
-	return 0;
+	(void)_ch;
+	return MGEC__NOSYS;
 }
 
 int MemeRune_isChineseCharacter(const MemeRune_t* _ch)
 {
+	/* Only check the ranges that are fully implemented (main + Extension A).
+	   Extensions B-G and Compatibility return MGEC__NOSYS to signal that
+	   they are unimplemented; those negative codes must NOT be treated as
+	   a positive match. */
 	return MemeRune_withinCjkUnifiedIdeographs(_ch)
-		|| MemeRune_withinCjkUnifiedIdeographsExtensionA(_ch)
-		|| MemeRune_withinCjkUnifiedIdeographsExtensionB(_ch)
-		|| MemeRune_withinCjkUnifiedIdeographsExtensionC(_ch)
-		|| MemeRune_withinCjkUnifiedIdeographsExtensionD(_ch)
-		|| MemeRune_withinCjkUnifiedIdeographsExtensionE(_ch)
-		|| MemeRune_withinCjkUnifiedIdeographsExtensionF(_ch)
-		|| MemeRune_withinCjkUnifiedIdeographsExtensionG(_ch)
-		|| MemeRune_withinCjkCompatibilityIdeographs(_ch);
+		|| MemeRune_withinCjkUnifiedIdeographsExtensionA(_ch);
+	/*
+	 * Unimplemented ranges (reserved for future implementation):
+	 *   MemeRune_withinCjkUnifiedIdeographsExtensionB(_ch)
+	 *   MemeRune_withinCjkUnifiedIdeographsExtensionC(_ch)
+	 *   MemeRune_withinCjkUnifiedIdeographsExtensionD(_ch)
+	 *   MemeRune_withinCjkUnifiedIdeographsExtensionE(_ch)
+	 *   MemeRune_withinCjkUnifiedIdeographsExtensionF(_ch)
+	 *   MemeRune_withinCjkUnifiedIdeographsExtensionG(_ch)
+	 *   MemeRune_withinCjkCompatibilityIdeographs(_ch)
+	 */
 }
 
 MEME_EXTERN_C_SCOPE_ENDED

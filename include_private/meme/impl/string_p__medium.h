@@ -82,7 +82,11 @@ MemeStringMedium_realByteSize(const MemeStringMedium_t* _s)
 MG_CAPI_INLINE mmint_t
 MemeStringMedium_availableByteCapacity(const MemeStringMedium_t* _s)
 {
-	return _s->capacity_ - 1;
+	/* Guard against unsigned wraparound when capacity_ == 0.
+	   Without this, 0 - 1 = SIZE_MAX and callers would be told there
+	   is a huge amount of available capacity, leading to out-of-bounds
+	   writes on the subsequent append/insert. */
+	return _s->capacity_ > 0 ? _s->capacity_ - 1 : 0;
 }
 
 MG_CAPI_INLINE mmint_t

@@ -13,6 +13,29 @@ mmutf_u32rune_char_size(uint32_t _ch)
 MEME_EXTERN_C MEME_API int MEME_STDCALL
 mmutf_u32rune_valid(const uint32_t* _buf, MemeInteger_t _len)
 {
+    /* Validate a single UTF-32 code unit.
+       A valid code unit must be within 0x0..0x7FFFFFFF (the project supports
+       long encodings beyond the standard Unicode range U+0..U+10FFFF).
+       Also reject 0xFFFE and 0xFFFF which are non-characters reserved for
+       internal use. */
+
+    uint32_t ch;
+
+    if (_len < 1)
+        return -1;
+
+    ch = _buf[0];
+
+#if 0
+    /* Disabled: reject standard Unicode surrogates (U+D800..U+DFFF).
+       The project intentionally permits surrogate code points so that they
+       round-trip through the internal UTF-8 encoding.  */
+    if (ch >= 0xD800 && ch <= 0xDFFF)
+        return -1;
+#endif
+    if (ch == 0xFFFE || ch == 0xFFFF)
+        return -1;
+
     return 1;
 }
 

@@ -137,6 +137,12 @@ typedef MemeString_ForEachRuneFunc_t mmstr_foreach_rune_cb_t;
 #ifdef MEME_STRING__OBJECT_SIZE
 #undef MEME_STRING__OBJECT_SIZE
 #endif
+/*
+ * MMSTR__OBJ_SIZE is the canonical (newer) name for the string stack
+ * object size constant.  MEME_STRING__OBJECT_SIZE is a legacy alias
+ * kept for backward compatibility; both resolve to the same value.
+ * New code should prefer MMSTR__OBJ_SIZE.
+ */
 #define MEME_STRING__OBJECT_SIZE (sizeof(mmint_t) * MMSTR__OBJ_REG_SIZE)
 
 #ifndef MMS__OBJECT_SIZE
