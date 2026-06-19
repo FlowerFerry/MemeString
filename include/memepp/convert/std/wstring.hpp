@@ -77,12 +77,6 @@ namespace memepp {
 #endif
 
 	template<>
-	inline std::wstring to<std::wstring>(const memepp::string& _s)
-	{
-		return to<std::wstring>(memepp::string_view{_s});
-	}
-
-	template<>
 	inline std::wstring to<std::wstring>(const memepp::string_view& _sv)
 	{
 #if MG_OS__WIN_AVAIL
@@ -107,6 +101,12 @@ namespace memepp {
 			u32.resize(n);
 		return u32;
 #endif
+	}
+
+	template<>
+	inline std::wstring to<std::wstring>(const memepp::string& _s)
+	{
+		return to<std::wstring>(memepp::string_view{_s});
 	}
 
 }

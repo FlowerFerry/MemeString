@@ -102,6 +102,8 @@ inline namespace MMPP_NAMESPACE {
 	bool operator==(const buffer_view& _lhs, const buffer_view& _rhs) MEGOPP__NOEXCEPT;
 	bool operator!=(const buffer_view& _lhs, const buffer_view& _rhs) MEGOPP__NOEXCEPT;
 	
+using buffer_ref = buffer_view;
+
 }; // namespace MMPP_NAMESPACE
 };
 

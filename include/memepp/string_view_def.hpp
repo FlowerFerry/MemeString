@@ -376,6 +376,8 @@ inline namespace MMPP_NAMESPACE {
 	bool operator>=(const string_view& _lhs, const rune& _rhs) noexcept;
 	bool operator>=(const rune& _lhs, const string_view& _rhs) noexcept;
 
+using string_ref = string_view;
+
 } // namespace MMPP_NAMESPACE    
 };
 
