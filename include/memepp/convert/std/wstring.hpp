@@ -7,6 +7,7 @@
 #include "memepp/string.hpp"
 #include "memepp/string_view.hpp"
 #include "memepp/convert/common_def.hpp"
+#include "meme/string_memory.h"
 
 #include <string>
 #if MG_LANG__CXX17_AVAIL
@@ -27,7 +28,7 @@ namespace memepp {
 			return {};
 		/* Pre-allocate enough space: worst case 6 bytes per code unit. */
 		size_t maxBytes = _s.size() * 6;
-		uint8_t* u8buf = (uint8_t*)mmsmem_malloc(maxBytes);
+		uint8_t* u8buf = (uint8_t*)mmmem_malloc(maxBytes);
 		if (!u8buf)
 			return {};
 		size_t used = 0;
@@ -38,7 +39,7 @@ namespace memepp {
 				used += (size_t)bytes;
 		}
 		memepp::string result{ u8buf, static_cast<mmint_t>(used) };
-		mmsmem_free(u8buf);
+		mmmem_free(u8buf);
 		return result;
 #endif
     }
@@ -95,10 +96,15 @@ namespace memepp {
 			return {};
 		auto cnt = _sv.rune_size();
 		std::wstring u32; u32.resize(cnt);
-		auto n = MemeString_writeU32Chars(
-			memepp::to_pointer(_sv.native_handle()), reinterpret_cast<uint32_t*>(u32.data()));
-		if (n != cnt)
-			u32.resize(n);
+		size_t i = 0;
+		for (auto it = _sv.rune_begin(); it != _sv.rune_end() && i < cnt; ++it, ++i) {
+			auto idx = it.to_index();
+			uint32_t cp;
+			mmutf_u8rune_get_u32(idx.data(), idx.size(), &cp);
+			u32[i] = static_cast<wchar_t>(cp);
+		}
+		if (i != cnt)
+			u32.resize(i);
 		return u32;
 #endif
 	}
