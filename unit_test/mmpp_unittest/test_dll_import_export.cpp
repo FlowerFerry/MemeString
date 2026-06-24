@@ -159,6 +159,28 @@ TEST_CASE("memepp::string DLL import/export — user storage (deep copy verifica
     REQUIRE(rt == kLongString);
 }
 
+TEST_CASE("memepp::string DLL import/export — vector-user storage", "[dll][string]")
+{
+    // user storage from std::vector<uint8_t> (distinct from std::string user)
+    // must exceed medium limit (~368 bytes on 64-bit) to force user storage
+    std::vector<uint8_t> data;
+    for (int i = 0; i < 50; ++i)
+        data.insert(data.end(), kBufLarge, kBufLarge + sizeof(kBufLarge));
+    auto src = mm_from(std::move(data));
+    REQUIRE(src.storage_type() == memepp::string_storage_t::user);
+
+    // import: must deep-copy user -> large
+    auto imported = memepp::import_from_dll<memepp::string>(
+        src.native_handle(), MMSTR__OBJ_SIZE);
+    REQUIRE(imported == src);
+    REQUIRE(imported.storage_type() == memepp::string_storage_t::large);
+
+    // export & round-trip
+    auto stk = memepp::export_into_dll<mmstrstk_t>(imported, MMSTR__OBJ_SIZE);
+    MEGOPP_UTIL__ON_SCOPE_CLEANUP([&]() { mmstrstk_uninit_v0(&stk, MMSTR__OBJ_SIZE); });
+    REQUIRE(MemeString_storageType(memepp::to_pointer(stk)) == MemeString_StorageType_large);
+}
+
 TEST_CASE("memepp::string DLL import/export — large storage (verify deep copy)", "[dll][string]")
 {
     memepp::string src{ kLongString, (mmint_t)strlen(kLongString), memepp::string_storage_t::large };
