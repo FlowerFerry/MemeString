@@ -1,4 +1,4 @@
-﻿﻿<!-- OPENSPEC:START -->
+﻿<!-- OPENSPEC:START -->
 # AGENTS.md — MemeString Project Guide
 
 Context and conventions for AI coding assistants working on this codebase.
@@ -78,6 +78,133 @@ Runtime CPU feature detection + function pointer table dispatch:
 - Template methods: split, join, trim_if, mapping_convert, rune_foreach
 - Exception support controlled by `MMOPT__EXCEPTION_DISABLED`
 - Error codes returned via thread-local `*errc()`
+
+### DLL Boundary ABI: import_from_dll / export_into_dll
+
+These two function templates are the **ABI-safe bridge** for passing `memepp::string`, `buffer`, `variant`, and `varts` across dynamic library boundaries (host ↔ `dlopen`/`LoadLibrary` plugin).
+
+#### Design Philosophy
+
+The core problem: a plugin DLL and the host process may have been compiled with different CRT versions, different `sizeof(MemeStringStack_t)`, or different meme library build configurations. Directly passing C++ objects or raw pointers across the boundary is unsafe.
+
+The solution: pass only **plain C structs** (`mmstrstk_t` = `MemeStringStack_t` = fixed-size byte array) across the boundary, and convert to/from C++ wrapper objects on each side using these functions.
+
+Each function also takes `_struct_size` — the **caller's** `sizeof(MemeStringStack_t)` / `MMSTR__OBJ_SIZE` / `MMVAR__OBJ_SIZE` / `MMVTS__OBJ_SIZE` — so the receiving side can handle ABI version mismatches (e.g., the DLL was compiled with an older struct layout).
+
+#### Two Directions, Two Semantics
+
+| Direction | Function | Storage behavior |
+|-----------|----------|------------------|
+| **DLL → Host** | `import_from_dll` | **Always deep-copies.** The host cannot trust plugin-allocated memory; data bytes are copied into host-owned storage via `initByU8bytes`/`initByBytes`/`initByDump`. |
+| **Host → DLL** | `export_into_dll` | **Shares when safe.** For shared (refcounted) storage types (large/user), only the refcount is incremented — zero data copy. For non-shared types (small/medium), data is copied. The host outlives the plugin call, so its memory remains valid. |
+
+#### Function Signatures (base templates in `dll.hpp`)
+
+```cpp
+// Import: DLL → Host (always copies)
+template<typename _Result, typename _Ty>
+_Result import_from_dll(const _Ty& _obj, mmint_t _struct_size);
+
+template<typename _Result, typename _Ty>
+_Result import_from_dll(_Ty&& _obj, mmint_t _struct_size);   // rvalue: also uninit's the source
+
+// Export: Host → DLL (shares refcounted types, copies others)
+template<typename _Result, typename _Ty>
+_Result export_into_dll(const _Ty& _obj, mmint_t _struct_size);
+
+template<typename _Result, typename _Ty>
+_Result export_into_dll(_Ty&& _obj, mmint_t _struct_size);    // rvalue: transfers ownership
+```
+
+Each type has full specializations. For `string` (in `string_tmpimpl.hpp`):
+
+```cpp
+template<> memepp::string import_from_dll(const mmstrstk_t&, mmint_t);   // deep copy via initByU8bytes
+template<> memepp::string import_from_dll(mmstrstk_t&&, mmint_t);        // deep copy + uninit source
+template<> mmstrstk_t   export_into_dll(const memepp::string&, mmint_t); // initByOther (shares large/user)
+template<> mmstrstk_t   export_into_dll(memepp::string&&, mmint_t);      // swap (transfers ownership)
+```
+
+Corresponding specializations exist for `buffer` (`buffer_tmpimpl.hpp`), `variant` (`variant_tmpimpl.hpp`), and `varts` (`varts_tmpimpl.hpp`).
+
+#### Per-Type Storage Behavior
+
+**import_from_dll (DLL → Host):**
+
+| Source storage | string/buffer behavior | variant behavior |
+|---|---|---|
+| small/medium | Deep copy (new allocation + memcpy) | Deep copy |
+| large | Deep copy via `initByU8bytes`/`initByBytes` (new allocation, no sharing) | Deep copy via `initByDump` |
+| user | Deep copy via `initByU8bytes`/`initByBytes` → result is `large` | Deep copy |
+| view | Deep copy via `initByU8bytes`/`initByBytes` | N/A |
+| scalar (int, double, ...) | N/A | Value copy (scalars have no heap memory) |
+
+**export_into_dll (Host → DLL):**
+
+| Source storage | const& behavior | && behavior |
+|---|---|---|
+| small | memcpy (cheap copy) | swap → ownership transfer, source becomes empty |
+| medium | New allocation + copy | swap → ownership transfer, source becomes empty |
+| large | Refcount increment (NO copy, shared) | swap → ownership transfer |
+| user | Refcount increment (NO copy, shared) | swap → ownership transfer |
+| view | Deep copy via `initByU8bytes` | swap → ownership transfer |
+
+#### Usage Pattern
+
+```cpp
+// === DLL side: export data to host ===
+extern "C" MMSTRSTK_T get_name()
+{
+    memepp::string name = "plugin_v1.0";
+    // Export: const& → shares if large, copies if small/medium
+    return memepp::export_into_dll<mmstrstk_t>(name, MMSTR__OBJ_SIZE);
+}
+
+extern "C" void process_buffer(const mmbufstk_t* buf, mmint_t obj_size)
+{
+    // Import: DLL → Host, always deep-copies
+    auto b = memepp::import_from_dll<memepp::buffer>(*buf, obj_size);
+    // ... use b safely, even after host unloads this DLL
+}
+
+// === Host side: import data from DLL ===
+typedef mmstrstk_t (*GetNameFn)();
+GetNameFn get_name = (GetNameFn)dlsym(handle, "get_name");
+mmstrstk_t raw = get_name();
+auto name = memepp::import_from_dll<memepp::string>(raw, MMSTR__OBJ_SIZE);
+mmstrstk_uninit_v0(&raw, MMSTR__OBJ_SIZE);  // always uninit the C stack object
+
+// === Host side: export variant to DLL ===
+memepp::variant config = memepp::string{"debug"};
+// Export: && transfers ownership (cheap, no copy)
+auto raw_var = memepp::export_into_dll<mmvarstk_t>(std::move(config), MMVAR__OBJ_SIZE);
+// raw_var now owns the data; config is empty
+dll_set_config(&raw_var, MMVAR__OBJ_SIZE);
+```
+
+#### Error Handling
+
+- **import_from_dll**: Returns a default-constructed (empty/null) object on failure. The C API error is checked internally.
+- **export_into_dll (const&)**: On failure, the returned stack object is initialized to an empty state (e.g., empty small string) as a safe fallback.
+- **export_into_dll (&&)**: The `init` step before `swap` may fail; the returned stack object should be treated as potentially empty.
+
+#### Supported Types and Their Stack Types
+
+| C++ type | C stack type | Object size macro |
+|----------|-------------|--------------------|
+| `memepp::string` | `mmstrstk_t` | `MMSTR__OBJ_SIZE` |
+| `memepp::buffer` | `mmbufstk_t` | `MMSTR__OBJ_SIZE` |
+| `memepp::variant` | `mmvarstk_t` | `MMVAR__OBJ_SIZE` |
+| `memepp::varts` | `mmvtsstk_t` | `MMVTS__OBJ_SIZE` |
+
+#### Key Implementation Files
+
+- Base templates: `include/memepp/dll.hpp`
+- String specializations: `include/memepp/string_tmpimpl.hpp` (lines 400–443)
+- Buffer specializations: `include/memepp/buffer_tmpimpl.hpp` (lines 12–54)
+- Variant specializations: `include/memepp/variant_tmpimpl.hpp` (lines 284–322)
+- Varts specializations: `include/memepp/varts_tmpimpl.hpp` (lines 10–44)
+- Unit tests: `unit_test/mmpp_unittest/test_dll_import_export.cpp`
 
 ### Conversion Framework
 
