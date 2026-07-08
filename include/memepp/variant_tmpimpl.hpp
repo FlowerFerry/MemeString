@@ -285,7 +285,7 @@ inline namespace MMPP_NAMESPACE {
     inline memepp::variant import_from_dll(const mmvarstk_t& _obj, mmint_t _struct_size)
     {
         mmvarstk_t stk;
-        auto result = MemeVariantStack_initAndConditionalConvert(&stk, _struct_size, memepp::to_pointer(_obj));
+        auto result = MemeVariantStack_initByDump(&stk, _struct_size, memepp::to_pointer(_obj));
         if (result)
             return {};
 
@@ -296,7 +296,7 @@ inline namespace MMPP_NAMESPACE {
     inline memepp::variant import_from_dll(mmvarstk_t&& _obj, mmint_t _struct_size)
     {
         mmvarstk_t stk;
-        auto result = MemeVariantStack_initAndConditionalConvert(&stk, _struct_size, memepp::to_pointer(_obj));
+        auto result = MemeVariantStack_initByDump(&stk, _struct_size, memepp::to_pointer(_obj));
         MemeVariantStack_unInit(&_obj, _struct_size);
         if (result)
             return {};

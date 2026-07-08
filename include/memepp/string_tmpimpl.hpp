@@ -401,7 +401,8 @@ inline namespace MMPP_NAMESPACE {
 	inline memepp::string import_from_dll(const mmstrstk_t& _obj, mmint_t _struct_size)
 	{
 		mmstrstk_t str;
-        auto result = MemeStringStack_initAndConditionalConvert(&str, _struct_size, memepp::to_pointer(_obj));
+        auto result = MemeStringStack_initByU8bytes(
+			&str, _struct_size, MemeString_byteData(memepp::to_pointer(_obj)), MemeString_byteSize(memepp::to_pointer(_obj)));
         if (result)
 			return {};
 		
@@ -412,7 +413,8 @@ inline namespace MMPP_NAMESPACE {
 	inline memepp::string import_from_dll(mmstrstk_t&& _obj, mmint_t _struct_size)
     {
 		mmstrstk_t str;
-		auto result = MemeStringStack_initAndConditionalConvert(&str, _struct_size, memepp::to_pointer(_obj));
+		auto result = MemeStringStack_initByU8bytes(
+			&str, _struct_size, MemeString_byteData(memepp::to_pointer(_obj)), MemeString_byteSize(memepp::to_pointer(_obj)));
 		mmstrstk_uninit_v0(&_obj, _struct_size);
 		if (result)
 			return {};
@@ -424,7 +426,10 @@ inline namespace MMPP_NAMESPACE {
 	inline mmstrstk_t export_into_dll(const memepp::string& _obj, mmint_t _struct_size)
 	{
 		mmstrstk_t s;
-        mmstrstk_init_by_other_v0(&s, _struct_size, memepp::to_pointer(_obj.native_handle()));
+        auto result = mmstrstk_init_by_other_v0(&s, _struct_size, memepp::to_pointer(_obj.native_handle()));
+		if (result) {
+			mmstrstk_init_v0(&s, _struct_size);
+		}
         return s;
 	}
 

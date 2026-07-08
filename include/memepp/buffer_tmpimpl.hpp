@@ -13,7 +13,8 @@ namespace memepp {
 	inline memepp::buffer import_from_dll(const mmbufstk_t& _obj, mmint_t _struct_size)
 	{
 		mmbufstk_t buf;
-		auto result = MemeBufferStack_initAndConditionalConvert(&buf, _struct_size, memepp::to_pointer(_obj));
+		auto result = MemeBufferStack_initByBytes(
+			&buf, _struct_size, MemeBuffer_data(memepp::to_pointer(_obj)), MemeBuffer_size(memepp::to_pointer(_obj)));
 		if (result)
 			return {};
 
@@ -24,7 +25,8 @@ namespace memepp {
 	inline memepp::buffer import_from_dll(mmbufstk_t&& _obj, mmint_t _struct_size)
 	{
 		mmbufstk_t buf;
-		auto result = MemeBufferStack_initAndConditionalConvert(&buf, _struct_size, memepp::to_pointer(_obj));
+		auto result = MemeBufferStack_initByBytes(
+			&buf, _struct_size, MemeBuffer_data(memepp::to_pointer(_obj)), MemeBuffer_size(memepp::to_pointer(_obj)));
 		MemeBufferStack_unInit(&_obj, _struct_size);
 		if (result)
 			return {};
@@ -36,7 +38,9 @@ namespace memepp {
 	inline mmbufstk_t export_into_dll(const memepp::buffer& _obj, mmint_t _struct_size)
 	{
 		mmbufstk_t buf;
-		MemeBufferStack_initByOther(&buf, _struct_size, &_obj.native_handle());
+		auto result = MemeBufferStack_initByOther(&buf, _struct_size, &_obj.native_handle());
+		if (result)
+			MemeBufferStack_init(&buf, _struct_size);
 		return buf;
 	}
 

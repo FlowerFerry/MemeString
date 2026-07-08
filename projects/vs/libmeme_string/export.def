@@ -475,6 +475,7 @@ EXPORTS
     MemeStringBuilderStack_objSize @6001
     MemeVariantStack_regSize @7000
     MemeVariantStack_objSize @7001
+    MemeVariantStack_initByDump @7002
     MemeStringViewUnsafeStack_split @8002
     ; mmsimd_* indexs: 12000 ~
     mmsimd_i8_add @12000

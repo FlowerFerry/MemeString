@@ -71,6 +71,10 @@ MEME_API int MEME_STDCALL
     MemeVariantStack_initAndConditionalConvert(
         mmvarstk_t* _out, size_t _object_size, mmvar_cptr_t _other);
 
+MEME_API mgec_t MEME_STDCALL 
+    MemeVariantStack_initByDump(
+        mmvarstk_t* _out, size_t _object_size, mmvar_cptr_t _other);
+
 //! @param _obj must be initialized
 MEME_API mgec_t MEME_STDCALL
     MemeVariantStack_unInit(
