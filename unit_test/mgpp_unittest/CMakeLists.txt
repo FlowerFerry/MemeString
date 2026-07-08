@@ -68,6 +68,7 @@ set(SRC_FILES
 	test_rune.cpp
 	test_rune_index.cpp
 	test_singleton_weak.cpp
+	test_flag_enum.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SRC_FILES})
