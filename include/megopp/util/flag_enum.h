@@ -25,66 +25,103 @@ template <typename _Enum>
 using enable_if_flag_t = std::enable_if_t<is_flag_enum_v<_Enum>, int>;
 
 // ============================================================
-// Bitwise operators (Global Namespace for ADL / Unqualified Lookup)
+// Bitwise operators
 // ============================================================
-} // namespace util
-} // namespace mgpp
 
-template <typename _Enum, mgpp::util::enable_if_flag_t<_Enum> = 0>
+template <typename _Enum, enable_if_flag_t<_Enum> = 0>
 inline constexpr _Enum operator|(_Enum _lhs, _Enum _rhs) noexcept
 {
     using _U = std::underlying_type_t<_Enum>;
     return static_cast<_Enum>(static_cast<_U>(_lhs) | static_cast<_U>(_rhs));
 }
 
-template <typename _Enum, mgpp::util::enable_if_flag_t<_Enum> = 0>
+template <typename _Enum, enable_if_flag_t<_Enum> = 0>
 inline constexpr _Enum operator&(_Enum _lhs, _Enum _rhs) noexcept
 {
     using _U = std::underlying_type_t<_Enum>;
     return static_cast<_Enum>(static_cast<_U>(_lhs) & static_cast<_U>(_rhs));
 }
 
-template <typename _Enum, mgpp::util::enable_if_flag_t<_Enum> = 0>
+template <typename _Enum, enable_if_flag_t<_Enum> = 0>
 inline constexpr _Enum operator^(_Enum _lhs, _Enum _rhs) noexcept
 {
     using _U = std::underlying_type_t<_Enum>;
     return static_cast<_Enum>(static_cast<_U>(_lhs) ^ static_cast<_U>(_rhs));
 }
 
-template <typename _Enum, mgpp::util::enable_if_flag_t<_Enum> = 0>
+template <typename _Enum, enable_if_flag_t<_Enum> = 0>
 inline constexpr _Enum operator~(_Enum _val) noexcept
 {
     using _U = std::underlying_type_t<_Enum>;
     return static_cast<_Enum>(~static_cast<_U>(_val));
 }
 
-template <typename _Enum, mgpp::util::enable_if_flag_t<_Enum> = 0>
+template <typename _Enum, enable_if_flag_t<_Enum> = 0>
 inline constexpr _Enum& operator|=(_Enum& _lhs, _Enum _rhs) noexcept
 {
     _lhs = _lhs | _rhs;
     return _lhs;
 }
 
-template <typename _Enum, mgpp::util::enable_if_flag_t<_Enum> = 0>
+template <typename _Enum, enable_if_flag_t<_Enum> = 0>
 inline constexpr _Enum& operator&=(_Enum& _lhs, _Enum _rhs) noexcept
 {
     _lhs = _lhs & _rhs;
     return _lhs;
 }
 
-template <typename _Enum, mgpp::util::enable_if_flag_t<_Enum> = 0>
+template <typename _Enum, enable_if_flag_t<_Enum> = 0>
 inline constexpr _Enum& operator^=(_Enum& _lhs, _Enum _rhs) noexcept
 {
     _lhs = _lhs ^ _rhs;
     return _lhs;
 }
 
-namespace mgpp {
-namespace util {
+// ============================================================
+// Named bitwise functions (alternative to operators)
+// ============================================================
 
-// ============================================================
-// Helper query functions
-// ============================================================
+template <typename _Enum, enable_if_flag_t<_Enum> = 0>
+inline constexpr _Enum flag_or(_Enum _lhs, _Enum _rhs) noexcept
+{
+    return _lhs | _rhs;
+}
+
+template <typename _Enum, enable_if_flag_t<_Enum> = 0>
+inline constexpr _Enum flag_and(_Enum _lhs, _Enum _rhs) noexcept
+{
+    return _lhs & _rhs;
+}
+
+template <typename _Enum, enable_if_flag_t<_Enum> = 0>
+inline constexpr _Enum flag_xor(_Enum _lhs, _Enum _rhs) noexcept
+{
+    return _lhs ^ _rhs;
+}
+
+template <typename _Enum, enable_if_flag_t<_Enum> = 0>
+inline constexpr _Enum flag_not(_Enum _val) noexcept
+{
+    return ~_val;
+}
+
+template <typename _Enum, enable_if_flag_t<_Enum> = 0>
+inline constexpr _Enum& flag_or_eq(_Enum& _lhs, _Enum _rhs) noexcept
+{
+    return _lhs |= _rhs;
+}
+
+template <typename _Enum, enable_if_flag_t<_Enum> = 0>
+inline constexpr _Enum& flag_and_eq(_Enum& _lhs, _Enum _rhs) noexcept
+{
+    return _lhs &= _rhs;
+}
+
+template <typename _Enum, enable_if_flag_t<_Enum> = 0>
+inline constexpr _Enum& flag_xor_eq(_Enum& _lhs, _Enum _rhs) noexcept
+{
+    return _lhs ^= _rhs;
+}
 
 /// Check if any bit is set (not 0)
 template <typename _Enum, enable_if_flag_t<_Enum> = 0>
@@ -199,5 +236,60 @@ inline constexpr std::size_t count_flags(_Enum _val) noexcept
 
 } // namespace util
 } // namespace mgpp
+
+// ============================================================
+// Backward compatibility: export operators to global scope
+// ============================================================
+
+using mgpp::util::operator|;
+using mgpp::util::operator&;
+using mgpp::util::operator^;
+using mgpp::util::operator~;
+using mgpp::util::operator|=;
+using mgpp::util::operator&=;
+using mgpp::util::operator^=;
+
+// ============================================================
+// Macros for namespace-scoped operator visibility
+// ============================================================
+
+/// @brief Declare flag-enum operators in the current namespace scope.
+///
+/// Place this macro inside the same namespace as your enum class so that
+/// operator|, operator&, etc. are visible via unqualified lookup.
+///
+/// Example:
+/// @code
+/// namespace myapp {
+///     enum class MyFlags : uint32_t { A = 1 << 0, B = 1 << 1 };
+///     MGPP_DECLARE_FLAG_ENUM_OPS()
+/// }
+/// @endcode
+#define MGPP_DECLARE_FLAG_ENUM_OPS()          \
+    using ::mgpp::util::operator|;            \
+    using ::mgpp::util::operator&;            \
+    using ::mgpp::util::operator^;            \
+    using ::mgpp::util::operator~;            \
+    using ::mgpp::util::operator|=;           \
+    using ::mgpp::util::operator&=;           \
+    using ::mgpp::util::operator^=;
+
+/// @brief Specialize is_flag_enum for a flag enum type.
+///
+/// MUST be called at global scope (outside any namespace), passing the
+/// fully-qualified enum type. Use MGPP_DECLARE_FLAG_ENUM_OPS() inside the
+/// enum's own namespace to make operators visible there.
+///
+/// Example:
+/// @code
+/// namespace myapp {
+///     enum class MyFlags : uint32_t { A = 1 << 0, B = 1 << 1 };
+/// }
+/// MGPP_FLAG_ENUM(myapp::MyFlags)
+/// @endcode
+#define MGPP_FLAG_ENUM(EnumType)                                    \
+    namespace mgpp { namespace util {                               \
+        template <> struct is_flag_enum<EnumType> : std::true_type {}; \
+    }}
 
 #endif // !MEGOPP_UTIL_FLAG_ENUM_H_INCLUDED
