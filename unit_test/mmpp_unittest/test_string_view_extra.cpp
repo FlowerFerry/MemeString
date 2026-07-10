@@ -513,8 +513,8 @@ TEST_CASE("memepp::string_view operator+ with const char*", "[string_view]")
 TEST_CASE("memepp::string_view count -- const char* with size", "[string_view]")
 {
     memepp::string_view sv = "AaBbaaBb";
-    REQUIRE(sv.count("Aa", 2) == 2);       // first 2 bytes of "Aa" = "Aa"
-    REQUIRE(sv.count("AaX", 1) == 2);      // first 1 byte = "A" appears twice
+    REQUIRE(sv.count("Aa", 2) == 1);       // case-sensitive: only "Aa" at pos0
+    REQUIRE(sv.count("AaX", 1) == 1);      // first byte = 'A', only at pos0
     REQUIRE(sv.count("Bb", 2) == 2);
     REQUIRE(sv.count("Cc", 2) == 0);
 }
@@ -538,7 +538,7 @@ TEST_CASE("memepp::string_view UDL _meme_sv", "[string_view]")
     using namespace memepp;
     auto sv = "Hello, UDL"_meme_sv;
     REQUIRE(sv == "Hello, UDL");
-    REQUIRE(sv.size() == 11);
+    REQUIRE(sv.size() == 10);
 }
 
 TEST_CASE("memepp::string_view UDL _meme_sv -- empty", "[string_view]")
