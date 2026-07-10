@@ -65,6 +65,24 @@ TEST_CASE("memepp::string construct from const_pointer with size", "[string]")
     REQUIRE(s == "He");
 }
 
+TEST_CASE("memepp::string construct from const_pointer with size and storage hint", "[string]")
+{
+    const memepp::string::const_pointer p =
+        reinterpret_cast<const memepp::string::const_pointer>("Hello");
+    memepp::string s(p, 4, memepp::string_storage_t::large);
+    REQUIRE(s == "Hell");
+    REQUIRE(s.storage_type() == memepp::string_storage_t::large);
+}
+
+TEST_CASE("memepp::string construct from const_pointer with storage hint (empty)", "[string]")
+{
+    const memepp::string::const_pointer p =
+        reinterpret_cast<const memepp::string::const_pointer>("abc");
+    memepp::string s(p, 0, memepp::string_storage_t::large);
+    REQUIRE(s.empty());
+    REQUIRE(s.storage_type() == memepp::string_storage_t::large);
+}
+
 TEST_CASE("memepp::string construct from mmstrstk_t (move)", "[string]")
 {
     mmstrstk_t stk;
@@ -127,6 +145,35 @@ TEST_CASE("memepp::string to_large_or_user — already large", "[string]")
     REQUIRE(result.storage_type() == memepp::string_storage_t::large);
 }
 
+// string::to_shared_storage
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string to_shared_storage — small", "[string]")
+{
+    memepp::string s = "Hi";
+    auto result = s.to_shared_storage();
+    REQUIRE(result == "Hi");
+    REQUIRE(result.empty() == false);
+    REQUIRE(result.storage_type() == memepp::string_storage_t::large);
+}
+
+TEST_CASE("memepp::string to_shared_storage — empty", "[string]")
+{
+    memepp::string s;
+    auto result = s.to_shared_storage();
+    REQUIRE(result.empty());
+    REQUIRE(result.storage_type() == memepp::string_storage_t::large);
+}
+
+TEST_CASE("memepp::string to_shared_storage — already large", "[string]")
+{
+    memepp::string s = "This is a very long string that should definitely be stored in large storage mode because it exceeds the medium limit on all platforms by a comfortable margin, hopefully this is enough bytes to guarantee that.";
+    REQUIRE(s.storage_type() == memepp::string_storage_t::large);
+    auto result = s.to_shared_storage();
+    REQUIRE(result == s);
+    REQUIRE(result.storage_type() == memepp::string_storage_t::large);
+}
+
 // ---------------------------------------------------------------------------
 // string::is_only_ascii
 // ---------------------------------------------------------------------------
@@ -171,6 +218,15 @@ TEST_CASE("memepp::string operator+ with const char*", "[string]")
     memepp::string s = "Hello";
     auto result = s + " World";
     REQUIRE(result == "Hello World");
+}
+
+TEST_CASE("memepp::string operator+ with string", "[string]")
+{
+    memepp::string s = "Hello";
+    memepp::string other = " World";
+    auto result = s + other;
+    REQUIRE(result == "Hello World");
+    REQUIRE(result.size() == 11);
 }
 
 // ---------------------------------------------------------------------------

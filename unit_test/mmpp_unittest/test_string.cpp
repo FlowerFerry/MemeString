@@ -391,6 +391,26 @@ TEST_CASE("memepp::string c_format advanced", "[string]")
     REQUIRE(fmt5 == "");
 }
 
+// c_format with predict parameter (4-argument version)
+TEST_CASE("memepp::string c_format with predict", "[string]")
+{
+    // predict=0: buffer starts minimal, grows as needed
+    auto fmt1 = memepp::c_format(-1, 0, "Value: %d", 42);
+    REQUIRE(fmt1 == "Value: 42");
+
+    // predict large enough
+    auto fmt2 = memepp::c_format(-1, 64, "%s %s %d", "Hello", "World", 2024);
+    REQUIRE(fmt2 == "Hello World 2024");
+
+    // size_limit truncation with predict
+    auto fmt3 = memepp::c_format(5, 0, "0123456789");
+    REQUIRE(fmt3.size() <= 5);
+
+    // predict=0 with empty format
+    auto fmt4 = memepp::c_format(-1, 0, "");
+    REQUIRE(fmt4 == "");
+}
+
 // 测试 from_hexadecimals 的间距和无效输入
 TEST_CASE("memepp::string from_hexadecimals advanced", "[string]")
 {
