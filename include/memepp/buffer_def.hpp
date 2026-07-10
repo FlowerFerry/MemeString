@@ -86,6 +86,12 @@ inline namespace MMPP_NAMESPACE {
 		bool contains(const buffer& _other) const MEGOPP__NOEXCEPT;
 		bool contains(const_pointer _utf8, size_type _count) const MEGOPP__NOEXCEPT;
 
+		bool starts_with(const buffer& _other) const MEGOPP__NOEXCEPT;
+		bool starts_with(const_pointer _utf8, size_type _count) const MEGOPP__NOEXCEPT;
+
+		bool ends_with(const buffer& _other) const MEGOPP__NOEXCEPT;
+		bool ends_with(const_pointer _utf8, size_type _count) const MEGOPP__NOEXCEPT;
+
 		const native_handle_type& native_handle() const MEGOPP__NOEXCEPT;
 
 	private:

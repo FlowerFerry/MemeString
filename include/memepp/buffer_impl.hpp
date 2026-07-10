@@ -223,6 +223,32 @@ inline namespace MMPP_NAMESPACE {
         return index_of(_utf8, _count) != npos;
 	}
 
+	MEMEPP__IMPL_INLINE bool buffer::starts_with(const buffer& _other) const MEGOPP__NOEXCEPT
+	{
+		return MemeBuffer_startsMatchWithOther(
+			to_pointer(native_handle()), to_pointer(_other.native_handle()));
+	}
+
+	MEMEPP__IMPL_INLINE bool buffer::starts_with(const_pointer _utf8, size_type _count) const MEGOPP__NOEXCEPT
+	{
+		return MemeBuffer_startsMatchWithBytes(
+			to_pointer(native_handle()),
+			reinterpret_cast<const uint8_t*>(_utf8), _count);
+	}
+
+	MEMEPP__IMPL_INLINE bool buffer::ends_with(const buffer& _other) const MEGOPP__NOEXCEPT
+	{
+		return MemeBuffer_endsMatchWithOther(
+			to_pointer(native_handle()), to_pointer(_other.native_handle()));
+	}
+
+	MEMEPP__IMPL_INLINE bool buffer::ends_with(const_pointer _utf8, size_type _count) const MEGOPP__NOEXCEPT
+	{
+		return MemeBuffer_endsMatchWithBytes(
+			to_pointer(native_handle()),
+			reinterpret_cast<const uint8_t*>(_utf8), _count);
+	}
+
 	MEMEPP__IMPL_INLINE const buffer::native_handle_type& buffer::native_handle() const MEGOPP__NOEXCEPT
 	{
 		return data_;

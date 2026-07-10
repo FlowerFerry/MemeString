@@ -269,3 +269,65 @@ TEST_CASE("memepp::buffer to_string 2", "[buffer]")
     REQUIRE(s == "Hi");
     REQUIRE(s.size() == 2);
 }
+
+// ---------------------------------------------------------------------------
+// starts_with / ends_with
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::buffer starts_with buffer", "[buffer]")
+{
+    const uint8_t raw[] = { 0x01, 0x02, 0x03, 0x04 };
+    memepp::buffer buf(raw, static_cast<memepp::buffer::size_type>(4));
+    const uint8_t prefix[] = { 0x01, 0x02 };
+    memepp::buffer pf(prefix, static_cast<memepp::buffer::size_type>(2));
+    REQUIRE(buf.starts_with(pf));
+    const uint8_t not_prefix[] = { 0x02, 0x03 };
+    memepp::buffer np(not_prefix, static_cast<memepp::buffer::size_type>(2));
+    REQUIRE_FALSE(buf.starts_with(np));
+}
+
+TEST_CASE("memepp::buffer starts_with bytes", "[buffer]")
+{
+    const uint8_t raw[] = { 0xAB, 0xCD, 0xEF };
+    memepp::buffer buf(raw, static_cast<memepp::buffer::size_type>(3));
+    REQUIRE(buf.starts_with(raw, static_cast<memepp::buffer::size_type>(1)));
+    REQUIRE_FALSE(buf.starts_with(raw + 1, static_cast<memepp::buffer::size_type>(2)));
+    REQUIRE(buf.starts_with(raw, static_cast<memepp::buffer::size_type>(0)));
+    REQUIRE_FALSE(buf.starts_with(raw, static_cast<memepp::buffer::size_type>(10)));
+}
+
+TEST_CASE("memepp::buffer ends_with buffer", "[buffer]")
+{
+    const uint8_t raw[] = { 0x01, 0x02, 0x03, 0x04 };
+    memepp::buffer buf(raw, static_cast<memepp::buffer::size_type>(4));
+    const uint8_t suffix[] = { 0x03, 0x04 };
+    memepp::buffer sf(suffix, static_cast<memepp::buffer::size_type>(2));
+    REQUIRE(buf.ends_with(sf));
+    const uint8_t not_suffix[] = { 0x01, 0x02 };
+    memepp::buffer ns(not_suffix, static_cast<memepp::buffer::size_type>(2));
+    REQUIRE_FALSE(buf.ends_with(ns));
+}
+
+TEST_CASE("memepp::buffer ends_with bytes", "[buffer]")
+{
+    const uint8_t raw[] = { 0xAB, 0xCD, 0xEF };
+    memepp::buffer buf(raw, static_cast<memepp::buffer::size_type>(3));
+    REQUIRE(buf.ends_with(raw + 2, static_cast<memepp::buffer::size_type>(1)));
+    REQUIRE_FALSE(buf.ends_with(raw, static_cast<memepp::buffer::size_type>(2)));
+    REQUIRE(buf.ends_with(raw, static_cast<memepp::buffer::size_type>(0)));
+    REQUIRE_FALSE(buf.ends_with(raw, static_cast<memepp::buffer::size_type>(10)));
+}
+
+TEST_CASE("memepp::buffer starts_with ends_with empty buffer", "[buffer]")
+{
+    memepp::buffer empty;
+    const uint8_t data[] = { 0x01 };
+    memepp::buffer buf(data, static_cast<memepp::buffer::size_type>(1));
+
+    REQUIRE(empty.starts_with(empty));
+    REQUIRE(empty.ends_with(empty));
+    REQUIRE_FALSE(empty.starts_with(buf));
+    REQUIRE_FALSE(empty.ends_with(buf));
+    REQUIRE(buf.starts_with(empty));
+    REQUIRE(buf.ends_with(empty));
+}
