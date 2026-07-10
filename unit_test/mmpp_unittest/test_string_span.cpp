@@ -1076,3 +1076,15 @@ TEST_CASE("string_span user-defined literal empty", "[string_span]")
     auto sv = ""_meme_span;
     REQUIRE(sv.empty());
 }
+
+// ============================================================================
+//  to_shared_storage
+// ============================================================================
+
+TEST_CASE("string_span to_shared_storage", "[string_span]")
+{
+    memepp::string_span sv("hello", 5);
+    auto s = sv.to_shared_storage();
+    REQUIRE(s.size() == 5);
+    REQUIRE(std::strncmp(s.data(), "hello", 5) == 0);
+}

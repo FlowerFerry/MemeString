@@ -9,6 +9,7 @@
 #include "memepp/variable_buffer_fwd.hpp"
 #include "memepp/buffer_fwd.hpp"
 #include <memepp/buffer_view_fwd.hpp>
+#include <memepp/buffer_span_fwd.hpp>
 #include "megopp/predef/keyword/noexcept.h"
 #include "megopp/endian/byte_swap.h"
 
@@ -111,6 +112,7 @@ inline namespace MMPP_NAMESPACE {
 		variable_buffer& append(const string_view& _other);
         variable_buffer& append(const buffer& _other);
         variable_buffer& append(const buffer_view& _other);
+        variable_buffer& append(const buffer_span& _other);
 		template<typename _Ty>
 		inline variable_buffer& append(const _Ty& _v, megopp::endian_t _endian);
 
@@ -122,6 +124,7 @@ inline namespace MMPP_NAMESPACE {
         iterator insert(const_iterator _pos, const string_view& _other);
 		iterator insert(const_iterator _pos, const buffer& _other);
 		iterator insert(const_iterator _pos, const buffer_view& _other);
+		iterator insert(const_iterator _pos, const buffer_span& _other);
 		template<typename _Ty>
 		inline iterator insert(const_iterator _pos, const _Ty& _v, megopp::endian_t _endian);
 		variable_buffer& insert(size_type _pos, const_pointer _buf, size_type _count);
@@ -130,6 +133,7 @@ inline namespace MMPP_NAMESPACE {
 		variable_buffer& insert(size_type _pos, const string_view& _other);
 		variable_buffer& insert(size_type _pos, const buffer& _other);
 		variable_buffer& insert(size_type _pos, const buffer_view& _other);
+		variable_buffer& insert(size_type _pos, const buffer_span& _other);
 		template<typename _Ty>
 		inline variable_buffer& insert(size_type _pos, const _Ty& _v, megopp::endian_t _endian);
 

@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEMEPP_STRING_SPAN_IMPL_HPP_INCLUDED
 #define MEMEPP_STRING_SPAN_IMPL_HPP_INCLUDED
 
@@ -158,7 +158,7 @@ string_span::swap(string_span& _other) MEGOPP__NOEXCEPT
 // ============================================================
 
 MEMEPP__IMPL_INLINE MemeStringStack_t
-string_span::to_stack_() const MEGOPP__NOEXCEPT
+string_span::_to_stack() const MEGOPP__NOEXCEPT
 {
 	MemeStringStack_t stack;
 	MemeStringViewUnsafeStack_init(
@@ -257,28 +257,28 @@ string_span::to_rune_iterator(size_type _pos) const MEGOPP__NOEXCEPT
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::rune_size() const MEGOPP__NOEXCEPT
 {
-	auto stack = to_stack_();
+	auto stack = _to_stack();
 	return MemeString_runeSize(to_pointer(stack));
 }
 
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::u16char_size() const MEGOPP__NOEXCEPT
 {
-	auto stack = to_stack_();
+	auto stack = _to_stack();
 	return MemeString_u16CharSize(to_pointer(stack));
 }
 
 MEMEPP__IMPL_INLINE rune
 string_span::rune_front() const MEGOPP__NOEXCEPT
 {
-	auto stack = to_stack_();
+	auto stack = _to_stack();
 	return MemeString_runeFront(to_pointer(stack));
 }
 
 MEMEPP__IMPL_INLINE rune
 string_span::rune_back() const MEGOPP__NOEXCEPT
 {
-	auto stack = to_stack_();
+	auto stack = _to_stack();
 	return MemeString_runeBack(to_pointer(stack));
 }
 
@@ -313,8 +313,8 @@ string_span::copy(value_type* _dest, size_type _count, size_type _pos) const
 MEMEPP__IMPL_INLINE int
 string_span::compare(string_span _v) const MEGOPP__NOEXCEPT
 {
-	auto lstack = to_stack_();
-	auto rstack = _v.to_stack_();
+	auto lstack = _to_stack();
+	auto rstack = _v._to_stack();
 	return MemeString_compare(to_pointer(lstack), to_pointer(rstack));
 }
 
@@ -358,8 +358,8 @@ MEMEPP__IMPL_INLINE bool
 string_span::starts_with(string_span _v) const MEGOPP__NOEXCEPT
 {
 	if (_v.size_ > size_) return false;
-	auto lstack = to_stack_();
-	auto rstack = _v.to_stack_();
+	auto lstack = _to_stack();
+	auto rstack = _v._to_stack();
 	return MemeString_startsMatchWithOther(
 		to_pointer(lstack), to_pointer(rstack),
 		static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
@@ -387,8 +387,8 @@ MEMEPP__IMPL_INLINE bool
 string_span::ends_with(string_span _v) const MEGOPP__NOEXCEPT
 {
 	if (_v.size_ > size_) return false;
-	auto lstack = to_stack_();
-	auto rstack = _v.to_stack_();
+	auto lstack = _to_stack();
+	auto rstack = _v._to_stack();
 	return MemeString_endsMatchWithOther(
 		to_pointer(lstack), to_pointer(rstack),
 		static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
@@ -446,8 +446,8 @@ string_span::find(string_span _v, size_type _pos) const MEGOPP__NOEXCEPT
 	if (_pos < 0) _pos = 0;
 	if (_pos > size_) return npos;
 	if (_v.size_ == 0) return _pos;
-	auto lstack = to_stack_();
-	auto rstack = _v.to_stack_();
+	auto lstack = _to_stack();
+	auto rstack = _v._to_stack();
 	return MemeString_indexOfWithUtf8bytes(
 		to_pointer(lstack), _pos, _v.bytes(), _v.size_,
 		static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
@@ -500,8 +500,8 @@ string_span::rfind(string_span _v, size_type _pos) const MEGOPP__NOEXCEPT
 			return size_;
 		return _pos;
 	}
-	auto lstack = to_stack_();
-	auto rstack = _v.to_stack_();
+	auto lstack = _to_stack();
+	auto rstack = _v._to_stack();
 	return MemeString_lastIndexOfWithUtf8bytes(
 		to_pointer(lstack), _pos, _v.bytes(), _v.size_,
 		static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
@@ -696,6 +696,12 @@ MEMEPP__IMPL_INLINE string
 string_span::to_string() const
 {
 	return string(data(), size_);
+}
+
+MEMEPP__IMPL_INLINE string
+string_span::to_shared_storage() const noexcept
+{
+	return string{ data(), size_, string_storage_t::large };
 }
 
 // ============================================================

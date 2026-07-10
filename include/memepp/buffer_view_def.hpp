@@ -75,6 +75,7 @@ inline namespace MMPP_NAMESPACE {
 		const_iterator cend() const MEGOPP__NOEXCEPT;
 
 		buffer to_buffer() const;
+		buffer to_shared_storage() const noexcept;
 		string to_string(size_type _front_offset = 0) const;
 
 		size_type index_of(const buffer_view& _other) const MEGOPP__NOEXCEPT;

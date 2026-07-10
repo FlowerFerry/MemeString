@@ -194,7 +194,16 @@ inline namespace MMPP_NAMESPACE {
 		return stack;
 	}
 	
-	MEMEPP__IMPL_INLINE string buffer_view::to_string(size_type _front_offset) const
+	MEMEPP__IMPL_INLINE buffer buffer_view::to_shared_storage() const noexcept
+{
+	auto st = storage_type();
+	if (st == buffer_storage_t::large || st == buffer_storage_t::user)
+		return to_buffer();
+	else
+		return buffer{ data(), size(), buffer_storage_t::large };
+}
+
+MEMEPP__IMPL_INLINE string buffer_view::to_string(size_type _front_offset) const
 	{
 		MemeStringStack_t stack;
 		auto result = MemeStringStack_initByBuffer(

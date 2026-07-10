@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEMEPP_STRING_SPAN_DEF_HPP_INCLUDED
 #define MEMEPP_STRING_SPAN_DEF_HPP_INCLUDED
 
@@ -164,10 +164,11 @@ inline namespace MMPP_NAMESPACE {
 		// --- conversion ---
 
 		string to_string() const;
+		string to_shared_storage() const noexcept;
 
 	private:
 		//! Create a temporary non-owning MemeStringStack_t for C API calls.
-		MemeStringStack_t to_stack_() const MEGOPP__NOEXCEPT;
+		MemeStringStack_t _to_stack() const MEGOPP__NOEXCEPT;
 
 		const_pointer data_;
 		size_type     size_;

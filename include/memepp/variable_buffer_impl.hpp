@@ -7,6 +7,7 @@
 #include "memepp/string_def.hpp"
 #include "memepp/buffer_def.hpp"
 #include "memepp/buffer_view_def.hpp"
+#include "memepp/buffer_span_def.hpp"
 #include "memepp/string_view_def.hpp"
 #include <memepp/errc.hpp>
 
@@ -336,12 +337,22 @@ inline namespace MMPP_NAMESPACE {
 
 	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::append(const buffer_view& _other)
 	{
-        *errc() = static_cast<int>(MemeVariableBuffer_appendWithBytes(to_pointer(data_),
-            _other.data(), _other.size()));
-#if !MMOPT__EXCEPTION_DISABLED
-        throw_errc(get_errc());
-#endif
-        return *this;
+	        *errc() = static_cast<int>(MemeVariableBuffer_appendWithBytes(to_pointer(data_),
+	            _other.data(), _other.size()));
+	#if !MMOPT__EXCEPTION_DISABLED
+	        throw_errc(get_errc());
+	#endif
+	        return *this;
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::append(const buffer_span& _other)
+	{
+	        *errc() = static_cast<int>(MemeVariableBuffer_appendWithBytes(to_pointer(data_),
+	            _other.data(), _other.size()));
+	#if !MMOPT__EXCEPTION_DISABLED
+	        throw_errc(get_errc());
+	#endif
+	        return *this;
 	}
 
 	MEMEPP__IMPL_INLINE iterator variable_buffer::insert(
@@ -415,9 +426,20 @@ inline namespace MMPP_NAMESPACE {
 	{
 		*errc() = static_cast<int>(MemeVariableBuffer_insertWithBytes(
 			to_pointer(data_), _pos - cbegin(), _other.data(), _other.size()));
-#if !MMOPT__EXCEPTION_DISABLED
+	#if !MMOPT__EXCEPTION_DISABLED
 		throw_errc(get_errc());
-#endif
+	#endif
+		return iterator(data() + (_pos - cbegin()));
+	}
+
+	MEMEPP__IMPL_INLINE iterator variable_buffer::insert(
+		const_iterator _pos, const buffer_span& _other)
+	{
+		*errc() = static_cast<int>(MemeVariableBuffer_insertWithBytes(
+			to_pointer(data_), _pos - cbegin(), _other.data(), _other.size()));
+	#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+	#endif
 		return iterator(data() + (_pos - cbegin()));
 	}
 
@@ -475,9 +497,19 @@ inline namespace MMPP_NAMESPACE {
 		size_type _pos, const buffer_view& _other)
 	{
 		*errc() = static_cast<int>(MemeVariableBuffer_insertWithBytes(to_pointer(data_), _pos, _other.data(), _other.size()));
-#if !MMOPT__EXCEPTION_DISABLED
+	#if !MMOPT__EXCEPTION_DISABLED
 		throw_errc(get_errc());
-#endif
+	#endif
+		return *this;
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::insert(
+		size_type _pos, const buffer_span& _other)
+	{
+		*errc() = static_cast<int>(MemeVariableBuffer_insertWithBytes(to_pointer(data_), _pos, _other.data(), _other.size()));
+	#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+	#endif
 		return *this;
 	}
 
