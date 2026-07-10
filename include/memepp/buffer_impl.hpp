@@ -128,6 +128,11 @@ inline namespace MMPP_NAMESPACE {
 		return MemeBuffer_isNonempty(to_pointer(data_)) == 0;
 	}
 
+	MEMEPP__IMPL_INLINE buffer::size_type buffer::capacity() const MEGOPP__NOEXCEPT
+	{
+		return MemeBuffer_availableByteCapacity(to_pointer(data_));
+	}
+
 	MEMEPP__IMPL_INLINE const_iterator buffer::begin() const MEGOPP__NOEXCEPT
 	{
         return const_iterator(data());
@@ -211,6 +216,27 @@ inline namespace MMPP_NAMESPACE {
 	{
 		return MemeBuffer_indexOfWithBytes(
 			to_pointer(native_handle()), 0, reinterpret_cast<const uint8_t*>(_utf8), _utf8_len);
+	}
+
+	MEMEPP__IMPL_INLINE buffer::size_type buffer::find(
+		const buffer& _other, size_type _pos) const MEGOPP__NOEXCEPT
+	{
+		return MemeBuffer_indexOfWithOther(
+			to_pointer(native_handle()), _pos, to_pointer(_other.native_handle()));
+	}
+
+	MEMEPP__IMPL_INLINE buffer::size_type buffer::find(
+		const_pointer _utf8, size_type _pos, size_type _count) const MEGOPP__NOEXCEPT
+	{
+		return MemeBuffer_indexOfWithBytes(
+			to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), _count);
+	}
+
+	MEMEPP__IMPL_INLINE buffer::size_type buffer::find(
+		value_type _byte, size_type _pos) const MEGOPP__NOEXCEPT
+	{
+		return MemeBuffer_indexOfWithBytes(
+			to_pointer(native_handle()), _pos, &_byte, 1);
 	}
 
 	MEMEPP__IMPL_INLINE bool buffer::contains(const buffer& _other) const MEGOPP__NOEXCEPT

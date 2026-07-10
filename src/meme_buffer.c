@@ -136,6 +136,12 @@ MEME_STDCALL MemeBuffer_size(MemeBuffer_Const_t _s)
 	return MemeString_byteSize((MemeString_Const_t)_s);
 }
 
+MEME_EXTERN_C MEME_API MemeInteger_t
+MEME_STDCALL MemeBuffer_availableByteCapacity(MemeBuffer_Const_t _s)
+{
+	return MemeString_availableByteCapacity((MemeString_Const_t)_s);
+}
+
 MEME_EXTERN_C MEME_API int
 MEME_STDCALL MemeBuffer_isEqual(
 	MemeBuffer_Const_t _s, const MemeByte_t* _buf, MemeInteger_t _len, int* _result)
