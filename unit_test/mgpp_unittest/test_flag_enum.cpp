@@ -130,7 +130,7 @@ TEST_CASE("mgpp::util::flag_enum operators in namespace (MGPP_FLAG_ENUM)", "[fla
         val |= test_ns::NsFlags::X;
         REQUIRE(val == test_ns::NsFlags::X);
         val |= test_ns::NsFlags::Y;
-        REQUIRE(val == test_ns::NsFlags::All);
+        REQUIRE(val == (test_ns::NsFlags::X | test_ns::NsFlags::Y));
     }
 
     SECTION("Bitwise NOT") {
