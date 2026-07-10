@@ -73,6 +73,11 @@ MEME_STDCALL MemeBufferStack_split(
     mmint_t* MEGO_SYMBOL__RESTRICT _search_index
 );
 
+MEME_API int
+MEME_STDCALL MemeBufferStack_slice(
+    mmbufstk_t* _out, size_t _object_size,
+    const mmbufstk_t* _s, mmint_t _pos, mmint_t _count);
+
 MEME_API MemeBuffer_Storage_t
 MEME_STDCALL MemeBuffer_storageType(MemeBuffer_Const_t _s);
 
@@ -104,6 +109,13 @@ MEME_STDCALL MemeBuffer_isEqual(
 MEME_API int
 MEME_STDCALL MemeBuffer_isEqualWithOther(
 	MemeBuffer_Const_t _lhs, MemeBuffer_Const_t _rhs, int* _result);
+
+MEME_API int
+MEME_STDCALL MemeBuffer_compare(mmbuf_cptr_t _lhs, mmbuf_cptr_t _rhs);
+
+MEME_API int
+MEME_STDCALL MemeBuffer_compareWithBytes(
+	mmbuf_cptr_t _s, const mmbyte_t* _buf, mmint_t _len);
 
 MEME_API mmint_t
 MEME_STDCALL MemeBuffer_isSharedStorageTypes(mmbuf_const_t _b);
@@ -221,6 +233,17 @@ mmbufstk_assign(mmbufstk_t* _out, size_t _object_size, const mmbufstk_t* _other)
     return MemeBufferStack_assign(_out, _object_size, _other);
 }
 
+MG_CAPI_INLINE int
+mmbufstk_slice(
+    mmbufstk_t* _out, size_t _object_size,
+    const mmbufstk_t* _s, mmint_t _pos, mmint_t _count)
+{
+    assert(_out != NULL && "mmbufstk_slice: null pointer for out");
+    assert(_s != NULL && "mmbufstk_slice: null pointer for src");
+
+    return MemeBufferStack_slice(_out, _object_size, _s, _pos, _count);
+}
+
 MG_CAPI_INLINE mmbuf_strg_t mmbuf_strg_type(mmbuf_cptr_t _b)
 {
     assert(_b != NULL && "mmbuf_strg_type: null pointer");
@@ -277,6 +300,22 @@ MG_CAPI_INLINE int mmbuf_is_equal_other(mmbuf_cptr_t _b, mmbuf_cptr_t _other, in
     assert(_b != NULL && "mmbuf_is_equal_other: null pointer");
 
     return MemeBuffer_isEqualWithOther(_b, _other, _result);
+}
+
+MG_CAPI_INLINE int mmbuf_compare(mmbuf_cptr_t _lhs, mmbuf_cptr_t _rhs)
+{
+    assert(_lhs != NULL && "mmbuf_compare: null pointer for lhs");
+    assert(_rhs != NULL && "mmbuf_compare: null pointer for rhs");
+
+    return MemeBuffer_compare(_lhs, _rhs);
+}
+
+MG_CAPI_INLINE int mmbuf_compare_bytes(
+    mmbuf_cptr_t _b, const mmbyte_t* _buf, mmint_t _len)
+{
+    assert(_b != NULL && "mmbuf_compare_bytes: null pointer");
+
+    return MemeBuffer_compareWithBytes(_b, _buf, _len);
 }
 
 MG_CAPI_INLINE int mmbuf_is_shared_strg_type(mmbuf_cptr_t _b)

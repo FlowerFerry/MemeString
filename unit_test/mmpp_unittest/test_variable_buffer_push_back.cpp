@@ -156,3 +156,178 @@ TEST_CASE("memepp::variable_buffer::push_back", "[variable_buffer]")
         }
     } while (0);
 }
+
+// ---------------------------------------------------------------------------
+// variable_buffer: front / back / pop_back
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::variable_buffer front/back — single element", "[variable_buffer]")
+{
+    memepp::variable_buffer buf;
+    buf.push_back(42);
+    REQUIRE(buf.front() == 42);
+    REQUIRE(buf.back() == 42);
+}
+
+TEST_CASE("memepp::variable_buffer front/back — multiple elements", "[variable_buffer]")
+{
+    memepp::variable_buffer buf;
+    buf.push_back(10);
+    buf.push_back(20);
+    buf.push_back(30);
+    REQUIRE(buf.front() == 10);
+    REQUIRE(buf.back() == 30);
+}
+
+TEST_CASE("memepp::variable_buffer front/back — mutable", "[variable_buffer]")
+{
+    memepp::variable_buffer buf;
+    buf.push_back(1);
+    buf.push_back(2);
+
+    buf.front() = 99;
+    REQUIRE(buf.front() == 99);
+
+    buf.back() = 88;
+    REQUIRE(buf.back() == 88);
+}
+
+TEST_CASE("memepp::variable_buffer pop_back", "[variable_buffer]")
+{
+    memepp::variable_buffer buf;
+    buf.push_back(1);
+    buf.push_back(2);
+    buf.push_back(3);
+
+    buf.pop_back();
+    REQUIRE(buf.size() == 2);
+    REQUIRE(buf.back() == 2);
+
+    buf.pop_back();
+    REQUIRE(buf.size() == 1);
+    REQUIRE(buf.back() == 1);
+
+    buf.pop_back();
+    REQUIRE(buf.size() == 0);
+}
+
+TEST_CASE("memepp::variable_buffer pop_back — empty does not crash", "[variable_buffer]")
+{
+    memepp::variable_buffer buf;
+    buf.pop_back();
+    REQUIRE(buf.empty());
+}
+
+TEST_CASE("memepp::variable_buffer pop_back — after reserve", "[variable_buffer]")
+{
+    memepp::variable_buffer buf;
+    buf.reserve(100);
+    buf.push_back(1);
+    buf.push_back(2);
+    buf.pop_back();
+    REQUIRE(buf.size() == 1);
+    REQUIRE(buf.back() == 1);
+}
+
+// ---------------------------------------------------------------------------
+// variable_buffer: operator+=
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::variable_buffer operator+=", "[variable_buffer]")
+{
+    memepp::variable_buffer a;
+    a.push_back(1);
+    a.push_back(2);
+
+    memepp::variable_buffer b;
+    b.push_back(3);
+    b.push_back(4);
+
+    a += b;
+    REQUIRE(a.size() == 4);
+    REQUIRE(a.at(0) == 1);
+    REQUIRE(a.at(3) == 4);
+}
+
+TEST_CASE("memepp::variable_buffer operator+= — move", "[variable_buffer]")
+{
+    memepp::variable_buffer a;
+    a.push_back(1);
+
+    memepp::variable_buffer b;
+    b.push_back(2);
+
+    a += std::move(b);
+    REQUIRE(a.size() == 2);
+    REQUIRE(a.at(1) == 2);
+}
+
+TEST_CASE("memepp::variable_buffer operator+= — empty rhs", "[variable_buffer]")
+{
+    memepp::variable_buffer a;
+    a.push_back(1);
+    a.push_back(2);
+
+    memepp::variable_buffer b;
+    a += b;
+    REQUIRE(a.size() == 2);
+}
+
+// ---------------------------------------------------------------------------
+// variable_buffer: swap
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::variable_buffer swap", "[variable_buffer]")
+{
+    memepp::variable_buffer a;
+    a.push_back(1);
+    a.push_back(2);
+
+    memepp::variable_buffer b;
+    b.push_back(99);
+    b.push_back(100);
+    b.push_back(101);
+
+    a.swap(b);
+    REQUIRE(a.size() == 3);
+    REQUIRE(b.size() == 2);
+    REQUIRE(a.front() == 99);
+    REQUIRE(b.front() == 1);
+}
+
+// ---------------------------------------------------------------------------
+// variable_buffer: operator=(string/string_view)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::variable_buffer operator=(string)", "[variable_buffer]")
+{
+    memepp::string s = "Hello";
+    memepp::variable_buffer buf;
+    buf = s;
+    REQUIRE(buf.size() == 5);
+    REQUIRE(memcmp(buf.data(), "Hello", 5) == 0);
+}
+
+TEST_CASE("memepp::variable_buffer operator=(string_view)", "[variable_buffer]")
+{
+    memepp::string_view sv = "World";
+    memepp::variable_buffer buf;
+    buf = sv;
+    REQUIRE(buf.size() == 5);
+    REQUIRE(memcmp(buf.data(), "World", 5) == 0);
+}
+
+// ---------------------------------------------------------------------------
+// variable_buffer: operator[] mutable
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::variable_buffer operator[] — mutable", "[variable_buffer]")
+{
+    memepp::variable_buffer buf;
+    buf.push_back(10);
+    buf.push_back(20);
+
+    buf[0] = 99;
+    REQUIRE(buf[0] == 99);
+    REQUIRE(buf.data()[0] == 99);
+}

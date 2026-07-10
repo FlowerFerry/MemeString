@@ -109,8 +109,21 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE buffer::const_reference buffer::at(size_type _pos) const
 	{
 		auto p = MemeBuffer_at(memepp::to_pointer(data_), _pos);
-		// TO_DO
+		if (!p)
+		{
+#if !MMOPT__EXCEPTION_DISABLED
+			throw std::out_of_range(
+				MEGO__STRINGIZE(memepp::buffer::at) " out of range");
+#else
+			assert(p && "memepp::buffer::at out of range");
+#endif
+		}
 		return *p;
+	}
+
+	MEMEPP__IMPL_INLINE buffer::const_reference buffer::operator[](size_type _pos) const
+	{
+		return at(_pos);
 	}
 
 	MEMEPP__IMPL_INLINE buffer::const_pointer buffer::data() const MEGOPP__NOEXCEPT
@@ -292,6 +305,45 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE bool operator!=(const buffer& _lhs, const buffer& _rhs)
 	{
 		return !(_lhs == _rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator<(const buffer& _lhs, const buffer& _rhs) MEGOPP__NOEXCEPT
+	{
+		return MemeBuffer_compare(
+			to_pointer(_lhs.native_handle()),
+			to_pointer(_rhs.native_handle())) < 0;
+	}
+
+	MEMEPP__IMPL_INLINE bool operator>(const buffer& _lhs, const buffer& _rhs) MEGOPP__NOEXCEPT
+	{
+		return MemeBuffer_compare(
+			to_pointer(_lhs.native_handle()),
+			to_pointer(_rhs.native_handle())) > 0;
+	}
+
+	MEMEPP__IMPL_INLINE bool operator<=(const buffer& _lhs, const buffer& _rhs) MEGOPP__NOEXCEPT
+	{
+		return !(_lhs > _rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator>=(const buffer& _lhs, const buffer& _rhs) MEGOPP__NOEXCEPT
+	{
+		return !(_lhs < _rhs);
+	}
+
+	MEMEPP__IMPL_INLINE int buffer::compare(const buffer& _other) const MEGOPP__NOEXCEPT
+	{
+		return MemeBuffer_compare(
+			to_pointer(data_), to_pointer(_other.data_));
+	}
+
+	MEMEPP__IMPL_INLINE buffer buffer::slice(size_type _pos, size_type _count) const
+	{
+		buffer result;
+		MemeBufferStack_slice(
+			&result.data_, MMS__OBJECT_SIZE,
+			&data_, _pos, _count);
+		return result;
 	}
 
 }; // namespace MMPP_NAMESPACE

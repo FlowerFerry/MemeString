@@ -331,3 +331,132 @@ TEST_CASE("memepp::buffer starts_with ends_with empty buffer", "[buffer]")
     REQUIRE(buf.starts_with(empty));
     REQUIRE(buf.ends_with(empty));
 }
+
+// ---------------------------------------------------------------------------
+// buffer: storage_type
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::buffer storage_type — empty", "[buffer]")
+{
+    memepp::buffer buf;
+    REQUIRE(buf.storage_type() == memepp::buffer_storage_t::small);
+}
+
+// ---------------------------------------------------------------------------
+// buffer: capacity
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::buffer capacity", "[buffer]")
+{
+    memepp::buffer buf;
+    REQUIRE(buf.capacity() >= buf.size());
+}
+
+// ---------------------------------------------------------------------------
+// buffer: cheap_copy
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::buffer cheap_copy", "[buffer]")
+{
+    const uint8_t data[] = { 1, 2, 3 };
+    memepp::buffer buf(data, static_cast<memepp::buffer::size_type>(3));
+    auto copy = buf.cheap_copy();
+    REQUIRE(copy.size() == 3);
+    REQUIRE(copy == buf);
+}
+
+TEST_CASE("memepp::buffer cheap_copy — empty", "[buffer]")
+{
+    memepp::buffer buf;
+    auto copy = buf.cheap_copy();
+    REQUIRE(copy.empty());
+}
+
+// ---------------------------------------------------------------------------
+// buffer: to_large_or_user
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::buffer to_large_or_user — small", "[buffer]")
+{
+    const uint8_t data[] = { 1, 2, 3 };
+    memepp::buffer buf(data, static_cast<memepp::buffer::size_type>(3));
+    auto result = buf.to_large_or_user();
+    REQUIRE(result == buf);
+    REQUIRE(result.empty() == false);
+}
+
+TEST_CASE("memepp::buffer to_large_or_user — empty", "[buffer]")
+{
+    memepp::buffer buf;
+    auto result = buf.to_large_or_user();
+    REQUIRE(result.empty());
+}
+
+TEST_CASE("memepp::buffer to_large_or_user — large", "[buffer]")
+{
+    const uint8_t data[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+                             17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
+                             31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44 };
+    memepp::buffer buf(data, static_cast<memepp::buffer::size_type>(sizeof(data)));
+    REQUIRE(buf.storage_type() == memepp::buffer_storage_t::large);
+    auto result = buf.to_large_or_user();
+    REQUIRE(result == buf);
+    REQUIRE(result.storage_type() == memepp::buffer_storage_t::large);
+}
+
+// ---------------------------------------------------------------------------
+// buffer: to_large extra
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::buffer to_large — empty", "[buffer]")
+{
+    memepp::buffer buf;
+    auto large = buf.to_large();
+    REQUIRE(large.empty());
+    REQUIRE(large.storage_type() == memepp::buffer_storage_t::large);
+}
+
+TEST_CASE("memepp::buffer to_large — small", "[buffer]")
+{
+    const uint8_t data[] = { 1, 2, 3 };
+    memepp::buffer buf(data, static_cast<memepp::buffer::size_type>(3));
+    auto large = buf.to_large();
+    REQUIRE(large.size() == 3);
+    REQUIRE(large.storage_type() == memepp::buffer_storage_t::large);
+}
+
+// ---------------------------------------------------------------------------
+// buffer: reset — already empty
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::buffer reset — already empty", "[buffer]")
+{
+    memepp::buffer buf;
+    buf.reset();
+    REQUIRE(buf.empty());
+}
+
+// ---------------------------------------------------------------------------
+// buffer: construct with storage hint
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::buffer construct with storage hint — large", "[buffer]")
+{
+    const uint8_t data[] = { 1, 2, 3 };
+    memepp::buffer buf(data, static_cast<memepp::buffer::size_type>(3),
+                       memepp::buffer_storage_t::large);
+    REQUIRE(buf.size() == 3);
+    REQUIRE(buf.storage_type() == memepp::buffer_storage_t::large);
+}
+
+// ---------------------------------------------------------------------------
+// buffer: index_of — not found
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::buffer index_of — not found", "[buffer]")
+{
+    const uint8_t hay[] = { 1, 2, 3, 4, 5 };
+    memepp::buffer haystack(hay, static_cast<memepp::buffer::size_type>(5));
+    memepp::buffer empty;
+    REQUIRE(haystack.index_of(empty) == memepp::buffer::npos);
+}

@@ -162,6 +162,40 @@ MEME_EXTERN_C MEME_API mmint_t MEME_STDCALL MemeBuffer_isSharedStorageTypes(mmbu
     return MemeString_isSharedStorageTypes((mms_const_t)_b);
 }
 
+MEME_EXTERN_C MEME_API int MEME_STDCALL MemeBuffer_compare(mmbuf_cptr_t _lhs, mmbuf_cptr_t _rhs)
+{
+    return MemeString_compare((mmstr_cptr_t)_lhs, (mmstr_cptr_t)_rhs);
+}
+
+MEME_EXTERN_C MEME_API int MEME_STDCALL MemeBuffer_compareWithBytes(
+    mmbuf_cptr_t _s, const mmbyte_t* _buf, mmint_t _len)
+{
+    return MemeString_compareByUtf8bytes((mmstr_cptr_t)_s, _buf, _len);
+}
+
+MEME_EXTERN_C MEME_API int MEME_STDCALL MemeBufferStack_slice(
+    mmbufstk_t* _out, size_t _object_size,
+    const mmbufstk_t* _s, mmint_t _pos, mmint_t _count)
+{
+    const mmbuf_cptr_t s = (mmbuf_cptr_t)_s;
+    const mmint_t sz = MemeBuffer_size(s);
+    if (_pos < 0 || _pos >= sz)
+        return MemeBufferStack_init(_out, _object_size);
+    if (_count < 0)
+        _count = sz - _pos;
+    else {
+        const mmint_t avail = sz - _pos;
+        if (_count > avail)
+            _count = avail;
+    }
+    if (MemeBuffer_storageType(s) == MemeBuffer_UnsafeStorageType_view)
+        return MemeBufferViewUnsafeStack_init(
+            _out, _object_size, MemeBuffer_data(s) + _pos, _count);
+    else
+        return MemeBufferStack_initByBytes(
+            _out, _object_size, MemeBuffer_data(s) + _pos, _count);
+}
+
 MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeBuffer_indexOfWithBytes(
 	MemeBuffer_Const_t _s, MemeInteger_t _offset, const MemeByte_t* _needle, MemeInteger_t _needle_len)

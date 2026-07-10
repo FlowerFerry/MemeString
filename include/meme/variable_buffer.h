@@ -87,6 +87,14 @@ MEME_API int
 MEME_STDCALL MemeVariableBuffer_isEqualWithOther(
 	MemeVariableBuffer_Const_t _lhs, MemeVariableBuffer_Const_t _rhs, int* _result);
 
+MEME_API int
+MEME_STDCALL MemeVariableBuffer_compare(
+	mmvb_cptr_t _lhs, mmvb_cptr_t _rhs);
+
+MEME_API int
+MEME_STDCALL MemeVariableBuffer_compareWithBytes(
+	mmvb_cptr_t _s, const mmbyte_t* _buf, mmint_t _len);
+
 MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_availableByteCapacity(MemeVariableBuffer_Const_t _s);
 

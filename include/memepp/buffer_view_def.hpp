@@ -61,6 +61,7 @@ inline namespace MMPP_NAMESPACE {
 		buffer_storage_t storage_type() const MEGOPP__NOEXCEPT;
 
 		const_reference at(size_type _pos) const;
+		const_reference operator[](size_type _pos) const;
 
 		const_pointer data() const MEGOPP__NOEXCEPT;
 		size_type size() const MEGOPP__NOEXCEPT;
@@ -93,6 +94,8 @@ inline namespace MMPP_NAMESPACE {
 		bool ends_with(const_pointer _utf8, size_type _count) const MEGOPP__NOEXCEPT;
 
         buffer_view slice(size_type _pos = 0, size_type _count = npos) const MEGOPP__NOEXCEPT;
+
+        int compare(const buffer_view& _other) const MEGOPP__NOEXCEPT;
 		
 		const native_handle_type& native_handle() const MEGOPP__NOEXCEPT;
 
@@ -102,6 +105,10 @@ inline namespace MMPP_NAMESPACE {
 
 	bool operator==(const buffer_view& _lhs, const buffer_view& _rhs) MEGOPP__NOEXCEPT;
 	bool operator!=(const buffer_view& _lhs, const buffer_view& _rhs) MEGOPP__NOEXCEPT;
+	bool operator< (const buffer_view& _lhs, const buffer_view& _rhs) MEGOPP__NOEXCEPT;
+	bool operator> (const buffer_view& _lhs, const buffer_view& _rhs) MEGOPP__NOEXCEPT;
+	bool operator<=(const buffer_view& _lhs, const buffer_view& _rhs) MEGOPP__NOEXCEPT;
+	bool operator>=(const buffer_view& _lhs, const buffer_view& _rhs) MEGOPP__NOEXCEPT;
 	
 using buffer_ref = buffer_view;
 

@@ -6,6 +6,8 @@
 #include <memepp/string.hpp>
 #include <memepp/string_view.hpp>
 
+#include <cstring>
+
 // ---------------------------------------------------------------------------
 // Assignment operators
 // ---------------------------------------------------------------------------
@@ -427,4 +429,18 @@ TEST_CASE("memepp::buffer_view empty views are equal", "[buffer_view]")
     memepp::buffer_view a;
     memepp::buffer_view b;
     REQUIRE(a == b);
+}
+
+// ---------------------------------------------------------------------------
+// buffer_view: to_shared_storage
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::buffer_view to_shared_storage", "[buffer_view]")
+{
+    const uint8_t raw[] = {0x11, 0x22, 0x33};
+    memepp::buffer buf(raw, 3);
+    memepp::buffer_view bv(buf);
+    auto shared = bv.to_shared_storage();
+    REQUIRE(shared.size() == 3);
+    REQUIRE(std::memcmp(shared.data(), raw, 3) == 0);
 }

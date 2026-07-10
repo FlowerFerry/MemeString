@@ -288,3 +288,82 @@ TEST_CASE("memepp::variant set<T>", "[variant]")
     REQUIRE(v.try_get(out) == 0);
     REQUIRE(out == 777LL);
 }
+
+// ---------------------------------------------------------------------------
+// variant: variable_buffer type
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::variant — variable_buffer type", "[variant]")
+{
+    memepp::variable_buffer vb;
+    vb.push_back(1);
+    vb.push_back(2);
+    memepp::variant v = vb;
+    REQUIRE(v.is_type(memepp::meta::typid::varbuf));
+    REQUIRE(v.type_id() == memepp::meta::typid::varbuf);
+    auto val = v.get_or<memepp::variable_buffer>();
+    REQUIRE(val.size() == 2);
+}
+
+// ---------------------------------------------------------------------------
+// variant: reset — double reset
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::variant reset — double reset", "[variant]")
+{
+    memepp::variant v;
+    v.reset();
+    REQUIRE(v.is_null());
+}
+
+// ---------------------------------------------------------------------------
+// variant: swap — same type
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::variant swap — same type", "[variant]")
+{
+    memepp::variant a(static_cast<int64_t>(10LL));
+    memepp::variant b(static_cast<int64_t>(20LL));
+
+    a.swap(b);
+    REQUIRE(a.get_or<int64_t>() == 20);
+    REQUIRE(b.get_or<int64_t>() == 10);
+}
+
+// ---------------------------------------------------------------------------
+// variant: native_handle (compile check only)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::variant native_handle compiles", "[variant]")
+{
+    memepp::variant v(static_cast<int64_t>(42LL));
+    const auto& nh = v.native_handle();
+    (void)nh;
+}
+
+// ---------------------------------------------------------------------------
+// variant: assign from wchar_t
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::variant assign from wchar_t", "[variant]")
+{
+    memepp::variant v;
+    v = wchar_t(L'A');
+    REQUIRE(v.is_type(memepp::meta::typid::wchar));
+    REQUIRE(v.get_or<wchar_t>() == L'A');
+}
+
+// ---------------------------------------------------------------------------
+// variant: assign from buffer
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::variant assign from buffer", "[variant]")
+{
+    const uint8_t data[] = { 1, 2, 3 };
+    memepp::buffer buf(data, static_cast<memepp::buffer::size_type>(3));
+    memepp::variant v;
+    v = buf;
+    REQUIRE(v.is_type(memepp::meta::typid::buffer));
+    auto val = v.get_or<memepp::buffer>();
+    REQUIRE(val.size() == 3);
+}

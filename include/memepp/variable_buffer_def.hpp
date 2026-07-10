@@ -148,6 +148,8 @@ inline namespace MMPP_NAMESPACE {
 
         variable_buffer& remove(size_type _pos, size_type _count);
 
+        int compare(const variable_buffer& _other) const MEGOPP__NOEXCEPT;
+
 		variable_buffer& resize(size_type _count);
 		variable_buffer& resize(size_type _count, value_type _value);
 		variable_buffer& resize_and_overwrite(size_type _count);
@@ -160,6 +162,13 @@ inline namespace MMPP_NAMESPACE {
 	private:
 		native_handle_type data_;
 	};
+
+	bool operator==(const variable_buffer& _lhs, const variable_buffer& _rhs) MEGOPP__NOEXCEPT;
+	bool operator!=(const variable_buffer& _lhs, const variable_buffer& _rhs) MEGOPP__NOEXCEPT;
+	bool operator< (const variable_buffer& _lhs, const variable_buffer& _rhs) MEGOPP__NOEXCEPT;
+	bool operator> (const variable_buffer& _lhs, const variable_buffer& _rhs) MEGOPP__NOEXCEPT;
+	bool operator<=(const variable_buffer& _lhs, const variable_buffer& _rhs) MEGOPP__NOEXCEPT;
+	bool operator>=(const variable_buffer& _lhs, const variable_buffer& _rhs) MEGOPP__NOEXCEPT;
 
 	template<typename _Ty>
 	inline variable_buffer& variable_buffer::push_back(const _Ty& _v, megopp::endian_t _endian)

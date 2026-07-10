@@ -70,6 +70,7 @@ set(SRC_FILES
 		${CMAKE_CURRENT_SOURCE_DIR}/test_dll_import_export.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_span.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_span.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_compare.cpp
 	)
 
 function(mmut_create_exec_for_stdcxx  exec_name cxx_standard)

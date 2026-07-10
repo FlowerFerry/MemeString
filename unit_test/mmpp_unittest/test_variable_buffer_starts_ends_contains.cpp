@@ -189,3 +189,82 @@ TEST_CASE("memepp::variable_buffer starts_with ends_with contains — large", "[
     REQUIRE_FALSE(buf.starts_with(absent, 1));
     REQUIRE_FALSE(buf.ends_with(absent, 1));
 }
+
+// ---------------------------------------------------------------------------
+// variable_buffer: find
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::variable_buffer find — single byte", "[variable_buffer]")
+{
+    memepp::variable_buffer buf;
+    buf.push_back(10);
+    buf.push_back(20);
+    buf.push_back(30);
+
+    REQUIRE(buf.find(static_cast<uint8_t>(10)) == 0);
+    REQUIRE(buf.find(static_cast<uint8_t>(20)) == 1);
+    REQUIRE(buf.find(static_cast<uint8_t>(30)) == 2);
+    REQUIRE(buf.find(static_cast<uint8_t>(99)) == -1);
+}
+
+TEST_CASE("memepp::variable_buffer find — with offset", "[variable_buffer]")
+{
+    memepp::variable_buffer buf;
+    buf.push_back(10);
+    buf.push_back(20);
+    buf.push_back(10);
+    buf.push_back(30);
+
+    REQUIRE(buf.find(static_cast<uint8_t>(10), 0) == 0);
+    REQUIRE(buf.find(static_cast<uint8_t>(10), 1) == 2);
+    REQUIRE(buf.find(static_cast<uint8_t>(10), 3) == -1);
+}
+
+TEST_CASE("memepp::variable_buffer find — const_pointer pattern", "[variable_buffer]")
+{
+    memepp::variable_buffer buf;
+    const uint8_t data[] = { 1, 2, 3, 4, 1, 2, 3, 4 };
+    buf.append(data, sizeof(data));
+
+    const uint8_t pattern[] = { 2, 3 };
+    REQUIRE(buf.find(pattern, 0, 2) == 1);
+    REQUIRE(buf.find(pattern, 2, 2) == 5);
+    REQUIRE(buf.find(pattern, 6, 2) == -1);
+}
+
+TEST_CASE("memepp::variable_buffer find — string_view pattern", "[variable_buffer]")
+{
+    memepp::variable_buffer buf;
+    const uint8_t data[] = { 'H', 'e', 'l', 'l', 'o' };
+    buf.append(data, sizeof(data));
+
+    REQUIRE(buf.find(memepp::string_view("ello"), 0) == 1);
+    REQUIRE(buf.find(memepp::string_view("xyz"), 0) == -1);
+}
+
+TEST_CASE("memepp::variable_buffer find — variable_buffer pattern", "[variable_buffer]")
+{
+    memepp::variable_buffer buf;
+    const uint8_t data[] = { 1, 2, 3, 4, 5 };
+    buf.append(data, sizeof(data));
+
+    memepp::variable_buffer pattern;
+    const uint8_t pat[] = { 3, 4 };
+    pattern.append(pat, sizeof(pat));
+
+    REQUIRE(buf.find(pattern, 0) == 2);
+    REQUIRE(buf.find(pattern, 3) == -1);
+}
+
+TEST_CASE("memepp::variable_buffer find — buffer pattern", "[variable_buffer]")
+{
+    memepp::variable_buffer buf;
+    const uint8_t data[] = { 10, 20, 30, 40 };
+    buf.append(data, sizeof(data));
+
+    const uint8_t pat[] = { 20, 30 };
+    memepp::buffer patBuf(pat, static_cast<memepp::buffer::size_type>(sizeof(pat)));
+
+    REQUIRE(buf.find(patBuf, 0) == 1);
+    REQUIRE(buf.find(patBuf, 2) == -1);
+}

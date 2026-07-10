@@ -56,6 +56,7 @@ inline namespace MMPP_NAMESPACE {
 		buffer_storage_t storage_type() const MEGOPP__NOEXCEPT;
 
 		const_reference at(size_type _pos) const;
+		const_reference operator[](size_type _pos) const;
 
 		const_pointer data() const MEGOPP__NOEXCEPT;
 
@@ -95,6 +96,10 @@ inline namespace MMPP_NAMESPACE {
 		bool ends_with(const buffer& _other) const MEGOPP__NOEXCEPT;
 		bool ends_with(const_pointer _utf8, size_type _count) const MEGOPP__NOEXCEPT;
 
+		int compare(const buffer& _other) const MEGOPP__NOEXCEPT;
+
+		buffer slice(size_type _pos = 0, size_type _count = npos) const;
+
 		const native_handle_type& native_handle() const MEGOPP__NOEXCEPT;
 
 	private:
@@ -103,6 +108,10 @@ inline namespace MMPP_NAMESPACE {
 
 	bool operator==(const buffer& _lhs, const buffer& _rhs);
 	bool operator!=(const buffer& _lhs, const buffer& _rhs);
+	bool operator< (const buffer& _lhs, const buffer& _rhs) MEGOPP__NOEXCEPT;
+	bool operator> (const buffer& _lhs, const buffer& _rhs) MEGOPP__NOEXCEPT;
+	bool operator<=(const buffer& _lhs, const buffer& _rhs) MEGOPP__NOEXCEPT;
+	bool operator>=(const buffer& _lhs, const buffer& _rhs) MEGOPP__NOEXCEPT;
 
 }; // namespace MMPP_NAMESPACE
 }; // namespace memepp

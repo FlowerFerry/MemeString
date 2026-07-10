@@ -171,6 +171,18 @@ MEME_STDCALL MemeVariableBuffer_isEqualWithOther(
 		(MemeString_Const_t)_lhs, (MemeString_Const_t)_rhs, _result);
 }
 
+MEME_EXTERN_C MEME_API int MEME_STDCALL MemeVariableBuffer_compare(
+	mmvb_cptr_t _lhs, mmvb_cptr_t _rhs)
+{
+    return MemeString_compare((mmstr_cptr_t)_lhs, (mmstr_cptr_t)_rhs);
+}
+
+MEME_EXTERN_C MEME_API int MEME_STDCALL MemeVariableBuffer_compareWithBytes(
+	mmvb_cptr_t _s, const mmbyte_t* _buf, mmint_t _len)
+{
+    return MemeString_compareByUtf8bytes((mmstr_cptr_t)_s, _buf, _len);
+}
+
 MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_availableByteCapacity(MemeVariableBuffer_Const_t _s)
 {

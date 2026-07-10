@@ -144,8 +144,21 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE buffer_view::const_reference buffer_view::at(size_type _pos) const
 	{
 		auto p = MemeBuffer_at(memepp::to_pointer(data_), _pos);
-		// TO_DO
+		if (!p)
+		{
+#if !MMOPT__EXCEPTION_DISABLED
+			throw std::out_of_range(
+				MEGO__STRINGIZE(memepp::buffer_view::at) " out of range");
+#else
+			assert(p && "memepp::buffer_view::at out of range");
+#endif
+		}
 		return *p;
+	}
+
+	MEMEPP__IMPL_INLINE buffer_view::const_reference buffer_view::operator[](size_type _pos) const
+	{
+		return at(_pos);
 	}
 
 	MEMEPP__IMPL_INLINE buffer_view::const_pointer buffer_view::data() const MEGOPP__NOEXCEPT
@@ -273,12 +286,17 @@ MEMEPP__IMPL_INLINE string buffer_view::to_string(size_type _front_offset) const
 
 	MEMEPP__IMPL_INLINE buffer_view buffer_view::slice(size_type _pos, size_type _count) const MEGOPP__NOEXCEPT
 	{
-		const size_type sz = size();
-		if (_pos < 0 || _pos >= sz)
-			return buffer_view{};
-		const size_type avail = sz - _pos;
-		const size_type n = (_count == npos || _count > avail) ? avail : _count;
-		return buffer_view{ data() + _pos, n };
+		buffer_view result;
+		MemeBufferStack_slice(
+			&result.data_, MMS__OBJECT_SIZE,
+			&data_, _pos, _count);
+		return result;
+	}
+
+	MEMEPP__IMPL_INLINE int buffer_view::compare(const buffer_view& _other) const MEGOPP__NOEXCEPT
+	{
+		return MemeBuffer_compare(
+			to_pointer(data_), to_pointer(_other.data_));
 	}
 
 	MEMEPP__IMPL_INLINE const buffer_view::native_handle_type& buffer_view::native_handle() const MEGOPP__NOEXCEPT
@@ -298,6 +316,30 @@ MEMEPP__IMPL_INLINE string buffer_view::to_string(size_type _front_offset) const
 	MEMEPP__IMPL_INLINE bool operator!=(const buffer_view& _lhs, const buffer_view& _rhs) MEGOPP__NOEXCEPT
 	{
 		return !(_lhs == _rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator<(const buffer_view& _lhs, const buffer_view& _rhs) MEGOPP__NOEXCEPT
+	{
+		return MemeBuffer_compare(
+			to_pointer(_lhs.native_handle()),
+			to_pointer(_rhs.native_handle())) < 0;
+	}
+
+	MEMEPP__IMPL_INLINE bool operator>(const buffer_view& _lhs, const buffer_view& _rhs) MEGOPP__NOEXCEPT
+	{
+		return MemeBuffer_compare(
+			to_pointer(_lhs.native_handle()),
+			to_pointer(_rhs.native_handle())) > 0;
+	}
+
+	MEMEPP__IMPL_INLINE bool operator<=(const buffer_view& _lhs, const buffer_view& _rhs) MEGOPP__NOEXCEPT
+	{
+		return !(_lhs > _rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator>=(const buffer_view& _lhs, const buffer_view& _rhs) MEGOPP__NOEXCEPT
+	{
+		return !(_lhs < _rhs);
 	}
 
 }; // namespace MMPP_NAMESPACE

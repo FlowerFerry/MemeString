@@ -93,6 +93,18 @@ inline namespace MMPP_NAMESPACE {
 		return *this;
 	}
 
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::operator=(const string& _other)
+	{
+		clear();
+		return append(_other);
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::operator=(const string_view& _other)
+	{
+		clear();
+		return append(_other);
+	}
+
 	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::operator+=(const variable_buffer& _other)
 	{
 		return this->append(_other);
@@ -621,6 +633,49 @@ inline namespace MMPP_NAMESPACE {
 		return data_;
 	}
 
+	MEMEPP__IMPL_INLINE int variable_buffer::compare(const variable_buffer& _other) const MEGOPP__NOEXCEPT
+	{
+		return MemeVariableBuffer_compare(
+			to_pointer(data_), to_pointer(_other.data_));
+	}
+
+	MEMEPP__IMPL_INLINE bool operator==(const variable_buffer& _lhs, const variable_buffer& _rhs) MEGOPP__NOEXCEPT
+	{
+		int result = 0;
+		MemeVariableBuffer_isEqualWithOther(
+			to_pointer(_lhs.native_handle()),
+			to_pointer(_rhs.native_handle()), &result);
+		return result;
+	}
+
+	MEMEPP__IMPL_INLINE bool operator!=(const variable_buffer& _lhs, const variable_buffer& _rhs) MEGOPP__NOEXCEPT
+	{
+		return !(_lhs == _rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator<(const variable_buffer& _lhs, const variable_buffer& _rhs) MEGOPP__NOEXCEPT
+	{
+		return MemeVariableBuffer_compare(
+			to_pointer(_lhs.native_handle()),
+			to_pointer(_rhs.native_handle())) < 0;
+	}
+
+	MEMEPP__IMPL_INLINE bool operator>(const variable_buffer& _lhs, const variable_buffer& _rhs) MEGOPP__NOEXCEPT
+	{
+		return MemeVariableBuffer_compare(
+			to_pointer(_lhs.native_handle()),
+			to_pointer(_rhs.native_handle())) > 0;
+	}
+
+	MEMEPP__IMPL_INLINE bool operator<=(const variable_buffer& _lhs, const variable_buffer& _rhs) MEGOPP__NOEXCEPT
+	{
+		return !(_lhs > _rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator>=(const variable_buffer& _lhs, const variable_buffer& _rhs) MEGOPP__NOEXCEPT
+	{
+		return !(_lhs < _rhs);
+	}
 }; // namespace MMPP_NAMESPACE
 };
 
