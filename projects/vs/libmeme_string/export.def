@@ -436,6 +436,7 @@ EXPORTS
     mmconc_atomic_u64_base_fetch_and_explicit @402
     mmconc_atomic_flag_base_test_and_set_explicit @403
     mmconc_atomic_flag_base_clear_explicit @404
+    mmconc_atomic_flag_base_init @405
     mmmem_malloc @600
     mmmem_calloc @601
     mmmem_realloc @602
@@ -465,6 +466,7 @@ EXPORTS
     MemeStringStack_trimByCondRuneFunc @3022
     MemeStringStack_trimPrefix @3023
     MemeStringStack_trimSuffix @3024
+    MemeStringStack_join @3025
     MemeBufferStack_regSize @4000
     MemeBufferStack_objSize @4001
     MemeBufferStack_split @4002
@@ -473,6 +475,7 @@ EXPORTS
     MemeVariableBufferStack_split @5002
     MemeStringBuilderStack_regSize @6000
     MemeStringBuilderStack_objSize @6001
+    MemeStringBuilderStack_release @6002
     MemeVariantStack_regSize @7000
     MemeVariantStack_objSize @7001
     MemeVariantStack_initByDump @7002
@@ -678,3 +681,7 @@ EXPORTS
     mmsimd_u64_clamp @12197
     mmsimd_f32_clamp @12198
     mmsimd_f64_clamp @12199
+    MemeBuffer_availableByteCapacity @20000
+    MemeVariableBuffer_startsMatchWithBytes @21000
+    MemeVariableBuffer_endsMatchWithBytes @21001
+    MemeVariableBuffer_insertWithByte @21002
