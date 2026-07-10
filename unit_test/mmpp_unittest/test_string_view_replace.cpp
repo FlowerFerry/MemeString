@@ -83,3 +83,16 @@ TEST_CASE("memepp::string_view replace - result is memepp::string", "[string_vie
     REQUIRE(r == "World");
     REQUIRE(r.size() == 5);
 }
+
+TEST_CASE("memepp::string_view replace - with count parameter", "[string_view]")
+{
+    memepp::string_view s = "aa_aa_aa";
+
+    // Replace all occurrences (count=-1)
+    auto r = s.replace("_", "-", -1);
+    REQUIRE(r == "aa-aa-aa");
+
+    // Replace first occurrence only (count=1)
+    auto r2 = s.replace("_", "-", 1);
+    REQUIRE(r2 == "aa-aa_aa");
+}

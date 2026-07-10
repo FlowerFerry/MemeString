@@ -125,3 +125,18 @@ TEST_CASE("memepp::string_view rfind - pointer overload", "[string_view]")
     REQUIRE(s.rfind(p, 5)    == 0);
     REQUIRE(s.rfind(p, 9, 3) == 6);
 }
+
+TEST_CASE("memepp::string_view rfind - const char* with substr_count", "[string_view]")
+{
+    memepp::string_view s = "Hello, Hello!";
+
+    // find full word
+    REQUIRE(s.rfind("Hello", memepp::string_view::npos, 5) == 7);
+    REQUIRE(s.rfind("Hello", 6, 5) == 0);
+    // partial prefix match
+    REQUIRE(s.rfind("HelloXYZ", memepp::string_view::npos, 4) == 7);
+    // zero count → should return npos
+    REQUIRE(s.rfind("Hello", memepp::string_view::npos, 0) == memepp::string_view::npos);
+    // not found
+    REQUIRE(s.rfind("Hello", memepp::string_view::npos, 6) == memepp::string_view::npos);
+}

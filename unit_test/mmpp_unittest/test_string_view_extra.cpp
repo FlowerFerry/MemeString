@@ -458,3 +458,92 @@ TEST_CASE("memepp::string_view to_string — empty", "[string_view]")
     auto s = sv.to_string();
     REQUIRE(s.empty());
 }
+
+// ---------------------------------------------------------------------------
+// string_view::string_view(string&&)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_view construct from string rvalue", "[string_view]")
+{
+    memepp::string s = "Hello, World!";
+    memepp::string_view sv(std::move(s));
+    REQUIRE(sv == "Hello, World!");
+    REQUIRE(sv.size() == 13);
+}
+
+TEST_CASE("memepp::string_view construct from string rvalue -- empty", "[string_view]")
+{
+    memepp::string s;
+    memepp::string_view sv(std::move(s));
+    REQUIRE(sv.empty());
+}
+
+// ---------------------------------------------------------------------------
+// string_view::operator+ (returns string_builder)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_view operator+ with string", "[string_view]")
+{
+    memepp::string_view sv = "Hello";
+    memepp::string other = " World";
+    auto result = sv + other;
+    REQUIRE(result.generate() == "Hello World");
+}
+
+TEST_CASE("memepp::string_view operator+ with string_view", "[string_view]")
+{
+    memepp::string_view sv = "Hello";
+    memepp::string_view other = " World";
+    auto result = sv + other;
+    REQUIRE(result.generate() == "Hello World");
+}
+
+TEST_CASE("memepp::string_view operator+ with const char*", "[string_view]")
+{
+    memepp::string_view sv = "Hello";
+    auto result = sv + " World";
+    REQUIRE(result.generate() == "Hello World");
+}
+
+// ---------------------------------------------------------------------------
+// string_view::count(const char*, size, case_sensit_t)
+// string_view::count(const_pointer, size, case_sensit_t)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_view count -- const char* with size", "[string_view]")
+{
+    memepp::string_view sv = "AaBbaaBb";
+    REQUIRE(sv.count("Aa", 2) == 2);       // first 2 bytes of "Aa" = "Aa"
+    REQUIRE(sv.count("AaX", 1) == 2);      // first 1 byte = "A" appears twice
+    REQUIRE(sv.count("Bb", 2) == 2);
+    REQUIRE(sv.count("Cc", 2) == 0);
+}
+
+TEST_CASE("memepp::string_view count -- const_pointer with size", "[string_view]")
+{
+    memepp::string_view sv = "HelloHello";
+    const memepp::string_view::const_pointer p =
+        reinterpret_cast<const memepp::string_view::const_pointer>("HelloX");
+    REQUIRE(sv.count(p, 5) == 2);
+    REQUIRE(sv.count(p, 4) == 2);          // "Hell" appears twice
+    REQUIRE(sv.count(p, 2) == 2);          // "He" appears twice
+}
+
+// ---------------------------------------------------------------------------
+// operator""_meme_sv
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_view UDL _meme_sv", "[string_view]")
+{
+    using namespace memepp;
+    auto sv = "Hello, UDL"_meme_sv;
+    REQUIRE(sv == "Hello, UDL");
+    REQUIRE(sv.size() == 11);
+}
+
+TEST_CASE("memepp::string_view UDL _meme_sv -- empty", "[string_view]")
+{
+    using namespace memepp;
+    auto sv = ""_meme_sv;
+    REQUIRE(sv.empty());
+}
