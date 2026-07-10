@@ -61,7 +61,6 @@ inline namespace MMPP_NAMESPACE {
 
 		size_type size() const MEGOPP__NOEXCEPT;
 		bool empty() const MEGOPP__NOEXCEPT;
-		size_type max_size() const MEGOPP__NOEXCEPT;
 		size_type capacity() const MEGOPP__NOEXCEPT;
 
         const_iterator begin() const MEGOPP__NOEXCEPT;
@@ -82,6 +81,10 @@ inline namespace MMPP_NAMESPACE {
 
 		size_type index_of(const buffer& _other) const MEGOPP__NOEXCEPT;
 		size_type index_of(const_pointer _utf8, size_type _utf8_len) const MEGOPP__NOEXCEPT;
+
+		size_type find(const buffer& _other, size_type _pos = 0) const MEGOPP__NOEXCEPT;
+		size_type find(const_pointer _utf8, size_type _pos, size_type _count) const MEGOPP__NOEXCEPT;
+		size_type find(value_type _byte, size_type _pos = 0) const MEGOPP__NOEXCEPT;
 
 		bool contains(const buffer& _other) const MEGOPP__NOEXCEPT;
 		bool contains(const_pointer _utf8, size_type _count) const MEGOPP__NOEXCEPT;

@@ -89,6 +89,15 @@ inline namespace MMPP_NAMESPACE {
         size_type find(value_type _value, size_type _pos = 0) const MEGOPP__NOEXCEPT;
         size_type find(const_pointer _buf, size_type _pos, size_type _size) const MEGOPP__NOEXCEPT;
 
+        bool starts_with(const_pointer _buf, size_type _count) const MEGOPP__NOEXCEPT;
+        bool starts_with(value_type _byte) const MEGOPP__NOEXCEPT;
+
+        bool ends_with(const_pointer _buf, size_type _count) const MEGOPP__NOEXCEPT;
+        bool ends_with(value_type _byte) const MEGOPP__NOEXCEPT;
+
+        bool contains(const_pointer _buf, size_type _count) const MEGOPP__NOEXCEPT;
+        bool contains(value_type _byte) const MEGOPP__NOEXCEPT;
+
 
 		void swap(variable_buffer& _other) MEGOPP__NOEXCEPT;
 
