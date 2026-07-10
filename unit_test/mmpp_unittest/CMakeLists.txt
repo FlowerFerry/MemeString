@@ -31,6 +31,7 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_push_front.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_push_back.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_clear.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_insert.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_starts_ends_contains.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_reserve.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_multi_buffer_view.cpp

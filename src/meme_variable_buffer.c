@@ -515,6 +515,15 @@ MEME_STDCALL MemeVariableBuffer_clear(MemeVariableBuffer_t _s)
 }
 
 MEME_EXTERN_C MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_insertWithByte(
+	MemeVariableBuffer_t _s, MemeInteger_t _pos, MemeByte_t _byte)
+{
+	assert(_s && "MemeVariableBuffer_insertWithByte");
+
+	return MemeVariableBuffer_insertWithBytes(_s, _pos, &_byte, 1);
+}
+
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_resize(MemeVariableBuffer_t _s, MemeInteger_t _size)
 {
 	return MemeVariableBuffer_resizeWithByte(_s, _size, 0);
