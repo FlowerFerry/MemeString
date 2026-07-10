@@ -246,6 +246,22 @@ MEME_STDCALL MemeVariableBuffer_appendWithByte(MemeVariableBuffer_t _s, MemeByte
 }
 
 MEME_EXTERN_C MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_startsMatchWithBytes(
+	MemeVariableBuffer_Const_t _s, const MemeByte_t* _needle, MemeInteger_t _needle_len)
+{
+    return MemeString_startsMatchWithUtf8bytes(
+        (MemeString_Const_t)_s, _needle, _needle_len, MemeFlag_AllSensitive);
+}
+
+MEME_EXTERN_C MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_endsMatchWithBytes(
+	MemeVariableBuffer_Const_t _s, const MemeByte_t* _needle, MemeInteger_t _needle_len)
+{
+    return MemeString_endsMatchWithUtf8bytes(
+        (MemeString_Const_t)_s, _needle, _needle_len, MemeFlag_AllSensitive);
+}
+
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_appendWithBytes(
 	MemeVariableBuffer_t _s, const MemeByte_t* _buf, MemeInteger_t _len)
 {

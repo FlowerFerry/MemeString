@@ -121,6 +121,16 @@ MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_appendWithByte(MemeVariableBuffer_t _s, MemeByte_t _byte);
 
 MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_startsMatchWithBytes(
+	MemeVariableBuffer_Const_t _s,
+	const MemeByte_t* _needle, MemeInteger_t _needle_len);
+
+MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_endsMatchWithBytes(
+	MemeVariableBuffer_Const_t _s,
+	const MemeByte_t* _needle, MemeInteger_t _needle_len);
+
+MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_appendWithOther(
 	MemeVariableBuffer_t _s, MemeVariableBuffer_Const_t _other);
 

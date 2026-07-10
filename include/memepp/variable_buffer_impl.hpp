@@ -244,6 +244,45 @@ inline namespace MMPP_NAMESPACE {
         return MemeVariableBuffer_indexOfWithBytes(to_pointer(data_), _pos, _buf, _size);
 	}
 
+	MEMEPP__IMPL_INLINE bool
+		variable_buffer::starts_with(const_pointer _buf, size_type _count) const MEGOPP__NOEXCEPT
+	{
+		return MemeVariableBuffer_startsMatchWithBytes(
+			to_pointer(data_), _buf, _count);
+	}
+
+	MEMEPP__IMPL_INLINE bool
+		variable_buffer::starts_with(value_type _byte) const MEGOPP__NOEXCEPT
+	{
+		return size() > 0 && data()[0] == _byte;
+	}
+
+	MEMEPP__IMPL_INLINE bool
+		variable_buffer::ends_with(const_pointer _buf, size_type _count) const MEGOPP__NOEXCEPT
+	{
+		return MemeVariableBuffer_endsMatchWithBytes(
+			to_pointer(data_), _buf, _count);
+	}
+
+	MEMEPP__IMPL_INLINE bool
+		variable_buffer::ends_with(value_type _byte) const MEGOPP__NOEXCEPT
+	{
+		auto sz = size();
+		return sz > 0 && data()[sz - 1] == _byte;
+	}
+
+	MEMEPP__IMPL_INLINE bool
+		variable_buffer::contains(const_pointer _buf, size_type _count) const MEGOPP__NOEXCEPT
+	{
+		return find(_buf, 0, _count) != npos;
+	}
+
+	MEMEPP__IMPL_INLINE bool
+		variable_buffer::contains(value_type _byte) const MEGOPP__NOEXCEPT
+	{
+		return find(_byte) != npos;
+	}
+
 	MEMEPP__IMPL_INLINE void variable_buffer::swap(variable_buffer& _other) MEGOPP__NOEXCEPT
 	{
 		MemeVariableBuffer_swap(to_pointer(data_), to_pointer(_other.data_));
