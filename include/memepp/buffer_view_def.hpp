@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEMEPP_BUFFER_VIEW_DEF_HPP_INCLUDED
 #define MEMEPP_BUFFER_VIEW_DEF_HPP_INCLUDED
 
@@ -66,8 +66,7 @@ inline namespace MMPP_NAMESPACE {
 		const_pointer data() const MEGOPP__NOEXCEPT;
 		size_type size() const MEGOPP__NOEXCEPT;
 		bool empty() const MEGOPP__NOEXCEPT;
-		size_type max_size() const MEGOPP__NOEXCEPT;
-		size_type capacity() const MEGOPP__NOEXCEPT;
+		//size_type capacity() const MEGOPP__NOEXCEPT;
 
 		const_iterator begin() const MEGOPP__NOEXCEPT;
 		const_iterator cbegin() const MEGOPP__NOEXCEPT;

@@ -2,6 +2,9 @@
 
 #include <memepp/rune.hpp>
 #include <memepp/string.hpp>
+#include <memepp/string_view.hpp>
+
+#include <cstring>
 
 // ---------------------------------------------------------------------------
 // constructors / basic properties
@@ -271,4 +274,234 @@ TEST_CASE("memepp::rune_index from UTF-8 multibyte — ideographic space", "[run
     REQUIRE(ri.data() != nullptr);
     REQUIRE(ri.size() == 3);
     REQUIRE(ri.is_space());
+}
+
+// ---------------------------------------------------------------------------
+// rune: construct from C MemeRune_t (copy and move)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::rune construct from MemeRune_t (copy)", "[rune]")
+{
+    MemeRune_t c_rune;
+    MemeRune_initByByte(&c_rune, 'Z');
+
+    memepp::rune r(c_rune);
+    REQUIRE(r.valid());
+    REQUIRE(r == 'Z');
+    REQUIRE(r.size() == 1);
+}
+
+TEST_CASE("memepp::rune construct from MemeRune_t (move)", "[rune]")
+{
+    MemeRune_t c_rune;
+    MemeRune_initByByte(&c_rune, 'M');
+
+    memepp::rune r(std::move(c_rune));
+    REQUIRE(r.valid());
+    REQUIRE(r == 'M');
+    REQUIRE(r.size() == 1);
+}
+
+// ---------------------------------------------------------------------------
+// rune: operator= from C MemeRune_t (copy and move)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::rune operator= from MemeRune_t (copy)", "[rune]")
+{
+    MemeRune_t c_rune;
+    MemeRune_initByByte(&c_rune, 'Q');
+
+    memepp::rune r;
+    r = c_rune;
+    REQUIRE(r == 'Q');
+}
+
+TEST_CASE("memepp::rune operator= from MemeRune_t (move)", "[rune]")
+{
+    MemeRune_t c_rune;
+    MemeRune_initByByte(&c_rune, 'X');
+
+    memepp::rune r;
+    r = std::move(c_rune);
+    REQUIRE(r == 'X');
+}
+
+// ---------------------------------------------------------------------------
+// rune: operator= from rune (copy and move) — independent tests with self-assignment
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::rune operator= from rune (copy)", "[rune]")
+{
+    memepp::rune src('P');
+    memepp::rune dst;
+
+    dst = src;
+    REQUIRE(dst == 'P');
+    REQUIRE(src == 'P');  // src unchanged
+}
+
+TEST_CASE("memepp::rune operator= from rune self-assignment", "[rune]")
+{
+    memepp::rune r('T');
+
+    r = r;
+    REQUIRE(r == 'T');
+    REQUIRE(r.size() == 1);
+}
+
+TEST_CASE("memepp::rune operator= from rune (move)", "[rune]")
+{
+    memepp::rune src('W');
+    memepp::rune dst;
+
+    dst = std::move(src);
+    REQUIRE(dst == 'W');
+}
+
+TEST_CASE("memepp::rune operator= from rune self-move-assignment", "[rune]")
+{
+    memepp::rune r('Y');
+
+    r = std::move(r);
+    REQUIRE(r == 'Y');
+    REQUIRE(r.size() == 1);
+}
+
+// ---------------------------------------------------------------------------
+// rune: non-const data(), begin(), end()
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::rune non-const data returns mutable pointer", "[rune]")
+{
+    memepp::rune r('A');
+    auto* p = r.data();
+    REQUIRE(p != nullptr);
+    REQUIRE(p[0] == 'A');
+}
+
+TEST_CASE("memepp::rune non-const begin and end", "[rune]")
+{
+    memepp::rune r('K');
+    // begin
+    auto it = r.begin();
+    REQUIRE(it != r.end());
+    REQUIRE(*it == static_cast<uint8_t>('K'));
+    ++it;
+    REQUIRE(it == r.end());
+
+    // end
+    REQUIRE(r.begin() != r.end());
+}
+
+// ---------------------------------------------------------------------------
+// rune: const begin() and end() — direct call (not cbegin/cend)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::rune begin const and end const", "[rune]")
+{
+    const memepp::rune r('L');
+
+    auto it = r.begin();
+    REQUIRE(it != r.end());
+    REQUIRE(*it == static_cast<uint8_t>('L'));
+    ++it;
+    REQUIRE(it == r.end());
+}
+
+// ---------------------------------------------------------------------------
+// rune: native_handle() const and non-const
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::rune native_handle returns reference to MemeRune_t", "[rune]")
+{
+    memepp::rune r('V');
+
+    auto& nh = r.native_handle();
+    REQUIRE(sizeof(nh) == sizeof(MemeRune_t));
+
+    // verify content via C API
+    REQUIRE(MemeRune_size(&nh) == 1);
+    REQUIRE(MemeRune_data(&nh)[0] == static_cast<uint8_t>('V'));
+}
+
+TEST_CASE("memepp::rune native_handle const", "[rune]")
+{
+    const memepp::rune r('S');
+
+    const auto& nh = r.native_handle();
+    REQUIRE(sizeof(nh) == sizeof(MemeRune_t));
+    REQUIRE(MemeRune_size(&nh) == 1);
+    REQUIRE(MemeRune_data(&nh)[0] == static_cast<uint8_t>('S'));
+}
+
+// ---------------------------------------------------------------------------
+// cross-module operator!= for rune vs string_view
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::rune operator!= with string_view", "[rune]")
+{
+    memepp::rune r('H');
+    memepp::string_view sv_h("H");
+    memepp::string_view sv_w("W");
+
+    REQUIRE_FALSE(r != sv_h);
+    REQUIRE_FALSE(sv_h != r);
+    REQUIRE(r != sv_w);
+    REQUIRE(sv_w != r);
+}
+
+// ---------------------------------------------------------------------------
+// rune_index: construct from C MemeRuneIndex_t (copy and move)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::rune_index construct from MemeRuneIndex_t (copy)", "[rune_index]")
+{
+    const uint8_t byte[] = { 'C' };
+    MemeRuneIndex_t c_idx;
+    c_idx.data = byte;
+    c_idx.size = 1;
+
+    memepp::rune_index ri(c_idx);
+    REQUIRE(ri.data() == byte);
+    REQUIRE(ri.size() == 1);
+    REQUIRE_FALSE(ri.is_space());
+}
+
+TEST_CASE("memepp::rune_index construct from MemeRuneIndex_t (move)", "[rune_index]")
+{
+    const uint8_t byte[] = { 'D' };
+    MemeRuneIndex_t c_idx;
+    c_idx.data = byte;
+    c_idx.size = 1;
+
+    memepp::rune_index ri(std::move(c_idx));
+    REQUIRE(ri.data() == byte);
+    REQUIRE(ri.size() == 1);
+    REQUIRE_FALSE(ri.is_space());
+}
+
+// ---------------------------------------------------------------------------
+// rune_index: native_handle() const and non-const
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::rune_index native_handle returns reference", "[rune_index]")
+{
+    const uint8_t byte[] = { 0x20 };
+    memepp::rune_index ri(byte, 1);
+
+    auto& nh = ri.native_handle();
+    REQUIRE(nh.data == byte);
+    REQUIRE(nh.size == 1);
+    REQUIRE(sizeof(nh) == sizeof(MemeRuneIndex_t));
+}
+
+TEST_CASE("memepp::rune_index native_handle const", "[rune_index]")
+{
+    const uint8_t byte[] = { 'E' };
+    const memepp::rune_index ri(byte, 1);
+
+    const auto& nh = ri.native_handle();
+    REQUIRE(nh.data == byte);
+    REQUIRE(nh.size == 1);
+    REQUIRE(sizeof(nh) == sizeof(MemeRuneIndex_t));
 }

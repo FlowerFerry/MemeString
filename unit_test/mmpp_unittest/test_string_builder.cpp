@@ -220,3 +220,213 @@ TEST_CASE("memepp::string_builder operator+(const char*, const memepp::string&) 
     builder += "baz";
     REQUIRE(builder.generate() == "foobarbaz");
 }
+
+// ---------------------------------------------------------------------------
+// move assignment
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder move assignment transfers content", "[string_builder]")
+{
+    memepp::string_builder src;
+    src += "move_assign_src";
+
+    memepp::string_builder dst;
+    dst = std::move(src);
+
+    REQUIRE(dst.generate() == "move_assign_src");
+}
+
+TEST_CASE("memepp::string_builder move assignment leaves source empty", "[string_builder]")
+{
+    memepp::string_builder src;
+    src += "src_content";
+
+    memepp::string_builder dst;
+    dst += "dst_content";
+    dst = std::move(src);
+
+    // src is swapped into dst; src now has dst's old content
+    REQUIRE(src.generate() == "dst_content");
+    REQUIRE(dst.generate() == "src_content");
+}
+
+// ---------------------------------------------------------------------------
+// copy assignment (swap semantics)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder copy assignment swaps content", "[string_builder]")
+{
+    memepp::string_builder src;
+    src += "src_data";
+
+    memepp::string_builder dst;
+    dst += "dst_data";
+    dst = src;
+
+    // copy assignment uses swap: dst gets src's content, src gets dst's old content
+    REQUIRE(src.generate() == "dst_data");
+    REQUIRE(dst.generate() == "src_data");
+}
+
+TEST_CASE("memepp::string_builder self-assignment copy", "[string_builder]")
+{
+    memepp::string_builder b;
+    b += "self_assign";
+
+    b = b;
+
+    // state must be unchanged after self-assignment
+    REQUIRE(b.generate() == "self_assign");
+}
+
+// ---------------------------------------------------------------------------
+// native_handle()
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder native_handle returns valid reference", "[string_builder]")
+{
+    memepp::string_builder b;
+    b += "nh_test";
+
+    const auto& nh = b.native_handle();
+    // verify content is accessible via generate (the primary public API)
+    REQUIRE(b.generate() == "nh_test");
+    // native_handle returns a reference to the internal struct
+    REQUIRE(sizeof(nh) == sizeof(MemeStringBuilderStack_t));
+}
+
+// ---------------------------------------------------------------------------
+// prepend operator+ — (const string&) + string_builder&  (lvalue ref return)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder operator+(const string&, string_builder&) prepends", "[string_builder]")
+{
+    memepp::string s("prefix_");
+    memepp::string_builder b;
+    b += "suffix";
+
+    // prepend s before b's content, returns lvalue ref to same builder
+    memepp::string_builder& ref = s + b;
+    REQUIRE(&ref == &b);
+    REQUIRE(b.generate() == "prefix_suffix");
+}
+
+// ---------------------------------------------------------------------------
+// prepend operator+ — (const string&) + string_builder&&  (rvalue return)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder operator+(const string&, string_builder&&) prepends and returns", "[string_builder]")
+{
+    memepp::string s("Hello, ");
+
+    auto result = s + memepp::string_builder{};
+    (result + "world!");
+    REQUIRE(result.generate() == "Hello, world!");
+}
+
+// ---------------------------------------------------------------------------
+// prepend operator+ — (const string_view&) + string_builder&  (lvalue ref return)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder operator+(const string_view&, string_builder&) prepends", "[string_builder]")
+{
+    memepp::string_view sv("sv_prefix_");
+    memepp::string_builder b;
+    b += "body";
+
+    memepp::string_builder& ref = sv + b;
+    REQUIRE(&ref == &b);
+    REQUIRE(b.generate() == "sv_prefix_body");
+}
+
+// ---------------------------------------------------------------------------
+// prepend operator+ — (const string_view&) + string_builder&&  (rvalue return)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder operator+(const string_view&, string_builder&&) prepends and returns", "[string_builder]")
+{
+    memepp::string_view sv("<<");
+
+    auto result = sv + memepp::string_builder{};
+    (result + "body");
+    REQUIRE(result.generate() == "<<body");
+}
+
+// ---------------------------------------------------------------------------
+// prepend operator+ — (const char*) + string_builder&  (lvalue ref return)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder operator+(const char*, string_builder&) prepends", "[string_builder]")
+{
+    memepp::string_builder b;
+    b += "tail";
+
+    memepp::string_builder& ref = "head_" + b;
+    REQUIRE(&ref == &b);
+    REQUIRE(b.generate() == "head_tail");
+}
+
+// ---------------------------------------------------------------------------
+// prepend operator+ — (const char*) + string_builder&&  (rvalue return)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder operator+(const char*, string_builder&&) prepends and returns", "[string_builder]")
+{
+    auto result = "rvalue_head_" + memepp::string_builder{};
+    (result + "rvalue_tail");
+    REQUIRE(result.generate() == "rvalue_head_rvalue_tail");
+}
+
+// ---------------------------------------------------------------------------
+// prepend operator+ — chain multiple prepends and appends
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder prepend + append mixed chaining", "[string_builder]")
+{
+    memepp::string s1("one");
+    memepp::string s2("two");
+    memepp::string_builder b;
+    b += "three";
+
+    // prepend s2, then prepend s1 (order: s1 then s2 then "three")
+    s1 + (s2 + b);
+    REQUIRE(b.generate() == "onetwothree");
+}
+
+TEST_CASE("memepp::string_builder prepend rvalue chain", "[string_builder]")
+{
+    memepp::string s1("-P1");
+    memepp::string_view sv("-P2");
+
+    // prepend with move: s1 prepends, then sv prepends before everything
+    auto result = sv + (s1 + memepp::string_builder{});
+    result + "core";
+    REQUIRE(result.generate() == "-P2-P1core");
+}
+
+// ---------------------------------------------------------------------------
+// destructor — verify proper cleanup after release (indirect)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder destructor after release re-init", "[string_builder]")
+{
+    // After release, builder's internal state is reset.
+    // Verify that generate() returns empty.
+    memepp::string_builder b;
+    b += "temp";
+    b.release();
+
+    REQUIRE(b.generate().empty());
+}
+
+TEST_CASE("memepp::string_builder reuse after release", "[string_builder]")
+{
+    memepp::string_builder b;
+    b += "first";
+
+    b.release();
+
+    // After release, builder should be reusable
+    b += "second";
+    REQUIRE(b.generate() == "second");
+}

@@ -4,6 +4,8 @@
 #include <memepp/variant.hpp>
 #include <memepp/string.hpp>
 
+#include <cstring>
+
 // ---------------------------------------------------------------------------
 // default constructor
 // ---------------------------------------------------------------------------
@@ -472,4 +474,193 @@ TEST_CASE("memepp::varts var() non-const allows mutation", "[varts]")
 TEST_CASE("memepp::varts size matches mmvtsstk_t", "[varts]")
 {
     REQUIRE(sizeof(memepp::varts) == sizeof(mmvtsstk_t));
+}
+
+// ---------------------------------------------------------------------------
+// construct from moved variant + timestamp (2-arg, missing independent test)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::varts construct from moved variant and timestamp", "[varts]")
+{
+    memepp::variant var(static_cast<int64_t>(99LL));
+    mgu_timestamp_t ts = mgu_timestamp_get();
+
+    memepp::varts vts(std::move(var), ts);
+
+    REQUIRE(vts.is_ts_valid());
+    REQUIRE(vts.timestamp() == ts);
+    REQUIRE(vts.userdata() == 0);
+
+    int64_t out = 0;
+    REQUIRE(vts.var().try_get(out) == 0);
+    REQUIRE(out == 99LL);
+}
+
+TEST_CASE("memepp::varts construct from moved variant and invalid timestamp", "[varts]")
+{
+    memepp::variant var(static_cast<double>(1.5));
+    memepp::varts vts(std::move(var), static_cast<mgu_timestamp_t>(-1));
+
+    REQUIRE(!vts.is_ts_valid());
+    REQUIRE(vts.timestamp() == -1);
+    REQUIRE(vts.userdata() == 0);
+
+    double out = 0.0;
+    REQUIRE(vts.var().try_get(out) == 0);
+    REQUIRE(out == Approx(1.5));
+}
+
+// ---------------------------------------------------------------------------
+// construct from C mmvtsstk_t (copy and move)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::varts construct from mmvtsstk_t (copy)", "[varts]")
+{
+    memepp::variant var(static_cast<int64_t>(-7LL));
+    mgu_timestamp_t ts = mgu_timestamp_get();
+    memepp::varts src(var, ts, static_cast<int8_t>(12));
+
+    // access underlying C struct
+    const auto& stk = *reinterpret_cast<const mmvtsstk_t*>(&src);
+    memepp::varts vts(stk);
+
+    REQUIRE(vts.is_ts_valid());
+    REQUIRE(vts.timestamp() == ts);
+    REQUIRE(vts.userdata() == 12);
+
+    int64_t out = 0;
+    REQUIRE(vts.var().try_get(out) == 0);
+    REQUIRE(out == -7LL);
+}
+
+TEST_CASE("memepp::varts construct from mmvtsstk_t with invalid timestamp", "[varts]")
+{
+    memepp::variant var(memepp::string("copy_test"));
+    memepp::varts src(var, static_cast<mgu_timestamp_t>(-1), static_cast<int8_t>(-3));
+
+    const auto& stk = *reinterpret_cast<const mmvtsstk_t*>(&src);
+    memepp::varts vts(stk);
+
+    REQUIRE(!vts.is_ts_valid());
+    REQUIRE(vts.timestamp() == -1);
+    REQUIRE(vts.userdata() == static_cast<int8_t>(-3));
+
+    memepp::string out;
+    REQUIRE(vts.var().try_get(out) == 0);
+    REQUIRE(out == "copy_test");
+}
+
+TEST_CASE("memepp::varts construct from mmvtsstk_t (move)", "[varts]")
+{
+    memepp::variant var(static_cast<uint64_t>(256ULL));
+    mgu_timestamp_t ts = mgu_timestamp_get();
+    memepp::varts src(var, ts, static_cast<int8_t>(7));
+
+    auto&& stk = *reinterpret_cast<mmvtsstk_t*>(&src);
+    memepp::varts vts(std::move(stk));
+
+    REQUIRE(vts.is_ts_valid());
+    REQUIRE(vts.timestamp() == ts);
+    REQUIRE(vts.userdata() == 7);
+
+    uint64_t out = 0;
+    REQUIRE(vts.var().try_get(out) == 0);
+    REQUIRE(out == 256ULL);
+}
+
+// ---------------------------------------------------------------------------
+// time_part() and ms_part()
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::varts time_part and ms_part with valid timestamp", "[varts]")
+{
+    // ts = 1234567 ms => time_part = 1234 sec, ms_part = 567 ms
+    mgu_timestamp_t ts = 1234567;
+    memepp::varts vts(ts);
+
+    REQUIRE(vts.is_ts_valid());
+    REQUIRE(vts.timestamp() == ts);
+    REQUIRE(vts.time_part() == mgu_timestamp_to_time(ts));
+    REQUIRE(vts.ms_part() == mgu_timestamp_get_ms(ts));
+
+    // verify the math independently
+    REQUIRE(vts.time_part() == 1234);
+    REQUIRE(vts.ms_part() == 567);
+}
+
+TEST_CASE("memepp::varts time_part and ms_part with epoch zero", "[varts]")
+{
+    // default constructed: ts_=0 (epoch)
+    memepp::varts vts;
+
+    REQUIRE(vts.is_ts_valid());
+    REQUIRE(vts.timestamp() == 0);
+    REQUIRE(vts.time_part() == 0);
+    REQUIRE(vts.ms_part() == 0);
+}
+
+TEST_CASE("memepp::varts time_part and ms_part with invalid timestamp", "[varts]")
+{
+    memepp::varts vts(static_cast<mgu_timestamp_t>(-1));
+
+    REQUIRE(!vts.is_ts_valid());
+    REQUIRE(vts.timestamp() == -1);
+    REQUIRE(vts.time_part() == -1);
+    REQUIRE(vts.ms_part() == -1);
+}
+
+TEST_CASE("memepp::varts time_part and ms_part after set_timestamp", "[varts]")
+{
+    memepp::varts vts;
+    mgu_timestamp_t ts = mgu_timestamp_get();
+
+    vts.set_timestamp(ts);
+    REQUIRE(vts.time_part() == mgu_timestamp_to_time(ts));
+    REQUIRE(vts.ms_part() == mgu_timestamp_get_ms(ts));
+
+    vts.set_timestamp(static_cast<mgu_timestamp_t>(-1));
+    REQUIRE(vts.time_part() == -1);
+    REQUIRE(vts.ms_part() == -1);
+}
+
+// ---------------------------------------------------------------------------
+// self-assignment (copy and move)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::varts self-assignment copy", "[varts]")
+{
+    mgu_timestamp_t ts = mgu_timestamp_get();
+    memepp::variant var(static_cast<int64_t>(42LL));
+    memepp::varts vts(var, ts, static_cast<int8_t>(8));
+
+    // self-assignment
+    vts = vts;
+
+    // state must be unchanged
+    REQUIRE(vts.is_ts_valid());
+    REQUIRE(vts.timestamp() == ts);
+    REQUIRE(vts.userdata() == 8);
+
+    int64_t out = 0;
+    REQUIRE(vts.var().try_get(out) == 0);
+    REQUIRE(out == 42LL);
+}
+
+TEST_CASE("memepp::varts self-assignment move", "[varts]")
+{
+    mgu_timestamp_t ts = mgu_timestamp_get();
+    memepp::variant var(static_cast<double>(3.14));
+    memepp::varts vts(var, ts, static_cast<int8_t>(-5));
+
+    // self-move-assignment
+    vts = std::move(vts);
+
+    // state must be unchanged
+    REQUIRE(vts.is_ts_valid());
+    REQUIRE(vts.timestamp() == ts);
+    REQUIRE(vts.userdata() == static_cast<int8_t>(-5));
+
+    double out = 0.0;
+    REQUIRE(vts.var().try_get(out) == 0);
+    REQUIRE(out == Approx(3.14));
 }

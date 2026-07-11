@@ -744,3 +744,58 @@ TEST_CASE("buffer_span to_shared_storage", "[buffer_span]")
     REQUIRE(buf.size() == 3);
     REQUIRE(std::memcmp(buf.data(), raw, 3) == 0);
 }
+
+// ---------------------------------------------------------------------------
+// find / rfind — const_pointer+pos+count (direct overload test)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("buffer_span find const_pointer with pos and count", "[buffer_span]")
+{
+    const uint8_t raw[] = {0x01, 0x02, 0x03, 0x02, 0x03, 0x04};
+    memepp::buffer_span bs(raw, 6);
+    const uint8_t needle[] = {0x02, 0x03};
+    REQUIRE(bs.find(needle, 2, 2) == 3);
+    REQUIRE(bs.find(needle, 5, 2) == memepp::buffer_span::npos);
+}
+
+TEST_CASE("buffer_span rfind const_pointer with pos and count", "[buffer_span]")
+{
+    const uint8_t raw[] = {0x01, 0x02, 0x03, 0x01, 0x02};
+    memepp::buffer_span bs(raw, 5);
+    const uint8_t needle[] = {0x01, 0x02};
+    REQUIRE(bs.rfind(needle, 2, 2) == 0);
+    REQUIRE(bs.rfind(needle, 4, 2) == 3);
+}
+
+// ---------------------------------------------------------------------------
+// contains / starts_with / ends_with — buffer_span overload
+// ---------------------------------------------------------------------------
+
+TEST_CASE("buffer_span contains buffer_span", "[buffer_span]")
+{
+    const uint8_t raw[] = {0x01, 0x02, 0x03, 0x04};
+    memepp::buffer_span bs(raw, 4);
+    const uint8_t nd[] = {0x02, 0x03};
+    const uint8_t not_found[] = {0xFF};
+    REQUIRE(bs.contains(memepp::buffer_span(nd, 2)));
+    REQUIRE_FALSE(bs.contains(memepp::buffer_span(not_found, 1)));
+}
+
+TEST_CASE("buffer_span starts_with buffer_span", "[buffer_span]")
+{
+    const uint8_t raw[] = {0xAA, 0xBB, 0xCC};
+    memepp::buffer_span bs(raw, 3);
+    const uint8_t pf[] = {0xAA, 0xBB};
+    const uint8_t not_prefix[] = {0xFF, 0xEE};
+    REQUIRE(bs.starts_with(memepp::buffer_span(pf, 2)));
+    REQUIRE_FALSE(bs.starts_with(memepp::buffer_span(not_prefix, 2)));
+}
+
+TEST_CASE("buffer_span ends_with buffer_span", "[buffer_span]")
+{
+    const uint8_t raw[] = {0x11, 0x22, 0x33, 0x44};
+    memepp::buffer_span bs(raw, 4);
+    const uint8_t sf[] = {0x33, 0x44};
+    REQUIRE(bs.ends_with(memepp::buffer_span(sf, 2)));
+    REQUIRE_FALSE(bs.ends_with(memepp::buffer_span(sf, 1)));
+}

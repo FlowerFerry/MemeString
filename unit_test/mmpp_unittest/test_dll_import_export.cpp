@@ -451,3 +451,20 @@ TEST_CASE("memepp::varts DLL import/export — export&& transfers ownership", "[
     auto rt_var = memepp::import_from_dll<memepp::variant>(stk.var, MMVAR__OBJ_SIZE);
     REQUIRE(rt_var.get_or<double>() == 2.71828);
 }
+
+TEST_CASE("memepp::varts DLL import/export — import rvalue", "[dll][varts]")
+{
+    memepp::variant var{ static_cast<int64_t>(99LL) };
+    memepp::varts src{ var, 1700000000LL, static_cast<int8_t>(3) };
+
+    // Get a mutable copy of the underlying C struct
+    mmvtsstk_t raw;
+    std::memcpy(&raw, &src, sizeof(mmvtsstk_t));
+
+    auto imported = memepp::import_from_dll<memepp::varts>(
+        std::move(raw), MMVTS__OBJ_SIZE);
+    REQUIRE(imported.timestamp() == 1700000000LL);
+    REQUIRE(imported.userdata() == 3);
+    REQUIRE(imported.var().is_type(memepp::meta::typid::int64));
+    REQUIRE(imported.var().get_or<int64_t>() == 99LL);
+}

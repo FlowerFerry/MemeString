@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEMEPP_BUFFER_VIEW_IMPL_HPP_INCLUDED
 #define MEMEPP_BUFFER_VIEW_IMPL_HPP_INCLUDED
 
@@ -176,7 +176,6 @@ inline namespace MMPP_NAMESPACE {
         return MemeBuffer_isEmpty(memepp::to_pointer(data_));
 	}
 	
-	//MEMEPP__IMPL_INLINE buffer_view::size_type buffer_view::max_size() const MEGOPP__NOEXCEPT
 	//MEMEPP__IMPL_INLINE buffer_view::size_type buffer_view::capacity() const MEGOPP__NOEXCEPT
 
 	MEMEPP__IMPL_INLINE const_iterator buffer_view::begin() const MEGOPP__NOEXCEPT

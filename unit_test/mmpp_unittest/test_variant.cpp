@@ -791,3 +791,73 @@ TEST_CASE("memepp::variant operator= overwrites previous type", "[variant]")
     REQUIRE(v.is_type(memepp::meta::typid::int64));
     REQUIRE(v.get_or<int64_t>() == 999LL);
 }
+
+// ---------------------------------------------------------------------------
+// platform-conditional try_convert specializations
+// ---------------------------------------------------------------------------
+
+#if INTPTR_MAX != INT32_MAX
+TEST_CASE("memepp::variant try_convert to int32_t", "[variant]")
+{
+    memepp::variant v(static_cast<int64_t>(42LL));
+    int32_t out = 0;
+    REQUIRE(v.try_convert(out) == 0);
+    REQUIRE(out == static_cast<int32_t>(42));
+}
+
+TEST_CASE("memepp::variant try_convert to uint32_t", "[variant]")
+{
+    memepp::variant v(static_cast<uint64_t>(100ULL));
+    uint32_t out = 0;
+    REQUIRE(v.try_convert(out) == 0);
+    REQUIRE(out == static_cast<uint32_t>(100));
+}
+#endif
+
+// ---------------------------------------------------------------------------
+// platform-conditional set<T> specializations
+// ---------------------------------------------------------------------------
+
+#if INTPTR_MAX != INT32_MAX
+TEST_CASE("memepp::variant set int32_t", "[variant]")
+{
+    memepp::variant v;
+    REQUIRE(v.set(static_cast<int32_t>(-500)) == 0);
+    mmint_t out = 0;
+    REQUIRE(v.try_convert(out) == 0);
+    REQUIRE(out == static_cast<mmint_t>(-500));
+}
+
+TEST_CASE("memepp::variant set uint32_t", "[variant]")
+{
+    memepp::variant v;
+    REQUIRE(v.set(static_cast<uint32_t>(500)) == 0);
+    size_t out = 0;
+    REQUIRE(v.try_convert(out) == 0);
+    REQUIRE(out == static_cast<size_t>(500));
+}
+#endif
+
+// ---------------------------------------------------------------------------
+// DLL rvalue overloads (export_into_dll with move, import_from_dll with rvalue)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::variant import_from_dll rvalue ref", "[variant]")
+{
+    memepp::variant::native_handle_type nh;
+    MemeVariantStack_initByInt64(&nh, MMVAR__OBJ_SIZE, 777LL);
+    auto imported = memepp::import_from_dll<memepp::variant>(
+        std::move(nh), MMVAR__OBJ_SIZE);
+    REQUIRE(imported.is_type(memepp::meta::typid::int64));
+    REQUIRE(imported.get_or<int64_t>() == 777LL);
+}
+
+TEST_CASE("memepp::variant export_into_dll rvalue ref", "[variant]")
+{
+    memepp::variant src(static_cast<int64_t>(88LL));
+    auto exported = memepp::export_into_dll<mmvarstk_t>(
+        std::move(src), MMVAR__OBJ_SIZE);
+    memepp::variant v(std::move(exported));
+    REQUIRE(v.is_type(memepp::meta::typid::int64));
+    REQUIRE(v.get_or<int64_t>() == 88LL);
+}
