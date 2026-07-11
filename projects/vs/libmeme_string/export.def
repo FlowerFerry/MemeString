@@ -470,6 +470,7 @@ EXPORTS
     MemeBufferStack_regSize @4000
     MemeBufferStack_objSize @4001
     MemeBufferStack_split @4002
+    MemeBufferStack_slice @4003
     MemeVariableBufferStack_regSize @5000
     MemeVariableBufferStack_objSize @5001
     MemeVariableBufferStack_split @5002
@@ -682,6 +683,9 @@ EXPORTS
     mmsimd_f32_clamp @12198
     mmsimd_f64_clamp @12199
     MemeBuffer_availableByteCapacity @20000
+    MemeBuffer_compare @20001
     MemeVariableBuffer_startsMatchWithBytes @21000
     MemeVariableBuffer_endsMatchWithBytes @21001
     MemeVariableBuffer_insertWithByte @21002
+    MemeVariableBuffer_compare @21003
+    MemeVariableBuffer_compareWithBytes @21004
