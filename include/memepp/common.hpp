@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEMEPP_COMMON_HPP_INCLUDED
 #define MEMEPP_COMMON_HPP_INCLUDED
 
@@ -6,7 +6,7 @@
 
 #define MMPP_VER__MAJOR 0
 #define MMPP_VER__MINOR 0
-#define MMPP_VER__PATCH 8
+#define MMPP_VER__PATCH 9
 
 #define MMPP_NAMESPACE_DO_CONCAT_IMPL(MAJOR, MINOR, PATCH) \
     v ## MAJOR ## _ ## MINOR ## _ ## PATCH
