@@ -505,3 +505,319 @@ TEST_CASE("memepp::rune_index native_handle const", "[rune_index]")
     REQUIRE(nh.size == 1);
     REQUIRE(sizeof(nh) == sizeof(MemeRuneIndex_t));
 }
+
+// ---------------------------------------------------------------------------
+// clear
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::rune clear resets to empty", "[rune]")
+{
+    memepp::rune r('X');
+    REQUIRE(!r.empty());
+    REQUIRE(r.valid());
+
+    r.clear();
+    REQUIRE(r.empty());
+    REQUIRE(r.valid());
+    REQUIRE(r.size() == 0);
+}
+
+TEST_CASE("memepp::rune clear on empty rune is idempotent", "[rune]")
+{
+    memepp::rune r;
+    REQUIRE(r.empty());
+
+    r.clear();
+    REQUIRE(r.empty());
+    REQUIRE(r.valid());
+}
+
+// ---------------------------------------------------------------------------
+// compare and ordering operators
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::rune compare — equal", "[rune]")
+{
+    memepp::rune a('A');
+    memepp::rune b('A');
+    REQUIRE(a.compare(b) == 0);
+}
+
+TEST_CASE("memepp::rune compare — less", "[rune]")
+{
+    memepp::rune a('A');
+    memepp::rune b('B');
+    REQUIRE(a.compare(b) < 0);
+}
+
+TEST_CASE("memepp::rune compare — greater", "[rune]")
+{
+    memepp::rune a('Z');
+    memepp::rune b('A');
+    REQUIRE(a.compare(b) > 0);
+}
+
+TEST_CASE("memepp::rune compare — shorter prefix is less", "[rune]")
+{
+    const uint8_t zhong[] = { 0xE4, 0xB8, 0xAD };
+    memepp::rune a('A');
+    memepp::rune b(zhong, 3);
+    REQUIRE(a.compare(b) < 0);
+}
+
+TEST_CASE("memepp::rune operator<", "[rune]")
+{
+    memepp::rune a('A');
+    memepp::rune b('B');
+    REQUIRE(a < b);
+    REQUIRE_FALSE(b < a);
+}
+
+TEST_CASE("memepp::rune operator<=", "[rune]")
+{
+    memepp::rune a('A');
+    memepp::rune b('B');
+    memepp::rune c('A');
+    REQUIRE(a <= b);
+    REQUIRE(a <= c);
+    REQUIRE_FALSE(b <= a);
+}
+
+TEST_CASE("memepp::rune operator>", "[rune]")
+{
+    memepp::rune a('A');
+    memepp::rune b('B');
+    REQUIRE(b > a);
+    REQUIRE_FALSE(a > b);
+}
+
+TEST_CASE("memepp::rune operator>=", "[rune]")
+{
+    memepp::rune a('A');
+    memepp::rune b('B');
+    memepp::rune c('A');
+    REQUIRE(b >= a);
+    REQUIRE(a >= c);
+    REQUIRE_FALSE(a >= b);
+}
+
+// ---------------------------------------------------------------------------
+// is_ascii
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::rune is_ascii — ASCII letters", "[rune]")
+{
+    REQUIRE(memepp::rune('A').is_ascii());
+    REQUIRE(memepp::rune('z').is_ascii());
+    REQUIRE(memepp::rune('0').is_ascii());
+}
+
+TEST_CASE("memepp::rune is_ascii — ASCII punctuation", "[rune]")
+{
+    REQUIRE(memepp::rune('!').is_ascii());
+    REQUIRE(memepp::rune(' ').is_ascii());
+}
+
+TEST_CASE("memepp::rune is_ascii — multi-byte is not ASCII", "[rune]")
+{
+    const uint8_t zhong[] = { 0xE4, 0xB8, 0xAD };
+    memepp::rune r(zhong, 3);
+    REQUIRE_FALSE(r.is_ascii());
+}
+
+TEST_CASE("memepp::rune is_ascii — empty rune is not ASCII", "[rune]")
+{
+    memepp::rune r;
+    REQUIRE(r.empty());
+    REQUIRE_FALSE(r.is_ascii());
+}
+
+// ---------------------------------------------------------------------------
+// is_en_lower
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::rune is_en_lower — lowercase letters", "[rune]")
+{
+    REQUIRE(memepp::rune('a').is_en_lower());
+    REQUIRE(memepp::rune('z').is_en_lower());
+}
+
+TEST_CASE("memepp::rune is_en_lower — non-lowercase", "[rune]")
+{
+    REQUIRE_FALSE(memepp::rune('A').is_en_lower());
+    REQUIRE_FALSE(memepp::rune('0').is_en_lower());
+    REQUIRE_FALSE(memepp::rune('!').is_en_lower());
+}
+
+TEST_CASE("memepp::rune is_en_lower — multibyte is false", "[rune]")
+{
+    const uint8_t zhong[] = { 0xE4, 0xB8, 0xAD };
+    memepp::rune r(zhong, 3);
+    REQUIRE_FALSE(r.is_en_lower());
+}
+
+// ---------------------------------------------------------------------------
+// is_en_upper
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::rune is_en_upper — uppercase letters", "[rune]")
+{
+    REQUIRE(memepp::rune('A').is_en_upper());
+    REQUIRE(memepp::rune('Z').is_en_upper());
+}
+
+TEST_CASE("memepp::rune is_en_upper — non-uppercase", "[rune]")
+{
+    REQUIRE_FALSE(memepp::rune('a').is_en_upper());
+    REQUIRE_FALSE(memepp::rune('0').is_en_upper());
+    REQUIRE_FALSE(memepp::rune('!').is_en_upper());
+}
+
+TEST_CASE("memepp::rune is_en_upper — multibyte is false", "[rune]")
+{
+    const uint8_t zhong[] = { 0xE4, 0xB8, 0xAD };
+    memepp::rune r(zhong, 3);
+    REQUIRE_FALSE(r.is_en_upper());
+}
+
+// ---------------------------------------------------------------------------
+// to_en_lower
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::rune to_en_lower — uppercase to lowercase", "[rune]")
+{
+    memepp::rune r('H');
+    auto r2 = r.to_en_lower();
+    REQUIRE(r2 == 'h');
+    REQUIRE(r == 'H');  // original unchanged
+}
+
+TEST_CASE("memepp::rune to_en_lower — already lowercase unchanged", "[rune]")
+{
+    memepp::rune r('a');
+    auto r2 = r.to_en_lower();
+    REQUIRE(r2 == 'a');
+}
+
+TEST_CASE("memepp::rune to_en_lower — non-letter ASCII unchanged", "[rune]")
+{
+    memepp::rune r('1');
+    auto r2 = r.to_en_lower();
+    REQUIRE(r2 == '1');
+}
+
+TEST_CASE("memepp::rune to_en_lower — multibyte unchanged", "[rune]")
+{
+    const uint8_t zhong[] = { 0xE4, 0xB8, 0xAD };
+    memepp::rune r(zhong, 3);
+    auto r2 = r.to_en_lower();
+    REQUIRE(r2 == r);
+}
+
+// ---------------------------------------------------------------------------
+// to_en_upper
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::rune to_en_upper — lowercase to uppercase", "[rune]")
+{
+    memepp::rune r('a');
+    auto r2 = r.to_en_upper();
+    REQUIRE(r2 == 'A');
+    REQUIRE(r == 'a');  // original unchanged
+}
+
+TEST_CASE("memepp::rune to_en_upper — already uppercase unchanged", "[rune]")
+{
+    memepp::rune r('Z');
+    auto r2 = r.to_en_upper();
+    REQUIRE(r2 == 'Z');
+}
+
+TEST_CASE("memepp::rune to_en_upper — non-letter ASCII unchanged", "[rune]")
+{
+    memepp::rune r('9');
+    auto r2 = r.to_en_upper();
+    REQUIRE(r2 == '9');
+}
+
+TEST_CASE("memepp::rune to_en_upper — multibyte unchanged", "[rune]")
+{
+    const uint8_t zhong[] = { 0xE4, 0xB8, 0xAD };
+    memepp::rune r(zhong, 3);
+    auto r2 = r.to_en_upper();
+    REQUIRE(r2 == r);
+}
+
+// ---------------------------------------------------------------------------
+// codepoint
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::rune codepoint — ASCII", "[rune]")
+{
+    memepp::rune r('A');
+    REQUIRE(r.codepoint() == 0x41);
+}
+
+TEST_CASE("memepp::rune codepoint — Chinese character", "[rune]")
+{
+    const uint8_t zhong[] = { 0xE4, 0xB8, 0xAD };
+    memepp::rune r(zhong, 3);
+    REQUIRE(r.codepoint() == 0x4E2D);
+}
+
+TEST_CASE("memepp::rune codepoint — emoji", "[rune]")
+{
+    const uint8_t emoji[] = { 0xF0, 0x9F, 0x98, 0x80 };
+    memepp::rune r(emoji, 4);
+    REQUIRE(r.codepoint() == 0x1F600);
+}
+
+TEST_CASE("memepp::rune codepoint — empty rune returns 0", "[rune]")
+{
+    memepp::rune r;
+    REQUIRE(r.codepoint() == 0);
+}
+
+// ---------------------------------------------------------------------------
+// from_codepoint
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::rune from_codepoint — ASCII", "[rune]")
+{
+    auto r = memepp::rune::from_codepoint(0x41);
+    REQUIRE(r.valid());
+    REQUIRE(r == 'A');
+    REQUIRE(r.size() == 1);
+}
+
+TEST_CASE("memepp::rune from_codepoint — Chinese character", "[rune]")
+{
+    auto r = memepp::rune::from_codepoint(0x4E2D);
+    REQUIRE(r.valid());
+    REQUIRE(r.size() == 3);
+    REQUIRE(r.codepoint() == 0x4E2D);
+}
+
+TEST_CASE("memepp::rune from_codepoint — emoji", "[rune]")
+{
+    auto r = memepp::rune::from_codepoint(0x1F600);
+    REQUIRE(r.valid());
+    REQUIRE(r.size() == 4);
+    REQUIRE(r.codepoint() == 0x1F600);
+}
+
+TEST_CASE("memepp::rune from_codepoint — roundtrip", "[rune]")
+{
+    for (uint32_t cp : { 0x20, 0x41, 0x7E, 0x00E9, 0x4E2D, 0x1F600 }) {
+        auto r = memepp::rune::from_codepoint(cp);
+        REQUIRE(r.codepoint() == cp);
+    }
+}
+
+TEST_CASE("memepp::rune from_codepoint — null character", "[rune]")
+{
+    auto r = memepp::rune::from_codepoint(0x00);
+    REQUIRE(r.valid());
+    REQUIRE(r.size() == 1);
+    REQUIRE(r.data()[0] == 0x00);
+}

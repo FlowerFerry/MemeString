@@ -68,6 +68,10 @@ inline namespace MMPP_NAMESPACE {
 
         bool is_space() const noexcept;
 
+        bool is_ascii() const noexcept;
+        bool is_en_lower() const noexcept;
+        bool is_en_upper() const noexcept;
+
         inline explicit operator bool() const noexcept { return valid() && !empty(); }
 		
 		inline bool operator==(char _ch) const noexcept
@@ -95,6 +99,21 @@ inline namespace MMPP_NAMESPACE {
         inline bool operator!=(char _ch) const noexcept { return !(*this == _ch); }
 		inline bool operator!=(const char* _u8) const noexcept { return !(*this == _u8); }
         inline bool operator!=(const rune& _r) const noexcept { return !(*this == _r); }
+
+        int compare(const rune& _r) const noexcept;
+        inline bool operator< (const rune& _r) const noexcept { return compare(_r) <  0; }
+        inline bool operator<=(const rune& _r) const noexcept { return compare(_r) <= 0; }
+        inline bool operator> (const rune& _r) const noexcept { return compare(_r) >  0; }
+        inline bool operator>=(const rune& _r) const noexcept { return compare(_r) >= 0; }
+
+        void clear() noexcept;
+
+        rune to_en_lower() const noexcept;
+        rune to_en_upper() const noexcept;
+
+        uint32_t codepoint() const noexcept;
+
+        static rune from_codepoint(uint32_t _cp) noexcept;
 
         inline MemeRune_t& native_handle() noexcept { return data_; }
         inline const MemeRune_t& native_handle() const noexcept { return data_; }

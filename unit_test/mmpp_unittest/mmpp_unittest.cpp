@@ -1863,7 +1863,7 @@ TEST_CASE("memepp::string Accidents encountered in engineering practice 01", "[s
 
     memepp::string s01_01;
     char* p01_01 = (char*)malloc(16);
-    REQUIRE(p01_01 != NULL);
+    REQUIRE(p01_01 != nullptr);
     memcpy(p01_01, "123456789ABCDEF", 15);
     p01_01[15] = '\0';
 
@@ -1881,7 +1881,7 @@ TEST_CASE("memepp::string Accidents encountered in engineering practice 01", "[s
         "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
 
     char* p01_02 = (char*)malloc(1024);
-    REQUIRE(p01_02 != NULL);
+    REQUIRE(p01_02 != nullptr);
 
     memcpy(p01_02, cz01_02, sizeof(cz01_02));
     s01_01 = memepp::convert::takeover(p01_02, -1, free);

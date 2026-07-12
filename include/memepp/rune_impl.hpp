@@ -4,6 +4,8 @@
 
 #include "memepp/rune_def.hpp"
 
+#include <meme/utf/u8rune.h>
+
 namespace memepp {
 inline namespace MMPP_NAMESPACE {
 
@@ -164,6 +166,78 @@ inline namespace MMPP_NAMESPACE {
     MEMEPP__IMPL_INLINE bool rune::is_space() const noexcept
     {
         return MemeRune_isSpace(&data_);
+    }
+
+    MEMEPP__IMPL_INLINE bool rune::is_ascii() const noexcept
+    {
+        return size() == 1 && (data_.byte[0] <= 0x7F);
+    }
+
+    MEMEPP__IMPL_INLINE bool rune::is_en_lower() const noexcept
+    {
+        return size() == 1 && islower(data_.byte[0]);
+    }
+
+    MEMEPP__IMPL_INLINE bool rune::is_en_upper() const noexcept
+    {
+        return size() == 1 && isupper(data_.byte[0]);
+    }
+
+    MEMEPP__IMPL_INLINE int rune::compare(const rune& _r) const noexcept
+    {
+        size_type min_sz = (size() < _r.size()) ? size() : _r.size();
+        int cmp = memcmp(data(), _r.data(), min_sz);
+        if (cmp == 0) {
+            if (size() < _r.size()) return -1;
+            if (size() > _r.size()) return  1;
+            return 0;
+        }
+        return cmp;
+    }
+
+    MEMEPP__IMPL_INLINE void rune::clear() noexcept
+    {
+        data_ = MemeRune_getInitObject();
+    }
+
+    MEMEPP__IMPL_INLINE rune rune::to_en_lower() const noexcept
+    {
+        if (size() == 1 && isupper(data_.byte[0])) {
+            rune r;
+            MemeRune_initByByte(&r.data_, static_cast<char>(tolower(data_.byte[0])));
+            return r;
+        }
+        return *this;
+    }
+
+    MEMEPP__IMPL_INLINE rune rune::to_en_upper() const noexcept
+    {
+        if (size() == 1 && islower(data_.byte[0])) {
+            rune r;
+            MemeRune_initByByte(&r.data_, static_cast<char>(toupper(data_.byte[0])));
+            return r;
+        }
+        return *this;
+    }
+
+    MEMEPP__IMPL_INLINE uint32_t rune::codepoint() const noexcept
+    {
+        if (empty())
+            return 0;
+        uint32_t value = 0;
+        mmutf_u8rune_get_u32(MemeRune_data(&data_), (MemeInteger_t)size(), &value);
+        return value;
+    }
+
+    MEMEPP__IMPL_INLINE rune rune::from_codepoint(uint32_t _cp) noexcept
+    {
+        rune r;
+        MemeByte_t buf[7];
+        int len = mmutf_u8rune_set_u32(buf, sizeof(buf), _cp);
+        if (len > 0 && len <= static_cast<int>(MEME_RUNE__MAX_CHAR_SIZE)) {
+            MemeRune_initByUtf8Bytes(&r.data_, buf, len);
+        }
+        return r;
     }
 
     MEMEPP__IMPL_INLINE rune_index::rune_index(const_pointer _u8, size_type _size)

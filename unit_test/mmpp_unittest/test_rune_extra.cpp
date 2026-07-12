@@ -35,9 +35,9 @@ TEST_CASE("memepp::rune operator== with char", "[rune]")
 
 TEST_CASE("memepp::rune operator== with multi-byte rune", "[rune]")
 {
-    const char zhong[] = { 0xE4, 0xB8, 0xAD, 0 }; // 中
-    memepp::rune r((const uint8_t*)zhong, 3);
-    REQUIRE(r == zhong);
+    const uint8_t zhong[] = { 0xE4, 0xB8, 0xAD, 0 }; // 中
+    memepp::rune r(zhong, 3);
+    REQUIRE(r == reinterpret_cast<const char*>(zhong));
 }
 
 // ---------------------------------------------------------------------------
