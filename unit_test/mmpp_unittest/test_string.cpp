@@ -4,6 +4,7 @@
 #include <memepp/string.hpp>
 #include <memepp/string_view.hpp>
 #include <memepp/convert/std/string.hpp>
+#include <memepp/to_string.hpp>
 
 TEST_CASE("memepp::string count", "[string]")
 {
@@ -491,4 +492,132 @@ TEST_CASE("memepp::string substr boundary", "[string]")
     // negative (though not standard, check behavior)
     REQUIRE(str.substr(-1, 5) == "01234"); // assuming negative start from end, but confirm actual impl
     REQUIRE(str.substr(0, -1) == str); // full string
+}
+
+
+// to_string: int16_t, int32_t, int64_t
+TEST_CASE("memepp::to_string<int16_t>", "[string]")
+{
+    auto s1 = memepp::to_string(int16_t(-32768));
+    REQUIRE(s1 == "-32768");
+    REQUIRE(s1.size() == 6);
+
+    auto s2 = memepp::to_string(int16_t(0));
+    REQUIRE(s2 == "0");
+    REQUIRE(s2.size() == 1);
+
+    auto s3 = memepp::to_string(int16_t(32767));
+    REQUIRE(s3 == "32767");
+    REQUIRE(s3.size() == 5);
+
+    // hex radix
+    auto s4 = memepp::to_string(int16_t(-128), 16);
+    REQUIRE(s4 == "-80");
+
+    auto s5 = memepp::to_string(int16_t(255), 16);
+    REQUIRE(s5 == "FF");
+}
+
+TEST_CASE("memepp::to_string<int32_t>", "[string]")
+{
+    auto s1 = memepp::to_string(int32_t(-2147483647 - 1));  // INT32_MIN
+    REQUIRE(s1 == "-2147483648");
+    REQUIRE(s1.size() == 11);
+
+    auto s2 = memepp::to_string(0);
+    REQUIRE(s2 == "0");
+
+    auto s3 = memepp::to_string(2147483647);
+    REQUIRE(s3 == "2147483647");
+    REQUIRE(s3.size() == 10);
+
+    // hex
+    auto s4 = memepp::to_string(-1, 16);
+    REQUIRE(s4 == "-1");
+
+    auto s5 = memepp::to_string(255, 16);
+    REQUIRE(s5 == "FF");
+}
+
+TEST_CASE("memepp::to_string<int64_t>", "[string]")
+{
+    auto s1 = memepp::to_string(-9223372036854775807LL - 1);  // INT64_MIN
+    REQUIRE(s1 == "-9223372036854775808");
+    REQUIRE(s1.size() == 20);
+
+    auto s2 = memepp::to_string(0);
+    REQUIRE(s2 == "0");
+
+    auto s3 = memepp::to_string(9223372036854775807LL);  // INT64_MAX
+    REQUIRE(s3 == "9223372036854775807");
+    REQUIRE(s3.size() == 19);
+
+    // hex
+    auto s4 = memepp::to_string(int64_t(-255), 16);
+    REQUIRE(s4 == "-FF");
+
+    auto s5 = memepp::to_string(int64_t(255), 16);
+    REQUIRE(s5 == "FF");
+
+    // binary
+    auto s6 = memepp::to_string(int64_t(5), 2);
+    REQUIRE(s6 == "101");
+}
+
+// to_string: uint16_t, uint32_t, uint64_t
+TEST_CASE("memepp::to_string<uint16_t>", "[string]")
+{
+    auto s1 = memepp::to_string(uint16_t(0));
+    REQUIRE(s1 == "0");
+    REQUIRE(s1.size() == 1);
+
+    auto s2 = memepp::to_string(uint16_t(65535));
+    REQUIRE(s2 == "65535");
+    REQUIRE(s2.size() == 5);
+
+    // hex
+    auto s3 = memepp::to_string(uint16_t(255), 16);
+    REQUIRE(s3 == "FF");
+    auto s4 = memepp::to_string(uint16_t(65535), 16);
+    REQUIRE(s4 == "FFFF");
+
+    // binary
+    auto s5 = memepp::to_string(uint16_t(5), 2);
+    REQUIRE(s5 == "101");
+}
+
+TEST_CASE("memepp::to_string<uint32_t>", "[string]")
+{
+    auto s1 = memepp::to_string(uint32_t(0));
+    REQUIRE(s1 == "0");
+
+    auto s2 = memepp::to_string(uint32_t(4294967295));
+    REQUIRE(s2 == "4294967295");
+    REQUIRE(s2.size() == 10);
+
+    // hex
+    auto s3 = memepp::to_string(uint32_t(255), 16);
+    REQUIRE(s3 == "FF");
+    auto s4 = memepp::to_string(uint32_t(4294967295), 16);
+    REQUIRE(s4 == "FFFFFFFF");
+}
+
+TEST_CASE("memepp::to_string<uint64_t>", "[string]")
+{
+    auto s1 = memepp::to_string(uint64_t(0));
+    REQUIRE(s1 == "0");
+
+    auto s2 = memepp::to_string(uint64_t(18446744073709551615ULL));
+    REQUIRE(s2 == "18446744073709551615");
+    REQUIRE(s2.size() == 20);
+
+    // hex
+    auto s3 = memepp::to_string(uint64_t(255), 16);
+    REQUIRE(s3 == "FF");
+    auto s4 = memepp::to_string(uint64_t(18446744073709551615ULL), 16);
+    REQUIRE(s4 == "FFFFFFFFFFFFFFFF");
+
+    // binary
+    auto s5 = memepp::to_string(uint64_t(5), 2);
+    REQUIRE(s5 == "101");
 }

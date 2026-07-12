@@ -1,4 +1,4 @@
-#ifndef TEST_MEME_STRING_CONVERT_H_INCLUDED
+﻿#ifndef TEST_MEME_STRING_CONVERT_H_INCLUDED
 #define TEST_MEME_STRING_CONVERT_H_INCLUDED
 
 #include <minunit.h>
@@ -52,40 +52,150 @@ MU_TEST(test_mapping_convert_skip)
 MU_TEST(test_from_uint16)
 {
     mmstrstk_t out;
-    mgec_t rc = MemeStringStack_fromUInt16(255, 10, &out, MMSTR__OBJ_SIZE);
-    mu_assert(rc != 0, "fromUInt16(255) should fail (buffer size=0)");
+    MemeStringStack_init(&out, MMSTR__OBJ_SIZE);
+    mgec_t rc = MemeStringStack_fromUInt16(255, 10, &out, 0);
+    mu_assert(rc == 0, "fromUInt16(255) should succeed");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out)) == 3, "255 should be 3 bytes");
+    const mmbyte_t* d = MemeString_byteData(AS_MMSTR_C(&out));
+    mu_assert(memcmp(d, "255", 3) == 0, "content should be '255'");
     mmstrstk_uninit(&out);
 }
 
 MU_TEST(test_from_uint16_hex)
 {
     mmstrstk_t out;
-    mgec_t rc = MemeStringStack_fromUInt16(255, 16, &out, MMSTR__OBJ_SIZE);
-    mu_assert(rc != 0, "fromUInt16(255, 16) should fail (buffer size=0)");
+    MemeStringStack_init(&out, MMSTR__OBJ_SIZE);
+    mgec_t rc = MemeStringStack_fromUInt16(255, 16, &out, 0);
+    mu_assert(rc == 0, "fromUInt16(255, 16) should succeed");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out)) == 2, "FF should be 2 bytes");
+    const mmbyte_t* d = MemeString_byteData(AS_MMSTR_C(&out));
+    mu_assert(memcmp(d, "FF", 2) == 0, "content should be 'FF'");
     mmstrstk_uninit(&out);
 }
 
 MU_TEST(test_from_uint32)
 {
     mmstrstk_t out;
-    mgec_t rc = MemeStringStack_fromUInt32(1000000, 10, &out, MMSTR__OBJ_SIZE);
-    mu_assert(rc != 0, "fromUInt32(1000000) should fail (buffer size=0)");
+    MemeStringStack_init(&out, MMSTR__OBJ_SIZE);
+    mgec_t rc = MemeStringStack_fromUInt32(1000000, 10, &out, 0);
+    mu_assert(rc == 0, "fromUInt32(1000000) should succeed");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out)) == 7, "1000000 should be 7 bytes");
+    const mmbyte_t* d = MemeString_byteData(AS_MMSTR_C(&out));
+    mu_assert(memcmp(d, "1000000", 7) == 0, "content should be '1000000'");
     mmstrstk_uninit(&out);
 }
 
 MU_TEST(test_from_uint64)
 {
     mmstrstk_t out;
-    mgec_t rc = MemeStringStack_fromUInt64(10000000000ULL, 10, &out, MMSTR__OBJ_SIZE);
-    mu_assert(rc != 0, "fromUInt64(10000000000) should fail (buffer size=0)");
+    MemeStringStack_init(&out, MMSTR__OBJ_SIZE);
+    mgec_t rc = MemeStringStack_fromUInt64(10000000000ULL, 10, &out, 0);
+    mu_assert(rc == 0, "fromUInt64(10000000000) should succeed");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out)) == 11, "10000000000 should be 11 bytes");
+    const mmbyte_t* d = MemeString_byteData(AS_MMSTR_C(&out));
+    mu_assert(memcmp(d, "10000000000", 11) == 0, "content should be '10000000000'");
     mmstrstk_uninit(&out);
 }
 
 MU_TEST(test_from_uint64_zero)
 {
     mmstrstk_t out;
-    mgec_t rc = MemeStringStack_fromUInt64(0, 10, &out, MMSTR__OBJ_SIZE);
-    mu_assert(rc != 0, "fromUInt64(0) should fail (buffer size=0)");
+    MemeStringStack_init(&out, MMSTR__OBJ_SIZE);
+    mgec_t rc = MemeStringStack_fromUInt64(0, 10, &out, 0);
+    mu_assert(rc == 0, "fromUInt64(0) should succeed");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out)) == 1, "0 should be 1 byte");
+    const mmbyte_t* d = MemeString_byteData(AS_MMSTR_C(&out));
+    mu_assert(memcmp(d, "0", 1) == 0, "content should be '0'");
+    mmstrstk_uninit(&out);
+}
+
+MU_TEST(test_from_int16)
+{
+    mmstrstk_t out;
+    MemeStringStack_init(&out, MMSTR__OBJ_SIZE);
+    mgec_t rc = MemeStringStack_fromInt16(-32768, 10, &out, 0);
+    mu_assert(rc == 0, "fromInt16(-32768) should succeed");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out)) == 6, "-32768 should be 6 bytes");
+    const mmbyte_t* d = MemeString_byteData(AS_MMSTR_C(&out));
+    mu_assert(memcmp(d, "-32768", 6) == 0, "content should be '-32768'");
+    mmstrstk_uninit(&out);
+}
+
+MU_TEST(test_from_int16_zeros)
+{
+    mmstrstk_t out;
+    MemeStringStack_init(&out, MMSTR__OBJ_SIZE);
+    mgec_t rc = MemeStringStack_fromInt16(0, 10, &out, 0);
+    mu_assert(rc == 0, "fromInt16(0) should succeed");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out)) == 1, "0 should be 1 byte");
+    const mmbyte_t* d = MemeString_byteData(AS_MMSTR_C(&out));
+    mu_assert(memcmp(d, "0", 1) == 0, "content should be '0'");
+    mmstrstk_uninit(&out);
+}
+
+MU_TEST(test_from_int16_positive)
+{
+    mmstrstk_t out;
+    MemeStringStack_init(&out, MMSTR__OBJ_SIZE);
+    mgec_t rc = MemeStringStack_fromInt16(32767, 10, &out, 0);
+    mu_assert(rc == 0, "fromInt16(32767) should succeed");
+    const mmbyte_t* d = MemeString_byteData(AS_MMSTR_C(&out));
+    mu_assert(memcmp(d, "32767", 5) == 0, "content should be '32767'");
+    mmstrstk_uninit(&out);
+}
+
+MU_TEST(test_from_int32)
+{
+    mmstrstk_t out;
+    MemeStringStack_init(&out, MMSTR__OBJ_SIZE);
+    mgec_t rc = MemeStringStack_fromInt32(-2147483648, 10, &out, 0);
+    mu_assert(rc == 0, "fromInt32(INT32_MIN) should succeed");
+    const mmbyte_t* d = MemeString_byteData(AS_MMSTR_C(&out));
+    mu_assert(memcmp(d, "-2147483648", 11) == 0, "content should be '-2147483648'");
+    mmstrstk_uninit(&out);
+}
+
+MU_TEST(test_from_int32_positive)
+{
+    mmstrstk_t out;
+    MemeStringStack_init(&out, MMSTR__OBJ_SIZE);
+    mgec_t rc = MemeStringStack_fromInt32(2147483647, 10, &out, 0);
+    mu_assert(rc == 0, "fromInt32(INT32_MAX) should succeed");
+    const mmbyte_t* d = MemeString_byteData(AS_MMSTR_C(&out));
+    mu_assert(memcmp(d, "2147483647", 10) == 0, "content should be '2147483647'");
+    mmstrstk_uninit(&out);
+}
+
+MU_TEST(test_from_int64)
+{
+    mmstrstk_t out;
+    MemeStringStack_init(&out, MMSTR__OBJ_SIZE);
+    mgec_t rc = MemeStringStack_fromInt64(-9223372036854775807LL - 1, 10, &out, 0);
+    mu_assert(rc == 0, "fromInt64(INT64_MIN) should succeed");
+    const mmbyte_t* d = MemeString_byteData(AS_MMSTR_C(&out));
+    mu_assert(memcmp(d, "-9223372036854775808", 20) == 0, "content should be '-9223372036854775808'");
+    mmstrstk_uninit(&out);
+}
+
+MU_TEST(test_from_int64_positive)
+{
+    mmstrstk_t out;
+    MemeStringStack_init(&out, MMSTR__OBJ_SIZE);
+    mgec_t rc = MemeStringStack_fromInt64(9223372036854775807LL, 10, &out, 0);
+    mu_assert(rc == 0, "fromInt64(INT64_MAX) should succeed");
+    const mmbyte_t* d = MemeString_byteData(AS_MMSTR_C(&out));
+    mu_assert(memcmp(d, "9223372036854775807", 19) == 0, "content should be '9223372036854775807'");
+    mmstrstk_uninit(&out);
+}
+
+MU_TEST(test_from_int16_hex)
+{
+    mmstrstk_t out;
+    MemeStringStack_init(&out, MMSTR__OBJ_SIZE);
+    mgec_t rc = MemeStringStack_fromInt16(-128, 16, &out, 0);
+    mu_assert(rc == 0, "fromInt16(-128, 16) should succeed");
+    const mmbyte_t* d = MemeString_byteData(AS_MMSTR_C(&out));
+    mu_assert(memcmp(d, "-80", 3) == 0, "content should be '-80'");
     mmstrstk_uninit(&out);
 }
 
@@ -153,6 +263,14 @@ MU_TEST_SUITE(test_meme_string_convert)
     MU_RUN_TEST(test_from_uint32);
     MU_RUN_TEST(test_from_uint64);
     MU_RUN_TEST(test_from_uint64_zero);
+    MU_RUN_TEST(test_from_int16);
+    MU_RUN_TEST(test_from_int16_zeros);
+    MU_RUN_TEST(test_from_int16_positive);
+    MU_RUN_TEST(test_from_int32);
+    MU_RUN_TEST(test_from_int32_positive);
+    MU_RUN_TEST(test_from_int64);
+    MU_RUN_TEST(test_from_int64_positive);
+    MU_RUN_TEST(test_from_int16_hex);
     MU_RUN_TEST(test_format_in_cstyle);
     MU_RUN_TEST(test_format_with_limit);
     MU_RUN_TEST(test_string_init_by_buffer);

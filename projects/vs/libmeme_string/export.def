@@ -467,6 +467,9 @@ EXPORTS
     MemeStringStack_trimPrefix @3023
     MemeStringStack_trimSuffix @3024
     MemeStringStack_join @3025
+    MemeStringStack_fromInt16 @3026
+    MemeStringStack_fromInt32 @3027
+    MemeStringStack_fromInt64 @3028
     MemeBufferStack_regSize @4000
     MemeBufferStack_objSize @4001
     MemeBufferStack_split @4002
