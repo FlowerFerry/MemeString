@@ -1,4 +1,4 @@
-#include <catch2/catch.hpp>
+﻿#include <catch2/catch.hpp>
 
 #include <memepp/string_view.hpp>
 #include <memepp/string.hpp>
@@ -95,5 +95,5 @@ TEST_CASE("memepp::string_view replace - with count parameter", "[string_view]")
     // count=1 replaces first occurrence but count is reused
     // between counting and replacement due to C-layer quirk
     auto r2 = s.replace("_", "-", 1);
-    REQUIRE(r2 == "aa-_aa_aa");
+    REQUIRE(r2 == "aa-aa_aa");
 }

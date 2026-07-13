@@ -1901,33 +1901,50 @@ MEME_STDCALL MemeStringStack_replace_v2(
 	it = MemeString_byteData(str);
 	end = it + MemeString_byteSize(str);
 
-	for (; it != end; ++it) {
+	{
+		const mmbyte_t* last_it = it;
+		mmint_t run_count = 0;
+		for (; it != end; ++it) {
 
-		if (it + _from_len > end)
-			break;
-
-		if (memcmp(it, from, _from_len) == 0)
-		{
-			result = MemeVariableBuffer_appendWithBytes((mmvb_t)&vb, to, _to_len);
-			if (result) {
-				MemeStringStack_init(_out, _obj_size);
-				MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
-				return (mgec_t)result;
-			}
-
-			++count;
-			if (_max_count > 0 && count >= _max_count)
+			if (it + _from_len > end)
 				break;
-			it += _from_len - 1;
+
+			if (memcmp(it, from, _from_len) == 0)
+			{
+				/* flush accumulating non-matched run before the match */
+				if (it != last_it) {
+					result = MemeVariableBuffer_appendWithBytes((mmvb_t)&vb, last_it, it - last_it);
+					if (result) {
+						MemeStringStack_init(_out, _obj_size);
+						MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+						return (mgec_t)result;
+					}
+				}
+				result = MemeVariableBuffer_appendWithBytes((mmvb_t)&vb, to, _to_len);
+				if (result) {
+					MemeStringStack_init(_out, _obj_size);
+					MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+					return (mgec_t)result;
+				}
+
+				++run_count;
+					if (_max_count > 0 && run_count >= _max_count) {
+						it += _from_len;
+						last_it = it;
+						break;
+					}
+				it += _from_len - 1;
+				last_it = it + 1;
+			}
 		}
-		else {
-			result = MemeVariableBuffer_appendWithBytes((mmvb_t)&vb, it, 1);
+		/* copy trailing non-matched run */
+		if (it != last_it) {
+			result = MemeVariableBuffer_appendWithBytes((mmvb_t)&vb, last_it, it - last_it);
 			if (result) {
 				MemeStringStack_init(_out, _obj_size);
 				MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
 				return (mgec_t)result;
 			}
-
 		}
 	}
 
@@ -2682,10 +2699,22 @@ MEME_STDCALL MemeStringStack_join(
 
 	item_stride = MemeStringStack_regSize(_items) * (mmint_t)sizeof(mmint_t);
 
-	result = (mgec_t)MemeVariableBufferStack_init(&vb, MMSTR__OBJ_SIZE);
-	if (result) {
-		mmstrstk_init_v0(_str, _obj_size);
-		return result;
+	{
+		mmint_t total_size = 0;
+		for (i = 0; i < _item_count; ++i) {
+			const mmstrstk_t* item = (const mmstrstk_t*)((const uint8_t*)_items + i * item_stride);
+			mmstr_cptr_t s = (mmstr_cptr_t)item;
+			if (i > 0 && _separator_len > 0)
+				total_size += _separator_len;
+			total_size += MemeString_byteSize(s);
+		}
+
+		result = (mgec_t)MemeVariableBufferStack_init(&vb, MMSTR__OBJ_SIZE);
+		if (result) {
+			mmstrstk_init_v0(_str, _obj_size);
+			return result;
+		}
+		MemeVariableBuffer_reserve((mmvb_ptr_t)&vb, total_size);
 	}
 
 	for (i = 0; i < _item_count; ++i) {
