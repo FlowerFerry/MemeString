@@ -65,6 +65,7 @@ inline namespace MMPP_NAMESPACE {
 		string_builder operator+(const char* _other) const;
 
 		const_reference at(size_type _pos) const;
+		const_reference operator[](size_type _pos) const;
 
 		const char* data() const noexcept;
 		const_pointer bytes() const noexcept;

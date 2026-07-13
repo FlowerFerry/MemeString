@@ -13,6 +13,7 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/mmpp_unittest.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_at.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_max_size.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_compare.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_frontback.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_split.cpp

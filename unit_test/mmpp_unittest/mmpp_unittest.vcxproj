@@ -190,6 +190,7 @@ xcopy /y "$(ProjectDir)..\..\projects\vs\libmeme_string\$(Platform)\$(Configurat
     <ClCompile Include="mmpp_unittest.cpp" />
     <ClCompile Include="test_string.cpp" />
     <ClCompile Include="test_string_at.cpp" />
+    <ClCompile Include="test_string_max_size.cpp" />
     <ClCompile Include="test_string_compare.cpp" />
     <ClCompile Include="test_string_frontback.cpp" />
     <ClCompile Include="test_string_split.cpp" />

@@ -70,3 +70,18 @@ TEST_CASE("memepp::string at", "[string]")
     }
 #endif
 }
+
+TEST_CASE("memepp::string operator[]", "[string]")
+{
+    memepp::string str = "0123456789";
+    REQUIRE(str[0] == '0');
+    REQUIRE(str[1] == '1');
+    REQUIRE(str[2] == '2');
+    REQUIRE(str[3] == '3');
+    REQUIRE(str[9] == '9');
+
+    memepp::string_view sv = str;
+    REQUIRE(sv[0] == '0');
+    REQUIRE(sv[1] == '1');
+    REQUIRE(sv[9] == '9');
+}

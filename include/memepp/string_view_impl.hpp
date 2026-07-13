@@ -175,6 +175,11 @@ inline namespace MMPP_NAMESPACE {
 		return *p;
 	}
 
+	MEMEPP__IMPL_INLINE string_view::const_reference string_view::operator[](size_type _pos) const
+	{
+		return at(_pos);
+	}
+
 	MEMEPP__IMPL_INLINE const char* string_view::data() const noexcept
 	{
 		return MemeString_cStr(to_pointer(data_));

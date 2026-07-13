@@ -84,6 +84,7 @@ inline namespace MMPP_NAMESPACE {
 		string_storage_t storage_type() const noexcept;
 
 		const_reference at(size_type _pos) const;
+		const_reference operator[](size_type _pos) const;
 
 		const char* data() const noexcept;
 		const char* c_str() const noexcept;
@@ -94,6 +95,7 @@ inline namespace MMPP_NAMESPACE {
 		size_type size() const noexcept;
 		bool empty() const noexcept;
 		size_type capacity() const noexcept;
+		size_type max_size() const noexcept;
 		size_type rune_size() const noexcept;
         size_type u16char_size() const noexcept;
 

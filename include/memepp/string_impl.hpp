@@ -233,6 +233,11 @@ inline namespace MMPP_NAMESPACE {
 		return *p;
 	}
 
+	MEMEPP__IMPL_INLINE string::const_reference string::operator[](size_type _pos) const
+	{
+		return at(_pos);
+	}
+
 	MEMEPP__IMPL_INLINE const char * string::data() const noexcept
 	{
 		return MemeString_cStr(to_pointer(data_));
@@ -261,6 +266,11 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE string::size_type string::capacity() const noexcept
 	{
 		return MemeString_availableByteCapacity(to_pointer(data_));
+	}
+
+	MEMEPP__IMPL_INLINE string::size_type string::max_size() const noexcept
+	{
+		return MemeString_maxByteSize(to_pointer(data_));
 	}
 
 	MEMEPP__IMPL_INLINE string::size_type string::rune_size() const noexcept
