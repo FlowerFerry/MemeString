@@ -303,7 +303,7 @@ MU_TEST(test_replace_limited_count)
     init_cstr(&s, "a-b-c-d");
     mgec_t rc = MemeStringStack_replace_v2(&s, "-", 1, ",", 1, 2, &out, MMSTR__OBJ_SIZE);
     mu_assert(rc == 0, "replace with count limit should succeed");
-    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out)) == 8, "2 replacements attempted");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out)) == 7, "2 replacements limited: a,b,c-d");
     mmstrstk_uninit(&s);
     mmstrstk_uninit(&out);
 }
