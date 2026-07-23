@@ -64,7 +64,7 @@ enum _MemeFlag_CaseSensitivity_t
 {
 	MemeFlag_AllInsensitive = 0,
     MemeFlag_CaseSensitive  = 1,
-	MemeFlag_SimplifiedTraditionalSensitive = 2,
+	// MemeFlag_SimplifiedTraditionalSensitive = 2,
 	MemeFlag_AllSensitive	= 0xFFFFFFFF
 };
 

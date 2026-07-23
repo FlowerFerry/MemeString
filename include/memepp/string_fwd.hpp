@@ -40,7 +40,7 @@ inline namespace MMPP_NAMESPACE {
 	{
 		all_insensitive = MemeFlag_AllInsensitive,
 		case_sensitive  = MemeFlag_CaseSensitive,
-	 	simplified_traditional_sensitive = MemeFlag_SimplifiedTraditionalSensitive,
+	 	// simplified_traditional_sensitive = MemeFlag_SimplifiedTraditionalSensitive,
         all_sensitive   = static_cast<int32_t>(MemeFlag_AllSensitive)
 	};
     using case_sensit_t = case_sensitivity_t;
