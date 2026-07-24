@@ -435,6 +435,63 @@ MU_TEST(test_string_stack_split_basic)
     mmstrstk_uninit(&s);
 }
 
+MU_TEST(test_string_stack_split_insensitive)
+{
+    mmstrstk_t s;
+    init_cstr(&s, "Aa,Bb,Cc");
+    mmstrstk_t out[5];
+    mmint_t out_count = 5;
+    mmint_t search_index = 0;
+
+    /* Split by lowercase ',' — should work because comma has no case */
+    mmint_t rc = MemeStringStack_split(&s, ",", 1, MemeFlag_SkipEmptyParts,
+        MemeFlag_AllInsensitive, out, MMSTR__OBJ_SIZE, &out_count, &search_index);
+    mu_assert(rc == 0, "MemeStringStack_split insensitive should succeed");
+    mu_assert(out_count == 3, "should get 3 parts");
+
+    for (mmint_t i = 0; i < out_count; i++)
+        mmstrstk_uninit(&out[i]);
+    mmstrstk_uninit(&s);
+}
+
+MU_TEST(test_string_stack_split_insensitive_multi_byte_key)
+{
+    mmstrstk_t s;
+    init_cstr(&s, "hello|WORLD|Hello|world");
+    mmstrstk_t out[5];
+    mmint_t out_count = 5;
+    mmint_t search_index = 0;
+
+    /* Split by "|" with case insensitive — matches same character */
+    mmint_t rc = MemeStringStack_split(&s, "|", 1, MemeFlag_SkipEmptyParts,
+        MemeFlag_AllInsensitive, out, MMSTR__OBJ_SIZE, &out_count, &search_index);
+    mu_assert(rc == 0, "MemeStringStack_split insensitive with '|' should succeed");
+    mu_assert(out_count == 4, "should get 4 parts");
+
+    for (mmint_t i = 0; i < out_count; i++)
+        mmstrstk_uninit(&out[i]);
+    mmstrstk_uninit(&s);
+}
+
+MU_TEST(test_string_stack_split_insensitive_letter_key)
+{
+    mmstrstk_t s;
+    init_cstr(&s, "abcXdefXghi");
+    mmstrstk_t out[5];
+    mmint_t out_count = 5;
+    mmint_t search_index = 0;
+
+    /* Split by lowercase "x" with case insensitive — should match both "X" */
+    mmint_t rc = MemeStringStack_split(&s, "x", 1, MemeFlag_SkipEmptyParts,
+        MemeFlag_AllInsensitive, out, MMSTR__OBJ_SIZE, &out_count, &search_index);
+    mu_assert(rc == 0, "MemeStringStack_split insensitive letter should succeed");
+    mu_assert(out_count == 3, "should get 3 parts (split on X)");
+
+    for (mmint_t i = 0; i < out_count; i++)
+        mmstrstk_uninit(&out[i]);
+    mmstrstk_uninit(&s);
+}
+
 MU_TEST_SUITE(test_meme_string_manip)
 {
     MU_RUN_TEST(test_concat_v2_basic);
@@ -469,6 +526,9 @@ MU_TEST_SUITE(test_meme_string_manip)
     MU_RUN_TEST(test_split_deprecated_basic);
     MU_RUN_TEST(test_split_skip_empty);
     MU_RUN_TEST(test_string_stack_split_basic);
+    MU_RUN_TEST(test_string_stack_split_insensitive);
+    MU_RUN_TEST(test_string_stack_split_insensitive_multi_byte_key);
+    MU_RUN_TEST(test_string_stack_split_insensitive_letter_key);
 }
 
 #endif // TEST_MEME_STRING_MANIP_H_INCLUDED

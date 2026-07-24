@@ -43,5 +43,17 @@ mmint_t MemeImpl_ReverseSearchByBoyerMooreWithSensitivity
 	mmflag_case_sensit_t _cs
 );
 
+mmint_t MemeImpl_SearchByBoyerMoore_CaseInsensitive
+(
+	const uint8_t* _haystack, mmint_t _haystack_len,
+	const uint8_t* _needle, mmint_t _needle_len
+);
+
+mmint_t MemeImpl_ReverseSearchByBoyerMoore_CaseInsensitive
+(
+	const uint8_t* _haystack, mmint_t _haystack_len,
+	const uint8_t* _needle, mmint_t _needle_len
+);
+
 
 #endif // !MEME_IMPL_ALGORITHM_H_INCLUDED

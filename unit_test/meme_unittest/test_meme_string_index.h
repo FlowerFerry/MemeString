@@ -36,7 +36,57 @@ MU_TEST(test_index_of_with_utf8bytes_insensitive)
     init_cstr(&s, "Hello World");
     mmint_t pos = MemeString_indexOfWithUtf8bytes(AS_MMSTR_C(&s), 0,
         (const mmbyte_t*)"world", 5, MemeFlag_AllInsensitive);
-    mu_assert(pos < 0, "'world' (case insensitive) not supported for multi-byte");
+    mu_assert(pos == 6, "'world' (case insensitive) should be found at index 6");
+    mmstrstk_uninit(&s);
+}
+
+MU_TEST(test_index_of_with_utf8bytes_case_sensitive_flag)
+{
+    mmstrstk_t s;
+    init_cstr(&s, "Hello World");
+    mmint_t pos = MemeString_indexOfWithUtf8bytes(AS_MMSTR_C(&s), 0,
+        (const mmbyte_t*)"world", 5, MemeFlag_CaseSensitive);
+    mu_assert(pos < 0, "'world' (case sensitive) should NOT match 'World'");
+    mmstrstk_uninit(&s);
+}
+
+MU_TEST(test_last_index_of_with_utf8bytes_insensitive)
+{
+    mmstrstk_t s;
+    init_cstr(&s, "Hello Hello");
+    mmint_t pos = MemeString_lastIndexOfWithUtf8bytes(AS_MMSTR_C(&s), -1,
+        (const mmbyte_t*)"hello", 5, MemeFlag_AllInsensitive);
+    mu_assert(pos == 6, "last 'hello' (case insensitive) should be at index 6");
+    mmstrstk_uninit(&s);
+}
+
+MU_TEST(test_match_count_insensitive)
+{
+    mmstrstk_t s;
+    init_cstr(&s, "AbC aBc abc");
+    mmint_t cnt = MemeString_matchCountWithUtf8bytes(AS_MMSTR_C(&s), 0,
+        (const mmbyte_t*)"abc", 3, MemeFlag_AllInsensitive);
+    mu_assert(cnt == 3, "there should be 3 case-insensitive 'abc' matches");
+    mmstrstk_uninit(&s);
+}
+
+MU_TEST(test_starts_match_insensitive)
+{
+    mmstrstk_t s;
+    init_cstr(&s, "Hello World");
+    mu_assert(MemeString_startsMatchWithUtf8bytes(AS_MMSTR_C(&s),
+        (const mmbyte_t*)"hello", 5, MemeFlag_AllInsensitive) != 0,
+        "should start with 'hello' (case insensitive)");
+    mmstrstk_uninit(&s);
+}
+
+MU_TEST(test_ends_match_insensitive)
+{
+    mmstrstk_t s;
+    init_cstr(&s, "Hello World");
+    mu_assert(MemeString_endsMatchWithUtf8bytes(AS_MMSTR_C(&s),
+        (const mmbyte_t*)"WORLD", 5, MemeFlag_AllInsensitive) != 0,
+        "should end with 'WORLD' (case insensitive)");
     mmstrstk_uninit(&s);
 }
 
@@ -164,11 +214,14 @@ MU_TEST_SUITE(test_meme_string_index)
     MU_RUN_TEST(test_index_of_with_utf8bytes_found);
     MU_RUN_TEST(test_index_of_with_utf8bytes_not_found);
     MU_RUN_TEST(test_index_of_with_utf8bytes_insensitive);
+    MU_RUN_TEST(test_index_of_with_utf8bytes_case_sensitive_flag);
     MU_RUN_TEST(test_index_of_with_utf8bytes_offset);
     MU_RUN_TEST(test_index_of_with_byte);
     MU_RUN_TEST(test_index_of_with_other);
     MU_RUN_TEST(test_last_index_of_with_utf8bytes);
+    MU_RUN_TEST(test_last_index_of_with_utf8bytes_insensitive);
     MU_RUN_TEST(test_match_count_with_utf8bytes);
+    MU_RUN_TEST(test_match_count_insensitive);
     MU_RUN_TEST(test_starts_match_with_utf8bytes);
     MU_RUN_TEST(test_ends_match_with_utf8bytes);
     MU_RUN_TEST(test_starts_match_with_other);

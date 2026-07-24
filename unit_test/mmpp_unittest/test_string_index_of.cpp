@@ -164,3 +164,84 @@ TEST_CASE("memepp::string last_index_of - empty string", "[string]")
     REQUIRE(empty.last_index_of(memepp::string_view("a")) == memepp::string::npos);
     REQUIRE(empty.last_index_of("a")                      == memepp::string::npos);
 }
+
+// ---------------------------------------------------------------------------
+// string::index_of - case insensitive
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string index_of - case insensitive basic", "[string]")
+{
+    memepp::string s = "Hello, World!";
+
+    REQUIRE(s.index_of(memepp::string_view("hello"),
+        memepp::case_sensitivity_t::all_insensitive) == 0);
+    REQUIRE(s.index_of(memepp::string_view("world"),
+        memepp::case_sensitivity_t::all_insensitive) == 7);
+    REQUIRE(s.index_of(memepp::string_view("HELLO"),
+        memepp::case_sensitivity_t::all_insensitive) == 0);
+}
+
+TEST_CASE("memepp::string index_of - case insensitive not found", "[string]")
+{
+    memepp::string s = "Hello, World!";
+
+    REQUIRE(s.index_of(memepp::string_view("xyz"),
+        memepp::case_sensitivity_t::all_insensitive) == memepp::string::npos);
+}
+
+TEST_CASE("memepp::string index_of - case sensitive flag works", "[string]")
+{
+    memepp::string s = "Hello, World!";
+
+    // case_sensitive flag: 'hello' != 'Hello'
+    REQUIRE(s.index_of(memepp::string_view("hello"),
+        memepp::case_sensitivity_t::case_sensitive) == memepp::string::npos);
+    // all_sensitive (default) also case sensitive
+    REQUIRE(s.index_of(memepp::string_view("hello"),
+        memepp::case_sensitivity_t::all_sensitive) == memepp::string::npos);
+}
+
+TEST_CASE("memepp::string index_of - case insensitive with full_match", "[string]")
+{
+    memepp::string s = "say Hello world!";
+
+    // full_match=true: "hello" at word boundary -> found
+    REQUIRE(s.index_of(memepp::string_view("hello"), true,
+        memepp::case_sensitivity_t::all_insensitive) == 4);
+    // full_match=true: embedded "ell" not at word boundary -> not found
+    REQUIRE(s.index_of(memepp::string_view("ell"), true,
+        memepp::case_sensitivity_t::all_insensitive) == memepp::string::npos);
+    // full_match=false: embedded "ell" found (in "say Hello world!", 'e' at position 5)
+    REQUIRE(s.index_of(memepp::string_view("ell"), false,
+        memepp::case_sensitivity_t::all_insensitive) == 5);
+}
+
+// ---------------------------------------------------------------------------
+// string::last_index_of - case insensitive
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string last_index_of - case insensitive basic", "[string]")
+{
+    memepp::string s = "Hello, World! Hello.";
+
+    REQUIRE(s.last_index_of(memepp::string_view("hello"),
+        memepp::case_sensitivity_t::all_insensitive) == 14);
+    REQUIRE(s.last_index_of(memepp::string_view("WORLD"),
+        memepp::case_sensitivity_t::all_insensitive) == 7);
+}
+
+TEST_CASE("memepp::string last_index_of - case insensitive not found", "[string]")
+{
+    memepp::string s = "Hello, World!";
+
+    REQUIRE(s.last_index_of(memepp::string_view("xyz"),
+        memepp::case_sensitivity_t::all_insensitive) == memepp::string::npos);
+}
+
+TEST_CASE("memepp::string last_index_of - case sensitive flag works", "[string]")
+{
+    memepp::string s = "Hello, World!";
+
+    REQUIRE(s.last_index_of(memepp::string_view("hello"),
+        memepp::case_sensitivity_t::case_sensitive) == memepp::string::npos);
+}
