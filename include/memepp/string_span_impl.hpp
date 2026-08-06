@@ -6,7 +6,7 @@
 #include <meme/unsafe/string_view.h>
 
 #include "memepp/string_span_def.hpp"
-#include "memepp/string_def.hpp"
+#include <memepp/string.hpp>
 
 #include <cstring>
 #include <algorithm>

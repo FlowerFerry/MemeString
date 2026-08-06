@@ -4,11 +4,11 @@
 
 #include "meme/variable_buffer.h"
 #include "memepp/variable_buffer_def.hpp"
-#include "memepp/string_def.hpp"
-#include "memepp/buffer_def.hpp"
-#include "memepp/buffer_view_def.hpp"
-#include "memepp/buffer_span_def.hpp"
-#include "memepp/string_view_def.hpp"
+#include <memepp/string.hpp>
+#include <memepp/buffer.hpp>
+#include <memepp/buffer_view.hpp>
+#include <memepp/buffer_span.hpp>
+#include <memepp/string_view.hpp>
 #include <memepp/errc.hpp>
 
 #include <utility>

@@ -3,11 +3,11 @@
 #define MEMEPP_BUFFER_SPAN_IMPL_HPP_INCLUDED
 
 #include "memepp/buffer_span_def.hpp"
-#include "memepp/buffer_def.hpp"
-#include "memepp/variable_buffer_def.hpp"
-#include "memepp/buffer_view_def.hpp"
-#include "memepp/string_span_def.hpp"
-#include "memepp/string_def.hpp"
+#include <memepp/buffer.hpp>
+#include <memepp/variable_buffer.hpp>
+#include <memepp/buffer_view.hpp>
+#include <memepp/string_span.hpp>
+#include <memepp/string.hpp>
 
 #include <cstring>
 #include <algorithm>
