@@ -2,14 +2,21 @@
 #ifndef MEGO_UTIL_STD_TIME_H_INCLUDED
 #define MEGO_UTIL_STD_TIME_H_INCLUDED
 
+#include <mego/predef/os/windows.h>
+#include <mego/predef/os/linux.h>
+#include <mego/predef/os/macos.h>
+
+#if MG_OS__LINUX_AVAIL || MG_OS__MACOS_AVAIL
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+#endif
+
 #include <time.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <mego/predef/symbol/restrict.h>
 #include <mego/predef/symbol/inline.h>
-#include <mego/predef/os/windows.h>
-#include <mego/predef/os/linux.h>
-#include <mego/predef/os/macos.h>
 #include <mego/err/ec.h>
 #include <errno.h>
 #include <limits.h>

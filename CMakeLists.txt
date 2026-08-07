@@ -37,7 +37,8 @@ include(FetchContent)
 # 添加链接库
 if (NOT WIN32)
   find_package(Threads REQUIRED)
-  set(LINK_LIBS Threads::Threads ${CMAKE_DL_LIBS} rt)
+  find_library(MATH_LIBRARY m)
+  set(LINK_LIBS Threads::Threads ${CMAKE_DL_LIBS} rt ${MATH_LIBRARY})
 endif()
 
 # 设置编译选项
