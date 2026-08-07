@@ -1,4 +1,4 @@
-﻿
+
 #include <catch2/catch.hpp>
 
 #include <memepp/string.hpp>
@@ -541,14 +541,14 @@ TEST_CASE("memepp::to_string<int32_t>", "[string]")
 
 TEST_CASE("memepp::to_string<int64_t>", "[string]")
 {
-    auto s1 = memepp::to_string(-9223372036854775807LL - 1);  // INT64_MIN
+    auto s1 = memepp::to_string(static_cast<int64_t>(-9223372036854775807LL - 1));  // INT64_MIN
     REQUIRE(s1 == "-9223372036854775808");
     REQUIRE(s1.size() == 20);
 
     auto s2 = memepp::to_string(0);
     REQUIRE(s2 == "0");
 
-    auto s3 = memepp::to_string(9223372036854775807LL);  // INT64_MAX
+    auto s3 = memepp::to_string(static_cast<int64_t>(9223372036854775807LL));  // INT64_MAX
     REQUIRE(s3 == "9223372036854775807");
     REQUIRE(s3.size() == 19);
 
