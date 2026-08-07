@@ -1,4 +1,4 @@
-#ifndef TEST_MEME_RUNE_INDEX_H_INCLUDED
+﻿#ifndef TEST_MEME_RUNE_INDEX_H_INCLUDED
 #define TEST_MEME_RUNE_INDEX_H_INCLUDED
 
 #include <minunit.h>

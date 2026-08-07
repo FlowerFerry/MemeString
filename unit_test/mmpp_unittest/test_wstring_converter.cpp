@@ -1,4 +1,4 @@
-#include <catch2/catch.hpp>
+﻿#include <catch2/catch.hpp>
 
 #include <memepp/string.hpp>
 #include <memepp/convert/std/wstring.hpp>
