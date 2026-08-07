@@ -114,6 +114,8 @@ mmut_create_exec_for_stdcxx(${MMUT_CXX11_EXEC_NAME} cxx_std_11 ${SRC_FILES})
 mmut_create_exec_for_stdcxx(${MMUT_CXX14_EXEC_NAME} cxx_std_14 ${SRC_FILES})
 mmut_create_exec_for_stdcxx(${MMUT_CXX17_EXEC_NAME} cxx_std_17 ${SRC_FILES})
 
+mmut_create_exec_for_stdcxx(${PROJECT_NAME} cxx_std_17 ${SRC_FILES})
+
 if(NOT MMUT_PARENT_LIBRARY_FILE STREQUAL "")
   add_custom_command(
 	TARGET ${MMUT_CXX11_EXEC_NAME} POST_BUILD
