@@ -14,6 +14,8 @@
 #include "test_meme_string_builder.h"
 #include "test_meme_variant.h"
 
+#include "test_mmconc_atomic_fwd.h"
+
 int main(int _argc, char *_argv[])
 {
     MU_RUN_SUITE(test_meme_version);
@@ -29,6 +31,7 @@ int main(int _argc, char *_argv[])
     MU_RUN_SUITE(test_meme_memory);
     MU_RUN_SUITE(test_meme_string_builder);
     MU_RUN_SUITE(test_meme_variant);
+    MU_RUN_SUITE(test_mmconc_atomic_fwd);
     MU_REPORT();
     return MU_EXIT_CODE;
 }
