@@ -174,10 +174,9 @@ jobs:
         run: cmake --build build
 
       - name: Test
-        run: >
-          ctest --test-dir build --output-on-failure
-          --test-command-prefix "qemu-arm-static -L /usr/arm-linux-gnueabihf"
-          --timeout 60
+        run: ctest --test-dir build --output-on-failure --timeout 60
+        env:
+          QEMU_LD_PREFIX: /usr/arm-linux-gnueabihf
 
   linux-gcc-aarch64:
     name: Linux (GCC aarch64)
