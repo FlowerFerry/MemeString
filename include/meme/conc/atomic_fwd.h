@@ -6,6 +6,7 @@
 #include <assert.h>
 
 #include <mego/predef/symbol/static_assert.h>
+#include <mego/predef/symbol/alignas.h>
 #include <meme/common.h>
 
 MEME_EXTERN_C_SCOPE_START
@@ -81,7 +82,7 @@ typedef struct mmconc_atomic_none {
 } mmconc_atomic_none_t;
 
 typedef struct mmconc_atomic_bool {
-    mmconc_atomic_none_t base;
+    MEGO__ALIGNAS(sizeof(int)) mmconc_atomic_none_t base;
     uint8_t byte[MMCONC_ATOMIC_BOOL_OBJ_SIZE - sizeof(mmconc_atomic_none_t)];
 } mmconc_atomic_bool_t;
 
@@ -96,37 +97,37 @@ typedef struct mmconc_atomic_uint8 {
 } mmconc_atomic_uint8_t;
 
 typedef struct mmconc_atomic_int16 {
-    mmconc_atomic_none_t base;
+    MEGO__ALIGNAS(sizeof(int16_t)) mmconc_atomic_none_t base;
     uint8_t byte[MMCONC_ATOMIC_INT16_OBJ_SIZE - sizeof(mmconc_atomic_none_t)];
 } mmconc_atomic_int16_t;
 
 typedef struct mmconc_atomic_uint16 {
-    mmconc_atomic_none_t base;
+    MEGO__ALIGNAS(sizeof(uint16_t)) mmconc_atomic_none_t base;
     uint8_t byte[MMCONC_ATOMIC_UINT16_OBJ_SIZE - sizeof(mmconc_atomic_none_t)];
 } mmconc_atomic_uint16_t;
 
 typedef struct mmconc_atomic_int32 {
-    mmconc_atomic_none_t base;
+    MEGO__ALIGNAS(sizeof(int32_t)) mmconc_atomic_none_t base;
     uint8_t byte[MMCONC_ATOMIC_INT32_OBJ_SIZE - sizeof(mmconc_atomic_none_t)];
 } mmconc_atomic_int32_t;
 
 typedef struct mmconc_atomic_uint32 {
-    mmconc_atomic_none_t base;
+    MEGO__ALIGNAS(sizeof(uint32_t)) mmconc_atomic_none_t base;
     uint8_t byte[MMCONC_ATOMIC_UINT32_OBJ_SIZE - sizeof(mmconc_atomic_none_t)];
 } mmconc_atomic_uint32_t;
 
 typedef struct mmconc_atomic_int64 {
-    mmconc_atomic_none_t base;
+    MEGO__ALIGNAS(sizeof(int64_t)) mmconc_atomic_none_t base;
     uint8_t byte[MMCONC_ATOMIC_INT64_OBJ_SIZE - sizeof(mmconc_atomic_none_t)];
 } mmconc_atomic_int64_t;
 
 typedef struct mmconc_atomic_uint64 {
-    mmconc_atomic_none_t base;
+    MEGO__ALIGNAS(sizeof(uint64_t)) mmconc_atomic_none_t base;
     uint8_t byte[MMCONC_ATOMIC_UINT64_OBJ_SIZE - sizeof(mmconc_atomic_none_t)];
 } mmconc_atomic_uint64_t;
 
 typedef struct mmconc_atomic_flag {
-    mmconc_atomic_none_t base;
+    MEGO__ALIGNAS(sizeof(int)) mmconc_atomic_none_t base;
     uint8_t byte[MMCONC_ATOMIC_BOOL_OBJ_SIZE - sizeof(mmconc_atomic_none_t)];
 } mmconc_atomic_flag_t;
 
