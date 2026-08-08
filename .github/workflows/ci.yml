@@ -108,6 +108,7 @@ jobs:
           -DCMAKE_CXX_COMPILER=clang++
           -DCMAKE_C_FLAGS=-m32
           -DCMAKE_CXX_FLAGS=-m32
+          -DCMAKE_LIBRARY_PATH=/usr/lib32
           -DMEMESTRING_UNITTEST_ENABLE=ON
           -DMEMESTRING_TEST_ENABLE=ON
 
@@ -134,6 +135,7 @@ jobs:
           -DCMAKE_BUILD_TYPE=Release
           -DCMAKE_C_FLAGS=-m32
           -DCMAKE_CXX_FLAGS=-m32
+          -DCMAKE_LIBRARY_PATH=/usr/lib32
           -DMEMESTRING_UNITTEST_ENABLE=ON
           -DMEMESTRING_TEST_ENABLE=ON
 
@@ -154,7 +156,7 @@ jobs:
       - name: Install cross toolchain and QEMU
         run: |
           sudo apt-get update
-          sudo apt-get install -y ninja-build gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf qemu-user
+          sudo apt-get install -y ninja-build gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf libc6-armhf-cross qemu-user
 
       - name: Configure
         run: >
