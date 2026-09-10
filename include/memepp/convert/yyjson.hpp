@@ -75,8 +75,8 @@ inline yyjson_mut_val* into_yyjson_value(yyjson_mut_doc* _doc, const memepp::str
     }
 }
 
-inline bool add_yyjson_value(yyjson_mut_doc* _doc,
-	const memepp::string_view& _value, bool _copy, yyjson_mut_val* _arr)
+inline bool add_yyjson_value(yyjson_mut_doc* _doc, yyjson_mut_val* _arr,
+	const memepp::string_view& _value, bool _copy)
 {
 	if (!_arr) return false;
 	auto len = static_cast<size_t>(_value.size());
@@ -85,8 +85,8 @@ inline bool add_yyjson_value(yyjson_mut_doc* _doc,
 		: yyjson_mut_arr_add_strn   (_doc, _arr, _value.data(), len);
 }
 
-inline bool add_yyjson_member(yyjson_mut_doc* _doc, const char* _key,
-	const memepp::string_view& _value, bool _copy, yyjson_mut_val* _obj)
+inline bool add_yyjson_member(yyjson_mut_doc* _doc, yyjson_mut_val* _obj, const char* _key,
+	const memepp::string_view& _value, bool _copy)
 {
 	if (!_obj) return false;
 	auto len = static_cast<size_t>(_value.size());
