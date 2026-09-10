@@ -75,7 +75,26 @@ inline yyjson_mut_val* into_yyjson_value(yyjson_mut_doc* _doc, const memepp::str
     }
 }
 
-};
+inline bool add_yyjson_value(yyjson_mut_doc* _doc,
+	const memepp::string_view& _value, bool _copy, yyjson_mut_val* _arr)
+{
+	if (!_arr) return false;
+	auto len = static_cast<size_t>(_value.size());
+	return _copy
+		? yyjson_mut_arr_add_strncpy(_doc, _arr, _value.data(), len)
+		: yyjson_mut_arr_add_strn   (_doc, _arr, _value.data(), len);
+}
 
+inline bool add_yyjson_member(yyjson_mut_doc* _doc, const char* _key,
+	const memepp::string_view& _value, bool _copy, yyjson_mut_val* _obj)
+{
+	if (!_obj) return false;
+	auto len = static_cast<size_t>(_value.size());
+	return _copy
+		? yyjson_mut_obj_add_strncpy(_doc, _obj, _key, _value.data(), len)
+		: yyjson_mut_obj_add_strn   (_doc, _obj, _key, _value.data(), len);
+}
+
+};
 
 #endif // !MEMEPP_CONVERT_YYJSON_HPP_INCLUDED

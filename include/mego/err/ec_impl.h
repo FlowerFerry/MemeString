@@ -387,15 +387,15 @@ MG_CAPI_INLINE mgec_t mgec__from_posix_err(int _posix_err)
 #ifdef ESTALE
 	case ESTALE:            return MGEC__STALE;
 #endif
-#ifdef ENOTNAM
-	case ENOTNAM:           return MGEC__NOTNAM;
-#endif
-#ifdef ENAVAIL
-	case ENAVAIL:           return MGEC__NAVAIL;
-#endif
-#ifdef EISNAM
-	case EISNAM:            return MGEC__ISNAM;
-#endif
+// #ifdef ENOTNAM
+// 	case ENOTNAM:           return MGEC__NOTNAM;
+// #endif
+// #ifdef ENAVAIL
+// 	case ENAVAIL:           return MGEC__NAVAIL;
+// #endif
+// #ifdef EISNAM
+// 	case EISNAM:            return MGEC__ISNAM;
+// #endif
 #ifdef EDQUOT
 	case EDQUOT:            return MGEC__DQUOT;
 #endif

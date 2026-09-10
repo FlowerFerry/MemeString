@@ -148,9 +148,9 @@ typedef int mgrc_t;
 #define MGEC__INPROGRESS                (MGEC__POSIX_OFFSET_BEGIN - 115)    //< 操作正在进行中 Operation now in progress
 #define MGEC__STALE                     (MGEC__POSIX_OFFSET_BEGIN - 116)    //< 文件句柄过期 Stale NFS file handle
 #define MGEC__UCLEAN                    (MGEC__POSIX_OFFSET_BEGIN - 117)    //< 结构体已经清理 Structure needs cleaning
-#define MGEC__NOTNAM                    (MGEC__POSIX_OFFSET_BEGIN - 118)    //< 不是 XENIX 命名类型 Not a XENIX named type file
-#define MGEC__NAVAIL                    (MGEC__POSIX_OFFSET_BEGIN - 119)    //< 没有 XENIX semaphores available
-#define MGEC__ISNAM                     (MGEC__POSIX_OFFSET_BEGIN - 120)    //< 是 XENIX 命名类型 Is a named type file
+// #define MGEC__NOTNAM                    (MGEC__POSIX_OFFSET_BEGIN - 118)    //< 不是 XENIX 命名类型 Not a XENIX named type file
+// #define MGEC__NAVAIL                    (MGEC__POSIX_OFFSET_BEGIN - 119)    //< 没有 XENIX semaphores available
+// #define MGEC__ISNAM                     (MGEC__POSIX_OFFSET_BEGIN - 120)    //< 是 XENIX 命名类型 Is a named type file
 #define MGEC__REMOTEIO                  (MGEC__POSIX_OFFSET_BEGIN - 121)    //< 远程IO错误 Remote I/O error
 #define MGEC__DQUOT                     (MGEC__POSIX_OFFSET_BEGIN - 122)    //< 磁盘已满 Quota exceeded
 #define MGEC__NOMEDIUM                  (MGEC__POSIX_OFFSET_BEGIN - 123)    //< 没有中间介质 No medium found
