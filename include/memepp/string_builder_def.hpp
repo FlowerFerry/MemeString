@@ -15,6 +15,7 @@ inline namespace MMPP_NAMESPACE {
 	public:
 
 		using native_handle_type = ::MemeStringBuilderStack_t;
+		using size_type = mmint_t;
 
 		string_builder();
 		string_builder(string_builder& _other);
@@ -52,6 +53,13 @@ inline namespace MMPP_NAMESPACE {
 		string release ();
         string generate() const;
         
+		size_type size() const noexcept;
+		bool empty() const noexcept;
+		size_type part_count() const noexcept;
+		size_type part_capacity() const noexcept;
+		void reserve_parts(size_type _count);
+		void clear();
+
 		const native_handle_type& native_handle() const noexcept;
 
 	private:

@@ -1,5 +1,7 @@
 ﻿#include <catch2/catch.hpp>
 
+#include <stdexcept>
+
 #include <memepp/string_builder.hpp>
 #include <memepp/string.hpp>
 #include <memepp/string_view.hpp>
@@ -429,4 +431,227 @@ TEST_CASE("memepp::string_builder reuse after release", "[string_builder]")
     // After release, builder should be reusable
     b += "second";
     REQUIRE(b.generate() == "second");
+}
+
+// ---------------------------------------------------------------------------
+// size() — total UTF-8 byte length across all parts
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder size default is 0", "[string_builder]")
+{
+    memepp::string_builder b;
+    REQUIRE(b.size() == 0);
+}
+
+TEST_CASE("memepp::string_builder size single append", "[string_builder]")
+{
+    memepp::string_builder b;
+    b += "abc";
+    REQUIRE(b.size() == 3);
+}
+
+TEST_CASE("memepp::string_builder size sums all parts", "[string_builder]")
+{
+    memepp::string_builder b;
+    b += "Hello, ";
+    b += "World!";
+
+    REQUIRE(b.size() == 13);
+    REQUIRE(b.part_count() == 2);
+}
+
+TEST_CASE("memepp::string_builder size UTF-8 multibyte", "[string_builder]")
+{
+    // hex escapes: fixed UTF-8 bytes (ni hao), independent of the
+    // execution charset the compiler applies to source literals
+    memepp::string_view sv("\xE4\xBD\xA0\xE5\xA5\xBD", 6);
+
+    memepp::string_builder b;
+    b += sv;
+
+    REQUIRE(b.size() == 6);
+    REQUIRE(b.generate().size() == 6);
+}
+
+// ---------------------------------------------------------------------------
+// empty()
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder empty default constructor", "[string_builder]")
+{
+    memepp::string_builder b;
+    REQUIRE(b.empty());
+}
+
+TEST_CASE("memepp::string_builder empty after append", "[string_builder]")
+{
+    memepp::string_builder b;
+    REQUIRE(b.empty());
+
+    b += "x";
+    REQUIRE_FALSE(b.empty());
+}
+
+TEST_CASE("memepp::string_builder empty after clear", "[string_builder]")
+{
+    memepp::string_builder b;
+    b += "content";
+    REQUIRE_FALSE(b.empty());
+
+    b.clear();
+    REQUIRE(b.empty());
+    REQUIRE(b.size() == 0);
+}
+
+// ---------------------------------------------------------------------------
+// part_count() / part_capacity()
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder part_count tracks appends", "[string_builder]")
+{
+    memepp::string_builder b;
+    REQUIRE(b.part_count() == 0);
+
+    b += "a";
+    b += "b";
+    b += "c";
+    REQUIRE(b.part_count() == 3);
+}
+
+TEST_CASE("memepp::string_builder part_capacity holds part_count", "[string_builder]")
+{
+    memepp::string_builder b;
+    for (int i = 0; i < 10; ++i)
+        b += "x";
+
+    REQUIRE(b.part_capacity() >= b.part_count());
+    REQUIRE(b.part_count() == 10);
+}
+
+// ---------------------------------------------------------------------------
+// reserve_parts()
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder reserve_parts grows capacity", "[string_builder]")
+{
+    memepp::string_builder b;
+    b.reserve_parts(16);
+    REQUIRE(b.part_capacity() >= 16);
+    REQUIRE(b.part_count() == 0);
+
+    for (int i = 0; i < 16; ++i)
+        b += "x";
+
+    REQUIRE(b.part_count() == 16);
+    REQUIRE(b.size() == 16);
+    REQUIRE(b.generate().size() == 16);
+}
+
+#if !MMOPT__EXCEPTION_DISABLED
+TEST_CASE("memepp::string_builder reserve_parts negative throws", "[string_builder]")
+{
+    memepp::string_builder b;
+    REQUIRE_THROWS_AS(b.reserve_parts(-1), std::runtime_error);
+}
+#endif
+
+// ---------------------------------------------------------------------------
+// clear() — resets content, builder stays reusable
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder clear resets all state", "[string_builder]")
+{
+    memepp::string_builder b;
+    b += "one";
+    b += "two";
+
+    b.clear();
+
+    REQUIRE(b.empty());
+    REQUIRE(b.size() == 0);
+    REQUIRE(b.part_count() == 0);
+    REQUIRE(b.generate().empty());
+}
+
+TEST_CASE("memepp::string_builder clear keeps builder usable", "[string_builder]")
+{
+    memepp::string_builder b;
+    b += "first";
+    b.clear();
+    b += "second";
+
+    REQUIRE(b.generate() == "second");
+}
+
+TEST_CASE("memepp::string_builder clear on empty builder is a no-op", "[string_builder]")
+{
+    memepp::string_builder b;
+    b.clear();
+    REQUIRE(b.empty());
+    REQUIRE(b.part_count() == 0);
+}
+
+// ---------------------------------------------------------------------------
+// new interfaces x release() interaction — queries reset to zero
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder queries reset after release", "[string_builder]")
+{
+    memepp::string_builder b;
+    b += "abc";
+    b += "def";
+    REQUIRE(b.size() == 6);
+    REQUIRE(b.part_count() == 2);
+
+    b.release();
+
+    REQUIRE(b.size() == 0);
+    REQUIRE(b.part_count() == 0);
+    REQUIRE(b.empty());
+}
+
+// ---------------------------------------------------------------------------
+// empty-string append — part semantics
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder empty append counts as part", "[string_builder]")
+{
+    memepp::string_builder b;
+    b += "";
+    REQUIRE(b.size() == 0);          // empty part contributes no bytes
+    REQUIRE(b.part_count() == 1);    // but occupies a part slot
+    REQUIRE(b.generate().empty());
+
+    b += "x";
+    REQUIRE(b.size() == 1);
+    REQUIRE(b.part_count() == 2);
+}
+
+// ---------------------------------------------------------------------------
+// reserve_parts() — zero count boundary
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder reserve_parts zero is no-op", "[string_builder]")
+{
+    memepp::string_builder b;
+    b.reserve_parts(0);              // legal, no growth, no error
+    REQUIRE(b.part_count() == 0);
+    REQUIRE(b.empty());
+}
+
+// ---------------------------------------------------------------------------
+// clear() after reserve_parts() — parts fully released
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder clear after reserve_parts", "[string_builder]")
+{
+    memepp::string_builder b;
+    b.reserve_parts(32);
+    b += "data";
+
+    b.clear();
+
+    REQUIRE(b.part_count() == 0);    // clear re-inits, all parts released
+    REQUIRE(b.empty());
+    // part_capacity() exact value after re-init is an implementation detail
 }

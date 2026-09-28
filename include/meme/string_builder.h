@@ -82,5 +82,23 @@ MEME_STDCALL MemeStringBuilder_appendArgByOther(mmsbldr_ptr_t _builder, mmsbldr_
 MEME_API int
 MEME_STDCALL MemeStringBuilder_prependArgWithString(mmsbldr_t _builder, mms_const_t _arg);
 
+MEME_API mmint_t
+MEME_STDCALL MemeStringBuilder_partCapacity(mmsbldr_cptr_t _builder);
+
+MEME_API mmint_t
+MEME_STDCALL MemeStringBuilder_partCount(mmsbldr_cptr_t _builder);
+
+MEME_API int
+MEME_STDCALL MemeStringBuilder_reserveParts(mmsbldr_ptr_t _builder, mmint_t _count);
+
+MEME_API mmint_t
+MEME_STDCALL MemeStringBuilder_size(mmsbldr_cptr_t _builder);
+
+MEME_API int
+MEME_STDCALL MemeStringBuilder_isEmpty(mmsbldr_cptr_t _builder);
+
+MEME_API int
+MEME_STDCALL MemeStringBuilder_clear(mmsbldr_ptr_t _builder);
+
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_STRING_BUILDER_H_INCLUDED

@@ -361,3 +361,59 @@ MemeStringBuilderStack_release(
     MemeStringBuilderStack_unInit(_builder, _builder_size);
     return MemeStringBuilderStack_init(_builder, _builder_size);
 }
+
+MEME_EXTERN_C MEME_API mmint_t MEME_STDCALL MemeStringBuilder_size(mmsbldr_cptr_t _builder)
+{
+    assert(_builder != NULL && MemeStringBuilder_size); 
+    size_t count = 0;
+    for (size_t index = 0, partCount = cvector_size(_builder->parts_); index < partCount; ++index)
+    {
+        count += MemeString_byteSize(&(_builder->parts_[index].str));
+    }
+    return count;
+}
+
+MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringBuilder_isEmpty(mmsbldr_cptr_t _builder)
+{
+    assert(_builder != NULL && MemeStringBuilder_isEmpty);
+    for (size_t index = 0, partCount = cvector_size(_builder->parts_); index < partCount; ++index)
+    {
+        if (!MemeString_isEmpty(&(_builder->parts_[index].str)))
+            return 1;
+    }
+    return 0;
+}
+
+MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringBuilder_clear(mmsbldr_ptr_t _builder)
+{
+    assert(_builder != NULL && MemeStringBuilder_clear);
+    
+    mgec_t result = MemeStringBuilderStack_unInit(_builder, MMSBLDR__OBJ_SIZE);
+    if (result)
+        return result;
+    return MemeStringBuilderStack_init(_builder, MMSBLDR__OBJ_SIZE);
+}
+
+MEME_EXTERN_C MEME_API mmint_t MEME_STDCALL
+MemeStringBuilder_partCapacity(mmsbldr_cptr_t _builder)
+{
+    assert(_builder != NULL && MemeStringBuilder_partCapacity);
+    return (mmint_t)cvector_capacity(_builder->parts_);
+}
+
+MEME_EXTERN_C MEME_API mmint_t MEME_STDCALL
+MemeStringBuilder_partCount(mmsbldr_cptr_t _builder)
+{
+    assert(_builder != NULL && MemeStringBuilder_partCount);
+    return (mmint_t)cvector_size(_builder->parts_);
+}
+
+MEME_EXTERN_C MEME_API int MEME_STDCALL
+MemeStringBuilder_reserveParts(mmsbldr_ptr_t _builder, mmint_t _count)
+{
+    assert(_builder != NULL && MemeStringBuilder_reserveParts);
+    if (_count < 0)
+        return MGEC__INVAL;
+    cvector_reserve(_builder->parts_, (size_t)_count);
+    return 0;
+}

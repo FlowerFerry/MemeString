@@ -145,6 +145,42 @@ inline namespace MMPP_NAMESPACE {
         return s;
 	}
 
+	MEMEPP__IMPL_INLINE string_builder::size_type string_builder::size() const noexcept
+	{
+		return MemeStringBuilder_size(memepp::to_pointer(data_));
+	}
+
+	MEMEPP__IMPL_INLINE bool string_builder::empty() const noexcept
+	{
+		return MemeStringBuilder_isEmpty(memepp::to_pointer(data_)) == 0;
+	}
+
+	MEMEPP__IMPL_INLINE string_builder::size_type string_builder::part_count() const noexcept
+	{
+		return MemeStringBuilder_partCount(memepp::to_pointer(data_));
+	}
+
+	MEMEPP__IMPL_INLINE string_builder::size_type string_builder::part_capacity() const noexcept
+	{
+		return MemeStringBuilder_partCapacity(memepp::to_pointer(data_));
+	}
+
+	MEMEPP__IMPL_INLINE void string_builder::reserve_parts(size_type _count)
+	{
+		*errc() = static_cast<int>(MemeStringBuilder_reserveParts(memepp::to_pointer(data_), _count));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+#endif
+	}
+
+	MEMEPP__IMPL_INLINE void string_builder::clear()
+	{
+		*errc() = static_cast<int>(MemeStringBuilder_clear(memepp::to_pointer(data_)));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+#endif
+	}
+
 	MEMEPP__IMPL_INLINE const string_builder::native_handle_type& string_builder::native_handle() const noexcept
 	{
 		return data_;

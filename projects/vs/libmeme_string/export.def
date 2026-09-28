@@ -692,3 +692,9 @@ EXPORTS
     MemeVariableBuffer_insertWithByte @21002
     MemeVariableBuffer_compare @21003
     MemeVariableBuffer_compareWithBytes @21004
+    MemeStringBuilder_size @30000
+    MemeStringBuilder_isEmpty @30001
+    MemeStringBuilder_clear @30002
+    MemeStringBuilder_partCapacity @30003
+    MemeStringBuilder_partCount @30004
+    MemeStringBuilder_reserveParts @30005
