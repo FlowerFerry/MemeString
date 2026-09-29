@@ -126,6 +126,14 @@ inline namespace MMPP_NAMESPACE {
         return *this;
     }
 
+    MEMEPP__IMPL_INLINE string_builder& string_builder::operator+=(char _other)
+    {
+        MemeStringBuilder_appendArgByByte(
+            memepp::to_pointer(data_),
+            static_cast<mmbyte_t>(_other));
+        return *this;
+    }
+
 
 	MEMEPP__IMPL_INLINE string string_builder::release()
 	{
@@ -186,65 +194,76 @@ inline namespace MMPP_NAMESPACE {
 		return data_;
 	}
 
-	//MEMEPP__IMPL_INLINE bool operator==(const string_builder& _lhs, const string& _rhs)
-	//{
-	//	int result = 0;
-	//	MemeStringBuilderStack_isEqualWithString(
-	//		&(_lhs.native_handle()),
-	//		MEME_STRING_BUILDER__OBJECT_SIZE,
-	//		to_pointer(_rhs.native_handle()), &result);
-	//	return result;
-	//}
+	MEMEPP__IMPL_INLINE bool operator==(const string_builder& _lhs, const string& _rhs)
+	{
+		int result = 0;
+		MemeStringBuilder_isEqualWithString(
+			memepp::to_pointer(_lhs.native_handle()),
+			memepp::to_pointer(_rhs.native_handle()),
+			&result);
+		return result != 0;
+	}
 
-	//MEMEPP__IMPL_INLINE bool operator==(const string& _lhs, const string_builder& _rhs)
-	//{
-	//	int result = 0;
-	//	MemeStringBuilderStack_isEqualWithString(
-	//		&(_rhs.native_handle()),
-	//		MEME_STRING_BUILDER__OBJECT_SIZE,
-	//		to_pointer(_lhs.native_handle()), &result);
-	//	return result;
-	//}
+	MEMEPP__IMPL_INLINE bool operator==(const string& _lhs, const string_builder& _rhs)
+	{
+		return _rhs == _lhs;
+	}
 
-	//MEMEPP__IMPL_INLINE bool operator==(const string_builder& _lhs, const string_view& _rhs)
-	//{
-	//	int result = 0;
-	//	MemeStringBuilderStack_isEqualWithString(
-	//		&(_lhs.native_handle()),
-	//		MEME_STRING_BUILDER__OBJECT_SIZE,
-	//		to_pointer(_rhs.native_handle()), &result);
-	//	return result;
-	//}
-	//
-	//MEMEPP__IMPL_INLINE bool operator==(const string_view& _lhs, const string_builder& _rhs)
-	//{
-	//	int result = 0;
-	//	MemeStringBuilderStack_isEqualWithString(
-	//		&(_rhs.native_handle()),
-	//		MEME_STRING_BUILDER__OBJECT_SIZE,
-	//		to_pointer(_lhs.native_handle()), &result);
-	//	return result;
-	//}
+	MEMEPP__IMPL_INLINE bool operator==(const string_builder& _lhs, const string_view& _rhs)
+	{
+		int result = 0;
+		MemeStringBuilder_isEqualWithBytes(
+			memepp::to_pointer(_lhs.native_handle()),
+			reinterpret_cast<const mmbyte_t*>(_rhs.data()),
+			static_cast<mmint_t>(_rhs.size()),
+			&result);
+		return result != 0;
+	}
 
-	//MEMEPP__IMPL_INLINE bool operator!=(const string_builder& _lhs, const string& _rhs)
-	//{
-	//	!(_lhs == _rhs);
-	//}
+	MEMEPP__IMPL_INLINE bool operator==(const string_view& _lhs, const string_builder& _rhs)
+	{
+		return _rhs == _lhs;
+	}
 
-	//MEMEPP__IMPL_INLINE bool operator!=(const string& _lhs, const string_builder& _rhs)
-	//{
-	//	!(_lhs == _rhs);
-	//}
-	//
-	//MEMEPP__IMPL_INLINE bool operator!=(const string_builder& _lhs, const string_view& _rhs)
-	//{
-	//	!(_lhs == _rhs);
-	//}
+	MEMEPP__IMPL_INLINE bool operator!=(const string_builder& _lhs, const string& _rhs)
+	{
+		return !(_lhs == _rhs);
+	}
 
-	//MEMEPP__IMPL_INLINE bool operator!=(const string_view& _lhs, const string_builder& _rhs)
-	//{
-	//	!(_lhs == _rhs);
-	//}
+	MEMEPP__IMPL_INLINE bool operator!=(const string& _lhs, const string_builder& _rhs)
+	{
+		return !(_lhs == _rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator!=(const string_builder& _lhs, const string_view& _rhs)
+	{
+		return !(_lhs == _rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator==(const string_builder& _lhs, const char* _rhs)
+	{
+		return _lhs == memepp::string_view{ _rhs };
+	}
+
+	MEMEPP__IMPL_INLINE bool operator==(const char* _lhs, const string_builder& _rhs)
+	{
+		return _rhs == memepp::string_view{ _lhs };
+	}
+
+	MEMEPP__IMPL_INLINE bool operator!=(const string_builder& _lhs, const char* _rhs)
+	{
+		return !(_lhs == _rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator!=(const char* _lhs, const string_builder& _rhs)
+	{
+		return !(_lhs == _rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator!=(const string_view& _lhs, const string_builder& _rhs)
+	{
+		return !(_lhs == _rhs);
+	}
     
 	MEMEPP__IMPL_INLINE string_builder& operator+(const string& _lhs, string_builder& _rhs)
 	{

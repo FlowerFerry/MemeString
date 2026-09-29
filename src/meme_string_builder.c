@@ -394,6 +394,95 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringBuilder_clear(mmsbldr_ptr_t _b
     return MemeStringBuilderStack_init(_builder, MMSBLDR__OBJ_SIZE);
 }
 
+MEME_EXTERN_C MEME_API int MEME_STDCALL
+MemeStringBuilder_appendArgByByte(mmsbldr_ptr_t _builder, mmbyte_t _byte)
+{
+    int result = 0;
+    mmsbldr_part_t part;
+    result = MemeStringBuilderPart_init(&part);
+    if (result != 0)
+        return result;
+    result = MemeStringStack_initByU8bytes(&part.str, MMSTR__OBJ_SIZE, &_byte, 1);
+    if (result != 0) {
+        MemeStringBuilderPart_unInit(&part);
+        return result;
+    }
+    cvector_push_back(_builder->parts_, part);
+    return result;
+}
+
+MEME_EXTERN_C MEME_API int MEME_STDCALL
+MemeStringBuilder_isEqualWithString(
+    mmsbldr_cptr_t _builder, mmstr_cptr_t _rhs, int* _result)
+{
+    assert(_builder != NULL && "MemeStringBuilder_isEqualWithString");
+    assert(_rhs != NULL && "MemeStringBuilder_isEqualWithString");
+    assert(_result != NULL && "MemeStringBuilder_isEqualWithString");
+
+    *_result = 0;
+
+    mmint_t builder_size = MemeStringBuilder_size(_builder);
+    mmint_t rhs_size = MemeString_byteSize(_rhs);
+    if (builder_size != rhs_size)
+        return 0;
+
+    if (builder_size == 0) {
+        *_result = 1;
+        return 0;
+    }
+
+    const mmbyte_t* rhs_data = MemeString_byteData(_rhs);
+    mmint_t offset = 0;
+    for (size_t i = 0, cnt = cvector_size(_builder->parts_); i < cnt; ++i)
+    {
+        mmint_t psz = MemeString_byteSize((mmstr_cptr_t)&_builder->parts_[i].str);
+        if (psz == 0)
+            continue;
+        const mmbyte_t* pdata = MemeString_byteData((mmstr_cptr_t)&_builder->parts_[i].str);
+        if (memcmp(pdata, rhs_data + offset, psz) != 0)
+            return 0;
+        offset += psz;
+    }
+
+    *_result = 1;
+    return 0;
+}
+
+MEME_EXTERN_C MEME_API int MEME_STDCALL
+MemeStringBuilder_isEqualWithBytes(
+    mmsbldr_cptr_t _builder, const mmbyte_t* _bytes, mmint_t _len, int* _result)
+{
+    assert(_builder != NULL && "MemeStringBuilder_isEqualWithBytes");
+    assert(_bytes != NULL && "MemeStringBuilder_isEqualWithBytes");
+    assert(_result != NULL && "MemeStringBuilder_isEqualWithBytes");
+
+    *_result = 0;
+
+    mmint_t builder_size = MemeStringBuilder_size(_builder);
+    if (builder_size != _len)
+        return 0;
+
+    if (builder_size == 0) {
+        *_result = 1;
+        return 0;
+    }
+
+    mmint_t offset = 0;
+    for (size_t i = 0, cnt = cvector_size(_builder->parts_); i < cnt; ++i)
+    {
+        mmint_t psz = MemeString_byteSize((mmstr_cptr_t)&_builder->parts_[i].str);
+        if (psz == 0)
+            continue;
+        const mmbyte_t* pdata = MemeString_byteData((mmstr_cptr_t)&_builder->parts_[i].str);
+        if (memcmp(pdata, _bytes + offset, psz) != 0)
+            return 0;
+        offset += psz;
+    }
+
+    *_result = 1;
+    return 0;
+}
+
 MEME_EXTERN_C MEME_API mmint_t MEME_STDCALL
 MemeStringBuilder_partCapacity(mmsbldr_cptr_t _builder)
 {

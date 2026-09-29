@@ -100,5 +100,19 @@ MEME_STDCALL MemeStringBuilder_isEmpty(mmsbldr_cptr_t _builder);
 MEME_API int
 MEME_STDCALL MemeStringBuilder_clear(mmsbldr_ptr_t _builder);
 
+//! @brief Append a single byte to the builder as a new part.
+MEME_API int
+MEME_STDCALL MemeStringBuilder_appendArgByByte(mmsbldr_ptr_t _builder, mmbyte_t _byte);
+
+//! @brief Compare builder content with a string for equality (no temporary generation).
+MEME_API int
+MEME_STDCALL MemeStringBuilder_isEqualWithString(
+	mmsbldr_cptr_t _builder, mmstr_cptr_t _rhs, int* _result);
+
+//! @brief Compare builder content with raw bytes for equality (no temporary generation).
+MEME_API int
+MEME_STDCALL MemeStringBuilder_isEqualWithBytes(
+	mmsbldr_cptr_t _builder, const mmbyte_t* _bytes, mmint_t _len, int* _result);
+
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_STRING_BUILDER_H_INCLUDED

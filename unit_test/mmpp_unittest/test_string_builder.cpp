@@ -210,9 +210,132 @@ TEST_CASE("memepp::string_builder operator+(const char*, const memepp::string&) 
 
 TEST_CASE("memepp::string_builder operator+(const char*, const memepp::string&) UTF-8 Chinese", "[string_builder]")
 {
-    memepp::string rhs("世界");
+    memepp::string rhs = "世界";
     memepp::string_builder builder = "你好" + rhs;
     REQUIRE(builder.generate() == "你好世界");
+}
+
+// operator+=(char)
+TEST_CASE("memepp::string_builder operator+=(char) basic", "[string_builder]")
+{
+    memepp::string_builder builder;
+    builder += 'H';
+    builder += 'i';
+    REQUIRE(builder.generate() == "Hi");
+}
+
+TEST_CASE("memepp::string_builder operator+=(char) mixed with string", "[string_builder]")
+{
+    memepp::string_builder builder;
+    builder += '[';
+    builder += memepp::string{"hello"};
+    builder += ']';
+    REQUIRE(builder.generate() == "[hello]");
+}
+
+TEST_CASE("memepp::string_builder operator+=(char) UTF-8 byte append", "[string_builder]")
+{
+    // Append individual UTF-8 bytes of "你好" (3 bytes each)
+    memepp::string_builder builder;
+    builder += '\xe4';
+    builder += '\xbd';
+    builder += '\xa0';
+    builder += '\xe5';
+    builder += '\xa5';
+    builder += '\xbd';
+    REQUIRE(builder.generate() == u8"你好");
+}
+
+// operator== / operator!=
+TEST_CASE("memepp::string_builder operator== with string equal", "[string_builder]")
+{
+    memepp::string_builder builder;
+    builder += "hello";
+    builder += " world";
+    memepp::string rhs = "hello world";
+    REQUIRE(builder == rhs);
+    REQUIRE_FALSE(builder != rhs);
+}
+
+TEST_CASE("memepp::string_builder operator== with string not equal", "[string_builder]")
+{
+    memepp::string_builder builder;
+    builder += "hello";
+    memepp::string rhs = "world";
+    REQUIRE_FALSE(builder == rhs);
+    REQUIRE(builder != rhs);
+}
+
+TEST_CASE("memepp::string_builder operator== reversed (string == builder)", "[string_builder]")
+{
+    memepp::string_builder builder;
+    builder += "test";
+    memepp::string lhs = "test";
+    REQUIRE(lhs == builder);
+    REQUIRE_FALSE(lhs != builder);
+}
+
+TEST_CASE("memepp::string_builder operator== with string_view equal", "[string_builder]")
+{
+    memepp::string_builder builder;
+    builder += "abc";
+    builder += "def";
+    memepp::string_view rhs = "abcdef";
+    REQUIRE(builder == rhs);
+    REQUIRE_FALSE(builder != rhs);
+}
+
+TEST_CASE("memepp::string_builder operator== with string_view not equal", "[string_builder]")
+{
+    memepp::string_builder builder;
+    builder += "abc";
+    memepp::string_view rhs = "xyz";
+    REQUIRE_FALSE(builder == rhs);
+    REQUIRE(builder != rhs);
+}
+
+TEST_CASE("memepp::string_builder operator== reversed (string_view == builder)", "[string_builder]")
+{
+    memepp::string_builder builder;
+    builder += "foo";
+    memepp::string_view lhs = "foo";
+    REQUIRE(lhs == builder);
+    REQUIRE_FALSE(lhs != builder);
+}
+
+TEST_CASE("memepp::string_builder operator== empty builder equals empty string", "[string_builder]")
+{
+    memepp::string_builder builder;
+    memepp::string empty_str = "";
+    REQUIRE(builder == empty_str);
+    REQUIRE_FALSE(builder != empty_str);
+}
+
+TEST_CASE("memepp::string_builder operator== multi-part content", "[string_builder]")
+{
+    memepp::string_builder builder;
+    builder += "a";
+    builder += 'b';
+    builder += "c";
+    builder += "de";
+    builder += 'f';
+    REQUIRE(builder == memepp::string{"abcdef"});
+    REQUIRE(builder == memepp::string_view{"abcdef"});
+}
+
+TEST_CASE("memepp::string_builder operator== length mismatch", "[string_builder]")
+{
+    memepp::string_builder builder;
+    builder += "short";
+    REQUIRE_FALSE(builder == memepp::string{"shorter"});
+    REQUIRE_FALSE(builder == memepp::string{"sho"});
+}
+
+TEST_CASE("memepp::string_builder operator== same size different content", "[string_builder]")
+{
+    memepp::string_builder builder;
+    builder += "abc";
+    REQUIRE_FALSE(builder == memepp::string{"xyz"});
 }
 
 TEST_CASE("memepp::string_builder operator+(const char*, const memepp::string&) result can be chained", "[string_builder]")

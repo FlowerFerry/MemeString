@@ -698,3 +698,6 @@ EXPORTS
     MemeStringBuilder_partCapacity @30003
     MemeStringBuilder_partCount @30004
     MemeStringBuilder_reserveParts @30005
+    MemeStringBuilder_appendArgByByte @30006
+    MemeStringBuilder_isEqualWithString @30007
+    MemeStringBuilder_isEqualWithBytes @30008
