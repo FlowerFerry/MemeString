@@ -21,14 +21,14 @@ inline namespace MMPP_NAMESPACE {
 	inline string_builder  operator+(const std::string& _lhs, const string_view& _rhs);
 	inline string_builder  operator+(std::string&& _lhs, const string_view& _rhs);
 
-	inline string_builder& operator+(string_builder& _sb, const std::string& _s);
+	//inline string_builder& operator+(string_builder& _sb, const std::string& _s);
 	inline string_builder  operator+(string_builder&& _sb, const std::string& _s);
-	inline string_builder& operator+(string_builder& _sb, std::string&& _s);
+	//inline string_builder& operator+(string_builder& _sb, std::string&& _s);
 	inline string_builder  operator+(string_builder&& _sb, std::string&& _s);
 
-	inline string_builder& operator+(const std::string& _s, memepp::string_builder& _sb);
+	//inline string_builder& operator+(const std::string& _s, memepp::string_builder& _sb);
 	inline string_builder  operator+(const std::string& _s, string_builder&& _sb);
-	inline string_builder& operator+(std::string&& _s, string_builder& _sb);
+	//inline string_builder& operator+(std::string&& _s, string_builder& _sb);
 	inline string_builder  operator+(std::string&& _s, string_builder&& _sb);
 
     inline string_builder operator+(const string& _lhs, const std::string& _rhs)
@@ -93,10 +93,10 @@ inline namespace MMPP_NAMESPACE {
 		return _sb;
 	}
 
-	inline string_builder& operator+(const std::string& _s, memepp::string_builder& _sb)
-	{
-		return mm_view(_s) + _sb;
-	}
+	//inline string_builder& operator+(const std::string& _s, memepp::string_builder& _sb)
+	//{
+	//	return mm_view(_s) + _sb;
+	//}
 
 	inline string_builder operator+(const std::string& _s, string_builder&& _sb)
 	{
