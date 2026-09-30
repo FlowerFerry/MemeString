@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEMEPP_STRING_EDITOR_IMPL_HPP_INCLUDED
 #define MEMEPP_STRING_EDITOR_IMPL_HPP_INCLUDED
 
@@ -64,30 +64,30 @@ inline namespace MMPP_NAMESPACE {
 		return *this;
 	}
 
-	MEMEPP__IMPL_INLINE string_builder& string_builder::operator+(const string& _other)
-	{
-		MemeStringBuilder_appendArgWithString(
-			memepp::to_pointer(data_),
-			memepp::to_pointer(_other.native_handle()));
-        return *this;
-	}
+	//MEMEPP__IMPL_INLINE string_builder& string_builder::operator+(const string& _other)
+	//{
+	//	MemeStringBuilder_appendArgWithString(
+	//		memepp::to_pointer(data_),
+	//		memepp::to_pointer(_other.native_handle()));
+ //       return *this;
+	//}
 
-    MEMEPP__IMPL_INLINE string_builder& string_builder::operator+(const string_view& _other)
-    {
-		MemeStringBuilder_appendArgWithString(
-            memepp::to_pointer(data_),
-            memepp::to_pointer(_other.native_handle()));
-        return *this;
-    }
+ //   MEMEPP__IMPL_INLINE string_builder& string_builder::operator+(const string_view& _other)
+ //   {
+	//	MemeStringBuilder_appendArgWithString(
+ //           memepp::to_pointer(data_),
+ //           memepp::to_pointer(_other.native_handle()));
+ //       return *this;
+ //   }
 
-    MEMEPP__IMPL_INLINE string_builder& string_builder::operator+(const char* _other)
-    {
-		memepp::string_view sv{ _other };
-        MemeStringBuilder_appendArgWithString(
-            memepp::to_pointer(data_),
-            memepp::to_pointer(sv.native_handle()));
-        return *this;
-    }
+ //   MEMEPP__IMPL_INLINE string_builder& string_builder::operator+(const char* _other)
+ //   {
+	//	memepp::string_view sv{ _other };
+ //       MemeStringBuilder_appendArgWithString(
+ //           memepp::to_pointer(data_),
+ //           memepp::to_pointer(sv.native_handle()));
+ //       return *this;
+ //   }
     
 	//MEMEPP__IMPL_INLINE string_builder string_builder::operator+(const string_builder& _other) const
 	//{
@@ -131,6 +131,31 @@ inline namespace MMPP_NAMESPACE {
         MemeStringBuilder_appendArgByByte(
             memepp::to_pointer(data_),
             static_cast<mmbyte_t>(_other));
+        return *this;
+    }
+
+    MEMEPP__IMPL_INLINE string_builder& string_builder::prepend(const string& _other)
+    {
+        MemeStringBuilder_prependArgWithString(
+            memepp::to_pointer(data_),
+            memepp::to_pointer(_other.native_handle()));
+        return *this;
+    }
+
+    MEMEPP__IMPL_INLINE string_builder& string_builder::prepend(const string_view& _other)
+    {
+        MemeStringBuilder_prependArgWithString(
+            memepp::to_pointer(data_),
+            memepp::to_pointer(_other.native_handle()));
+        return *this;
+    }
+
+    MEMEPP__IMPL_INLINE string_builder& string_builder::prepend(const char* _other)
+    {
+        memepp::string_view sv{ _other };
+        MemeStringBuilder_prependArgWithString(
+            memepp::to_pointer(data_),
+            memepp::to_pointer(sv.native_handle()));
         return *this;
     }
 
@@ -265,53 +290,64 @@ inline namespace MMPP_NAMESPACE {
 		return !(_lhs == _rhs);
 	}
     
-	MEMEPP__IMPL_INLINE string_builder& operator+(const string& _lhs, string_builder& _rhs)
-	{
-        MemeStringBuilder_prependArgWithString(
-            memepp::to_pointer(const_cast<MemeStringBuilderStack_t&>(_rhs.native_handle())),
-            memepp::to_pointer(_lhs.native_handle()));
-        return _rhs;
-	}
-	
+    MEMEPP__IMPL_INLINE string_builder operator+(string_builder&& _lhs, const string& _rhs)
+    {
+        _lhs += _rhs;
+        return std::move(_lhs);
+    }
+
+    MEMEPP__IMPL_INLINE string_builder operator+(string_builder&& _lhs, const string_view& _rhs)
+    {
+		_lhs += _rhs;
+        return std::move(_lhs);
+    }
+
+    MEMEPP__IMPL_INLINE string_builder operator+(string_builder&& _lhs, const char* _rhs)
+    {
+		_lhs += _rhs;
+        return std::move(_lhs);
+    }
+
+	//MEMEPP__IMPL_INLINE string_builder& operator+(const string& _lhs, string_builder& _rhs)
+	//{
+ //       MemeStringBuilder_prependArgWithString(
+ //           memepp::to_pointer(const_cast<MemeStringBuilderStack_t&>(_rhs.native_handle())),
+ //           memepp::to_pointer(_lhs.native_handle()));
+ //       return _rhs;
+	//}
+	//
 	MEMEPP__IMPL_INLINE string_builder operator+(const string& _lhs, string_builder&& _rhs)
 	{
-        MemeStringBuilder_prependArgWithString(
-            memepp::to_pointer(const_cast<MemeStringBuilderStack_t&>(_rhs.native_handle())),
-            memepp::to_pointer(_lhs.native_handle()));
+		_rhs.prepend(_lhs);
         return std::move(_rhs);
 	}
 
-    MEMEPP__IMPL_INLINE string_builder& operator+(const string_view& _lhs, string_builder& _rhs)
-    {
-        MemeStringBuilder_prependArgWithString(
-            memepp::to_pointer(const_cast<MemeStringBuilderStack_t&>(_rhs.native_handle())),
-            memepp::to_pointer(_lhs.native_handle()));
-        return _rhs;
-    }
-    
+ //   MEMEPP__IMPL_INLINE string_builder& operator+(const string_view& _lhs, string_builder& _rhs)
+ //   {
+ //       MemeStringBuilder_prependArgWithString(
+ //           memepp::to_pointer(const_cast<MemeStringBuilderStack_t&>(_rhs.native_handle())),
+ //           memepp::to_pointer(_lhs.native_handle()));
+ //       return _rhs;
+ //   }
+ //   
     MEMEPP__IMPL_INLINE string_builder operator+(const string_view& _lhs, string_builder&& _rhs)
     {
-        MemeStringBuilder_prependArgWithString(
-            memepp::to_pointer(const_cast<MemeStringBuilderStack_t&>(_rhs.native_handle())),
-            memepp::to_pointer(_lhs.native_handle()));
+		_rhs.prepend(_lhs);
         return std::move(_rhs);
     }
 
-	MEMEPP__IMPL_INLINE string_builder& operator+(const char* _lhs, string_builder& _rhs)
-	{
-		memepp::string_view sv{ _lhs };
-        MemeStringBuilder_prependArgWithString(
-            memepp::to_pointer(const_cast<MemeStringBuilderStack_t&>(_rhs.native_handle())),
-            memepp::to_pointer(sv.native_handle()));
-        return _rhs;
-	}
-        
+	//MEMEPP__IMPL_INLINE string_builder& operator+(const char* _lhs, string_builder& _rhs)
+	//{
+	//	memepp::string_view sv{ _lhs };
+ //       MemeStringBuilder_prependArgWithString(
+ //           memepp::to_pointer(const_cast<MemeStringBuilderStack_t&>(_rhs.native_handle())),
+ //           memepp::to_pointer(sv.native_handle()));
+ //       return _rhs;
+	//}
+ //       
     MEMEPP__IMPL_INLINE string_builder operator+(const char* _lhs, string_builder&& _rhs)
     {
-        memepp::string_view sv{ _lhs };
-        MemeStringBuilder_prependArgWithString(
-            memepp::to_pointer(const_cast<MemeStringBuilderStack_t&>(_rhs.native_handle())),
-            memepp::to_pointer(sv.native_handle()));
+		_rhs.prepend(_lhs);
         return std::move(_rhs);
     }
 

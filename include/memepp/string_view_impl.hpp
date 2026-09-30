@@ -151,17 +151,26 @@ inline namespace MMPP_NAMESPACE {
 
 	MEMEPP__IMPL_INLINE string_builder string_view::operator+(const string& _other) const
 	{
-		return string_builder{} + *this + _other;
+		string_builder sb;
+		sb += *this;
+		sb += _other;
+		return sb;
 	}
 
 	MEMEPP__IMPL_INLINE string_builder string_view::operator+(const string_view& _other) const
 	{
-		return string_builder{} + *this + _other;
+        string_builder sb;
+        sb += *this;
+        sb += _other;
+        return sb;
 	}
 
 	MEMEPP__IMPL_INLINE string_builder string_view::operator+(const char* _other) const
 	{
-		return string_builder{} + *this + _other;
+        string_builder sb;
+        sb += *this;
+        sb += _other;
+        return sb;
 	}
 
 	MEMEPP__IMPL_INLINE string_view::const_reference string_view::at(size_type _pos) const

@@ -26,14 +26,18 @@ inline namespace MMPP_NAMESPACE {
 		string_builder& operator=(string_builder&& _other) noexcept;
 		string_builder& operator=(string_builder& _other);
 
-        string_builder& operator+(const string& _other);
-        string_builder& operator+(const string_view& _other);
-        string_builder& operator+(const char* _other);
+        //string_builder& operator+(const string& _other);
+        //string_builder& operator+(const string_view& _other);
+        //string_builder& operator+(const char* _other);
 
 		string_builder& operator+=(const string& _other);
 		string_builder& operator+=(const string_view& _other);
 		string_builder& operator+=(const char* _other);
 		string_builder& operator+=(char _other);
+
+		string_builder& prepend(const string& _other);
+		string_builder& prepend(const string_view& _other);
+		string_builder& prepend(const char* _other);
 
 		string release ();
         string generate() const;
@@ -65,11 +69,15 @@ inline namespace MMPP_NAMESPACE {
 	bool operator!=(const string_builder& _lhs, const char* _rhs);
 	bool operator!=(const char* _lhs, const string_builder& _rhs);
 
-    string_builder& operator+(const string& _lhs, string_builder& _rhs);
+    string_builder operator+(string_builder&& _lhs, const string& _rhs);
+    string_builder operator+(string_builder&& _lhs, const string_view& _rhs);
+    string_builder operator+(string_builder&& _lhs, const char* _rhs);
+
+    //string_builder& operator+(const string& _lhs, string_builder& _rhs);
     string_builder  operator+(const string& _lhs, string_builder&& _rhs);
-    string_builder& operator+(const string_view& _lhs, string_builder& _rhs);
+    //string_builder& operator+(const string_view& _lhs, string_builder& _rhs);
     string_builder  operator+(const string_view& _lhs, string_builder&& _rhs);
-    string_builder& operator+(const char* _lhs, string_builder& _rhs);
+    //string_builder& operator+(const char* _lhs, string_builder& _rhs);
     string_builder  operator+(const char* _lhs, string_builder&& _rhs);
 
 } // namespace MMPP_NAMESPACE

@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEMEPP_OPERATION_STD_STRING_HPP_INCLUDED
 #define MEMEPP_OPERATION_STD_STRING_HPP_INCLUDED
 
@@ -71,24 +71,26 @@ inline namespace MMPP_NAMESPACE {
         return string_builder{} + std::move(_lhs) + _rhs;
     }
     
-	inline string_builder& operator+(string_builder& _sb, const std::string& _s)
-	{
-		return _sb + mm_view(_s);
-	}
+	//inline string_builder& operator+(string_builder& _sb, const std::string& _s)
+	//{
+	//	return _sb + mm_view(_s);
+	//}
 
 	inline string_builder operator+(string_builder&& _sb, const std::string& _s)
 	{
-		return _sb + mm_view(_s);
+		_sb += mm_view(_s);
+		return _sb;
 	}
 
-	inline string_builder& operator+(string_builder& _sb, std::string&& _s)
-	{
-		return _sb + mm_from(_s);
-	}
+	//inline string_builder& operator+(string_builder& _sb, std::string&& _s)
+	//{
+	//	return _sb + mm_from(_s);
+	//}
 
 	inline string_builder operator+(string_builder&& _sb, std::string&& _s)
 	{
-		return _sb + mm_from(_s);
+		_sb += mm_from(_s);
+		return _sb;
 	}
 
 	inline string_builder& operator+(const std::string& _s, memepp::string_builder& _sb)
@@ -101,10 +103,10 @@ inline namespace MMPP_NAMESPACE {
 		return _s + _sb;
 	}
 
-	inline string_builder& operator+(std::string&& _s, string_builder& _sb)
-	{
-		return mm_from(_s) + _sb;
-	}
+	//inline string_builder& operator+(std::string&& _s, string_builder& _sb)
+	//{
+	//	return mm_from(_s) + _sb;
+	//}
 
 	inline string_builder operator+(std::string&& _s, string_builder&& _sb)
 	{
