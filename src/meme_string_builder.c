@@ -2,6 +2,7 @@
 #include "meme/string_builder.h"
 
 #include <meme/string.h>
+#include <meme/rune.h>
 #include <meme/variable_buffer.h>
 #include "meme/impl/string.h"
 #include <meme/impl/string_builder.h>
@@ -403,6 +404,32 @@ MemeStringBuilder_appendArgByByte(mmsbldr_ptr_t _builder, mmbyte_t _byte)
     if (result != 0)
         return result;
     result = MemeStringStack_initByU8bytes(&part.str, MMSTR__OBJ_SIZE, &_byte, 1);
+    if (result != 0) {
+        MemeStringBuilderPart_unInit(&part);
+        return result;
+    }
+    cvector_push_back(_builder->parts_, part);
+    return result;
+}
+
+MEME_EXTERN_C MEME_API int MEME_STDCALL
+MemeStringBuilder_appendArgByRune(mmsbldr_ptr_t _builder, const mmrune_t* _rune)
+{
+    int result = 0;
+    mmsbldr_part_t part;
+    mmint_t rune_size;
+
+    assert(_builder != NULL && "MemeStringBuilder_appendArgByRune");
+    assert(_rune != NULL && "MemeStringBuilder_appendArgByRune");
+
+    rune_size = MemeRune_size(_rune);
+    if (rune_size == 0)
+        return 0;
+
+    result = MemeStringBuilderPart_init(&part);
+    if (result != 0)
+        return result;
+    result = MemeStringStack_initByU8bytes(&part.str, MMSTR__OBJ_SIZE, MemeRune_data(_rune), rune_size);
     if (result != 0) {
         MemeStringBuilderPart_unInit(&part);
         return result;

@@ -4,6 +4,8 @@
 
 #include "string_view_def.hpp"
 #include "string_builder_def.hpp"
+#include "rune_def.hpp"
+#include "errc.hpp"
 
 #include "meme/string_builder.h"
 
@@ -64,6 +66,18 @@ inline namespace MMPP_NAMESPACE {
 		return *this;
 	}
 
+	MEMEPP__IMPL_INLINE string_builder& string_builder::operator=(const string& _other)
+	{
+		clear();
+		return (*this += _other);
+	}
+
+	MEMEPP__IMPL_INLINE string_builder& string_builder::operator=(const char* _other)
+	{
+		clear();
+		return (*this += _other);
+	}
+
 	//MEMEPP__IMPL_INLINE string_builder& string_builder::operator+(const string& _other)
 	//{
 	//	MemeStringBuilder_appendArgWithString(
@@ -103,59 +117,100 @@ inline namespace MMPP_NAMESPACE {
 
 	MEMEPP__IMPL_INLINE string_builder& string_builder::operator+=(const string& _other)
 	{
-		MemeStringBuilder_appendArgWithString(
+		*errc() = MemeStringBuilder_appendArgWithString(
 			memepp::to_pointer(data_),
 			memepp::to_pointer(_other.native_handle()));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+#endif
 		return *this;
 	}
 
     MEMEPP__IMPL_INLINE string_builder& string_builder::operator+=(const string_view& _other)
     {
-        MemeStringBuilder_appendArgWithString(
+        *errc() = MemeStringBuilder_appendArgWithString(
             memepp::to_pointer(data_),
             memepp::to_pointer(_other.native_handle()));
+#if !MMOPT__EXCEPTION_DISABLED
+        throw_errc(get_errc());
+#endif
         return *this;
     }
 
     MEMEPP__IMPL_INLINE string_builder& string_builder::operator+=(const char* _other)
     {
         memepp::string_view sv{ _other };
-        MemeStringBuilder_appendArgWithString(
+        *errc() = MemeStringBuilder_appendArgWithString(
             memepp::to_pointer(data_),
             memepp::to_pointer(sv.native_handle()));
+#if !MMOPT__EXCEPTION_DISABLED
+        throw_errc(get_errc());
+#endif
         return *this;
     }
 
     MEMEPP__IMPL_INLINE string_builder& string_builder::operator+=(char _other)
     {
-        MemeStringBuilder_appendArgByByte(
+        *errc() = MemeStringBuilder_appendArgByByte(
             memepp::to_pointer(data_),
             static_cast<mmbyte_t>(_other));
+#if !MMOPT__EXCEPTION_DISABLED
+        throw_errc(get_errc());
+#endif
+        return *this;
+    }
+
+    MEMEPP__IMPL_INLINE string_builder& string_builder::operator+=(const rune& _other)
+    {
+        *errc() = MemeStringBuilder_appendArgByRune(
+            memepp::to_pointer(data_), &_other.native_handle());
+#if !MMOPT__EXCEPTION_DISABLED
+        throw_errc(get_errc());
+#endif
         return *this;
     }
 
     MEMEPP__IMPL_INLINE string_builder& string_builder::prepend(const string& _other)
     {
-        MemeStringBuilder_prependArgWithString(
+        *errc() = MemeStringBuilder_prependArgWithString(
             memepp::to_pointer(data_),
             memepp::to_pointer(_other.native_handle()));
+#if !MMOPT__EXCEPTION_DISABLED
+        throw_errc(get_errc());
+#endif
         return *this;
     }
 
     MEMEPP__IMPL_INLINE string_builder& string_builder::prepend(const string_view& _other)
     {
-        MemeStringBuilder_prependArgWithString(
+        *errc() = MemeStringBuilder_prependArgWithString(
             memepp::to_pointer(data_),
             memepp::to_pointer(_other.native_handle()));
+#if !MMOPT__EXCEPTION_DISABLED
+        throw_errc(get_errc());
+#endif
         return *this;
     }
 
     MEMEPP__IMPL_INLINE string_builder& string_builder::prepend(const char* _other)
     {
         memepp::string_view sv{ _other };
-        MemeStringBuilder_prependArgWithString(
+        *errc() = MemeStringBuilder_prependArgWithString(
             memepp::to_pointer(data_),
             memepp::to_pointer(sv.native_handle()));
+#if !MMOPT__EXCEPTION_DISABLED
+        throw_errc(get_errc());
+#endif
+        return *this;
+    }
+
+    MEMEPP__IMPL_INLINE string_builder& string_builder::append(const rune& _other)
+    {
+        *errc() = MemeStringBuilder_appendArgByRune(
+            memepp::to_pointer(data_), &_other.native_handle());
+#if !MMOPT__EXCEPTION_DISABLED
+        throw_errc(get_errc());
+#endif
         return *this;
     }
 

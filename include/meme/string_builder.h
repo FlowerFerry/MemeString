@@ -104,6 +104,10 @@ MEME_STDCALL MemeStringBuilder_clear(mmsbldr_ptr_t _builder);
 MEME_API int
 MEME_STDCALL MemeStringBuilder_appendArgByByte(mmsbldr_ptr_t _builder, mmbyte_t _byte);
 
+//! @brief Append a single UTF-8 rune to the builder as a new part.
+MEME_API int
+MEME_STDCALL MemeStringBuilder_appendArgByRune(mmsbldr_ptr_t _builder, const mmrune_t* _rune);
+
 //! @brief Compare builder content with a string for equality (no temporary generation).
 MEME_API int
 MEME_STDCALL MemeStringBuilder_isEqualWithString(

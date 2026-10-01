@@ -701,3 +701,4 @@ EXPORTS
     MemeStringBuilder_appendArgByByte @30006
     MemeStringBuilder_isEqualWithString @30007
     MemeStringBuilder_isEqualWithBytes @30008
+    MemeStringBuilder_appendArgByRune @30009

@@ -5,6 +5,7 @@
 #include <memepp/string_builder.hpp>
 #include <memepp/string.hpp>
 #include <memepp/string_view.hpp>
+#include <memepp/rune.hpp>
 
 // ---------------------------------------------------------------------------
 // default constructor — empty builder
@@ -777,4 +778,291 @@ TEST_CASE("memepp::string_builder clear after reserve_parts", "[string_builder]"
     REQUIRE(b.part_count() == 0);    // clear re-inits, all parts released
     REQUIRE(b.empty());
     // part_capacity() exact value after re-init is an implementation detail
+}
+
+// ---------------------------------------------------------------------------
+// operator=(const string&) — clear + append semantics
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder operator=(const string&) replaces content", "[string_builder]")
+{
+    memepp::string_builder b;
+    b += "old_content";
+
+    memepp::string s("new_content");
+    b = s;
+
+    REQUIRE(b.generate() == "new_content");
+    REQUIRE(b.size() == 11);
+}
+
+TEST_CASE("memepp::string_builder operator=(const string&) returns *this", "[string_builder]")
+{
+    memepp::string_builder b;
+    memepp::string s("value");
+
+    memepp::string_builder& ref = (b = s);
+    REQUIRE(&ref == &b);
+}
+
+TEST_CASE("memepp::string_builder operator=(const string&) into empty builder", "[string_builder]")
+{
+    memepp::string_builder b;
+    memepp::string s("abc");
+    b = s;
+    REQUIRE(b.generate() == "abc");
+    REQUIRE(b.part_count() == 1);
+}
+
+TEST_CASE("memepp::string_builder operator=(const string&) with empty string", "[string_builder]")
+{
+    memepp::string_builder b;
+    b += "to_be_erased";
+
+    memepp::string empty_s("");
+    b = empty_s;
+
+    REQUIRE(b.empty());
+    REQUIRE(b.size() == 0);
+}
+
+TEST_CASE("memepp::string_builder operator=(const string&) UTF-8", "[string_builder]")
+{
+    memepp::string_builder b;
+    b += "junk";
+
+    memepp::string s(u8"你好，世界");
+    b = s;
+
+    REQUIRE(b.generate() == u8"你好，世界");
+}
+
+TEST_CASE("memepp::string_builder operator=(const string&) repeated assignment", "[string_builder]")
+{
+    memepp::string_builder b;
+    b = memepp::string("first");
+    REQUIRE(b.generate() == "first");
+
+    b = memepp::string("second");
+    REQUIRE(b.generate() == "second");
+    REQUIRE(b.part_count() == 1);
+}
+
+// ---------------------------------------------------------------------------
+// operator=(const char*) — clear + append semantics
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder operator=(const char*) replaces content", "[string_builder]")
+{
+    memepp::string_builder b;
+    b += "old_content";
+
+    b = "new_content";
+
+    REQUIRE(b.generate() == "new_content");
+    REQUIRE(b.size() == 11);
+}
+
+TEST_CASE("memepp::string_builder operator=(const char*) returns *this", "[string_builder]")
+{
+    memepp::string_builder b;
+    memepp::string_builder& ref = (b = "value");
+    REQUIRE(&ref == &b);
+    REQUIRE(b.generate() == "value");
+}
+
+TEST_CASE("memepp::string_builder operator=(const char*) with empty string", "[string_builder]")
+{
+    memepp::string_builder b;
+    b += "to_be_erased";
+
+    b = "";
+
+    REQUIRE(b.empty());
+    REQUIRE(b.size() == 0);
+}
+
+TEST_CASE("memepp::string_builder operator=(const char*) UTF-8", "[string_builder]")
+{
+    memepp::string_builder b;
+    b += "junk";
+    b = u8"你好，世界";
+    REQUIRE(b.generate() == u8"你好，世界");
+}
+
+TEST_CASE("memepp::string_builder operator=(const char*) resets part count", "[string_builder]")
+{
+    memepp::string_builder b;
+    b += "a";
+    b += "b";
+    b += "c";
+    REQUIRE(b.part_count() == 3);
+
+    b = "single";
+
+    REQUIRE(b.generate() == "single");
+    REQUIRE(b.part_count() == 1);
+}
+
+TEST_CASE("memepp::string_builder operator=(const char*) then append", "[string_builder]")
+{
+    memepp::string_builder b;
+    b = "base";
+    b += "_suffix";
+    REQUIRE(b.generate() == "base_suffix");
+}
+
+// ---------------------------------------------------------------------------
+// operator+=(const rune&) / append(const rune&)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder append(const rune&) single ASCII rune", "[string_builder]")
+{
+    memepp::string_builder b;
+    memepp::rune r('A');
+
+    memepp::string_builder& ref = b.append(r);
+    REQUIRE(&ref == &b);
+    REQUIRE(b.generate() == "A");
+    REQUIRE(b.size() == 1);
+}
+
+TEST_CASE("memepp::string_builder append(const rune&) multi-byte rune", "[string_builder]")
+{
+    memepp::string_builder b;
+    // "你" in UTF-8 is 3 bytes
+    memepp::string_view sv(u8"你");
+    memepp::rune r(reinterpret_cast<const memepp::rune::value_type*>(sv.data()), sv.size());
+
+    b.append(r);
+
+    REQUIRE(b.generate() == u8"你");
+    REQUIRE(b.size() == 3);
+}
+
+TEST_CASE("memepp::string_builder append(const rune&) accumulates parts", "[string_builder]")
+{
+    memepp::string_builder b;
+    b.append(memepp::rune('a'));
+    b.append(memepp::rune('b'));
+    b.append(memepp::rune('c'));
+
+    REQUIRE(b.generate() == "abc");
+    REQUIRE(b.part_count() == 3);
+}
+
+TEST_CASE("memepp::string_builder append(const rune&) mixes with string append", "[string_builder]")
+{
+    memepp::string_builder b;
+    b += "Hello";
+    b.append(memepp::rune(','));
+    b += " World";
+    b.append(memepp::rune('!'));
+
+    REQUIRE(b.generate() == "Hello, World!");
+}
+
+TEST_CASE("memepp::string_builder append(const rune&) UTF-8 sequence", "[string_builder]")
+{
+    memepp::string_builder b;
+    memepp::string_view ni(u8"你");
+    memepp::string_view hao(u8"好");
+
+    b.append(memepp::rune(reinterpret_cast<const memepp::rune::value_type*>(ni.data()), ni.size()));
+    b.append(memepp::rune(reinterpret_cast<const memepp::rune::value_type*>(hao.data()), hao.size()));
+
+    REQUIRE(b.generate() == u8"你好");
+}
+
+TEST_CASE("memepp::string_builder append(const rune&) empty rune is no-op", "[string_builder]")
+{
+    memepp::string_builder b;
+    b += "keep";
+
+    memepp::rune empty_rune;
+    b.append(empty_rune);
+
+    REQUIRE(b.generate() == "keep");
+    REQUIRE(b.part_count() == 1);   // empty rune adds no part
+}
+
+TEST_CASE("memepp::string_builder append(const rune&) from_codepoint", "[string_builder]")
+{
+    memepp::string_builder b;
+    // U+4E16 is "世"
+    b.append(memepp::rune::from_codepoint(0x4E16));
+    REQUIRE(b.generate() == u8"世");
+}
+
+// ---------------------------------------------------------------------------
+// operator+=(const rune&)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_builder operator+=(const rune&) single ASCII rune", "[string_builder]")
+{
+    memepp::string_builder b;
+    memepp::rune r('A');
+
+    memepp::string_builder& ref = (b += r);
+    REQUIRE(&ref == &b);
+    REQUIRE(b.generate() == "A");
+    REQUIRE(b.size() == 1);
+}
+
+TEST_CASE("memepp::string_builder operator+=(const rune&) multi-byte rune", "[string_builder]")
+{
+    memepp::string_builder b;
+    memepp::string_view sv(u8"你");
+    memepp::rune r(reinterpret_cast<const memepp::rune::value_type*>(sv.data()), sv.size());
+
+    b += r;
+
+    REQUIRE(b.generate() == u8"你");
+    REQUIRE(b.size() == 3);
+}
+
+TEST_CASE("memepp::string_builder operator+=(const rune&) accumulates parts", "[string_builder]")
+{
+    memepp::string_builder b;
+    b += memepp::rune('a');
+    b += memepp::rune('b');
+    b += memepp::rune('c');
+
+    REQUIRE(b.generate() == "abc");
+    REQUIRE(b.part_count() == 3);
+}
+
+TEST_CASE("memepp::string_builder operator+=(const rune&) mixes with other overloads", "[string_builder]")
+{
+    memepp::string_builder b;
+    b += "Hello";
+    b += memepp::rune(',');
+    b += memepp::string(" World");
+    b += memepp::rune('!');
+
+    REQUIRE(b.generate() == "Hello, World!");
+}
+
+TEST_CASE("memepp::string_builder operator+=(const rune&) UTF-8 sequence", "[string_builder]")
+{
+    memepp::string_builder b;
+    memepp::string_view ni(u8"你");
+    memepp::string_view hao(u8"好");
+
+    b += memepp::rune(reinterpret_cast<const memepp::rune::value_type*>(ni.data()), ni.size());
+    b += memepp::rune(reinterpret_cast<const memepp::rune::value_type*>(hao.data()), hao.size());
+
+    REQUIRE(b.generate() == u8"你好");
+}
+
+TEST_CASE("memepp::string_builder operator+=(const rune&) empty rune is no-op", "[string_builder]")
+{
+    memepp::string_builder b;
+    b += "keep";
+
+    memepp::rune empty_rune;
+    b += empty_rune;
+
+    REQUIRE(b.generate() == "keep");
+    REQUIRE(b.part_count() == 1);   // empty rune adds no part
 }

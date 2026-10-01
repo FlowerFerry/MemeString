@@ -26,6 +26,9 @@ inline namespace MMPP_NAMESPACE {
 		string_builder& operator=(string_builder&& _other) noexcept;
 		string_builder& operator=(string_builder& _other);
 
+		string_builder& operator=(const string& _other);
+		string_builder& operator=(const char* _other);
+
         //string_builder& operator+(const string& _other);
         //string_builder& operator+(const string_view& _other);
         //string_builder& operator+(const char* _other);
@@ -34,10 +37,13 @@ inline namespace MMPP_NAMESPACE {
 		string_builder& operator+=(const string_view& _other);
 		string_builder& operator+=(const char* _other);
 		string_builder& operator+=(char _other);
+		string_builder& operator+=(const rune& _other);
 
 		string_builder& prepend(const string& _other);
 		string_builder& prepend(const string_view& _other);
 		string_builder& prepend(const char* _other);
+
+		string_builder& append(const rune& _other);
 
 		string release ();
         string generate() const;
