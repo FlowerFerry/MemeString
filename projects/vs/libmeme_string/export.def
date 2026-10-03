@@ -695,6 +695,8 @@ EXPORTS
     MemeVariableBuffer_lastIndexOfWithBytes @21005
     MemeVariableBuffer_lastIndexOfWithOther @21006
     MemeVariableBuffer_lastIndexOfWithByte @21007
+    MemeVariableBuffer_countWithBytes @21008
+    MemeVariableBuffer_countWithByte @21009
     MemeStringBuilder_size @30000
     MemeStringBuilder_isEmpty @30001
     MemeStringBuilder_clear @30002

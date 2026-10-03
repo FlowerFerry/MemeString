@@ -278,6 +278,51 @@ MEME_STDCALL MemeVariableBuffer_lastIndexOfWithByte(
 }
 
 MEME_EXTERN_C MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_countWithBytes(
+	MemeVariableBuffer_Const_t _s,
+	const MemeByte_t* _needle, MemeInteger_t _needle_len)
+{
+	const MemeInteger_t total = MemeVariableBuffer_size(_s);
+	MemeInteger_t match_count = 0;
+	MemeInteger_t pos = 0;
+
+	// Empty needle can never match; needle longer than buffer cannot match either.
+	if (_needle_len <= 0 || _needle_len > total)
+		return 0;
+
+	// Non-overlapping: after a hit, resume search strictly past the matched region.
+	while (pos <= total - _needle_len)
+	{
+		const MemeInteger_t idx = MemeVariableBuffer_indexOfWithBytes(
+			_s, pos, _needle, _needle_len);
+		if (idx < 0)
+			break;
+		++match_count;
+		pos = idx + _needle_len;
+	}
+	return match_count;
+}
+
+MEME_EXTERN_C MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_countWithByte(
+	MemeVariableBuffer_Const_t _s, MemeByte_t _byte)
+{
+	const MemeInteger_t total = MemeVariableBuffer_size(_s);
+	MemeInteger_t match_count = 0;
+	MemeInteger_t pos = 0;
+
+	while (pos < total)
+	{
+		const MemeInteger_t idx = MemeVariableBuffer_indexOfWithByte(_s, pos, _byte);
+		if (idx < 0)
+			break;
+		++match_count;
+		pos = idx + 1;
+	}
+	return match_count;
+}
+
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_appendWithByte(MemeVariableBuffer_t _s, MemeByte_t _byte)
 {
 	assert(_s && "MemeVariableBuffer_appendWithByte");

@@ -104,6 +104,8 @@ inline namespace MMPP_NAMESPACE {
         bool contains(const_pointer _buf, size_type _count) const MEGOPP__NOEXCEPT;
         bool contains(value_type _byte) const MEGOPP__NOEXCEPT;
 
+        size_type count(value_type _value) const MEGOPP__NOEXCEPT;
+        size_type count(const_pointer _buf, size_type _size) const MEGOPP__NOEXCEPT;
 
 		void swap(variable_buffer& _other) MEGOPP__NOEXCEPT;
 

@@ -140,6 +140,15 @@ MEME_STDCALL MemeVariableBuffer_lastIndexOfWithByte(
 	MemeVariableBuffer_Const_t _s, MemeInteger_t _limit, MemeByte_t _byte);
 
 MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_countWithBytes(
+	MemeVariableBuffer_Const_t _s,
+	const MemeByte_t* _needle, MemeInteger_t _needle_len);
+
+MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_countWithByte(
+	MemeVariableBuffer_Const_t _s, MemeByte_t _byte);
+
+MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_appendWithByte(MemeVariableBuffer_t _s, MemeByte_t _byte);
 
 MEME_API MemeInteger_t

@@ -339,6 +339,18 @@ inline namespace MMPP_NAMESPACE {
 		return find(_byte) != npos;
 	}
 
+	MEMEPP__IMPL_INLINE variable_buffer::size_type
+		variable_buffer::count(value_type _value) const MEGOPP__NOEXCEPT
+	{
+		return MemeVariableBuffer_countWithByte(to_pointer(data_), _value);
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer::size_type
+		variable_buffer::count(const_pointer _buf, size_type _size) const MEGOPP__NOEXCEPT
+	{
+		return MemeVariableBuffer_countWithBytes(to_pointer(data_), _buf, _size);
+	}
+
 	MEMEPP__IMPL_INLINE void variable_buffer::swap(variable_buffer& _other) MEGOPP__NOEXCEPT
 	{
 		MemeVariableBuffer_swap(to_pointer(data_), to_pointer(_other.data_));
