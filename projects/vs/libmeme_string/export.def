@@ -692,6 +692,9 @@ EXPORTS
     MemeVariableBuffer_insertWithByte @21002
     MemeVariableBuffer_compare @21003
     MemeVariableBuffer_compareWithBytes @21004
+    MemeVariableBuffer_lastIndexOfWithBytes @21005
+    MemeVariableBuffer_lastIndexOfWithOther @21006
+    MemeVariableBuffer_lastIndexOfWithByte @21007
     MemeStringBuilder_size @30000
     MemeStringBuilder_isEmpty @30001
     MemeStringBuilder_clear @30002
@@ -702,3 +705,5 @@ EXPORTS
     MemeStringBuilder_isEqualWithString @30007
     MemeStringBuilder_isEqualWithBytes @30008
     MemeStringBuilder_appendArgByRune @30009
+    MemeString_lastIndexOfWithByte @40000
+    

@@ -250,6 +250,34 @@ MEME_STDCALL MemeVariableBuffer_indexOfWithByte(
 }
 
 MEME_EXTERN_C MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_lastIndexOfWithBytes(
+	MemeVariableBuffer_Const_t _s, MemeInteger_t _limit,
+	const MemeByte_t* _needle, MemeInteger_t _needle_len)
+{
+    return MemeString_lastIndexOfWithUtf8bytes(
+        (MemeString_Const_t)_s, _limit, _needle, _needle_len, MemeFlag_AllSensitive);
+}
+
+MEME_EXTERN_C MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_lastIndexOfWithOther(
+	MemeVariableBuffer_Const_t _s, MemeInteger_t _limit,
+	MemeVariableBuffer_Const_t _other)
+{
+    return MemeString_lastIndexOfWithUtf8bytes(
+        (MemeString_Const_t)_s, _limit,
+        MemeVariableBuffer_data(_other), MemeVariableBuffer_size(_other),
+        MemeFlag_AllSensitive);
+}
+
+MEME_EXTERN_C MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_lastIndexOfWithByte(
+	MemeVariableBuffer_Const_t _s, MemeInteger_t _limit, MemeByte_t _byte)
+{
+    return MemeString_lastIndexOfWithByte(
+        (MemeString_Const_t)_s, _limit, _byte, MemeFlag_AllSensitive);
+}
+
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_appendWithByte(MemeVariableBuffer_t _s, MemeByte_t _byte)
 {
 	assert(_s && "MemeVariableBuffer_appendWithByte");

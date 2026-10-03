@@ -89,6 +89,12 @@ inline namespace MMPP_NAMESPACE {
         size_type find(value_type _value, size_type _pos = 0) const MEGOPP__NOEXCEPT;
         size_type find(const_pointer _buf, size_type _pos, size_type _size) const MEGOPP__NOEXCEPT;
 
+        size_type rfind(const string_view& _other, size_type _pos = npos) const MEGOPP__NOEXCEPT;
+        size_type rfind(const variable_buffer& _other, size_type _pos = npos) const MEGOPP__NOEXCEPT;
+        size_type rfind(const buffer& _other, size_type _pos = npos) const MEGOPP__NOEXCEPT;
+        size_type rfind(value_type _value, size_type _pos = npos) const MEGOPP__NOEXCEPT;
+        size_type rfind(const_pointer _buf, size_type _pos, size_type _size) const MEGOPP__NOEXCEPT;
+
         bool starts_with(const_pointer _buf, size_type _count) const MEGOPP__NOEXCEPT;
         bool starts_with(value_type _byte) const MEGOPP__NOEXCEPT;
 

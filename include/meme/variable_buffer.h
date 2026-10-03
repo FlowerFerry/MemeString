@@ -126,6 +126,20 @@ MEME_STDCALL MemeVariableBuffer_indexOfWithByte(
     MemeVariableBuffer_Const_t _s, MemeInteger_t _offset, MemeByte_t _byte);
 
 MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_lastIndexOfWithBytes(
+	MemeVariableBuffer_Const_t _s, MemeInteger_t _limit,
+	const MemeByte_t* _needle, MemeInteger_t _needle_len);
+
+MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_lastIndexOfWithOther(
+	MemeVariableBuffer_Const_t _s, MemeInteger_t _limit,
+	MemeVariableBuffer_Const_t _other);
+
+MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_lastIndexOfWithByte(
+	MemeVariableBuffer_Const_t _s, MemeInteger_t _limit, MemeByte_t _byte);
+
+MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_appendWithByte(MemeVariableBuffer_t _s, MemeByte_t _byte);
 
 MEME_API MemeInteger_t

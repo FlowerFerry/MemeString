@@ -989,6 +989,14 @@ MemeString_lastIndexOfWithUtf8bytes(
 	return index == -1 ? -1 : index;
 }
 
+MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL
+MemeString_lastIndexOfWithByte(
+	MemeString_Const_t _s, MemeInteger_t _limit, MemeByte_t _byte,
+	MemeFlag_CaseSensitivity_t _cs)
+{
+    return MemeString_lastIndexOfWithUtf8bytes(_s, _limit, &_byte, 1, _cs);
+}
+
 MEME_EXTERN_C MEME_API mmint_t
 MEME_STDCALL MemeString_lastIndexOfUtf8bytes(
 	mmstr_cptr_t _s, mmint_t _offset, mmint_t _limit,

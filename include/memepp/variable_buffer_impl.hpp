@@ -256,6 +256,50 @@ inline namespace MMPP_NAMESPACE {
         return MemeVariableBuffer_indexOfWithBytes(to_pointer(data_), _pos, _buf, _size);
 	}
 
+	MEMEPP__IMPL_INLINE variable_buffer::size_type 
+		variable_buffer::rfind(const_pointer _buf, size_type _pos, size_type _size) const MEGOPP__NOEXCEPT
+	{
+		size_type sz = size();
+		if (_size > sz)
+			return npos;
+		size_type limit;
+		if (_pos == npos || _pos >= sz)
+			limit = sz;
+		else
+			limit = _pos + _size;
+		return MemeVariableBuffer_lastIndexOfWithBytes(to_pointer(data_), limit, _buf, _size);
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer::size_type 
+		variable_buffer::rfind(value_type _value, size_type _pos) const MEGOPP__NOEXCEPT
+	{
+		size_type sz = size();
+		size_type limit;
+		if (_pos == npos || _pos >= sz)
+			limit = sz;
+		else
+			limit = _pos + 1;
+		return MemeVariableBuffer_lastIndexOfWithByte(to_pointer(data_), limit, _value);
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer::size_type 
+		variable_buffer::rfind(const string_view& _other, size_type _pos) const MEGOPP__NOEXCEPT
+	{
+		return rfind(reinterpret_cast<const_pointer>(_other.data()), _pos, _other.size());
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer::size_type 
+		variable_buffer::rfind(const variable_buffer& _other, size_type _pos) const MEGOPP__NOEXCEPT
+	{
+		return rfind(_other.data(), _pos, _other.size());
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer::size_type 
+		variable_buffer::rfind(const buffer& _other, size_type _pos) const MEGOPP__NOEXCEPT
+	{
+		return rfind(_other.data(), _pos, _other.size());
+	}
+
 	MEMEPP__IMPL_INLINE bool
 		variable_buffer::starts_with(const_pointer _buf, size_type _count) const MEGOPP__NOEXCEPT
 	{

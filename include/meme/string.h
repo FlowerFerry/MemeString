@@ -1985,6 +1985,11 @@ MEME_STDCALL MemeString_lastIndexOfWithUtf8bytes(
     const MemeByte_t* _needle, MemeInteger_t _needle_len,
     MemeFlag_CaseSensitivity_t _cs);
 
+MEME_API MemeInteger_t
+MEME_STDCALL MemeString_lastIndexOfWithByte(
+	MemeString_Const_t _s, MemeInteger_t _limit, MemeByte_t _byte,
+	MemeFlag_CaseSensitivity_t _cs);
+
 MEME_API mmint_t
 MEME_STDCALL MemeString_lastIndexOfUtf8bytes(
 	mmstr_cptr_t _s, mmint_t _offset, mmint_t _limit,
