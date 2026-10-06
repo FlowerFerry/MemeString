@@ -10,6 +10,7 @@
 #include "memepp/buffer_fwd.hpp"
 #include <memepp/buffer_view_fwd.hpp>
 #include <memepp/buffer_span_fwd.hpp>
+#include <memepp/string_span_fwd.hpp>
 #include "megopp/predef/keyword/noexcept.h"
 #include "megopp/endian/byte_swap.h"
 
@@ -155,6 +156,9 @@ inline namespace MMPP_NAMESPACE {
 		inline variable_buffer& insert(size_type _pos, const _Ty& _v, megopp::endian_t _endian);
 
         variable_buffer& remove(size_type _pos, size_type _count);
+
+        variable_buffer& replace(const buffer_span& _old, const buffer_span& _new, size_type _count = -1);
+        variable_buffer& replace(const buffer_span& _old, const string_span& _new, size_type _count = -1);
 
         int compare(const variable_buffer& _other) const MEGOPP__NOEXCEPT;
 

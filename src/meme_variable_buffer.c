@@ -899,3 +899,128 @@ MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL MemeVariableBuffer_capacityCor
 	else
 		return 0;
 }
+
+MEME_EXTERN_C MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_replace(
+	MemeVariableBuffer_t _s,
+	const MemeByte_t* _from, MemeInteger_t _from_len,
+	const MemeByte_t* _to, MemeInteger_t _to_len,
+	MemeInteger_t _max_count)
+{
+	MemeString_t s = (MemeString_t)_s;
+	MemeInteger_t total;
+	MemeInteger_t delta;
+	MemeInteger_t count;
+	MemeInteger_t pos;
+	MemeByte_t* data;
+
+	assert(s != NULL && "MemeVariableBuffer_replace");
+	assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE(s)) == 1);
+
+	/* Boundary checks: empty pattern or zero replacements -> no-op */
+	if (_from_len < 0 || _to_len < 0)
+		return MGEC__INVAL;
+	if (_from_len == 0 || _max_count == 0)
+		return 0;
+
+	total = MemeVariableBuffer_size(_s);
+	delta = _to_len - _from_len;
+
+	/* --- Equal-length fast path: direct memcpy, zero allocation --- */
+	if (delta == 0) {
+		data = MemeVariableBuffer_dataWithNotConst(_s);
+		pos = 0;
+		count = 0;
+		while (pos <= total - _from_len) {
+			if (_max_count > 0 && count >= _max_count)
+				break;
+			if (memcmp(data + pos, _from, _from_len) == 0) {
+				memcpy(data + pos, _to, _from_len);
+				++count;
+				pos += _from_len;
+			} else {
+				++pos;
+			}
+		}
+		return 0;
+	}
+
+	/* --- Unequal-length path: reserve if needed, then splice match by match --- */
+
+	/* Pass 1: count non-overlapping greedy matches (up to _max_count, -1 = all) */
+	count = 0;
+	pos = 0;
+	while (pos <= total - _from_len) {
+		if (_max_count > 0 && count >= _max_count)
+			break;
+		if (memcmp(MemeVariableBuffer_data((MemeVariableBuffer_Const_t)_s) + pos, _from, _from_len) == 0) {
+			++count;
+			pos += _from_len;   /* non-overlapping: resume strictly past the match */
+		} else {
+			++pos;
+		}
+	}
+
+	if (count == 0)
+		return 0;
+
+	/* Grow capacity once up-front when the buffer will become longer */
+	if (delta > 0) {
+		MemeInteger_t new_size = total + delta * count;
+		MemeInteger_t rc = MemeVariableBuffer_reserve(_s, new_size);
+		if (rc)
+			return rc;
+	}
+
+	/*
+	 * Zero-extra-allocation splice, left to right.  The match set must be the
+	 * greedy, left-to-right, non-overlapping set counted above.  Searching the
+	 * live buffer from @c pos each step reproduces it exactly: after replacing
+	 * at @c idx we resume at @c idx + _to_len, which is past the inserted text
+	 * and therefore re-examines only the ORIGINAL tail bytes, while everything
+	 * before @c idx is already final.
+	 *
+	 * memmove is safe in both directions of overlap:
+	 *   - growing  (_to_len > _from_len): tail moves right, then _to written;
+	 *   - shrinking(_to_len < _from_len): tail moves left, then _to written.
+	 */
+	pos = 0;
+	{
+		MemeInteger_t remaining = count;
+		while (remaining > 0) {
+			MemeInteger_t idx = MemeVariableBuffer_indexOfWithBytes(
+				_s, pos, _from, _from_len);
+			if (idx < 0)
+				return MGEC__INVAL;   /* cannot happen: pass 1 counted `count` */
+
+			MemeInteger_t tail_start = idx + _from_len;
+			MemeInteger_t tail_len = total - tail_start;
+
+			data = MemeVariableBuffer_dataWithNotConst(_s);
+			memmove(data + idx + _to_len, data + tail_start, tail_len);
+			memcpy(data + idx, _to, _to_len);
+
+			total += delta;
+
+			/* Keep the logical size in sync after every splice so the next
+			   indexOf search reflects the current (grown or shrunk) content.
+			   A stale size would truncate the search window and break the
+			   all-replacements (count < 0) case. */
+			switch (MMSTR__GET_IMPLTYPE(s)) {
+			case MemeString_ImplType_small:
+				MemeStringSmall_byteSizeOffsetAndSetZero(&s->small_, delta);
+				break;
+			case MemeString_ImplType_medium:
+				MemeStringMedium_byteSizeOffsetAndSetZero(&s->medium_, delta);
+				break;
+			default:
+				return MGEC__OPNOTSUPP;
+			}
+
+			pos = idx + _to_len;
+			--remaining;
+		}
+	}
+
+	return 0;
+}

@@ -303,5 +303,24 @@ MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_capacityCorrectness(
 	MemeVariableBuffer_Const_t _s);
 
+/**
+ * @brief Replace non-overlapping occurrences of @p _from with @p _to in-place.
+ *
+ * @param _s          Must be initialized and modifiable.
+ * @param _from       Pattern to search for.
+ * @param _from_len   Length of @p _from. If <= 0, no replacement occurs.
+ * @param _to         Replacement bytes. May be NULL if @p _to_len is 0.
+ * @param _to_len     Length of @p _to.
+ * @param _max_count  Maximum number of replacements. -1 means replace all.
+ *
+ * @return 0 on success, or a non-zero error code on failure.
+ */
+MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_replace(
+	MemeVariableBuffer_t _s,
+	const MemeByte_t* _from, MemeInteger_t _from_len,
+	const MemeByte_t* _to, MemeInteger_t _to_len,
+	MemeInteger_t _max_count);
+
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_VARIABLE_BUFFER_H_INCLUDED

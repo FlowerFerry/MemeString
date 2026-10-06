@@ -8,6 +8,7 @@
 #include <memepp/buffer.hpp>
 #include <memepp/buffer_view.hpp>
 #include <memepp/buffer_span.hpp>
+#include <memepp/string_span.hpp>
 #include <memepp/string_view.hpp>
 #include <memepp/errc.hpp>
 
@@ -731,6 +732,24 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE bool operator>=(const variable_buffer& _lhs, const variable_buffer& _rhs) MEGOPP__NOEXCEPT
 	{
 		return !(_lhs < _rhs);
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::replace(
+		const buffer_span& _old, const buffer_span& _new, size_type _count)
+	{
+		*errc() = MemeVariableBuffer_replace(
+			to_pointer(data_), _old.data(), _old.size(),
+			_new.data(), _new.size(), static_cast<size_type>(_count));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+#endif
+		return *this;
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::replace(
+		const buffer_span& _old, const string_span& _new, size_type _count)
+	{
+		return replace(_old, buffer_span{_new.bytes(), _new.size()}, _count);
 	}
 }; // namespace MMPP_NAMESPACE
 };
