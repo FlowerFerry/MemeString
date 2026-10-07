@@ -1036,8 +1036,23 @@ MEME_STDCALL MemeVariableBuffer_slice(
 
 	const MemeInteger_t total = MemeVariableBuffer_size(_s);
 
+	/* pos out of range: return empty buffer */
 	if (_pos < 0 || _pos > total)
-		return MGEC__INVAL;
+	{
+		if (_object_size > 0)
+		{
+			int rc = MemeVariableBufferStack_init(_out, (size_t)_object_size);
+			if (rc)
+				return rc;
+		}
+		else
+		{
+			int rc = MemeVariableBuffer_clear((MemeVariableBuffer_t)_out);
+			if (rc)
+				return rc;
+		}
+		return 0;
+	}
 
 	if (_count < 0 || _pos + _count > total)
 		_count = total - _pos;

@@ -328,7 +328,8 @@ MEME_STDCALL MemeVariableBuffer_replace(
  * Const operation on _s.  _count is clamped to (size()-_pos).
  *
  * @param _s            Source, must be initialized.
- * @param _pos          Start offset.  0 <= _pos <= size(), else MGEC__INVAL.
+ * @param _pos          Start offset.  If 0 <= _pos <= size() the range is
+ *                      extracted; otherwise _out is left empty and 0 returned.
  * @param _count        Byte count to extract.  Clamped to size()-_pos.
  * @param _out          Result buffer.  Uninitialized when _object_size > 0,
  *                      already-initialized (cleared in place) when <= 0.

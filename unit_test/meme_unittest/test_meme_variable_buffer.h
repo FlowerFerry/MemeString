@@ -264,6 +264,92 @@ MU_TEST(test_varbuf_data_not_const)
     MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
 }
 
+MU_TEST(test_varbuf_slice_normal)
+{
+    mmvbstk_t vb, out;
+    MemeVariableBufferStack_initByBytes(&vb, MMSTR__OBJ_SIZE, (const mmbyte_t*)"hello world", 11);
+    mmint_t rc = MemeVariableBuffer_slice(AS_MMVB_C(&vb), 0, 5, &out, MMSTR__OBJ_SIZE);
+    mu_assert(rc == 0, "slice[0,5) should succeed");
+    mu_assert(MemeVariableBuffer_size(AS_MMVB_C(&out)) == 5, "slice[0,5) size should be 5");
+    mu_assert(memcmp(MemeVariableBuffer_data(AS_MMVB_C(&out)), "hello", 5) == 0, "slice[0,5) == hello");
+    MemeVariableBufferStack_unInit(&out, MMSTR__OBJ_SIZE);
+    MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+}
+
+MU_TEST(test_varbuf_slice_count_clamped)
+{
+    mmvbstk_t vb, out;
+    MemeVariableBufferStack_initByBytes(&vb, MMSTR__OBJ_SIZE, (const mmbyte_t*)"hello world", 11);
+    mmint_t rc = MemeVariableBuffer_slice(AS_MMVB_C(&vb), 6, 100, &out, MMSTR__OBJ_SIZE);
+    mu_assert(rc == 0, "slice[6,100) should succeed");
+    mu_assert(MemeVariableBuffer_size(AS_MMVB_C(&out)) == 5, "slice[6,100) clamped to 5");
+    mu_assert(memcmp(MemeVariableBuffer_data(AS_MMVB_C(&out)), "world", 5) == 0, "slice[6,100) == world");
+    MemeVariableBufferStack_unInit(&out, MMSTR__OBJ_SIZE);
+    MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+}
+
+MU_TEST(test_varbuf_slice_pos_at_size)
+{
+    mmvbstk_t vb, out;
+    MemeVariableBufferStack_initByBytes(&vb, MMSTR__OBJ_SIZE, (const mmbyte_t*)"hello", 5);
+    mmint_t rc = MemeVariableBuffer_slice(AS_MMVB_C(&vb), 5, 3, &out, MMSTR__OBJ_SIZE);
+    mu_assert(rc == 0, "slice[pos==size] should succeed");
+    mu_assert(MemeVariableBuffer_size(AS_MMVB_C(&out)) == 0, "slice[pos==size] should be empty");
+    MemeVariableBufferStack_unInit(&out, MMSTR__OBJ_SIZE);
+    MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+}
+
+MU_TEST(test_varbuf_slice_pos_out_of_range)
+{
+    mmvbstk_t vb, out;
+    MemeVariableBufferStack_initByBytes(&vb, MMSTR__OBJ_SIZE, (const mmbyte_t*)"hello", 5);
+    mmint_t rc = MemeVariableBuffer_slice(AS_MMVB_C(&vb), 10, 3, &out, MMSTR__OBJ_SIZE);
+    mu_assert(rc == 0, "slice[pos>size] should return 0 (empty)");
+    mu_assert(MemeVariableBuffer_size(AS_MMVB_C(&out)) == 0, "slice[pos>size] should be empty");
+    MemeVariableBufferStack_unInit(&out, MMSTR__OBJ_SIZE);
+
+    rc = MemeVariableBuffer_slice(AS_MMVB_C(&vb), -1, 3, &out, MMSTR__OBJ_SIZE);
+    mu_assert(rc == 0, "slice[pos<0] should return 0 (empty)");
+    mu_assert(MemeVariableBuffer_size(AS_MMVB_C(&out)) == 0, "slice[pos<0] should be empty");
+    MemeVariableBufferStack_unInit(&out, MMSTR__OBJ_SIZE);
+    MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+}
+
+MU_TEST(test_varbuf_slice_count_zero)
+{
+    mmvbstk_t vb, out;
+    MemeVariableBufferStack_initByBytes(&vb, MMSTR__OBJ_SIZE, (const mmbyte_t*)"hello", 5);
+    mmint_t rc = MemeVariableBuffer_slice(AS_MMVB_C(&vb), 2, 0, &out, MMSTR__OBJ_SIZE);
+    mu_assert(rc == 0, "slice count=0 should succeed");
+    mu_assert(MemeVariableBuffer_size(AS_MMVB_C(&out)) == 0, "slice count=0 should be empty");
+    MemeVariableBufferStack_unInit(&out, MMSTR__OBJ_SIZE);
+    MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+}
+
+MU_TEST(test_varbuf_slice_reuse_initialized)
+{
+    mmvbstk_t vb, out;
+    MemeVariableBufferStack_initByBytes(&vb, MMSTR__OBJ_SIZE, (const mmbyte_t*)"hello world", 11);
+    MemeVariableBufferStack_initByBytes(&out, MMSTR__OBJ_SIZE, (const mmbyte_t*)"old", 3);
+    mmint_t rc = MemeVariableBuffer_slice(AS_MMVB_C(&vb), 6, 5, &out, 0);
+    mu_assert(rc == 0, "slice with _object_size<=0 should succeed");
+    mu_assert(MemeVariableBuffer_size(AS_MMVB_C(&out)) == 5, "reuse path size should be 5");
+    mu_assert(memcmp(MemeVariableBuffer_data(AS_MMVB_C(&out)), "world", 5) == 0, "reuse path == world");
+    MemeVariableBufferStack_unInit(&out, MMSTR__OBJ_SIZE);
+    MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+}
+
+MU_TEST(test_varbuf_slice_source_unchanged)
+{
+    mmvbstk_t vb, out;
+    MemeVariableBufferStack_initByBytes(&vb, MMSTR__OBJ_SIZE, (const mmbyte_t*)"hello", 5);
+    MemeVariableBuffer_slice(AS_MMVB_C(&vb), 0, 3, &out, MMSTR__OBJ_SIZE);
+    mu_assert(MemeVariableBuffer_size(AS_MMVB_C(&vb)) == 5, "source size unchanged");
+    mu_assert(memcmp(MemeVariableBuffer_data(AS_MMVB_C(&vb)), "hello", 5) == 0, "source content unchanged");
+    MemeVariableBufferStack_unInit(&out, MMSTR__OBJ_SIZE);
+    MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+}
+
 MU_TEST_SUITE(test_meme_variable_buffer)
 {
     MU_RUN_TEST(test_varbuf_init_empty);
@@ -289,6 +375,13 @@ MU_TEST_SUITE(test_meme_variable_buffer)
     MU_RUN_TEST(test_varbuf_storage_type);
     MU_RUN_TEST(test_varbuf_at);
     MU_RUN_TEST(test_varbuf_data_not_const);
+    MU_RUN_TEST(test_varbuf_slice_normal);
+    MU_RUN_TEST(test_varbuf_slice_count_clamped);
+    MU_RUN_TEST(test_varbuf_slice_pos_at_size);
+    MU_RUN_TEST(test_varbuf_slice_pos_out_of_range);
+    MU_RUN_TEST(test_varbuf_slice_count_zero);
+    MU_RUN_TEST(test_varbuf_slice_reuse_initialized);
+    MU_RUN_TEST(test_varbuf_slice_source_unchanged);
 }
 
 #endif // TEST_MEME_VARIABLE_BUFFER_H_INCLUDED

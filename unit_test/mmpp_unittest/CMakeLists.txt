@@ -37,6 +37,7 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_rfind.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_count.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_replace.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_slice.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_reserve.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_multi_buffer_view.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer.cpp
