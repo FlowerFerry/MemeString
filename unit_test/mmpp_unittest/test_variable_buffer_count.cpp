@@ -140,3 +140,50 @@ TEST_CASE("memepp::variable_buffer count — consistent with find loop", "[varia
 
     REQUIRE(buf.count(needle, 2) == expected);
 }
+
+// ---------------------------------------------------------------------------
+// variable_buffer::count — medium storage & full-match edge cases
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::variable_buffer count byte — all bytes match", "[variable_buffer]")
+{
+    memepp::variable_buffer buf;
+    const uint8_t data[] = { 0x07, 0x07, 0x07, 0x07 };
+    buf.append(data, sizeof(data));
+    REQUIRE(buf.count(static_cast<uint8_t>(0x07)) == 4);
+}
+
+TEST_CASE("memepp::variable_buffer count byte — medium storage", "[variable_buffer]")
+{
+    memepp::variable_buffer buf;
+    const uint8_t data[] = {
+        'T','h','e',' ','q','u','i','c','k',' ','b','r','o','w','n',
+        ' ','f','o','x',' ','j','u','m','p','s',' ','o','v','e','r',
+        ' ','t','h','e',' ','l','a','z','y',' ','d','o','g','.'
+    };
+    buf.append(data, sizeof(data));
+    REQUIRE(buf.count(static_cast<uint8_t>(' ')) == 8);
+    REQUIRE(buf.count(static_cast<uint8_t>('e')) == 3);
+}
+
+TEST_CASE("memepp::variable_buffer count bytes — medium storage repeated", "[variable_buffer]")
+{
+    memepp::variable_buffer buf;
+    const uint8_t data[] = {
+        'a','b','c',' ','a','b','c',' ','a','b','c',' ','a','b','c',
+        ' ','a','b','c',' ','a','b','c',' ','a','b','c'
+    };
+    buf.append(data, sizeof(data));
+    const uint8_t needle[] = { 'a','b','c' };
+    REQUIRE(buf.count(needle, 3) == 7);
+}
+
+TEST_CASE("memepp::variable_buffer count bytes — whole buffer is one match", "[variable_buffer]")
+{
+    memepp::variable_buffer buf;
+    const uint8_t data[] = { 0xDE, 0xAD, 0xBE, 0xEF };
+    buf.append(data, sizeof(data));
+    const uint8_t needle[] = { 0xDE, 0xAD, 0xBE, 0xEF };
+    REQUIRE(buf.count(needle, 4) == 1);
+    REQUIRE(buf.count(needle, 0) == 0);
+}

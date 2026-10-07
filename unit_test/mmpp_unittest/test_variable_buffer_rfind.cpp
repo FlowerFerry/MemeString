@@ -193,3 +193,72 @@ TEST_CASE("variable_buffer rfind buffer overload", "[variable_buffer][rfind]")
     buffer needle2(miss, static_cast<buffer::size_type>(sizeof(miss)));
     REQUIRE(buf.rfind(needle2) == variable_buffer::npos);
 }
+
+// ---------------------------------------------------------------------------
+// variable_buffer::rfind — additional edge cases
+// ---------------------------------------------------------------------------
+
+TEST_CASE("variable_buffer rfind single byte — pos = 0 boundary", "[variable_buffer][rfind]")
+{
+    variable_buffer buf;
+    buf.push_back(10);
+    buf.push_back(20);
+    buf.push_back(10);
+
+    // pos = 0: only index 0 is valid
+    REQUIRE(buf.rfind((variable_buffer::value_type)10, 0) == 0);
+    REQUIRE(buf.rfind((variable_buffer::value_type)20, 0) == variable_buffer::npos);
+}
+
+TEST_CASE("variable_buffer rfind single byte — multiple occurrences returns last", "[variable_buffer][rfind]")
+{
+    variable_buffer buf;
+    const uint8_t data[] = { 1, 2, 1, 2, 1, 2, 1 };
+    buf.append(data, sizeof(data));
+
+    // 1 appears at 0, 2, 4, 6; default npos → last (6)
+    REQUIRE(buf.rfind((variable_buffer::value_type)1) == 6);
+    // 2 appears at 1, 3, 5; default npos → last (5)
+    REQUIRE(buf.rfind((variable_buffer::value_type)2) == 5);
+}
+
+TEST_CASE("variable_buffer rfind byte pattern — medium storage", "[variable_buffer][rfind]")
+{
+    variable_buffer buf;
+    const uint8_t data[] = {
+        'T','h','e',' ','q','u','i','c','k',' ','b','r','o','w','n',
+        ' ','f','o','x',' ','j','u','m','p','s',' ','o','v','e','r',
+        ' ','t','h','e',' ','l','a','z','y',' ','d','o','g','.'
+    };
+    buf.append(data, sizeof(data));
+
+    const uint8_t pattern[] = { ' ', 't', 'h', 'e', ' ' };
+    // " the " appears at index 30
+    REQUIRE(buf.rfind(pattern, variable_buffer::npos, 5) == 30);
+}
+
+TEST_CASE("variable_buffer rfind byte pattern — consecutive matches", "[variable_buffer][rfind]")
+{
+    variable_buffer buf;
+    const uint8_t data[] = { 1, 2, 1, 2, 1, 2 };
+    buf.append(data, sizeof(data));
+
+    const uint8_t pattern[] = { 1, 2 };
+    // "1 2" appears at 0, 2, 4; last is 4
+    REQUIRE(buf.rfind(pattern, variable_buffer::npos, 2) == 4);
+    REQUIRE(buf.rfind(pattern, 3, 2) == 2);
+    REQUIRE(buf.rfind(pattern, 1, 2) == 0);
+}
+
+TEST_CASE("variable_buffer rfind — binary data", "[variable_buffer][rfind]")
+{
+    variable_buffer buf;
+    const uint8_t data[] = { 0x00, 0xFF, 0x00, 0xFF, 0x00 };
+    buf.append(data, sizeof(data));
+
+    REQUIRE(buf.rfind((variable_buffer::value_type)0xFF) == 3);
+    REQUIRE(buf.rfind((variable_buffer::value_type)0x00) == 4);
+
+    const uint8_t pattern[] = { 0x00, 0xFF };
+    REQUIRE(buf.rfind(pattern, variable_buffer::npos, 2) == 2);
+}

@@ -256,3 +256,57 @@ TEST_CASE("memepp::variable_buffer replace — medium shorter replacement", "[va
     REQUIRE(memcmp(buf.data() + 4, " ", 1) == 0);
     REQUIRE(memcmp(buf.data() + 9, " ", 1) == 0);
 }
+
+// ---------------------------------------------------------------------------
+// variable_buffer::replace — medium storage edge cases
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::variable_buffer replace — medium count limit", "[variable_buffer]")
+{
+    const char data[] = "aaaa bbbb cccc dddd eeee";
+    const size_t n = sizeof(data) - 1;  // 24 bytes, exceeds the small buffer
+    variable_buffer buf(reinterpret_cast<const memepp::variable_buffer::value_type*>(data), n);
+
+    // Replace " " (1) with "_" (1), only first 2 occurrences — equal length, medium path.
+    buf.replace(make_span(" ", 1), make_span("_", 1), 2);
+
+    REQUIRE(buf.size() == n);
+    REQUIRE(memcmp(buf.data(), "aaaa_bbbb_cccc dddd eeee", n) == 0);
+}
+
+TEST_CASE("memepp::variable_buffer replace — medium no match", "[variable_buffer]")
+{
+    const char data[] =
+        "The quick brown fox jumps over the lazy dog. The quick brown fox.";
+    const size_t n = sizeof(data) - 1;  // exceeds the small buffer
+    variable_buffer buf(reinterpret_cast<const memepp::variable_buffer::value_type*>(data), n);
+
+    buf.replace(make_span("zzz", 3), make_span("XXX", 3));
+
+    REQUIRE(buf.size() == n);
+    REQUIRE(memcmp(buf.data(), data, n) == 0);
+}
+
+TEST_CASE("memepp::variable_buffer replace — medium whole content replaced", "[variable_buffer]")
+{
+    const char data[] = "abcdefghijabcdefghijabcdefghij";
+    const size_t n = sizeof(data) - 1;  // 28 bytes, exceeds the small buffer
+    variable_buffer buf(reinterpret_cast<const memepp::variable_buffer::value_type*>(data), n);
+
+    buf.replace(make_span("abc", 3), make_span("XYZ", 3));
+
+    REQUIRE(buf.size() == n);
+    REQUIRE(memcmp(buf.data(), "XYZdefghijXYZdefghijXYZdefghij", n) == 0);
+}
+
+TEST_CASE("memepp::variable_buffer replace — count limit beyond occurrence count", "[variable_buffer]")
+{
+    const char data[] = "abab";
+    variable_buffer buf(reinterpret_cast<const memepp::variable_buffer::value_type*>(data), 4);
+
+    // Only 2 occurrences of "ab"; count = 10 clamps to all.
+    buf.replace(make_span("ab", 2), make_span("X", 1), 10);
+
+    REQUIRE(buf.size() == 2);
+    REQUIRE(memcmp(buf.data(), "XX", 2) == 0);
+}
