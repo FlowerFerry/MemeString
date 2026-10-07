@@ -157,6 +157,8 @@ inline namespace MMPP_NAMESPACE {
 
         variable_buffer& remove(size_type _pos, size_type _count);
 
+        variable_buffer slice(size_type _pos, size_type _count) const;
+
         variable_buffer& replace(const buffer_span& _old, const buffer_span& _new, size_type _count = -1);
         variable_buffer& replace(const buffer_span& _old, const string_span& _new, size_type _count = -1);
 

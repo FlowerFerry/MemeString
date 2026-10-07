@@ -322,5 +322,25 @@ MEME_STDCALL MemeVariableBuffer_replace(
 	const MemeByte_t* _to, MemeInteger_t _to_len,
 	MemeInteger_t _max_count);
 
+/**
+ * @brief Extract bytes [_pos, _pos+_count) from _s into _out.
+ *
+ * Const operation on _s.  _count is clamped to (size()-_pos).
+ *
+ * @param _s            Source, must be initialized.
+ * @param _pos          Start offset.  0 <= _pos <= size(), else MGEC__INVAL.
+ * @param _count        Byte count to extract.  Clamped to size()-_pos.
+ * @param _out          Result buffer.  Uninitialized when _object_size > 0,
+ *                      already-initialized (cleared in place) when <= 0.
+ * @param _object_size  Object size for _out init path; <= 0 for reuse path.
+ *
+ * @return 0 on success, non-zero error code otherwise.
+ */
+MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_slice(
+	MemeVariableBuffer_Const_t _s,
+	MemeInteger_t _pos, MemeInteger_t _count,
+	MemeVariableBufferStack_t* _out, mmint_t _object_size);
+
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_VARIABLE_BUFFER_H_INCLUDED

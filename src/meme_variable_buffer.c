@@ -1024,3 +1024,38 @@ MEME_STDCALL MemeVariableBuffer_replace(
 
 	return 0;
 }
+
+MEME_EXTERN_C MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_slice(
+	MemeVariableBuffer_Const_t _s,
+	MemeInteger_t _pos, MemeInteger_t _count,
+	MemeVariableBufferStack_t* _out, mmint_t _object_size)
+{
+	assert(_s != NULL && "MemeVariableBuffer_slice");
+	assert(_out != NULL && "MemeVariableBuffer_slice");
+
+	const MemeInteger_t total = MemeVariableBuffer_size(_s);
+
+	if (_pos < 0 || _pos > total)
+		return MGEC__INVAL;
+
+	if (_count < 0 || _pos + _count > total)
+		_count = total - _pos;
+
+	if (_object_size > 0)
+	{
+		int rc = MemeVariableBufferStack_init(_out, (size_t)_object_size);
+		if (rc)
+			return rc;
+	}
+	else
+	{
+		int rc = MemeVariableBuffer_clear((MemeVariableBuffer_t)_out);
+		if (rc)
+			return rc;
+	}
+
+	return MemeVariableBuffer_appendWithBytes(
+		(MemeVariableBuffer_t)_out,
+		MemeVariableBuffer_data(_s) + _pos, _count);
+}

@@ -630,6 +630,18 @@ inline namespace MMPP_NAMESPACE {
 		return *this;
 	}
 
+	//! Extract [_pos, _pos+_count) as a new variable_buffer (const op).
+	MEMEPP__IMPL_INLINE variable_buffer variable_buffer::slice(size_type _pos, size_type _count) const
+	{
+		variable_buffer result;
+		*errc() = static_cast<int>(MemeVariableBuffer_slice(
+			to_pointer(data_), _pos, _count, &result.data_, 0));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+#endif
+		return result;
+	}
+
 	MEMEPP__IMPL_INLINE void variable_buffer::reserve(size_type _new_cap)
 	{
 		*errc() = static_cast<int>(MemeVariableBuffer_reserve(to_pointer(data_), _new_cap));
