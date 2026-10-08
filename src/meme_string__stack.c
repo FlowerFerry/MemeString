@@ -1037,6 +1037,134 @@ MemeStringStack_toEnLower_v2(const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _
 	return 0;
 }
 
+/**
+ * @brief Reverse a stack string by UTF-8 rune order, writing the result to @p _out.
+ *
+ * Implementation steps:
+ *  1. Assert that @p _str is non-NULL.
+ *  2. If @p _obj_size is non-positive, read the actual object size from
+ *     @p _out's internal metadata via MemeStringImpl_objByteSize(), then
+ *     uninitialize @p _out with @c mmstrstk_uninit() to release any existing
+ *     storage.
+ *  3. Initialize @p _out by copying every byte of @p _str via
+ *     MemeStringStack_initByU8bytes().  If this step fails, explicitly
+ *     reinitialize @p _out to an empty string with @c mmstrstk_init_v0() and
+ *     return the error code.
+ *  4. Validate the UTF-8 content via mmutf_u8valid().  If the string is not
+ *     valid UTF-8, leave @p _out as an empty string and return @c MGEC__INVAL.
+ *  5. Obtain a mutable pointer to @p _out's raw byte buffer via
+ *     @c MemeStringImpl_forcedData().
+ *  6. Byte-level reverse the entire buffer in-place (swap outer/inner pointers).
+ *  7. Left-to-right scan: for each rune, determine its byte length via
+ *     mmutf_u8rune_char_size() and reverse those bytes in-place to restore
+ *     correct rune-internal byte order.
+ *
+ * @note The two-pass approach (full byte reverse then per-rune byte reverse)
+ *       avoids any temporary buffer or per-rune append overhead.  It is O(n)
+ *       time with zero allocation.
+ *
+ * @param[in]  _str      Source string.  Must be initialized and non-NULL.
+ * @param[out] _out      Receives the reversed string.  Positive @p _obj_size
+ *                       means uninitialized on entry; non-positive means
+ *                       already initialized.  Always left in a valid initialized
+ *                       state on return (empty string on failure).
+ * @param[in]  _obj_size Object byte size of @p _out, or a non-positive value
+ *                       if @p _out is already initialized.
+ *
+ * @return @c 0 on success, or a non-zero @c mgec_t error code on failure.
+ */
+MEME_EXTERN_C MEME_API mgec_t MEME_STDCALL
+MemeStringStack_reverse(const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _obj_size)
+{
+	mgec_t result = 0;
+	mmstr_cptr_t str = (mmstr_cptr_t)_str;
+	mmbyte_t* data;
+	const mmbyte_t* src_data;
+	mmint_t src_size;
+
+	assert(_str != NULL && "MemeStringStack_reverse");
+
+	if (_obj_size <= 0) {
+		_obj_size = MemeStringImpl_objByteSize((mmstr_cptr_t)_out);
+		mmstrstk_uninit(_out);
+	}
+
+	src_data = MemeString_byteData(str);
+	src_size = MemeString_byteSize(str);
+
+	/* Step 3: copy source into _out */
+	result = MemeStringStack_initByU8bytes(_out, _obj_size, src_data, src_size);
+	if (result) {
+		mmstrstk_init_v0(_out, _obj_size);
+		return result;
+	}
+
+	/* Empty string: nothing to reverse */
+	if (src_size == 0)
+		return 0;
+
+	/* Step 4: validate UTF-8.  mmutf_u8valid() returns the byte offset of the
+	 * first ill-formed sequence, or src_size when the whole string is valid. */
+	if (mmutf_u8valid(src_data, src_size) != src_size) {
+		/* _out is already initialized with the copy; reset it to empty */
+		mmstrstk_uninit(_out);
+		mmstrstk_init_v0(_out, _obj_size);
+		return MGEC__INVAL;
+	}
+
+	/* Step 5: get mutable buffer */
+	data = MemeStringImpl_forcedData(_out);
+
+	/* Step 6: byte-level reverse */
+	{
+		mmbyte_t* lo = data;
+		mmbyte_t* hi = data + src_size - 1;
+		while (lo < hi) {
+			const mmbyte_t tmp = *lo;
+			*lo = *hi;
+			*hi = tmp;
+			++lo;
+			--hi;
+		}
+	}
+
+	/* Step 7: per-rune byte reverse to restore internal byte order.
+	 * After full byte-reverse, each rune's bytes are in reverse order and
+	 * the layout is: [continuation..., leading_byte, continuation..., leading_byte, ...].
+	 * Scan left-to-right tracking `start`. Skip continuation bytes (10xxxxxx).
+	 * When we hit a leading byte (ASCII or multi-byte), reverse bytes from
+	 * `start` to `pos` inclusive — that restores the rune's correct encoding. */
+	{
+		mmint_t start = 0;
+		mmint_t i = 0;
+		while (i < src_size) {
+			const mmbyte_t b = data[i];
+			if ((b & 0xC0) == 0x80) {
+				/* continuation byte — part of a rune whose leading byte follows */
+				++i;
+				continue;
+			}
+			/* leading byte (ASCII 0xxxxxxx or multi-byte 11xxxxxx).
+			 * The rune spans [start, i] inclusive. */
+			{
+				mmbyte_t* rlo = data + start;
+				mmbyte_t* rhi = data + i;
+				while (rlo < rhi) {
+					const mmbyte_t tmp = *rlo;
+					*rlo = *rhi;
+					*rhi = tmp;
+					++rlo;
+					--rhi;
+				}
+			}
+			++i;
+			start = i;
+		}
+	}
+
+	return 0;
+}
+
 MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL
 MemeStringStack_trimSpace(const mmsstk_t* _s, size_t _object_size)
 {

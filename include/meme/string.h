@@ -960,6 +960,39 @@ MEME_API mgec_t
 MEME_STDCALL MemeStringStack_toEnLower_v2(
 	const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _obj_size);
 
+/**
+ * @brief Reverse a stack string by UTF-8 rune order, writing the result to @p _out.
+ *
+ * Produces a new string in @p _out whose runes appear in reverse order relative
+ * to @p _str.  Byte content within each rune is preserved.
+ *
+ * @par Algorithm (two-pass, zero allocation)
+ *  1. Copy @p _str's bytes into @p _out via MemeStringStack_initByU8bytes().
+ *  2. Byte-level reverse the buffer in-place.
+ *  3. Left-to-right scan: for each rune, reverse its internal bytes back to
+ *     correct order (length determined by mmutf_u8rune_char_size()).
+ *
+ * @par Invalid UTF-8 handling
+ * If @p _str contains invalid UTF-8, the function returns @c MGEC__INVAL and
+ * leaves @p _out in a valid initialized state (empty string).
+ *
+ * @param[in]  _str      Source string.  Must be initialized and non-NULL.
+ * @param[out] _out      Receives the reversed string.  Positive @p _obj_size
+ *                       means uninitialized on entry; non-positive means
+ *                       already initialized.  Always left in a valid initialized
+ *                       state on return (empty string on failure).
+ * @param[in]  _obj_size Object byte size of @p _out, or a non-positive value
+ *                       if @p _out is already initialized.
+ *
+ * @return @c 0 on success, or a non-zero @c mgec_t error code on failure.
+ *
+ * @see MemeVariableBuffer_reverse  Byte-level reverse (does not respect rune boundaries).
+ * @see mmutf_u8rune_char_size      Rune-length detection used by this function.
+ */
+MEME_API mgec_t
+MEME_STDCALL MemeStringStack_reverse(
+	const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _obj_size);
+
 //! @param _s The string stack object, must be initialized.
 //! @deprecated May cause ABI issues in the future
 MEME_API mmsstk_t

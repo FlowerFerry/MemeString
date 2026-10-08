@@ -332,6 +332,118 @@ MU_TEST(test_to_valid_utf8_empty)
     mmstrstk_uninit(&out);
 }
 
+/* ==================== reverse ==================== */
+
+MU_TEST(test_reverse_ascii)
+{
+    mmstrstk_t s, out;
+    init_cstr(&s, "abc");
+    mgec_t rc = MemeStringStack_reverse(&s, &out, MMSTR__OBJ_SIZE);
+    mu_assert(rc == 0, "reverse ASCII should succeed");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out)) == 3, "reversed size == 3");
+    mu_assert(memcmp(MemeString_byteData(AS_MMSTR_C(&out)), "cba", 3) == 0, "abc -> cba");
+    mmstrstk_uninit(&s);
+    mmstrstk_uninit(&out);
+}
+
+MU_TEST(test_reverse_chinese)
+{
+    mmstrstk_t s, out;
+    /* 你好 -> 好你 */
+    init_cstr(&s, "\xE4\xBD\xA0\xE5\xA5\xBD");
+    mgec_t rc = MemeStringStack_reverse(&s, &out, MMSTR__OBJ_SIZE);
+    mu_assert(rc == 0, "reverse Chinese should succeed");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out)) == 6, "reversed size == 6");
+    mu_assert(memcmp(MemeString_byteData(AS_MMSTR_C(&out)), "\xE5\xA5\xBD\xE4\xBD\xA0", 6) == 0, "你好 -> 好你");
+    mmstrstk_uninit(&s);
+    mmstrstk_uninit(&out);
+}
+
+MU_TEST(test_reverse_mixed)
+{
+    mmstrstk_t s, out;
+    /* "a你b" -> "b你a" */
+    init_cstr(&s, "a\xE4\xBD\xA0" "b");
+    mgec_t rc = MemeStringStack_reverse(&s, &out, MMSTR__OBJ_SIZE);
+    mu_assert(rc == 0, "reverse mixed should succeed");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out)) == 5, "reversed size == 5");
+    mu_assert(memcmp(MemeString_byteData(AS_MMSTR_C(&out)), "b\xE4\xBD\xA0" "a", 5) == 0, "a你b -> b你a");
+    mmstrstk_uninit(&s);
+    mmstrstk_uninit(&out);
+}
+
+MU_TEST(test_reverse_emoji)
+{
+    mmstrstk_t s, out;
+    /* 😀x -> x😀 */
+    init_cstr(&s, "\xF0\x9F\x98\x80x");
+    mgec_t rc = MemeStringStack_reverse(&s, &out, MMSTR__OBJ_SIZE);
+    mu_assert(rc == 0, "reverse emoji should succeed");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out)) == 5, "reversed size == 5");
+    mu_assert(memcmp(MemeString_byteData(AS_MMSTR_C(&out)), "x\xF0\x9F\x98\x80", 5) == 0, "😀x -> x😀");
+    mmstrstk_uninit(&s);
+    mmstrstk_uninit(&out);
+}
+
+MU_TEST(test_reverse_empty)
+{
+    mmstrstk_t s, out;
+    mmstrstk_init(&s);
+    mgec_t rc = MemeStringStack_reverse(&s, &out, MMSTR__OBJ_SIZE);
+    mu_assert(rc == 0, "reverse empty should succeed");
+    mu_assert(MemeString_isEmpty(AS_MMSTR_C(&out)) != 0, "empty in -> empty out");
+    mmstrstk_uninit(&s);
+    mmstrstk_uninit(&out);
+}
+
+MU_TEST(test_reverse_invalid_utf8)
+{
+    mmstrstk_t s, out;
+    const char bad[] = { 'a', (char)0x80, 'b' };
+    MemeStringStack_initByU8bytes(&s, MMSTR__OBJ_SIZE, (const mmbyte_t*)bad, 3);
+    mgec_t rc = MemeStringStack_reverse(&s, &out, MMSTR__OBJ_SIZE);
+    mu_assert(rc == MGEC__INVAL, "reverse invalid UTF-8 should return MGEC__INVAL");
+    mu_assert(MemeString_isEmpty(AS_MMSTR_C(&out)) != 0, "invalid UTF-8 -> empty out");
+    mmstrstk_uninit(&s);
+}
+
+MU_TEST(test_reverse_double)
+{
+    mmstrstk_t s, o1, o2;
+    const char* in = "Hello\xE4\xBD\xA0\xE5\xA5\xBD\xF0\x9F\x98\x80!";
+    int n = (int)strlen(in);
+    MemeStringStack_initByU8bytes(&s, MMSTR__OBJ_SIZE, (const mmbyte_t*)in, n);
+    mu_assert(MemeStringStack_reverse(&s, &o1, MMSTR__OBJ_SIZE) == 0, "first reverse");
+    mu_assert(MemeStringStack_reverse(&o1, &o2, MMSTR__OBJ_SIZE) == 0, "second reverse");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&o2)) == n, "double reverse restores size");
+    mu_assert(memcmp(MemeString_byteData(AS_MMSTR_C(&o2)), in, n) == 0, "double reverse restores content");
+    mmstrstk_uninit(&o2);
+    mmstrstk_uninit(&o1);
+    mmstrstk_uninit(&s);
+}
+
+MU_TEST(test_reverse_medium)
+{
+    mmstrstk_t s, out;
+    char in[121];
+    int i;
+    /* 40 x 3-byte rune = 120 bytes (medium storage) */
+    for (i = 0; i < 40; ++i) {
+        in[i*3]     = (char)(0xE4 + (i % 2));
+        in[i*3 + 1] = (char)(0xB8 + (i % 4));
+        in[i*3 + 2] = (char)(0x80 + (i % 8));
+    }
+    in[120] = '\0';
+    MemeStringStack_initByU8bytes(&s, MMSTR__OBJ_SIZE, (const mmbyte_t*)in, 120);
+    mgec_t rc = MemeStringStack_reverse(&s, &out, MMSTR__OBJ_SIZE);
+    mu_assert(rc == 0, "reverse medium storage should succeed");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out)) == 120, "medium reversed size == 120");
+    /* verify first rune is now last */
+    mu_assert(memcmp(MemeString_byteData(AS_MMSTR_C(&out)) + 117, in, 3) == 0, "first rune moved to end");
+    mmstrstk_uninit(&out);
+    mmstrstk_uninit(&s);
+}
+
 /* ==================== join ==================== */
 
 MU_TEST(test_join_basic)
@@ -520,6 +632,14 @@ MU_TEST_SUITE(test_meme_string_manip)
     MU_RUN_TEST(test_replace_limited_count);
     MU_RUN_TEST(test_to_valid_utf8_valid_input);
     MU_RUN_TEST(test_to_valid_utf8_empty);
+    MU_RUN_TEST(test_reverse_ascii);
+    MU_RUN_TEST(test_reverse_chinese);
+    MU_RUN_TEST(test_reverse_mixed);
+    MU_RUN_TEST(test_reverse_emoji);
+    MU_RUN_TEST(test_reverse_empty);
+    MU_RUN_TEST(test_reverse_invalid_utf8);
+    MU_RUN_TEST(test_reverse_double);
+    MU_RUN_TEST(test_reverse_medium);
     MU_RUN_TEST(test_join_basic);
     MU_RUN_TEST(test_join_empty_array);
     MU_RUN_TEST(test_write_bytes);

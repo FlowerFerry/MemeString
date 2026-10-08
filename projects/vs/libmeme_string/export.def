@@ -470,6 +470,7 @@ EXPORTS
     MemeStringStack_fromInt16 @3026
     MemeStringStack_fromInt32 @3027
     MemeStringStack_fromInt64 @3028
+    MemeStringStack_reverse @3029
     MemeBufferStack_regSize @4000
     MemeBufferStack_objSize @4001
     MemeBufferStack_split @4002
