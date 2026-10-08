@@ -1038,7 +1038,7 @@ inline namespace MMPP_NAMESPACE {
 		return ec ? string{} : string{ std::move(out) };
 	}
 
-	MEMEPP__IMPL_INLINE string string::reverse() const noexcept
+	MEMEPP__IMPL_INLINE string string::reverse() const
 	{
 		mmstrstk_t out;
 		mgec_t ec = *errc() = MemeStringStack_reverse(&native_handle(), &out, sizeof(out));

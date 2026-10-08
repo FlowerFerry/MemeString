@@ -167,7 +167,7 @@ inline namespace MMPP_NAMESPACE {
 
         variable_buffer& remove(size_type _pos, size_type _count);
 
-        variable_buffer& reverse() MEGOPP__NOEXCEPT;
+        variable_buffer& reverse();
 
         variable_buffer slice(size_type _pos, size_type _count) const;
 

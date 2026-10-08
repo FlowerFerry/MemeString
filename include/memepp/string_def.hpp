@@ -277,7 +277,7 @@ inline namespace MMPP_NAMESPACE {
 		string to_valid_utf8() const noexcept;
 
 		//! Reverse the string by UTF-8 rune order.  Empty string on invalid UTF-8.
-		string reverse() const noexcept;
+		string reverse() const;
 
         template<typename _Func>
         string trim_if(_Func&& _func) const;

@@ -699,7 +699,7 @@ inline namespace MMPP_NAMESPACE {
 	}
 
 	//! Reverse the buffer's byte content in place (binary-safe, no allocation).
-	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::reverse() MEGOPP__NOEXCEPT
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::reverse()
 	{
 		*errc() = static_cast<int>(MemeVariableBuffer_reverse(to_pointer(data_)));
 #if !MMOPT__EXCEPTION_DISABLED
