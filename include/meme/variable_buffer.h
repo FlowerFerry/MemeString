@@ -176,17 +176,17 @@ MEME_STDCALL MemeVariableBuffer_appendWithRepeatBytes(
 //! Prepend a single byte to the front of the buffer.
 MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_prependWithByte(
-	MemeVariableBuffer_t _s, MemeByte_t _byte);
+	mmvb_ptr_t _s, MemeByte_t _byte);
 
 //! Prepend a byte sequence to the front of the buffer.
 MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_prependWithBytes(
-	MemeVariableBuffer_t _s, const MemeByte_t* _buf, MemeInteger_t _len);
+	mmvb_ptr_t _s, const MemeByte_t* _buf, MemeInteger_t _len);
 
 //! Prepend another variable buffer to the front of the buffer.
 MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_prependWithOther(
-	MemeVariableBuffer_t _s, MemeVariableBuffer_Const_t _other);
+	mmvb_ptr_t _s, mmvb_cptr_t _other);
 
 MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_insertWithByte(
@@ -332,7 +332,7 @@ MEME_STDCALL MemeVariableBuffer_capacityCorrectness(
  */
 MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_replace(
-	MemeVariableBuffer_t _s,
+	mmvb_ptr_t _s,
 	const MemeByte_t* _from, MemeInteger_t _from_len,
 	const MemeByte_t* _to, MemeInteger_t _to_len,
 	MemeInteger_t _max_count);
@@ -354,9 +354,9 @@ MEME_STDCALL MemeVariableBuffer_replace(
  */
 MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_slice(
-	MemeVariableBuffer_Const_t _s,
+	mmvb_cptr_t _s,
 	MemeInteger_t _pos, MemeInteger_t _count,
-	MemeVariableBufferStack_t* _out, mmint_t _object_size);
+	mmvbstk_t* _out, mmint_t _object_size);
 
 /**
  * @brief Reverse the byte content of a variable buffer in place.
@@ -371,7 +371,7 @@ MEME_STDCALL MemeVariableBuffer_slice(
  *         modifiable, or a non-zero error code otherwise.
  */
 MEME_API MemeInteger_t
-MEME_STDCALL MemeVariableBuffer_reverse(MemeVariableBuffer_t _s);
+MEME_STDCALL MemeVariableBuffer_reverse(mmvb_ptr_t _s);
 
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_VARIABLE_BUFFER_H_INCLUDED

@@ -331,7 +331,7 @@ MEME_STDCALL MemeVariableBuffer_appendWithByte(MemeVariableBuffer_t _s, MemeByte
 }
 
 MEME_EXTERN_C MEME_API MemeInteger_t
-MEME_STDCALL MemeVariableBuffer_prependWithByte(MemeVariableBuffer_t _s, MemeByte_t _byte)
+MEME_STDCALL MemeVariableBuffer_prependWithByte(mmvb_ptr_t _s, MemeByte_t _byte)
 {
 	assert(_s && "MemeVariableBuffer_prependWithByte");
 
@@ -340,7 +340,7 @@ MEME_STDCALL MemeVariableBuffer_prependWithByte(MemeVariableBuffer_t _s, MemeByt
 
 MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_prependWithBytes(
-	MemeVariableBuffer_t _s, const MemeByte_t* _buf, MemeInteger_t _len)
+	mmvb_ptr_t _s, const MemeByte_t* _buf, MemeInteger_t _len)
 {
 	MemeString_Const_t s = (MemeString_Const_t)_s;
 
@@ -416,7 +416,7 @@ MEME_STDCALL MemeVariableBuffer_prependWithBytes(
 
 MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_prependWithOther(
-	MemeVariableBuffer_t _s, MemeVariableBuffer_Const_t _other)
+	mmvb_ptr_t _s, mmvb_cptr_t _other)
 {
 	mmstr_ptr_t  str   = (mmstr_ptr_t)_s;
 	mmstr_cptr_t other = (mmstr_cptr_t)_other;
@@ -1034,7 +1034,7 @@ MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL MemeVariableBuffer_capacityCor
 
 MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_replace(
-	MemeVariableBuffer_t _s,
+	mmvb_ptr_t _s,
 	const MemeByte_t* _from, MemeInteger_t _from_len,
 	const MemeByte_t* _to, MemeInteger_t _to_len,
 	MemeInteger_t _max_count)
@@ -1159,9 +1159,9 @@ MEME_STDCALL MemeVariableBuffer_replace(
 
 MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_slice(
-	MemeVariableBuffer_Const_t _s,
+	mmvb_cptr_t _s,
 	MemeInteger_t _pos, MemeInteger_t _count,
-	MemeVariableBufferStack_t* _out, mmint_t _object_size)
+	mmvbstk_t* _out, mmint_t _object_size)
 {
 	assert(_s != NULL && "MemeVariableBuffer_slice");
 	assert(_out != NULL && "MemeVariableBuffer_slice");
@@ -1208,7 +1208,7 @@ MEME_STDCALL MemeVariableBuffer_slice(
 }
 
 MEME_EXTERN_C MEME_API MemeInteger_t
-MEME_STDCALL MemeVariableBuffer_reverse(MemeVariableBuffer_t _s)
+MEME_STDCALL MemeVariableBuffer_reverse(mmvb_ptr_t _s)
 {
 	MemeString_t s = (MemeString_t)_s;
 
