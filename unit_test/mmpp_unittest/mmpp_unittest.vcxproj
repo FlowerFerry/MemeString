@@ -224,6 +224,7 @@ xcopy /y "$(ProjectDir)..\..\projects\vs\libmeme_string\$(Platform)\$(Configurat
     <ClCompile Include="test_err.cpp" />
     <ClCompile Include="test_string_trimif.cpp" />
     <ClCompile Include="test_string_to_valid_utf8.cpp" />
+    <ClCompile Include="test_string_reverse.cpp" />
     <ClCompile Include="test_string_join.cpp" />
     <ClCompile Include="test_string_view_to_valid_utf8.cpp" />
     <ClCompile Include="test_string_view_trimif.cpp" />
