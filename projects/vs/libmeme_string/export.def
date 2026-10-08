@@ -713,4 +713,4 @@ EXPORTS
     MemeStringBuilder_isEqualWithBytes @30008
     MemeStringBuilder_appendArgByRune @30009
     MemeString_lastIndexOfWithByte @40000
-    
+        MemeVariableBuffer_reverse @21015

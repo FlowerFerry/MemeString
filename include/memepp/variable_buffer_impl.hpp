@@ -698,6 +698,16 @@ inline namespace MMPP_NAMESPACE {
 		return *this;
 	}
 
+	//! Reverse the buffer's byte content in place (binary-safe, no allocation).
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::reverse() MEGOPP__NOEXCEPT
+	{
+		*errc() = static_cast<int>(MemeVariableBuffer_reverse(to_pointer(data_)));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+#endif
+		return *this;
+	}
+
 	//! Extract [_pos, _pos+_count) as a new variable_buffer (const op).
 	MEMEPP__IMPL_INLINE variable_buffer variable_buffer::slice(size_type _pos, size_type _count) const
 	{

@@ -358,5 +358,20 @@ MEME_STDCALL MemeVariableBuffer_slice(
 	MemeInteger_t _pos, MemeInteger_t _count,
 	MemeVariableBufferStack_t* _out, mmint_t _object_size);
 
+/**
+ * @brief Reverse the byte content of a variable buffer in place.
+ *
+ * O(n/2) swaps on the live data pointer; no allocation.  Binary-safe:
+ * bytes are treated as opaque, UTF-8 boundaries are not considered.
+ *
+ * @param _s  Must be initialized and modifiable (small or medium storage).
+ *            Immutable types (view/large/user) are rejected.
+ *
+ * @return 0 on success, MGEC__OPNOTSUPP if the storage type is not
+ *         modifiable, or a non-zero error code otherwise.
+ */
+MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_reverse(MemeVariableBuffer_t _s);
+
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_VARIABLE_BUFFER_H_INCLUDED

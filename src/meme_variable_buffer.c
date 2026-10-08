@@ -1206,3 +1206,32 @@ MEME_STDCALL MemeVariableBuffer_slice(
 		(MemeVariableBuffer_t)_out,
 		MemeVariableBuffer_data(_s) + _pos, _count);
 }
+
+MEME_EXTERN_C MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_reverse(MemeVariableBuffer_t _s)
+{
+	MemeString_t s = (MemeString_t)_s;
+
+	assert(s != NULL && "MemeVariableBuffer_reverse");
+	assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE(s)) == 1
+		&& "MemeVariableBuffer_reverse");
+
+	switch (MMSTR__GET_IMPLTYPE(s)) {
+	case MemeString_ImplType_small:
+	case MemeString_ImplType_medium:
+		break;
+	default:
+		return (MGEC__OPNOTSUPP);
+	}
+
+	MemeByte_t* data = MemeVariableBuffer_dataWithNotConst(_s);
+	const MemeInteger_t size = MemeVariableBuffer_size(_s);
+
+	for (MemeInteger_t i = 0, j = size - 1; i < j; ++i, --j) {
+		const MemeByte_t tmp = data[i];
+		data[i] = data[j];
+		data[j] = tmp;
+	}
+
+	return 0;
+}

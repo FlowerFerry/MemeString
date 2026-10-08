@@ -350,6 +350,97 @@ MU_TEST(test_varbuf_slice_source_unchanged)
     MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
 }
 
+
+MU_TEST(test_varbuf_reverse_empty)
+{
+    mmvbstk_t vb;
+    MemeVariableBufferStack_init(&vb, MMSTR__OBJ_SIZE);
+    int rc = MemeVariableBuffer_reverse(AS_MMVB(&vb));
+    mu_assert(rc == 0, "reverse of empty should succeed");
+    mu_assert(MemeVariableBuffer_size(AS_MMVB_C(&vb)) == 0, "still empty");
+    MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+}
+
+MU_TEST(test_varbuf_reverse_single_byte)
+{
+    mmvbstk_t vb;
+    MemeVariableBufferStack_initByBytes(&vb, MMSTR__OBJ_SIZE, (const mmbyte_t*)"", 1);
+    int rc = MemeVariableBuffer_reverse(AS_MMVB(&vb));
+    mu_assert(rc == 0, "reverse of single byte should succeed");
+    mu_assert(MemeVariableBuffer_size(AS_MMVB_C(&vb)) == 1, "size should stay 1");
+    mu_assert(MemeVariableBuffer_data(AS_MMVB_C(&vb))[0] == 0x01, "single byte unchanged");
+    MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+}
+
+MU_TEST(test_varbuf_reverse_even)
+{
+    mmvbstk_t vb;
+    const mmbyte_t src[] = { 0x01, 0x02, 0x03, 0x04 };
+    MemeVariableBufferStack_initByBytes(&vb, MMSTR__OBJ_SIZE, src, 4);
+    int rc = MemeVariableBuffer_reverse(AS_MMVB(&vb));
+    mu_assert(rc == 0, "reverse of 4 bytes should succeed");
+    const mmbyte_t* d = MemeVariableBuffer_data(AS_MMVB_C(&vb));
+    const mmbyte_t exp[] = { 0x04, 0x03, 0x02, 0x01 };
+    mu_assert(memcmp(d, exp, 4) == 0, "even-length bytes reversed");
+    MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+}
+
+MU_TEST(test_varbuf_reverse_odd)
+{
+    mmvbstk_t vb;
+    const mmbyte_t src[] = { 0x01, 0x02, 0x03, 0x04, 0x05 };
+    MemeVariableBufferStack_initByBytes(&vb, MMSTR__OBJ_SIZE, src, 5);
+    int rc = MemeVariableBuffer_reverse(AS_MMVB(&vb));
+    mu_assert(rc == 0, "reverse of 5 bytes should succeed");
+    const mmbyte_t* d = MemeVariableBuffer_data(AS_MMVB_C(&vb));
+    const mmbyte_t exp[] = { 0x05, 0x04, 0x03, 0x02, 0x01 };
+    mu_assert(memcmp(d, exp, 5) == 0, "odd-length bytes reversed, middle byte kept");
+    MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+}
+
+MU_TEST(test_varbuf_reverse_binary_with_nul_ff)
+{
+    mmvbstk_t vb;
+    const mmbyte_t src[] = { 0x00, 0xFF, 0x00, 0x7F, 0x80 };
+    MemeVariableBufferStack_initByBytes(&vb, MMSTR__OBJ_SIZE, src, 5);
+    int rc = MemeVariableBuffer_reverse(AS_MMVB(&vb));
+    mu_assert(rc == 0, "reverse of binary data should succeed");
+    const mmbyte_t* d = MemeVariableBuffer_data(AS_MMVB_C(&vb));
+    const mmbyte_t exp[] = { 0x80, 0x7F, 0x00, 0xFF, 0x00 };
+    mu_assert(memcmp(d, exp, 5) == 0, "binary bytes with NUL/FF reversed correctly");
+    MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+}
+
+MU_TEST(test_varbuf_reverse_medium_storage)
+{
+    mmvbstk_t vb;
+    mmbyte_t src[32];
+    for (int i = 0; i < 32; ++i)
+        src[i] = (mmbyte_t)(31 - i);
+    MemeVariableBufferStack_initByBytes(&vb, MMSTR__OBJ_SIZE, src, 32);
+    mu_assert(MemeVariableBuffer_storageType(AS_MMVB_C(&vb)) == mmvb_strg_medium,
+        "32-byte buffer should be in medium storage");
+    int rc = MemeVariableBuffer_reverse(AS_MMVB(&vb));
+    mu_assert(rc == 0, "reverse of medium buffer should succeed");
+    const mmbyte_t* d = MemeVariableBuffer_data(AS_MMVB_C(&vb));
+    for (int i = 0; i < 32; ++i)
+        mu_assert(d[i] == (mmbyte_t)i, "medium buffer reversed byte by byte");
+    mu_assert(MemeVariableBuffer_size(AS_MMVB_C(&vb)) == 32, "size unchanged");
+    MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+}
+
+MU_TEST(test_varbuf_reverse_twice_restores)
+{
+    mmvbstk_t vb;
+    const mmbyte_t src[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0x01, 0x02 };
+    MemeVariableBufferStack_initByBytes(&vb, MMSTR__OBJ_SIZE, src, 6);
+    mu_assert(MemeVariableBuffer_reverse(AS_MMVB(&vb)) == 0, "first reverse should succeed");
+    mu_assert(MemeVariableBuffer_reverse(AS_MMVB(&vb)) == 0, "second reverse should succeed");
+    mu_assert(memcmp(MemeVariableBuffer_data(AS_MMVB_C(&vb)), src, 6) == 0,
+        "double reverse restores original content");
+    MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+}
+
 MU_TEST_SUITE(test_meme_variable_buffer)
 {
     MU_RUN_TEST(test_varbuf_init_empty);
@@ -382,6 +473,13 @@ MU_TEST_SUITE(test_meme_variable_buffer)
     MU_RUN_TEST(test_varbuf_slice_count_zero);
     MU_RUN_TEST(test_varbuf_slice_reuse_initialized);
     MU_RUN_TEST(test_varbuf_slice_source_unchanged);
+    MU_RUN_TEST(test_varbuf_reverse_empty);
+    MU_RUN_TEST(test_varbuf_reverse_single_byte);
+    MU_RUN_TEST(test_varbuf_reverse_even);
+    MU_RUN_TEST(test_varbuf_reverse_odd);
+    MU_RUN_TEST(test_varbuf_reverse_binary_with_nul_ff);
+    MU_RUN_TEST(test_varbuf_reverse_medium_storage);
+    MU_RUN_TEST(test_varbuf_reverse_twice_restores);
 }
 
 #endif // TEST_MEME_VARIABLE_BUFFER_H_INCLUDED
