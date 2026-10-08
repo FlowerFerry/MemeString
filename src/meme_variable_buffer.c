@@ -331,6 +331,138 @@ MEME_STDCALL MemeVariableBuffer_appendWithByte(MemeVariableBuffer_t _s, MemeByte
 }
 
 MEME_EXTERN_C MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_prependWithByte(MemeVariableBuffer_t _s, MemeByte_t _byte)
+{
+	assert(_s && "MemeVariableBuffer_prependWithByte");
+
+	return MemeVariableBuffer_prependWithBytes(_s, &_byte, 1);
+}
+
+MEME_EXTERN_C MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_prependWithBytes(
+	MemeVariableBuffer_t _s, const MemeByte_t* _buf, MemeInteger_t _len)
+{
+	MemeString_Const_t s = (MemeString_Const_t)_s;
+
+	assert(s && "MemeVariableBuffer_prependWithBytes");
+	assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE(s)) == 1
+		&& "MemeVariableBuffer_prependWithBytes");
+
+	if (MG_SYM__UNLIKELY(_buf == NULL))
+		_len = 0;
+	else if (_len < 0)
+		_len = strlen((const char*)_buf);
+
+	if (_len == 0)
+		return 0;
+
+	// Self-prepend: _buf aliases into _s's own storage. The tier dispatch below
+	// may reallocate (small->medium, medium growth), which would move the source
+	// out from under _buf. Build the result in a temporary instead:
+	// original content first, then _buf, so the first copy still reads valid
+	// data even after a move.
+	if (MemeVariableBuffer_data(_s) == _buf)
+	{
+		mmint_t result = 0;
+		mmvbstk_t vb;
+		MemeVariableBufferStack_init(&vb, MMSTR__OBJ_SIZE);
+		result = MemeVariableBuffer_reserve((mmvb_ptr_t)&vb,
+			MemeVariableBuffer_size(_s) + _len);
+		if (result) {
+			MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+			return result;
+		}
+		result = MemeVariableBuffer_appendWithBytes(
+			(mmvb_ptr_t)&vb, MemeVariableBuffer_data(_s), MemeVariableBuffer_size(_s));
+		if (result) {
+			MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+			return result;
+		}
+		result = MemeVariableBuffer_appendWithBytes((mmvb_ptr_t)&vb, _buf, _len);
+		if (result) {
+			MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+			return result;
+		}
+		MemeVariableBuffer_swap((mmvb_ptr_t)&vb, _s);
+		MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+		return 0;
+	}
+
+	switch (MMSTR__GET_IMPLTYPE(s))
+	{
+	case MemeString_ImplType_small:
+	{
+		if (0 == MemeStringSmall_canBeAppendIt((const MemeStringSmall_t*)s, _len))
+		{
+			return MemeStringSmall_prependWithBytes((MemeStringSmall_t*)s, _buf, _len);
+		}
+		else {
+			int result = MemeStringImpl_capacityExpansionSmallToMedium(
+				(MemeStringStack_t*)s, MemeString_byteSize(s) + _len);
+			if (result)
+				return result;
+			return MemeStringMedium_prependWithBytes((MemeStringMedium_t*)s, _buf, _len);
+		}
+	} break;
+	case MemeString_ImplType_medium:
+	{
+		return MemeStringMedium_prependWithBytes((MemeStringMedium_t*)s, _buf, _len);
+	};
+	default: {
+		return (MGEC__OPNOTSUPP);
+	} break;
+	}
+}
+
+MEME_EXTERN_C MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_prependWithOther(
+	MemeVariableBuffer_t _s, MemeVariableBuffer_Const_t _other)
+{
+	mmstr_ptr_t  str   = (mmstr_ptr_t)_s;
+	mmstr_cptr_t other = (mmstr_cptr_t)_other;
+
+	assert(str != NULL && "MemeVariableBuffer_prependWithOther");
+	assert(_other != NULL && "MemeVariableBuffer_prependWithOther");
+	assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE(str)) == 1
+		&& "MemeVariableBuffer_prependWithOther");
+
+	if (MG_SYM__UNLIKELY(MemeVariableBuffer_size(_other) == 0))
+		return 0;
+
+	// Prepend to self is self-doubling: original content then a copy of it.
+	// _s may be reallocated along the way, so stage the original bytes first.
+	if (str == other)
+	{
+		mmint_t result = 0;
+		mmvbstk_t vb;
+		MemeVariableBufferStack_init(&vb, MMSTR__OBJ_SIZE);
+		result = MemeVariableBuffer_reserve((mmvb_ptr_t)&vb,
+			MemeVariableBuffer_size(_s) + MemeVariableBuffer_size(_other));
+		if (result) {
+			MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+			return result;
+		}
+		result = MemeVariableBuffer_appendWithBytes(
+			(mmvb_ptr_t)&vb, MemeVariableBuffer_data(_s), MemeVariableBuffer_size(_s));
+		if (result) {
+			MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+			return result;
+		}
+		result = MemeVariableBuffer_appendWithBytes(
+			(mmvb_ptr_t)&vb, MemeVariableBuffer_data(_s), MemeVariableBuffer_size(_s));
+		if (result) {
+			MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+			return result;
+		}
+		MemeVariableBuffer_swap((mmvb_ptr_t)&vb, _s);
+		MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
+		return 0;
+	}
+
+	return MemeVariableBuffer_prependWithBytes(_s, MemeVariableBuffer_data(_other), MemeVariableBuffer_size(_other));
+}
+
+MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_startsMatchWithBytes(
 	MemeVariableBuffer_Const_t _s, const MemeByte_t* _needle, MemeInteger_t _needle_len)
 {

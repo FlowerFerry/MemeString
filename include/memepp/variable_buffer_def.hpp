@@ -134,6 +134,16 @@ inline namespace MMPP_NAMESPACE {
 		template<typename _Ty>
 		inline variable_buffer& append(const _Ty& _v, megopp::endian_t _endian);
 
+		variable_buffer& prepend(const_pointer _buf, size_type _len);
+		variable_buffer& prepend(const variable_buffer& _other);
+		variable_buffer& prepend(const string& _other);
+		variable_buffer& prepend(const string_view& _other);
+        variable_buffer& prepend(const buffer& _other);
+        variable_buffer& prepend(const buffer_view& _other);
+        variable_buffer& prepend(const buffer_span& _other);
+		template<typename _Ty>
+		inline variable_buffer& prepend(const _Ty& _v, megopp::endian_t _endian);
+
 		iterator insert(const_iterator _pos, const value_type& _value);
         iterator insert(const_iterator _pos, const_pointer _buf, size_type _count);
 		//iterator insert(const_iterator _pos, size_type _count, const value_type& _value);
@@ -229,6 +239,41 @@ inline namespace MMPP_NAMESPACE {
 		}
 
         return append(reinterpret_cast<const_pointer>(&value), static_cast<size_type>(sizeof(value)));
+	}
+	
+	template<typename _Ty>
+	inline variable_buffer& variable_buffer::prepend(const _Ty& _v, megopp::endian_t _endian)
+	{
+		typename megopp::type_with_size<sizeof(_Ty)>::uint value = 0;
+		memcpy(&value, &_v, sizeof(value));
+
+		switch (_endian) {
+			case megopp::endian_t::big_byte: { 
+#if MEGO_ENDIAN__LITTLE_BYTE
+				value = megopp::endian::byte_swap(value);
+#endif
+			} break;
+			case megopp::endian_t::little_byte: {
+#if MEGO_ENDIAN__BIG_BYTE
+				value = megopp::endian::byte_swap(value);
+#endif
+			} break;
+			case megopp::endian_t::big_word: {
+				value = megopp::endian::word_swap(value);
+#if MEGO_ENDIAN__LITTLE_BYTE
+				value = megopp::endian::byte_swap(value);
+#endif
+			} break;
+			case megopp::endian_t::little_word: {
+				value = megopp::endian::word_swap(value);
+#if MEGO_ENDIAN__BIG_BYTE
+				value = megopp::endian::byte_swap(value);
+#endif
+			} break;
+			default: break;
+		}
+
+        return prepend(reinterpret_cast<const_pointer>(&value), static_cast<size_type>(sizeof(value)));
 	}
     
 	template<typename _Ty>

@@ -13,6 +13,43 @@ MemeStringMedium_canBeAppendIt(const MemeStringMedium_t* _s, MemeInteger_t _bufl
 	return 0;
 }
 
+int
+MemeStringMedium_prependWithBytes(
+	MemeStringMedium_t* _s, const MemeByte_t* _buf, MemeInteger_t _buflen)
+{
+	assert(_s);
+	assert(_buf != NULL);
+
+	if (_buflen <= 0)
+		return 0;
+
+	// Fast path: fits in unused front capacity -- write directly in front of
+	// the current data pointer, no move of existing bytes.
+	if (_buflen <= MemeStringMedium_frontCapacity(_s))
+	{
+		memcpy(MemeStringMedium_data(_s) - _buflen, _buf, _buflen);
+		MemeStringMedium_modifyFrontCapacity(_s, -_buflen);
+		_s->size_ += _buflen;
+		*(MemeStringMedium_iteratorEnd(_s)) = '\0';
+		return 0;
+	}
+
+	// Slow path: need more room than the tail offers or than the front allows.
+	if (MemeStringMedium_availableByteCapacity(_s) < _buflen)
+	{
+		int result = MemeStringImpl_capacityExpansionWithModifiable(
+			(MemeStringStack_t*)_s, _s->size_ + _buflen);
+		if (result != 0)
+			return result;
+	}
+
+	// Move existing data right by _buflen bytes, then write new data at front.
+	memmove(MemeStringMedium_data(_s) + _buflen, MemeStringMedium_data(_s), _s->size_);
+	memcpy(MemeStringMedium_data(_s), _buf, _buflen);
+	MemeStringMedium_byteSizeOffsetAndSetZero(_s, _buflen);
+	return 0;
+}
+
 int MemeStringMedium_appendWithByte(MemeStringMedium_t* _s, MemeInteger_t _count, MemeByte_t _byte)
 {
 	MemeByte_t* pointer = NULL;

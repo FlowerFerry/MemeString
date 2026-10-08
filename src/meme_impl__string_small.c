@@ -159,6 +159,24 @@ int MemeStringSmall_insertWithBytes(
 	return 0;
 }
 
+int MemeStringSmall_prependWithBytes(
+	MemeStringSmall_t* _s, const MemeByte_t* _buf, MemeInteger_t _buflen)
+{
+	assert(_s);
+	assert(_buf);
+
+	if (_buflen <= 0)
+		return 0;
+
+	// Shift existing data right by _buflen, then write new data at the front.
+	memmove(_s->buffer_ + _buflen, _s->buffer_, MemeStringSmall_byteSize(_s));
+	memcpy(_s->buffer_, _buf, _buflen);
+	_s->capacity_ -= (uint8_t)_buflen;
+	_s->buffer_[MemeStringSmall_byteSize(_s)] = 0;
+
+	return 0;
+}
+
 MemeInteger_t MemeStringSmall_remove(
 	MemeStringSmall_t* _s, MemeInteger_t _pos, MemeInteger_t _count)
 {

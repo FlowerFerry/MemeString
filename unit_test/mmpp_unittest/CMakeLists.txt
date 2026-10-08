@@ -80,6 +80,7 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_view_extra.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_append.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_modifiers.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_prepend.cpp
 )
 
 function(mmut_create_exec_for_stdcxx  exec_name cxx_standard)

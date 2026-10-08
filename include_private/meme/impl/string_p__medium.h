@@ -16,8 +16,12 @@
 extern "C" {
 #endif
 
-int 
+int
 MemeStringMedium_canBeAppendIt(const MemeStringMedium_t* _s, MemeInteger_t _buflen);
+
+int
+MemeStringMedium_prependWithBytes(
+	MemeStringMedium_t* _s, const MemeByte_t* _buf, MemeInteger_t _buflen);
 
 MG_CAPI_INLINE mmint_t 
 MemeStringMedium_frontCapacity(const MemeStringMedium_t* _s)

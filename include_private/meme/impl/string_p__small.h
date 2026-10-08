@@ -75,6 +75,10 @@ MemeStringSmall_appendWithBytes(MemeStringSmall_t* _s, const MemeByte_t* _buf, M
 int
 MemeStringSmall_insertWithBytes(MemeStringSmall_t* _s, MemeInteger_t _pos, const MemeByte_t* _buf, MemeInteger_t _buflen);
 
+//! @pre MemeStringSmall_canBeAppendIt(_s, _buflen) == 0
+int
+MemeStringSmall_prependWithBytes(MemeStringSmall_t* _s, const MemeByte_t* _buf, MemeInteger_t _buflen);
+
 MemeInteger_t
 MemeStringSmall_remove(
 	MemeStringSmall_t* _s, MemeInteger_t _pos, MemeInteger_t _count);

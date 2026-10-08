@@ -699,6 +699,9 @@ EXPORTS
     MemeVariableBuffer_countWithByte @21009
     MemeVariableBuffer_replace @21010
     MemeVariableBuffer_slice @21011
+    MemeVariableBuffer_prependWithByte @21012
+    MemeVariableBuffer_prependWithBytes @21013
+    MemeVariableBuffer_prependWithOther @21014
     MemeStringBuilder_size @30000
     MemeStringBuilder_isEmpty @30001
     MemeStringBuilder_clear @30002

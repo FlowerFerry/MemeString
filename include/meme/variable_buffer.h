@@ -173,6 +173,21 @@ MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_appendWithRepeatBytes(
 	MemeVariableBuffer_t _s, MemeInteger_t _count, MemeByte_t _byte);
 
+//! Prepend a single byte to the front of the buffer.
+MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_prependWithByte(
+	MemeVariableBuffer_t _s, MemeByte_t _byte);
+
+//! Prepend a byte sequence to the front of the buffer.
+MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_prependWithBytes(
+	MemeVariableBuffer_t _s, const MemeByte_t* _buf, MemeInteger_t _len);
+
+//! Prepend another variable buffer to the front of the buffer.
+MEME_API MemeInteger_t
+MEME_STDCALL MemeVariableBuffer_prependWithOther(
+	MemeVariableBuffer_t _s, MemeVariableBuffer_Const_t _other);
+
 MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_insertWithByte(
     MemeVariableBuffer_t _s, MemeInteger_t _pos, MemeByte_t _byte);

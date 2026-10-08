@@ -456,7 +456,75 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::append(const buffer_span& _other)
 	{
 	        *errc() = static_cast<int>(MemeVariableBuffer_appendWithBytes(to_pointer(data_),
-	            _other.data(), _other.size()));
+            _other.data(), _other.size()));
+	#if !MMOPT__EXCEPTION_DISABLED
+	        throw_errc(get_errc());
+	#endif
+	        return *this;
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::prepend(const_pointer _buf, size_type _len)
+	{
+		*errc() = static_cast<int>(MemeVariableBuffer_prependWithBytes(to_pointer(data_), _buf, _len));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+#endif
+		return *this;
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::prepend(const variable_buffer& _other)
+	{
+		*errc() = static_cast<int>(MemeVariableBuffer_prependWithOther(to_pointer(data_), to_pointer(_other.data_)));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+#endif
+		return *this;
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::prepend(const string& _other)
+	{
+		*errc() = static_cast<int>(MemeVariableBuffer_prependWithBytes(to_pointer(data_),
+			reinterpret_cast<const MemeByte_t*>(_other.data()), _other.size()));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+#endif
+		return *this;
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::prepend(const string_view& _other)
+	{
+		*errc() = static_cast<int>(MemeVariableBuffer_prependWithBytes(to_pointer(data_),
+			reinterpret_cast<const MemeByte_t*>(_other.data()), _other.size()));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(get_errc());
+#endif
+		return *this;
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::prepend(const buffer& _other)
+	{
+        *errc() = static_cast<int>(MemeVariableBuffer_prependWithBytes(to_pointer(data_), 
+			_other.data(), _other.size()));
+#if !MMOPT__EXCEPTION_DISABLED
+        throw_errc(get_errc());
+#endif
+        return *this;
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::prepend(const buffer_view& _other)
+	{
+	        *errc() = static_cast<int>(MemeVariableBuffer_prependWithBytes(to_pointer(data_),
+            _other.data(), _other.size()));
+	#if !MMOPT__EXCEPTION_DISABLED
+	        throw_errc(get_errc());
+	#endif
+	        return *this;
+	}
+
+	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::prepend(const buffer_span& _other)
+	{
+	        *errc() = static_cast<int>(MemeVariableBuffer_prependWithBytes(to_pointer(data_),
+            _other.data(), _other.size()));
 	#if !MMOPT__EXCEPTION_DISABLED
 	        throw_errc(get_errc());
 	#endif
