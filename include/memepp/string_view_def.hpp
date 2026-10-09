@@ -131,7 +131,7 @@ inline namespace MMPP_NAMESPACE {
 		size_type find(char _ch, size_type _pos = 0) const noexcept;
 		size_type find(const rune& _ch, size_type _pos = 0) const noexcept;
 
-		size_type rfind(const string_view& _other, size_type _pos = 0) const noexcept;
+		size_type rfind(const string_view& _other, size_type _pos = npos) const noexcept;
 		size_type rfind(const char* _utf8, size_type _pos = npos) const noexcept;
 		size_type rfind(const char* _utf8, size_type _pos, size_type _substr_count) const noexcept;
 		size_type rfind(const_pointer _utf8, size_type _pos = npos) const noexcept;

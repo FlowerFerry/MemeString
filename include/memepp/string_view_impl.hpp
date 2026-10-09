@@ -10,6 +10,8 @@
 #include "memepp/string_builder_def.hpp"
 #include <memepp/errc.hpp>
 
+#include <algorithm>
+
 #ifndef MEMEPP__IMPL_INLINE
 #	ifdef MEMEPP__IMPL_SEPARATE
 #		define MEMEPP__IMPL_INLINE 
@@ -451,9 +453,18 @@ inline namespace MMPP_NAMESPACE {
 
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::rfind(const string_view& _other, size_type _pos) const noexcept
 	{
+		// std::rfind: last match whose START <= pos.
+		// limit = min(pos + needle_len, size) ensures the entire needle fits.
+		size_type sz = size();
+		size_type nlen = _other.size();
+		if (nlen > sz) return npos;
+		if (nlen == 0) return (_pos == npos || _pos >= sz) ? sz : _pos;
+		size_type limit = (_pos == npos || _pos >= sz)
+			? sz
+			: (std::min)(_pos + nlen, sz);
 		return MemeString_lastIndexOfOther(
 			to_pointer(native_handle()),
-			_pos, -1,
+			0, static_cast<mmint_t>(limit),
 			to_pointer(_other.native_handle()), -1,
 			1,
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
@@ -461,43 +472,83 @@ inline namespace MMPP_NAMESPACE {
 
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::rfind(const char* _utf8, size_type _pos) const noexcept
 	{
+		size_type sz = size();
+		size_type nlen = std::char_traits<char>::length(_utf8);
+		if (nlen > sz) return npos;
+		if (nlen == 0) return (_pos == npos || _pos >= sz) ? sz : _pos;
+		size_type limit = (_pos == npos || _pos >= sz)
+			? sz
+			: (std::min)(_pos + nlen, sz);
         return MemeString_lastIndexOfWithUtf8bytes(
-            to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), -1, 
+            to_pointer(native_handle()), static_cast<mmint_t>(limit),
+			reinterpret_cast<const uint8_t*>(_utf8), static_cast<mmint_t>(nlen), 
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
 	}
 
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::rfind(const char* _utf8, size_type _pos, size_type _substr_count) const noexcept
 	{
+		size_type sz = size();
+		if (_substr_count > sz) return npos;
+		size_type limit = (_pos == npos || _pos >= sz)
+			? sz
+			: (std::min)(_pos + _substr_count, sz);
         return MemeString_lastIndexOfWithUtf8bytes(
-            to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), _substr_count, 
+            to_pointer(native_handle()), static_cast<mmint_t>(limit),
+			reinterpret_cast<const uint8_t*>(_utf8), static_cast<mmint_t>(_substr_count), 
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
 	}
 
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::rfind(const_pointer _utf8, size_type _pos) const noexcept
 	{
+		size_type sz = size();
+		size_type nlen = std::char_traits<char>::length(reinterpret_cast<const char*>(_utf8));
+		if (nlen > sz) return npos;
+		if (nlen == 0) return (_pos == npos || _pos >= sz) ? sz : _pos;
+		size_type limit = (_pos == npos || _pos >= sz)
+			? sz
+			: (std::min)(_pos + nlen, sz);
         return MemeString_lastIndexOfWithUtf8bytes(
-            to_pointer(native_handle()), _pos, _utf8, -1, 
+            to_pointer(native_handle()), static_cast<mmint_t>(limit),
+			_utf8, static_cast<mmint_t>(nlen), 
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
 	}
 	
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::rfind(const_pointer _utf8, size_type _pos, size_type _substr_count) const noexcept
 	{
+		size_type sz = size();
+		if (_substr_count > sz) return npos;
+		size_type limit = (_pos == npos || _pos >= sz)
+			? sz
+			: (std::min)(_pos + _substr_count, sz);
         return MemeString_lastIndexOfWithUtf8bytes(
-            to_pointer(native_handle()), _pos, _utf8, _substr_count, 
+            to_pointer(native_handle()), static_cast<mmint_t>(limit),
+			_utf8, static_cast<mmint_t>(_substr_count), 
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
 	}
 
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::rfind(char _ch, size_type _pos) const noexcept
 	{
+		size_type sz = size();
+		size_type limit = (_pos == npos || _pos >= sz)
+			? sz
+			: _pos + 1;
 		return MemeString_lastIndexOfWithUtf8bytes(
-			to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(&_ch), 1,
+			to_pointer(native_handle()), static_cast<mmint_t>(limit),
+			reinterpret_cast<const uint8_t*>(&_ch), 1,
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
 	}
 
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::rfind(const rune& _ch, size_type _pos) const noexcept
 	{
+		size_type sz = size();
+		size_type nlen = _ch.size();
+		if (nlen > sz) return npos;
+		size_type limit = (_pos == npos || _pos >= sz)
+			? sz
+			: (std::min)(_pos + nlen, sz);
         return MemeString_lastIndexOfWithUtf8bytes(
-            to_pointer(native_handle()), _pos, _ch.data(), _ch.size(), 
+            to_pointer(native_handle()), static_cast<mmint_t>(limit),
+			_ch.data(), static_cast<mmint_t>(nlen), 
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
 	}
 

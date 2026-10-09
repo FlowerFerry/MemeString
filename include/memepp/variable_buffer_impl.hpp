@@ -263,6 +263,8 @@ inline namespace MMPP_NAMESPACE {
 		size_type sz = size();
 		if (_size > sz)
 			return npos;
+		if (_size == 0)
+			return (_pos == npos || _pos >= sz) ? sz : _pos;
 		size_type limit;
 		if (_pos == npos || _pos >= sz)
 			limit = sz;

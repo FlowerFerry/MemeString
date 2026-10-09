@@ -7,6 +7,7 @@
 
 #include "memepp/string_span_def.hpp"
 #include <memepp/string.hpp>
+#include <memepp/string_view.hpp>
 
 #include <cstring>
 #include <algorithm>
@@ -157,15 +158,6 @@ string_span::swap(string_span& _other) MEGOPP__NOEXCEPT
 //  private helper
 // ============================================================
 
-MEMEPP__IMPL_INLINE MemeStringStack_t
-string_span::_to_stack() const MEGOPP__NOEXCEPT
-{
-	MemeStringStack_t stack;
-	MemeStringViewUnsafeStack_init(
-		&stack, MEME_STRING__OBJECT_SIZE, data_, size_);
-	return stack;
-}
-
 // ============================================================
 //  iterators
 // ============================================================
@@ -257,29 +249,29 @@ string_span::to_rune_iterator(size_type _pos) const MEGOPP__NOEXCEPT
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::rune_size() const MEGOPP__NOEXCEPT
 {
-	auto stack = _to_stack();
-	return MemeString_runeSize(to_pointer(stack));
+	auto sr = to_string_ref();
+	return sr.rune_size();
 }
 
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::u16char_size() const MEGOPP__NOEXCEPT
 {
-	auto stack = _to_stack();
-	return MemeString_u16CharSize(to_pointer(stack));
+	auto sr = to_string_ref();
+	return sr.u16char_size();
 }
 
 MEMEPP__IMPL_INLINE rune
 string_span::rune_front() const MEGOPP__NOEXCEPT
 {
-	auto stack = _to_stack();
-	return MemeString_runeFront(to_pointer(stack));
+	auto sr = to_string_ref();
+	return sr.rune_front();
 }
 
 MEMEPP__IMPL_INLINE rune
 string_span::rune_back() const MEGOPP__NOEXCEPT
 {
-	auto stack = _to_stack();
-	return MemeString_runeBack(to_pointer(stack));
+	auto sr = to_string_ref();
+	return sr.rune_back();
 }
 
 MEMEPP__IMPL_INLINE string_span
@@ -313,9 +305,9 @@ string_span::copy(value_type* _dest, size_type _count, size_type _pos) const
 MEMEPP__IMPL_INLINE int
 string_span::compare(string_span _v) const MEGOPP__NOEXCEPT
 {
-	auto lstack = _to_stack();
-	auto rstack = _v._to_stack();
-	return MemeString_compare(to_pointer(lstack), to_pointer(rstack));
+	auto lsr = to_string_ref();
+	auto rsr = _v.to_string_ref();
+	return MemeString_compare(to_pointer(lsr.native_handle()), to_pointer(rsr.native_handle())); 
 }
 
 MEMEPP__IMPL_INLINE int
@@ -358,11 +350,9 @@ MEMEPP__IMPL_INLINE bool
 string_span::starts_with(string_span _v) const MEGOPP__NOEXCEPT
 {
 	if (_v.size_ > size_) return false;
-	auto lstack = _to_stack();
-	auto rstack = _v._to_stack();
-	return MemeString_startsMatchWithOther(
-		to_pointer(lstack), to_pointer(rstack),
-		static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
+	auto lsr = to_string_ref();
+	auto rsr = _v.to_string_ref();
+	return lsr.starts_with(rsr);
 }
 
 MEMEPP__IMPL_INLINE bool
@@ -387,11 +377,9 @@ MEMEPP__IMPL_INLINE bool
 string_span::ends_with(string_span _v) const MEGOPP__NOEXCEPT
 {
 	if (_v.size_ > size_) return false;
-	auto lstack = _to_stack();
-	auto rstack = _v._to_stack();
-	return MemeString_endsMatchWithOther(
-		to_pointer(lstack), to_pointer(rstack),
-		static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
+	auto lsr = to_string_ref();
+	auto rsr = _v.to_string_ref();
+	return lsr.ends_with(rsr);
 }
 
 MEMEPP__IMPL_INLINE bool
@@ -446,11 +434,9 @@ string_span::find(string_span _v, size_type _pos) const MEGOPP__NOEXCEPT
 	if (_pos < 0) _pos = 0;
 	if (_pos > size_) return npos;
 	if (_v.size_ == 0) return _pos;
-	auto lstack = _to_stack();
-	auto rstack = _v._to_stack();
-	return MemeString_indexOfWithUtf8bytes(
-		to_pointer(lstack), _pos, _v.bytes(), _v.size_,
-		static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
+	auto lsr = to_string_ref();
+	auto rsr = _v.to_string_ref();
+	return lsr.find(rsr, _pos);
 }
 
 MEMEPP__IMPL_INLINE string_span::size_type
@@ -495,52 +481,37 @@ string_span::find(const_pointer _s, size_type _pos) const MEGOPP__NOEXCEPT
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::rfind(string_span _v, size_type _pos) const MEGOPP__NOEXCEPT
 {
-	if (_v.size_ == 0) {
-		if (_pos == npos || _pos >= size_)
-			return size_;
-		return _pos;
-	}
-	auto lstack = _to_stack();
-	auto rstack = _v._to_stack();
-	return MemeString_lastIndexOfWithUtf8bytes(
-		to_pointer(lstack), _pos, _v.bytes(), _v.size_,
-		static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
+	return string_view(data(), size()).rfind(string_view(_v.data(), _v.size()), _pos);
 }
 
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::rfind(char _c, size_type _pos) const MEGOPP__NOEXCEPT
 {
-	if (_pos == npos || _pos >= size_) _pos = size_ - 1;
-	if (_pos < 0 || size_ == 0) return npos;
-	for (size_type i = _pos; i >= 0; --i) {
-		if (static_cast<char>(data_[i]) == _c)
-			return i;
-	}
-	return npos;
+	return string_view(data(), size()).rfind(_c, _pos);
 }
 
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::rfind(const char* _s, size_type _pos, size_type _count) const
 {
-	return rfind(string_span(_s, _count), _pos);
+	return string_view(data(), size()).rfind(_s, _pos, _count);
 }
 
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::rfind(const char* _s, size_type _pos) const
 {
-	return rfind(string_span(_s), _pos);
+	return string_view(data(), size()).rfind(_s, _pos);
 }
 
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::rfind(const_pointer _s, size_type _pos, size_type _count) const MEGOPP__NOEXCEPT
 {
-	return rfind(string_span(_s, _count), _pos);
+	return string_view(data(), size()).rfind(_s, _pos, _count);
 }
 
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::rfind(const_pointer _s, size_type _pos) const MEGOPP__NOEXCEPT
 {
-	return rfind(string_span(_s), _pos);
+	return string_view(data(), size()).rfind(_s, _pos);
 }
 
 // ============================================================
@@ -702,6 +673,12 @@ MEMEPP__IMPL_INLINE string
 string_span::to_shared_storage() const noexcept
 {
 	return string{ data(), size_, string_storage_t::large };
+}
+
+MEMEPP__IMPL_INLINE memepp::string_ref
+string_span::to_string_ref() const MEGOPP__NOEXCEPT
+{
+	return memepp::string_ref{ data_, size_ };
 }
 
 // ============================================================

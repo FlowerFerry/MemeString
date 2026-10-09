@@ -128,9 +128,12 @@ TEST_CASE("variable_buffer rfind byte pattern — empty needle", "[variable_buff
     const uint8_t data[] = { 1, 2, 3 };
     buf.append(data, sizeof(data));
 
-    // zero-length needle never matches (consistent with find)
-    REQUIRE(buf.rfind(data, 2, 0) == variable_buffer::npos);
-    REQUIRE(buf.rfind(data, variable_buffer::npos, 0) == variable_buffer::npos);
+    // Empty needle matches at every position (vacuous truth), so the last one wins:
+    // an empty substring is found at pos iff pos <= size().
+    REQUIRE(buf.rfind(data, 2, 0) == 2);
+    REQUIRE(buf.rfind(data, 0, 0) == 0);
+    REQUIRE(buf.rfind(data, variable_buffer::npos, 0) == 3);
+    REQUIRE(buf.rfind(data, 100, 0) == 3);
 }
 
 // ---------------------------------------------------------------------------

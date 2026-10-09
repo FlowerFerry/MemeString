@@ -6,7 +6,7 @@
 #include <meme/string_fwd.h>
 
 #include "memepp/string_fwd.hpp"
-#include "memepp/string_view_fwd.hpp"
+#include "memepp/string_view_def.hpp"
 #include "memepp/string_span_fwd.hpp"
 #include "memepp/iterator.hpp"
 #include "memepp/rune_iterator.hpp"
@@ -165,10 +165,9 @@ inline namespace MMPP_NAMESPACE {
 
 		string to_string() const;
 		string to_shared_storage() const noexcept;
+		memepp::string_ref to_string_ref() const MEGOPP__NOEXCEPT;
 
 	private:
-		//! Create a temporary non-owning MemeStringStack_t for C API calls.
-		MemeStringStack_t _to_stack() const MEGOPP__NOEXCEPT;
 
 		const_pointer data_;
 		size_type     size_;
