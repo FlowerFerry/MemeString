@@ -35,12 +35,10 @@ TEST_CASE("memepp::string constructors 01", "[string]")
 	REQUIRE(s01.empty());
 	REQUIRE(s01.capacity() == MemeStringOption_getStorageSmallLimit());
 
-#if INTPTR_MAX == INT64_MAX
-	const char* test01 = "This is test string..";
-#else
-    const char* test01 = "teststring";
-#endif
-	memepp::string s02(test01, MemeStringOption_getStorageSmallLimit());
+	const mmint_t smallLimit = MemeStringOption_getStorageSmallLimit();
+	std::string test01_src(smallLimit, 'x');
+	const char* test01 = test01_src.c_str();
+	memepp::string s02(test01, smallLimit);
 	REQUIRE(s02.storage_type() == memepp::string_storage_t::small);
 	REQUIRE(s02.size() == MemeStringOption_getStorageSmallLimit());
 	REQUIRE(s02.size() == strlen(s02.data()) );
@@ -52,11 +50,8 @@ TEST_CASE("memepp::string constructors 01", "[string]")
 	REQUIRE(s02.empty() == false);
 	REQUIRE(s02.capacity() == 0);
 
-#if INTPTR_MAX == INT64_MAX
-	const char* test02 = "This is test string....";
-#else
-    const char* test02 = "test string";
-#endif
+    std::string test02_src(MEME_STRING__OBJECT_SIZE - 1, 'y');
+    const char* test02 = test02_src.c_str();
     memepp::string s03(test02, MEME_STRING__OBJECT_SIZE - 1);
     REQUIRE(s03.storage_type() == memepp::string_storage_t::medium);
     REQUIRE(s03.size() == strlen(test02));
@@ -126,6 +121,9 @@ TEST_CASE("memepp::string constructors 02", "[string]")
 
 }
 
+#include <memepp/convert/std/string.hpp>
+#include <memepp/compare/std/string.hpp>
+
 TEST_CASE("memepp::string move or swap", "[string]")
 {
 	memepp::string s01(memepp::string { test_large_string_01 });
@@ -159,6 +157,9 @@ TEST_CASE("memepp::string move or swap", "[string]")
 
 	memepp::string s04; 
 	s04 = s03;
+	REQUIRE(s04 == s03);
+	REQUIRE(s04.storage_type() == memepp::string_storage_t::large);
+	REQUIRE(s04.data() == s03.data());
 
 	s01 = std::move(s03);
 	REQUIRE(s03.empty());
@@ -170,8 +171,129 @@ TEST_CASE("memepp::string move or swap", "[string]")
 	REQUIRE(s01.storage_type() == memepp::string_storage_t::large);
 	REQUIRE(MemeString_checkHeadTailMemory(memepp::to_pointer(s01.native_handle())) == 1);
 
+	// --- self-assignment (copy) — must be a no-op ---
+	{
+		memepp::string self_s(test_large_string_01);
+		REQUIRE(self_s.storage_type() == memepp::string_storage_t::large);
+		const char* old_data = self_s.data();
+		memepp::string& ref = self_s;
+		self_s = ref;
+		REQUIRE(self_s == test_large_string_01);
+		REQUIRE(self_s.storage_type() == memepp::string_storage_t::large);
+		REQUIRE(self_s.data() == old_data);
+	}
 
-    
+	// --- self-move-assignment — must be a no-op (use alias to avoid -Wself-move) ---
+	{
+		memepp::string self_s(test_large_string_01);
+		REQUIRE(self_s.storage_type() == memepp::string_storage_t::large);
+		const char* old_data = self_s.data();
+		memepp::string& ref = self_s;
+		self_s = std::move(ref);
+		REQUIRE(self_s == test_large_string_01);
+		REQUIRE(self_s.storage_type() == memepp::string_storage_t::large);
+		REQUIRE(self_s.data() == old_data);
+	}
+
+	// --- self-swap — must preserve content ---
+	{
+		memepp::string self_s(test_large_string_01);
+		const char* old_data = self_s.data();
+		self_s.swap(self_s);
+		REQUIRE(self_s == test_large_string_01);
+		REQUIRE(self_s.data() == old_data);
+	}
+
+	// --- move-assign onto non-empty large target (swap semantics: no release) ---
+	{
+		std::string large_a(test_large_string_01);
+		std::string large_b(400, 'B'); // different large content (400 > medium limit)
+
+		memepp::string target(large_a.c_str(), large_a.size());
+		REQUIRE(target.storage_type() == memepp::string_storage_t::large);
+
+		memepp::string source(large_b.c_str(), large_b.size());
+		REQUIRE(source.storage_type() == memepp::string_storage_t::large);
+		REQUIRE(target != source);
+
+		target = std::move(source);
+		// target now holds source's content ...
+		REQUIRE(target.size() == large_b.size());
+		REQUIRE(target.storage_type() == memepp::string_storage_t::large);
+		REQUIRE(target == large_b);
+		// ... and source holds target's old content (swap, not release)
+		REQUIRE(source.size() == large_a.size());
+		REQUIRE(source.storage_type() == memepp::string_storage_t::large);
+		REQUIRE(source == test_large_string_01);
+		REQUIRE(MemeString_checkHeadTailMemory(memepp::to_pointer(target.native_handle())) == 1);
+		REQUIRE(MemeString_checkHeadTailMemory(memepp::to_pointer(source.native_handle())) == 1);
+	}
+
+	// --- medium source: swap and move-assign ---
+	{
+		const mmint_t smallLimit = MemeStringOption_getStorageSmallLimit();
+		std::string med_src(smallLimit + 10, 'M');
+
+		memepp::string m1(med_src.c_str(), med_src.size());
+		REQUIRE(m1.storage_type() == memepp::string_storage_t::medium);
+
+		// swap medium with empty
+		memepp::string m2;
+		m2.swap(m1);
+		REQUIRE(m1.empty());
+		REQUIRE(m1.storage_type() == memepp::string_storage_t::small);
+		REQUIRE(m2 == med_src);
+		REQUIRE(m2.storage_type() == memepp::string_storage_t::medium);
+
+		// move-assign medium onto empty
+		memepp::string m3 = std::move(m2);
+		REQUIRE(m2.empty());
+		REQUIRE(m3 == med_src);
+		REQUIRE(m3.storage_type() == memepp::string_storage_t::medium);
+
+		// move-assign medium onto non-empty large target
+		memepp::string m4(test_large_string_01);
+		REQUIRE(m4.storage_type() == memepp::string_storage_t::large);
+		m4 = std::move(m3);
+		REQUIRE(m4 == med_src);
+		REQUIRE(m4.storage_type() == memepp::string_storage_t::medium);
+		// m3 now holds the old large data (swap semantics)
+		REQUIRE(m3 == test_large_string_01);
+		REQUIRE(m3.storage_type() == memepp::string_storage_t::large);
+	}
+
+	// --- user source: swap and move-assign ---
+	{
+		std::string big(500, 'U');
+		memepp::string u1 = memepp::from(std::move(big));
+		REQUIRE(u1.storage_type() == memepp::string_storage_t::user);
+		REQUIRE(big.empty()); // takeover
+
+		// swap user with empty
+		memepp::string u2;
+		u2.swap(u1);
+		REQUIRE(u1.empty());
+		REQUIRE(u1.storage_type() == memepp::string_storage_t::small);
+		REQUIRE(u2.storage_type() == memepp::string_storage_t::user);
+		REQUIRE(u2.size() == 500);
+
+		// move-assign user onto empty
+		memepp::string u3 = std::move(u2);
+		REQUIRE(u2.empty());
+		REQUIRE(u3.storage_type() == memepp::string_storage_t::user);
+		REQUIRE(u3.size() == 500);
+
+		// move-assign user onto non-empty large target
+		memepp::string u4(test_large_string_01);
+		REQUIRE(u4.storage_type() == memepp::string_storage_t::large);
+		u4 = std::move(u3);
+		REQUIRE(u4.storage_type() == memepp::string_storage_t::user);
+		REQUIRE(u4.size() == 500);
+		// u3 now holds the old large data (swap semantics)
+		REQUIRE(u3 == test_large_string_01);
+		REQUIRE(u3.storage_type() == memepp::string_storage_t::large);
+	}
+
 }
 
 #include <memepp/convert/std/string.hpp>
@@ -347,19 +469,20 @@ TEST_CASE("memepp::string mutual convert of std::string", "[string]")
 TEST_CASE("memepp::string mutual convert of std::vector", "[string]")
 {
 	do {
-		const char raw[] = "0123456789ABCDEF";
-		std::vector<uint8_t> vec(raw, raw + sizeof(raw) - 1);
+		const mmint_t smallLimit = MemeStringOption_getStorageSmallLimit();
+		std::vector<uint8_t> vec(smallLimit);
+		for (mmint_t i = 0; i < smallLimit; ++i)
+			vec[i] = static_cast<uint8_t>('A' + (i % 26));
 
 		auto s_cc = mm_from(vec);
-		REQUIRE(s_cc.size() == 16);
+		REQUIRE(s_cc.size() == smallLimit);
 		REQUIRE(s_cc.storage_type() == memepp::string_storage_t::small);
-		REQUIRE(s_cc == memepp::string_view("0123456789ABCDEF"));
 
 		auto s_mv = mm_from(std::vector<uint8_t>(vec));
 		REQUIRE(s_mv == s_cc);
 
 		auto back_exact = mm_into<std::vector<uint8_t>>(s_cc);
-		REQUIRE(back_exact.size() == 16);
+		REQUIRE(back_exact.size() == static_cast<size_t>(smallLimit));
 		REQUIRE(back_exact == vec);
 	} while (0);
 
@@ -468,15 +591,10 @@ TEST_CASE("memepp::variable_buffer constructions", "[variable_buffer]")
     REQUIRE(b01.data() != nullptr);
     REQUIRE(b01.data()[0] == '\0');
 
-#if INTPTR_MAX == INT64_MAX
-	uint8_t buf01[] = { 
-		0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 
-		0x0C, 0x0D, 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16 };
-#else
-    uint8_t buf01[] = {
-        0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A };
-#endif
-	memepp::variable_buffer b02(buf01, sizeof(buf01));
+	std::vector<uint8_t> buf01(MemeStringOption_getStorageSmallLimit());
+	for (size_t i = 0; i < buf01.size(); ++i)
+		buf01[i] = static_cast<uint8_t>(0x01 + i);
+	memepp::variable_buffer b02(buf01.data(), buf01.size());
 	REQUIRE(b02.storage_type() == memepp::buffer_storage_t::small);
 	REQUIRE(b02.size() == MemeStringOption_getStorageSmallLimit());
 
@@ -496,20 +614,11 @@ TEST_CASE("memepp::variable_buffer constructions", "[variable_buffer]")
 	REQUIRE(MemeString_checkHeadTailMemory(
 		(MemeString_Const_t)memepp::to_pointer(b04.native_handle())) == 1);
 
-#if INTPTR_MAX == INT64_MAX
-	uint8_t buf03[] = { 
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-	};
-#else
-	uint8_t buf03[] = {
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-	};
-#endif
+	std::vector<uint8_t> buf03(MemeStringOption_getStorageSmallLimit(), 0x00);
 	memepp::variable_buffer b05(MemeStringOption_getStorageSmallLimit(), 0);
 	REQUIRE(b05.storage_type() == memepp::buffer_storage_t::small);
 	REQUIRE(b05.size() == MemeStringOption_getStorageSmallLimit());
-	REQUIRE(memcmp(b05.data(), buf03, MemeStringOption_getStorageSmallLimit()) == 0);
+	REQUIRE(memcmp(b05.data(), buf03.data(), MemeStringOption_getStorageSmallLimit()) == 0);
 
 
 	uint8_t buf04[] = {
@@ -1061,9 +1170,14 @@ TEST_CASE("memepp::string rfind", "[string]")
     REQUIRE(s01.rfind("C++ (pronounced \"C plus plus\")") == 0);
     REQUIRE(s01.rfind("on many platforms.") == sizeof(sz01) - sizeof("on many platforms."));
 	
-	REQUIRE(s01.last_index_of("on", -1, 0, 580, true ) == -1);
-	REQUIRE(sz01 + s01.last_index_of("on", -1, 0, 580, false) == sz01 + 513);
-	REQUIRE(sz01 + s01.last_index_of("on", -1, 513, -1, true) == sz01 + 590);
+	// Derive expected positions via strstr instead of hardcoding magic offsets
+	auto f_on_llvm = strstr(sz01, "on, LLVM");          // last "on" before "available on"
+	auto f_on_many = strstr(sz01, "on many platforms."); // only full-match "on" in text
+	auto f_avail_on = strstr(sz01, "available on");      // limit boundary for search range
+
+	REQUIRE(s01.last_index_of("on", -1, 0, f_avail_on - sz01, true) == -1);
+	REQUIRE(s01.last_index_of("on", -1, 0, f_avail_on - sz01, false) == f_on_llvm - sz01);
+	REQUIRE(s01.last_index_of("on", -1, f_on_llvm - sz01, -1, true) == f_on_many - sz01);
 
 	REQUIRE(s01.last_index_of("C++", false) == f013 - sz01);
 	REQUIRE(s01.last_index_of("C++", -1, 0, f013 - sz01, true) == f012 - sz01);
