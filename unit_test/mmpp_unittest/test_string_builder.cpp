@@ -130,13 +130,18 @@ TEST_CASE("memepp::string_builder release clears builder", "[string_builder]")
 // copy & move constructors
 // ---------------------------------------------------------------------------
 
-TEST_CASE("memepp::string_builder copy constructor", "[string_builder]")
+TEST_CASE("memepp::string_builder copy constructor steals content", "[string_builder]")
 {
     memepp::string_builder src;
     src += "copy_src";
 
     memepp::string_builder dst(src);
+
+    // copy constructor uses swap (string_builder_impl.hpp): dst steals src's
+    // content and src is left empty -- auto_ptr-like ownership transfer, NOT a
+    // deep copy. Declared as string_builder(string_builder&), non-const on purpose.
     REQUIRE(dst.generate() == "copy_src");
+    REQUIRE(src.generate() == "");
 }
 
 TEST_CASE("memepp::string_builder move constructor", "[string_builder]")
