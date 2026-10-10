@@ -369,7 +369,7 @@ MEME_EXTERN_C MEME_API mmint_t MEME_STDCALL MemeStringBuilder_size(mmsbldr_cptr_
     size_t count = 0;
     for (size_t index = 0, partCount = cvector_size(_builder->parts_); index < partCount; ++index)
     {
-        count += MemeString_byteSize(&(_builder->parts_[index].str));
+        count += MemeString_byteSize((mmstr_cptr_t)&(_builder->parts_[index].str));
     }
     return count;
 }
@@ -379,7 +379,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringBuilder_isEmpty(mmsbldr_cptr_t
     assert(_builder != NULL && MemeStringBuilder_isEmpty);
     for (size_t index = 0, partCount = cvector_size(_builder->parts_); index < partCount; ++index)
     {
-        if (!MemeString_isEmpty(&(_builder->parts_[index].str)))
+        if (!MemeString_isEmpty((mmstr_cptr_t)&(_builder->parts_[index].str)))
             return 1;
     }
     return 0;
@@ -389,10 +389,10 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringBuilder_clear(mmsbldr_ptr_t _b
 {
     assert(_builder != NULL && MemeStringBuilder_clear);
     
-    mgec_t result = MemeStringBuilderStack_unInit(_builder, MMSBLDR__OBJ_SIZE);
+    mgec_t result = MemeStringBuilderStack_unInit((mmsbldrstk_t*)_builder, MMSBLDR__OBJ_SIZE);
     if (result)
         return result;
-    return MemeStringBuilderStack_init(_builder, MMSBLDR__OBJ_SIZE);
+    return MemeStringBuilderStack_init((mmsbldrstk_t*)_builder, MMSBLDR__OBJ_SIZE);
 }
 
 MEME_EXTERN_C MEME_API int MEME_STDCALL

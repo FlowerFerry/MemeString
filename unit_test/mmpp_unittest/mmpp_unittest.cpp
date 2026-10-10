@@ -198,6 +198,8 @@ TEST_CASE("memepp::string mutual convert of std::string", "[string]")
     std::string stdstr02 = "test";
     auto s03 = memepp::from(stdstr02);
     auto s04 = memepp::from(std::move(stdstr02));
+    // small: copy path in from(std::string&&), source unchanged
+    REQUIRE(stdstr02 == "test");
     REQUIRE(s03.storage_type() == memepp::string_storage_t::small);
     REQUIRE(s03.size() == 4);
     REQUIRE(s03.size() == strlen(s03.data()));
@@ -224,6 +226,8 @@ TEST_CASE("memepp::string mutual convert of std::string", "[string]")
 	std::string stdstr031 { "test 123456789123456790", MEME_STRING__OBJECT_SIZE - 1 };
     auto s05 = memepp::from(stdstr030);
     auto s06 = memepp::from(std::move(stdstr030));
+    // medium: copy path in from(std::string&&), source unchanged
+    REQUIRE(stdstr030 == stdstr031);
     REQUIRE(s05.storage_type() == memepp::string_storage_t::medium);
     REQUIRE(s05.size() == MEME_STRING__OBJECT_SIZE - 1);
     REQUIRE(s05.size() == strlen(s05.data()));
@@ -256,21 +260,157 @@ TEST_CASE("memepp::string mutual convert of std::string", "[string]")
 	REQUIRE(!strcmp(s11.data(), stdstr11.data()));
 	REQUIRE(s11 == stdstr11);
 	REQUIRE((s11 != stdstr11) == false);
-	//auto s12 = memepp::fromUnsafe(std::move(stdstr11));
-	//REQUIRE(s12.storage_type() == memepp::string_storage_t::user);
-	//REQUIRE(s12.size() == s11.size());
-	//REQUIRE(!strcmp(s12.data(), s11.data()));
-	//REQUIRE(s11 == s12);
-	//REQUIRE(s12 == s11);
-	//REQUIRE(stdstr11.empty());
-	//REQUIRE(MemeString_checkHeadTailMemory(memepp::to_pointer(s11.native_handle())) == 1);
-	//REQUIRE(MemeString_checkHeadTailMemory(memepp::to_pointer(s12.native_handle())) == 1);
+	// large: takeover path in from(std::string&&), source emptied
+	auto s12 = memepp::from(std::move(stdstr11));
+	REQUIRE(s12.storage_type() == memepp::string_storage_t::user);
+	REQUIRE(s12.size() == s11.size());
+	REQUIRE(!strcmp(s12.data(), s11.data()));
+	REQUIRE(s11 == s12);
+	REQUIRE(s12 == s11);
+	REQUIRE(stdstr11.empty());
+	REQUIRE(MemeString_checkHeadTailMemory(memepp::to_pointer(s11.native_handle())) == 1);
+	REQUIRE(MemeString_checkHeadTailMemory(memepp::to_pointer(s12.native_handle())) == 1);
+
+	// === Reverse direction: memepp::string -> std::string ===
+
+	// small
+	{
+		memepp::string ms_small = memepp::from(std::string{"test"});
+		REQUIRE(ms_small.storage_type() == memepp::string_storage_t::small);
+		auto back = memepp::into<std::string>(ms_small);
+		REQUIRE(back == "test");
+		auto back2 = mm_to<std::string>(ms_small);
+		REQUIRE(back2 == "test");
+	}
+
+	// medium
+	{
+		std::string src{ "test 123456789123456790", MEME_STRING__OBJECT_SIZE - 1 };
+		memepp::string ms_med = memepp::from(src);
+		REQUIRE(ms_med.storage_type() == memepp::string_storage_t::medium);
+		auto back = memepp::into<std::string>(ms_med);
+		REQUIRE(back == src);
+		auto back2 = mm_to<std::string>(ms_med);
+		REQUIRE(back2 == src);
+	}
+
+	// large
+	{
+		std::string big{
+			"Four-leaf clover is a rare variant of the genus Cheatgrass "
+			"(which includes the genus Clover and Alfalfa) that also has "
+			"more than five leaves and up to eighteen leaves. "
+			"In the West, it is considered a sign of great good fortune "
+			"to find four-leaf clover. "
+			"Four-leaf clover is a rare variant of the genus Cheatgrass "
+			"(which includes the genus Clover and Alfalfa) that also has "
+			"more than five leaves and up to eighteen leaves. "
+			"In the West, it is considered a sign of great good fortune "
+			"to find four-leaf clover."
+		};
+		memepp::string ms_large = memepp::from(big);
+		REQUIRE(ms_large.storage_type() == memepp::string_storage_t::large);
+		auto back = memepp::into<std::string>(ms_large);
+		REQUIRE(back == big);
+		auto back2 = mm_to<std::string>(ms_large);
+		REQUIRE(back2 == big);
+	}
+
+	// user (takeover from moved std::string)
+	{
+		std::string big{
+			"Four-leaf clover is a rare variant of the genus Cheatgrass "
+			"(which includes the genus Clover and Alfalfa) that also has "
+			"more than five leaves and up to eighteen leaves. "
+			"In the West, it is considered a sign of great good fortune "
+			"to find four-leaf clover. "
+			"Four-leaf clover is a rare variant of the genus Cheatgrass "
+			"(which includes the genus Clover and Alfalfa) that also has "
+			"more than five leaves and up to eighteen leaves. "
+			"In the West, it is considered a sign of great good fortune "
+			"to find four-leaf clover."
+		};
+		memepp::string ms_user = memepp::from(std::move(big));
+		REQUIRE(ms_user.storage_type() == memepp::string_storage_t::user);
+		REQUIRE(big.empty());
+		auto back = memepp::into<std::string>(ms_user);
+		REQUIRE(back.size() > 0);
+		// round-trip: back -> memepp::string -> compare
+		memepp::string ms_roundtrip = memepp::from(back);
+		REQUIRE(ms_roundtrip == ms_user);
+	}
 }
 
-#include <memepp/compare/std/vector.hpp>
+#include <memepp/convert/std/vector.hpp>
 
 TEST_CASE("memepp::string mutual convert of std::vector", "[string]")
 {
+	do {
+		const char raw[] = "0123456789ABCDEF";
+		std::vector<uint8_t> vec(raw, raw + sizeof(raw) - 1);
+
+		auto s_cc = mm_from(vec);
+		REQUIRE(s_cc.size() == 16);
+		REQUIRE(s_cc.storage_type() == memepp::string_storage_t::small);
+		REQUIRE(s_cc == memepp::string_view("0123456789ABCDEF"));
+
+		auto s_mv = mm_from(std::vector<uint8_t>(vec));
+		REQUIRE(s_mv == s_cc);
+
+		auto back_exact = mm_into<std::vector<uint8_t>>(s_cc);
+		REQUIRE(back_exact.size() == 16);
+		REQUIRE(back_exact == vec);
+	} while (0);
+
+	do {
+		std::string src(1024, '\0');
+		for (size_t i = 0; i < src.size(); ++i)
+			src[i] = static_cast<char>('A' + (i % 26));
+		std::vector<uint8_t> vec(src.begin(), src.end());
+
+		auto s = mm_from(vec);
+		REQUIRE(s.size() == 1024);
+		REQUIRE(s.storage_type() == memepp::string_storage_t::large);
+		REQUIRE(!memcmp(s.data(), src.data(), src.size()));
+
+		auto back = mm_into<std::vector<uint8_t>>(s);
+		REQUIRE(back.size() == vec.size());
+		REQUIRE(back == vec);
+	} while (0);
+
+	do {
+		const char raw[] = "vector<char> round trip";
+		std::vector<char> vec(raw, raw + sizeof(raw) - 1);
+
+		auto s_cc = mm_from(vec);
+		REQUIRE(s_cc.size() == sizeof(raw) - 1);
+		REQUIRE(!strcmp(s_cc.data(), raw));
+
+		auto s_mv = mm_from(std::vector<char>(vec));
+		REQUIRE(s_mv == s_cc);
+
+		auto back = mm_into<std::vector<char>>(s_cc);
+		REQUIRE(back.size() == vec.size());
+		REQUIRE(back == vec);
+	} while (0);
+
+	do {
+		std::vector<uint8_t> empty;
+		auto s = mm_from(empty);
+		REQUIRE(s.empty());
+		REQUIRE(s.size() == 0);
+
+		auto back = mm_into<std::vector<uint8_t>>(s);
+		REQUIRE(back.empty());
+	} while (0);
+
+	do {
+		memepp::string s = "hello vector";
+		auto vec = mm_into<std::vector<char>>(s);
+		REQUIRE(vec.size() == s.size());
+		REQUIRE(!memcmp(vec.data(), s.data(), s.size()));
+		REQUIRE(mm_from(vec) == s);
+	} while (0);
 }
 
 TEST_CASE("memepp::string index of", "[string]")
@@ -280,28 +420,7 @@ TEST_CASE("memepp::string index of", "[string]")
 	REQUIRE(s01.find("etebjkgdodoijnakccv", 1) == -1);
 	REQUIRE(s01.find("etebjkgdodoijnakccv", 0) == 0);
     REQUIRE(s01.find("etebjkgdodoijnakccv") == 0);
- //   REQUIRE(s01.find("etebjkgdodoijnakccv", 0, 1) == 0);
- //   REQUIRE(s01.find("etebjkgdodoijnakccv", 0, 2) == 0);
- //   REQUIRE(s01.find("etebjkgdodoijnakccv", 0, 3) == 0);
- //   REQUIRE(s01.find("etebjkgdodoijnakccv", 0, 4) == 0);
- //   REQUIRE(s01.find("etebjkgdodoijnakccv", 0, 5) == 0);
- //   REQUIRE(s01.find("etebjkgdodoijnakccv", 0, 6) == 0);
- //   REQUIRE(s01.find("etebjkgdodoijnakccv", 0, 7) == 0);
- //   REQUIRE(s01.find("etebjkgdodoijnakccv", 0, 8) == 0);
- //   REQUIRE(s01.find("etebjkgdodoijnakccv", 0, 9) == 0);
- //   REQUIRE(s01.find("etebjkgdodoijnakccv", 0, 10) == 0);
- //   REQUIRE(s01.find("etebjkgdodoijnakccv", 0, 11) == 0);
- //   REQUIRE(s01.find("etebjkgdodoijnakccv", 0, 12) == 0);
- //   REQUIRE(s01.find("etebjkgdodoijnakccv", 0, 13) == 0);
- //   REQUIRE(s01.find("etebjkgdodoijnakccv", 0, 14) == 0);
- //   REQUIRE(s01.find("etebjkgdodoijnakccv", 0, 15) == 0);
- //   REQUIRE(s01.find("etebjkgdodoijnakccv", 0, 16) == 0);
- //   REQUIRE(s01.find("etebjkgdodoijnakccv", 0, 17) == 0);
- //   REQUIRE(s01.find("etebjkgdodoijnakccv", 0, 18) == 0);
- //   REQUIRE(s01.find("etebjkgdodoijnakccv", 0, 19) == 0);
-	//REQUIRE(s01.find("etebjkgdodoijnakccv", 1, 1) == 2);
-	//REQUIRE(s01.find("k", 3, 10) == 5);
-	
+
 	REQUIRE(s01.index_of("ete") == 0);
     REQUIRE(s01.index_of("etebjkgdodoijnakccv") == 0);
 	REQUIRE(s01.index_of("eteb") == 0);
@@ -325,7 +444,7 @@ TEST_CASE("memepp::string index of", "[string]")
 	REQUIRE(s03_01.index_of("sdsjlkas", true) == 0);
 	REQUIRE(s03_01.index_of("fsd", true) == 13);
 	REQUIRE(s03_01.index_of("fsd", -1, 13, true) == 41);
-	//REQUIRE(s03_01.index_of(" ", true) == 8);
+	REQUIRE(s03_01.index_of(" ", true) == 17);
 }
 
 

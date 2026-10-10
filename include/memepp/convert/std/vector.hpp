@@ -20,10 +20,11 @@ namespace convert {
 	template<>
 	struct from< ::std::vector<uint8_t> >
 	{
-		//static memepp::string from_object(const ::std::vector<uint8_t>& _v)
-		//{
-		//	// User defined
-		//}
+		static memepp::string from_object(const ::std::vector<uint8_t>& _v)
+		{
+			return memepp::string{ reinterpret_cast<const char*>(_v.data()), static_cast<mmint_t>(_v.size()) };
+		}
+
 		static memepp::string from_object(::std::vector<uint8_t>&& _v)
 		{
 			static const auto destruct_func = [](void* _object) {
@@ -38,7 +39,7 @@ namespace convert {
 
 			if (_v.size() < MemeStringOption_getStorageMediumLimit() + MMSTR__OBJ_SIZE)
 			{
-				return memepp::string{ _v.data(), static_cast<mmint_t>(_v.size()) };
+				return memepp::string{ reinterpret_cast<const char*>(_v.data()), static_cast<mmint_t>(_v.size()) };
 			}
 			else {
 				if (_v.back() != 0)
@@ -55,6 +56,52 @@ namespace convert {
 				}
 				return out;
 			}
+		}
+	};
+
+	template<>
+	struct from< ::std::vector<char> >
+	{
+		static memepp::string from_object(const ::std::vector<char>& _v)
+		{
+			return memepp::string{ _v.data(), static_cast<mmint_t>(_v.size()) };
+		}
+
+		static memepp::string from_object(::std::vector<char>&& _v)
+		{
+			return memepp::string{ _v.data(), static_cast<mmint_t>(_v.size()) };
+		}
+	};
+
+	template<>
+	struct into< ::std::vector<uint8_t> >
+	{
+		static ::std::vector<uint8_t> into_object(const memepp::string& _s)
+		{
+			return ::std::vector<uint8_t>(
+				reinterpret_cast<const uint8_t*>(_s.data()),
+				reinterpret_cast<const uint8_t*>(_s.data()) + _s.size());
+		}
+
+		static ::std::vector<uint8_t> into_object(const memepp::string_view& _s)
+		{
+			return ::std::vector<uint8_t>(
+				reinterpret_cast<const uint8_t*>(_s.data()),
+				reinterpret_cast<const uint8_t*>(_s.data()) + _s.size());
+		}
+	};
+
+	template<>
+	struct into< ::std::vector<char> >
+	{
+		static ::std::vector<char> into_object(const memepp::string& _s)
+		{
+			return ::std::vector<char>(_s.data(), _s.data() + _s.size());
+		}
+
+		static ::std::vector<char> into_object(const memepp::string_view& _s)
+		{
+			return ::std::vector<char>(_s.data(), _s.data() + _s.size());
 		}
 	};
 
