@@ -3,6 +3,7 @@
 #include <memepp/string_view.hpp>
 #include <megopp/util/scope_cleanup.h>
 #include <memepp/convert/std/c_str.hpp>
+#include <random>
 
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
@@ -528,6 +529,10 @@ TEST_CASE("memepp::variable_buffer constructions", "[variable_buffer]")
 
 TEST_CASE("memepp::variable_buffer append", "[variable_buffer]")
 {
+	static constexpr uint32_t APPEND_SEED = 0x12345678u;
+	std::mt19937 rng(APPEND_SEED);
+	INFO("variable_buffer append test seed: " << APPEND_SEED);
+
 	memepp::variable_buffer b01;
 	b01.resize(10, 1);
 
@@ -589,7 +594,8 @@ TEST_CASE("memepp::variable_buffer append", "[variable_buffer]")
 		(MemeString_Const_t)memepp::to_pointer(vb08.native_handle())) == 1);
 	for (int index = 0, total = 256; index < total; ++index)
 	{
-		std::vector<uint8_t> buf((size_t(rand()) % 128) + 1, 0xFF);
+		std::uniform_int_distribution<size_t> size_dist(1, 128);
+		std::vector<uint8_t> buf(size_dist(rng), 0xFF);
 
 		vb08.append(buf.data(), buf.size());
 		vb08_totalSize += buf.size();
@@ -597,7 +603,8 @@ TEST_CASE("memepp::variable_buffer append", "[variable_buffer]")
 		REQUIRE(MemeString_checkHeadTailMemory(
 			(MemeString_Const_t)memepp::to_pointer(vb08.native_handle())) == 1);
 	}
-	for (int index = 0, total = (size_t(rand()) % 128) + 1; index < total; ++index)
+	std::uniform_int_distribution<size_t> push_total_dist(1, 128);
+	for (int index = 0, total = static_cast<int>(push_total_dist(rng)); index < total; ++index)
 	{
 		vb08.push_back(0xFF);
 		vb08_totalSize += 1;
@@ -1071,7 +1078,9 @@ TEST_CASE("memepp::string rfind", "[string]")
 
 TEST_CASE("memepp::variable_buffer insert", "[variable_buffer]")
 {
-	srand((unsigned int)time(NULL));
+	static constexpr uint32_t INSERT_SEED = 0x87654321u;
+	std::mt19937 rng(INSERT_SEED);
+	INFO("variable_buffer insert test seed: " << INSERT_SEED);
 
 #if INTPTR_MAX == INT64_MAX
     uint8_t buf01[24] = { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18 };
@@ -1108,8 +1117,9 @@ TEST_CASE("memepp::variable_buffer insert", "[variable_buffer]")
 	REQUIRE(MemeString_checkHeadTailMemory(
 		(MemeString_Const_t)memepp::to_pointer(vb02.native_handle())) == 1);
 
+	std::uniform_int_distribution<int> small_dist(0, static_cast<int>(MemeStringOption_getStorageSmallLimit()) - 3);
 	for (int index = 0; index < 10; ++index) {
-		int randValue = size_t(rand()) % (MemeStringOption_getStorageSmallLimit() - 2);
+		int randValue = small_dist(rng);
 		memepp::variable_buffer vb00{ buf01, MemeStringOption_getStorageSmallLimit() - 2 };
         vb00.insert(randValue, buf01 + randValue, 2);
         REQUIRE(vb00.storage_type() == memepp::buffer_storage_t::small);
@@ -1153,8 +1163,9 @@ TEST_CASE("memepp::variable_buffer insert", "[variable_buffer]")
 	REQUIRE(MemeString_checkHeadTailMemory(
 		(MemeString_Const_t)memepp::to_pointer(vb05.native_handle())) == 1);
 
+    std::uniform_int_distribution<int> medium_dist(0, static_cast<int>(vec01.size()) - 1);
     for (int index = 0; index < 10; ++index) {
-		int randValue = size_t(rand()) % vec01.size();
+		int randValue = medium_dist(rng);
 		memepp::variable_buffer vb06(vec01.data(), vec01.size());
 		vb06.insert(randValue, vec02.data(), vec02.size());
 		REQUIRE(vb06.storage_type() == memepp::buffer_storage_t::medium);
@@ -1170,11 +1181,13 @@ TEST_CASE("memepp::variable_buffer insert", "[variable_buffer]")
 	memepp::variable_buffer vb07; vb07.reserve(512);
 	REQUIRE(MemeString_checkHeadTailMemory(
 		(MemeString_Const_t)memepp::to_pointer(vb07.native_handle())) == 1);
+	std::uniform_int_distribution<size_t> buf_size_dist(1, 128);
 	for (int index = 0, total = 256; index < total; ++index)
 	{ 
-		std::vector<uint8_t> buf((size_t(rand()) % 128) + 1, 0xFF);
+		std::vector<uint8_t> buf(buf_size_dist(rng), 0xFF);
 
-		vb07.insert(rand() % (vb07.size() == 0 ? 1 : vb07.size()), buf.data(), buf.size());
+		size_t insert_pos = (vb07.size() == 0) ? 0 : std::uniform_int_distribution<size_t>(0, vb07.size() - 1)(rng);
+		vb07.insert(insert_pos, buf.data(), buf.size());
 
 		vb07_totalSize += buf.size();
 		REQUIRE(vb07.size() == vb07_totalSize);
