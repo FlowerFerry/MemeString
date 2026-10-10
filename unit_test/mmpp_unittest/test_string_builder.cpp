@@ -1071,3 +1071,40 @@ TEST_CASE("memepp::string_builder operator+=(const rune&) empty rune is no-op", 
     REQUIRE(b.generate() == "keep");
     REQUIRE(b.part_count() == 1);   // empty rune adds no part
 }
+
+// ---------------------------------------------------------------------------
+// large-storage result / reuse after move
+// ---------------------------------------------------------------------------
+
+// A builder holding enough content to exceed the medium threshold must produce
+// a large-storage string from generate(), and must stay usable afterwards.
+TEST_CASE("memepp::string_builder generates large-storage string", "[string_builder]")
+{
+    memepp::string_builder b;
+    for (int i = 0; i < 50; ++i)
+        b += "abcdefghijklmnopqrstuvwxyz";   // 50 * 26 = 1300 bytes
+
+    memepp::string result = b.generate();
+    REQUIRE(result.size() == 1300);
+    REQUIRE(result.storage_type() == memepp::string_storage_t::large);
+
+    // builder keeps its parts after generate()
+    b += "!";
+    REQUIRE(b.size() == 1301);
+    REQUIRE(b.generate().storage_type() == memepp::string_storage_t::large);
+}
+
+// After a move the source builder is left empty by the swap, but must remain a
+// valid object that can be appended to again.
+TEST_CASE("memepp::string_builder reuse after move", "[string_builder]")
+{
+    memepp::string_builder src;
+    src += "before_move";
+
+    memepp::string_builder dst(std::move(src));
+    REQUIRE(dst.generate() == "before_move");
+    REQUIRE(src.empty());
+
+    src += "after_move";
+    REQUIRE(src.generate() == "after_move");
+}
