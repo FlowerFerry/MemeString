@@ -1911,11 +1911,32 @@ MEME_API const char*
 MEME_API MemeInteger_t 
 	MEME_STDCALL MemeString_byteSize(MemeString_Const_t _s);
 
-//! @brief Get the length of the string in words.
-//! @return The length of the string in words.
-//! @note The length of the string in words is not necessarily equal to the length of the string in bytes.
+/**
+ * @brief Get the length of the string in runes (Unicode code points).
+ * @return The number of runes in the string.
+ * 
+ * @note Validation level: LOOSE. This function checks only the leading byte of
+ * each UTF-8 sequence for performance. Invalid continuation bytes are skipped
+ * without stopping. For strict validation, use MemeString_u16CharSize() or
+ * check MemeString_isValid() first.
+ * 
+ * @note For strings with invalid UTF-8, this may return a larger value than
+ * MemeString_u16CharSize() because it continues counting past invalid bytes.
+ */
 MEME_API MemeInteger_t 
 	MEME_STDCALL MemeString_runeSize(mmstr_cptr_t _s);
+
+/**
+ * @brief Get the length of the string in UTF-16 code units.
+ * @return The number of UTF-16 code units needed to represent this string.
+ * 
+ * @note Validation level: STRICT. This function fully validates each UTF-8
+ * sequence because it must compute the actual UTF-16 output size. Stops at
+ * the first invalid byte.
+ * 
+ * @note For strings with invalid UTF-8, this may return a smaller value than
+ * MemeString_runeSize() due to early termination.
+ */
 MEME_API MemeInteger_t
 	MEME_STDCALL MemeString_u16CharSize(mmstr_cptr_t _s);
 MEME_API MemeInteger_t 
