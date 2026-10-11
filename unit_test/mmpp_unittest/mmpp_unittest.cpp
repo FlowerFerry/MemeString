@@ -2228,14 +2228,19 @@ TEST_CASE("memepp::string Accidents encountered in engineering practice 01", "[s
 	
 
 	do {
+		// `originals` outlives the comparison loop, so the raw pointers captured into
+		// `cstrs` stay valid for the whole comparison. Capturing `c_str()` of a
+		// per-iteration local would leave `cstrs` holding dangling pointers.
+		constexpr int count = 128;
+		memepp::string originals[count];
 		std::vector<memepp::string> mstrs;
 		std::vector<const char*>    cstrs;
 
-		for (auto index = 0; index < 128; ++index)
+		for (auto index = 0; index < count; ++index)
 		{
-			memepp::string s{ "0" };
-			cstrs.emplace_back(s.c_str());
-			mstrs.emplace_back(std::move(s));
+			originals[index] = "0";
+			cstrs.emplace_back(originals[index].c_str());
+			mstrs.emplace_back(std::move(originals[index]));
 		}
 
 		for (auto index = 0; index < mstrs.size(); ++index)
