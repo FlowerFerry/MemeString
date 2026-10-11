@@ -1988,12 +1988,14 @@ TEST_CASE("memepp::variant basic operations", "[variant]")
     REQUIRE(v01_01.is_type(memepp::meta::typid::rune));
     REQUIRE(v01_01.type_id() == memepp::meta::typid::rune);
     auto value01_14 = v01_01.get_or<memepp::rune>();
+    REQUIRE(value01_14 == memepp::rune{ '1' });
 
     v01_02 = v01_01;
     REQUIRE(v01_02.is_null() == false);
     REQUIRE(v01_02.is_type(memepp::meta::typid::rune));
     REQUIRE(v01_02.type_id() == memepp::meta::typid::rune);
     auto value01_15 = v01_02.get_or<memepp::rune>();
+    REQUIRE(value01_15 == memepp::rune{ '1' });
     
     v01_01.reset();
     REQUIRE(v01_01.is_null());
