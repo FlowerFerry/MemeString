@@ -1465,9 +1465,9 @@ TEST_CASE("memepp::string utf16", "[string]")
     REQUIRE(u16_03_01.size() == 2 );
     REQUIRE(u16_03_01 == c16_03_01);
 
-    auto c8_04_01 = "\x7F \xC2\x80 \xDF\xBF \xE0\xA0\x80 \xEF\xBF\xBF \xF0\x90\x80\x80 "
-		/*"\xF7\xBF\xBF\xBF "*/
-		/*"\xF8\x88\x80\x80\x80 \xFB\xBF\xBF\xBF\xBF \xFC\x84\x80\x80\x80\x80 \xFD\xBF\xBF\xBF\xBF\xBF "*/;
+    // Note: 5/6-byte UTF-8 sequences (0xF8.., 0xFC..) are supported by rune operations
+    // but cannot round-trip through UTF-16 (max U+10FFFF). See "utf8 extended" test case.
+    auto c8_04_01 = "\x7F \xC2\x80 \xDF\xBF \xE0\xA0\x80 \xEF\xBF\xBF \xF0\x90\x80\x80 ";
     memepp::string s04_01{ c8_04_01 };
     REQUIRE(s04_01.rune_size()    == 12);
     REQUIRE(s04_01.u16char_size() == 13);
@@ -1482,6 +1482,34 @@ TEST_CASE("memepp::string utf16", "[string]")
     REQUIRE(s04_02 == s04_01);
     REQUIRE(s04_02 == c8_04_01);
 
+}
+
+TEST_CASE("memepp::string utf8 extended (5/6-byte)", "[string]")
+{
+	// 5/6-byte UTF-8 lead bytes are valid for the library's rune operations
+	// (31-bit code point support), but the encoded code points exceed U+10FFFF
+	// and therefore cannot be represented in UTF-16.
+	auto c8_5byte = "\xF8\x88\x80\x80\x80 \xFB\xBF\xBF\xBF\xBF ";
+	memepp::string s5{ c8_5byte };
+	// rune_size uses loose validation (lead byte only): 5-byte + space + 5-byte + space = 4
+	REQUIRE(s5.rune_size() == 4);
+	// Strict UTF-16 size computation stops at the first sequence that cannot
+	// be represented in UTF-16 (code point > U+10FFFF).
+	REQUIRE(s5.u16char_size() == 0);
+
+	auto c8_6byte = "\xFC\x84\x80\x80\x80\x80 \xFD\xBF\xBF\xBF\xBF\xBF ";
+	memepp::string s6{ c8_6byte };
+	// 6-byte + space + 6-byte + space = 4
+	REQUIRE(s6.rune_size() == 4);
+	REQUIRE(s6.u16char_size() == 0);
+
+	// A trailing 4-byte rune must still be counted by rune_size (loose
+	// validation) while u16char_size stops at the invalid 5-byte sequence.
+	auto c8_mixed = "\xF8\x88\x80\x80\x80 \xF0\x90\x80\x80";
+	memepp::string s7{ c8_mixed };
+	// 5-byte + space + 4-byte = 3
+	REQUIRE(s7.rune_size() == 3);
+	REQUIRE(s7.u16char_size() == 0);
 }
 
 TEST_CASE("memepp::string utf8", "[string]")
