@@ -2280,10 +2280,9 @@ TEST_CASE("memepp::string Accidents encountered in engineering practice 01", "[s
 	
 	do {
 		int64_t v = (long long)(INT64_MAX);
-		std::vector<char> buf;
-        buf.resize(32, 0);
-        auto len = snprintf(buf.data(), buf.size(), "%lld - %lld", (long long)v, (long long)v);
-        REQUIRE(len == 41);
+		auto result = memepp::c_format(-1, "%lld - %lld", (long long)v, (long long)v);
+		REQUIRE(result.size() == 41);
+		REQUIRE(result == "9223372036854775807 - 9223372036854775807");
 	} while (0);
 
     do {
