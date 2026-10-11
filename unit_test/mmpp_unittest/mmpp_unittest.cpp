@@ -2181,7 +2181,7 @@ TEST_CASE("memepp::variant basic operations", "[variant]")
 }
 
 
-TEST_CASE("memepp::string_view Accidents encountered in engineering practice 01", "[string_view]")
+TEST_CASE("memepp::string_view keeps source data pointer for small string", "[string_view]")
 {
 #if INTPTR_MAX == INT64_MAX
 	memepp::string s01 = "0123456789012345678";
@@ -2205,29 +2205,32 @@ TEST_CASE("memepp::string_view Accidents encountered in engineering practice 01"
     
 }
 
-TEST_CASE("memepp::string Accidents encountered in engineering practice 01", "[string]")
+TEST_CASE("memepp::string storage identity and takeover", "[string]")
 {
 
-	std::string std02 = "01234567890123456789012345678901234567890123456789";
+	SECTION("medium string passes head/tail memory check") {
+		std::string std02 = "01234567890123456789012345678901234567890123456789";
 
-	memepp::string s02;
-	auto func02 = [&](const memepp::string& _s)
-	{
-		s02 = _s;
-	};
-	func02(mm_from(std02));
-	REQUIRE(s02 == std02);
-	REQUIRE(s02.storage_type() == memepp::string_storage_t::medium);
-	REQUIRE(MemeString_checkHeadTailMemory(
-		(MemeString_Const_t)memepp::to_pointer(s02.native_handle())) == 1);
+		memepp::string s02;
+		auto func02 = [&](const memepp::string& _s)
+		{
+			s02 = _s;
+		};
+		func02(mm_from(std02));
+		REQUIRE(s02 == std02);
+		REQUIRE(s02.storage_type() == memepp::string_storage_t::medium);
+		REQUIRE(MemeString_checkHeadTailMemory(
+			(MemeString_Const_t)memepp::to_pointer(s02.native_handle())) == 1);
+	}
 
-	auto path = memepp::c_format(1024, "%s/%s_%d_%s",
-		"Z:/path", "lt", 0, "db");
-    REQUIRE(path == "Z:/path/lt_0_db");
-    REQUIRE(path.size() == 15);
-	
+	SECTION("c_format builds path text") {
+		auto path = memepp::c_format(1024, "%s/%s_%d_%s",
+			"Z:/path", "lt", 0, "db");
+		REQUIRE(path == "Z:/path/lt_0_db");
+		REQUIRE(path.size() == 15);
+	}
 
-	do {
+	SECTION("moved string takes new storage") {
 		// `originals` outlives the comparison loop, so the raw pointers captured into
 		// `cstrs` stay valid for the whole comparison. Capturing `c_str()` of a
 		// per-iteration local would leave `cstrs` holding dangling pointers.
@@ -2247,9 +2250,9 @@ TEST_CASE("memepp::string Accidents encountered in engineering practice 01", "[s
 		{
 			REQUIRE((void*)mstrs[index].c_str() != (void*)cstrs[index]);
 		}
-	} while (0);
+	}
 
-	do {
+	SECTION("copied string takes new storage") {
 		std::vector<memepp::string> mstrs1;
 		std::vector<memepp::string> mstrs2;
 
@@ -2258,16 +2261,15 @@ TEST_CASE("memepp::string Accidents encountered in engineering practice 01", "[s
 			mstrs1.emplace_back("0123456789");
 		}
 
-        mstrs2 = mstrs1;
+		mstrs2 = mstrs1;
 
 		for (auto index = 0; index < mstrs2.size(); ++index)
 		{
 			REQUIRE((void*)mstrs2[index].c_str() != (void*)mstrs1[index].c_str());
 		}
+	}
 
-	} while (0);
-	
-	do {
+	SECTION("large string keeps c_str identity") {
 		std::vector<memepp::string> mstrs;
 		std::vector<const char*>    cstrs;
 
@@ -2281,93 +2283,98 @@ TEST_CASE("memepp::string Accidents encountered in engineering practice 01", "[s
 		{
 			REQUIRE((void*)mstrs[index].c_str() == (void*)cstrs[index]);
 		}
-	} while (0);
-	
-	do {
+	}
+
+	SECTION("c_format INT64_MAX pair") {
 		int64_t v = (long long)(INT64_MAX);
 		auto result = memepp::c_format(-1, "%lld - %lld", (long long)v, (long long)v);
 		REQUIRE(result.size() == 41);
 		REQUIRE(result == "9223372036854775807 - 9223372036854775807");
-	} while (0);
+	}
 
-    do {
-        // Binding a string_view to a temporary large-storage string must take over the
-        // shared (reference-counted) storage, so the view stays valid after the temporary dies.
-        memepp::string_view sv = memepp::string{}.to_large();
-        REQUIRE(sv.empty());
-        REQUIRE(sv.size() == 0);
-        REQUIRE(sv.storage_type() == memepp::string_storage_t::large);
-    } while (0);
+	SECTION("string_view adopts temporary large storage") {
+		// Binding a string_view to a temporary large-storage string must take over the
+		// shared (reference-counted) storage, so the view stays valid after the temporary dies.
+		memepp::string_view sv = memepp::string{}.to_large();
+		REQUIRE(sv.empty());
+		REQUIRE(sv.size() == 0);
+		REQUIRE(sv.storage_type() == memepp::string_storage_t::large);
+	}
 
-    memepp::string s01_01;
-    char* p01_01 = (char*)malloc(16);
-    REQUIRE(p01_01 != nullptr);
-    memcpy(p01_01, "123456789ABCDEF", 15);
-    p01_01[15] = '\0';
+	SECTION("takeover with free() deleter") {
+		memepp::string s01_01;
+		char* p01_01 = (char*)malloc(16);
+		REQUIRE(p01_01 != nullptr);
+		memcpy(p01_01, "123456789ABCDEF", 15);
+		p01_01[15] = '\0';
 
-    s01_01 = memepp::convert::takeover(p01_01, -1, free);
-    REQUIRE(s01_01 == "123456789ABCDEF");
+		s01_01 = memepp::convert::takeover(p01_01, -1, free);
+		REQUIRE(s01_01 == "123456789ABCDEF");
+	}
 
-    p01_01 = new char[16];
-    memcpy(p01_01, "FEDCBA987654321", 15);
-    p01_01[15] = '\0';
-    s01_01 = memepp::convert::takeover(p01_01, -1, [](void* _p) { delete[] (reinterpret_cast<char*>(_p)); });
-    REQUIRE(s01_01 == "FEDCBA987654321");
+	SECTION("takeover with delete[] deleter") {
+		memepp::string s01_01;
+		char* p01_01 = new char[16];
+		memcpy(p01_01, "FEDCBA987654321", 15);
+		p01_01[15] = '\0';
+		s01_01 = memepp::convert::takeover(p01_01, -1, [](void* _p) { delete[] (reinterpret_cast<char*>(_p)); });
+		REQUIRE(s01_01 == "FEDCBA987654321");
+	}
 
-    const char cz01_02[] =
-        "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789" 
-        "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
+	SECTION("takeover long buffer with free()") {
+		const char cz01_02[] =
+			"01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"
+			"01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
 
-    char* p01_02 = (char*)malloc(1024);
-    REQUIRE(p01_02 != nullptr);
+		char* p01_02 = (char*)malloc(1024);
+		REQUIRE(p01_02 != nullptr);
 
-    memcpy(p01_02, cz01_02, sizeof(cz01_02));
-    s01_01 = memepp::convert::takeover(p01_02, -1, free);
-    REQUIRE(s01_01 == cz01_02);
+		memcpy(p01_02, cz01_02, sizeof(cz01_02));
+		auto s01_01 = memepp::convert::takeover(p01_02, -1, free);
+		REQUIRE(s01_01 == cz01_02);
+	}
 
-    // --- takeover: storage_type + destructor call-count verification ---
+	SECTION("takeover destructor call count - short string") {
+		// Case A: short string -> small/medium storage, destructor called exactly once (synchronously)
+		int dtor_count = 0;
+		char* p = (char*)malloc(32);
+		REQUIRE(p != nullptr);
+		memcpy(p, "short_takeover_chk", sizeof("short_takeover_chk"));
+		auto s = memepp::convert::takeover(p, -1,
+			[&dtor_count](void* _p) { ++dtor_count; free(_p); });
+		REQUIRE(s == "short_takeover_chk");
+		REQUIRE(s.storage_type() != memepp::string_storage_t::user); // small or medium
+		REQUIRE(dtor_count == 1); // short branch calls _fn synchronously
+	}
 
-    // Case A: short string → small/medium storage, destructor called exactly once (synchronously)
-    {
-        int dtor_count = 0;
-        char* p = (char*)malloc(32);
-        REQUIRE(p != nullptr);
-        memcpy(p, "short_takeover_chk", sizeof("short_takeover_chk"));
-        auto s = memepp::convert::takeover(p, -1,
-            [&dtor_count](void* _p) { ++dtor_count; free(_p); });
-        REQUIRE(s == "short_takeover_chk");
-        REQUIRE(s.storage_type() != memepp::string_storage_t::user); // small or medium
-        REQUIRE(dtor_count == 1); // short branch calls _fn synchronously
-    }
+	SECTION("takeover destructor call count - long string") {
+		// Case B: long string -> user storage, destructor called exactly once after reset
+		int dtor_count = 0;
+		char* p = (char*)malloc(1024);
+		REQUIRE(p != nullptr);
+		memset(p, 'A', 1023);
+		p[1023] = '\0';
+		auto s = memepp::convert::takeover(p, -1,
+			[&dtor_count](void* _p) { ++dtor_count; free(_p); });
+		REQUIRE(s.size() == 1023);
+		REQUIRE(s.storage_type() == memepp::string_storage_t::user);
+		REQUIRE(dtor_count == 0); // not yet destroyed
+		s.reset();
+		REQUIRE(dtor_count == 1); // exactly once after reset
+	}
 
-    // Case B: long string → user storage, destructor called exactly once after reset
-    {
-        int dtor_count = 0;
-        char* p = (char*)malloc(1024);
-        REQUIRE(p != nullptr);
-        memset(p, 'A', 1023);
-        p[1023] = '\0';
-        auto s = memepp::convert::takeover(p, -1,
-            [&dtor_count](void* _p) { ++dtor_count; free(_p); });
-        REQUIRE(s.size() == 1023);
-        REQUIRE(s.storage_type() == memepp::string_storage_t::user);
-        REQUIRE(dtor_count == 0); // not yet destroyed
-        s.reset();
-        REQUIRE(dtor_count == 1); // exactly once after reset
-    }
-
-    // Case C: double-reset guard — second reset is no-op, dtor still 1
-    {
-        int dtor_count = 0;
-        char* p = (char*)malloc(1024);
-        REQUIRE(p != nullptr);
-        memset(p, 'B', 1023);
-        p[1023] = '\0';
-        auto s = memepp::convert::takeover(p, -1,
-            [&dtor_count](void* _p) { ++dtor_count; free(_p); });
-        REQUIRE(s.storage_type() == memepp::string_storage_t::user);
-        s.reset();
-        s.reset(); // second reset must be no-op
-        REQUIRE(dtor_count == 1);
-    }
+	SECTION("takeover double-reset guard") {
+		// Case C: double-reset guard - second reset is no-op, dtor still 1
+		int dtor_count = 0;
+		char* p = (char*)malloc(1024);
+		REQUIRE(p != nullptr);
+		memset(p, 'B', 1023);
+		p[1023] = '\0';
+		auto s = memepp::convert::takeover(p, -1,
+			[&dtor_count](void* _p) { ++dtor_count; free(_p); });
+		REQUIRE(s.storage_type() == memepp::string_storage_t::user);
+		s.reset();
+		s.reset(); // second reset must be no-op
+		REQUIRE(dtor_count == 1);
+	}
 }
