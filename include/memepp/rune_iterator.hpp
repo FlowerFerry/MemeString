@@ -57,6 +57,10 @@ inline namespace MMPP_NAMESPACE {
         const_rune_iterator& operator=(const_rune_iterator&& _other) noexcept = default;
         ~const_rune_iterator() noexcept = default;
 
+        // Library-defined behavior (non-standard): stepping past the end clamps to
+        // the container end instead of invoking undefined behavior. Consequently
+        // std::advance / std::next and std::distance on this iterator clamp rather
+        // than fail. This is an intentional library contract, not a standard guarantee.
         const_rune_iterator& operator++() noexcept
         {
             if (ptr_ >= end_) {
@@ -85,6 +89,9 @@ inline namespace MMPP_NAMESPACE {
             return tmp;
         }
 
+        // Library-defined behavior (non-standard): stepping before the begin clamps
+        // to the container begin instead of invoking undefined behavior, so
+        // std::prev / std::advance with a negative distance / operator- clamp here.
         const_rune_iterator& operator--() noexcept
         {
             if (ptr_ <= begin_) {

@@ -1584,6 +1584,10 @@ TEST_CASE("memepp::string utf8", "[string]")
 	auto iter_size = std::distance(s01_01.rune_begin(), s01_01.rune_end());
     REQUIRE(s01_01.rune_size() == iter_size);
 
+	// Library-defined behavior (non-standard): advancing beyond the end / before
+	// the begin clamps to the boundary instead of being undefined behavior.
+	// std::next / std::prev with an out-of-range count is therefore well-defined
+	// for const_rune_iterator; see the contract note in rune_iterator.hpp.
 	auto it01_01 = s01_01.rune_begin();
 	it01_01 = std::next(it01_01, 100);
     REQUIRE(it01_01 == s01_01.rune_end());
@@ -1591,6 +1595,8 @@ TEST_CASE("memepp::string utf8", "[string]")
     it01_01 = std::prev(it01_01, 100);
     REQUIRE(it01_01 == s01_01.rune_begin());
 
+    // Same clamping contract (library-defined): next(begin, 10) on a 3-rune
+    // string clamps to the end, so the distance is 3.
     memepp::string s01_04{ C8_CJK_20_01, 11 };
 	auto it01_04 = std::next(s01_04.rune_begin(), 10);
 	count = static_cast<int>(std::distance(s01_04.rune_begin(), it01_04));
@@ -1612,6 +1618,8 @@ TEST_CASE("memepp::string utf8", "[string]")
     });
     REQUIRE(count == 3);
 
+	// Same clamping contract (library-defined): prev(it, 10) on a 3-rune string
+	// clamps to the begin.
 	auto it01_05 = std::prev(it01_04, 10);
     REQUIRE(it01_05 == s01_04.rune_begin());
 
