@@ -2286,7 +2286,12 @@ TEST_CASE("memepp::string Accidents encountered in engineering practice 01", "[s
 	} while (0);
 
     do {
+        // Binding a string_view to a temporary large-storage string must take over the
+        // shared (reference-counted) storage, so the view stays valid after the temporary dies.
         memepp::string_view sv = memepp::string{}.to_large();
+        REQUIRE(sv.empty());
+        REQUIRE(sv.size() == 0);
+        REQUIRE(sv.storage_type() == memepp::string_storage_t::large);
     } while (0);
 
     memepp::string s01_01;
