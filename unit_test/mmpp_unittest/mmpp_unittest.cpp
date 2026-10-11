@@ -2319,4 +2319,50 @@ TEST_CASE("memepp::string Accidents encountered in engineering practice 01", "[s
     memcpy(p01_02, cz01_02, sizeof(cz01_02));
     s01_01 = memepp::convert::takeover(p01_02, -1, free);
     REQUIRE(s01_01 == cz01_02);
+
+    // --- takeover: storage_type + destructor call-count verification ---
+
+    // Case A: short string → small/medium storage, destructor called exactly once (synchronously)
+    {
+        int dtor_count = 0;
+        char* p = (char*)malloc(32);
+        REQUIRE(p != nullptr);
+        memcpy(p, "short_takeover_chk", sizeof("short_takeover_chk"));
+        auto s = memepp::convert::takeover(p, -1,
+            [&dtor_count](void* _p) { ++dtor_count; free(_p); });
+        REQUIRE(s == "short_takeover_chk");
+        REQUIRE(s.storage_type() != memepp::string_storage_t::user); // small or medium
+        REQUIRE(dtor_count == 1); // short branch calls _fn synchronously
+    }
+
+    // Case B: long string → user storage, destructor called exactly once after reset
+    {
+        int dtor_count = 0;
+        char* p = (char*)malloc(1024);
+        REQUIRE(p != nullptr);
+        memset(p, 'A', 1023);
+        p[1023] = '\0';
+        auto s = memepp::convert::takeover(p, -1,
+            [&dtor_count](void* _p) { ++dtor_count; free(_p); });
+        REQUIRE(s.size() == 1023);
+        REQUIRE(s.storage_type() == memepp::string_storage_t::user);
+        REQUIRE(dtor_count == 0); // not yet destroyed
+        s.reset();
+        REQUIRE(dtor_count == 1); // exactly once after reset
+    }
+
+    // Case C: double-reset guard — second reset is no-op, dtor still 1
+    {
+        int dtor_count = 0;
+        char* p = (char*)malloc(1024);
+        REQUIRE(p != nullptr);
+        memset(p, 'B', 1023);
+        p[1023] = '\0';
+        auto s = memepp::convert::takeover(p, -1,
+            [&dtor_count](void* _p) { ++dtor_count; free(_p); });
+        REQUIRE(s.storage_type() == memepp::string_storage_t::user);
+        s.reset();
+        s.reset(); // second reset must be no-op
+        REQUIRE(dtor_count == 1);
+    }
 }
