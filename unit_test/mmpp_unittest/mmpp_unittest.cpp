@@ -1895,168 +1895,289 @@ TEST_CASE("memepp::string foreach", "[string]")
 
 TEST_CASE("memepp::variant basic operations", "[variant]")
 {
-	mgec_t ec = 0;
-	memepp::variant v01_01;
-    REQUIRE(v01_01.is_null());
-    REQUIRE(v01_01.is_type(memepp::meta::typid::null));
-    REQUIRE(v01_01.type_id() == memepp::meta::typid::null);
+    SECTION("null default state") {
+        memepp::variant v;
+        REQUIRE(v.is_null());
+        REQUIRE(v.is_type(memepp::meta::typid::null));
+        REQUIRE(v.type_id() == memepp::meta::typid::null);
+    }
 
-	v01_01 = mmbyte_t{ 1 };
-    REQUIRE(v01_01.is_null() == false);
-    REQUIRE(v01_01.is_type(memepp::meta::typid::byte));
-    REQUIRE(v01_01.type_id() == memepp::meta::typid::byte);
-	auto value01_01 = v01_01.get_or<mmbyte_t>();
-    REQUIRE(value01_01 == 1);
+    SECTION("scalar types - get_or success") {
+        memepp::variant v;
+        
+        // mmbyte_t (uint8_t)
+        v = mmbyte_t{200};
+        REQUIRE(v.is_type(memepp::meta::typid::byte));
+        REQUIRE(v.get_or<mmbyte_t>() == 200);
+        
+        // char
+        v = char{'Z'};
+        REQUIRE(v.is_type(memepp::meta::typid::char_t));
+        REQUIRE(v.get_or<char>() == 'Z');
+        
+        // wchar_t
+        v = wchar_t{0x6F22};
+        REQUIRE(v.is_type(memepp::meta::typid::wchar));
+        REQUIRE(v.get_or<wchar_t>() == 0x6F22);
+        
+        // int64_t
+        v = int64_t{-9876543210LL};
+        REQUIRE(v.is_type(memepp::meta::typid::int64));
+        REQUIRE(v.get_or<int64_t>() == -9876543210LL);
+        
+        // uint64_t
+        v = uint64_t{18446744073709551000ULL};
+        REQUIRE(v.is_type(memepp::meta::typid::uint64));
+        REQUIRE(v.get_or<uint64_t>() == 18446744073709551000ULL);
+        
+        // double
+        v = double{2.718281828459045};
+        REQUIRE(v.is_type(memepp::meta::typid::double_t));
+        REQUIRE(v.get_or<double>() == 2.718281828459045);
+        
+        // rune (龍 = U+9F8D, UTF-8: E9 BE 99)
+        v = memepp::rune{ (const uint8_t*)"\xE9\xBE\x99", 3 };
+        REQUIRE(v.is_type(memepp::meta::typid::rune));
+        REQUIRE(v.get_or<memepp::rune>() == memepp::rune{ (const uint8_t*)"\xE9\xBE\x99", 3 });
+        
+        // int32_t -> int64_t
+        int32_t i32_val = -2147483647;
+        v = int64_t{i32_val};
+        REQUIRE(v.is_type(memepp::meta::typid::int64));
+        REQUIRE(v.get_or<int64_t>() == -2147483647);
+        
+        // uint32_t -> uint64_t
+        uint32_t u32_val = 4294967295U;
+        v = uint64_t{u32_val};
+        REQUIRE(v.is_type(memepp::meta::typid::uint64));
+        REQUIRE(v.get_or<uint64_t>() == 4294967295U);
+        
+        // float -> double
+        float f_val = 1.5f;
+        v = double{static_cast<double>(f_val)};
+        REQUIRE(v.is_type(memepp::meta::typid::double_t));
+        REQUIRE(v.get_or<double>() == 1.5);
+    }
 
-	auto v01_02 = v01_01;
-    REQUIRE(v01_02.is_null() == false);
-    REQUIRE(v01_02.is_type(memepp::meta::typid::byte));
-    REQUIRE(v01_02.type_id() == memepp::meta::typid::byte);
+    SECTION("string and buffer types - get_or success") {
+        memepp::variant v;
+        
+        // short string (SSO)
+        v = memepp::string{"hello"};
+        REQUIRE(v.is_type(memepp::meta::typid::string));
+        REQUIRE(v.get_or<memepp::string>() == "hello");
+        
+        // long string (heap)
+        memepp::string long_str = "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
+        v = long_str;
+        REQUIRE(v.get_or<memepp::string>() == long_str);
+        
+        // buffer
+        uint8_t buf_data[] = {0x01, 0x02, 0x03, 0x04};
+        v = memepp::buffer{buf_data, 4};
+        REQUIRE(v.is_type(memepp::meta::typid::buffer));
+        auto buf = v.get_or<memepp::buffer>();
+        REQUIRE(buf.size() == 4);
+        REQUIRE(buf.at(0) == 0x01);
+        REQUIRE(buf.at(3) == 0x04);
+    }
 
-	v01_01 = char{ '1' };
-    REQUIRE(v01_01.is_null() == false);
-    REQUIRE(v01_01.is_type(memepp::meta::typid::char_t));
-    REQUIRE(v01_01.type_id() == memepp::meta::typid::char_t);
-    auto value01_02 = v01_01.get_or<char>();
-    REQUIRE(value01_02 == '1');
+    SECTION("copy semantics") {
+        // scalar copy
+        memepp::variant v1 = int64_t{999};
+        memepp::variant v2 = v1;
+        REQUIRE(v2.is_type(memepp::meta::typid::int64));
+        REQUIRE(v2.get_or<int64_t>() == 999);
+        
+        // string copy (shared storage)
+        memepp::variant v3 = memepp::string{"test"};
+        memepp::variant v4 = v3;
+        REQUIRE(v4.get_or<memepp::string>() == "test");
+        
+        // buffer copy
+        memepp::variant v5 = memepp::buffer{(const uint8_t*)"abc", 3};
+        memepp::variant v6 = v5;
+        REQUIRE(v6.get_or<memepp::buffer>().size() == 3);
+    }
 
-    v01_02 = v01_01;
-    REQUIRE(v01_02.is_null() == false);
-    REQUIRE(v01_02.is_type(memepp::meta::typid::char_t));
-    REQUIRE(v01_02.type_id() == memepp::meta::typid::char_t);
-    auto value01_03 = v01_02.get_or<char>();
-    REQUIRE(value01_03 == '1');
+    SECTION("try_get success") {
+        memepp::variant v = memepp::string{"hello world"};
+        
+        // string_view from string
+        memepp::string_view sv;
+        mgec_t ec = v.try_get(sv);
+        REQUIRE(ec == 0);
+        REQUIRE(sv == "hello world");
+        
+        // string from string
+        memepp::string s;
+        ec = v.try_get(s);
+        REQUIRE(ec == 0);
+        REQUIRE(s == "hello world");
+        
+        // int64_t from int64_t
+        memepp::variant v2 = int64_t{-42};
+        int64_t i64;
+        ec = v2.try_get(i64);
+        REQUIRE(ec == 0);
+        REQUIRE(i64 == -42);
+    }
 
-    v01_01 = wchar_t{ 1 };
-    REQUIRE(v01_01.is_null() == false);
-	REQUIRE(v01_01.is_type(memepp::meta::typid::wchar));
-    REQUIRE(v01_01.type_id() == memepp::meta::typid::wchar);
-    auto value01_04 = v01_01.get_or<wchar_t>();
-    REQUIRE(value01_04 == 1);
+    SECTION("try_get failure - type mismatch") {
+        mgec_t ec;
+        
+        // int64_t variant, try_get<string>
+        {
+            memepp::variant v = int64_t{100};
+            memepp::string s;
+            ec = v.try_get(s);
+            REQUIRE(ec != 0);
+            REQUIRE(s.empty());
+        }
+        
+        // string variant, try_get<int64_t>
+        {
+            memepp::variant v = memepp::string{"not a number"};
+            int64_t i64 = 999;
+            ec = v.try_get(i64);
+            REQUIRE(ec != 0);
+        }
+        
+        // double variant, try_get<uint64_t>
+        {
+            memepp::variant v = double{3.14};
+            uint64_t u64;
+            ec = v.try_get(u64);
+            REQUIRE(ec != 0);
+        }
+        
+        // null variant, try_get<any>
+        {
+            memepp::variant v;
+            int64_t i64;
+            ec = v.try_get(i64);
+            REQUIRE(ec != 0);
+        }
+        
+        // byte variant, try_get<double>
+        {
+            memepp::variant v = mmbyte_t{255};
+            double d;
+            ec = v.try_get(d);
+            REQUIRE(ec != 0);
+        }
+    }
 
-    v01_02 = v01_01;
-    REQUIRE(v01_02.is_null() == false);
-    REQUIRE(v01_02.is_type(memepp::meta::typid::wchar));
-    REQUIRE(v01_02.type_id() == memepp::meta::typid::wchar);
-    auto value01_05 = v01_02.get_or<wchar_t>();
-    REQUIRE(value01_05 == 1);
+    SECTION("get_or default - type mismatch") {
+        // int64_t variant, get_or<string>
+        {
+            memepp::variant v = int64_t{42};
+            auto result = v.get_or<memepp::string>(memepp::string{"default"});
+            REQUIRE(result == "default");
+        }
+        
+        // string variant, get_or<int64_t>
+        {
+            memepp::variant v = memepp::string{"text"};
+            auto result = v.get_or<int64_t>(-1);
+            REQUIRE(result == -1);
+        }
+        
+        // double variant, get_or<uint64_t>
+        {
+            memepp::variant v = double{2.718};
+            auto result = v.get_or<uint64_t>(100);
+            REQUIRE(result == 100);
+        }
+        
+        // null variant, get_or<any>
+        {
+            memepp::variant v;
+            auto result = v.get_or<int64_t>(999);
+            REQUIRE(result == 999);
+        }
+        
+        // byte variant, get_or<double>
+        {
+            memepp::variant v = mmbyte_t{10};
+            auto result = v.get_or<double>(0.0);
+            REQUIRE(result == 0.0);
+        }
+        
+        // get_or with default-constructed value
+        {
+            memepp::variant v = int64_t{1};
+            auto result = v.get_or<memepp::string>();
+            REQUIRE(result.empty());
+        }
+    }
 
-    v01_01 = int64_t{ 1 };
-    REQUIRE(v01_01.is_null() == false);
-    REQUIRE(v01_01.is_type(memepp::meta::typid::int64));
-    REQUIRE(v01_01.type_id() == memepp::meta::typid::int64);
-    auto value01_06 = v01_01.get_or<int64_t>();
-    REQUIRE(value01_06 == 1);
+    SECTION("bool via try_convert") {
+        memepp::variant v;
+        mgec_t ec;
+        bool result;
+        
+        // int64_t(0) -> false
+        v = int64_t{0};
+        ec = v.try_convert(result);
+        REQUIRE(ec == 0);
+        REQUIRE(result == false);
+        
+        // int64_t(1) -> true
+        v = int64_t{1};
+        ec = v.try_convert(result);
+        REQUIRE(ec == 0);
+        REQUIRE(result == true);
+        
+        // int64_t(-1) -> true (non-zero is true)
+        v = int64_t{-1};
+        ec = v.try_convert(result);
+        REQUIRE(ec == 0);
+        REQUIRE(result == true);
+        
+        // uint64_t(42) -> true
+        v = uint64_t{42};
+        ec = v.try_convert(result);
+        REQUIRE(ec == 0);
+        REQUIRE(result == true);
+        
+        // double(0.0) -> false
+        v = double{0.0};
+        ec = v.try_convert(result);
+        REQUIRE(ec == 0);
+        REQUIRE(result == false);
+        
+        // double(3.14) -> true
+        v = double{3.14};
+        ec = v.try_convert(result);
+        REQUIRE(ec == 0);
+        REQUIRE(result == true);
+        
+        // null -> failure
+        v.reset();
+        ec = v.try_convert(result);
+        REQUIRE(ec != 0);
+        
+        // string -> failure (not convertible)
+        v = memepp::string{"text"};
+        ec = v.try_convert(result);
+        REQUIRE(ec != 0);
+    }
 
-    v01_02 = v01_01;
-    REQUIRE(v01_02.is_null() == false);
-    REQUIRE(v01_02.is_type(memepp::meta::typid::int64));
-    REQUIRE(v01_02.type_id() == memepp::meta::typid::int64);
-    auto value01_07 = v01_02.get_or<int64_t>();
-    REQUIRE(value01_07 == 1);
-
-    v01_01 = double{ 1.0 };
-    REQUIRE(v01_01.is_null() == false);
-    REQUIRE(v01_01.is_type(memepp::meta::typid::double_t));
-    REQUIRE(v01_01.type_id() == memepp::meta::typid::double_t);
-    auto value01_08 = v01_01.get_or<double>();
-    REQUIRE(value01_08 == 1.0);
-
-    v01_02 = v01_01;
-    REQUIRE(v01_02.is_null() == false);
-    REQUIRE(v01_02.is_type(memepp::meta::typid::double_t));
-    REQUIRE(v01_02.type_id() == memepp::meta::typid::double_t);
-    auto value01_09 = v01_02.get_or<double>();
-    REQUIRE(value01_09 == 1.0);
-
-    v01_01 = uint64_t{ 1 };
-    REQUIRE(v01_01.is_null() == false);
-    REQUIRE(v01_01.is_type(memepp::meta::typid::uint64));
-    REQUIRE(v01_01.type_id() == memepp::meta::typid::uint64);
-    auto value01_10 = v01_01.get_or<uint64_t>();
-    REQUIRE(value01_10 == 1);
-	
-    v01_02 = v01_01;
-    REQUIRE(v01_02.is_null() == false);
-	REQUIRE(v01_02.is_type(memepp::meta::typid::uint64));
-    REQUIRE(v01_02.type_id() == memepp::meta::typid::uint64);
-    auto value01_11 = v01_02.get_or<uint64_t>();
-    REQUIRE(value01_11 == 1);
-	
-    v01_01 = memepp::rune{ '1' };
-    REQUIRE(v01_01.is_null() == false);
-    REQUIRE(v01_01.is_type(memepp::meta::typid::rune));
-    REQUIRE(v01_01.type_id() == memepp::meta::typid::rune);
-    auto value01_14 = v01_01.get_or<memepp::rune>();
-    REQUIRE(value01_14 == memepp::rune{ '1' });
-
-    v01_02 = v01_01;
-    REQUIRE(v01_02.is_null() == false);
-    REQUIRE(v01_02.is_type(memepp::meta::typid::rune));
-    REQUIRE(v01_02.type_id() == memepp::meta::typid::rune);
-    auto value01_15 = v01_02.get_or<memepp::rune>();
-    REQUIRE(value01_15 == memepp::rune{ '1' });
-    
-    v01_01.reset();
-    REQUIRE(v01_01.is_null());
-    REQUIRE(v01_01.is_type(memepp::meta::typid::null));
-    REQUIRE(v01_01.type_id() == memepp::meta::typid::null);
-	
-    v01_02 = v01_01;
-    REQUIRE(v01_02.is_null());
-	REQUIRE(v01_02.is_type(memepp::meta::typid::null));
-	REQUIRE(v01_02.type_id() == memepp::meta::typid::null);
-
-	v01_01 = memepp::string{ "1" };
-	REQUIRE(v01_01.is_null() == false);
-	REQUIRE(v01_01.is_type(memepp::meta::typid::string));
-	REQUIRE(v01_01.type_id() == memepp::meta::typid::string);
-	auto value01_12 = v01_01.get_or<memepp::string>();
-	REQUIRE(value01_12 == "1");
-
-	v01_02 = v01_01;
-	REQUIRE(v01_02.is_null() == false);
-	REQUIRE(v01_02.is_type(memepp::meta::typid::string));
-	REQUIRE(v01_02.type_id() == memepp::meta::typid::string);
-	auto value01_13 = v01_02.get_or<memepp::string>();
-	REQUIRE(value01_13 == "1");
-
-	v01_01 = memepp::string{ "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789" };
-    REQUIRE(v01_01.is_null() == false);
-    REQUIRE(v01_01.is_type(memepp::meta::typid::string));
-    REQUIRE(v01_01.type_id() == memepp::meta::typid::string);
-    auto value01_16 = v01_01.get_or<memepp::string>();
-    REQUIRE(value01_16 == "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789");
-	
-    v01_02 = v01_01;
-    REQUIRE(v01_02.is_null() == false);
-	REQUIRE(v01_02.is_type(memepp::meta::typid::string));
-    REQUIRE(v01_02.type_id() == memepp::meta::typid::string);
-    auto value01_17 = v01_02.get_or<memepp::string>();
-    REQUIRE(value01_17 == "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789");
-	
-	memepp::string_view sv01_01;
-	ec = v01_02.try_get(sv01_01);
-    REQUIRE(ec == 0);
-    REQUIRE(sv01_01 == value01_16);
-    REQUIRE(sv01_01 == value01_17);
-
-	v01_01 = memepp::buffer{ (const uint8_t*)"1", 1 };
-    REQUIRE(v01_01.is_null() == false);
-    REQUIRE(v01_01.is_type(memepp::meta::typid::buffer));
-    REQUIRE(v01_01.type_id() == memepp::meta::typid::buffer);
-    auto value01_18 = v01_01.get_or<memepp::buffer>();
-    REQUIRE(value01_18.size() == 1);
-    REQUIRE(value01_18.at(0) == '1');
-
-    v01_02 = v01_01;
-    REQUIRE(v01_02.is_null() == false);
-    REQUIRE(v01_02.is_type(memepp::meta::typid::buffer));
-    REQUIRE(v01_02.type_id() == memepp::meta::typid::buffer);
-    auto value01_19 = v01_02.get_or<memepp::buffer>();
-    REQUIRE(value01_19.size() == 1);
-    REQUIRE(value01_19.at(0) == '1');
-
+    SECTION("reset") {
+        memepp::variant v = int64_t{100};
+        REQUIRE(v.is_type(memepp::meta::typid::int64));
+        
+        v.reset();
+        REQUIRE(v.is_null());
+        REQUIRE(v.is_type(memepp::meta::typid::null));
+        REQUIRE(v.type_id() == memepp::meta::typid::null);
+        
+        // try_get should fail after reset
+        int64_t i64;
+        mgec_t ec = v.try_get(i64);
+        REQUIRE(ec != 0);
+    }
 }
 
 
