@@ -1415,44 +1415,52 @@ TEST_CASE("memepp::buffer_view constructors", "[buffer_view]")
 
 TEST_CASE("memepp::string utf16", "[string]")
 {
-	auto c16_01_01 = u"\u7684\u4E00\u4E0D\u662F\u4E86\u4EBA\u5728\u6709\u6211\u4ED6\u8FD9\u4E3A\u4E4B\u6765\u5927\u4EE5\u4E2A\u4E2D\u4E0A\u4EEC";
-	auto c8_01_01 = "\xE7\x9A\x84\xE4\xB8\x80\xE4\xB8\x8D\xE6\x98\xAF\xE4\xBA\x86\xE4\xBA\xBA\xE5\x9C\xA8\xE6\x9C\x89\xE6\x88\x91\xE4\xBB\x96\xE8\xBF\x99\xE4\xB8\xBA\xE4\xB9\x8B\xE6\x9D\xA5\xE5\xA4\xA7\xE4\xBB\xA5\xE4\xB8\xAA\xE4\xB8\xAD\xE4\xB8\x8A\xE4\xBB\xAC";
-	memepp::string s01_01{ c8_01_01 };
+	SECTION("valid CJK conversion")
+	{
+	static constexpr const char16_t* C16_CJK_20 = u"\u7684\u4E00\u4E0D\u662F\u4E86\u4EBA\u5728\u6709\u6211\u4ED6\u8FD9\u4E3A\u4E4B\u6765\u5927\u4EE5\u4E2A\u4E2D\u4E0A\u4EEC";
+	static constexpr const char* C8_CJK_20 = "\xE7\x9A\x84\xE4\xB8\x80\xE4\xB8\x8D\xE6\x98\xAF\xE4\xBA\x86\xE4\xBA\xBA\xE5\x9C\xA8\xE6\x9C\x89\xE6\x88\x91\xE4\xBB\x96\xE8\xBF\x99\xE4\xB8\xBA\xE4\xB9\x8B\xE6\x9D\xA5\xE5\xA4\xA7\xE4\xBB\xA5\xE4\xB8\xAA\xE4\xB8\xAD\xE4\xB8\x8A\xE4\xBB\xAC";
+	memepp::string s01_01{ C8_CJK_20 };
     REQUIRE(s01_01.rune_size()    == 20);
     REQUIRE(s01_01.u16char_size() == 20);
 	
     auto u16_01_01 = mm_to<std::u16string>(s01_01);
     REQUIRE(u16_01_01.size() == 20);
-    REQUIRE(u16_01_01 == c16_01_01);
+    REQUIRE(u16_01_01 == C16_CJK_20);
 
 	auto s01_02 = mm_from(u16_01_01);
     REQUIRE(s01_02.size() == 60);
     REQUIRE(s01_02.rune_size()    == 20);
     REQUIRE(s01_02.u16char_size() == 20);
     REQUIRE(s01_02 == s01_01);
-	REQUIRE(s01_02 == c8_01_01);
+	REQUIRE(s01_02 == C8_CJK_20);
+	}
 	
 
-	auto c16_02_01 = u"\u7684\u4E00";
-	auto bad8_02_01 = "\xE7\x9A\x84\xE4\xB8\x80\xE4\x00\x8D\xE6\x98\xAF\xE4\xBA\x86\xE4\xBA\xBA\xE5\x9C\xA8\xE6\x9C\x89\xE6\x88\x91\xE4\xBB\x96\xE8\xBF\x99\xE4\xB8\xBA\xE4\xB9\x8B\xE6\x9D\xA5\xE5\xA4\xA7\xE4\xBB\xA5\xE4\xB8\xAA\xE4\xB8\xAD\xE4\xB8\x8A\xE4\xBB\xAC";
-    memepp::string s02_01{ bad8_02_01 };
+	SECTION("truncated continuation byte")
+	{
+	static constexpr const char16_t* C16_CJK_02 = u"\u7684\u4E00";
+	static constexpr const char* C8_CJK_BAD_02 = "\xE7\x9A\x84\xE4\xB8\x80\xE4\x00\x8D\xE6\x98\xAF\xE4\xBA\x86\xE4\xBA\xBA\xE5\x9C\xA8\xE6\x9C\x89\xE6\x88\x91\xE4\xBB\x96\xE8\xBF\x99\xE4\xB8\xBA\xE4\xB9\x8B\xE6\x9D\xA5\xE5\xA4\xA7\xE4\xBB\xA5\xE4\xB8\xAA\xE4\xB8\xAD\xE4\xB8\x8A\xE4\xBB\xAC";
+    memepp::string s02_01{ C8_CJK_BAD_02 };
     REQUIRE(s02_01.rune_size()    == 2);
     REQUIRE(s02_01.u16char_size() == 2);
 
     auto u16_02_01 = mm_to<std::u16string>(s02_01);
     REQUIRE(u16_02_01.size() == 2);
-    REQUIRE(u16_02_01 == c16_02_01);
+    REQUIRE(u16_02_01 == C16_CJK_02);
 
     auto s02_02 = mm_from(u16_02_01);
     REQUIRE(s02_02.size() == 6);
     REQUIRE(s02_02.rune_size() == 2);
     REQUIRE(s02_02.u16char_size() == 2);
 	REQUIRE(s02_02 == memepp::string_view{ s02_01.data(), 6 });
+	}
 	
 	
-	auto c16_03_01 = u"\u7684\u4E00";
-	auto bad8_03_01 = "\xE7\x9A\x84\xE4\xB8\x80\xE4\x01\x8D\xE6\x98\xAF\xE4\xBA\x86\xE4\xBA\xBA\xE5\x9C\xA8\xE6\x9C\x89\xE6\x88\x91\xE4\xBB\x96\xE8\xBF\x99\xE4\xB8\xBA\xE4\xB9\x8B\xE6\x9D\xA5\xE5\xA4\xA7\xE4\xBB\xA5\xE4\xB8\xAA\xE4\xB8\xAD\xE4\xB8\x8A\xE4\xBB\xAC";
-    memepp::string s03_01{ bad8_03_01 };
+	SECTION("invalid continuation byte (loose vs strict)")
+	{
+	static constexpr const char16_t* C16_CJK_03 = u"\u7684\u4E00";
+	static constexpr const char* C8_CJK_BAD_03 = "\xE7\x9A\x84\xE4\xB8\x80\xE4\x01\x8D\xE6\x98\xAF\xE4\xBA\x86\xE4\xBA\xBA\xE5\x9C\xA8\xE6\x9C\x89\xE6\x88\x91\xE4\xBB\x96\xE8\xBF\x99\xE4\xB8\xBA\xE4\xB9\x8B\xE6\x9D\xA5\xE5\xA4\xA7\xE4\xBB\xA5\xE4\xB8\xAA\xE4\xB8\xAD\xE4\xB8\x8A\xE4\xBB\xAC";
+    memepp::string s03_01{ C8_CJK_BAD_03 };
     // Design rationale: rune_size() uses loose validation (checks only the leading
     // byte for performance), while u16char_size() uses strict validation (must fully
     // decode to compute UTF-16 output size). This is intentional.
@@ -1463,12 +1471,15 @@ TEST_CASE("memepp::string utf16", "[string]")
 
     auto u16_03_01 = mm_to<std::u16string>(s03_01);
     REQUIRE(u16_03_01.size() == 2 );
-    REQUIRE(u16_03_01 == c16_03_01);
+    REQUIRE(u16_03_01 == C16_CJK_03);
+	}
 
+	SECTION("boundary codepoints (U+007F .. U+10FFFF)")
+	{
     // Note: 5/6-byte UTF-8 sequences (0xF8.., 0xFC..) are supported by rune operations
     // but cannot round-trip through UTF-16 (max U+10FFFF). See "utf8 extended" test case.
-    auto c8_04_01 = "\x7F \xC2\x80 \xDF\xBF \xE0\xA0\x80 \xEF\xBF\xBF \xF0\x90\x80\x80 ";
-    memepp::string s04_01{ c8_04_01 };
+	static constexpr const char* C8_BOUNDARY = "\x7F \xC2\x80 \xDF\xBF \xE0\xA0\x80 \xEF\xBF\xBF \xF0\x90\x80\x80 ";
+    memepp::string s04_01{ C8_BOUNDARY };
     REQUIRE(s04_01.rune_size()    == 12);
     REQUIRE(s04_01.u16char_size() == 13);
 
@@ -1476,11 +1487,12 @@ TEST_CASE("memepp::string utf16", "[string]")
     REQUIRE(u16_04_01.size() == 13);
 
     auto s04_02 = mm_from(u16_04_01);
-    REQUIRE(s04_02.size()         == strlen(c8_04_01));
+    REQUIRE(s04_02.size()         == strlen(C8_BOUNDARY));
     REQUIRE(s04_02.rune_size()    == 12);
     REQUIRE(s04_02.u16char_size() == 13);
     REQUIRE(s04_02 == s04_01);
-    REQUIRE(s04_02 == c8_04_01);
+    REQUIRE(s04_02 == C8_BOUNDARY);
+	}
 
 }
 
@@ -1514,11 +1526,14 @@ TEST_CASE("memepp::string utf8 extended (5/6-byte)", "[string]")
 
 TEST_CASE("memepp::string utf8", "[string]")
 {
-	auto c8_01_01 = "\xE7\x9A\x84\xE4\xB8\x80\xE4\xB8\x8D\xE6\x98\xAF\xE4\xBA\x86\xE4\xBA\xBA\xE5\x9C\xA8\xE6\x9C\x89\xE6\x88\x91\xE4\xBB\x96\xE8\xBF\x99\xE4\xB8\xBA\xE4\xB9\x8B\xE6\x9D\xA5\xE5\xA4\xA7\xE4\xBB\xA5\xE4\xB8\xAA\xE4\xB8\xAD\xE4\xB8\x8A\xE4\xBB\xAC";
-	auto c8_01_02 = "\xE7\x9A\x84\xE4\xB8\x80\xE4\xB8\x8D\xE6\x98\xAF\xE4\xB8\x8D\xE4\xBA\xBA\xE5\x9C\xA8\xE6\x9C\x89\xE6\x88\x91\xE4\xBB\x96\xE8\xBF\x99\xE4\xB8\xBA\xE4\xB9\x8B\xE6\x9D\xA5\xE5\xA4\xA7\xE4\xBB\xA5\xE4\xB8\xAA\xE4\xB8\xAD\xE4\xB8\x8A\xE4\xBB\xAC";
-	auto c8_01_03 = "\xE7\x9A\x84\xE4\xB8\x80\xE4\xB8\x8D\xE6\x98\xAFh\xE4\xBA\xBA\xE5\x9C\xA8\xE6\x9C\x89\xE6\x88\x91\xE4\xBB\x96\xE8\xBF\x99\xE4\xB8\xBA\xE4\xB9\x8B\xE6\x9D\xA5\xE5\xA4\xA7\xE4\xBB\xA5\xE4\xB8\xAA\xE4\xB8\xAD\xE4\xB8\x8A\xE4\xBB\xAC";
-	memepp::string s01_01{ c8_01_01 };
-	
+	static constexpr const char* C8_CJK_20_01 = "\xE7\x9A\x84\xE4\xB8\x80\xE4\xB8\x8D\xE6\x98\xAF\xE4\xBA\x86\xE4\xBA\xBA\xE5\x9C\xA8\xE6\x9C\x89\xE6\x88\x91\xE4\xBB\x96\xE8\xBF\x99\xE4\xB8\xBA\xE4\xB9\x8B\xE6\x9D\xA5\xE5\xA4\xA7\xE4\xBB\xA5\xE4\xB8\xAA\xE4\xB8\xAD\xE4\xB8\x8A\xE4\xBB\xAC";
+	static constexpr const char* C8_CJK_20_02 = "\xE7\x9A\x84\xE4\xB8\x80\xE4\xB8\x8D\xE6\x98\xAF\xE4\xB8\x8D\xE4\xBA\xBA\xE5\x9C\xA8\xE6\x9C\x89\xE6\x88\x91\xE4\xBB\x96\xE8\xBF\x99\xE4\xB8\xBA\xE4\xB9\x8B\xE6\x9D\xA5\xE5\xA4\xA7\xE4\xBB\xA5\xE4\xB8\xAA\xE4\xB8\xAD\xE4\xB8\x8A\xE4\xBB\xAC";
+	static constexpr const char* C8_CJK_20_03 = "\xE7\x9A\x84\xE4\xB8\x80\xE4\xB8\x8D\xE6\x98\xAFh\xE4\xBA\xBA\xE5\x9C\xA8\xE6\x9C\x89\xE6\x88\x91\xE4\xBB\x96\xE8\xBF\x99\xE4\xB8\xBA\xE4\xB9\x8B\xE6\x9D\xA5\xE5\xA4\xA7\xE4\xBB\xA5\xE4\xB8\xAA\xE4\xB8\xAD\xE4\xB8\x8A\xE4\xBB\xAC";
+
+	memepp::string s01_01{ C8_CJK_20_01 };
+
+	SECTION("mapping_convert")
+	{
 	auto s01_02 = s01_01.mapping_convert([](memepp::rune&) 
 	{ 
 		return -1; 
@@ -1538,8 +1553,8 @@ TEST_CASE("memepp::string utf8", "[string]")
             r = memepp::rune{ (const uint8_t*)"\xE4\xB8\x8D", -1 };
         return 0;
     });
-    REQUIRE(s01_05.size() == strlen(c8_01_02));
-    REQUIRE(s01_05 == c8_01_02);
+    REQUIRE(s01_05.size() == strlen(C8_CJK_20_02));
+    REQUIRE(s01_05 == C8_CJK_20_02);
 
     auto s01_06 = s01_01.mapping_convert([](memepp::rune& r)
     {
@@ -1547,9 +1562,12 @@ TEST_CASE("memepp::string utf8", "[string]")
             r = memepp::rune{ 'h' };
         return 0;
     });
-    REQUIRE(s01_06.size() == strlen(c8_01_03));
-    REQUIRE(s01_06 == c8_01_03);
+    REQUIRE(s01_06.size() == strlen(C8_CJK_20_03));
+    REQUIRE(s01_06 == C8_CJK_20_03);
+	}
 
+	SECTION("rune iterator")
+	{
 	auto count = 0;
     for (auto it = s01_01.rune_begin(); it != s01_01.rune_end(); ++it)
     {
@@ -1573,7 +1591,7 @@ TEST_CASE("memepp::string utf8", "[string]")
     it01_01 = std::prev(it01_01, 100);
     REQUIRE(it01_01 == s01_01.rune_begin());
 
-    memepp::string s01_04{ c8_01_01, 11 };
+    memepp::string s01_04{ C8_CJK_20_01, 11 };
 	auto it01_04 = std::next(s01_04.rune_begin(), 10);
 	count = static_cast<int>(std::distance(s01_04.rune_begin(), it01_04));
 	REQUIRE(count == 3);
@@ -1611,7 +1629,7 @@ TEST_CASE("memepp::string utf8", "[string]")
 		++count;
     }
     REQUIRE(count == 2);
-	
+	}
 }
 
 TEST_CASE("memepp::variable_buffer remove", "[variable_buffer]")
