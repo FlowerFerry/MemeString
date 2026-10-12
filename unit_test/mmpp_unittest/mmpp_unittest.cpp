@@ -3,12 +3,15 @@
 #include <memepp/string_view.hpp>
 #include <megopp/util/scope_cleanup.h>
 #include <memepp/convert/std/c_str.hpp>
+#include <mego/predef/compiler.h>
 #include <random>
 
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
 
+#if MG_COMP__MSVC_AVAIL
 #pragma comment(lib, "libmeme_string.lib")
+#endif
 
 const char test_large_string_01[] = 
 		"C++是一种被广泛使用的计算机程序设计语言。"
