@@ -1934,6 +1934,93 @@ TEST_CASE("memepp::string foreach", "[string]")
     REQUIRE(pos == 18);
 }
 
+TEST_CASE("memepp::string rune_foreach edge cases", "[string]")
+{
+    SECTION("invalid UTF-8 - lone continuation byte (0x80-0xBF) skipped") {
+        // 0x80 is a continuation byte without a leading byte -> skipped
+        memepp::string s("\x80" "A" "\x80" "B", 4);
+        int count = 0;
+        auto pos = s.rune_foreach([&](const memepp::rune& _r) {
+            ++count;
+            if (count == 1) REQUIRE(_r == 'A');
+            if (count == 2) REQUIRE(_r == 'B');
+        });
+        REQUIRE(count == 2);
+        REQUIRE(pos == 4);
+    }
+
+    SECTION("invalid UTF-8 - 0xFE and 0xFF bytes skipped") {
+        memepp::string s("\xFE" "A" "\xFF" "B", 4);
+        int count = 0;
+        auto pos = s.rune_foreach([&](const memepp::rune& _r) {
+            ++count;
+            if (count == 1) REQUIRE(_r == 'A');
+            if (count == 2) REQUIRE(_r == 'B');
+        });
+        REQUIRE(count == 2);
+        REQUIRE(pos == 4);
+    }
+
+    SECTION("truncated multi-byte sequence at end - early break") {
+        // 'A' (1 byte) + truncated 3-byte sequence (0xE4 0xBD, missing 3rd byte)
+        memepp::string s("A\xE4\xBD", 3);
+        int count = 0;
+        auto pos = s.rune_foreach([&](const memepp::rune& _r) {
+            ++count;
+            REQUIRE(_r == 'A');
+        });
+        REQUIRE(count == 1);
+        REQUIRE(pos == 1); // stopped before truncated bytes
+    }
+
+    SECTION("callback early break via mmflag_cbproc_break") {
+        memepp::string s("Hello");
+        int count = 0;
+        auto pos = s.rune_foreach([&](const memepp::rune& _r) -> mmflag_cbproc_t {
+            if (count == 2)
+                return mmflag_cbproc_break;
+            ++count;
+            return mmflag_cbproc_continue;
+        });
+        REQUIRE(count == 2); // only 'H', 'e' processed
+        REQUIRE(pos == 2);   // stopped at byte offset 2
+    }
+
+    SECTION("callback negative return value propagated") {
+        memepp::string s("ABCDE");
+        // Must return mmflag_cbproc_t exactly (int would hit the void-path
+        // overload and have its value discarded by the helper).
+        auto pos = s.rune_foreach([](const memepp::rune&) -> mmflag_cbproc_t {
+            return static_cast<mmflag_cbproc_t>(-42);
+        });
+        REQUIRE(pos == -42);
+    }
+
+    SECTION("mixed valid and invalid bytes") {
+        // 0x80 (invalid) + 'A' + 0xFF (invalid) + 'B' + 0xE4 0xBD 0xA0 (你, valid 3-byte)
+        memepp::string s("\x80" "A" "\xFF" "B\xE4\xBD\xA0", 7);
+        int count = 0;
+        auto pos = s.rune_foreach([&](const memepp::rune& _r) {
+            ++count;
+            if (count == 1) REQUIRE(_r == 'A');
+            if (count == 2) REQUIRE(_r == 'B');
+            if (count == 3) REQUIRE(_r == u8"你");
+        });
+        REQUIRE(count == 3);
+        REQUIRE(pos == 7);
+    }
+
+    SECTION("all invalid bytes - callback never invoked") {
+        memepp::string s("\x80\xFF\x80\xFF", 4);
+        int count = 0;
+        auto pos = s.rune_foreach([&](const memepp::rune&) {
+            ++count;
+        });
+        REQUIRE(count == 0);
+        REQUIRE(pos == 4); // all bytes scanned, none valid
+    }
+}
+
 #include <memepp/variant.hpp>
 
 TEST_CASE("memepp::variant basic operations", "[variant]")
