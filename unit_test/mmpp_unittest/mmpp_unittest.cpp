@@ -13,6 +13,21 @@
 #pragma comment(lib, "libmeme_string.lib")
 #endif
 
+// Guard: save/restore MemeStringOption_getStorageMediumLimit around every test
+// case so that any future test calling setStorageMediumLimit cannot leak state
+// into subsequent tests (process-global mutable setting).
+struct MediumLimitGuard : Catch::TestEventListenerBase {
+    using TestEventListenerBase::TestEventListenerBase;
+    void testCaseStarting(Catch::TestCaseInfo const&) override {
+        saved_ = MemeStringOption_getStorageMediumLimit();
+    }
+    void testCaseEnded(Catch::TestCaseStats const&) override {
+        MemeStringOption_setStorageMediumLimit(saved_);
+    }
+    MemeInteger_t saved_ = 0;
+};
+CATCH_REGISTER_LISTENER(MediumLimitGuard)
+
 const char test_large_string_01[] = 
 		"C++是一种被广泛使用的计算机程序设计语言。"
 		"它是一种通用程序设计语言，支持多重编程范式，例如过程化程序设计、数据抽象、面向对象程序设计、泛型程序设计和设计模式等。"
