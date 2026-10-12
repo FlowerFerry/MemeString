@@ -7,16 +7,10 @@
 TEST_CASE("memepp::string at", "[string]")
 {
     memepp::string str = "0123456789";
-    REQUIRE(str.at(0) == '0');
-    REQUIRE(str.at(1) == '1');
-    REQUIRE(str.at(2) == '2');
-    REQUIRE(str.at(3) == '3');
-    REQUIRE(str.at(4) == '4');
-    REQUIRE(str.at(5) == '5');
-    REQUIRE(str.at(6) == '6');
-    REQUIRE(str.at(7) == '7');
-    REQUIRE(str.at(8) == '8');
-    REQUIRE(str.at(9) == '9');
+    for (int i = 0; i < 10; ++i) {
+        CAPTURE(i);
+        REQUIRE(str.at(i) == '0' + i);
+    }
 
     // out of range
 #if !MMOPT__EXCEPTION_DISABLED
@@ -39,16 +33,10 @@ TEST_CASE("memepp::string at", "[string]")
 #endif
 
     memepp::string_view sv = str;
-    REQUIRE(sv.at(0) == '0');
-    REQUIRE(sv.at(1) == '1');
-    REQUIRE(sv.at(2) == '2');
-    REQUIRE(sv.at(3) == '3');
-    REQUIRE(sv.at(4) == '4');
-    REQUIRE(sv.at(5) == '5');
-    REQUIRE(sv.at(6) == '6');
-    REQUIRE(sv.at(7) == '7');
-    REQUIRE(sv.at(8) == '8');
-    REQUIRE(sv.at(9) == '9');
+    for (int i = 0; i < 10; ++i) {
+        CAPTURE(i);
+        REQUIRE(sv.at(i) == '0' + i);
+    }
 
     // out of range
 #if !MMOPT__EXCEPTION_DISABLED
