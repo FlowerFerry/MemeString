@@ -4,6 +4,8 @@
 #include <memepp/string_view.hpp>
 #include <memepp/string.hpp>
 
+#include <stdexcept>
+
 TEST_CASE("memepp::string at", "[string]")
 {
     memepp::string str = "0123456789";
@@ -14,22 +16,8 @@ TEST_CASE("memepp::string at", "[string]")
 
     // out of range
 #if !MMOPT__EXCEPTION_DISABLED
-    try {
-        str.at(10);
-        FAIL("Expected std::out_of_range exception");
-    } catch (const std::out_of_range&) {
-        // expected
-    } catch (...) {
-        FAIL("Expected std::out_of_range exception");
-    }
-    try {
-        str.at(-1);
-        FAIL("Expected std::out_of_range exception");
-    } catch (const std::out_of_range&) {
-        // expected
-    } catch (...) {
-        FAIL("Expected std::out_of_range exception");
-    }
+    REQUIRE_THROWS_AS(str.at(10), std::out_of_range);
+    REQUIRE_THROWS_AS(str.at(-1), std::out_of_range);
 #endif
 
     memepp::string_view sv = str;
@@ -40,22 +28,8 @@ TEST_CASE("memepp::string at", "[string]")
 
     // out of range
 #if !MMOPT__EXCEPTION_DISABLED
-    try {
-        sv.at(10);
-        FAIL("Expected std::out_of_range exception");
-    } catch (const std::out_of_range&) {
-        // expected
-    } catch (...) {
-        FAIL("Expected std::out_of_range exception");
-    }
-    try {
-        sv.at(-1);
-        FAIL("Expected std::out_of_range exception");
-    } catch (const std::out_of_range&) {
-        // expected
-    } catch (...) {
-        FAIL("Expected std::out_of_range exception");
-    }
+    REQUIRE_THROWS_AS(sv.at(10), std::out_of_range);
+    REQUIRE_THROWS_AS(sv.at(-1), std::out_of_range);
 #endif
 }
 
