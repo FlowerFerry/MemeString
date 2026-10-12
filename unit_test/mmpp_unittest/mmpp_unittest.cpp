@@ -1845,6 +1845,49 @@ TEST_CASE("memepp::string format", "[string]")
         "Hellooooooooooo %s - (%lld) - (%lld)", "Worlddddddddddd", (long long)(INT64_MIN), (long long)(INT64_MAX));
     REQUIRE(str02_09 == "Hellooooooooooo Worlddddddddddd - (-9223372036854775808) - (9223372036854775807)");
 	
+	// --- Edge cases: limit=0, invalid negative limit, NULL fmt, non-ASCII, empty fmt ---
+
+	// limit=0: C layer treats it as no limit (only _size_limit > 0 clamps)
+	auto edge_01 = memepp::c_format(0, -1, "Hello %s", "World");
+	REQUIRE(edge_01 == "Hello World");
+
+	// Invalid negative limit (-2): same behavior as -1, no limit
+	auto edge_02 = memepp::c_format(-2, -1, "Hello %s", "World");
+	REQUIRE(edge_02 == "Hello World");
+
+	// NULL fmt: wrapper returns empty string without invoking vsnprintf
+	auto edge_03 = memepp::c_format(-1, static_cast<const char*>(nullptr));
+	REQUIRE(edge_03.empty());
+
+	auto edge_03b = memepp::c_format(-1, -1, static_cast<const char*>(nullptr));
+	REQUIRE(edge_03b.empty());
+
+	// Non-ASCII: UTF-8 multi-byte characters pass through c_format byte-exact
+	auto edge_04 = memepp::c_format(-1, -1, "%s", u8"你好世界");
+	REQUIRE(edge_04 == u8"你好世界");
+
+	auto edge_05 = memepp::c_format(-1, u8"日本語テスト %d", 123);
+	REQUIRE(edge_05 == u8"日本語テスト 123");
+
+	// Mixed ASCII + non-ASCII clamped by limit at a rune boundary
+	// "Hello " = 6 bytes, + U+4F60 (你) 3 bytes = 9
+	// u8 literal: UTF-8 execution charset, immune to ACP conversion
+	auto edge_06 = memepp::c_format(9, -1, u8"Hello 你好 World");
+	REQUIRE(edge_06.size() == 9);
+	// Verify byte-by-byte to avoid Catch stringification issues with UTF-8
+	REQUIRE(edge_06[0] == 'H');
+	REQUIRE(edge_06[5] == ' ');
+	REQUIRE(static_cast<int>(static_cast<unsigned char>(edge_06[6])) == 0xe4); // First byte of 你
+	REQUIRE(static_cast<int>(static_cast<unsigned char>(edge_06[7])) == 0xbd);
+	REQUIRE(static_cast<int>(static_cast<unsigned char>(edge_06[8])) == 0xa0);
+
+	// Empty format string: produces empty result
+	auto edge_07 = memepp::c_format(-1, -1, "");
+	REQUIRE(edge_07.empty());
+
+	// predict=0 with the 4-arg overload forces the vsnprintf(NULL, 0, ...) path
+	auto edge_08 = memepp::c_format(-1, 0, "Value: %d", 42);
+	REQUIRE(edge_08 == "Value: 42");
 }
 
 TEST_CASE("memepp::string foreach", "[string]")
