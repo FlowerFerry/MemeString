@@ -547,3 +547,73 @@ TEST_CASE("memepp::string_view UDL _meme_sv -- empty", "[string_view]")
     auto sv = ""_meme_sv;
     REQUIRE(sv.empty());
 }
+
+// ---------------------------------------------------------------------------
+// trim_space — extended whitespace coverage (vertical tab, form feed,
+// Unicode spaces, non-ASCII neighbors)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_view trim_space — vertical tab and form feed", "[string_view]")
+{
+    // \v (U+000B) and \f (U+000C) are recognised by isspace() in C locale
+    memepp::string_view sv1 = "\v\vHello\v\v";
+    REQUIRE(sv1.trim_space() == "Hello");
+
+    memepp::string_view sv2 = "\f\fHello\f\f";
+    REQUIRE(sv2.trim_space() == "Hello");
+
+    memepp::string_view sv3 = "\v\fHello\f\v";
+    REQUIRE(sv3.trim_space() == "Hello");
+
+    // left-only
+    memepp::string_view sv4 = "\v\fHello";
+    REQUIRE(sv4.trim_left_space() == "Hello");
+
+    // right-only
+    memepp::string_view sv5 = "Hello\v\f";
+    REQUIRE(sv5.trim_right_space() == "Hello");
+}
+
+TEST_CASE("memepp::string_view trim_space — Unicode whitespace", "[string_view]")
+{
+    // U+00A0 NO-BREAK SPACE (UTF-8: C2 A0)
+    memepp::string_view nbsp = "\xC2\xA0\xC2\xA0Hello\xC2\xA0\xC2\xA0";
+    REQUIRE(nbsp.trim_space() == "Hello");
+    REQUIRE(nbsp.trim_left_space() == "Hello\xC2\xA0\xC2\xA0");
+    REQUIRE(nbsp.trim_right_space() == "\xC2\xA0\xC2\xA0Hello");
+
+    // U+3000 IDEOGRAPHIC SPACE (UTF-8: E3 80 80)
+    memepp::string_view idesp = "\xE3\x80\x80\xE3\x80\x80Hello\xE3\x80\x80\xE3\x80\x80";
+    REQUIRE(idesp.trim_space() == "Hello");
+    REQUIRE(idesp.trim_left_space() == "Hello\xE3\x80\x80\xE3\x80\x80");
+    REQUIRE(idesp.trim_right_space() == "\xE3\x80\x80\xE3\x80\x80Hello");
+
+    // All-whitespace (Unicode only)
+    memepp::string_view sv_all = "\xC2\xA0\xE3\x80\x80\xC2\xA0";
+    REQUIRE(sv_all.trim_space() == "");
+}
+
+TEST_CASE("memepp::string_view trim_space — all whitespace categories mixed", "[string_view]")
+{
+    // Mix of ASCII whitespace + Unicode spaces
+    // \t \n \v \f \r SP U+00A0 U+3000
+    memepp::string_view sv = "\t\n\v\f\r \xC2\xA0\xE3\x80\x80Hello\xE3\x80\x80\xC2\xA0 \r\f\v\n\t";
+    REQUIRE(sv.trim_space() == "Hello");
+}
+
+TEST_CASE("memepp::string_view trim_space — non-ASCII neighbors", "[string_view]")
+{
+    // Chinese characters adjacent to Unicode spaces
+    memepp::string_view sv1 = "\xE3\x80\x80\xC2\xA0\xE4\xBD\xA0\xE5\xA5\xBD\xE4\xB8\x96\xE7\x95\x8C\xC2\xA0\xE3\x80\x80";
+    // Input: U+3000 U+00A0 你好世界 U+00A0 U+3000
+    REQUIRE(sv1.trim_space() == "\xE4\xBD\xA0\xE5\xA5\xBD\xE4\xB8\x96\xE7\x95\x8C");
+
+    // Japanese characters adjacent to Unicode spaces
+    memepp::string_view sv2 = "\xE3\x80\x80\xE3\x81\x93\xE3\x82\x93\xE3\x81\xAB\xE3\x81\xA1\xE3\x81\xAF\xC2\xA0";
+    // Input: U+3000 こんにちは U+00A0
+    REQUIRE(sv2.trim_space() == "\xE3\x81\x93\xE3\x82\x93\xE3\x81\xAB\xE3\x81\xA1\xE3\x81\xAF");
+
+    // ASCII space between Unicode space and non-ASCII content
+    memepp::string_view sv3 = "\xC2\xA0 \xE4\xB8\xAD\xE6\x96\x87 \xC2\xA0";
+    REQUIRE(sv3.trim_space() == "\xE4\xB8\xAD\xE6\x96\x87");
+}

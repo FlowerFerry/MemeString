@@ -940,6 +940,65 @@ TEST_CASE("memepp::string trim_space", "[string]")
     //REQUIRE(sv08_trimmed.storage_type() == memepp::string_storage_t::medium);
 }
 
+TEST_CASE("memepp::string trim_space — vertical tab and form feed", "[string]")
+{
+    // \v (U+000B) and \f (U+000C) are recognised by isspace() in C locale
+    memepp::string s1 = "\v\vHello\v\v";
+    REQUIRE(s1.trim_space() == "Hello");
+
+    memepp::string s2 = "\f\fHello\f\f";
+    REQUIRE(s2.trim_space() == "Hello");
+
+    memepp::string s3 = "\v\fHello\f\v";
+    REQUIRE(s3.trim_space() == "Hello");
+
+    memepp::string s4 = "\v\fHello";
+    REQUIRE(s4.trim_left_space() == "Hello");
+
+    memepp::string s5 = "Hello\v\f";
+    REQUIRE(s5.trim_right_space() == "Hello");
+}
+
+TEST_CASE("memepp::string trim_space — Unicode whitespace", "[string]")
+{
+    // U+00A0 NO-BREAK SPACE (UTF-8: C2 A0)
+    memepp::string nbsp = "\xC2\xA0\xC2\xA0Hello\xC2\xA0\xC2\xA0";
+    REQUIRE(nbsp.trim_space() == "Hello");
+    REQUIRE(nbsp.trim_left_space() == "Hello\xC2\xA0\xC2\xA0");
+    REQUIRE(nbsp.trim_right_space() == "\xC2\xA0\xC2\xA0Hello");
+
+    // U+3000 IDEOGRAPHIC SPACE (UTF-8: E3 80 80)
+    memepp::string idesp = "\xE3\x80\x80\xE3\x80\x80Hello\xE3\x80\x80\xE3\x80\x80";
+    REQUIRE(idesp.trim_space() == "Hello");
+    REQUIRE(idesp.trim_left_space() == "Hello\xE3\x80\x80\xE3\x80\x80");
+    REQUIRE(idesp.trim_right_space() == "\xE3\x80\x80\xE3\x80\x80Hello");
+
+    memepp::string s_all = "\xC2\xA0\xE3\x80\x80\xC2\xA0";
+    REQUIRE(s_all.trim_space() == "");
+}
+
+TEST_CASE("memepp::string trim_space — all whitespace categories mixed", "[string]")
+{
+    // \t \n \v \f \r SP U+00A0 U+3000
+    memepp::string s = "\t\n\v\f\r \xC2\xA0\xE3\x80\x80Hello\xE3\x80\x80\xC2\xA0 \r\f\v\n\t";
+    REQUIRE(s.trim_space() == "Hello");
+}
+
+TEST_CASE("memepp::string trim_space — non-ASCII neighbors", "[string]")
+{
+    // Input: U+3000 U+00A0 你好世界 U+00A0 U+3000
+    memepp::string s1 = "\xE3\x80\x80\xC2\xA0\xE4\xBD\xA0\xE5\xA5\xBD\xE4\xB8\x96\xE7\x95\x8C\xC2\xA0\xE3\x80\x80";
+    REQUIRE(s1.trim_space() == "\xE4\xBD\xA0\xE5\xA5\xBD\xE4\xB8\x96\xE7\x95\x8C");
+
+    // Input: U+3000 こんにちは U+00A0
+    memepp::string s2 = "\xE3\x80\x80\xE3\x81\x93\xE3\x82\x93\xE3\x81\xAB\xE3\x81\xA1\xE3\x81\xAF\xC2\xA0";
+    REQUIRE(s2.trim_space() == "\xE3\x81\x93\xE3\x82\x93\xE3\x81\xAB\xE3\x81\xA1\xE3\x81\xAF");
+
+    // ASCII space between Unicode space and non-ASCII content
+    memepp::string s3 = "\xC2\xA0 \xE4\xB8\xAD\xE6\x96\x87 \xC2\xA0";
+    REQUIRE(s3.trim_space() == "\xE4\xB8\xAD\xE6\x96\x87");
+}
+
 TEST_CASE("memepp::string trim_left_space", "[string]")
 {
     memepp::string s01 = "  aHbjhjhhkKhhkhAAA  ";
