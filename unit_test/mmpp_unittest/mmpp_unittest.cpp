@@ -808,7 +808,7 @@ TEST_CASE("memepp::buffer to_string", "[buffer]")
 	REQUIRE(s03.size() == sizeof(buf03) - 32);
 	REQUIRE(memcmp(s03.data(), buf03 + 24, sizeof(buf03) - 32) == 0);
 	REQUIRE(MemeString_checkHeadTailMemory(
-		(MemeString_Const_t)memepp::to_pointer(b03.native_handle())) == 1);
+		(MemeString_Const_t)memepp::to_pointer(s03.native_handle())) == 1);
 }
 
 TEST_CASE("memepp::string en lower an en upper", "[string]")
