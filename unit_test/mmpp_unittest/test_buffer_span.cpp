@@ -6,6 +6,7 @@
 #include <memepp/buffer_view.hpp>
 #include <memepp/string_span.hpp>
 #include <memepp/string.hpp>
+#include <memepp/errc.hpp>
 
 // ============================================================================
 //  member types & npos
@@ -142,8 +143,15 @@ TEST_CASE("buffer_span at out_of_range", "[buffer_span]")
     const uint8_t raw[] = {0x01, 0x02};
     memepp::buffer_span bs(raw, 2);
 #if !MMOPT__EXCEPTION_DISABLED
-    REQUIRE_THROWS_AS(bs.at(2), std::out_of_range);
-    REQUIRE_THROWS_AS(bs.at(-1), std::out_of_range);
+    REQUIRE_THROWS_AS(bs.at(2), memepp::errc_except);
+    REQUIRE_THROWS_AS(bs.at(-1), memepp::errc_except);
+#else
+    memepp::set_errc(0);
+    REQUIRE(bs.at(2) == 0);
+    REQUIRE(memepp::get_errc() != 0);
+    memepp::set_errc(0);
+    REQUIRE(bs.at(-1) == 0);
+    REQUIRE(memepp::get_errc() != 0);
 #endif
 }
 

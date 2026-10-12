@@ -2,6 +2,7 @@
 
 #include <memepp/string_span.hpp>
 #include <memepp/string.hpp>
+#include <memepp/errc.hpp>
 
 // ============================================================================
 //  member types & npos
@@ -111,8 +112,15 @@ TEST_CASE("string_span at out_of_range", "[string_span]")
 {
     memepp::string_span sv("abc");
 #if !MMOPT__EXCEPTION_DISABLED
-    REQUIRE_THROWS_AS(sv.at(3), std::out_of_range);
-    REQUIRE_THROWS_AS(sv.at(-1), std::out_of_range);
+    REQUIRE_THROWS_AS(sv.at(3), memepp::errc_except);
+    REQUIRE_THROWS_AS(sv.at(-1), memepp::errc_except);
+#else
+    memepp::set_errc(0);
+    REQUIRE(sv.at(3) == '\0');
+    REQUIRE(memepp::get_errc() != 0);
+    memepp::set_errc(0);
+    REQUIRE(sv.at(-1) == '\0');
+    REQUIRE(memepp::get_errc() != 0);
 #endif
 }
 

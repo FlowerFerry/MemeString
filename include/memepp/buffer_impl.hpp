@@ -109,15 +109,15 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE buffer::const_reference buffer::at(size_type _pos) const
 	{
 		auto p = MemeBuffer_at(memepp::to_pointer(data_), _pos);
-		if (!p)
-		{
+		if (MEGO_SYMBOL__UNLIKELY(!p)) {
+			*errc() = MGEC__RANGE;
 #if !MMOPT__EXCEPTION_DISABLED
-			throw std::out_of_range(
-				MEGO__STRINGIZE(memepp::buffer::at) " out of range");
-#else
-			assert(p && "memepp::buffer::at out of range");
+			throw_errc(*errc());
 #endif
+			static const mmbyte_t s_out_of_range = 0;
+			return s_out_of_range;
 		}
+		*errc() = MGEC__OK;
 		return *p;
 	}
 

@@ -8,6 +8,7 @@
 #include "memepp/string_span_def.hpp"
 #include <memepp/string.hpp>
 #include <memepp/string_view.hpp>
+#include <memepp/errc.hpp>
 
 #include <cstring>
 #include <algorithm>
@@ -77,10 +78,15 @@ string_span::operator[](size_type _pos) const MEGOPP__NOEXCEPT
 MEMEPP__IMPL_INLINE string_span::const_reference
 string_span::at(size_type _pos) const
 {
+	if (MEGO_SYMBOL__UNLIKELY(_pos < 0 || _pos >= size_)) {
+		*errc() = MGEC__RANGE;
 #if !MMOPT__EXCEPTION_DISABLED
-	if (_pos < 0 || _pos >= size_)
-		throw std::out_of_range("string_span::at");
+		throw_errc(*errc());
 #endif
+		static const char s_out_of_range = 0;
+		return s_out_of_range;
+	}
+	*errc() = MGEC__OK;
 	return data_[_pos];
 }
 

@@ -3,6 +3,7 @@
 
 #include <memepp/string_view.hpp>
 #include <memepp/string.hpp>
+#include <memepp/errc.hpp>
 
 #include <stdexcept>
 
@@ -16,8 +17,17 @@ TEST_CASE("memepp::string at", "[string]")
 
     // out of range
 #if !MMOPT__EXCEPTION_DISABLED
-    REQUIRE_THROWS_AS(str.at(10), std::out_of_range);
-    REQUIRE_THROWS_AS(str.at(-1), std::out_of_range);
+    REQUIRE_THROWS_AS(str.at(10), memepp::errc_except);
+    REQUIRE_THROWS_AS(str.at(-1), memepp::errc_except);
+#else
+    // exception disabled: at() returns sentinel '\0' and sets errc
+    memepp::set_errc(0);  // reset errc
+    REQUIRE(str.at(10) == '\0');
+    REQUIRE(memepp::get_errc() != 0);
+    
+    memepp::set_errc(0);  // reset errc
+    REQUIRE(str.at(-1) == '\0');
+    REQUIRE(memepp::get_errc() != 0);
 #endif
 
     memepp::string_view sv = str;
@@ -28,8 +38,17 @@ TEST_CASE("memepp::string at", "[string]")
 
     // out of range
 #if !MMOPT__EXCEPTION_DISABLED
-    REQUIRE_THROWS_AS(sv.at(10), std::out_of_range);
-    REQUIRE_THROWS_AS(sv.at(-1), std::out_of_range);
+    REQUIRE_THROWS_AS(sv.at(10), memepp::errc_except);
+    REQUIRE_THROWS_AS(sv.at(-1), memepp::errc_except);
+#else
+    // exception disabled: at() returns sentinel '\0' and sets errc
+    memepp::set_errc(0);  // reset errc
+    REQUIRE(sv.at(10) == '\0');
+    REQUIRE(memepp::get_errc() != 0);
+    
+    memepp::set_errc(0);  // reset errc
+    REQUIRE(sv.at(-1) == '\0');
+    REQUIRE(memepp::get_errc() != 0);
 #endif
 }
 

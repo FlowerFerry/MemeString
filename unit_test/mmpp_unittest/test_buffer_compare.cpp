@@ -4,6 +4,7 @@
 #include <memepp/buffer_view.hpp>
 #include <memepp/variable_buffer.hpp>
 #include <memepp/string.hpp>
+#include <memepp/errc.hpp>
 #include <stdexcept>
 
 // ============================================================================
@@ -133,8 +134,15 @@ TEST_CASE("buffer at out-of-range throws", "[buffer][element]")
     REQUIRE_NOTHROW(buf.at(0));
     REQUIRE_NOTHROW(buf.at(2));
 #if !MMOPT__EXCEPTION_DISABLED
-    REQUIRE_THROWS_AS(buf.at(3), std::out_of_range);
-    REQUIRE_THROWS_AS(buf.at(100), std::out_of_range);
+    REQUIRE_THROWS_AS(buf.at(3), memepp::errc_except);
+    REQUIRE_THROWS_AS(buf.at(100), memepp::errc_except);
+#else
+    memepp::set_errc(0);
+    REQUIRE(buf.at(3) == 0);
+    REQUIRE(memepp::get_errc() != 0);
+    memepp::set_errc(0);
+    REQUIRE(buf.at(100) == 0);
+    REQUIRE(memepp::get_errc() != 0);
 #endif
 }
 
@@ -284,8 +292,15 @@ TEST_CASE("buffer_view at out-of-range throws", "[buffer_view][element]")
     REQUIRE_NOTHROW(bv.at(0));
     REQUIRE_NOTHROW(bv.at(3));
 #if !MMOPT__EXCEPTION_DISABLED
-    REQUIRE_THROWS_AS(bv.at(4), std::out_of_range);
-    REQUIRE_THROWS_AS(bv.at(100), std::out_of_range);
+    REQUIRE_THROWS_AS(bv.at(4), memepp::errc_except);
+    REQUIRE_THROWS_AS(bv.at(100), memepp::errc_except);
+#else
+    memepp::set_errc(0);
+    REQUIRE(bv.at(4) == 0);
+    REQUIRE(memepp::get_errc() != 0);
+    memepp::set_errc(0);
+    REQUIRE(bv.at(100) == 0);
+    REQUIRE(memepp::get_errc() != 0);
 #endif
 }
 

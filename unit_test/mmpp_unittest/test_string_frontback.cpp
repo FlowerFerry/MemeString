@@ -94,13 +94,31 @@ TEST_CASE("memepp::string front/back", "[string]")
 TEST_CASE("memepp::string front/back throws on empty", "[string]")
 {
     memepp::string s;
+#if !MMOPT__EXCEPTION_DISABLED
     REQUIRE_THROWS_AS(s.front(), memepp::errc_except);
     REQUIRE_THROWS_AS(s.back(),  memepp::errc_except);
+#else
+    memepp::set_errc(0);
+    REQUIRE(s.front() == '\0');
+    REQUIRE(memepp::get_errc() != 0);
+    memepp::set_errc(0);
+    REQUIRE(s.back() == '\0');
+    REQUIRE(memepp::get_errc() != 0);
+#endif
 }
 
 TEST_CASE("memepp::string_view front/back throws on empty", "[string_view]")
 {
     memepp::string_view sv;
+#if !MMOPT__EXCEPTION_DISABLED
     REQUIRE_THROWS_AS(sv.front(), memepp::errc_except);
     REQUIRE_THROWS_AS(sv.back(),  memepp::errc_except);
+#else
+    memepp::set_errc(0);
+    REQUIRE(sv.front() == '\0');
+    REQUIRE(memepp::get_errc() != 0);
+    memepp::set_errc(0);
+    REQUIRE(sv.back() == '\0');
+    REQUIRE(memepp::get_errc() != 0);
+#endif
 }

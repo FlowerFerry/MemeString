@@ -9,6 +9,7 @@
 #include "memepp/buffer_def.hpp"
 #include "memepp/string_def.hpp"
 #include "memepp/variable_buffer_def.hpp"
+#include <memepp/errc.hpp>
 
 namespace memepp {
 inline namespace MMPP_NAMESPACE {
@@ -144,15 +145,15 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE buffer_view::const_reference buffer_view::at(size_type _pos) const
 	{
 		auto p = MemeBuffer_at(memepp::to_pointer(data_), _pos);
-		if (!p)
-		{
+		if (MEGO_SYMBOL__UNLIKELY(!p)) {
+			*errc() = MGEC__RANGE;
 #if !MMOPT__EXCEPTION_DISABLED
-			throw std::out_of_range(
-				MEGO__STRINGIZE(memepp::buffer_view::at) " out of range");
-#else
-			assert(p && "memepp::buffer_view::at out of range");
+			throw_errc(*errc());
 #endif
+			static const mmbyte_t s_out_of_range = 0;
+			return s_out_of_range;
 		}
+		*errc() = MGEC__OK;
 		return *p;
 	}
 

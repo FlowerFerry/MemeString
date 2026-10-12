@@ -8,6 +8,7 @@
 #include <memepp/buffer_view.hpp>
 #include <memepp/string_span.hpp>
 #include <memepp/string.hpp>
+#include <memepp/errc.hpp>
 
 #include <cstring>
 #include <algorithm>
@@ -74,10 +75,15 @@ buffer_span::operator[](size_type _pos) const MEGOPP__NOEXCEPT
 MEMEPP__IMPL_INLINE buffer_span::const_reference
 buffer_span::at(size_type _pos) const
 {
+	if (MEGO_SYMBOL__UNLIKELY(_pos < 0 || _pos >= size_)) {
+		*errc() = MGEC__RANGE;
 #if !MMOPT__EXCEPTION_DISABLED
-	if (_pos < 0 || _pos >= size_)
-		throw std::out_of_range("buffer_span::at");
+		throw_errc(*errc());
 #endif
+		static const mmbyte_t s_out_of_range = 0;
+		return s_out_of_range;
+	}
+	*errc() = MGEC__OK;
 	return data_[_pos];
 }
 

@@ -227,11 +227,15 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE string::const_reference string::at(size_type _pos) const
 	{
 		auto p = MemeString_at(memepp::to_pointer(data_), _pos);
+		if (MEGO_SYMBOL__UNLIKELY(!p)) {
+			*errc() = MGEC__RANGE;
 #if !MMOPT__EXCEPTION_DISABLED
-		if (!p) {
-            throw std::out_of_range("string::at");
-		}
+			throw_errc(*errc());
 #endif
+			static const MemeByte_t s_out_of_range = 0;
+			return s_out_of_range;
+		}
+		*errc() = MGEC__OK;
 		return *p;
 	}
 
@@ -298,20 +302,30 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE string::const_reference string::front() const
 	{
 		auto p = MemeString_front(to_pointer(data_));
-		*errc() = p ? MGEC__OK : MGEC__RANGE;
+		if (MEGO_SYMBOL__UNLIKELY(!p)) {
+			*errc() = MGEC__RANGE;
 #if !MMOPT__EXCEPTION_DISABLED
-		throw_errc(*errc());
+			throw_errc(*errc());
 #endif
+			static const MemeByte_t s_out_of_range = 0;
+			return s_out_of_range;
+		}
+		*errc() = MGEC__OK;
 		return *p;
 	}
 
 	MEMEPP__IMPL_INLINE string::const_reference string::back() const
 	{
 		auto p = MemeString_back(to_pointer(data_));
-		*errc() = p ? MGEC__OK : MGEC__RANGE;
+		if (MEGO_SYMBOL__UNLIKELY(!p)) {
+			*errc() = MGEC__RANGE;
 #if !MMOPT__EXCEPTION_DISABLED
-		throw_errc(*errc());
+			throw_errc(*errc());
 #endif
+			static const MemeByte_t s_out_of_range = 0;
+			return s_out_of_range;
+		}
+		*errc() = MGEC__OK;
 		return *p;
 	}
 
