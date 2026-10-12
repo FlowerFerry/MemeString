@@ -479,3 +479,34 @@ TEST_CASE("memepp::string replace with count", "[string]")
     auto r3 = s.replace("_", "-", -1);
     REQUIRE(r3 == "aa-aa-aa");
 }
+
+// ---------------------------------------------------------------------------
+// gap-fill: constructors not covered in mmpp_unittest.cpp:25-107
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string construct from mmstr_cptr_t", "[string]")
+{
+    mmstrstk_t stk;
+    MemeStringStack_initByU8bytes(&stk, MMSTR__OBJ_SIZE, (const uint8_t*)"cptr_test", -1);
+    mmstr_cptr_t cp = (mmstr_cptr_t)&stk;
+    {
+        memepp::string s(cp);
+        REQUIRE(s == "cptr_test");
+        REQUIRE(s.size() == 9);
+    }
+    MemeStringStack_unInit(&stk, MMSTR__OBJ_SIZE);
+}
+
+TEST_CASE("memepp::string construct with small storage hint", "[string]")
+{
+    memepp::string s("Hi", 2, memepp::string_storage_t::small);
+    REQUIRE(s == "Hi");
+    REQUIRE(s.storage_type() == memepp::string_storage_t::small);
+}
+
+TEST_CASE("memepp::string construct with medium storage hint", "[string]")
+{
+    memepp::string s("Hello", 5, memepp::string_storage_t::medium);
+    REQUIRE(s == "Hello");
+    REQUIRE(s.storage_type() == memepp::string_storage_t::medium);
+}
