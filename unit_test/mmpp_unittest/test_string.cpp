@@ -479,20 +479,6 @@ TEST_CASE("memepp::string string_builder assignment", "[string]")
     REQUIRE(str.empty());
 }
 
-// 测试 substr 的异常/边界
-TEST_CASE("memepp::string substr boundary", "[string]")
-{
-    memepp::string str = "0123456789";
-
-    REQUIRE(str.substr(0, 0) == "");
-    REQUIRE(str.substr(5, 100) == "56789"); // exceed length
-    REQUIRE(str.substr(10, 1) == ""); // start at end
-    REQUIRE(str.substr(11, 1) == ""); // start beyond end
-
-    // negative (though not standard, check behavior)
-    REQUIRE(str.substr(-1, 5) == "01234"); // assuming negative start from end, but confirm actual impl
-    REQUIRE(str.substr(0, -1) == str); // full string
-}
 
 
 // to_string: int16_t, int32_t, int64_t

@@ -831,24 +831,14 @@ TEST_CASE("memepp::string en lower an en upper", "[string]")
 TEST_CASE("memepp::string starts_with", "[string]")
 {
     memepp::string s01 = "aHbjhjhhkKhhkhAAA";
-    REQUIRE(s01.starts_with("aHbjhjhhkKhhkhAAA"));
-    REQUIRE(s01.starts_with("aHbjhjhhkKhhkhAA"));
-    REQUIRE(s01.starts_with("aHbjhjhhkKhhkhA"));
-    REQUIRE(s01.starts_with("aHbjhjhhkKhhkh"));
-    REQUIRE(s01.starts_with("aHbjhjhhkKhhk"));
-    REQUIRE(s01.starts_with("aHbjhjhhkKhh"));
-    REQUIRE(s01.starts_with("aHbjhjhhkKh"));
-    REQUIRE(s01.starts_with("aHbjhjhhkK"));
-    REQUIRE(s01.starts_with("aHbjhjhhk"));
-    REQUIRE(s01.starts_with("aHbjhjhh"));
-    REQUIRE(s01.starts_with("aHbjhjh"));
-    REQUIRE(s01.starts_with("aHbjhj"));
-    REQUIRE(s01.starts_with("aHbjh"));
-    REQUIRE(s01.starts_with("aHbj"));
-    REQUIRE(s01.starts_with("aHb"));
-    REQUIRE(s01.starts_with("aH"));
-    REQUIRE(s01.starts_with("a"));
-    REQUIRE(s01.starts_with(""));
+    
+    // All prefixes should match (count overload: exercises same C core as the ladder)
+    for (int len = 0; len <= static_cast<int>(s01.size()); ++len) {
+        INFO("Testing prefix length: " << len);
+        REQUIRE(s01.starts_with(s01.data(), len));
+    }
+    
+    // False cases: longer than string or mismatch
     REQUIRE_FALSE(s01.starts_with("aHbjhjhhkKhhkhAAAA"));
     REQUIRE_FALSE(s01.starts_with("aHbjhjhhkKhhkhAAAB"));
     REQUIRE_FALSE(s01.starts_with("aHbjhjhhkKhhkhAB"));
@@ -856,31 +846,19 @@ TEST_CASE("memepp::string starts_with", "[string]")
     REQUIRE_FALSE(s01.starts_with("aHbjhjhhkKhhkhh"));
     REQUIRE_FALSE(s01.starts_with("aHbjhjhhkKhhkhk"));
     REQUIRE_FALSE(s01.starts_with("aHbjhjhhkKhhhk"));
-    
 }
 
 TEST_CASE("memepp::string ends_with", "[string]")
 {
     memepp::string s01 = "aHbjhjhhkKhhkhAAA";
     
-    REQUIRE(s01.ends_with("aHbjhjhhkKhhkhAAA"));
-    REQUIRE(s01.ends_with("HbjhjhhkKhhkhAAA"));
-    REQUIRE(s01.ends_with("bjhjhhkKhhkhAAA"));
-    REQUIRE(s01.ends_with("jhjhhkKhhkhAAA"));
-    REQUIRE(s01.ends_with("hjhhkKhhkhAAA"));
-    REQUIRE(s01.ends_with("jhhkKhhkhAAA"));
-    REQUIRE(s01.ends_with("hhkKhhkhAAA"));
-    REQUIRE(s01.ends_with("hkKhhkhAAA"));
-    REQUIRE(s01.ends_with("kKhhkhAAA"));
-    REQUIRE(s01.ends_with("KhhkhAAA"));
-    REQUIRE(s01.ends_with("hhkhAAA"));
-    REQUIRE(s01.ends_with("hkhAAA"));
-    REQUIRE(s01.ends_with("khAAA"));
-    REQUIRE(s01.ends_with("hAAA"));
-    REQUIRE(s01.ends_with("AAA"));
-    REQUIRE(s01.ends_with("AA"));
-    REQUIRE(s01.ends_with("A"));
-    REQUIRE(s01.ends_with(""));
+    // All suffixes should match (count overload, no temp allocation)
+    for (int len = 0; len <= static_cast<int>(s01.size()); ++len) {
+        INFO("Testing suffix length: " << len);
+        REQUIRE(s01.ends_with(s01.data() + (s01.size() - len), len));
+    }
+    
+    // False cases: longer than string or mismatch
     REQUIRE_FALSE(s01.ends_with("aHbjhjhhkKhhkhAAAA"));
     REQUIRE_FALSE(s01.ends_with("aHbjhjhhkKhhkhAAAB"));
     REQUIRE_FALSE(s01.ends_with("aHbjhjhhkKhhkhAB"));
@@ -888,7 +866,6 @@ TEST_CASE("memepp::string ends_with", "[string]")
     REQUIRE_FALSE(s01.ends_with("aHbjhjhhkKhhkhh"));
     REQUIRE_FALSE(s01.ends_with("aHbjhjhhkKhhkhk"));
     REQUIRE_FALSE(s01.ends_with("aHbjhjhhkKhhhk"));
-
 }
 
 TEST_CASE("memepp::string contains", "[string]") 
@@ -1015,93 +992,46 @@ TEST_CASE("memepp::string trim_right_space", "[string]")
 TEST_CASE("memepp::string substr", "[string]")
 {
     memepp::string s01 = "aHbjhjhhkKhhkhAAA";
-    REQUIRE(s01.substr(0, 0)  == "");
-    REQUIRE(s01.substr(0, 1)  == "a");
-    REQUIRE(s01.substr(0, 2)  == "aH");
-    REQUIRE(s01.substr(0, 3)  == "aHb");
-    REQUIRE(s01.substr(0, 4)  == "aHbj");
-    REQUIRE(s01.substr(0, 5)  == "aHbjh");
-    REQUIRE(s01.substr(0, 6)  == "aHbjhj");
-    REQUIRE(s01.substr(0, 7)  == "aHbjhjh");
-    REQUIRE(s01.substr(0, 8)  == "aHbjhjhh");
-    REQUIRE(s01.substr(0, 9)  == "aHbjhjhhk");
-    REQUIRE(s01.substr(0, 10) == "aHbjhjhhkK");
-    REQUIRE(s01.substr(0, 11) == "aHbjhjhhkKh");
-    REQUIRE(s01.substr(0, 12) == "aHbjhjhhkKhh");
-    REQUIRE(s01.substr(0, 13) == "aHbjhjhhkKhhk");
-    REQUIRE(s01.substr(0, 14) == "aHbjhjhhkKhhkh");
-    REQUIRE(s01.substr(0, 15) == "aHbjhjhhkKhhkhA");
-    REQUIRE(s01.substr(0, 16) == "aHbjhjhhkKhhkhAA");
-    REQUIRE(s01.substr(0, 17) == "aHbjhjhhkKhhkhAAA");
-    REQUIRE(s01.substr(0, 18) == "aHbjhjhhkKhhkhAAA");
-    REQUIRE(s01.substr(0) == "aHbjhjhhkKhhkhAAA");
-
-	REQUIRE(s01.substr(1, 0) == "");
-    REQUIRE(s01.substr(1, 1) == "H");
-    REQUIRE(s01.substr(1, 2) == "Hb");
-    REQUIRE(s01.substr(1, 3) == "Hbj");
-    REQUIRE(s01.substr(1, 4) == "Hbjh");
-    REQUIRE(s01.substr(1, 5) == "Hbjhj");
-    REQUIRE(s01.substr(1, 6) == "Hbjhjh");
-    REQUIRE(s01.substr(1, 7) == "Hbjhjhh");
-    REQUIRE(s01.substr(1, 8) == "Hbjhjhhk");
-    REQUIRE(s01.substr(1, 9) == "HbjhjhhkK");
-    REQUIRE(s01.substr(1, 10) == "HbjhjhhkKh");
-    REQUIRE(s01.substr(1, 11) == "HbjhjhhkKhh");
-    REQUIRE(s01.substr(1, 12) == "HbjhjhhkKhhk");
-    REQUIRE(s01.substr(1, 13) == "HbjhjhhkKhhkh");
-    REQUIRE(s01.substr(1, 14) == "HbjhjhhkKhhkhA");
-    REQUIRE(s01.substr(1, 15) == "HbjhjhhkKhhkhAA");
-    REQUIRE(s01.substr(1, 16) == "HbjhjhhkKhhkhAAA");
-    REQUIRE(s01.substr(1, 17) == "HbjhjhhkKhhkhAAA");
-    REQUIRE(s01.substr(1) == "HbjhjhhkKhhkhAAA");
+    std::string expected = "aHbjhjhhkKhhkhAAA";
     
-    REQUIRE(s01.substr(2, 0) == "");
-    REQUIRE(s01.substr(2, 1) == "b");
-    REQUIRE(s01.substr(2, 2) == "bj");
-    REQUIRE(s01.substr(2, 3) == "bjh");
-    REQUIRE(s01.substr(2, 4) == "bjhj");
-    REQUIRE(s01.substr(2, 5) == "bjhjh");
-    REQUIRE(s01.substr(2, 6) == "bjhjhh");
-    REQUIRE(s01.substr(2, 7) == "bjhjhhk");
-    REQUIRE(s01.substr(2, 8) == "bjhjhhkK");
-    REQUIRE(s01.substr(2, 9) == "bjhjhhkKh");
-    REQUIRE(s01.substr(2, 10) == "bjhjhhkKhh");
-    REQUIRE(s01.substr(2, 11) == "bjhjhhkKhhk");
-    REQUIRE(s01.substr(2, 12) == "bjhjhhkKhhkh");
-    REQUIRE(s01.substr(2, 13) == "bjhjhhkKhhkhA");
-    REQUIRE(s01.substr(2, 14) == "bjhjhhkKhhkhAA");
-    REQUIRE(s01.substr(2, 15) == "bjhjhhkKhhkhAAA");
-    REQUIRE(s01.substr(2, 16) == "bjhjhhkKhhkhAAA");
-    REQUIRE(s01.substr(2) == "bjhjhhkKhhkhAAA");
+    // Test all (pos, count) combinations systematically
+    for (int pos = 0; pos <= static_cast<int>(s01.size()) + 1; ++pos) {
+        for (int count = 0; count <= static_cast<int>(s01.size()) + 1; ++count) {
+            INFO("pos=" << pos << " count=" << count);
+            auto result = s01.substr(pos, count);
+            
+            // Compute expected using std::string semantics
+            if (pos > static_cast<int>(expected.size())) {
+                REQUIRE(result.empty());
+            } else {
+                int actual_count = count;
+                if (count < 0) {
+                    actual_count = static_cast<int>(expected.size()) - pos;
+                } else if (count > static_cast<int>(expected.size()) - pos) {
+                    actual_count = static_cast<int>(expected.size()) - pos;
+                }
+                std::string exp = expected.substr(pos, actual_count);
+                REQUIRE(result == exp.c_str());
+            }
+        }
+        // Test default count (npos)
+        INFO("pos=" << pos << " count=npos");
+        auto result = s01.substr(pos);
+        if (pos > static_cast<int>(expected.size())) {
+            REQUIRE(result.empty());
+        } else {
+            std::string exp = expected.substr(pos);
+            REQUIRE(result == exp.c_str());
+        }
+    }
     
-    REQUIRE(s01.substr(3, 0) == "");
-    REQUIRE(s01.substr(3, 1) == "j");
-    REQUIRE(s01.substr(3, 2) == "jh");
-    REQUIRE(s01.substr(3, 3) == "jhj");
-    REQUIRE(s01.substr(3, 4) == "jhjh");
-    REQUIRE(s01.substr(3, 5) == "jhjhh");
-    REQUIRE(s01.substr(3, 6) == "jhjhhk");
-    REQUIRE(s01.substr(3, 7) == "jhjhhkK");
-    REQUIRE(s01.substr(3, 8) == "jhjhhkKh");
-    REQUIRE(s01.substr(3, 9) == "jhjhhkKhh");
-    REQUIRE(s01.substr(3, 10) == "jhjhhkKhhk");
-    REQUIRE(s01.substr(3, 11) == "jhjhhkKhhkh");
-    REQUIRE(s01.substr(3, 12) == "jhjhhkKhhkhA");
-    REQUIRE(s01.substr(3, 13) == "jhjhhkKhhkhAA");
-    REQUIRE(s01.substr(3, 14) == "jhjhhkKhhkhAAA");
-    REQUIRE(s01.substr(3, 15) == "jhjhhkKhhkhAAA");
-    REQUIRE(s01.substr(3) == "jhjhhkKhhkhAAA");
-
-	REQUIRE(s01.substr(16, 0) == "");
-    REQUIRE(s01.substr(16, 1) == "A");
-    REQUIRE(s01.substr(16) == "A");
-
-    REQUIRE(s01.substr(17, 0) == "");
-    REQUIRE(s01.substr(17) == "");
-
-	REQUIRE(s01.substr(18, 0) == "");
-	REQUIRE(s01.substr(18) == "");
+    // Negative pos is clamped to 0 by the C core
+    REQUIRE(s01.substr(-1, 5) == expected.substr(0, 5).c_str());
+    REQUIRE(s01.substr(-10, 3) == expected.substr(0, 3).c_str());
+    
+    // Negative count means "rest of the string"
+    REQUIRE(s01.substr(5, -1) == expected.substr(5).c_str());
+    REQUIRE(s01.substr(0, -1) == expected.c_str());
 }
 
 TEST_CASE("memepp::string operator=", "[string]")
