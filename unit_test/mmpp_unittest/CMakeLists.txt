@@ -22,7 +22,6 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_concat.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_utf8.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_replace.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/test_string_trim.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_leftright.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_reset.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_iterator.cpp

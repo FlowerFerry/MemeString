@@ -157,6 +157,19 @@ MU_TEST(test_trim_by_cuts_basic)
     mmstrstk_uninit(&out);
 }
 
+MU_TEST(test_trim_by_cuts_multi_chars)
+{
+    mmstrstk_t s, out;
+    init_cstr(&s, "~~~Hello, World!!!");
+    mgec_t rc = MemeStringStack_trimByCuts_v2(&s, "~!", -1, &out, MMSTR__OBJ_SIZE);
+    mu_assert(rc == 0, "trimByCuts with multi-char cuts should succeed");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out)) == 12, "trimmed should be 12 bytes = 'Hello, World'");
+    const mmbyte_t* d = MemeString_byteData(AS_MMSTR_C(&out));
+    mu_assert(memcmp(d, "Hello, World", 12) == 0, "trimmed content should be 'Hello, World'");
+    mmstrstk_uninit(&s);
+    mmstrstk_uninit(&out);
+}
+
 /* ==================== trimPrefix / trimSuffix ==================== */
 
 MU_TEST(test_trim_prefix_match)
@@ -617,6 +630,7 @@ MU_TEST_SUITE(test_meme_string_manip)
     MU_RUN_TEST(test_trim_left_space);
     MU_RUN_TEST(test_trim_right_space);
     MU_RUN_TEST(test_trim_by_cuts_basic);
+    MU_RUN_TEST(test_trim_by_cuts_multi_chars);
     MU_RUN_TEST(test_trim_prefix_match);
     MU_RUN_TEST(test_trim_prefix_no_match);
     MU_RUN_TEST(test_trim_suffix_match);
