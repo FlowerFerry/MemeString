@@ -26,4 +26,14 @@ TEST_CASE("memepp::string reset", "[string]")
         "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"
         "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"
         "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
+    // Verify initial large storage
+    REQUIRE(str03.size() == 500);
+    REQUIRE(str03.storage_type() == memepp::str_strg_t::large);
+    
+    // Reset and verify
+    str03.reset();
+    REQUIRE(str03.size() == 0);
+    REQUIRE(str03.storage_type() == memepp::str_strg_t::small);
+    REQUIRE(str03.empty() == true);
+    REQUIRE(strcmp(str03.data(), "") == 0);
 }
