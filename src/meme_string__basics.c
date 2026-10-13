@@ -451,15 +451,15 @@ MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL MemeString_maxByteSize(MemeStr
 	};
 	case MemeString_ImplType_large:
 	{
-		return _s->large_.size_;
+		return MMSTR__MAX_BYTE_SIZE;
 	};
 	case MemeString_ImplType_view:
 	{
-		return _s->viewUnsafe_.size_;
+		return MMSTR__MAX_BYTE_SIZE;
 	}
 	case MemeString_ImplType_user:
 	{
-		return _s->user_.size_;
+		return MMSTR__MAX_BYTE_SIZE;
 	};
 	default: {
 		return 0;

@@ -74,7 +74,7 @@ MemeStringMedium_iteratorEnd(MemeStringMedium_t* _s)
 MG_CAPI_INLINE mmint_t
 MemeStringMedium_maxByteSize(const MemeStringMedium_t* _s)
 {
-	return SIZE_MAX >> sizeof(size_t);
+	return MMSTR__MAX_BYTE_SIZE;
 }
 
 MG_CAPI_INLINE mmint_t

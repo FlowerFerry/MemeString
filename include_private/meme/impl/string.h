@@ -33,6 +33,16 @@
 #define MMSTR_SIZE_T_EFFECTIVE_BITS (sizeof(size_t) * CHAR_BIT - MMSTR_IMPLTYPE_BITS)
 #endif
 
+/**
+ * Maximum byte length representable by the size_ bitfield shared by the
+ * medium, large, user and view storage layouts.  The field is
+ * MMSTR_SIZE_T_EFFECTIVE_BITS wide, so the ceiling is SIZE_MAX with the bits
+ * reserved for the storage-type tag shifted out.
+ */
+#ifndef MMSTR__MAX_BYTE_SIZE
+#define MMSTR__MAX_BYTE_SIZE (SIZE_MAX >> MMSTR_IMPLTYPE_BITS)
+#endif
+
 #ifndef MMSTR__MAX_REG_BYTE_SIZE
 #define MMSTR__MAX_REG_BYTE_SIZE ((0xF) * sizeof(mmint_t))
 #endif
