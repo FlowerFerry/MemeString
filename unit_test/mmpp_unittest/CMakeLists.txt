@@ -110,6 +110,15 @@ function(mmut_create_exec_for_stdcxx  exec_name cxx_standard)
     INSTALL_RPATH "\$ORIGIN"
   )
 
+  if(NOT MMUT_PARENT_LIBRARY_FILE STREQUAL "")
+    add_custom_command(
+      TARGET ${exec_name} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      ${MMUT_PARENT_LIBRARY_FILE}
+      $<TARGET_FILE_DIR:${exec_name}>
+    )
+  endif()
+
 endfunction()
 
 set(MMUT_CXX11_EXEC_NAME ${PROJECT_NAME}_cxx11)
@@ -121,15 +130,6 @@ mmut_create_exec_for_stdcxx(${MMUT_CXX14_EXEC_NAME} cxx_std_14 ${SRC_FILES})
 mmut_create_exec_for_stdcxx(${MMUT_CXX17_EXEC_NAME} cxx_std_17 ${SRC_FILES})
 
 mmut_create_exec_for_stdcxx(${PROJECT_NAME} cxx_std_17 ${SRC_FILES})
-
-if(NOT MMUT_PARENT_LIBRARY_FILE STREQUAL "")
-  add_custom_command(
-	TARGET ${MMUT_CXX11_EXEC_NAME} POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different
-	${MMUT_PARENT_LIBRARY_FILE}
-	$<TARGET_FILE_DIR:${MMUT_CXX11_EXEC_NAME}>
-  )
-endif()
 
 enable_testing()
 
