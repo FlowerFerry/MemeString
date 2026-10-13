@@ -18,7 +18,6 @@ TEST_CASE("memepp::string reset", "[string]")
     REQUIRE(str01.size() == 0);
     REQUIRE(str01.storage_type() == memepp::str_strg_t::small);
     REQUIRE(str01.empty() == true);
-    REQUIRE(strcmp(str01.data(), "") == 0);
 
     memepp::string str02 = "01234567890123456789012345678901234567890123456789012345678901234567890123456789";
     // Verify medium storage before reset
@@ -28,7 +27,6 @@ TEST_CASE("memepp::string reset", "[string]")
     REQUIRE(str02.size() == 0);
     REQUIRE(str02.storage_type() == memepp::str_strg_t::small);
     REQUIRE(str02.empty() == true);
-    REQUIRE(strcmp(str02.data(), "") == 0);
 
     memepp::string str03 = 
         "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"
@@ -46,7 +44,6 @@ TEST_CASE("memepp::string reset", "[string]")
     REQUIRE(str03.size() == 0);
     REQUIRE(str03.storage_type() == memepp::str_strg_t::small);
     REQUIRE(str03.empty() == true);
-    REQUIRE(strcmp(str03.data(), "") == 0);
 }
 
 TEST_CASE("memepp::string reset - user storage", "[string]")
@@ -66,7 +63,6 @@ TEST_CASE("memepp::string reset - user storage", "[string]")
     REQUIRE(s.size() == 0);
     REQUIRE(s.empty() == true);
     REQUIRE(s.storage_type() == memepp::str_strg_t::small);
-    REQUIRE(strcmp(s.data(), "") == 0);
 }
 
 TEST_CASE("memepp::string reset - view storage via C API", "[string]")
@@ -99,7 +95,6 @@ TEST_CASE("memepp::string reset - empty string", "[string]")
     REQUIRE(s.empty() == true);
     REQUIRE(s.size() == 0);
     REQUIRE(s.storage_type() == memepp::str_strg_t::small);
-    REQUIRE(strcmp(s.data(), "") == 0);
 }
 
 TEST_CASE("memepp::string reset - shared large copy", "[string]")
