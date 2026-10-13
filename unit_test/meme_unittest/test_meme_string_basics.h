@@ -6,6 +6,7 @@
 #include <meme/string.h>
 #include <meme/rune.h>
 #include <string.h>
+#include <stdlib.h>
 
 /* Cast helper: mmstrstk_t* → mmstr_cptr_t (= const struct _MemeString_t*).
    Both types are layout-compatible, so a pointer cast is safe. */
@@ -273,6 +274,94 @@ MU_TEST(test_string_contains_only_ascii)
     mmstrstk_uninit(&s);
 }
 
+MU_TEST(test_string_is_only_ascii_null_result)
+{
+    mmstrstk_t s;
+    init_from_cstr(&s, "hello");
+    
+    /* C API: _result == NULL should return MGEC__INVAL */
+    int rc = MemeString_isOnlyAscii(AS_MMSTR_C(&s), NULL);
+    mu_assert(rc == MGEC__INVAL, "isOnlyAscii with NULL result should return MGEC__INVAL");
+    
+    mmstrstk_uninit(&s);
+}
+
+MU_TEST(test_string_is_only_ascii_boundary_bytes)
+{
+    mmstrstk_t s;
+    int result;
+    
+    /* 0x7F (127) should be ASCII */
+    mmbyte_t data_7f[] = { 0x7F };
+    int rc = mmstrstk_init_by_u8(&s, (const char*)data_7f, 1);
+    mu_assert(rc == 0, "init 0x7F should succeed");
+    rc = MemeString_isOnlyAscii(AS_MMSTR_C(&s), &result);
+    mu_assert(rc == 0, "isOnlyAscii for 0x7F should succeed");
+    mu_assert(result != 0, "0x7F should be ASCII");
+    mmstrstk_uninit(&s);
+    
+    /* 0x80 (128) should NOT be ASCII */
+    mmbyte_t data_80[] = { 0x80 };
+    rc = mmstrstk_init_by_u8(&s, (const char*)data_80, 1);
+    mu_assert(rc == 0, "init 0x80 should succeed");
+    rc = MemeString_isOnlyAscii(AS_MMSTR_C(&s), &result);
+    mu_assert(rc == 0, "isOnlyAscii for 0x80 should succeed");
+    mu_assert(result == 0, "0x80 should NOT be ASCII");
+    mmstrstk_uninit(&s);
+    
+    /* 0xFF (255, invalid UTF-8) should NOT be ASCII */
+    mmbyte_t data_ff[] = { 0xFF };
+    rc = mmstrstk_init_by_u8(&s, (const char*)data_ff, 1);
+    mu_assert(rc == 0, "init 0xFF should succeed");
+    rc = MemeString_isOnlyAscii(AS_MMSTR_C(&s), &result);
+    mu_assert(rc == 0, "isOnlyAscii for 0xFF should succeed");
+    mu_assert(result == 0, "0xFF should NOT be ASCII");
+    mmstrstk_uninit(&s);
+}
+
+MU_TEST(test_string_is_only_ascii_embedded_nul)
+{
+    mmstrstk_t s;
+    int result;
+    
+    /* Embedded NUL should still be ASCII */
+    mmbyte_t data[] = { 'h', 'e', 'l', 'l', 'o', 0x00, 'w', 'o', 'r', 'l', 'd' };
+    int rc = mmstrstk_init_by_u8(&s, (const char*)data, 11);
+    mu_assert(rc == 0, "init with embedded NUL should succeed");
+    rc = MemeString_isOnlyAscii(AS_MMSTR_C(&s), &result);
+    mu_assert(rc == 0, "isOnlyAscii with embedded NUL should succeed");
+    mu_assert(result != 0, "embedded NUL should be ASCII");
+    mmstrstk_uninit(&s);
+}
+
+MU_TEST(test_string_is_only_ascii_large_storage)
+{
+    mmstrstk_t s;
+    int result;
+    
+    /* Create large storage string (> medium limit) */
+    mmbyte_t* large_data = (mmbyte_t*)malloc(1000);
+    memset(large_data, 'a', 1000);
+    
+    int rc = mmstrstk_init_by_u8(&s, (const char*)large_data, 1000);
+    mu_assert(rc == 0, "init large string should succeed");
+    rc = MemeString_isOnlyAscii(AS_MMSTR_C(&s), &result);
+    mu_assert(rc == 0, "isOnlyAscii for large string should succeed");
+    mu_assert(result != 0, "large ASCII string should be only ASCII");
+    mmstrstk_uninit(&s);
+    
+    /* Large with non-ASCII */
+    large_data[500] = 0x80;
+    rc = mmstrstk_init_by_u8(&s, (const char*)large_data, 1000);
+    mu_assert(rc == 0, "init large non-ASCII should succeed");
+    rc = MemeString_isOnlyAscii(AS_MMSTR_C(&s), &result);
+    mu_assert(rc == 0, "isOnlyAscii for large non-ASCII should succeed");
+    mu_assert(result == 0, "large string with non-ASCII should NOT be only ASCII");
+    mmstrstk_uninit(&s);
+    
+    free(large_data);
+}
+
 MU_TEST(test_string_front_back)
 {
     mmstrstk_t s;
@@ -369,6 +458,10 @@ MU_TEST_SUITE(test_meme_string_basics)
     MU_RUN_TEST(test_string_swap);
     MU_RUN_TEST(test_string_is_only_ascii);
     MU_RUN_TEST(test_string_contains_only_ascii);
+    MU_RUN_TEST(test_string_is_only_ascii_null_result);
+    MU_RUN_TEST(test_string_is_only_ascii_boundary_bytes);
+    MU_RUN_TEST(test_string_is_only_ascii_embedded_nul);
+    MU_RUN_TEST(test_string_is_only_ascii_large_storage);
     MU_RUN_TEST(test_string_front_back);
     MU_RUN_TEST(test_string_is_equal_other);
     MU_RUN_TEST(test_string_compare);
