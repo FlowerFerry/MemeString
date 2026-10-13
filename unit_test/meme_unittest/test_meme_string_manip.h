@@ -170,6 +170,162 @@ MU_TEST(test_trim_by_cuts_multi_chars)
     mmstrstk_uninit(&out);
 }
 
+MU_TEST(test_trim_by_cuts_empty_cuts)
+{
+    mmstrstk_t s, out;
+    init_cstr(&s, "hello");
+    /* An empty cut set matches no byte, so the whole source is copied. */
+    mgec_t rc = MemeStringStack_trimByCuts_v2(&s, "", 0, &out, MMSTR__OBJ_SIZE);
+    mu_assert(rc == 0, "trimByCuts with empty cuts should succeed");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out)) == 5, "empty cuts -> full copy of 5 bytes");
+    mu_assert(memcmp(MemeString_byteData(AS_MMSTR_C(&out)), "hello", 5) == 0,
+        "empty cuts -> content unchanged");
+    mmstrstk_uninit(&s);
+    mmstrstk_uninit(&out);
+}
+
+MU_TEST(test_trim_by_cuts_empty_source)
+{
+    mmstrstk_t s, out;
+    init_cstr(&s, "");
+    mgec_t rc = MemeStringStack_trimByCuts_v2(&s, "#", 1, &out, MMSTR__OBJ_SIZE);
+    mu_assert(rc == 0, "trimByCuts of an empty source should succeed");
+    mu_assert(MemeString_isEmpty(AS_MMSTR_C(&out)) != 0, "empty source -> empty output");
+    mmstrstk_uninit(&s);
+    mmstrstk_uninit(&out);
+}
+
+MU_TEST(test_trim_by_cuts_all_cut)
+{
+    mmstrstk_t s, out;
+    init_cstr(&s, "###");
+    mgec_t rc = MemeStringStack_trimByCuts_v2(&s, "#", 1, &out, MMSTR__OBJ_SIZE);
+    mu_assert(rc == 0, "trimByCuts of an all-cut source should succeed");
+    mu_assert(MemeString_isEmpty(AS_MMSTR_C(&out)) != 0, "every byte cut -> empty output");
+    mmstrstk_uninit(&s);
+    mmstrstk_uninit(&out);
+}
+
+MU_TEST(test_trim_by_cuts_no_match)
+{
+    mmstrstk_t s, out;
+    init_cstr(&s, "hello");
+    mgec_t rc = MemeStringStack_trimByCuts_v2(&s, "#", 1, &out, MMSTR__OBJ_SIZE);
+    mu_assert(rc == 0, "trimByCuts with no matching byte should succeed");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out)) == 5, "no match -> full copy of 5 bytes");
+    mu_assert(memcmp(MemeString_byteData(AS_MMSTR_C(&out)), "hello", 5) == 0,
+        "no match -> content unchanged");
+    mmstrstk_uninit(&s);
+    mmstrstk_uninit(&out);
+}
+
+MU_TEST(test_trim_by_cuts_left_only)
+{
+    mmstrstk_t s, out;
+    init_cstr(&s, "###hello");
+    mgec_t rc = MemeStringStack_trimByCuts_v2(&s, "#", 1, &out, MMSTR__OBJ_SIZE);
+    mu_assert(rc == 0, "trimByCuts with leading cuts only should succeed");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out)) == 5, "leading cuts only -> 5 bytes");
+    mu_assert(memcmp(MemeString_byteData(AS_MMSTR_C(&out)), "hello", 5) == 0,
+        "leading cuts only -> 'hello'");
+    mmstrstk_uninit(&s);
+    mmstrstk_uninit(&out);
+}
+
+MU_TEST(test_trim_by_cuts_right_only)
+{
+    mmstrstk_t s, out;
+    init_cstr(&s, "hello###");
+    mgec_t rc = MemeStringStack_trimByCuts_v2(&s, "#", 1, &out, MMSTR__OBJ_SIZE);
+    mu_assert(rc == 0, "trimByCuts with trailing cuts only should succeed");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out)) == 5, "trailing cuts only -> 5 bytes");
+    mu_assert(memcmp(MemeString_byteData(AS_MMSTR_C(&out)), "hello", 5) == 0,
+        "trailing cuts only -> 'hello'");
+    mmstrstk_uninit(&s);
+    mmstrstk_uninit(&out);
+}
+
+MU_TEST(test_trim_by_cuts_multibyte_cut)
+{
+    /* The cut set is matched byte by byte (memchr), not rune by rune: the
+       three bytes of U+3000 (E3 80 80) are listed individually, so every
+       leading and trailing byte of the ideographic space is stripped. */
+    static const char src[]  = "\xE3\x80\x80" "abc" "\xE3\x80\x80";
+    static const char cuts[] = "\xE3\x80\x80";
+    mmstrstk_t s, out;
+
+    MemeStringStack_initByU8bytes(&s, MMSTR__OBJ_SIZE, (const mmbyte_t*)src, 9);
+    mgec_t rc = MemeStringStack_trimByCuts_v2(&s, cuts, 3, &out, MMSTR__OBJ_SIZE);
+    mu_assert(rc == 0, "trimByCuts with a multibyte cut set should succeed");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out)) == 3, "multibyte cuts -> 3 bytes");
+    mu_assert(memcmp(MemeString_byteData(AS_MMSTR_C(&out)), "abc", 3) == 0,
+        "multibyte cuts -> 'abc'");
+    mmstrstk_uninit(&s);
+    mmstrstk_uninit(&out);
+}
+
+MU_TEST(test_trim_by_cuts_explicit_len)
+{
+    /* A negative _cuts_len means strlen(); an explicit length over the same
+       cut set must produce the identical result. */
+    mmstrstk_t s, out_neg, out_len;
+    init_cstr(&s, "~~Hello!!");
+
+    mgec_t rc_neg = MemeStringStack_trimByCuts_v2(&s, "~!", -1, &out_neg, MMSTR__OBJ_SIZE);
+    mgec_t rc_len = MemeStringStack_trimByCuts_v2(&s, "~!", 2, &out_len, MMSTR__OBJ_SIZE);
+    mu_assert(rc_neg == 0, "trimByCuts with _cuts_len < 0 should succeed");
+    mu_assert(rc_len == 0, "trimByCuts with explicit _cuts_len should succeed");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out_neg)) == 5, "negative len -> 5 bytes");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out_len)) == 5, "explicit len -> 5 bytes");
+    mu_assert(memcmp(MemeString_byteData(AS_MMSTR_C(&out_neg)), "Hello", 5) == 0,
+        "negative len -> 'Hello'");
+    mu_assert(memcmp(MemeString_byteData(AS_MMSTR_C(&out_len)), "Hello", 5) == 0,
+        "explicit len -> 'Hello'");
+    mmstrstk_uninit(&out_len);
+    mmstrstk_uninit(&out_neg);
+    mmstrstk_uninit(&s);
+}
+
+MU_TEST(test_trim_by_cuts_null_cuts_zero_len)
+{
+    /* A NULL cut set with an explicit zero length is the only NULL form the
+       implementation tolerates: it skips strlen() and calls memchr() with a
+       zero count, so nothing matches and the source is copied whole. */
+    mmstrstk_t s, out;
+    init_cstr(&s, "hello");
+    mgec_t rc = MemeStringStack_trimByCuts_v2(&s, NULL, 0, &out, MMSTR__OBJ_SIZE);
+    mu_assert(rc == 0, "trimByCuts with NULL cuts and zero length should succeed");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out)) == 5, "NULL cuts, len 0 -> full copy");
+    mmstrstk_uninit(&s);
+    mmstrstk_uninit(&out);
+}
+
+MU_TEST(test_trim_by_cuts_large_source)
+{
+    mmstrstk_t s, out;
+    char buf[513];
+    int i;
+
+    for (i = 0; i < 8; ++i) buf[i] = '#';
+    for (i = 8; i < 504; ++i) buf[i] = 'A';
+    for (i = 504; i < 512; ++i) buf[i] = '#';
+    buf[512] = '\0';
+
+    int irc = MemeStringStack_initByU8bytesAndType(
+        &s, MMSTR__OBJ_SIZE, (const mmbyte_t*)buf, 512, MemeString_StorageType_large);
+    mu_assert(irc == 0, "large source init should succeed");
+    mu_assert(MemeString_storageType(AS_MMSTR_C(&s)) == MemeString_StorageType_large,
+        "source should use large storage");
+
+    mgec_t rc = MemeStringStack_trimByCuts_v2(&s, "#", 1, &out, MMSTR__OBJ_SIZE);
+    mu_assert(rc == 0, "trimByCuts on a large source should succeed");
+    mu_assert(MemeString_byteSize(AS_MMSTR_C(&out)) == 496, "large trimmed size should be 496");
+    const mmbyte_t* d = MemeString_byteData(AS_MMSTR_C(&out));
+    mu_assert(d[0] == 'A' && d[495] == 'A', "large trimmed payload should be all 'A'");
+    mmstrstk_uninit(&s);
+    mmstrstk_uninit(&out);
+}
+
 /* ==================== trimPrefix / trimSuffix ==================== */
 
 MU_TEST(test_trim_prefix_match)
@@ -631,6 +787,16 @@ MU_TEST_SUITE(test_meme_string_manip)
     MU_RUN_TEST(test_trim_right_space);
     MU_RUN_TEST(test_trim_by_cuts_basic);
     MU_RUN_TEST(test_trim_by_cuts_multi_chars);
+    MU_RUN_TEST(test_trim_by_cuts_empty_cuts);
+    MU_RUN_TEST(test_trim_by_cuts_empty_source);
+    MU_RUN_TEST(test_trim_by_cuts_all_cut);
+    MU_RUN_TEST(test_trim_by_cuts_no_match);
+    MU_RUN_TEST(test_trim_by_cuts_left_only);
+    MU_RUN_TEST(test_trim_by_cuts_right_only);
+    MU_RUN_TEST(test_trim_by_cuts_multibyte_cut);
+    MU_RUN_TEST(test_trim_by_cuts_explicit_len);
+    MU_RUN_TEST(test_trim_by_cuts_null_cuts_zero_len);
+    MU_RUN_TEST(test_trim_by_cuts_large_source);
     MU_RUN_TEST(test_trim_prefix_match);
     MU_RUN_TEST(test_trim_prefix_no_match);
     MU_RUN_TEST(test_trim_suffix_match);
