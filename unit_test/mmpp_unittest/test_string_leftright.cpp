@@ -4,38 +4,42 @@
 #include <memepp/string_view.hpp>
 #include <memepp/string.hpp>
 
+#include <string>
+
 TEST_CASE("memepp::string left", "[string]")
 {
     memepp::string str = "0123456789";
-    REQUIRE(str.left(0) == "");
-    REQUIRE(str.left(1) == "0");
-    REQUIRE(str.left(2) == "01");
-    REQUIRE(str.left(3) == "012");
-    REQUIRE(str.left(4) == "0123");
-    REQUIRE(str.left(5) == "01234");
-    REQUIRE(str.left(6) == "012345");
-    REQUIRE(str.left(7) == "0123456");
-    REQUIRE(str.left(8) == "01234567");
-    REQUIRE(str.left(9) == "012345678");
-    REQUIRE(str.left(10) == "0123456789");
+    const std::string digits = "0123456789";
+
+    // count in [0, size()]: the first count bytes
+    for (int count = 0; count <= 10; ++count) {
+        CAPTURE(count);
+        const std::string expected = digits.substr(0, static_cast<size_t>(count));
+        REQUIRE(str.left(count) == expected.c_str());
+    }
+
+    // count >= size(): the whole string
     REQUIRE(str.left(11) == "0123456789");
+
+    // negative count: documented-by-test behavior - returns the whole string
     REQUIRE(str.left(-1) == "0123456789");
 }
 
 TEST_CASE("memepp::string right", "[string]")
 {
     memepp::string str = "0123456789";
-    REQUIRE(str.right(0) == "");
-    REQUIRE(str.right(1) == "9");
-    REQUIRE(str.right(2) == "89");
-    REQUIRE(str.right(3) == "789");
-    REQUIRE(str.right(4) == "6789");
-    REQUIRE(str.right(5) == "56789");
-    REQUIRE(str.right(6) == "456789");
-    REQUIRE(str.right(7) == "3456789");
-    REQUIRE(str.right(8) == "23456789");
-    REQUIRE(str.right(9) == "123456789");
-    REQUIRE(str.right(10) == "0123456789");
+    const std::string digits = "0123456789";
+
+    // count in [0, size()]: the last count bytes
+    for (int count = 0; count <= 10; ++count) {
+        CAPTURE(count);
+        const std::string expected = digits.substr(digits.size() - static_cast<size_t>(count));
+        REQUIRE(str.right(count) == expected.c_str());
+    }
+
+    // count >= size(): the whole string
     REQUIRE(str.right(11) == "0123456789");
+
+    // negative count: documented-by-test behavior - returns the whole string
     REQUIRE(str.right(-1) == "0123456789");
 }
