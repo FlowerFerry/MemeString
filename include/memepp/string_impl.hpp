@@ -1388,23 +1388,24 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE string from_hexadecimals(const uint8_t* _buf, size_t _len)
 	{
 		mmstrstk_t stack;
-		int result = MemeStringStack_initWithHexadecimals(&stack, sizeof(stack), NULL, 0, _buf, _len);
-		if (result)
-			return string{};
-
-		return string{ std::move(stack) };
+		mgec_t ec = *errc() =
+			MemeStringStack_initWithHexadecimals(&stack, sizeof(stack), NULL, 0, _buf, _len);
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(ec);
+#endif
+		return ec ? string{} : string{ std::move(stack) };
 	}
 
 	MEMEPP__IMPL_INLINE string from_hexadecimals(
 		const memepp::string_view& _interval, const uint8_t* _buf, size_t _len)
 	{
 		mmstrstk_t stack;
-		int result = MemeStringStack_initWithHexadecimals(
+		mgec_t ec = *errc() = MemeStringStack_initWithHexadecimals(
 			&stack, sizeof(stack), _interval.bytes(), _interval.size(), _buf, _len);
-		if (result)
-			return string{};
-
-		return string{ std::move(stack) };
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(ec);
+#endif
+		return ec ? string{} : string{ std::move(stack) };
 	}
 
 	MEMEPP__IMPL_INLINE string c_format(size_t _size_limit, MEGO_SYMBOL__MSVC_FORMAT_STRING(const char* _fmt),  ...)
