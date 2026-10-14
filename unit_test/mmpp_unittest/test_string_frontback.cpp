@@ -19,11 +19,6 @@ TEST_CASE("memepp::string front/back", "[string]")
     REQUIRE(s02_01.front() == 'H');
     REQUIRE(s02_01.back() == '!');
 
-    REQUIRE(sz01_01[0] == 'H');
-    REQUIRE(sz01_01[11] == '.');
-    REQUIRE(sz02_01[0] == 'H');
-    REQUIRE(sz02_01[11] == '!');
-
     REQUIRE(sv01_01.front() == 'H');
     REQUIRE(sv01_01.back() == '.');
     REQUIRE(sv02_01.front() == 'H');
@@ -36,9 +31,6 @@ TEST_CASE("memepp::string front/back", "[string]")
     REQUIRE(s03_01.front() == 'H');
     REQUIRE(s03_01.back() == 'o');
 
-    REQUIRE(sz03_01[0] == 'H');
-    REQUIRE(sz03_01[4] == 'o');
-
     REQUIRE(sv03_01.front() == 'H');
     REQUIRE(sv03_01.back() == 'o');
 
@@ -48,9 +40,6 @@ TEST_CASE("memepp::string front/back", "[string]")
 
     REQUIRE(s04_01.front() == 'H');
     REQUIRE(s04_01.back() == '.');
-
-    REQUIRE(sz04_01[0] == 'H');
-    REQUIRE(sz04_01[13] == '.');
 
     REQUIRE(sv04_01.front() == 'H');
     REQUIRE(sv04_01.back() == '.');

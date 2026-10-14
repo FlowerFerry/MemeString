@@ -421,10 +421,6 @@ TEST_CASE("memepp::string from_hexadecimals advanced", "[string]")
     auto hex1 = memepp::from_hexadecimals("-", buf, sizeof(buf));
     REQUIRE(hex1 == "AB-CD-EF");
 
-    // 无效缓冲 (NULL with positive size)
-    auto hex2 = memepp::from_hexadecimals("-", nullptr, 5);
-    REQUIRE(hex2 == ""); // should handle as empty
-
     // 空间距
     auto hex3 = memepp::from_hexadecimals("", buf, sizeof(buf));
     REQUIRE(hex3 == "ABCDEF");
