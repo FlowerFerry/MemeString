@@ -217,6 +217,8 @@ inline namespace MMPP_NAMESPACE {
 
 		string_view to_valid_utf8() const noexcept;
 
+		bool is_only_ascii() const noexcept;
+
 		template<typename _Func>
 		string_view trim_if(_Func&& _func) const noexcept;
 

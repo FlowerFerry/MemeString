@@ -872,6 +872,13 @@ inline namespace MMPP_NAMESPACE {
 		return result;
 	}
 
+	MEMEPP__IMPL_INLINE bool string_view::is_only_ascii() const noexcept
+	{
+		int result = 0;
+		MemeString_isOnlyAscii(to_pointer(native_handle()), &result);
+		return result != 0;
+	}
+
 	MEMEPP__IMPL_INLINE string_view string_view::trim_space() const noexcept
 	{
 		mmstrstk_t out;

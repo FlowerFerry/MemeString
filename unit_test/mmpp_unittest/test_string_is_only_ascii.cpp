@@ -6,14 +6,22 @@
 
 TEST_CASE("memepp::string is_only_ascii", "[string]")
 {
-    memepp::string str;
-    REQUIRE(str.is_only_ascii() == true);
-    str = u8"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+[]{}|;:',.<>?";
-    REQUIRE(str.is_only_ascii() == true);
-    str = u8"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+[]{}|;:',.<>?あいうえお";
-    REQUIRE(str.is_only_ascii() == false);
-    str = u8"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+[]{}|;:',.<>?あいうえお1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+[]{}|;:',.<>?";
-    REQUIRE(str.is_only_ascii() == false);
+    SECTION("empty string") {
+        memepp::string str;
+        REQUIRE(str.is_only_ascii() == true);
+    }
+    SECTION("all ASCII printable") {
+        memepp::string str = u8"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+[]{}|;:',.<>?";
+        REQUIRE(str.is_only_ascii() == true);
+    }
+    SECTION("ASCII + non-ASCII (medium storage)") {
+        memepp::string str = u8"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+[]{}|;:',.<>?\u3042\u3044\u3046\u3048\u304A";
+        REQUIRE(str.is_only_ascii() == false);
+    }
+    SECTION("ASCII + non-ASCII + more ASCII (large storage)") {
+        memepp::string str = u8"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+[]{}|;:',.<>?\u3042\u3044\u3046\u3048\u304A1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+[]{}|;:',.<>?";
+        REQUIRE(str.is_only_ascii() == false);
+    }
 }
 
 TEST_CASE("memepp::string is_only_ascii boundary bytes", "[string]")
