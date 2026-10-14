@@ -72,3 +72,27 @@ TEST_CASE("memepp::string is_only_ascii large storage", "[string]")
     memepp::string str2(large_non_ascii.data(), large_non_ascii.size());
     REQUIRE(str2.is_only_ascii() == false);
 }
+
+TEST_CASE("memepp::string_view is_only_ascii", "[string_view]")
+{
+    SECTION("empty string_view") {
+        memepp::string_view sv;
+        REQUIRE(sv.is_only_ascii() == true);
+    }
+    SECTION("all ASCII printable") {
+        memepp::string_view sv = u8"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+[]{}|;:',.<>?";
+        REQUIRE(sv.is_only_ascii() == true);
+    }
+    SECTION("ASCII + non-ASCII") {
+        auto s = memepp::string(u8"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+[]{}|;:',.<>?\u3042\u3044\u3046\u3048\u304A");
+        memepp::string_view sv = s;
+        REQUIRE(sv.is_only_ascii() == false);
+    }
+}
+
+TEST_CASE("memepp::string_view is_only_ascii non-ASCII at end", "[string_view]")
+{
+    char data[] = { 'h', 'e', 'l', 'l', 'o', '\x80' };
+    memepp::string_view sv(data, sizeof(data));
+    REQUIRE(sv.is_only_ascii() == false);
+}
