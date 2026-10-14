@@ -4,6 +4,8 @@
 #include <memepp/string_view.hpp>
 #include <memepp/string.hpp>
 
+#include <vector>
+
 
 TEST_CASE("memepp::string from_hexadecimals", "[string]")
 {
@@ -32,4 +34,64 @@ TEST_CASE("memepp::string from_hexadecimals", "[string]")
 
     auto str01_04 = memepp::from_hexadecimals(" ", buf01_01, static_cast<size_t>(-1));
     REQUIRE(str01_04 == "");
+
+    // High-byte values (0xF0, 0xFF) exercise hex digits 'F' in both nibble positions.
+    {
+        uint8_t high[] = { 0xFF, 0xF0 };
+        auto s = memepp::from_hexadecimals(high, sizeof(high));
+        REQUIRE(s == "FFF0");
+    }
+
+    // Multi-character interval.
+    {
+        uint8_t buf[] = { 0x00, 0x01, 0x02, 0x03, 0x04 };
+        auto s = memepp::from_hexadecimals("::", buf, sizeof(buf));
+        REQUIRE(s == "00::01::02::03::04");
+        REQUIRE(s.size() == 5 * 2 + 4 * 2);  // 5 pairs + 4 separators of 2 chars
+    }
+
+    // Interval with embedded NUL — the NUL byte is copied verbatim into the output.
+    {
+        uint8_t buf[] = { 0xAA, 0xBB, 0xCC };
+        char interval[] = { '-', '\0', '+' };
+        auto s = memepp::from_hexadecimals(
+            memepp::string_view(interval, 3), buf, sizeof(buf));
+        REQUIRE(s.size() == 3 * 2 + 2 * 3);  // 6 hex chars + 2 separators of 3 bytes
+        // Bytes: "AA" '-' '\0' '+' "BB" '-' '\0' '+' "CC"
+        //        0   1   2   3   4   5   6   7   8   9  10  11
+        REQUIRE(s[2] == '-');
+        REQUIRE(s[3] == '\0');
+        REQUIRE(s[4] == '+');
+        REQUIRE(s[8] == '\0');
+    }
+
+    // NULL interval pointer with positive interval length — interval is ignored.
+    // Not reachable from the C++ wrapper (no 4-arg overload); test via C API.
+    {
+        uint8_t buf[] = { 0xFF, 0xFE };
+        mmstrstk_t stk;
+        int rc = mmstrstk_init_by_hex(&stk, NULL, 5, buf, sizeof(buf));
+        REQUIRE(rc == 0);
+        memepp::string s(std::move(stk));
+        REQUIRE(s == "FFFE");
+    }
+
+    // Medium-range result (output exceeds small buffer limit).
+    // 50 input bytes with 1-char interval -> 50*2 + 49*1 = 149 output bytes.
+    {
+        std::vector<uint8_t> buf(50, 0xAB);
+        auto s = memepp::from_hexadecimals("-", buf.data(), buf.size());
+        REQUIRE(s.size() == 149);
+        REQUIRE(s.substr(0, 5) == "AB-AB");
+        REQUIRE(s.substr(147) == "AB");  // last pair at positions 147-148
+    }
+
+    // Large input -> 1000 output bytes (well beyond small limit).
+    {
+        std::vector<uint8_t> buf(500, 0xCD);
+        auto s = memepp::from_hexadecimals(buf.data(), buf.size());
+        REQUIRE(s.size() == 1000);
+        REQUIRE(s.substr(0, 4) == "CDCD");
+        REQUIRE(s.substr(996) == "CDCD");
+    }
 }
