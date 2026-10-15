@@ -3,6 +3,9 @@
 
 #include <memepp/string_view.hpp>
 #include <memepp/string.hpp>
+#include <memepp/convert/std/string.hpp>
+
+#include <string>
 
 TEST_CASE("memepp::string compare", "[string]")
 {
@@ -356,5 +359,205 @@ TEST_CASE("memepp::string compare: high bytes, embedded NUL, compare() value",
 
         // Symmetry: compare(a,b) == -compare(b,a)
         REQUIRE(s1.compare(s3) == -s3.compare(s1));
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Equality / ordering across storage tiers
+// (small / medium / large / user / view)
+// ---------------------------------------------------------------------------
+
+namespace {
+
+// `view` has no enumerator in string_storage_t: the C layer tags it with the
+// unsafe-storage value, so cast it the same way test_string_at.cpp does.
+constexpr memepp::string_storage_t view_storage =
+    static_cast<memepp::string_storage_t>(MemeString_UnsafeStorageType_view);
+
+//! Asserts the full relational matrix for two equal-content strings.
+template<typename _Lhs, typename _Rhs>
+void check_equal(const _Lhs& _lhs, const _Rhs& _rhs)
+{
+    REQUIRE(_lhs == _rhs);
+    REQUIRE_FALSE(_lhs != _rhs);
+    REQUIRE(_lhs <= _rhs);
+    REQUIRE(_lhs >= _rhs);
+    REQUIRE_FALSE(_lhs < _rhs);
+    REQUIRE_FALSE(_lhs > _rhs);
+}
+
+//! Asserts two different-content strings are unequal and order strictly.
+template<typename _Lhs, typename _Rhs>
+void check_not_equal(const _Lhs& _lhs, const _Rhs& _rhs)
+{
+    REQUIRE(_lhs != _rhs);
+    REQUIRE_FALSE(_lhs == _rhs);
+    // Distinct content must order strictly, in exactly one direction.
+    REQUIRE((_lhs < _rhs) != (_lhs > _rhs));
+}
+
+} // namespace
+
+TEST_CASE("memepp::string equality across storage tiers", "[string]")
+{
+    SECTION("short content: small vs medium vs large vs view")
+    {
+        // 10 bytes fit the inline small buffer, yet the storage hint still forces
+        // the medium / large tiers, so all four tiers hold identical bytes.
+        const char* data = "0123456789";
+
+        memepp::string      s_small (data, 10);
+        memepp::string      s_medium(data, 10, memepp::string_storage_t::medium);
+        memepp::string      s_large (data, 10, memepp::string_storage_t::large);
+        memepp::string_view s_view  (data, 10);
+
+        // Guard the matrix itself: if a tier silently degraded, the comparisons
+        // below would no longer be cross-storage at all.
+        REQUIRE(s_small .storage_type() == memepp::string_storage_t::small);
+        REQUIRE(s_medium.storage_type() == memepp::string_storage_t::medium);
+        REQUIRE(s_large .storage_type() == memepp::string_storage_t::large);
+        REQUIRE(s_view  .storage_type() == view_storage);
+
+        check_equal(s_small, s_medium);
+        check_equal(s_small, s_large);
+        check_equal(s_small, s_view);
+        check_equal(s_medium, s_large);
+        check_equal(s_medium, s_view);
+        check_equal(s_large, s_view);
+
+        // Negative: same length, last byte differs -> every tier must disagree.
+        const char* other = "0123456788";
+
+        memepp::string      d_small (other, 10);
+        memepp::string      d_medium(other, 10, memepp::string_storage_t::medium);
+        memepp::string      d_large (other, 10, memepp::string_storage_t::large);
+        memepp::string_view d_view  (other, 10);
+
+        check_not_equal(s_small, d_small);
+        check_not_equal(s_small, d_medium);
+        check_not_equal(s_small, d_large);
+        check_not_equal(s_small, d_view);
+    }
+
+    SECTION("long content: medium vs large vs user vs view")
+    {
+        // The user tier is only produced above medium_limit + MMSTR__OBJ_SIZE, so
+        // a long payload is needed to exercise all owning tiers at once. Read the
+        // limit instead of hard-coding it: the MediumLimitGuard listener in
+        // mmpp_unittest.cpp saves/restores it around every test case.
+        const memepp::string::size_type len =
+            static_cast<memepp::string::size_type>(MemeStringOption_getStorageMediumLimit())
+            + static_cast<memepp::string::size_type>(MMSTR__OBJ_SIZE)
+            + 16;
+
+        const std::string payload(static_cast<std::size_t>(len), 'y');
+
+        memepp::string      l_medium(payload.data(), static_cast<mmint_t>(payload.size()),
+                                     memepp::string_storage_t::medium);
+        memepp::string      l_large (payload.data(), static_cast<mmint_t>(payload.size()),
+                                     memepp::string_storage_t::large);
+        memepp::string      l_auto  (payload.data(), static_cast<mmint_t>(payload.size()));
+        memepp::string_view l_view  (payload.data(), static_cast<mmint_t>(payload.size()));
+
+        std::string   user_src(payload);
+        memepp::string l_user = memepp::from(std::move(user_src));
+
+        REQUIRE(l_medium.storage_type() == memepp::string_storage_t::medium);
+        REQUIRE(l_large .storage_type() == memepp::string_storage_t::large);
+        REQUIRE(l_auto  .storage_type() == memepp::string_storage_t::large);
+        REQUIRE(l_user  .storage_type() == memepp::string_storage_t::user);
+        REQUIRE(l_view  .storage_type() == view_storage);
+
+        check_equal(l_medium, l_large);
+        check_equal(l_medium, l_user);
+        check_equal(l_medium, l_view);
+        check_equal(l_medium, l_auto);
+        check_equal(l_large,  l_user);
+        check_equal(l_large,  l_view);
+        check_equal(l_large,  l_auto);
+        check_equal(l_user,   l_view);
+        check_equal(l_user,   l_auto);
+        check_equal(l_view,   l_auto);
+
+        // Negative: differ in the very last byte, i.e. past the 90%-offset memcmp
+        // probe the C helper uses first, across every owning tier.
+        std::string other_src(payload);
+        other_src.back() = 'z';
+
+        memepp::string      o_medium(other_src.data(), static_cast<mmint_t>(other_src.size()),
+                                     memepp::string_storage_t::medium);
+        memepp::string      o_large (other_src.data(), static_cast<mmint_t>(other_src.size()),
+                                     memepp::string_storage_t::large);
+        memepp::string_view o_view  (other_src.data(), static_cast<mmint_t>(other_src.size()));
+
+        std::string   other_user_src(other_src);
+        memepp::string o_user = memepp::from(std::move(other_user_src));
+
+        check_not_equal(l_medium, o_medium);
+        check_not_equal(l_medium, o_large);
+        check_not_equal(l_medium, o_user);
+        check_not_equal(l_medium, o_view);
+        check_not_equal(l_large,  o_user);
+        check_not_equal(l_large,  o_view);
+        check_not_equal(l_user,   o_view);
+    }
+
+    SECTION("empty strings across tiers")
+    {
+        memepp::string      e_auto;
+        memepp::string      e_medium("", 0, memepp::string_storage_t::medium);
+        memepp::string      e_large ("", 0, memepp::string_storage_t::large);
+        // A default-constructed view stays small; an explicit 0-length one is a view.
+        memepp::string_view e_view  ("", 0);
+
+        REQUIRE(e_auto  .storage_type() == memepp::string_storage_t::small);
+        REQUIRE(e_medium.storage_type() == memepp::string_storage_t::medium);
+        REQUIRE(e_large .storage_type() == memepp::string_storage_t::large);
+        REQUIRE(e_view  .storage_type() == view_storage);
+
+        // Zero-length hits the early `lhslen == 0` branch of the C equality helper.
+        check_equal(e_auto, e_medium);
+        check_equal(e_auto, e_large);
+        check_equal(e_auto, e_view);
+        check_equal(e_medium, e_large);
+        check_equal(e_medium, e_view);
+        check_equal(e_large, e_view);
+    }
+
+    SECTION("embedded NUL compares by byteSize, not by strlen")
+    {
+        // "a\0b" is 3 bytes with an interior NUL. A strlen-based comparison would
+        // truncate it to "a" and wrongly report equality.
+        const char* nul_data = "a\0b";
+
+        memepp::string n_small (nul_data, 3);
+        memepp::string n_medium(nul_data, 3, memepp::string_storage_t::medium);
+        memepp::string n_large (nul_data, 3, memepp::string_storage_t::large);
+
+        REQUIRE(n_small .storage_type() == memepp::string_storage_t::small);
+        REQUIRE(n_medium.storage_type() == memepp::string_storage_t::medium);
+        REQUIRE(n_large .storage_type() == memepp::string_storage_t::large);
+        REQUIRE(n_small .size() == 3);
+        REQUIRE(n_medium.size() == 3);
+        REQUIRE(n_large .size() == 3);
+
+        check_equal(n_small, n_medium);
+        check_equal(n_small, n_large);
+        check_equal(n_medium, n_large);
+
+        memepp::string n_truncated("a");     // would match under strlen semantics
+        memepp::string n_diff("a\0c", 3);    // differs in the last byte only
+
+        check_not_equal(n_small, n_truncated);
+        check_not_equal(n_medium, n_truncated);
+        check_not_equal(n_large, n_truncated);
+        check_not_equal(n_small, n_diff);
+        check_not_equal(n_medium, n_diff);
+        check_not_equal(n_large, n_diff);
+
+        // Length dominates: the 1-byte prefix orders before the 3-byte string.
+        REQUIRE(n_truncated < n_small);
+        REQUIRE(n_truncated < n_medium);
+        REQUIRE(n_truncated < n_large);
     }
 }
