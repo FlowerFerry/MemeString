@@ -6,124 +6,151 @@
 
 TEST_CASE("memepp::string compare", "[string]")
 {
-    memepp::string s01_01 = "Hello World.";
-    memepp::string s02_01 = "Hello World!";
-    const char* sz01_01 = "Hello World.";
-    const char* sz02_01 = "Hello World!";
-    memepp::string_view sv01_01 = sz01_01;
-    memepp::string_view sv02_01 = sz02_01;
-    
-    REQUIRE(s01_01 >  s02_01);
-    REQUIRE(s01_01 >= s02_01);
-    REQUIRE(s02_01 <  s01_01);
-    REQUIRE(s02_01 <= s01_01);
-    
-    REQUIRE(s01_01 >  sz02_01);
-    REQUIRE(s01_01 >= sz02_01);
-    REQUIRE(sz02_01 <  s01_01);
-    REQUIRE(sz02_01 <= s01_01);
+    // --- shared data ---
+    memepp::string s_world  = "Hello World.";
+    memepp::string s_world_ = "Hello World!";
+    const char* sz_world  = "Hello World.";
+    const char* sz_world_ = "Hello World!";
+    memepp::string_view sv_world  = sz_world;
+    memepp::string_view sv_world_ = sz_world_;
 
-    REQUIRE(s01_01 >  sv02_01);
-    REQUIRE(s01_01 >= sv02_01);
-    REQUIRE(sv02_01 <  s01_01);
-    REQUIRE(sv02_01 <= s01_01);
-    
-    REQUIRE(s01_01 <= sz01_01);
-    REQUIRE(s01_01 >= sz01_01);
-    REQUIRE(sz01_01 <= s01_01);
-    REQUIRE(sz01_01 >= s01_01);
+    memepp::string s_hello = "Hello";
+    const char* sz_hello = "Hello";
+    memepp::string_view sv_hello = sz_hello;
 
-    REQUIRE(s01_01 <= sv01_01);
-    REQUIRE(s01_01 >= sv01_01);
-    REQUIRE(sv01_01 <= s01_01);
-    REQUIRE(sv01_01 >= s01_01);
+    memepp::string s_long = "Hello World...";
+    const char* sz_long = "Hello World...";
+    memepp::string_view sv_long = sz_long;
 
-    memepp::string s03_01 = "Hello";
-    const char* sz03_01 = "Hello";
-    memepp::string_view sv03_01 = sz03_01;
+    SECTION("differ at last char: 'Hello World.' vs 'Hello World!'")
+    {
+        // string vs string
+        REQUIRE(s_world >  s_world_);
+        REQUIRE(s_world >= s_world_);
+        REQUIRE(s_world_ <  s_world);
+        REQUIRE(s_world_ <= s_world);
 
-    REQUIRE(s03_01 <  s01_01);
-    REQUIRE(s03_01 <= s01_01);
-    REQUIRE(s01_01 >  s03_01);
-    REQUIRE(s01_01 >= s03_01);
-    
-    REQUIRE(s03_01 <  sz01_01);
-    REQUIRE(s03_01 <= sz01_01);
-    REQUIRE(sz01_01 >  s03_01);
-    REQUIRE(sz01_01 >= s03_01);
-    
-    REQUIRE(s03_01 <  sv01_01);
-    REQUIRE(s03_01 <= sv01_01);
-    REQUIRE(sv01_01 >  s03_01);
-    REQUIRE(sv01_01 >= s03_01);
+        // string vs const char*
+        REQUIRE(s_world >  sz_world_);
+        REQUIRE(s_world >= sz_world_);
+        REQUIRE(sz_world_ <  s_world);
+        REQUIRE(sz_world_ <= s_world);
 
-    REQUIRE(s03_01 <= sz03_01);
-    REQUIRE(sz03_01 >= s03_01);
+        // string vs string_view
+        REQUIRE(s_world >  sv_world_);
+        REQUIRE(s_world >= sv_world_);
+        REQUIRE(sv_world_ <  s_world);
+        REQUIRE(sv_world_ <= s_world);
 
-    REQUIRE(s03_01 <= sv03_01);
-    REQUIRE(sv03_01 >= s03_01);
+        // equal case (same content, different types)
+        REQUIRE(s_world <= sz_world);
+        REQUIRE(s_world >= sz_world);
+        REQUIRE(sz_world <= s_world);
+        REQUIRE(sz_world >= s_world);
 
-    memepp::string s04_01 = "Hello World...";
-    const char* sz04_01 = "Hello World...";
-    memepp::string_view sv04_01 = sz04_01;
-    
-    REQUIRE(s04_01 >  s01_01);
-    REQUIRE(s04_01 >= s01_01);
-    REQUIRE(s01_01 <  s04_01);
-    REQUIRE(s01_01 <= s04_01);
+        REQUIRE(s_world <= sv_world);
+        REQUIRE(s_world >= sv_world);
+        REQUIRE(sv_world <= s_world);
+        REQUIRE(sv_world >= s_world);
+    }
 
-    REQUIRE(s04_01 >  sz01_01);
-    REQUIRE(s04_01 >= sz01_01);
-    REQUIRE(sz01_01 <  s04_01);
-    REQUIRE(sz01_01 <= s04_01);
+    SECTION("prefix shorter: 'Hello World.' vs 'Hello'")
+    {
+        // string vs string
+        REQUIRE(s_hello <  s_world);
+        REQUIRE(s_hello <= s_world);
+        REQUIRE(s_world >  s_hello);
+        REQUIRE(s_world >= s_hello);
 
-    REQUIRE(s04_01 >  sv01_01);
-    REQUIRE(s04_01 >= sv01_01);
-    REQUIRE(sv01_01 <  s04_01);
-    REQUIRE(sv01_01 <= s04_01);
+        // string vs const char*
+        REQUIRE(s_hello <  sz_world);
+        REQUIRE(s_hello <= sz_world);
+        REQUIRE(sz_world >  s_hello);
+        REQUIRE(sz_world >= s_hello);
 
-    REQUIRE(s04_01 >= sz04_01);
-    REQUIRE(sz04_01 <= s04_01);
+        // string vs string_view
+        REQUIRE(s_hello <  sv_world);
+        REQUIRE(s_hello <= sv_world);
+        REQUIRE(sv_world >  s_hello);
+        REQUIRE(sv_world >= s_hello);
 
-    REQUIRE(s04_01 >= sv04_01);
-    REQUIRE(sv04_01 <= s04_01);
+        // equal case
+        REQUIRE(s_hello <= sz_hello);
+        REQUIRE(sz_hello >= s_hello);
+        REQUIRE(s_hello <= sv_hello);
+        REQUIRE(sv_hello >= s_hello);
+    }
 
-    memepp::string s05_01;
-    memepp::string s05_02;
-    const char* sz05_01 = "";
-    memepp::string_view sv05_01 = sz05_01;
-    memepp::rune r05_01;
-    
-    REQUIRE(s05_01 <= s05_02);
-    REQUIRE(s05_01 >= s05_02);
-    REQUIRE(s05_02 <= s05_01);
-    REQUIRE(s05_02 >= s05_01);
+    SECTION("prefix longer: 'Hello World.' vs 'Hello World...'")
+    {
+        // string vs string
+        REQUIRE(s_long >  s_world);
+        REQUIRE(s_long >= s_world);
+        REQUIRE(s_world <  s_long);
+        REQUIRE(s_world <= s_long);
 
-    REQUIRE(s05_01 <= sz05_01);
-    REQUIRE(s05_01 >= sz05_01);
-    REQUIRE(sz05_01 <= s05_01);
-    REQUIRE(sz05_01 >= s05_01);
-    
-    REQUIRE(s05_01 <= sv05_01);
-    REQUIRE(s05_01 >= sv05_01);
-    REQUIRE(sv05_01 <= s05_01);
-    REQUIRE(sv05_01 >= s05_01);
+        // string vs const char*
+        REQUIRE(s_long >  sz_world);
+        REQUIRE(s_long >= sz_world);
+        REQUIRE(sz_world <  s_long);
+        REQUIRE(sz_world <= s_long);
 
-    REQUIRE(s05_01 <= r05_01);
-    REQUIRE(s05_01 >= r05_01);
-    REQUIRE(r05_01 <= s05_01);
-    REQUIRE(r05_01 >= s05_01);
-    
-    memepp::rune r06_01 = 'H';
+        // string vs string_view
+        REQUIRE(s_long >  sv_world);
+        REQUIRE(s_long >= sv_world);
+        REQUIRE(sv_world <  s_long);
+        REQUIRE(sv_world <= s_long);
 
-    REQUIRE(s01_01 >  r06_01);
-    REQUIRE(s01_01 >= r06_01);
-    REQUIRE(r06_01 <  s01_01);
-    REQUIRE(r06_01 <= s01_01);
-    REQUIRE(s01_01 >  s03_01);
-    REQUIRE(s01_01 >= s03_01);
-    REQUIRE(s03_01 <  s01_01);
-    REQUIRE(s03_01 <= s01_01);
+        // equal case
+        REQUIRE(s_long >= sz_long);
+        REQUIRE(sz_long <= s_long);
+        REQUIRE(s_long >= sv_long);
+        REQUIRE(sv_long <= s_long);
+    }
+
+    SECTION("empty strings and default rune")
+    {
+        memepp::string s_empty1;
+        memepp::string s_empty2;
+        const char* sz_empty = "";
+        memepp::string_view sv_empty = sz_empty;
+        memepp::rune r_default;
+
+        // string vs string (both empty)
+        REQUIRE(s_empty1 <= s_empty2);
+        REQUIRE(s_empty1 >= s_empty2);
+        REQUIRE(s_empty2 <= s_empty1);
+        REQUIRE(s_empty2 >= s_empty1);
+
+        // string vs const char*
+        REQUIRE(s_empty1 <= sz_empty);
+        REQUIRE(s_empty1 >= sz_empty);
+        REQUIRE(sz_empty <= s_empty1);
+        REQUIRE(sz_empty >= s_empty1);
+
+        // string vs string_view
+        REQUIRE(s_empty1 <= sv_empty);
+        REQUIRE(s_empty1 >= sv_empty);
+        REQUIRE(sv_empty <= s_empty1);
+        REQUIRE(sv_empty >= s_empty1);
+
+        // string vs rune (default)
+        REQUIRE(s_empty1 <= r_default);
+        REQUIRE(s_empty1 >= r_default);
+        REQUIRE(r_default <= s_empty1);
+        REQUIRE(r_default >= s_empty1);
+    }
+
+    SECTION("string vs rune")
+    {
+        memepp::rune r_H = 'H';
+
+        // string vs rune
+        REQUIRE(s_world >  r_H);
+        REQUIRE(s_world >= r_H);
+        REQUIRE(r_H <  s_world);
+        REQUIRE(r_H <= s_world);
+    }
 }
 
 // ---------------------------------------------------------------------------
