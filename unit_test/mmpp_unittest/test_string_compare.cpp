@@ -288,3 +288,73 @@ TEST_CASE("memepp::string compare with string::const_pointer", "[string]")
     REQUIRE_FALSE(p_apple  <  s_apple2);
     REQUIRE_FALSE(p_apple  >  s_apple2);
 }
+
+// ---------------------------------------------------------------------------
+// Non-ASCII / high bytes, embedded NUL, and string::compare() return value
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string compare: high bytes, embedded NUL, compare() value",
+          "[string]")
+{
+    SECTION("non-ASCII / high bytes: memcmp is unsigned so 0xFF > 'a'")
+    {
+        // Single-byte: 0xFF (255) > 'a' (97) under unsigned comparison
+        memepp::string s_ff("\xFF", 1);
+        memepp::string s_a("a");
+        REQUIRE(s_ff.compare(s_a) == 1);
+        REQUIRE(s_a.compare(s_ff) == -1);
+        REQUIRE(s_ff > s_a);
+        REQUIRE(s_a < s_ff);
+
+        // 0x80 (128) > 'z' (122)
+        memepp::string s_80("\x80", 1);
+        memepp::string s_z("z");
+        REQUIRE(s_80.compare(s_z) == 1);
+        REQUIRE(s_z.compare(s_80) == -1);
+
+        // Two high-byte strings differing at second byte
+        memepp::string s_ab("\xFF\x00", 2);
+        memepp::string s_ac("\xFF\x01", 2);
+        REQUIRE(s_ab.compare(s_ac) == -1);
+        REQUIRE(s_ac.compare(s_ab) == 1);
+    }
+
+    SECTION("embedded NUL: compare treats it as a 0 byte, not terminator")
+    {
+        // "a\0b" (3 bytes) vs "a\0c" (3 bytes) — differ at byte 2
+        memepp::string s_abc("a\0b", 3);
+        memepp::string s_abz("a\0c", 3);
+        REQUIRE(s_abc.compare(s_abz) == -1);   // 'b' < 'c'
+        REQUIRE(s_abz.compare(s_abc) == 1);
+
+        // "a" (1 byte) vs "a\0b" (3 bytes) — prefix match, shorter is less
+        memepp::string s_a("a");
+        REQUIRE(s_a.compare(s_abc) == -1);
+        REQUIRE(s_abc.compare(s_a) == 1);
+
+        // "\0" (1 byte) vs "" (0 bytes)
+        memepp::string s_nul("\0", 1);
+        memepp::string s_empty;
+        REQUIRE(s_nul.compare(s_empty) == 1);
+        REQUIRE(s_empty.compare(s_nul) == -1);
+    }
+
+    SECTION("string::compare() return value: exactly -1 / 0 / +1")
+    {
+        memepp::string s1("Hello");
+        memepp::string s2("Hello");
+        memepp::string s3("World");
+
+        // Equal → 0
+        REQUIRE(s1.compare(s2) == 0);
+
+        // Less → -1 (MemeString_compare returns exactly -1/0/1)
+        REQUIRE(s1.compare(s3) == -1);
+
+        // Greater → +1
+        REQUIRE(s3.compare(s1) == 1);
+
+        // Symmetry: compare(a,b) == -compare(b,a)
+        REQUIRE(s1.compare(s3) == -s3.compare(s1));
+    }
+}
