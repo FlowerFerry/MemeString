@@ -47,4 +47,16 @@ namespace convert {
 }
 }
 
+namespace fmt {
+
+inline auto runtime(const memepp::string& s) {
+    return fmt::runtime(fmt::string_view(s.data(), s.size()));
+}
+
+inline auto runtime(const memepp::string_view& s) {
+    return fmt::runtime(fmt::string_view(s.data(), s.size()));
+}
+
+}
+
 #endif // !MEMEPP_CONVERT_FMT_HPP_INCLUDED
