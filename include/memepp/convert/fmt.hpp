@@ -49,12 +49,12 @@ namespace convert {
 
 namespace fmt {
 
-inline auto runtime(const memepp::string& s) {
-    return fmt::runtime(fmt::string_view(s.data(), s.size()));
+inline auto runtime(const memepp::string& _s) {
+    return fmt::runtime(fmt::string_view(_s.data(), static_cast<size_t>(_s.size())));
 }
 
-inline auto runtime(const memepp::string_view& s) {
-    return fmt::runtime(fmt::string_view(s.data(), s.size()));
+inline auto runtime(const memepp::string_view& _s) {
+    return fmt::runtime(fmt::string_view(_s.data(), static_cast<size_t>(_s.size())));
 }
 
 }

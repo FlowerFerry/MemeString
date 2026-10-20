@@ -154,6 +154,37 @@ TEST_CASE("memepp::string compare", "[string]")
         REQUIRE(r_H <  s_world);
         REQUIRE(r_H <= s_world);
     }
+
+    SECTION("string vs rune: equality and missing orderings")
+    {
+        memepp::string s_H = "H";          // single-char string for equality test
+        memepp::rune r_H = 'H';
+        memepp::rune r_Z = 'Z';
+
+        // == (both directions, equal + unequal)
+        REQUIRE(s_H == r_H);              // string == rune (both "H")
+        REQUIRE(r_H == s_H);              // rune == string (both "H")
+        REQUIRE_FALSE(s_hello == r_H);    // "Hello" != 'H' (different lengths)
+        REQUIRE_FALSE(r_H == s_hello);
+        REQUIRE_FALSE(s_H == r_Z);        // 'H' != 'Z'
+        REQUIRE_FALSE(r_Z == s_H);
+
+        // != (both directions, equal + unequal)
+        REQUIRE(s_hello != r_H);          // "Hello" != 'H'
+        REQUIRE(r_H != s_hello);
+        REQUIRE_FALSE(s_H != r_H);        // "H" == 'H'
+        REQUIRE_FALSE(r_H != s_H);
+        REQUIRE(s_H != r_Z);              // 'H' != 'Z'
+        REQUIRE(r_Z != s_H);
+
+        // string < rune (was missing; only rune < string existed)
+        REQUIRE(s_H < r_Z);               // 'H' < 'Z'
+        REQUIRE_FALSE(s_H < r_H);         // equal → not less
+
+        // rune > string (was missing; only rune < string existed)
+        REQUIRE(r_Z > s_H);               // 'Z' > 'H'
+        REQUIRE_FALSE(r_H > s_H);         // equal → not greater
+    }
 }
 
 // ---------------------------------------------------------------------------
