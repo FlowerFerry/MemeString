@@ -2,6 +2,8 @@
 #include <catch2/catch.hpp>
 
 #include <memepp/string.hpp>
+#include <memepp/convert/std/string.hpp>
+#include <string>
 #include <megopp/util/scope_cleanup.h>
 
 TEST_CASE("memepp::string trim_if byte predicate", "[string]")
@@ -68,4 +70,35 @@ TEST_CASE("memepp::string trim_if_rune rune predicate", "[string]")
         return r == memepp::rune(' ');
     });
     REQUIRE(r04 == "");
+}
+
+TEST_CASE("memepp::string trim_if - user storage", "[string]")
+{
+    const mmint_t mediumLimit = MemeStringOption_getStorageMediumLimit();
+    std::string data(mediumLimit + 100, 'X');
+    data[0] = 'A';
+    data[1] = 'B';
+    memepp::string user_str = memepp::from(std::move(data));
+    REQUIRE(user_str.storage_type() == memepp::string_storage_t::user);
+
+    memepp::string trimmed = user_str.trim_if([](uint8_t c) { return c == 'X'; });
+    REQUIRE(trimmed == "AB");
+}
+
+TEST_CASE("memepp::string trim_if - view storage", "[string]")
+{
+    const char* src = "XXXHelloXXX";
+    mmstrstk_t view_str;
+    int rc = MemeStringViewUnsafeStack_init(&view_str, sizeof(view_str),
+        reinterpret_cast<const uint8_t*>(src), -1);
+    REQUIRE(rc == 0);
+    REQUIRE(MemeString_storageType((mmstr_cptr_t)&view_str) == MemeString_UnsafeStorageType_view);
+
+    memepp::string_view sv(
+        reinterpret_cast<const char*>(MemeString_byteData((mmstr_cptr_t)&view_str)),
+        MemeString_byteSize((mmstr_cptr_t)&view_str));
+    memepp::string_view trimmed = sv.trim_if([](uint8_t c) { return c == 'X'; });
+    REQUIRE(trimmed == "Hello");
+
+    MemeStringStack_unInit(&view_str, sizeof(view_str));
 }

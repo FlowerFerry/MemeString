@@ -3,6 +3,7 @@
 
 #include <memepp/string_view.hpp>
 #include <memepp/string.hpp>
+#include <memepp/convert/std/string.hpp>
 
 #include <string>
 #include <cstdint>
@@ -207,4 +208,44 @@ TEST_CASE("memepp::string left/right - large storage", "[string]")
         REQUIRE(str.left(size) == str);
         REQUIRE(str.right(size) == str);
     }
+}
+
+TEST_CASE("memepp::string left/right - user storage", "[string]")
+{
+    const mmint_t mediumLimit = MemeStringOption_getStorageMediumLimit();
+    std::string data(mediumLimit + 100, 'L');
+    data[0] = 'F';
+    data[1] = 'I';
+    data[2] = 'R';
+    data[3] = 'S';
+    data[4] = 'T';
+    memepp::string user_str = memepp::from(std::move(data));
+    REQUIRE(user_str.storage_type() == memepp::string_storage_t::user);
+
+    memepp::string left5 = user_str.left(5);
+    REQUIRE(left5 == "FIRST");
+
+    memepp::string right3 = user_str.right(3);
+    REQUIRE(right3 == "LLL");
+}
+
+TEST_CASE("memepp::string left/right - view storage", "[string]")
+{
+    const char* src = "Hello World";
+    mmstrstk_t view_str;
+    int rc = MemeStringViewUnsafeStack_init(&view_str, sizeof(view_str),
+        reinterpret_cast<const uint8_t*>(src), -1);
+    REQUIRE(rc == 0);
+    REQUIRE(MemeString_storageType((mmstr_cptr_t)&view_str) == MemeString_UnsafeStorageType_view);
+
+    memepp::string_view sv(
+        reinterpret_cast<const char*>(MemeString_byteData((mmstr_cptr_t)&view_str)),
+        MemeString_byteSize((mmstr_cptr_t)&view_str));
+    memepp::string left5 = sv.substr(0, 5).to_string();
+    REQUIRE(left5 == "Hello");
+
+    memepp::string right5 = sv.substr(sv.size() - 5).to_string();
+    REQUIRE(right5 == "World");
+
+    MemeStringStack_unInit(&view_str, sizeof(view_str));
 }

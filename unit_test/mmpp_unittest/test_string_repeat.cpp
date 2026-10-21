@@ -3,6 +3,8 @@
 
 #include <memepp/string_view.hpp>
 #include <memepp/string.hpp>
+#include <memepp/convert/std/string.hpp>
+#include <string>
 #include <megopp/util/scope_cleanup.h>
 
 TEST_CASE("memepp::string repeat", "[string]")
@@ -76,4 +78,33 @@ TEST_CASE("memepp::string static repeat", "[string]")
     REQUIRE(long_str.size() == 1000);
     REQUIRE(long_str.storage_type() == memepp::string_storage_t::large);
     REQUIRE(long_str.starts_with("12345678901234567890"));
+}
+
+TEST_CASE("memepp::string repeat - user storage", "[string]")
+{
+    const mmint_t mediumLimit = MemeStringOption_getStorageMediumLimit();
+    std::string data(mediumLimit + 100, 'X');
+    memepp::string user_str = memepp::from(std::move(data));
+    REQUIRE(user_str.storage_type() == memepp::string_storage_t::user);
+
+    memepp::string result = user_str.repeat(2);
+    REQUIRE(result.size() == user_str.size() * 2);
+}
+
+TEST_CASE("memepp::string repeat - view storage", "[string]")
+{
+    const char* src = "ABC";
+    mmstrstk_t view_str;
+    int rc = MemeStringViewUnsafeStack_init(&view_str, sizeof(view_str),
+        reinterpret_cast<const uint8_t*>(src), -1);
+    REQUIRE(rc == 0);
+    REQUIRE(MemeString_storageType((mmstr_cptr_t)&view_str) == MemeString_UnsafeStorageType_view);
+
+    memepp::string_view sv(
+        reinterpret_cast<const char*>(MemeString_byteData((mmstr_cptr_t)&view_str)),
+        MemeString_byteSize((mmstr_cptr_t)&view_str));
+    memepp::string result = sv.repeat(3);
+    REQUIRE(result == "ABCABCABC");
+
+    MemeStringStack_unInit(&view_str, sizeof(view_str));
 }

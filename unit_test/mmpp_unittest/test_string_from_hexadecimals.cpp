@@ -3,6 +3,8 @@
 
 #include <memepp/string_view.hpp>
 #include <memepp/string.hpp>
+#include <memepp/convert/std/string.hpp>
+#include <string>
 
 #include <vector>
 
@@ -94,4 +96,36 @@ TEST_CASE("memepp::string from_hexadecimals", "[string]")
         REQUIRE(s.substr(0, 4) == "CDCD");
         REQUIRE(s.substr(996) == "CDCD");
     }
+}
+
+TEST_CASE("memepp::string from_hexadecimals - user storage input", "[string]")
+{
+    // from_hexadecimals() itself always yields small/medium/large storage.
+    // Guard that a user-storage source in the same scope does not disturb it.
+    const mmint_t mediumLimit = MemeStringOption_getStorageMediumLimit();
+    std::string data(mediumLimit + 100, 'A');
+    memepp::string user_str = memepp::from(std::move(data));
+    REQUIRE(user_str.storage_type() == memepp::string_storage_t::user);
+
+    uint8_t buf[] = { 0xAB, 0xCD, 0xEF };
+    memepp::string result = memepp::from_hexadecimals("-", buf, sizeof(buf));
+    REQUIRE(result == "AB-CD-EF");
+}
+
+TEST_CASE("memepp::string from_hexadecimals - view storage input", "[string]")
+{
+    // from_hexadecimals() itself always yields small/medium/large storage.
+    // Guard that a view-storage source in the same scope does not disturb it.
+    const char* src = "ABC";
+    mmstrstk_t view_str;
+    int rc = MemeStringViewUnsafeStack_init(&view_str, sizeof(view_str),
+        reinterpret_cast<const uint8_t*>(src), -1);
+    REQUIRE(rc == 0);
+    REQUIRE(MemeString_storageType((mmstr_cptr_t)&view_str) == MemeString_UnsafeStorageType_view);
+
+    uint8_t buf[] = { 0x12, 0x34 };
+    memepp::string result = memepp::from_hexadecimals("", buf, sizeof(buf));
+    REQUIRE(result == "1234");
+
+    MemeStringStack_unInit(&view_str, sizeof(view_str));
 }

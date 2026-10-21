@@ -3,6 +3,8 @@
 
 #include <memepp/string_view.hpp>
 #include <memepp/string.hpp>
+#include <memepp/convert/std/string.hpp>
+#include <string>
 #include <megopp/util/scope_cleanup.h>
 
 TEST_CASE("MemeStringStack to_valid_utf8 (C API)", "[string]") 
@@ -78,4 +80,47 @@ TEST_CASE("MemeStringStack to_valid_utf8 (C API)", "[string]")
 
     REQUIRE(MemeString_byteSize((mmstr_cptr_t)&str01_02) == 0);
     REQUIRE(strncmp(MemeString_cStr((mmstr_cptr_t)&str01_02), "", 1) == 0);
+}
+
+TEST_CASE("memepp::string to_valid_utf8 - user storage", "[string]")
+{
+    // user storage: produced by from(std::string&&) above the medium limit.
+    const mmint_t mediumLimit = MemeStringOption_getStorageMediumLimit();
+    std::string data(mediumLimit + 100, 'A');
+    data[50] = '\xF0';
+    data[51] = '\x9F';
+    data[52] = '\x98';
+    data[53] = '\x8A';
+    memepp::string user_str = memepp::from(std::move(data));
+    REQUIRE(user_str.storage_type() == memepp::string_storage_t::user);
+
+    mmstrstk_t ret;
+    MEGOPP_UTIL__ON_SCOPE_CLEANUP([&]() {
+        mmstrstk_uninit_v0(&ret, MMSTR__OBJ_SIZE);
+    });
+
+    MemeStringStack_toValidUtf8_v2(&user_str.native_handle(), &ret, MMSTR__OBJ_SIZE);
+    REQUIRE(MemeString_byteSize((mmstr_cptr_t)&ret) == user_str.size());
+}
+
+TEST_CASE("memepp::string to_valid_utf8 - view storage", "[string]")
+{
+    // C++ wrapper cannot produce view-type string (constructor deep-copies views).
+    // Use C API directly to create a view.
+    const char* src = "Hello, \xF0\x9F\x98\x8A, World!";
+    mmstrstk_t view_str;
+    int rc = MemeStringViewUnsafeStack_init(&view_str, sizeof(view_str),
+        reinterpret_cast<const uint8_t*>(src), -1);
+    REQUIRE(rc == 0);
+    REQUIRE(MemeString_storageType((mmstr_cptr_t)&view_str) == MemeString_UnsafeStorageType_view);
+
+    mmstrstk_t ret;
+    MEGOPP_UTIL__ON_SCOPE_CLEANUP([&]() {
+        mmstrstk_uninit_v0(&ret, MMSTR__OBJ_SIZE);
+    });
+
+    MemeStringStack_toValidUtf8_v2(&view_str, &ret, MMSTR__OBJ_SIZE);
+    REQUIRE(MemeString_byteSize((mmstr_cptr_t)&ret) == 19);
+
+    MemeStringStack_unInit(&view_str, sizeof(view_str));
 }

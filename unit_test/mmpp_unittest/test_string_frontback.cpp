@@ -5,6 +5,7 @@
 #include <memepp/string_view.hpp>
 #include <memepp/string.hpp>
 #include <memepp/errc.hpp>
+#include <memepp/convert/std/string.hpp>
 
 #include <string>
 
@@ -121,6 +122,32 @@ TEST_CASE("memepp::string front/back — large storage", "[string]")
     REQUIRE(s.storage_type() == memepp::string_storage_t::large);
     REQUIRE(s.front() == 'F');
     REQUIRE(s.back()  == 'E');
+}
+
+TEST_CASE("memepp::string front/back — user storage", "[string]")
+{
+    const mmint_t mediumLimit = MemeStringOption_getStorageMediumLimit();
+    std::string data(mediumLimit + 100, 'U');
+    data.front() = 'A';
+    data.back()  = 'Z';
+
+    // user storage: produced by from(std::string&&) above the medium limit.
+    memepp::string s = memepp::from(std::move(data));
+    REQUIRE(s.storage_type() == memepp::string_storage_t::user);
+    REQUIRE(s.front() == 'A');
+    REQUIRE(s.back()  == 'Z');
+}
+
+TEST_CASE("memepp::string front/back — view storage", "[string]")
+{
+    // string_view building from a string yields a non-owning view on the source.
+    memepp::string backing = "0123456789";
+    memepp::string_view sv = backing;
+    const auto view_storage =
+        static_cast<memepp::string_storage_t>(MemeString_UnsafeStorageType_view);
+    REQUIRE(sv.storage_type() == view_storage);
+    REQUIRE(sv.front() == '0');
+    REQUIRE(sv.back()  == '9');
 }
 
 TEST_CASE("memepp::string_view front/back — partial view of larger buffer", "[string_view]")

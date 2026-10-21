@@ -4,8 +4,11 @@
 #include <memepp/split/self.hpp>
 #include <memepp/string.hpp>
 #include <memepp/string_view.hpp>
+#include <memepp/convert/std/string.hpp>
 #include <list>
 #include <deque>
+#include <string>
+#include <vector>
 
 #include <megopp/util/scope_cleanup.h>
 
@@ -168,4 +171,24 @@ TEST_CASE("memepp::string split", "[string]")
 	REQUIRE(l03_sv01[3] == "3");
 	REQUIRE(l03_sv01[4] == "444");
 	
+}
+
+TEST_CASE("memepp::string split - user storage", "[string]")
+{
+	// user storage: only produced by from() for inputs above the medium limit.
+	std::string user_data(500, 'a');
+	user_data[100] = ':';
+	user_data[200] = ':';
+	user_data[300] = ':';
+	memepp::string user_str = memepp::from(std::move(user_data));
+	REQUIRE(user_str.storage_type() == memepp::string_storage_t::user);
+	REQUIRE(user_str.size() == 500);
+
+	std::vector<memepp::string_view> results;
+	user_str.split(":", memepp::split_behav_t::keep_empty_parts, std::back_inserter(results));
+	REQUIRE(results.size() == 4);
+	REQUIRE(results[0].size() == 100);
+	REQUIRE(results[1].size() == 99);
+	REQUIRE(results[2].size() == 99);
+	REQUIRE(results[3].size() == 199);
 }

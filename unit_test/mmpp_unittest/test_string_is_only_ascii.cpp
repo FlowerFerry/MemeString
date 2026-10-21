@@ -3,6 +3,8 @@
 
 #include <memepp/string_view.hpp>
 #include <memepp/string.hpp>
+#include <memepp/convert/std/string.hpp>
+#include <string>
 
 TEST_CASE("memepp::string is_only_ascii", "[string]")
 {
@@ -95,4 +97,30 @@ TEST_CASE("memepp::string_view is_only_ascii non-ASCII at end", "[string_view]")
     char data[] = { 'h', 'e', 'l', 'l', 'o', '\x80' };
     memepp::string_view sv(data, sizeof(data));
     REQUIRE(sv.is_only_ascii() == false);
+}
+
+TEST_CASE("memepp::string is_only_ascii - user storage", "[string]")
+{
+    const mmint_t mediumLimit = MemeStringOption_getStorageMediumLimit();
+    std::string data(mediumLimit + 100, 'A');
+    memepp::string user_str = memepp::from(std::move(data));
+    REQUIRE(user_str.storage_type() == memepp::string_storage_t::user);
+    REQUIRE(user_str.is_only_ascii() == true);
+}
+
+TEST_CASE("memepp::string is_only_ascii - view storage", "[string]")
+{
+    const char* src = "Hello World";
+    mmstrstk_t view_str;
+    int rc = MemeStringViewUnsafeStack_init(&view_str, sizeof(view_str),
+        reinterpret_cast<const uint8_t*>(src), -1);
+    REQUIRE(rc == 0);
+    REQUIRE(MemeString_storageType((mmstr_cptr_t)&view_str) == MemeString_UnsafeStorageType_view);
+
+    memepp::string_view sv(
+        reinterpret_cast<const char*>(MemeString_byteData((mmstr_cptr_t)&view_str)),
+        MemeString_byteSize((mmstr_cptr_t)&view_str));
+    REQUIRE(sv.is_only_ascii() == true);
+
+    MemeStringStack_unInit(&view_str, sizeof(view_str));
 }

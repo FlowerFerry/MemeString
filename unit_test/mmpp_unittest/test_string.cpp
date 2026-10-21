@@ -5,6 +5,7 @@
 #include <memepp/string_view.hpp>
 #include <memepp/convert/std/string.hpp>
 #include <memepp/to_string.hpp>
+#include <string>
 
 TEST_CASE("memepp::string count", "[string]")
 {
@@ -36,6 +37,36 @@ TEST_CASE("memepp::string count", "[string]")
     REQUIRE(str.count("Xx") == 0); // not found
     REQUIRE(memepp::string{}.count("A") == 0); // empty string
     //REQUIRE(memepp::string{"A"}.count("A", memepp::case_sensit_t::all_insensitive) == 1);
+}
+
+TEST_CASE("memepp::string count - user storage", "[string]")
+{
+    // user storage: only produced by from() for inputs above the medium limit.
+    std::string user_data(500, 'A');
+    user_data[100] = 'B';
+    user_data[200] = 'B';
+    user_data[300] = 'B';
+    memepp::string user_str = memepp::from(std::move(user_data));
+    REQUIRE(user_str.storage_type() == memepp::string_storage_t::user);
+    REQUIRE(user_str.size() == 500);
+
+    REQUIRE(user_str.count("B") == 3);
+    REQUIRE(user_str.count("A") == 497);
+    REQUIRE(user_str.count("X") == 0);
+}
+
+TEST_CASE("memepp::string count - view storage", "[string]")
+{
+    memepp::string backing = "AaBbCcAaBbCcAaBbCc";
+    memepp::string_view view_str = backing;
+    const auto view_storage =
+        static_cast<memepp::string_storage_t>(MemeString_UnsafeStorageType_view);
+    REQUIRE(view_str.storage_type() == view_storage);
+
+    REQUIRE(view_str.count("Aa") == 3);
+    REQUIRE(view_str.count("Bb") == 3);
+    REQUIRE(view_str.count("Cc") == 3);
+    REQUIRE(view_str.count("Xx") == 0);
 }
 
 // 测试 to_large 的全面情况

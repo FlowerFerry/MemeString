@@ -3,6 +3,8 @@
 
 #include <memepp/string_view.hpp>
 #include <memepp/string.hpp>
+#include <memepp/convert/std/string.hpp>
+#include <string>
 
 // ---------------------------------------------------------------------------
 // memepp::string_view — trim_prefix
@@ -126,4 +128,39 @@ TEST_CASE("memepp::string trim_suffix — suffix equals whole string", "[string_
 {
     memepp::string s = "Hello";
     REQUIRE(s.trim_suffix("Hello") == memepp::string_view{ "" });
+}
+
+TEST_CASE("memepp::string trim_prefix/suffix - user storage", "[string]")
+{
+    const mmint_t mediumLimit = MemeStringOption_getStorageMediumLimit();
+    std::string data(mediumLimit + 100, 'T');
+    data[0] = 'P';
+    data[1] = 'R';
+    data[2] = 'E';
+    data[3] = 'F';
+    data[4] = 'I';
+    data[5] = 'X';
+    memepp::string user_str = memepp::from(std::move(data));
+    REQUIRE(user_str.storage_type() == memepp::string_storage_t::user);
+
+    memepp::string trimmed = user_str.trim_prefix("PREFIX");
+    REQUIRE(trimmed.size() == user_str.size() - 6);
+}
+
+TEST_CASE("memepp::string trim_prefix/suffix - view storage", "[string]")
+{
+    const char* src = "PREFIXHelloSUFFIX";
+    mmstrstk_t view_str;
+    int rc = MemeStringViewUnsafeStack_init(&view_str, sizeof(view_str),
+        reinterpret_cast<const uint8_t*>(src), -1);
+    REQUIRE(rc == 0);
+    REQUIRE(MemeString_storageType((mmstr_cptr_t)&view_str) == MemeString_UnsafeStorageType_view);
+
+    memepp::string_view sv(
+        reinterpret_cast<const char*>(MemeString_byteData((mmstr_cptr_t)&view_str)),
+        MemeString_byteSize((mmstr_cptr_t)&view_str));
+    memepp::string_view trimmed = sv.trim_prefix("PREFIX").trim_suffix("SUFFIX");
+    REQUIRE(trimmed == "Hello");
+
+    MemeStringStack_unInit(&view_str, sizeof(view_str));
 }
