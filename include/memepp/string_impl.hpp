@@ -143,6 +143,36 @@ inline namespace MMPP_NAMESPACE {
 #endif
 	}
 
+#if defined(__cpp_char8_t)
+	MEMEPP__IMPL_INLINE string::string(const char8_t* _utf8)
+	{
+		*errc() = MemeStringStack_initByU8bytes(&data_, MMSTR__OBJ_SIZE,
+			reinterpret_cast<const uint8_t*>(_utf8), -1);
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(*errc());
+#endif
+	}
+
+	MEMEPP__IMPL_INLINE string::string(const char8_t* _utf8, size_type _size)
+	{
+		*errc() = MemeStringStack_initByU8bytes(&data_, MMSTR__OBJ_SIZE,
+			reinterpret_cast<const uint8_t*>(_utf8), _size);
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(*errc());
+#endif
+	}
+
+	MEMEPP__IMPL_INLINE string::string(
+		const char8_t* _utf8, size_type _size, string_storage_t _suggest)
+	{
+		*errc() = MemeStringStack_initByU8bytesAndType(&data_, MMSTR__OBJ_SIZE,
+			reinterpret_cast<const uint8_t*>(_utf8), _size, static_cast<MemeString_Storage_t>(_suggest));
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(*errc());
+#endif
+	}
+#endif
+
 	MEMEPP__IMPL_INLINE string::string(const uint16_t* _utf16, size_type _size)
 	{
         *errc() = MemeStringStack_initByU16bytes(&data_, MMSTR__OBJ_SIZE, _utf16, _size);
@@ -1383,6 +1413,73 @@ inline namespace MMPP_NAMESPACE {
         return !(_lhs < _rhs);
 	}
 
+#if defined(__cpp_char8_t)
+	MEMEPP__IMPL_INLINE bool operator==(const string& _lhs, const char8_t* _rhs) noexcept
+	{
+		return _lhs == reinterpret_cast<const char*>(_rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator==(const char8_t* _lhs, const string& _rhs) noexcept
+	{
+		return reinterpret_cast<const char*>(_lhs) == _rhs;
+	}
+
+	MEMEPP__IMPL_INLINE bool operator!=(const string& _lhs, const char8_t* _rhs) noexcept
+	{
+		return !(_lhs == reinterpret_cast<const char*>(_rhs));
+	}
+
+	MEMEPP__IMPL_INLINE bool operator!=(const char8_t* _lhs, const string& _rhs) noexcept
+	{
+		return !(reinterpret_cast<const char*>(_lhs) == _rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator<(const string& _lhs, const char8_t* _rhs) noexcept
+	{
+		return _lhs < reinterpret_cast<const char*>(_rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator<(const char8_t* _lhs, const string& _rhs) noexcept
+	{
+		return reinterpret_cast<const char*>(_lhs) < _rhs;
+	}
+
+	MEMEPP__IMPL_INLINE bool operator>(const string& _lhs, const char8_t* _rhs) noexcept
+	{
+		return _lhs > reinterpret_cast<const char*>(_rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator>(const char8_t* _lhs, const string& _rhs) noexcept
+	{
+		return reinterpret_cast<const char*>(_lhs) > _rhs;
+	}
+
+	MEMEPP__IMPL_INLINE bool operator<=(const string& _lhs, const char8_t* _rhs) noexcept
+	{
+		return _lhs <= reinterpret_cast<const char*>(_rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator<=(const char8_t* _lhs, const string& _rhs) noexcept
+	{
+		return reinterpret_cast<const char*>(_lhs) <= _rhs;
+	}
+
+	MEMEPP__IMPL_INLINE bool operator>=(const string& _lhs, const char8_t* _rhs) noexcept
+	{
+		return _lhs >= reinterpret_cast<const char*>(_rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator>=(const char8_t* _lhs, const string& _rhs) noexcept
+	{
+		return reinterpret_cast<const char*>(_lhs) >= _rhs;
+	}
+
+	MEMEPP__IMPL_INLINE string string::operator+(const char8_t* _utf8) const
+	{
+		return (*this) + reinterpret_cast<const char*>(_utf8);
+	}
+#endif
+
 } // namespace MMPP_NAMESPACE
 
 	MEMEPP__IMPL_INLINE string from_hexadecimals(const uint8_t* _buf, size_t _len)
@@ -1448,6 +1545,50 @@ inline namespace MMPP_NAMESPACE {
 		return ec ? string{} : string{ std::move(out) };
 	}
 
+#if defined(__cpp_char8_t)
+	MEMEPP__IMPL_INLINE string c_format(size_t _size_limit, const char8_t* _fmt, ...)
+	{
+		if (!_fmt)
+			return string{};
+
+		va_list args;
+		va_start(args, _fmt);
+		mmstrstk_t out;
+		mgec_t ec = *errc() =
+			MemeStringStack_vformatWithLimitInCstyle_v2(
+				&out, sizeof(out), _size_limit, -1,
+				reinterpret_cast<const char*>(_fmt), args);
+		va_end(args);
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(ec);
+#endif
+		return ec ? string{} : string{ std::move(out) };
+	}
+
+	MEMEPP__IMPL_INLINE string c_format(
+		mmint_t _size_limit,
+		mmint_t _predict,
+		const char8_t* _fmt,
+		...)
+	{
+		if (!_fmt)
+			return string{};
+
+		va_list args;
+		va_start(args, _fmt);
+		mmstrstk_t out;
+		mgec_t ec = *errc() =
+			MemeStringStack_vformatWithLimitInCstyle_v2(
+				&out, sizeof(out), _size_limit, _predict,
+				reinterpret_cast<const char*>(_fmt), args);
+		va_end(args);
+#if !MMOPT__EXCEPTION_DISABLED
+		throw_errc(ec);
+#endif
+		return ec ? string{} : string{ std::move(out) };
+	}
+#endif
+
 }; // namespace memepp
 
 	MEMEPP__IMPL_INLINE memepp::string mm_from(const char* _str, size_t _len)
@@ -1466,6 +1607,13 @@ inline namespace MMPP_NAMESPACE {
         (builder += _lhs) += _rhs;
         return builder;
 	}
+
+#if defined(__cpp_char8_t)
+	MEMEPP__IMPL_INLINE memepp::string_builder operator+(const char8_t* _lhs, const memepp::string& _rhs)
+	{
+		return reinterpret_cast<const char*>(_lhs) + _rhs;
+	}
+#endif
 
 	MEMEPP__IMPL_INLINE memepp::string operator""_meme(const char* _str, size_t _len)
 	{

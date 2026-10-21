@@ -78,6 +78,20 @@ inline namespace MMPP_NAMESPACE {
 		MemeStringViewUnsafeStack_init(&data_, MEME_STRING__OBJECT_SIZE, _utf8, _size);
 	}
 
+#if defined(__cpp_char8_t)
+	MEMEPP__IMPL_INLINE string_view::string_view(const char8_t* _utf8) noexcept
+	{
+		MemeStringViewUnsafeStack_init(&data_, MEME_STRING__OBJECT_SIZE,
+			reinterpret_cast<const uint8_t*>(_utf8), -1);
+	}
+
+	MEMEPP__IMPL_INLINE string_view::string_view(const char8_t* _utf8, size_type _size) noexcept
+	{
+		MemeStringViewUnsafeStack_init(&data_, MEME_STRING__OBJECT_SIZE,
+			reinterpret_cast<const uint8_t*>(_utf8), _size);
+	}
+#endif
+
 	MEMEPP__IMPL_INLINE string_view::string_view(const string& _other) noexcept
 	{
 		auto other = to_pointer(_other.native_handle());
@@ -174,6 +188,73 @@ inline namespace MMPP_NAMESPACE {
         sb += _other;
         return sb;
 	}
+
+#if defined(__cpp_char8_t)
+	MEMEPP__IMPL_INLINE string_builder string_view::operator+(const char8_t* _other) const
+	{
+        return *this + reinterpret_cast<const char*>(_other);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator==(const string_view& _lhs, const char8_t* _rhs)
+	{
+		return _lhs == reinterpret_cast<const char*>(_rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator==(const char8_t* _lhs, const string_view& _rhs)
+	{
+		return reinterpret_cast<const char*>(_lhs) == _rhs;
+	}
+
+	MEMEPP__IMPL_INLINE bool operator!=(const string_view& _lhs, const char8_t* _rhs)
+	{
+		return !(_lhs == reinterpret_cast<const char*>(_rhs));
+	}
+
+	MEMEPP__IMPL_INLINE bool operator!=(const char8_t* _lhs, const string_view& _rhs)
+	{
+		return !(reinterpret_cast<const char*>(_lhs) == _rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator<(const string_view& _lhs, const char8_t* _rhs) noexcept
+	{
+		return _lhs < reinterpret_cast<const char*>(_rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator<(const char8_t* _lhs, const string_view& _rhs) noexcept
+	{
+		return reinterpret_cast<const char*>(_lhs) < _rhs;
+	}
+
+	MEMEPP__IMPL_INLINE bool operator>(const string_view& _lhs, const char8_t* _rhs) noexcept
+	{
+		return _lhs > reinterpret_cast<const char*>(_rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator>(const char8_t* _lhs, const string_view& _rhs) noexcept
+	{
+		return reinterpret_cast<const char*>(_lhs) > _rhs;
+	}
+
+	MEMEPP__IMPL_INLINE bool operator<=(const string_view& _lhs, const char8_t* _rhs) noexcept
+	{
+		return _lhs <= reinterpret_cast<const char*>(_rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator<=(const char8_t* _lhs, const string_view& _rhs) noexcept
+	{
+		return reinterpret_cast<const char*>(_lhs) <= _rhs;
+	}
+
+	MEMEPP__IMPL_INLINE bool operator>=(const string_view& _lhs, const char8_t* _rhs) noexcept
+	{
+		return _lhs >= reinterpret_cast<const char*>(_rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator>=(const char8_t* _lhs, const string_view& _rhs) noexcept
+	{
+		return reinterpret_cast<const char*>(_lhs) >= _rhs;
+	}
+#endif
 
 	MEMEPP__IMPL_INLINE string_view::const_reference string_view::at(size_type _pos) const
 	{

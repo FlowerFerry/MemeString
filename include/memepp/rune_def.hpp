@@ -89,6 +89,13 @@ inline namespace MMPP_NAMESPACE {
             return memcmp(data(), _u8, _size) == 0;
         }
 
+#if defined(__cpp_char8_t)
+        inline bool operator==(const char8_t* _u8) const noexcept
+        {
+            return *this == reinterpret_cast<const char*>(_u8);
+        }
+#endif
+
 		inline bool operator==(const rune& _r) const noexcept
 		{
             if (size() != _r.size())
@@ -98,6 +105,9 @@ inline namespace MMPP_NAMESPACE {
 
         inline bool operator!=(char _ch) const noexcept { return !(*this == _ch); }
 		inline bool operator!=(const char* _u8) const noexcept { return !(*this == _u8); }
+#if defined(__cpp_char8_t)
+		inline bool operator!=(const char8_t* _u8) const noexcept { return !(*this == _u8); }
+#endif
         inline bool operator!=(const rune& _r) const noexcept { return !(*this == _r); }
 
         int compare(const rune& _r) const noexcept;

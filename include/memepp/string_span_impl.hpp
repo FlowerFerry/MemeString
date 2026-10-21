@@ -60,6 +60,19 @@ MEMEPP__IMPL_INLINE string_span::string_span(const_pointer _utf8, size_type _cou
 {
 }
 
+#if defined(__cpp_char8_t)
+MEMEPP__IMPL_INLINE string_span::string_span(const char8_t* _utf8) MEGOPP__NOEXCEPT
+	: data_(reinterpret_cast<const_pointer>(_utf8))
+	, size_(_utf8 ? static_cast<size_type>(std::strlen(reinterpret_cast<const char*>(_utf8))) : 0)
+{
+}
+
+MEMEPP__IMPL_INLINE string_span::string_span(const char8_t* _utf8, size_type _count) MEGOPP__NOEXCEPT
+	: data_(reinterpret_cast<const_pointer>(_utf8)), size_(_count)
+{
+}
+#endif
+
 MEMEPP__IMPL_INLINE string_span::string_span(const string& _other) MEGOPP__NOEXCEPT
 	: data_(_other.bytes()), size_(_other.size())
 {
@@ -878,6 +891,84 @@ operator>=(const string_span& _lhs, const char* _rhs) MEGOPP__NOEXCEPT
 {
 	return !(_lhs < _rhs);
 }
+
+// ============================================================
+//  comparison — const char8_t* vs string_span (C++20 u8"")
+// ============================================================
+
+#if defined(__cpp_char8_t)
+MEMEPP__IMPL_INLINE bool
+operator==(const char8_t* _lhs, const string_span& _rhs) MEGOPP__NOEXCEPT
+{
+	return string_span(_lhs).compare(_rhs) == 0;
+}
+
+MEMEPP__IMPL_INLINE bool
+operator==(const string_span& _lhs, const char8_t* _rhs) MEGOPP__NOEXCEPT
+{
+	return _lhs.compare(string_span(_rhs)) == 0;
+}
+
+MEMEPP__IMPL_INLINE bool
+operator!=(const char8_t* _lhs, const string_span& _rhs) MEGOPP__NOEXCEPT
+{
+	return !(_lhs == _rhs);
+}
+
+MEMEPP__IMPL_INLINE bool
+operator!=(const string_span& _lhs, const char8_t* _rhs) MEGOPP__NOEXCEPT
+{
+	return !(_lhs == _rhs);
+}
+
+MEMEPP__IMPL_INLINE bool
+operator<(const char8_t* _lhs, const string_span& _rhs) MEGOPP__NOEXCEPT
+{
+	return string_span(_lhs).compare(_rhs) < 0;
+}
+
+MEMEPP__IMPL_INLINE bool
+operator<(const string_span& _lhs, const char8_t* _rhs) MEGOPP__NOEXCEPT
+{
+	return _lhs.compare(string_span(_rhs)) < 0;
+}
+
+MEMEPP__IMPL_INLINE bool
+operator>(const char8_t* _lhs, const string_span& _rhs) MEGOPP__NOEXCEPT
+{
+	return string_span(_lhs).compare(_rhs) > 0;
+}
+
+MEMEPP__IMPL_INLINE bool
+operator>(const string_span& _lhs, const char8_t* _rhs) MEGOPP__NOEXCEPT
+{
+	return _lhs.compare(string_span(_rhs)) > 0;
+}
+
+MEMEPP__IMPL_INLINE bool
+operator<=(const char8_t* _lhs, const string_span& _rhs) MEGOPP__NOEXCEPT
+{
+	return !(_lhs > _rhs);
+}
+
+MEMEPP__IMPL_INLINE bool
+operator<=(const string_span& _lhs, const char8_t* _rhs) MEGOPP__NOEXCEPT
+{
+	return !(_lhs > _rhs);
+}
+
+MEMEPP__IMPL_INLINE bool
+operator>=(const char8_t* _lhs, const string_span& _rhs) MEGOPP__NOEXCEPT
+{
+	return !(_lhs < _rhs);
+}
+
+MEMEPP__IMPL_INLINE bool
+operator>=(const string_span& _lhs, const char8_t* _rhs) MEGOPP__NOEXCEPT
+{
+	return !(_lhs < _rhs);
+}
+#endif
 
 // ============================================================
 //  comparison — const_pointer vs string_span

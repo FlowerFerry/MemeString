@@ -78,6 +78,13 @@ inline namespace MMPP_NAMESPACE {
 		return (*this += _other);
 	}
 
+#if defined(__cpp_char8_t)
+	MEMEPP__IMPL_INLINE string_builder& string_builder::operator=(const char8_t* _other)
+	{
+		return *this = reinterpret_cast<const char*>(_other);
+	}
+#endif
+
 	//MEMEPP__IMPL_INLINE string_builder& string_builder::operator+(const string& _other)
 	//{
 	//	MemeStringBuilder_appendArgWithString(
@@ -149,6 +156,13 @@ inline namespace MMPP_NAMESPACE {
         return *this;
     }
 
+#if defined(__cpp_char8_t)
+    MEMEPP__IMPL_INLINE string_builder& string_builder::operator+=(const char8_t* _other)
+    {
+        return *this += reinterpret_cast<const char*>(_other);
+    }
+#endif
+
     MEMEPP__IMPL_INLINE string_builder& string_builder::operator+=(char _other)
     {
         *errc() = MemeStringBuilder_appendArgByByte(
@@ -203,6 +217,13 @@ inline namespace MMPP_NAMESPACE {
 #endif
         return *this;
     }
+
+#if defined(__cpp_char8_t)
+    MEMEPP__IMPL_INLINE string_builder& string_builder::prepend(const char8_t* _other)
+    {
+        return prepend(reinterpret_cast<const char*>(_other));
+    }
+#endif
 
     MEMEPP__IMPL_INLINE string_builder& string_builder::append(const rune& _other)
     {
@@ -340,6 +361,28 @@ inline namespace MMPP_NAMESPACE {
 		return !(_lhs == _rhs);
 	}
 
+#if defined(__cpp_char8_t)
+	MEMEPP__IMPL_INLINE bool operator==(const string_builder& _lhs, const char8_t* _rhs)
+	{
+		return _lhs == reinterpret_cast<const char*>(_rhs);
+	}
+
+	MEMEPP__IMPL_INLINE bool operator==(const char8_t* _lhs, const string_builder& _rhs)
+	{
+		return reinterpret_cast<const char*>(_lhs) == _rhs;
+	}
+
+	MEMEPP__IMPL_INLINE bool operator!=(const string_builder& _lhs, const char8_t* _rhs)
+	{
+		return !(_lhs == reinterpret_cast<const char*>(_rhs));
+	}
+
+	MEMEPP__IMPL_INLINE bool operator!=(const char8_t* _lhs, const string_builder& _rhs)
+	{
+		return !(reinterpret_cast<const char*>(_lhs) == _rhs);
+	}
+#endif
+
 	MEMEPP__IMPL_INLINE bool operator!=(const string_view& _lhs, const string_builder& _rhs)
 	{
 		return !(_lhs == _rhs);
@@ -362,6 +405,14 @@ inline namespace MMPP_NAMESPACE {
 		_lhs += _rhs;
         return std::move(_lhs);
     }
+
+#if defined(__cpp_char8_t)
+    MEMEPP__IMPL_INLINE string_builder operator+(string_builder&& _lhs, const char8_t* _rhs)
+    {
+	_lhs += reinterpret_cast<const char*>(_rhs);
+        return std::move(_lhs);
+    }
+#endif
 
 	//MEMEPP__IMPL_INLINE string_builder& operator+(const string& _lhs, string_builder& _rhs)
 	//{
@@ -405,6 +456,14 @@ inline namespace MMPP_NAMESPACE {
 		_rhs.prepend(_lhs);
         return std::move(_rhs);
     }
+
+#if defined(__cpp_char8_t)
+    MEMEPP__IMPL_INLINE string_builder operator+(const char8_t* _lhs, string_builder&& _rhs)
+    {
+	_rhs.prepend(reinterpret_cast<const char*>(_lhs));
+        return std::move(_rhs);
+    }
+#endif
 
 } // namespace MMPP_NAMESPACE
 };

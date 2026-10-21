@@ -62,6 +62,12 @@ inline namespace MMPP_NAMESPACE {
 		string(const uint16_t* _utf16, size_type _size);
 		string(const uint16_t* _utf16, size_type _size, string_storage_t _suggest);
 
+#if defined(__cpp_char8_t)
+		//! \brief C++20 u8"" literals are char8_t based. Accepted as UTF-8 bytes.
+		string(const char8_t* _utf8);
+		string(const char8_t* _utf8, size_type _size);
+		string(const char8_t* _utf8, size_type _size, string_storage_t _suggest);
+#endif
 		string(const rune& _ch) noexcept;
         string(const string_builder& _builder);
 		//string(size_type _count, char _ch);
@@ -78,6 +84,9 @@ inline namespace MMPP_NAMESPACE {
         string& operator=(const string_builder& _builder);
 
         string operator+(const char* _utf8) const;
+#if defined(__cpp_char8_t)
+        string operator+(const char8_t* _utf8) const;
+#endif
         string operator+(const string& _other) const;
         string operator+(const string_view& _other) const;
 
@@ -428,6 +437,21 @@ inline namespace MMPP_NAMESPACE {
 	bool operator==(const rune& _lhs, const string& _rhs) noexcept;
 	bool operator==(const string& _lhs, const rune& _rhs) noexcept;
 
+#if defined(__cpp_char8_t)
+	bool operator==(const string& _lhs, const char8_t* _rhs) noexcept;
+	bool operator==(const char8_t* _lhs, const string& _rhs) noexcept;
+	bool operator!=(const string& _lhs, const char8_t* _rhs) noexcept;
+	bool operator!=(const char8_t* _lhs, const string& _rhs) noexcept;
+	bool operator<(const string& _lhs, const char8_t* _rhs) noexcept;
+	bool operator<(const char8_t* _lhs, const string& _rhs) noexcept;
+	bool operator>(const string& _lhs, const char8_t* _rhs) noexcept;
+	bool operator>(const char8_t* _lhs, const string& _rhs) noexcept;
+	bool operator<=(const string& _lhs, const char8_t* _rhs) noexcept;
+	bool operator<=(const char8_t* _lhs, const string& _rhs) noexcept;
+	bool operator>=(const string& _lhs, const char8_t* _rhs) noexcept;
+	bool operator>=(const char8_t* _lhs, const string& _rhs) noexcept;
+#endif
+
 	bool operator!=(const string& _lhs, const string& _rhs) noexcept;
 	bool operator!=(const char* _lhs, const string& _rhs) noexcept;
 	bool operator!=(const string& _lhs, const char* _rhs) noexcept;
@@ -490,6 +514,21 @@ inline namespace MMPP_NAMESPACE {
 		MEGO_SYMBOL__MSVC_FORMAT_STRING(const char* _fmt),
 		...)
 		MEGO_SYMBOL__GCC_ATTRIBUTE_FORMAT(printf, 3, 4);
+
+#if defined(__cpp_char8_t)
+	// Note: GCC's printf format attribute requires a const char* parameter, so it
+	// cannot be applied to these char8_t overloads; the MSVC SAL annotation is kept.
+	string c_format(
+		size_t _size_limit,
+		MEGO_SYMBOL__MSVC_FORMAT_STRING(const char8_t* _fmt),
+		...);
+
+	string c_format(
+		mmint_t _size_limit,
+		mmint_t _predict,
+		MEGO_SYMBOL__MSVC_FORMAT_STRING(const char8_t* _fmt),
+		...);
+#endif
 }; // namespace memepp
 
 
@@ -497,6 +536,9 @@ inline namespace MMPP_NAMESPACE {
 	memepp::string mm_from(const MemeByte_t* _str, size_t _len);
 
     memepp::string_builder operator+(const char* _lhs, const memepp::string& _rhs);
+#if defined(__cpp_char8_t)
+    memepp::string_builder operator+(const char8_t* _lhs, const memepp::string& _rhs);
+#endif
 
 	memepp::string operator""_meme(const char* _str, size_t _len);
 

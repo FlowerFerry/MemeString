@@ -49,6 +49,12 @@ inline namespace MMPP_NAMESPACE {
 		string_span(const_pointer _utf8, size_type _count) MEGOPP__NOEXCEPT;
 		string_span(const string& _other) MEGOPP__NOEXCEPT;
 
+#if defined(__cpp_char8_t)
+		//! \brief C++20 u8"" literals are char8_t based. Accepted as UTF-8 bytes.
+		string_span(const char8_t* _utf8) MEGOPP__NOEXCEPT;
+		string_span(const char8_t* _utf8, size_type _count) MEGOPP__NOEXCEPT;
+#endif
+
 		// --- assignment ---
 
 		string_span& operator=(const string_span&) MEGOPP__NOEXCEPT = default;
@@ -209,6 +215,21 @@ inline namespace MMPP_NAMESPACE {
 	bool operator<=(const string_span& _lhs, const char* _rhs) MEGOPP__NOEXCEPT;
 	bool operator>=(const char* _lhs, const string_span& _rhs) MEGOPP__NOEXCEPT;
 	bool operator>=(const string_span& _lhs, const char* _rhs) MEGOPP__NOEXCEPT;
+
+#if defined(__cpp_char8_t)
+	bool operator==(const char8_t* _lhs, const string_span& _rhs) MEGOPP__NOEXCEPT;
+	bool operator==(const string_span& _lhs, const char8_t* _rhs) MEGOPP__NOEXCEPT;
+	bool operator!=(const char8_t* _lhs, const string_span& _rhs) MEGOPP__NOEXCEPT;
+	bool operator!=(const string_span& _lhs, const char8_t* _rhs) MEGOPP__NOEXCEPT;
+	bool operator< (const char8_t* _lhs, const string_span& _rhs) MEGOPP__NOEXCEPT;
+	bool operator< (const string_span& _lhs, const char8_t* _rhs) MEGOPP__NOEXCEPT;
+	bool operator> (const char8_t* _lhs, const string_span& _rhs) MEGOPP__NOEXCEPT;
+	bool operator> (const string_span& _lhs, const char8_t* _rhs) MEGOPP__NOEXCEPT;
+	bool operator<=(const char8_t* _lhs, const string_span& _rhs) MEGOPP__NOEXCEPT;
+	bool operator<=(const string_span& _lhs, const char8_t* _rhs) MEGOPP__NOEXCEPT;
+	bool operator>=(const char8_t* _lhs, const string_span& _rhs) MEGOPP__NOEXCEPT;
+	bool operator>=(const string_span& _lhs, const char8_t* _rhs) MEGOPP__NOEXCEPT;
+#endif
 
 	// cross-type comparisons with const_pointer
 	bool operator==(string_span::const_pointer _lhs, const string_span& _rhs) MEGOPP__NOEXCEPT;

@@ -47,6 +47,12 @@ inline namespace MMPP_NAMESPACE {
 		string_view(const_pointer _utf8) noexcept;
 		string_view(const_pointer _utf8, size_type _size) noexcept;
 
+#if defined(__cpp_char8_t)
+		//! \brief C++20 u8"" literals are char8_t based. Accepted as UTF-8 bytes.
+		string_view(const char8_t* _utf8) noexcept;
+		string_view(const char8_t* _utf8, size_type _size) noexcept;
+#endif
+
 		string_view(const string& _other) noexcept;
 		string_view(string&& _other);
 		string_view(const string_view& _other) noexcept;
@@ -63,6 +69,9 @@ inline namespace MMPP_NAMESPACE {
 		string_builder operator+(const string& _other) const;
 		string_builder operator+(const string_view& _other) const;
 		string_builder operator+(const char* _other) const;
+#if defined(__cpp_char8_t)
+		string_builder operator+(const char8_t* _other) const;
+#endif
 
 		const_reference at(size_type _pos) const;
 		const_reference operator[](size_type _pos) const;
@@ -329,6 +338,21 @@ inline namespace MMPP_NAMESPACE {
 	bool operator==(const string_view& _lhs, const char* _rhs);
     bool operator==(const rune& _lhs, const string_view& _rhs);
 	bool operator==(const string_view& _lhs, const rune& _rhs);
+
+#if defined(__cpp_char8_t)
+	bool operator==(const string_view& _lhs, const char8_t* _rhs);
+	bool operator==(const char8_t* _lhs, const string_view& _rhs);
+	bool operator!=(const string_view& _lhs, const char8_t* _rhs);
+	bool operator!=(const char8_t* _lhs, const string_view& _rhs);
+	bool operator<(const string_view& _lhs, const char8_t* _rhs) noexcept;
+	bool operator<(const char8_t* _lhs, const string_view& _rhs) noexcept;
+	bool operator>(const string_view& _lhs, const char8_t* _rhs) noexcept;
+	bool operator>(const char8_t* _lhs, const string_view& _rhs) noexcept;
+	bool operator<=(const string_view& _lhs, const char8_t* _rhs) noexcept;
+	bool operator<=(const char8_t* _lhs, const string_view& _rhs) noexcept;
+	bool operator>=(const string_view& _lhs, const char8_t* _rhs) noexcept;
+	bool operator>=(const char8_t* _lhs, const string_view& _rhs) noexcept;
+#endif
     
 	bool operator!=(const string_view& _lhs, const string_view& _rhs);
 	bool operator!=(const string& _lhs, const string_view& _rhs);

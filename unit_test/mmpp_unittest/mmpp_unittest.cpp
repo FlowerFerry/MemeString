@@ -1311,7 +1311,7 @@ TEST_CASE("memepp::string_builder append", "[string_builder]")
 {
     memepp::string s1 = u8"1234567890";
 	memepp::string s2 = u8"abcdefghij";
-    std::string    s3 = u8"0987654321";
+    std::string    s3 = (const char*)u8"0987654321";
 	memepp::string s4 = u8"klmnopqrst";
 	memepp::string_view sv4 = s4;
 
