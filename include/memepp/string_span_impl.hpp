@@ -83,7 +83,7 @@ string_span::at(size_type _pos) const
 #if !MMOPT__EXCEPTION_DISABLED
 		throw_errc(*errc());
 #endif
-		static const char s_out_of_range = 0;
+		static const MemeByte_t s_out_of_range = 0;
 		return s_out_of_range;
 	}
 	*errc() = MGEC__OK;

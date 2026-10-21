@@ -17,6 +17,11 @@ option(MEMESTRING_SONAME_SUFFIX_ENABLE "Enable soname suffix of meme library" ON
 option(MEMESTRING_BENCHMARK_ENABLE "Enable benchmark of meme library" OFF)
 option(MEMESTRING_UNITTEST_ENABLE  "Enable unit test of meme library" OFF)
 option(MEMESTRING_TEST_ENABLE "Enable test of meme library" OFF)
+option(MEMESTRING_DISABLE_EXCEPTIONS "Build memepp with exceptions disabled (errc code path)" OFF)
+
+if (MEMESTRING_DISABLE_EXCEPTIONS)
+  add_compile_definitions(MMOPT__EXCEPTION_DISABLED=1)
+endif()
 
 set(MMSTR_GIT_HOST "github.com" CACHE STRING "")
 

@@ -201,3 +201,28 @@ jobs:
         run: ctest --test-dir build --output-on-failure
         env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/build
+
+  linux-gcc-no-exceptions:
+    name: Linux (GCC, exceptions disabled)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Ninja
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
+
+      - name: Configure
+        run: >
+          cmake -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DMEMESTRING_UNITTEST_ENABLE=ON
+          -DMEMESTRING_TEST_ENABLE=ON
+          -DMEMESTRING_DISABLE_EXCEPTIONS=ON
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+        env:
+          LD_LIBRARY_PATH: ${{ github.workspace }}/build
