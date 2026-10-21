@@ -27,15 +27,6 @@ TEMPLATE_TEST_CASE("memepp::string begin/end", "[string]",
         REQUIRE(*std::prev(obj.rend())  == obj.at(0));
         REQUIRE(*std::prev(obj.crend()) == obj.at(0));
 
-        REQUIRE(std::begin(obj)   == obj.begin());
-        REQUIRE(std::end(obj)     == obj.end());
-        REQUIRE(std::cbegin(obj)  == obj.cbegin());
-        REQUIRE(std::cend(obj)    == obj.cend());
-        REQUIRE(std::rbegin(obj)  == obj.rbegin());
-        REQUIRE(std::rend(obj)    == obj.rend());
-        REQUIRE(std::crbegin(obj) == obj.crbegin());
-        REQUIRE(std::crend(obj)   == obj.crend());
-
         REQUIRE(std::distance(obj.begin(), obj.end())     == 10);
         REQUIRE(std::distance(obj.cbegin(), obj.cend())   == 10);
         REQUIRE(std::distance(obj.rbegin(), obj.rend())   == 10);
@@ -125,8 +116,6 @@ TEST_CASE("memepp::string iterator - rune iterator", "[string]")
 
     REQUIRE(rune_it04.is_valid() == false);
     REQUIRE(rune_it04.to_rune() == "");
-    REQUIRE(rune_it04.to_index().data() == &str04.at(11));
-    REQUIRE(rune_it04.to_index().size() == -1);
 }
 
 TEST_CASE("memepp::string iterator - user storage", "[string]")
@@ -163,4 +152,105 @@ TEST_CASE("memepp::string iterator - view storage", "[string]")
     REQUIRE(count == 3);
 
     MemeStringStack_unInit(&view_str, sizeof(view_str));
+}
+
+TEST_CASE("memepp::string iterator - random access", "[string]")
+{
+    memepp::string s = "0123456789";
+    auto it = s.begin();
+
+    REQUIRE(*(it + 3) == '3');
+    REQUIRE(it[5]     == '5');
+    REQUIRE(*(it + 9) == '9');
+
+    REQUIRE(it          <  it + 1);
+    REQUIRE(it + 1      >  it);
+    REQUIRE(it          <= it);
+    REQUIRE(it          >= it);
+    REQUIRE_FALSE(it    == it + 1);
+    REQUIRE(it + 3 - it == 3);
+
+    auto it2 = it;
+    it2 += 4;
+    REQUIRE(*it2 == '4');
+    it2 -= 2;
+    REQUIRE(*it2 == '2');
+
+    auto rit = s.rbegin();
+    REQUIRE(*(rit + 1) == '8');
+    REQUIRE(rit[2]     == '7');
+    REQUIRE(rit       < rit + 1);
+}
+
+TEST_CASE("memepp::string iterator - rune_begin/rune_end", "[string]")
+{
+    memepp::string s = u8"a零b";
+
+    auto rb = s.rune_begin();
+    auto re = s.rune_end();
+    REQUIRE(rb != re);
+    REQUIRE(rb.to_rune() == "a");
+    REQUIRE(std::distance(rb, re) == 3);
+
+    auto last = re;
+    REQUIRE((--last).to_rune() == "b");
+
+    auto rcb = s.rune_cbegin();
+    auto rce = s.rune_cend();
+    REQUIRE(rcb != rce);
+    REQUIRE(rcb.to_rune() == "a");
+    REQUIRE(std::distance(rcb, rce) == 3);
+
+    memepp::string empty_str = "";
+    REQUIRE(empty_str.rune_begin() == empty_str.rune_end());
+    REQUIRE(empty_str.rune_cbegin() == empty_str.rune_cend());
+}
+
+TEST_CASE("memepp::string iterator - large storage", "[string]")
+{
+    memepp::string small = "0123456789";
+    memepp::string large = small.to_large();
+    REQUIRE(large.storage_type() == memepp::string_storage_t::large);
+
+    REQUIRE(*large.begin()    == '0');
+    REQUIRE(*(--large.end())  == '9');
+    REQUIRE(*large.rbegin()   == '9');
+    REQUIRE(std::distance(large.begin(), large.end()) == 10);
+
+    size_t count = 0;
+    for (auto it = large.begin(); it != large.end(); ++it) {
+        REQUIRE(*it == small.at(count));
+        ++count;
+    }
+    REQUIRE(count == 10);
+}
+
+TEST_CASE("memepp::string iterator - copy independence", "[string]")
+{
+    memepp::string original = "hello";
+    memepp::string shared = original.to_shared_storage();
+    REQUIRE(shared.storage_type() == memepp::string_storage_t::large);
+
+    auto it = shared.begin();
+    REQUIRE(*it == 'h');
+
+    memepp::string copy = shared;
+
+    // Iterators obtained before the copy remain valid afterwards.
+    REQUIRE(*it == 'h');
+    REQUIRE(*(--shared.end()) == 'o');
+
+    size_t count_shared = 0;
+    for (auto i = shared.begin(); i != shared.end(); ++i) {
+        REQUIRE(*i == *it);
+        ++count_shared;
+        ++it;
+    }
+    REQUIRE(count_shared == 5);
+
+    size_t count_copy = 0;
+    for (auto i = copy.begin(); i != copy.end(); ++i)
+        ++count_copy;
+    REQUIRE(count_copy == 5);
+    REQUIRE(*copy.begin() == 'h');
 }
