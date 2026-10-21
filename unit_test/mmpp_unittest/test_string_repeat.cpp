@@ -10,6 +10,9 @@ TEST_CASE("memepp::string repeat", "[string]")
     mgec_t ec;
     mmstrstk_t stk01_01;
     ec = MemeStringStack_getRepeat_v2(&stk01_01, MMSTR__OBJ_SIZE, -1, "123", -1);
+    // Note: early_exec() is idempotent - safe to call multiple times.
+    // The scope_cleanup ensures exception safety (auto-uninit on REQUIRE failure),
+    // while early_exec() allows manual cleanup before reinitializing for next test case.
     auto cleanup01_01 = mgpp::util::scope_cleanup__create([&] { mmstrstk_uninit_v0(&stk01_01, MMSTR__OBJ_SIZE); });
 
     REQUIRE(ec == MGEC__OK);

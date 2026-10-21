@@ -11,6 +11,9 @@ TEST_CASE("MemeStringStack concat_v2 (C API)", "[string]")
     mmstrstk_t str01_02;
     MemeStringStack_initByU8bytes(&str01_01, MMSTR__OBJ_SIZE, (const uint8_t*)"Hello, ", -1);
     MemeStringStack_initByU8bytes(&str01_02, MMSTR__OBJ_SIZE, (const uint8_t*)"World!", -1);
+    // Note: early_exec() is idempotent - safe to call multiple times.
+    // The scope_cleanup ensures exception safety (auto-uninit on REQUIRE failure),
+    // while early_exec() allows manual cleanup before reinitializing for next test case.
     auto str01_01_cleanup = 
         mgpp::util::scope_cleanup__create([&str01_01]() { MemeStringStack_unInit(&str01_01, MMSTR__OBJ_SIZE); });
     auto str01_02_cleanup =

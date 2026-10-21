@@ -10,6 +10,9 @@ TEST_CASE("MemeStringStack to_valid_utf8 (C API)", "[string]")
     mmstrstk_t str01_01;
     MemeStringStack_init(&str01_01, MMSTR__OBJ_SIZE);
 
+    // Note: early_exec() is idempotent - safe to call multiple times.
+    // The scope_cleanup ensures exception safety (auto-uninit on REQUIRE failure),
+    // while early_exec() allows manual cleanup before reinitializing for next test case.
     auto str01_01_cleanup = 
         mgpp::util::scope_cleanup__create([&str01_01]() { MemeStringStack_unInit(&str01_01, MMSTR__OBJ_SIZE); });
     
