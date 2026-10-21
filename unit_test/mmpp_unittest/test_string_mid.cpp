@@ -83,11 +83,12 @@ TEST_CASE("memepp::string mid - user storage", "[string]")
     REQUIRE(user_str.storage_type() == memepp::string_storage_t::user);
 
     mmstrstk_t ret;
+    mmstrstk_init_v0(&ret, MMSTR__OBJ_SIZE);
     MEGOPP_UTIL__ON_SCOPE_CLEANUP([&]() {
         mmstrstk_uninit_v0(&ret, MMSTR__OBJ_SIZE);
     });
 
-    mgec_t ec = MemeStringStack_mid_v2(&user_str.native_handle(), 0, 2, &ret, -1);
+    mgec_t ec = MemeStringStack_mid_v2(&user_str.native_handle(), 0, 2, &ret, MMSTR__OBJ_SIZE);
     REQUIRE(ec == 0);
     REQUIRE(MemeString_byteSize((mmstr_cptr_t)&ret) == 2);
     REQUIRE(MemeString_compareByUtf8bytes(
@@ -106,11 +107,12 @@ TEST_CASE("memepp::string mid - view storage", "[string]")
     REQUIRE(MemeString_storageType((mmstr_cptr_t)&view_str) == MemeString_UnsafeStorageType_view);
 
     mmstrstk_t ret;
+    mmstrstk_init_v0(&ret, MMSTR__OBJ_SIZE);
     MEGOPP_UTIL__ON_SCOPE_CLEANUP([&]() {
         mmstrstk_uninit_v0(&ret, MMSTR__OBJ_SIZE);
     });
 
-    mgec_t ec = MemeStringStack_mid_v2(&view_str, 0, 5, &ret, -1);
+    mgec_t ec = MemeStringStack_mid_v2(&view_str, 0, 5, &ret, MMSTR__OBJ_SIZE);
     REQUIRE(ec == 0);
     REQUIRE(MemeString_byteSize((mmstr_cptr_t)&ret) == 5);
     REQUIRE(MemeString_compareByUtf8bytes(

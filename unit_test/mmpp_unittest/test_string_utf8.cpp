@@ -95,6 +95,7 @@ TEST_CASE("memepp::string to_valid_utf8 - user storage", "[string]")
     REQUIRE(user_str.storage_type() == memepp::string_storage_t::user);
 
     mmstrstk_t ret;
+    mmstrstk_init_v0(&ret, MMSTR__OBJ_SIZE);
     MEGOPP_UTIL__ON_SCOPE_CLEANUP([&]() {
         mmstrstk_uninit_v0(&ret, MMSTR__OBJ_SIZE);
     });
@@ -115,6 +116,7 @@ TEST_CASE("memepp::string to_valid_utf8 - view storage", "[string]")
     REQUIRE(MemeString_storageType((mmstr_cptr_t)&view_str) == MemeString_UnsafeStorageType_view);
 
     mmstrstk_t ret;
+    mmstrstk_init_v0(&ret, MMSTR__OBJ_SIZE);
     MEGOPP_UTIL__ON_SCOPE_CLEANUP([&]() {
         mmstrstk_uninit_v0(&ret, MMSTR__OBJ_SIZE);
     });
