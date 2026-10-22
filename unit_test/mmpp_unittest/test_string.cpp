@@ -214,7 +214,7 @@ TEST_CASE("memepp::string count overloads", "[string]")
     // count(const rune&)
     memepp::rune rl = 'l';
     REQUIRE(s.count(rl) >= 0); // 至少能跑通
-    // 确认部分计数（"Hello, HELLO, HeLLo, World! Hello." 中 ‘l’ 出现 7 次）
+    // 确认部分计数（"Hello, HELLO, HeLLo, World! Hello." 中 ‘l’ 出现 5 次）
     REQUIRE(s.count(rl) == 5);
 }
 
@@ -245,7 +245,7 @@ TEST_CASE("memepp::string find overloads with _substr_count/char/rune", "[string
     memepp::rune r_you{ reinterpret_cast<const uint8_t*>(u8"您"), -1 };
     memepp::rune r_world{ reinterpret_cast<const uint8_t*>(u8"界"), -1 };
     REQUIRE(u.find(r_you, 0) == 0);
-    REQUIRE(u.find(r_world, 0) > 0);
+    REQUIRE(u.find(r_world, 0) == 8);
 }
 
 TEST_CASE("memepp::string rfind(rune)", "[string]")
@@ -574,7 +574,7 @@ TEST_CASE("memepp::to_string<int64_t>", "[string]")
     REQUIRE(s1 == "-9223372036854775808");
     REQUIRE(s1.size() == 20);
 
-    auto s2 = memepp::to_string(0);
+    auto s2 = memepp::to_string(int64_t(0));
     REQUIRE(s2 == "0");
 
     auto s3 = memepp::to_string(static_cast<int64_t>(9223372036854775807LL));  // INT64_MAX
