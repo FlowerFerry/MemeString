@@ -13,16 +13,16 @@ TEST_CASE("memepp::string count", "[string]")
 
     // count with string
     REQUIRE(str.count("Aa") == 3);
-    //REQUIRE(str.count("Aa", memepp::case_sensit_t::all_insensitive) == 3);
-    //REQUIRE(str.count("aa", memepp::case_sensit_t::all_insensitive) == 3); // case insensitive
+    REQUIRE(str.count("Aa", memepp::case_sensit_t::all_insensitive) == 3);
+    REQUIRE(str.count("aa", memepp::case_sensit_t::all_insensitive) == 3); // case insensitive
 
     // count with char*
     REQUIRE(str.count("Bb") == 3);
-    //REQUIRE(str.count("bb", memepp::case_sensit_t::all_insensitive) == 3);
+    REQUIRE(str.count("bb", memepp::case_sensit_t::all_insensitive) == 3);
 
     // count with char*, size
     REQUIRE(str.count("Cc", 2) == 3);
-    //REQUIRE(str.count("cc", 2, memepp::case_sensit_t::all_insensitive) == 3);
+    REQUIRE(str.count("cc", 2, memepp::case_sensit_t::all_insensitive) == 3);
 
     // count with pointer (MemeByte_t*)
     REQUIRE(str.count(reinterpret_cast<memepp::string::const_pointer>("Aa"), 2) == 3);
@@ -30,13 +30,13 @@ TEST_CASE("memepp::string count", "[string]")
     // count with rune
     memepp::rune r = 'A';
     REQUIRE(str.count(r) == 3);
-    //REQUIRE(str.count(r, memepp::case_sensit_t::all_insensitive) == 6); // A and a
+    REQUIRE(str.count(r, memepp::case_sensit_t::all_insensitive) == 6); // A and a
 
     // edge cases
     REQUIRE(str.count("") == 0); // empty key
     REQUIRE(str.count("Xx") == 0); // not found
     REQUIRE(memepp::string{}.count("A") == 0); // empty string
-    //REQUIRE(memepp::string{"A"}.count("A", memepp::case_sensit_t::all_insensitive) == 1);
+    REQUIRE(memepp::string{"A"}.count("A", memepp::case_sensit_t::all_insensitive) == 1);
 }
 
 TEST_CASE("memepp::string count - user storage", "[string]")
@@ -183,7 +183,7 @@ TEST_CASE("memepp::string count overloads", "[string]")
     REQUIRE(s.count("HELLO") == 1);
 
     // 大小写不敏感
-    //REQUIRE(s.count("hello", memepp::case_sensit_t::all_insensitive) == 4);
+    REQUIRE(s.count("hello", memepp::case_sensit_t::all_insensitive) == 4);
 
     // count(const char*, size_type) —— 仅取前缀 "Hell"
     REQUIRE(s.count("HelloXYZ", 4) == 2); 
