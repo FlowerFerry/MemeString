@@ -805,6 +805,7 @@ MEME_EXTERN_C MEME_API mgec_t MEME_STDCALL MemeStringStack_concat_v2(
 
 	assert(_str != NULL && "MemeStringStack_concat_v2");
 	assert(_other != NULL && "MemeStringStack_concat_v2");
+	assert(_out != NULL && "MemeStringStack_concat_v2");
 
 	lhsSize = MemeString_byteSize((mmstr_cptr_t)_str);
 	rhsSize = MemeString_byteSize((mmstr_cptr_t)_other);

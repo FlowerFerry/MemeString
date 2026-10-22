@@ -11,7 +11,15 @@
 TEST_CASE("memepp::string mid", "[string]")
 {
     mgec_t ec = 0;
-    memepp::string str01_01 = "Hello, World! ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz";
+    const mmint_t limit = MemeStringOption_getStorageMediumLimit();
+    REQUIRE(limit > MemeStringOption_getStorageSmallLimit()); // medium tier must exist
+
+    // Length driven by the live medium limit, so the source is always medium.
+    const char* const kBase = "Hello, World! ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz";
+    const size_t kBaseLen = 67;
+    const size_t targetLen = kBaseLen < (size_t)limit ? kBaseLen : (size_t)limit;
+    memepp::string str01_01(kBase, targetLen);
+    REQUIRE(str01_01.storage_type() == memepp::string_storage_t::medium);
 
     SECTION("obj_size > 0: out uninitialized on entry")
     {
@@ -188,4 +196,196 @@ TEST_CASE("memepp::string mid - view storage", "[string]")
         (mmstr_cptr_t)&ret, (const uint8_t*)"Hello", -1) == 0);
 
     MemeStringStack_unInit(&view_str, sizeof(view_str));
+}
+
+TEST_CASE("memepp::string mid - small storage", "[string]")
+{
+    // small storage: SSO inline buffer (≤23 bytes on 64-bit)
+    memepp::string small_str = "Hello, World!";  // 13 bytes
+    REQUIRE(small_str.storage_type() == memepp::string_storage_t::small);
+
+    mmstrstk_t ret;
+    mmstrstk_init_v0(&ret, MMSTR__OBJ_SIZE);
+    MEGOPP_UTIL__ON_SCOPE_CLEANUP([&]() {
+        mmstrstk_uninit_v0(&ret, MMSTR__OBJ_SIZE);
+    });
+
+    // mid(0, 5) → "Hello"
+    mgec_t ec = MemeStringStack_mid_v2(&small_str.native_handle(), 0, 5, &ret, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == 0);
+    REQUIRE(MemeString_byteSize((mmstr_cptr_t)&ret) == 5);
+    REQUIRE(MemeString_compareByUtf8bytes(
+        (mmstr_cptr_t)&ret, (const uint8_t*)"Hello", -1) == 0);
+    REQUIRE(MemeString_storageType((mmstr_cptr_t)&ret) == mmstr_strg_small);
+
+    // mid(7, 5) → "World"
+    mmstrstk_uninit_v0(&ret, MMSTR__OBJ_SIZE);
+    mmstrstk_init_v0(&ret, MMSTR__OBJ_SIZE);
+    ec = MemeStringStack_mid_v2(&small_str.native_handle(), 7, 5, &ret, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == 0);
+    REQUIRE(MemeString_byteSize((mmstr_cptr_t)&ret) == 5);
+    REQUIRE(MemeString_compareByUtf8bytes(
+        (mmstr_cptr_t)&ret, (const uint8_t*)"World", -1) == 0);
+    REQUIRE(MemeString_storageType((mmstr_cptr_t)&ret) == mmstr_strg_small);
+
+    // mid(0, 0) → empty
+    mmstrstk_uninit_v0(&ret, MMSTR__OBJ_SIZE);
+    mmstrstk_init_v0(&ret, MMSTR__OBJ_SIZE);
+    ec = MemeStringStack_mid_v2(&small_str.native_handle(), 0, 0, &ret, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == 0);
+    REQUIRE(MemeString_byteSize((mmstr_cptr_t)&ret) == 0);
+    REQUIRE(MemeString_storageType((mmstr_cptr_t)&ret) == mmstr_strg_small);
+}
+
+TEST_CASE("memepp::string mid - large storage", "[string]")
+{
+    // large storage: > mediumLimit, reference-counted.
+    // Use constructor with string_storage_t::large hint to force large storage.
+    const mmint_t mediumLimit = MemeStringOption_getStorageMediumLimit();
+    std::string data(mediumLimit + 50, 'X');
+    data[0] = 'A';
+    data[1] = 'B';
+    data[2] = 'C';
+    data[3] = 'D';
+    data[4] = 'E';
+    data[mediumLimit + 45] = 'Z';
+    memepp::string large_str(data.data(), data.size(), memepp::string_storage_t::large);
+    REQUIRE(large_str.storage_type() == memepp::string_storage_t::large);
+
+    mmstrstk_t ret;
+    mmstrstk_init_v0(&ret, MMSTR__OBJ_SIZE);
+    MEGOPP_UTIL__ON_SCOPE_CLEANUP([&]() {
+        mmstrstk_uninit_v0(&ret, MMSTR__OBJ_SIZE);
+    });
+
+    // mid(0, srcSize) → shared zero-copy branch (result still large, refcount+1)
+    mgec_t ec = MemeStringStack_mid_v2(&large_str.native_handle(), 0, large_str.size(), &ret, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == 0);
+    REQUIRE(MemeString_byteSize((mmstr_cptr_t)&ret) == large_str.size());
+    REQUIRE(MemeString_storageType((mmstr_cptr_t)&ret) == mmstr_strg_large);
+
+    // mid(5, 10) → deep copy branch (result is small/medium)
+    mmstrstk_uninit_v0(&ret, MMSTR__OBJ_SIZE);
+    mmstrstk_init_v0(&ret, MMSTR__OBJ_SIZE);
+    ec = MemeStringStack_mid_v2(&large_str.native_handle(), 5, 10, &ret, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == 0);
+    REQUIRE(MemeString_byteSize((mmstr_cptr_t)&ret) == 10);
+    REQUIRE(MemeString_storageType((mmstr_cptr_t)&ret) == mmstr_strg_small);
+
+    // mid(5, 0) → count==0 returns empty
+    mmstrstk_uninit_v0(&ret, MMSTR__OBJ_SIZE);
+    mmstrstk_init_v0(&ret, MMSTR__OBJ_SIZE);
+    ec = MemeStringStack_mid_v2(&large_str.native_handle(), 5, 0, &ret, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == 0);
+    REQUIRE(MemeString_byteSize((mmstr_cptr_t)&ret) == 0);
+    REQUIRE(MemeString_storageType((mmstr_cptr_t)&ret) == mmstr_strg_small);
+
+    // mid(srcSize, 1) → offset==size boundary returns empty
+    mmstrstk_uninit_v0(&ret, MMSTR__OBJ_SIZE);
+    mmstrstk_init_v0(&ret, MMSTR__OBJ_SIZE);
+    ec = MemeStringStack_mid_v2(&large_str.native_handle(), large_str.size(), 1, &ret, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == 0);
+    REQUIRE(MemeString_byteSize((mmstr_cptr_t)&ret) == 0);
+    REQUIRE(MemeString_storageType((mmstr_cptr_t)&ret) == mmstr_strg_small);
+}
+
+TEST_CASE("memepp::string mid - offset==size boundary", "[string]")
+{
+    // offset==size should return empty regardless of storage type
+    const mmint_t limit = MemeStringOption_getStorageMediumLimit();
+    REQUIRE(limit > MemeStringOption_getStorageSmallLimit()); // medium tier must exist
+
+    // Length driven by the live medium limit, so the source is always medium.
+    const char* const kBase = "Hello, World! ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz";
+    const size_t kBaseLen = 67;
+    const size_t targetLen = kBaseLen < (size_t)limit ? kBaseLen : (size_t)limit;
+    memepp::string medium_str(kBase, targetLen);
+    REQUIRE(medium_str.storage_type() == memepp::string_storage_t::medium);
+
+    mmstrstk_t ret;
+    mmstrstk_init_v0(&ret, MMSTR__OBJ_SIZE);
+    MEGOPP_UTIL__ON_SCOPE_CLEANUP([&]() {
+        mmstrstk_uninit_v0(&ret, MMSTR__OBJ_SIZE);
+    });
+
+    // mid(srcSize, 0) → empty
+    mgec_t ec = MemeStringStack_mid_v2(&medium_str.native_handle(), medium_str.size(), 0, &ret, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == 0);
+    REQUIRE(MemeString_byteSize((mmstr_cptr_t)&ret) == 0);
+    REQUIRE(MemeString_storageType((mmstr_cptr_t)&ret) == mmstr_strg_small);
+
+    // mid(srcSize, 5) → empty (offset clamped by count logic)
+    mmstrstk_uninit_v0(&ret, MMSTR__OBJ_SIZE);
+    mmstrstk_init_v0(&ret, MMSTR__OBJ_SIZE);
+    ec = MemeStringStack_mid_v2(&medium_str.native_handle(), medium_str.size(), 5, &ret, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == 0);
+    REQUIRE(MemeString_byteSize((mmstr_cptr_t)&ret) == 0);
+    REQUIRE(MemeString_storageType((mmstr_cptr_t)&ret) == mmstr_strg_small);
+
+    // Also test on small source
+    memepp::string small_str = "Hello";  // 5 bytes
+    REQUIRE(small_str.storage_type() == memepp::string_storage_t::small);
+
+    mmstrstk_uninit_v0(&ret, MMSTR__OBJ_SIZE);
+    mmstrstk_init_v0(&ret, MMSTR__OBJ_SIZE);
+    ec = MemeStringStack_mid_v2(&small_str.native_handle(), small_str.size(), 3, &ret, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == 0);
+    REQUIRE(MemeString_byteSize((mmstr_cptr_t)&ret) == 0);
+    REQUIRE(MemeString_storageType((mmstr_cptr_t)&ret) == mmstr_strg_small);
+}
+
+TEST_CASE("memepp::string mid - multibyte UTF-8", "[string]")
+{
+    // Multibyte UTF-8: mid operates on bytes, not runes.
+    // Escapes keep the source ASCII-only so no BOM / code-page dependency.
+    // U+4F60 'ni'  = E4 BD A0   (3 bytes)
+    // U+597D 'hao' = E5 A5 BD   (3 bytes)
+    // U+1F30D globe = F0 9F 8C 8D (4 bytes)
+    const char* const kNi   = "\xE4\xBD\xA0";
+    const char* const kNiHao = "\xE4\xBD\xA0\xE5\xA5\xBD";
+    const char* const kGlobe = "\xF0\x9F\x8C\x8D";
+
+    memepp::string utf8_str = "\xE4\xBD\xA0\xE5\xA5\xBD\xE4\xB8\x96\xE7\x95\x8C\xF0\x9F\x8C\x8D";
+    REQUIRE(utf8_str.size() == 16);  // 4*3 + 4 = 16 bytes
+
+    mmstrstk_t ret;
+    mmstrstk_init_v0(&ret, MMSTR__OBJ_SIZE);
+    MEGOPP_UTIL__ON_SCOPE_CLEANUP([&]() {
+        mmstrstk_uninit_v0(&ret, MMSTR__OBJ_SIZE);
+    });
+
+    // mid(0, 3) → first CJK character (3 bytes)
+    mgec_t ec = MemeStringStack_mid_v2(&utf8_str.native_handle(), 0, 3, &ret, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == 0);
+    REQUIRE(MemeString_byteSize((mmstr_cptr_t)&ret) == 3);
+    REQUIRE(MemeString_compareByUtf8bytes(
+        (mmstr_cptr_t)&ret, (const uint8_t*)kNi, -1) == 0);
+
+    // mid(0, 6) → two CJK characters (6 bytes)
+    mmstrstk_uninit_v0(&ret, MMSTR__OBJ_SIZE);
+    mmstrstk_init_v0(&ret, MMSTR__OBJ_SIZE);
+    ec = MemeStringStack_mid_v2(&utf8_str.native_handle(), 0, 6, &ret, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == 0);
+    REQUIRE(MemeString_byteSize((mmstr_cptr_t)&ret) == 6);
+    REQUIRE(MemeString_compareByUtf8bytes(
+        (mmstr_cptr_t)&ret, (const uint8_t*)kNiHao, -1) == 0);
+
+    // mid(12, 4) → 4-byte emoji
+    mmstrstk_uninit_v0(&ret, MMSTR__OBJ_SIZE);
+    mmstrstk_init_v0(&ret, MMSTR__OBJ_SIZE);
+    ec = MemeStringStack_mid_v2(&utf8_str.native_handle(), 12, 4, &ret, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == 0);
+    REQUIRE(MemeString_byteSize((mmstr_cptr_t)&ret) == 4);
+    REQUIRE(MemeString_compareByUtf8bytes(
+        (mmstr_cptr_t)&ret, (const uint8_t*)kGlobe, -1) == 0);
+
+    // mid(1, 3) → partial character: mid is byte-level, no rune awareness.
+    // 3 bytes from offset 1 are not a valid UTF-8 sequence but are returned as-is.
+    mmstrstk_uninit_v0(&ret, MMSTR__OBJ_SIZE);
+    mmstrstk_init_v0(&ret, MMSTR__OBJ_SIZE);
+    ec = MemeStringStack_mid_v2(&utf8_str.native_handle(), 1, 3, &ret, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == 0);
+    REQUIRE(MemeString_byteSize((mmstr_cptr_t)&ret) == 3);
+    REQUIRE(MemeString_compareByUtf8bytes(
+        (mmstr_cptr_t)&ret, (const uint8_t*)"\xBD\xA0\xE5", -1) == 0);
 }
