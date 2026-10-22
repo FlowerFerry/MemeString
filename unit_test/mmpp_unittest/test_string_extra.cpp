@@ -4,6 +4,7 @@
 #include <memepp/string_view.hpp>
 #include <memepp/string_builder.hpp>
 #include <memepp/rune.hpp>
+#include <string>
 
 // ---------------------------------------------------------------------------
 // string constructors from rune and string_builder
@@ -137,12 +138,17 @@ TEST_CASE("memepp::string to_large_or_user — empty", "[string]")
 
 TEST_CASE("memepp::string to_large_or_user — already large", "[string]")
 {
-    // need a string exceeding MemeStringOption_getStorageMediumLimit()
-    memepp::string s = "This is a very long string that should definitely be stored in large storage mode because it exceeds the medium limit on all platforms by a comfortable margin, hopefully this is enough bytes to guarantee that.";
+    // size derived from the medium limit so the case stays large on every platform
+    const mmint_t mediumLimit = MemeStringOption_getStorageMediumLimit();
+    std::string raw(mediumLimit + 100, 'L');
+    memepp::string s(raw.data(), static_cast<mmint_t>(raw.size()));
     REQUIRE(s.storage_type() == memepp::string_storage_t::large);
+
     auto result = s.to_large_or_user();
     REQUIRE(result == s);
     REQUIRE(result.storage_type() == memepp::string_storage_t::large);
+    // to_large_or_user() on an already-large string must share the storage
+    REQUIRE(result.data() == s.data());
 }
 
 // string::to_shared_storage

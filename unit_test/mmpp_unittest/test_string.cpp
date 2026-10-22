@@ -105,11 +105,16 @@ TEST_CASE("memepp::string to_large", "[string]")
     REQUIRE(large_medium.storage_type() == memepp::string_storage_t::large);
 
     // already large
-    memepp::string large_str = 
-        "very long string that exceeds medium limit very long string that exceeds medium limit";
+    const mmint_t mediumLimit = MemeStringOption_getStorageMediumLimit();
+    std::string raw(mediumLimit + 100, 'L'); // above the medium limit -> large storage
+    memepp::string large_str(raw.data(), static_cast<mmint_t>(raw.size()));
+    REQUIRE(large_str.storage_type() == memepp::string_storage_t::large);
+
     auto large_large = large_str.to_large();
     REQUIRE(large_large == large_str);
     REQUIRE(large_large.storage_type() == memepp::string_storage_t::large);
+    // to_large() on an already-large string must share the storage, not reallocate
+    REQUIRE(large_large.data() == large_str.data());
 }
 
 // 测试与 uint16_t* 的构造函数
