@@ -90,6 +90,20 @@ TEST_CASE("memepp::string replace - count=-1 unlimited", "[string]")
     REQUIRE(r == "aa-aa-aa");
 }
 
+TEST_CASE("memepp::string replace - positive finite count", "[string]")
+{
+    memepp::string s = "aa_aa_aa";
+
+    // count=1: replace first occurrence only
+    REQUIRE(s.replace("_", "-", 1) == "aa-aa_aa");
+    // count=2: exactly matches occurrence count
+    REQUIRE(s.replace("_", "-", 2) == "aa-aa-aa");
+    // count=3: more than occurrences -> same as unlimited
+    REQUIRE(s.replace("_", "-", 3) == "aa-aa-aa");
+    // count=10: far more than occurrences -> same as unlimited
+    REQUIRE(s.replace("_", "-", 10) == "aa-aa-aa");
+}
+
 // ---------------------------------------------------------------------------
 // string::replace -- boundary and edge cases
 // ---------------------------------------------------------------------------
