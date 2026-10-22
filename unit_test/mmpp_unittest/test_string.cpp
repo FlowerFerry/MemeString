@@ -37,6 +37,17 @@ TEST_CASE("memepp::string count", "[string]")
     REQUIRE(str.count("Xx") == 0); // not found
     REQUIRE(memepp::string{}.count("A") == 0); // empty string
     REQUIRE(memepp::string{"A"}.count("A", memepp::case_sensit_t::all_insensitive) == 1);
+
+    // overlapping matches: implementation advances by 1 byte, so a self-overlapping
+    // needle is counted at every start position (no skip-past-match behaviour)
+    REQUIRE(memepp::string{"aaaa"}.count("aa") == 3);
+    REQUIRE(memepp::string{"aaaa"}.count("aa", memepp::case_sensit_t::all_insensitive) == 3);
+    REQUIRE(memepp::string{"aaaa"}.count("aaa") == 2);
+    REQUIRE(memepp::string{"abcabc"}.count("abc") == 2);
+
+    // empty needle with an explicit size: guarded to 0 before the search algorithms
+    REQUIRE(memepp::string{"abc"}.count("", 0) == 0);
+    REQUIRE(memepp::string{"abc"}.count("xx", 0) == 0);
 }
 
 TEST_CASE("memepp::string count - user storage", "[string]")
