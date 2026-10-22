@@ -11,63 +11,88 @@ TEST_CASE("MemeStringStack concat_v2 (C API)", "[string]")
 {
     mmstrstk_t str01_01;
     mmstrstk_t str01_02;
+    mmstrstk_t str01_03;
+
+    // Note: early_exec() runs the cleanup once and marks the guard as canceled - every
+    // later call on the same guard is a no-op. A fresh scope_cleanup must therefore be
+    // created for each round, otherwise the strings concat_v2 produces in rounds 2..4 are
+    // never uninit'd (harmless while they stay small/SSO, a real leak once they grow).
+
+    // --- Round 1: "Hello, " + "World!" ---
     MemeStringStack_initByU8bytes(&str01_01, MMSTR__OBJ_SIZE, (const uint8_t*)"Hello, ", -1);
     MemeStringStack_initByU8bytes(&str01_02, MMSTR__OBJ_SIZE, (const uint8_t*)"World!", -1);
-    // Note: early_exec() is idempotent - safe to call multiple times.
-    // The scope_cleanup ensures exception safety (auto-uninit on REQUIRE failure),
-    // while early_exec() allows manual cleanup before reinitializing for next test case.
-    auto str01_01_cleanup = 
+    auto str01_01_r1_cleanup =
         mgpp::util::scope_cleanup__create([&str01_01]() { MemeStringStack_unInit(&str01_01, MMSTR__OBJ_SIZE); });
-    auto str01_02_cleanup =
+    auto str01_02_r1_cleanup =
         mgpp::util::scope_cleanup__create([&str01_02]() { MemeStringStack_unInit(&str01_02, MMSTR__OBJ_SIZE); });
 
-    mmstrstk_t str01_03;
     MemeStringStack_concat_v2(&str01_01, &str01_02, &str01_03, MMSTR__OBJ_SIZE);
-    auto str01_03_cleanup =
+    auto str01_03_r1_cleanup =
         mgpp::util::scope_cleanup__create([&str01_03]() { MemeStringStack_unInit(&str01_03, MMSTR__OBJ_SIZE); });
-    
+
     REQUIRE(MemeString_byteSize((mmstr_cptr_t)&str01_03) == 13);
     REQUIRE(strncmp((const char*)MemeString_byteData((mmstr_cptr_t)&str01_03), "Hello, World!", 13) == 0);
 
-    str01_01_cleanup.early_exec();
-    str01_02_cleanup.early_exec();
-    str01_03_cleanup.early_exec();
+    str01_01_r1_cleanup.early_exec();
+    str01_02_r1_cleanup.early_exec();
+    str01_03_r1_cleanup.early_exec();
 
+    // --- Round 2: "" + "" ---
     MemeStringStack_init(&str01_01, MMSTR__OBJ_SIZE);
     MemeStringStack_init(&str01_02, MMSTR__OBJ_SIZE);
+    auto str01_01_r2_cleanup =
+        mgpp::util::scope_cleanup__create([&str01_01]() { MemeStringStack_unInit(&str01_01, MMSTR__OBJ_SIZE); });
+    auto str01_02_r2_cleanup =
+        mgpp::util::scope_cleanup__create([&str01_02]() { MemeStringStack_unInit(&str01_02, MMSTR__OBJ_SIZE); });
 
     MemeStringStack_concat_v2(&str01_01, &str01_02, &str01_03, MMSTR__OBJ_SIZE);
+    auto str01_03_r2_cleanup =
+        mgpp::util::scope_cleanup__create([&str01_03]() { MemeStringStack_unInit(&str01_03, MMSTR__OBJ_SIZE); });
 
     REQUIRE(MemeString_byteSize((mmstr_cptr_t)&str01_03) == 0);
     REQUIRE(strncmp((const char*)MemeString_byteData((mmstr_cptr_t)&str01_03), "", 0) == 0);
 
-    str01_01_cleanup.early_exec();
-    str01_02_cleanup.early_exec();
-    str01_03_cleanup.early_exec();
+    str01_01_r2_cleanup.early_exec();
+    str01_02_r2_cleanup.early_exec();
+    str01_03_r2_cleanup.early_exec();
 
+    // --- Round 3: "Hello, " + "" ---
     MemeStringStack_initByU8bytes(&str01_01, MMSTR__OBJ_SIZE, (const uint8_t*)"Hello, ", -1);
     MemeStringStack_init(&str01_02, MMSTR__OBJ_SIZE);
+    auto str01_01_r3_cleanup =
+        mgpp::util::scope_cleanup__create([&str01_01]() { MemeStringStack_unInit(&str01_01, MMSTR__OBJ_SIZE); });
+    auto str01_02_r3_cleanup =
+        mgpp::util::scope_cleanup__create([&str01_02]() { MemeStringStack_unInit(&str01_02, MMSTR__OBJ_SIZE); });
 
     MemeStringStack_concat_v2(&str01_01, &str01_02, &str01_03, MMSTR__OBJ_SIZE);
+    auto str01_03_r3_cleanup =
+        mgpp::util::scope_cleanup__create([&str01_03]() { MemeStringStack_unInit(&str01_03, MMSTR__OBJ_SIZE); });
 
     REQUIRE(MemeString_byteSize((mmstr_cptr_t)&str01_03) == 7);
     REQUIRE(strncmp((const char*)MemeString_byteData((mmstr_cptr_t)&str01_03), "Hello, ", 7) == 0);
 
-    str01_01_cleanup.early_exec();
-    str01_02_cleanup.early_exec();
-    str01_03_cleanup.early_exec();
+    str01_01_r3_cleanup.early_exec();
+    str01_02_r3_cleanup.early_exec();
+    str01_03_r3_cleanup.early_exec();
 
+    // --- Round 4: "" + "World!" ---
     MemeStringStack_init(&str01_01, MMSTR__OBJ_SIZE);
     MemeStringStack_initByU8bytes(&str01_02, MMSTR__OBJ_SIZE, (const uint8_t*)"World!", -1);
+    auto str01_01_r4_cleanup =
+        mgpp::util::scope_cleanup__create([&str01_01]() { MemeStringStack_unInit(&str01_01, MMSTR__OBJ_SIZE); });
+    auto str01_02_r4_cleanup =
+        mgpp::util::scope_cleanup__create([&str01_02]() { MemeStringStack_unInit(&str01_02, MMSTR__OBJ_SIZE); });
 
     MemeStringStack_concat_v2(&str01_01, &str01_02, &str01_03, MMSTR__OBJ_SIZE);
+    auto str01_03_r4_cleanup =
+        mgpp::util::scope_cleanup__create([&str01_03]() { MemeStringStack_unInit(&str01_03, MMSTR__OBJ_SIZE); });
 
     REQUIRE(MemeString_byteSize((mmstr_cptr_t)&str01_03) == 6);
     REQUIRE(strncmp((const char*)MemeString_byteData((mmstr_cptr_t)&str01_03), "World!", 6) == 0);
 
-    str01_01_cleanup.early_exec();
-    str01_02_cleanup.early_exec();
-    str01_03_cleanup.early_exec();
+    str01_01_r4_cleanup.early_exec();
+    str01_02_r4_cleanup.early_exec();
+    str01_03_r4_cleanup.early_exec();
 }
 
 // ---------------------------------------------------------------------------
