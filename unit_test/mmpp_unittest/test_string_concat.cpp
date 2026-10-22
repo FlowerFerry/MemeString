@@ -9,6 +9,7 @@
 
 TEST_CASE("MemeStringStack concat_v2 (C API)", "[string]")
 {
+    mgec_t ec;
     mmstrstk_t str01_01;
     mmstrstk_t str01_02;
     mmstrstk_t str01_03;
@@ -26,7 +27,8 @@ TEST_CASE("MemeStringStack concat_v2 (C API)", "[string]")
     auto str01_02_r1_cleanup =
         mgpp::util::scope_cleanup__create([&str01_02]() { MemeStringStack_unInit(&str01_02, MMSTR__OBJ_SIZE); });
 
-    MemeStringStack_concat_v2(&str01_01, &str01_02, &str01_03, MMSTR__OBJ_SIZE);
+    ec = MemeStringStack_concat_v2(&str01_01, &str01_02, &str01_03, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == MGEC__OK);
     auto str01_03_r1_cleanup =
         mgpp::util::scope_cleanup__create([&str01_03]() { MemeStringStack_unInit(&str01_03, MMSTR__OBJ_SIZE); });
 
@@ -45,7 +47,8 @@ TEST_CASE("MemeStringStack concat_v2 (C API)", "[string]")
     auto str01_02_r2_cleanup =
         mgpp::util::scope_cleanup__create([&str01_02]() { MemeStringStack_unInit(&str01_02, MMSTR__OBJ_SIZE); });
 
-    MemeStringStack_concat_v2(&str01_01, &str01_02, &str01_03, MMSTR__OBJ_SIZE);
+    ec = MemeStringStack_concat_v2(&str01_01, &str01_02, &str01_03, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == MGEC__OK);
     auto str01_03_r2_cleanup =
         mgpp::util::scope_cleanup__create([&str01_03]() { MemeStringStack_unInit(&str01_03, MMSTR__OBJ_SIZE); });
 
@@ -64,7 +67,8 @@ TEST_CASE("MemeStringStack concat_v2 (C API)", "[string]")
     auto str01_02_r3_cleanup =
         mgpp::util::scope_cleanup__create([&str01_02]() { MemeStringStack_unInit(&str01_02, MMSTR__OBJ_SIZE); });
 
-    MemeStringStack_concat_v2(&str01_01, &str01_02, &str01_03, MMSTR__OBJ_SIZE);
+    ec = MemeStringStack_concat_v2(&str01_01, &str01_02, &str01_03, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == MGEC__OK);
     auto str01_03_r3_cleanup =
         mgpp::util::scope_cleanup__create([&str01_03]() { MemeStringStack_unInit(&str01_03, MMSTR__OBJ_SIZE); });
 
@@ -83,7 +87,8 @@ TEST_CASE("MemeStringStack concat_v2 (C API)", "[string]")
     auto str01_02_r4_cleanup =
         mgpp::util::scope_cleanup__create([&str01_02]() { MemeStringStack_unInit(&str01_02, MMSTR__OBJ_SIZE); });
 
-    MemeStringStack_concat_v2(&str01_01, &str01_02, &str01_03, MMSTR__OBJ_SIZE);
+    ec = MemeStringStack_concat_v2(&str01_01, &str01_02, &str01_03, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == MGEC__OK);
     auto str01_03_r4_cleanup =
         mgpp::util::scope_cleanup__create([&str01_03]() { MemeStringStack_unInit(&str01_03, MMSTR__OBJ_SIZE); });
 
