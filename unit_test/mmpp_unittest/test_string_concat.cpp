@@ -191,3 +191,112 @@ TEST_CASE("memepp::string concat - view storage", "[string]")
 
     MemeStringStack_unInit(&view_str, sizeof(view_str));
 }
+
+// ---------------------------------------------------------------------------
+// Additional coverage: medium/large operands, self-concat, multibyte UTF-8
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string concat - medium operand", "[string]")
+{
+    const mmint_t smallLimit = MemeStringOption_getStorageSmallLimit();
+    // Build a medium-length string (> small limit)
+    std::string data(smallLimit + 10, 'A');
+    memepp::string medium_str(data.c_str(), data.size(), memepp::string_storage_t::medium);
+    REQUIRE(medium_str.storage_type() == memepp::string_storage_t::medium);
+
+    memepp::string suffix = "XYZ";
+    memepp::string result = medium_str.concat(suffix);
+    REQUIRE(result.size() == data.size() + 3);
+    REQUIRE(result.ends_with("XYZ"));
+    // concat_v2 always produces medium type
+    REQUIRE(result.storage_type() == memepp::string_storage_t::medium);
+}
+
+TEST_CASE("memepp::string concat - large operand", "[string]")
+{
+    const mmint_t smallLimit = MemeStringOption_getStorageSmallLimit();
+    const mmint_t mediumLimit = MemeStringOption_getStorageMediumLimit();
+    // Build a large string (> medium limit)
+    std::string data(mediumLimit + 100, 'L');
+    memepp::string large_str(data.c_str(), data.size(), memepp::string_storage_t::large);
+    REQUIRE(large_str.storage_type() == memepp::string_storage_t::large);
+
+    memepp::string suffix = "TAIL";
+    memepp::string result = large_str.concat(suffix);
+    REQUIRE(result.size() == data.size() + 4);
+    REQUIRE(result.ends_with("TAIL"));
+}
+
+TEST_CASE("memepp::string concat - self concat", "[string]")
+{
+    memepp::string s = "Hello";
+    memepp::string original = s;
+
+    memepp::string result = s.concat(s);
+    REQUIRE(result == "HelloHello");
+    REQUIRE(result.size() == 10);
+    // Original must be unchanged
+    REQUIRE(s == original);
+    REQUIRE(s == "Hello");
+}
+
+TEST_CASE("memepp::string concat - multibyte UTF-8", "[string]")
+{
+    // Use explicit UTF-8 byte sequences: MSVC converts narrow literals to the execution
+    // charset (936/GBK on this host), so literal CJK text would not be UTF-8 here.
+    static const char u8_nihao[]  = "\xE4\xBD\xA0\xE5\xA5\xBD";              // 你好, 6 bytes
+    static const char u8_shijie[] = "\xE4\xB8\x96\xE7\x95\x8C";              // 世界, 6 bytes
+    static const char u8_both[]   = "\xE4\xBD\xA0\xE5\xA5\xBD\xE4\xB8\x96\xE7\x95\x8C"; // 你好世界, 12 bytes
+
+    memepp::string s1(u8_nihao, 6);
+    memepp::string s2(u8_shijie, 6);
+    REQUIRE(s1.size() == 6);
+    REQUIRE(s2.size() == 6);
+
+    memepp::string result = s1.concat(s2);
+    REQUIRE(result.size() == 12);  // 6 + 6 bytes
+    REQUIRE(memcmp(result.data(), u8_both, 12) == 0);
+    // Original operands unchanged
+    REQUIRE(s1.size() == 6);
+    REQUIRE(s2.size() == 6);
+
+    // Mixed ASCII + multibyte through the string_view overload
+    memepp::string r2 = memepp::string("Hello").concat(memepp::string_view(u8_nihao, 6));
+    REQUIRE(r2.size() == 5 + 6);  // 5 ASCII + 6 UTF-8 bytes
+    REQUIRE(memcmp(r2.data(), "Hello\xE4\xBD\xA0\xE5\xA5\xBD", 11) == 0);
+}
+
+TEST_CASE("MemeStringStack concat_v2 - zero total size produces empty", "[string]")
+{
+    // concat_v2 with 0+0 returns empty small (already covered in Round 2 of C API test,
+    // but verify storage type explicitly here)
+    mmstrstk_t empty1, empty2, out;
+    MemeStringStack_init(&empty1, MMSTR__OBJ_SIZE);
+    MemeStringStack_init(&empty2, MMSTR__OBJ_SIZE);
+
+    mgec_t ec = MemeStringStack_concat_v2(&empty1, &empty2, &out, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == MGEC__OK);
+    REQUIRE(MemeString_byteSize((mmstr_cptr_t)&out) == 0);
+    REQUIRE(MemeString_storageType((mmstr_cptr_t)&out) == MemeString_StorageType_small);
+
+    MemeStringStack_unInit(&empty1, MMSTR__OBJ_SIZE);
+    MemeStringStack_unInit(&empty2, MMSTR__OBJ_SIZE);
+    MemeStringStack_unInit(&out, MMSTR__OBJ_SIZE);
+}
+
+TEST_CASE("MemeStringStack concat_v2 - result is always medium for non-zero total", "[string]")
+{
+    // Even if total fits in small, concat_v2 produces medium
+    mmstrstk_t s1, s2, out;
+    MemeStringStack_initByU8bytes(&s1, MMSTR__OBJ_SIZE, (const uint8_t*)"AB", -1);
+    MemeStringStack_initByU8bytes(&s2, MMSTR__OBJ_SIZE, (const uint8_t*)"CD", -1);
+
+    mgec_t ec = MemeStringStack_concat_v2(&s1, &s2, &out, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == MGEC__OK);
+    REQUIRE(MemeString_byteSize((mmstr_cptr_t)&out) == 4);
+    REQUIRE(MemeString_storageType((mmstr_cptr_t)&out) == MemeString_StorageType_medium);
+
+    MemeStringStack_unInit(&s1, MMSTR__OBJ_SIZE);
+    MemeStringStack_unInit(&s2, MMSTR__OBJ_SIZE);
+    MemeStringStack_unInit(&out, MMSTR__OBJ_SIZE);
+}

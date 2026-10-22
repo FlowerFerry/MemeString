@@ -9,6 +9,7 @@
 
 TEST_CASE("MemeStringStack to_valid_utf8 (C API)", "[string]") 
 {
+    mgec_t ec;
     mmstrstk_t str01_01;
     mmstrstk_t str01_02;
 
@@ -22,7 +23,8 @@ TEST_CASE("MemeStringStack to_valid_utf8 (C API)", "[string]")
     auto str01_01_r1_cleanup =
         mgpp::util::scope_cleanup__create([&str01_01]() { MemeStringStack_unInit(&str01_01, MMSTR__OBJ_SIZE); });
 
-    MemeStringStack_toValidUtf8_v2(&str01_01, &str01_02, MMSTR__OBJ_SIZE);
+    ec = MemeStringStack_toValidUtf8_v2(&str01_01, &str01_02, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == MGEC__OK);
     auto str01_02_r1_cleanup =
         mgpp::util::scope_cleanup__create([&str01_02]() { MemeStringStack_unInit(&str01_02, MMSTR__OBJ_SIZE); });
 
@@ -37,7 +39,8 @@ TEST_CASE("MemeStringStack to_valid_utf8 (C API)", "[string]")
     auto str01_01_r2_cleanup =
         mgpp::util::scope_cleanup__create([&str01_01]() { MemeStringStack_unInit(&str01_01, MMSTR__OBJ_SIZE); });
 
-    MemeStringStack_toValidUtf8_v2(&str01_01, &str01_02, MMSTR__OBJ_SIZE);
+    ec = MemeStringStack_toValidUtf8_v2(&str01_01, &str01_02, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == MGEC__OK);
     auto str01_02_r2_cleanup =
         mgpp::util::scope_cleanup__create([&str01_02]() { MemeStringStack_unInit(&str01_02, MMSTR__OBJ_SIZE); });
 
@@ -52,7 +55,8 @@ TEST_CASE("MemeStringStack to_valid_utf8 (C API)", "[string]")
     auto str01_01_r3_cleanup =
         mgpp::util::scope_cleanup__create([&str01_01]() { MemeStringStack_unInit(&str01_01, MMSTR__OBJ_SIZE); });
 
-    MemeStringStack_toValidUtf8_v2(&str01_01, &str01_02, MMSTR__OBJ_SIZE);
+    ec = MemeStringStack_toValidUtf8_v2(&str01_01, &str01_02, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == MGEC__OK);
     auto str01_02_r3_cleanup =
         mgpp::util::scope_cleanup__create([&str01_02]() { MemeStringStack_unInit(&str01_02, MMSTR__OBJ_SIZE); });
 
@@ -67,7 +71,8 @@ TEST_CASE("MemeStringStack to_valid_utf8 (C API)", "[string]")
     auto str01_01_r4_cleanup =
         mgpp::util::scope_cleanup__create([&str01_01]() { MemeStringStack_unInit(&str01_01, MMSTR__OBJ_SIZE); });
 
-    MemeStringStack_toValidUtf8_v2(&str01_01, &str01_02, MMSTR__OBJ_SIZE);
+    ec = MemeStringStack_toValidUtf8_v2(&str01_01, &str01_02, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == MGEC__OK);
     auto str01_02_r4_cleanup =
         mgpp::util::scope_cleanup__create([&str01_02]() { MemeStringStack_unInit(&str01_02, MMSTR__OBJ_SIZE); });
 
@@ -82,7 +87,8 @@ TEST_CASE("MemeStringStack to_valid_utf8 (C API)", "[string]")
     auto str01_01_r5_cleanup =
         mgpp::util::scope_cleanup__create([&str01_01]() { MemeStringStack_unInit(&str01_01, MMSTR__OBJ_SIZE); });
 
-    MemeStringStack_toValidUtf8_v2(&str01_01, &str01_02, MMSTR__OBJ_SIZE);
+    ec = MemeStringStack_toValidUtf8_v2(&str01_01, &str01_02, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == MGEC__OK);
     auto str01_02_r5_cleanup =
         mgpp::util::scope_cleanup__create([&str01_02]() { MemeStringStack_unInit(&str01_02, MMSTR__OBJ_SIZE); });
 
@@ -97,7 +103,8 @@ TEST_CASE("MemeStringStack to_valid_utf8 (C API)", "[string]")
     auto str01_01_r6_cleanup =
         mgpp::util::scope_cleanup__create([&str01_01]() { MemeStringStack_unInit(&str01_01, MMSTR__OBJ_SIZE); });
 
-    MemeStringStack_toValidUtf8_v2(&str01_01, &str01_02, MMSTR__OBJ_SIZE);
+    ec = MemeStringStack_toValidUtf8_v2(&str01_01, &str01_02, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == MGEC__OK);
     auto str01_02_r6_cleanup =
         mgpp::util::scope_cleanup__create([&str01_02]() { MemeStringStack_unInit(&str01_02, MMSTR__OBJ_SIZE); });
 
@@ -112,7 +119,8 @@ TEST_CASE("MemeStringStack to_valid_utf8 (C API)", "[string]")
     auto str01_01_r7_cleanup =
         mgpp::util::scope_cleanup__create([&str01_01]() { MemeStringStack_unInit(&str01_01, MMSTR__OBJ_SIZE); });
 
-    MemeStringStack_toValidUtf8_v2(&str01_01, &str01_02, MMSTR__OBJ_SIZE);
+    ec = MemeStringStack_toValidUtf8_v2(&str01_01, &str01_02, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == MGEC__OK);
     auto str01_02_r7_cleanup =
         mgpp::util::scope_cleanup__create([&str01_02]() { MemeStringStack_unInit(&str01_02, MMSTR__OBJ_SIZE); });
 
@@ -121,6 +129,38 @@ TEST_CASE("MemeStringStack to_valid_utf8 (C API)", "[string]")
 
     str01_01_r7_cleanup.early_exec();
     str01_02_r7_cleanup.early_exec();
+
+    // --- Round 8: invalid byte in the middle ---
+    MemeStringStack_initByU8bytes(&str01_01, MMSTR__OBJ_SIZE, (const uint8_t*)"ab\xFF" "cd", -1);
+    auto str01_01_r8_cleanup =
+        mgpp::util::scope_cleanup__create([&str01_01]() { MemeStringStack_unInit(&str01_01, MMSTR__OBJ_SIZE); });
+
+    ec = MemeStringStack_toValidUtf8_v2(&str01_01, &str01_02, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == MGEC__OK);
+    auto str01_02_r8_cleanup =
+        mgpp::util::scope_cleanup__create([&str01_02]() { MemeStringStack_unInit(&str01_02, MMSTR__OBJ_SIZE); });
+
+    REQUIRE(MemeString_byteSize((mmstr_cptr_t)&str01_02) == 2);
+    REQUIRE(strncmp(MemeString_cStr((mmstr_cptr_t)&str01_02), "ab", 2) == 0);
+
+    str01_01_r8_cleanup.early_exec();
+    str01_02_r8_cleanup.early_exec();
+
+    // --- Round 9: orphan continuation bytes at the beginning ---
+    MemeStringStack_initByU8bytes(&str01_01, MMSTR__OBJ_SIZE, (const uint8_t*)"\x98\x8A", -1);
+    auto str01_01_r9_cleanup =
+        mgpp::util::scope_cleanup__create([&str01_01]() { MemeStringStack_unInit(&str01_01, MMSTR__OBJ_SIZE); });
+
+    ec = MemeStringStack_toValidUtf8_v2(&str01_01, &str01_02, MMSTR__OBJ_SIZE);
+    REQUIRE(ec == MGEC__OK);
+    auto str01_02_r9_cleanup =
+        mgpp::util::scope_cleanup__create([&str01_02]() { MemeStringStack_unInit(&str01_02, MMSTR__OBJ_SIZE); });
+
+    REQUIRE(MemeString_byteSize((mmstr_cptr_t)&str01_02) == 0);
+    REQUIRE(strncmp(MemeString_cStr((mmstr_cptr_t)&str01_02), "", 1) == 0);
+
+    str01_01_r9_cleanup.early_exec();
+    str01_02_r9_cleanup.early_exec();
 }
 
 TEST_CASE("memepp::string to_valid_utf8 - user storage", "[string]")

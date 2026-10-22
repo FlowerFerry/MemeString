@@ -133,7 +133,7 @@ TEST_CASE("memepp::string_view replace - overlapping pattern not re-matched", "[
 {
     memepp::string_view s = "aaa";
     auto r = s.replace("aa", "a");
-    REQUIRE(r.size() <= s.size());
+    REQUIRE(r == "aa");
 }
 
 TEST_CASE("memepp::string_view replace - empty from and empty to on non-empty", "[string_view]")

@@ -44,6 +44,7 @@ TEST_CASE("memepp::string replace - empty 'from' is safe", "[string]")
 
     auto r = s.replace("", "X");
     REQUIRE(r.size() >= 0);
+    REQUIRE(r == "Hello");
 }
 
 TEST_CASE("memepp::string replace - replace entire string", "[string]")
@@ -132,7 +133,7 @@ TEST_CASE("memepp::string replace - overlapping pattern not re-matched", "[strin
 {
     memepp::string s = "aaa";
     auto r = s.replace("aa", "a");
-    REQUIRE(r.size() <= s.size());
+    REQUIRE(r == "aa");
 }
 
 TEST_CASE("memepp::string replace - empty from and empty to on non-empty", "[string]")
