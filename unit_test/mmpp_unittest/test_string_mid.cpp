@@ -200,8 +200,10 @@ TEST_CASE("memepp::string mid - view storage", "[string]")
 
 TEST_CASE("memepp::string mid - small storage", "[string]")
 {
-    // small storage: SSO inline buffer (≤23 bytes on 64-bit)
-    memepp::string small_str = "Hello, World!";  // 13 bytes
+    // small storage: SSO inline buffer, whose max length depends on pointer
+    // width (10 bytes on 32-bit, 21 on 64-bit).  Use "HelloWorld" (10 bytes)
+    // so it fits the small buffer on every target.
+    memepp::string small_str = "HelloWorld";
     REQUIRE(small_str.storage_type() == memepp::string_storage_t::small);
 
     mmstrstk_t ret;
@@ -218,10 +220,10 @@ TEST_CASE("memepp::string mid - small storage", "[string]")
         (mmstr_cptr_t)&ret, (const uint8_t*)"Hello", -1) == 0);
     REQUIRE(MemeString_storageType((mmstr_cptr_t)&ret) == mmstr_strg_small);
 
-    // mid(7, 5) → "World"
+    // mid(5, 5) → "World"
     mmstrstk_uninit_v0(&ret, MMSTR__OBJ_SIZE);
     mmstrstk_init_v0(&ret, MMSTR__OBJ_SIZE);
-    ec = MemeStringStack_mid_v2(&small_str.native_handle(), 7, 5, &ret, MMSTR__OBJ_SIZE);
+    ec = MemeStringStack_mid_v2(&small_str.native_handle(), 5, 5, &ret, MMSTR__OBJ_SIZE);
     REQUIRE(ec == 0);
     REQUIRE(MemeString_byteSize((mmstr_cptr_t)&ret) == 5);
     REQUIRE(MemeString_compareByUtf8bytes(
