@@ -74,6 +74,23 @@ TEST_CASE("memepp::string static repeat", "[string]")
     REQUIRE(long_str.size() == 1000);
     REQUIRE(long_str.storage_type() == memepp::string_storage_t::large);
     REQUIRE(long_str.starts_with("12345678901234567890"));
+
+    // negative count — should return empty string (consistent with C layer)
+    REQUIRE(memepp::string::repeat("Ab", -1) == "");
+    REQUIRE(memepp::string::repeat("Ab", static_cast<memepp::string::size_type>(-100)) == "");
+
+    // repeat always goes through MemeVariableBuffer, whose releaseToString
+    // promotes medium storage to large by design — so a 50-byte result is
+    // large, never medium. Covers the mid-size range between small and large.
+    auto medium_str = memepp::string::repeat("12345", 10); // 50 chars
+    REQUIRE(medium_str.size() == 50);
+    REQUIRE(medium_str.storage_type() == memepp::string_storage_t::large);
+
+    // multi-byte (UTF-8) input — byte-level repeat
+    // Use hex escapes to avoid MSVC codepage 936 (GBK) mangling UTF-8 literals
+    auto mb_str = memepp::string::repeat("\xe4\xbd\xa0\xe5\xa5\xbd", 3); // "你好" = 6 bytes, result = 18 bytes
+    REQUIRE(mb_str.size() == 18);
+    REQUIRE(mb_str == "\xe4\xbd\xa0\xe5\xa5\xbd\xe4\xbd\xa0\xe5\xa5\xbd\xe4\xbd\xa0\xe5\xa5\xbd");
 }
 
 TEST_CASE("memepp::string repeat - user storage", "[string]")
