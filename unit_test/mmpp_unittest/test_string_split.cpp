@@ -23,7 +23,8 @@ TEST_CASE("memepp::string split", "[string]")
     {
         // free function entry
         std::vector<memepp::string> kept;
-        memepp::split(s01, ":", memepp::split_behav_t::keep_empty_parts, std::back_inserter(kept));
+        mmint_t n_free = memepp::split(s01, ":", memepp::split_behav_t::keep_empty_parts, std::back_inserter(kept));
+        REQUIRE(n_free == 0);
         REQUIRE(kept.size() == 5);
         REQUIRE(kept[0] == "11");
         REQUIRE(kept[1] == "");
@@ -33,7 +34,8 @@ TEST_CASE("memepp::string split", "[string]")
 
         // member function entry
         kept.clear();
-        s01.split(":", memepp::split_behav_t::keep_empty_parts, std::back_inserter(kept));
+        mmint_t n_member = s01.split(":", memepp::split_behav_t::keep_empty_parts, std::back_inserter(kept));
+        REQUIRE(n_member == 0);
         REQUIRE(kept.size() == 5);
         REQUIRE(kept[0] == "11");
         REQUIRE(kept[1] == "");
@@ -46,7 +48,8 @@ TEST_CASE("memepp::string split", "[string]")
     {
         // free function entry
         std::vector<memepp::string> skipped;
-        memepp::split(s01, ":", memepp::split_behav_t::skip_empty_parts, std::back_inserter(skipped));
+        mmint_t n_free = memepp::split(s01, ":", memepp::split_behav_t::skip_empty_parts, std::back_inserter(skipped));
+        REQUIRE(n_free == 0);
         REQUIRE(skipped.size() == 4);
         REQUIRE(skipped[0] == "11");
         REQUIRE(skipped[1] == "22");
@@ -55,7 +58,8 @@ TEST_CASE("memepp::string split", "[string]")
 
         // member function entry
         skipped.clear();
-        s01.split(":", memepp::split_behav_t::skip_empty_parts, std::back_inserter(skipped));
+        mmint_t n_member = s01.split(":", memepp::split_behav_t::skip_empty_parts, std::back_inserter(skipped));
+        REQUIRE(n_member == 0);
         REQUIRE(skipped.size() == 4);
         REQUIRE(skipped[0] == "11");
         REQUIRE(skipped[1] == "22");
@@ -66,7 +70,8 @@ TEST_CASE("memepp::string split", "[string]")
     SECTION("delimiter not found yields whole string")
     {
         std::list<memepp::string> no_match;
-        memepp::split(s01, "444", memepp::split_behav_t::skip_empty_parts, std::back_inserter(no_match));
+        mmint_t n = memepp::split(s01, "444", memepp::split_behav_t::skip_empty_parts, std::back_inserter(no_match));
+        REQUIRE(n == 0);
         REQUIRE(no_match.size() == 1);
         REQUIRE(*no_match.begin() == "11::22:3:");
     }
@@ -74,7 +79,8 @@ TEST_CASE("memepp::string split", "[string]")
     SECTION("leading delimiter keeps empty head, deque sink")
     {
         std::deque<memepp::string> leading_empty;
-        memepp::split(s01, "11", memepp::split_behav_t::keep_empty_parts, std::back_inserter(leading_empty));
+        mmint_t n = memepp::split(s01, "11", memepp::split_behav_t::keep_empty_parts, std::back_inserter(leading_empty));
+        REQUIRE(n == 0);
         REQUIRE(leading_empty.size() == 2);
         REQUIRE(*leading_empty.rbegin() == "::22:3:444");
     }
@@ -82,7 +88,8 @@ TEST_CASE("memepp::string split", "[string]")
     SECTION("trailing delimiter keeps empty tail")
     {
         std::vector<memepp::string> trailing_empty;
-        memepp::split(s01, "444", memepp::split_behav_t::keep_empty_parts, std::back_inserter(trailing_empty));
+        mmint_t n = memepp::split(s01, "444", memepp::split_behav_t::keep_empty_parts, std::back_inserter(trailing_empty));
+        REQUIRE(n == 0);
         REQUIRE(trailing_empty.size() == 2);
         REQUIRE(trailing_empty.front() == "11::22:3:");
         REQUIRE(trailing_empty.back() == "");
@@ -93,7 +100,8 @@ TEST_CASE("memepp::string split", "[string]")
         SECTION("keep_empty_parts")
         {
             std::vector<memepp::string_view> kept_views;
-            s01.split(":", memepp::split_behav_t::keep_empty_parts, std::back_inserter(kept_views));
+            mmint_t n = s01.split(":", memepp::split_behav_t::keep_empty_parts, std::back_inserter(kept_views));
+            REQUIRE(n == 0);
             REQUIRE(kept_views.size() == 5);
             REQUIRE(kept_views[0] == "11");
             REQUIRE(kept_views[0].storage_type() ==
@@ -115,7 +123,8 @@ TEST_CASE("memepp::string split", "[string]")
         SECTION("skip_empty_parts")
         {
             std::vector<memepp::string_view> skipped_views;
-            s01.split(":", memepp::split_behav_t::skip_empty_parts, std::back_inserter(skipped_views));
+            mmint_t n = s01.split(":", memepp::split_behav_t::skip_empty_parts, std::back_inserter(skipped_views));
+            REQUIRE(n == 0);
             REQUIRE(skipped_views.size() == 4);
             REQUIRE(skipped_views[0] == "11");
             REQUIRE(skipped_views[0].storage_type() ==
@@ -135,7 +144,8 @@ TEST_CASE("memepp::string split", "[string]")
     SECTION("default behaviour equals keep_empty_parts")
     {
         std::deque<memepp::string_view> default_parts;
-        s01.split(":", std::back_inserter(default_parts));
+        mmint_t n = s01.split(":", std::back_inserter(default_parts));
+        REQUIRE(n == 0);
         REQUIRE(default_parts.size() == 5);
         REQUIRE(default_parts[0] == "11");
         REQUIRE(default_parts[1] == "");
@@ -149,19 +159,22 @@ TEST_CASE("memepp::string split", "[string]")
         // keep and skip produce identical results here: no empty parts arise from
         // splitting s02 on "clover", so this also cross-checks the two paths agree.
         std::vector<memepp::string> long_kept;
-        memepp::split(s02, "clover", memepp::split_behav_t::keep_empty_parts, std::back_inserter(long_kept));
+        mmint_t n_free = memepp::split(s02, "clover", memepp::split_behav_t::keep_empty_parts, std::back_inserter(long_kept));
+        REQUIRE(n_free == 0);
         REQUIRE(long_kept.size() == 3);
         REQUIRE(long_kept[1] == " is a rare variant of the genus Cheatgrass (which includes the genus Clover and Alfalfa) that also has more than five leaves and up to eighteen leaves. "
             "In the West, it is considered a sign of great good fortune to find four-leaf ");
 
         long_kept.clear();
-        s02.split("clover", memepp::split_behav_t::keep_empty_parts, std::back_inserter(long_kept));
+        mmint_t n_member = s02.split("clover", memepp::split_behav_t::keep_empty_parts, std::back_inserter(long_kept));
+        REQUIRE(n_member == 0);
         REQUIRE(long_kept.size() == 3);
         REQUIRE(long_kept[1] == " is a rare variant of the genus Cheatgrass (which includes the genus Clover and Alfalfa) that also has more than five leaves and up to eighteen leaves. "
             "In the West, it is considered a sign of great good fortune to find four-leaf ");
 
         std::vector<memepp::string> long_skipped;
-        memepp::split(s02, "clover", memepp::split_behav_t::skip_empty_parts, std::back_inserter(long_skipped));
+        mmint_t n_skipped = memepp::split(s02, "clover", memepp::split_behav_t::skip_empty_parts, std::back_inserter(long_skipped));
+        REQUIRE(n_skipped == 0);
         REQUIRE(long_skipped.size() == 3);
         REQUIRE(long_skipped[1] == " is a rare variant of the genus Cheatgrass (which includes the genus Clover and Alfalfa) that also has more than five leaves and up to eighteen leaves. "
             "In the West, it is considered a sign of great good fortune to find four-leaf ");
@@ -174,7 +187,8 @@ TEST_CASE("memepp::string split", "[string]")
         SECTION("keep_empty_parts")
         {
             std::vector<memepp::string_view> sv_kept;
-            sv.split(":", memepp::split_behav_t::keep_empty_parts, std::back_inserter(sv_kept));
+            mmint_t n = sv.split(":", memepp::split_behav_t::keep_empty_parts, std::back_inserter(sv_kept));
+            REQUIRE(n == 0);
             REQUIRE(sv_kept.size() == 5);
             REQUIRE(sv_kept[0] == "11");
             REQUIRE(sv_kept[1] == "");
@@ -186,7 +200,8 @@ TEST_CASE("memepp::string split", "[string]")
         SECTION("skip_empty_parts")
         {
             std::vector<memepp::string_view> sv_skipped;
-            sv.split(":", memepp::split_behav_t::skip_empty_parts, std::back_inserter(sv_skipped));
+            mmint_t n = sv.split(":", memepp::split_behav_t::skip_empty_parts, std::back_inserter(sv_skipped));
+            REQUIRE(n == 0);
             REQUIRE(sv_skipped.size() == 4);
             REQUIRE(sv_skipped[0] == "11");
             REQUIRE(sv_skipped[1] == "22");
@@ -197,13 +212,82 @@ TEST_CASE("memepp::string split", "[string]")
         SECTION("default behaviour")
         {
             std::deque<memepp::string_view> sv_default_parts;
-            sv.split(":", std::back_inserter(sv_default_parts));
+            mmint_t n = sv.split(":", std::back_inserter(sv_default_parts));
+            REQUIRE(n == 0);
             REQUIRE(sv_default_parts.size() == 5);
             REQUIRE(sv_default_parts[0] == "11");
             REQUIRE(sv_default_parts[1] == "");
             REQUIRE(sv_default_parts[2] == "22");
             REQUIRE(sv_default_parts[3] == "3");
             REQUIRE(sv_default_parts[4] == "444");
+        }
+    }
+
+    SECTION("empty source with string result container")
+    {
+        memepp::string empty_str;
+
+        SECTION("keep_empty_parts yields one empty string part")
+        {
+            std::vector<memepp::string> kept;
+            mmint_t n = empty_str.split(":", memepp::split_behav_t::keep_empty_parts, std::back_inserter(kept));
+            REQUIRE(n == 0);
+            REQUIRE(kept.size() == 1);
+            REQUIRE(kept[0] == "");
+        }
+
+        SECTION("skip_empty_parts yields nothing")
+        {
+            std::vector<memepp::string> skipped;
+            mmint_t n = empty_str.split(":", memepp::split_behav_t::skip_empty_parts, std::back_inserter(skipped));
+            REQUIRE(n == 0);
+            REQUIRE(skipped.size() == 0);
+        }
+    }
+
+    SECTION("key longer than source")
+    {
+        memepp::string short_str = "ab";
+
+        SECTION("keep_empty_parts returns whole string")
+        {
+            std::vector<memepp::string> kept;
+            mmint_t n = short_str.split("abcdef", memepp::split_behav_t::keep_empty_parts, std::back_inserter(kept));
+            REQUIRE(n == 0);
+            REQUIRE(kept.size() == 1);
+            REQUIRE(kept[0] == "ab");
+        }
+
+        SECTION("skip_empty_parts returns whole string")
+        {
+            std::vector<memepp::string> skipped;
+            mmint_t n = short_str.split("abcdef", memepp::split_behav_t::skip_empty_parts, std::back_inserter(skipped));
+            REQUIRE(n == 0);
+            REQUIRE(skipped.size() == 1);
+            REQUIRE(skipped[0] == "ab");
+        }
+    }
+
+    SECTION("key equals entire source")
+    {
+        memepp::string exact = "abc";
+
+        SECTION("keep_empty_parts yields two empty parts")
+        {
+            std::vector<memepp::string> kept;
+            mmint_t n = exact.split("abc", memepp::split_behav_t::keep_empty_parts, std::back_inserter(kept));
+            REQUIRE(n == 0);
+            REQUIRE(kept.size() == 2);
+            REQUIRE(kept[0] == "");
+            REQUIRE(kept[1] == "");
+        }
+
+        SECTION("skip_empty_parts yields nothing")
+        {
+            std::vector<memepp::string> skipped;
+            mmint_t n = exact.split("abc", memepp::split_behav_t::skip_empty_parts, std::back_inserter(skipped));
+            REQUIRE(n == 0);
+            REQUIRE(skipped.size() == 0);
         }
     }
 
@@ -214,7 +298,8 @@ TEST_CASE("memepp::string split", "[string]")
         SECTION("keep_empty_parts yields one empty part")
         {
             std::list<memepp::string_view> empty_kept;
-            empty_sv.split(":", memepp::split_behav_t::keep_empty_parts, std::back_inserter(empty_kept));
+            mmint_t n = empty_sv.split(":", memepp::split_behav_t::keep_empty_parts, std::back_inserter(empty_kept));
+            REQUIRE(n == 0);
             REQUIRE(empty_kept.size() == 1);
             REQUIRE(empty_kept.front() == "");
         }
@@ -222,7 +307,8 @@ TEST_CASE("memepp::string split", "[string]")
         SECTION("skip_empty_parts yields nothing")
         {
             std::list<memepp::string_view> empty_skipped;
-            empty_sv.split(":", memepp::split_behav_t::skip_empty_parts, std::back_inserter(empty_skipped));
+            mmint_t n = empty_sv.split(":", memepp::split_behav_t::skip_empty_parts, std::back_inserter(empty_skipped));
+            REQUIRE(n == 0);
             REQUIRE(empty_skipped.size() == 0);
         }
     }
@@ -240,7 +326,8 @@ TEST_CASE("memepp::string split - user storage", "[string]")
 	REQUIRE(user_str.size() == 500);
 
 	std::vector<memepp::string_view> results;
-	user_str.split(":", memepp::split_behav_t::keep_empty_parts, std::back_inserter(results));
+	mmint_t n = user_str.split(":", memepp::split_behav_t::keep_empty_parts, std::back_inserter(results));
+	REQUIRE(n == 0);
 	REQUIRE(results.size() == 4);
 	REQUIRE(results[0].size() == 100);
 	REQUIRE(results[1].size() == 99);
