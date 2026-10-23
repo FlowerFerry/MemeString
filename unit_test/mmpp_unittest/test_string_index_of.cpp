@@ -69,6 +69,14 @@ TEST_CASE("memepp::string index_of(string_view) - with offset and limit", "[stri
     REQUIRE(s.index_of(memepp::string_view("abc"), 8, 3, false) == 8);
 }
 
+TEST_CASE("memepp::string index_of(string_view) - full_match with offset and limit", "[string]")
+{
+    memepp::string s = "x abc, abc.";
+
+    // offset=4 skips the first occurrence; the second occurrence has punctuation boundaries.
+    REQUIRE(s.index_of(memepp::string_view("abc"), 4, 7, true) == 7);
+}
+
 TEST_CASE("memepp::string index_of(char*) - overloads", "[string]")
 {
     memepp::string s = "abcXabcXabc";

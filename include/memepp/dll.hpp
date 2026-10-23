@@ -1,4 +1,4 @@
-
+﻿
 #ifndef MEMEPP_DLL_HPP_INCLUDED
 #define MEMEPP_DLL_HPP_INCLUDED
 

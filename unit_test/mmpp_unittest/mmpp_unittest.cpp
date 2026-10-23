@@ -585,7 +585,7 @@ TEST_CASE("memepp::string index of", "[string]")
 	REQUIRE(s03_01.index_of("df", true) == 94);
 	REQUIRE(s03_01.index_of("sdsjlkas", true) == 0);
 	REQUIRE(s03_01.index_of("fsd", true) == 13);
-	REQUIRE(s03_01.index_of("fsd", -1, 13, true) == 41);
+	REQUIRE(s03_01.index_of("fsd", -1, 13, true) == 13);
 	REQUIRE(s03_01.index_of(" ", true) == 17);
 }
 

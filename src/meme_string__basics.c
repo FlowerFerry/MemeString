@@ -874,7 +874,7 @@ MEME_STDCALL MemeString_indexOfUtf8bytes(
 		return index == -1 ? -1 : _offset + index;
 	}
 
-	index = _offset;
+	index = 0;
 	for (; index < _limit; index += _needle_len)
 	{
 		const mmbyte_t* currPtr = srcPointer + _offset + index;
@@ -886,9 +886,9 @@ MEME_STDCALL MemeString_indexOfUtf8bytes(
 		index   += pos;
         currPtr += pos;
 
-		if (pos != 0 || _offset != 0) {
+		if (index != 0 || _offset != 0) {
 			// Check the previous rune
-			int chSize = mmutf_u8rune_prev_char_size(srcPointer - _offset, currPtr);
+			int chSize = mmutf_u8rune_prev_char_size(srcPointer, currPtr);
 			if (chSize != -1 && !ispunct(currPtr[ - chSize])
 				&& !MemeRuneIndex_isSpace(currPtr - chSize, chSize)
 				&& !MemeRuneIndex_isChPunct(currPtr - chSize, chSize))
