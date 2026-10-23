@@ -19,6 +19,12 @@ option(MEMESTRING_UNITTEST_ENABLE  "Enable unit test of meme library" OFF)
 option(MEMESTRING_TEST_ENABLE "Enable test of meme library" OFF)
 option(MEMESTRING_DISABLE_EXCEPTIONS "Build memepp with exceptions disabled (errc code path)" OFF)
 
+if (ANDROID)
+  set(MEMESTRING_BENCHMARK_ENABLE OFF)
+  set(MEMESTRING_TEST_ENABLE OFF)
+  set(MEMESTRING_UNITTEST_ENABLE OFF)
+endif()
+
 if (MEMESTRING_DISABLE_EXCEPTIONS)
   add_compile_definitions(MMOPT__EXCEPTION_DISABLED=1)
 endif()
@@ -39,8 +45,11 @@ set(FETCHCONTENT_QUIET FALSE)
 
 include(FetchContent)
 
-# 添加链接库
-if (NOT WIN32)
+# Configure platform-specific link libraries.
+set(LINK_LIBS)
+if (ANDROID)
+  # The Android NDK supplies the runtime and system libraries.
+elseif (NOT WIN32)
   find_package(Threads REQUIRED)
   find_library(MATH_LIBRARY m)
   set(LINK_LIBS Threads::Threads ${CMAKE_DL_LIBS} rt)
@@ -149,7 +158,7 @@ function(MemeCheckLibraryDirectoryExistOrRemoveCache libdir libname result)
 	endif()
 endfunction()
 
-if (MEMESTRING_BENCHMARK_ENABLE)
+if (MEMESTRING_BENCHMARK_ENABLE AND NOT ANDROID)
   set(MMBM_PARENT_HEADER_DIR   ${CMAKE_CURRENT_SOURCE_DIR}/include CACHE PATH "" FORCE)
   set(MMBM_PARENT_LIBRARY_FILE $<TARGET_FILE:${MMSTR_PROJECT_NAME}> CACHE FILEPATH "" FORCE)
   set(MMBM_PARENT_LINKER_FILE  $<TARGET_LINKER_FILE:${MMSTR_PROJECT_NAME}> CACHE FILEPATH "" FORCE)
@@ -157,7 +166,7 @@ if (MEMESTRING_BENCHMARK_ENABLE)
   add_subdirectory(test/mmpp_benchmark)
 endif()
 
-if (MEMESTRING_TEST_ENABLE)
+if (MEMESTRING_TEST_ENABLE AND NOT ANDROID)
   enable_testing()
   set(MMTEST_PARENT_HEADER_DIR   ${CMAKE_CURRENT_SOURCE_DIR}/include CACHE PATH "" FORCE)
   set(MMTEST_PARENT_LIBRARY_FILE $<TARGET_FILE:${MMSTR_PROJECT_NAME}> CACHE FILEPATH "" FORCE)
@@ -166,7 +175,7 @@ if (MEMESTRING_TEST_ENABLE)
 
 endif()
 
-if (MEMESTRING_UNITTEST_ENABLE)  
+if (MEMESTRING_UNITTEST_ENABLE AND NOT ANDROID)
 
   set(MMUT_PARENT_HEADER_DIR   ${CMAKE_CURRENT_SOURCE_DIR}/include CACHE PATH "" FORCE)
   set(MMUT_PARENT_LIBRARY_FILE $<TARGET_FILE:${MMSTR_PROJECT_NAME}> CACHE FILEPATH "" FORCE)

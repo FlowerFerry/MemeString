@@ -226,3 +226,85 @@ jobs:
         run: ctest --test-dir build --output-on-failure
         env:
           LD_LIBRARY_PATH: ${{ github.workspace }}/build
+
+  android-ndk:
+    name: Android NDK (${{ matrix.abi }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        abi:
+          - arm64-v8a
+          - armeabi-v7a
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: ''
+
+      - name: Install Android build tools
+        run: |
+          sdkmanager --install \
+            "platforms;android-21" \
+            "cmake;3.22.1" \
+            "ndk;27.2.12479018"
+
+      - name: Configure Android toolchain environment
+        run: |
+          echo "ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/27.2.12479018" >> "$GITHUB_ENV"
+          echo "$ANDROID_SDK_ROOT/cmake/3.22.1/bin" >> "$GITHUB_PATH"
+
+      - name: Configure Android NDK
+        env:
+          ABI: ${{ matrix.abi }}
+        run: >
+          cmake -S . -B "build/android-${ABI}" -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake"
+          -DANDROID_ABI="${ABI}"
+          -DANDROID_PLATFORM=android-21
+          -DMEMESTRING_BENCHMARK_ENABLE=OFF
+          -DMEMESTRING_TEST_ENABLE=OFF
+          -DMEMESTRING_UNITTEST_ENABLE=OFF
+
+      - name: Build Android shared library
+        env:
+          ABI: ${{ matrix.abi }}
+        run: cmake --build "build/android-${ABI}" --parallel
+
+      - name: Validate Android shared library
+        env:
+          ABI: ${{ matrix.abi }}
+        run: |
+          set -euxo pipefail
+          library=$(find "build/android-${ABI}" -type f -name 'libmeme_string.so' -print -quit)
+          test -n "$library"
+          file "$library"
+          readelf="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf"
+          test -x "$readelf"
+          header=$("$readelf" -h "$library")
+          printf '%s\n' "$header"
+          case "$ABI" in
+            arm64-v8a) expected_machine='AArch64' ;;
+            armeabi-v7a) expected_machine='ARM' ;;
+            *) echo "Unsupported ABI: $ABI" >&2; exit 1 ;;
+          esac
+          printf '%s\n' "$header" | grep -F "Machine: $expected_machine"
+          symbols=$("$readelf" --dyn-syms "$library" | grep -E 'MemeString_|mmutf_' || true)
+          printf '%s\n' "$symbols" | awk 'NR <= 40'
+          test -n "$symbols"
+
+      - name: Upload Android shared library
+        uses: actions/upload-artifact@v4
+        with:
+          name: memestring-android-${{ matrix.abi }}
+          path: build/android-${{ matrix.abi }}/**/libmeme_string.so
+          if-no-files-found: error
