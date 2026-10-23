@@ -58,9 +58,13 @@ TEST_CASE("memepp::string find - empty / edge cases", "[string]")
     REQUIRE(empty.find("a")           == memepp::string::npos);
     REQUIRE(empty.find('a')           == memepp::string::npos);
     REQUIRE(empty.find(memepp::rune('a')) == memepp::string::npos);
+    REQUIRE(empty.find("")              == 0);
 
-    // find empty pattern in non-empty string
-    REQUIRE(s.find("") == memepp::string::npos);
+    // An empty needle matches at the first valid position.
+    REQUIRE(s.find("") == 0);
+    REQUIRE(s.find("", 1) == 1);
+    REQUIRE(s.find("", 10) == s.size());
+    REQUIRE(s.find("", memepp::string::npos) == memepp::string::npos);
 
     // pos beyond length
     REQUIRE(s.find("a", 10) == memepp::string::npos);
@@ -124,6 +128,10 @@ TEST_CASE("memepp::string rfind - empty / edge cases", "[string]")
 
     REQUIRE(empty.rfind("a")            == memepp::string::npos);
     REQUIRE(empty.rfind('a')            == memepp::string::npos);
+    REQUIRE(s.rfind("")                 == s.size());
+    REQUIRE(s.rfind("", 1)              == 1);
+    REQUIRE(s.rfind("", 10)             == s.size());
+    REQUIRE(empty.rfind("")              == 0);
     REQUIRE(s.rfind("abcdefgh")         == memepp::string::npos);
 }
 
@@ -149,8 +157,9 @@ TEST_CASE("memepp::string rfind - const char* with substr_count", "[string]")
     REQUIRE(s.rfind("Hello", memepp::string::npos, 5) == 7);
     REQUIRE(s.rfind("Hello", 6, 5) == 0);  // match start is before pos
     REQUIRE(s.rfind("Hello", 7, 5) == 7);  // match start equals pos
-    // zero count → should return npos
-    REQUIRE(s.rfind("Hello", memepp::string::npos, 0) == memepp::string::npos);
+    // zero count is an empty needle
+    REQUIRE(s.rfind("Hello", memepp::string::npos, 0) == s.size());
+    REQUIRE(s.rfind("Hello", 1, 0) == 1);
     // partial prefix match
     REQUIRE(s.rfind("HelloXYZ", memepp::string::npos, 4) == 7);
 

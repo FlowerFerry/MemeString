@@ -158,10 +158,12 @@ inline namespace MMPP_NAMESPACE {
         size_type count(const rune& _rune,
 			case_sensit_t _cs = case_sensit_t::all_sensitive) const noexcept;
 
-		//! \brief Find the first occurrence of a character in a string.
+		//! \brief Find the first occurrence of a string in this string.
 		//! \param _other The string to find.
 		//! \param _pos The position to start searching from.
-		//! \return The position of the first occurrence of the character in the string, or npos if not found.
+		//! \return The position of the first occurrence, or npos if not found.
+		//! \note An empty needle matches at the first valid position. A non-sentinel
+		//!       position is clamped to size(), while npos remains npos.
         size_type find(const string& _other, size_type _pos = 0) const noexcept;
         size_type find(const char* _utf8, size_type _pos = 0) const noexcept;
         size_type find(const char* _utf8, size_type _pos, size_type _substr_count) const noexcept;
@@ -170,6 +172,12 @@ inline namespace MMPP_NAMESPACE {
 		size_type find(char _ch, size_type _pos = 0) const noexcept;
         size_type find(const rune& _ch, size_type _pos = 0) const noexcept;
 
+		//! \brief Find the last occurrence of a string in this string.
+		//! \param _other The string to find.
+		//! \param _pos The greatest allowed match start position.
+		//! \return The position of the last occurrence, or npos if not found.
+		//! \note An empty needle matches at size() by default, or at _pos when
+		//!       _pos is a valid position before size().
         size_type rfind(const string& _other, size_type _pos = npos) const noexcept;
         size_type rfind(const char* _utf8, size_type _pos = npos) const noexcept;
         size_type rfind(const char* _utf8, size_type _pos, size_type _substr_count) const noexcept;

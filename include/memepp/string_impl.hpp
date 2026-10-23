@@ -516,6 +516,11 @@ inline namespace MMPP_NAMESPACE {
 
 	MEMEPP__IMPL_INLINE string::size_type string::find(const string& _other, size_type _pos) const noexcept
 	{
+		if (_other.empty()) {
+			if (_pos < 0)
+				return _pos == npos ? npos : 0;
+			return (std::min)(_pos, size());
+		}
 		return MemeString_indexOfWithOther(
 			to_pointer(native_handle()), _pos, to_pointer(_other.native_handle()), 
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
@@ -523,6 +528,12 @@ inline namespace MMPP_NAMESPACE {
 
     MEMEPP__IMPL_INLINE string::size_type string::find(const char* _utf8, size_type _pos) const noexcept
     {
+		size_type nlen = std::char_traits<char>::length(_utf8);
+		if (nlen == 0) {
+			if (_pos < 0)
+				return _pos == npos ? npos : 0;
+			return (std::min)(_pos, size());
+		}
         return MemeString_indexOfWithUtf8bytes(
             to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), -1, 
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
@@ -530,6 +541,11 @@ inline namespace MMPP_NAMESPACE {
 
     MEMEPP__IMPL_INLINE string::size_type string::find(const char* _utf8, size_type _pos, size_type _count) const noexcept
     {
+		if (_count == 0) {
+			if (_pos < 0)
+				return _pos == npos ? npos : 0;
+			return (std::min)(_pos, size());
+		}
         return MemeString_indexOfWithUtf8bytes(
             to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), _count, 
 			static_cast<mmflag_case_sensit_t>(case_sensitivity_t::all_sensitive));
@@ -537,6 +553,12 @@ inline namespace MMPP_NAMESPACE {
     
     MEMEPP__IMPL_INLINE string::size_type string::find(const_pointer _utf8, size_type _pos) const noexcept
     {
+		size_type nlen = std::char_traits<char>::length(reinterpret_cast<const char*>(_utf8));
+		if (nlen == 0) {
+			if (_pos < 0)
+				return _pos == npos ? npos : 0;
+			return (std::min)(_pos, size());
+		}
         return MemeString_indexOfWithUtf8bytes(
             to_pointer(native_handle()), _pos, _utf8, -1, 
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
@@ -544,6 +566,11 @@ inline namespace MMPP_NAMESPACE {
 
     MEMEPP__IMPL_INLINE string::size_type string::find(const_pointer _utf8, size_type _pos, size_type _count) const noexcept
     {
+		if (_count == 0) {
+			if (_pos < 0)
+				return _pos == npos ? npos : 0;
+			return (std::min)(_pos, size());
+		}
         return MemeString_indexOfWithUtf8bytes(
             to_pointer(native_handle()), _pos, _utf8, _count, 
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
@@ -558,6 +585,11 @@ inline namespace MMPP_NAMESPACE {
 
     MEMEPP__IMPL_INLINE string::size_type string::find(const rune& _ch, size_type _pos) const noexcept
     {
+		if (_ch.empty()) {
+			if (_pos < 0)
+				return _pos == npos ? npos : 0;
+			return (std::min)(_pos, size());
+		}
         return MemeString_indexOfWithUtf8bytes(
             to_pointer(native_handle()), _pos, _ch.data(), _ch.size(), 
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
@@ -601,6 +633,7 @@ inline namespace MMPP_NAMESPACE {
     {
 		size_type sz = size();
 		if (_count > sz) return npos;
+		if (_count == 0) return (_pos == npos || _pos >= sz) ? sz : _pos;
 		size_type limit = (_pos == npos || _pos >= sz)
 			? sz
 			: (std::min)(_pos + _count, sz);
@@ -629,6 +662,7 @@ inline namespace MMPP_NAMESPACE {
     {
 		size_type sz = size();
 		if (_count > sz) return npos;
+		if (_count == 0) return (_pos == npos || _pos >= sz) ? sz : _pos;
 		size_type limit = (_pos == npos || _pos >= sz)
 			? sz
 			: (std::min)(_pos + _count, sz);
@@ -655,6 +689,7 @@ inline namespace MMPP_NAMESPACE {
 		size_type sz = size();
 		size_type nlen = _ch.size();
 		if (nlen > sz) return npos;
+		if (nlen == 0) return (_pos == npos || _pos >= sz) ? sz : _pos;
 		size_type limit = (_pos == npos || _pos >= sz)
 			? sz
 			: (std::min)(_pos + nlen, sz);

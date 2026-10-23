@@ -59,9 +59,9 @@ TEST_CASE("memepp::string contains - empty / edge cases", "[string]")
     REQUIRE_FALSE(empty.contains('a'));
     REQUIRE_FALSE(empty.contains(memepp::rune('a')));
 
-    // non-empty string does not contain empty pattern
-    REQUIRE_FALSE(s.contains(""));
-    REQUIRE_FALSE(s.contains(memepp::string_view("")));
+    // An empty pattern is contained at the beginning of every string.
+    REQUIRE(s.contains(""));
+    REQUIRE(s.contains(memepp::string_view("")));
 }
 
 TEST_CASE("memepp::string contains - pointer overload", "[string]")
