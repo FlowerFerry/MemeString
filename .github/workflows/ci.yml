@@ -297,7 +297,7 @@ jobs:
             armeabi-v7a) expected_machine='ARM' ;;
             *) echo "Unsupported ABI: $ABI" >&2; exit 1 ;;
           esac
-          printf '%s\n' "$header" | grep -F "Machine: $expected_machine"
+          printf '%s\n' "$header" | grep -Eq "^[[:space:]]*Machine:[[:space:]]+$expected_machine[[:space:]]*$"
           symbols=$("$readelf" --dyn-syms "$library" | grep -E 'MemeString_|mmutf_' || true)
           printf '%s\n' "$symbols" | awk 'NR <= 40'
           test -n "$symbols"
