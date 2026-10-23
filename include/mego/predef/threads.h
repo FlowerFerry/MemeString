@@ -31,6 +31,11 @@
 
 #endif
 
+#if !defined(MEGO_THR__PTHREADS_AVAILABLE) && defined(__ANDROID__)
+#  define MEGO_THR__PTHREADS_AVAILABLE (1)
+#  define MEGO_THR__THREADS_AVAILABLE (1)
+#endif
+
 #if !defined(MEGO_THR__THREADS_AVAILABLE) && MEGO_COMP__GCC__AVAILABLE \
 	&& !defined(__MINGW32__) && !defined(linux) && !defined(__linux) && !defined(__linux__)
 #  define MEGO_THR__THREADS_AVAILABLE (1)
