@@ -9,13 +9,15 @@
 #include <mego/predef/symbol/inline.h>
 
 
-#if MEGO_COMP__MSVC__AVAILABLE
-#include <intrin.h>
-#elif defined(__has_include) && __has_include(<cpuid.h>)
-#define MGOPT__USE_GCC_GET_CPUID (1)
-#include <cpuid.h>
-#elif MGOPT__USE_GCC_GET_CPUID
-#include <cpuid.h>
+#if MEGO_ARCH__X86 || MEGO_ARCH__X64
+#  if MEGO_COMP__MSVC__AVAILABLE
+#    include <intrin.h>
+#  elif defined(__has_include) && __has_include(<cpuid.h>)
+#    define MGOPT__USE_GCC_GET_CPUID (1)
+#    include <cpuid.h>
+#  elif MGOPT__USE_GCC_GET_CPUID
+#    include <cpuid.h>
+#  endif
 #endif
 
 #ifndef MGOPT__USE_GCC_GET_CPUID
