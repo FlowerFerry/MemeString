@@ -92,10 +92,20 @@ TEST_CASE("memepp::string rfind - basic hits", "[string]")
     memepp::string s = "Hello, World! Hello.";
 
     REQUIRE(s.rfind(memepp::string("Hello"))       == 14);
+    REQUIRE(s.rfind(memepp::string("Hello"), 13)   == 0);   // match start is before pos
+    REQUIRE(s.rfind(memepp::string("Hello"), 14)   == 14);  // match start equals pos
+
     REQUIRE(s.rfind("Hello")                       == 14);
-    REQUIRE(s.rfind("Hello", 13)                   == 0);   // search up to pos 13
+    REQUIRE(s.rfind("Hello", 13)                   == 0);   // match start is before pos
+    REQUIRE(s.rfind("Hello", 14)                   == 14);  // match start equals pos
+
     REQUIRE(s.rfind('o')                           == 18);
+    REQUIRE(s.rfind('e', 16)                       == 15);  // match start is before pos
+    REQUIRE(s.rfind('e', 15)                       == 15);  // match start equals pos
+
     REQUIRE(s.rfind(memepp::rune('l'))             == 17);
+    REQUIRE(s.rfind(memepp::rune('e'), 16)         == 15);  // match start is before pos
+    REQUIRE(s.rfind(memepp::rune('e'), 15)         == 15);  // match start equals pos
 }
 
 TEST_CASE("memepp::string rfind - not found returns npos", "[string]")
@@ -124,8 +134,11 @@ TEST_CASE("memepp::string rfind - pointer overload", "[string]")
         reinterpret_cast<const memepp::string::const_pointer>("ABC");
 
     REQUIRE(s.rfind(p)       == 6);
-    REQUIRE(s.rfind(p, 5)    == 0);  // search up to pos 5 — only first occurrence visible
+    REQUIRE(s.rfind(p, 5)    == 0);  // match start is before pos
+    REQUIRE(s.rfind(p, 6)    == 6);  // match start equals pos
     REQUIRE(s.rfind(p, 9, 3) == 6);
+    REQUIRE(s.rfind(p, 5, 3) == 0);  // match start is before pos
+    REQUIRE(s.rfind(p, 6, 3) == 6);  // match start equals pos
 }
 
 TEST_CASE("memepp::string rfind - const char* with substr_count", "[string]")
@@ -134,7 +147,8 @@ TEST_CASE("memepp::string rfind - const char* with substr_count", "[string]")
 
     // find full word
     REQUIRE(s.rfind("Hello", memepp::string::npos, 5) == 7);
-    REQUIRE(s.rfind("Hello", 6, 5) == 0);
+    REQUIRE(s.rfind("Hello", 6, 5) == 0);  // match start is before pos
+    REQUIRE(s.rfind("Hello", 7, 5) == 7);  // match start equals pos
     // zero count → should return npos
     REQUIRE(s.rfind("Hello", memepp::string::npos, 0) == memepp::string::npos);
     // partial prefix match
@@ -142,4 +156,32 @@ TEST_CASE("memepp::string rfind - const char* with substr_count", "[string]")
 
     // not found with count
     REQUIRE(s.rfind("Hello", memepp::string::npos, 6) == memepp::string::npos);
+}
+
+TEST_CASE("memepp::string rfind - explicit position extremes", "[string]")
+{
+    memepp::string s = "Hello, World! Hello.";
+    const memepp::string::const_pointer p =
+        reinterpret_cast<const memepp::string::const_pointer>("Hello");
+    const memepp::string::size_type negative_pos =
+        static_cast<memepp::string::size_type>(-2);
+    const memepp::string::size_type beyond_size = s.size() + 100;
+
+    // A negative position other than npos is a distinct input.
+    REQUIRE(s.rfind(memepp::string("Hello"), negative_pos) == memepp::string::npos);
+    REQUIRE(s.rfind("Hello", negative_pos) == memepp::string::npos);
+    REQUIRE(s.rfind("Hello", negative_pos, 5) == memepp::string::npos);
+    REQUIRE(s.rfind(p, negative_pos) == memepp::string::npos);
+    REQUIRE(s.rfind(p, negative_pos, 5) == memepp::string::npos);
+    REQUIRE(s.rfind('o', negative_pos) == 18);
+    REQUIRE(s.rfind(memepp::rune('l'), negative_pos) == 17);
+
+    // A position beyond the string size searches the complete string.
+    REQUIRE(s.rfind(memepp::string("Hello"), beyond_size) == 14);
+    REQUIRE(s.rfind("Hello", beyond_size) == 14);
+    REQUIRE(s.rfind("Hello", beyond_size, 5) == 14);
+    REQUIRE(s.rfind(p, beyond_size) == 14);
+    REQUIRE(s.rfind(p, beyond_size, 5) == 14);
+    REQUIRE(s.rfind('o', beyond_size) == 18);
+    REQUIRE(s.rfind(memepp::rune('l'), beyond_size) == 17);
 }
