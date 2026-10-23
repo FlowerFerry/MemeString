@@ -31,9 +31,13 @@
 
 #endif
 
-#if !defined(MEGO_THR__PTHREADS_AVAILABLE) && defined(__ANDROID__)
-#  define MEGO_THR__PTHREADS_AVAILABLE (1)
-#  define MEGO_THR__THREADS_AVAILABLE (1)
+#if defined(MEME_PLATFORM_ANDROID) || defined(__ANDROID__)
+#  if !defined(MEGO_THR__PTHREADS_AVAILABLE)
+#    define MEGO_THR__PTHREADS_AVAILABLE (1)
+#  endif
+#  if !defined(MEGO_THR__THREADS_AVAILABLE)
+#    define MEGO_THR__THREADS_AVAILABLE (1)
+#  endif
 #endif
 
 #if !defined(MEGO_THR__THREADS_AVAILABLE) && MEGO_COMP__GCC__AVAILABLE \

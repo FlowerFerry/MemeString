@@ -88,6 +88,9 @@ set(SRC_FILES
 
 add_library(${MMSTR_PROJECT_NAME} SHARED ${SRC_FILES})
 target_compile_definitions(${MMSTR_PROJECT_NAME} PRIVATE MEME_OPTION__BUILD_SHARED)
+if (ANDROID)
+  target_compile_definitions(${MMSTR_PROJECT_NAME} PRIVATE MEME_PLATFORM_ANDROID)
+endif()
 target_compile_features(${MMSTR_PROJECT_NAME} PRIVATE c_std_11)
 
 target_include_directories(${MMSTR_PROJECT_NAME} PUBLIC include)
