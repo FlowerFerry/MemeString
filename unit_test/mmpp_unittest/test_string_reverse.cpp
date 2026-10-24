@@ -3,6 +3,9 @@
 
 #include <memepp/string.hpp>
 
+#include <string>
+#include <vector>
+
 TEST_CASE("memepp::string reverse - ASCII", "[string][reverse]")
 {
     memepp::string s = "abc";
@@ -62,6 +65,11 @@ TEST_CASE("memepp::string reverse - double reverse restores original", "[string]
     memepp::string original(original_data, sizeof(original_data) - 1);
     auto r1 = original.reverse();
     auto r2 = r1.reverse();
+
+    const char expected_data[] =
+        "!\xF0\x9F\x98\x80\xE5\xA5\xBD\xE4\xBD\xA0olleH";
+    memepp::string expected(expected_data, sizeof(expected_data) - 1);
+    REQUIRE(r1 == expected);
     REQUIRE(r2 == original);
     REQUIRE(r2.size() == original.size());
 }
@@ -69,17 +77,27 @@ TEST_CASE("memepp::string reverse - double reverse restores original", "[string]
 TEST_CASE("memepp::string reverse - medium storage (long string)", "[string][reverse]")
 {
     // 40 x 3-byte rune = 120 bytes -> medium storage
+    std::vector<std::string> runes;
     std::string in;
     for (int i = 0; i < 40; ++i) {
-        in += (char)(0xE4 + (i % 2));
-        in += (char)(0xB8 + (i % 4));
-        in += (char)(0x80 + (i % 8));
+        std::string rune;
+        rune += (char)(0xE4 + (i % 2));
+        rune += (char)(0xB8 + (i % 4));
+        rune += (char)(0x80 + (i % 8));
+        runes.push_back(rune);
+        in += rune;
     }
     memepp::string s(in.data(), (int)in.size());
     REQUIRE(s.size() == 120);
 
     auto r = s.reverse();
     REQUIRE(r.size() == 120);
+
+    std::string expected;
+    for (auto it = runes.rbegin(); it != runes.rend(); ++it)
+        expected += *it;
+    memepp::string expected_string(expected.data(), (int)expected.size());
+    REQUIRE(r == expected_string);
 
     // double reverse restores
     auto r2 = r.reverse();
