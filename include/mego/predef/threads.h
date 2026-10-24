@@ -32,7 +32,7 @@
 
 #endif
 
-#if MG_OS__ANDROID_AVAIL
+#if defined(MEME_PLATFORM_ANDROID) || defined(__ANDROID__)
 #  if !defined(MEGO_THR__PTHREADS_AVAILABLE)
 #    define MEGO_THR__PTHREADS_AVAILABLE (1)
 #  endif
