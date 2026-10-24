@@ -1,7 +1,9 @@
 ﻿
 #include <catch2/catch.hpp>
 
+#include <meme/string.h>
 #include <memepp/string.hpp>
+#include <memepp/errc.hpp>
 
 #include <string>
 #include <vector>
@@ -56,6 +58,60 @@ TEST_CASE("memepp::string reverse - single rune", "[string][reverse]")
     auto r = s.reverse();
     REQUIRE(r == s);
     REQUIRE(r.size() == 3);
+}
+
+TEST_CASE("memepp::string reverse - invalid UTF-8", "[string][reverse][invalid]")
+{
+    struct invalid_case {
+        const char* name;
+        const char* data;
+        int size;
+    };
+
+    const invalid_case cases[] = {
+        { "isolated continuation byte", "\x80", 1 },
+        { "truncated sequence", "\xE4\xBD", 2 },
+        { "invalid continuation sequence", "\xE4\x28\xA0", 3 },
+        { "0xFF byte", "\xFF", 1 }
+    };
+
+    for (const auto& test : cases) {
+        CAPTURE(test.name);
+        memepp::string value(test.data, test.size);
+
+#if !MMOPT__EXCEPTION_DISABLED
+        memepp::set_errc(0);
+        REQUIRE_THROWS_AS(value.reverse(), memepp::errc_except);
+        REQUIRE(memepp::get_errc() == MGEC__INVAL);
+#else
+        memepp::set_errc(0);
+        auto reversed = value.reverse();
+        REQUIRE(reversed.empty());
+        REQUIRE(memepp::get_errc() == MGEC__INVAL);
+#endif
+    }
+}
+
+TEST_CASE("MemeStringStack_reverse - invalid UTF-8 resets output", "[string][reverse][invalid]")
+{
+    const char invalid[] = { 'x', static_cast<char>(0xFF) };
+    const char stale[] = "stale";
+    mmstrstk_t input;
+    mmstrstk_t output;
+
+    REQUIRE(MemeStringStack_initByU8bytes(
+        &input, MMSTR__OBJ_SIZE,
+        reinterpret_cast<const mmbyte_t*>(invalid), sizeof(invalid)) == MGEC__OK);
+    REQUIRE(MemeStringStack_initByU8bytes(
+        &output, MMSTR__OBJ_SIZE,
+        reinterpret_cast<const mmbyte_t*>(stale), sizeof(stale) - 1) == MGEC__OK);
+
+    const mgec_t ec = MemeStringStack_reverse(&input, &output, -1);
+    REQUIRE(ec == MGEC__INVAL);
+    REQUIRE(MemeString_isEmpty(memepp::to_pointer(output)) != 0);
+
+    mmstrstk_uninit(&output);
+    mmstrstk_uninit(&input);
 }
 
 TEST_CASE("memepp::string reverse - double reverse restores original", "[string][reverse]")
