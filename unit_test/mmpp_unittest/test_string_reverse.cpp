@@ -57,7 +57,9 @@ TEST_CASE("memepp::string reverse - single rune", "[string][reverse]")
 
 TEST_CASE("memepp::string reverse - double reverse restores original", "[string][reverse]")
 {
-    memepp::string original("Hello\xE4\xBD\xA0\xE5\xA5\xBD\xF0\x9F\x98\x80!", 18);
+    const char original_data[] =
+        "Hello\xE4\xBD\xA0\xE5\xA5\xBD\xF0\x9F\x98\x80!";
+    memepp::string original(original_data, sizeof(original_data) - 1);
     auto r1 = original.reverse();
     auto r2 = r1.reverse();
     REQUIRE(r2 == original);
