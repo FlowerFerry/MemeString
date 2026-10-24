@@ -4,6 +4,7 @@
 
 #include "mego/predef/compiler.h"
 #include "mego/predef/os/windows.h"
+#include "mego/predef/os/android.h"
 #include "mego/predef/hdr/unistd.h"
 #include <mego/predef/helper_macros.h>
 
@@ -31,7 +32,7 @@
 
 #endif
 
-#if defined(MEME_PLATFORM_ANDROID) || defined(__ANDROID__)
+#if MG_OS__ANDROID_AVAIL
 #  if !defined(MEGO_THR__PTHREADS_AVAILABLE)
 #    define MEGO_THR__PTHREADS_AVAILABLE (1)
 #  endif

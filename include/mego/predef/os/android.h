@@ -27,7 +27,7 @@
 #define MEGO_PREDEF_OS_ANDROID_H_INCLUDED
 
 #if !defined(__MEGO_PREDEF_DETAIL__OS_DETECTED) && \
-	defined(__ANDROID__) 
+	(defined(MEME_PLATFORM_ANDROID) || defined(__ANDROID__)) 
 
 #	define MEGO_OS__ANDROID__AVAILABLE (1)
 #	include "details/os_detected.h"
