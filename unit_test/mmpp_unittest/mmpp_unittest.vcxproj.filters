@@ -30,5 +30,11 @@
     <ClCompile Include="test_string_view_replace.cpp"><Filter>源文件</Filter></ClCompile>
     <ClCompile Include="test_string_view_repeat.cpp"><Filter>源文件</Filter></ClCompile>
     <ClCompile Include="test_string_view_split.cpp"><Filter>源文件</Filter></ClCompile>
+    <ClCompile Include="test_buffer_compare.cpp"><Filter>源文件</Filter></ClCompile>
+    <ClCompile Include="test_buffer_view_extra.cpp"><Filter>源文件</Filter></ClCompile>
+    <ClCompile Include="test_variable_buffer_append.cpp"><Filter>源文件</Filter></ClCompile>
+    <ClCompile Include="test_variable_buffer_modifiers.cpp"><Filter>源文件</Filter></ClCompile>
+    <ClCompile Include="test_variable_buffer_prepend.cpp"><Filter>源文件</Filter></ClCompile>
+    <ClCompile Include="test_variable_buffer_slice.cpp"><Filter>源文件</Filter></ClCompile>
   </ItemGroup>
 </Project>

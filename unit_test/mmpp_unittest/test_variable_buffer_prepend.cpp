@@ -178,22 +178,26 @@ TEST_CASE("variable_buffer prepend to empty buffer", "[variable_buffer][prepend]
 TEST_CASE("variable_buffer prepend triggers small to medium upgrade", "[variable_buffer][prepend]")
 {
     memepp::variable_buffer buf;
-    // Fill with enough data to force medium storage
-    for (int i = 0; i < 100; ++i) {
+    
+    // Start with small storage
+    const mmint_t smallLimit = MemeStringOption_getStorageSmallLimit();
+    for (mmint_t i = 0; i < smallLimit; ++i) {
         buf.push_back(static_cast<uint8_t>(i));
     }
-    REQUIRE(buf.size() == 100);
-
-    // Prepend more data
-    const uint8_t hdr[] = { 0xFE, 0xED, 0xFA, 0xCE };
-    buf.prepend(hdr, 4);
-    REQUIRE(buf.size() == 104);
+    REQUIRE(buf.size() == smallLimit);
+    REQUIRE(buf.storage_type() == memepp::buffer_storage_t::small);
+    
+    // Prepend 2 bytes to force upgrade to medium
+    const uint8_t hdr[] = { 0xFE, 0xED };
+    buf.prepend(hdr, 2);
+    
+    REQUIRE(buf.size() == smallLimit + 2);
+    REQUIRE(buf.storage_type() == memepp::buffer_storage_t::medium);
     REQUIRE(buf.at(0) == 0xFE);
     REQUIRE(buf.at(1) == 0xED);
-    REQUIRE(buf.at(2) == 0xFA);
-    REQUIRE(buf.at(3) == 0xCE);
-    REQUIRE(buf.at(4) == 0);  // original data[0]
-    REQUIRE(buf.at(103) == 99);  // original data[99]
+    for (mmint_t i = 0; i < smallLimit; ++i) {
+        REQUIRE(buf.at(i + 2) == static_cast<uint8_t>(i));
+    }
 }
 
 // ============================================================================
@@ -299,6 +303,46 @@ TEST_CASE("variable_buffer repeated single-byte prepend", "[variable_buffer][pre
     REQUIRE(buf.at(49) == 50);
     REQUIRE(buf.at(50) == 49);
     REQUIRE(buf.back() == 0);
+}
+
+// ============================================================================
+// variable_buffer: front_capacity prepend optimization
+// ============================================================================
+
+TEST_CASE("variable_buffer prepend uses front_capacity optimization", "[variable_buffer][prepend]")
+{
+    // Build a medium-type buffer by exceeding the small limit.
+    const mmint_t smallLimit = MemeStringOption_getStorageSmallLimit();
+    memepp::variable_buffer buf;
+    for (mmint_t i = 0; i < smallLimit + 10; ++i) {
+        buf.push_back(static_cast<uint8_t>(i));
+    }
+
+    REQUIRE(buf.storage_type() == memepp::buffer_storage_t::medium);
+    const mmint_t cap_before = buf.capacity();
+    const uint8_t* data_before = buf.data();
+
+    // Prepend must consume front_capacity in place: data pointer stays put.
+    const uint8_t hdr[] = { 0xAA, 0xBB };
+    buf.prepend(hdr, 2);
+
+    REQUIRE(buf.storage_type() == memepp::buffer_storage_t::medium);
+    REQUIRE(buf.capacity() == cap_before - 2);  // front_capacity consumed
+    REQUIRE(buf.data() == data_before);         // no relocation
+    REQUIRE(buf.size() == smallLimit + 12);
+    REQUIRE(buf.at(0) == 0xAA);
+    REQUIRE(buf.at(1) == 0xBB);
+
+    // A second prepend still stays in place.
+    const uint8_t hdr2[] = { 0xCC };
+    buf.prepend(hdr2, 1);
+
+    REQUIRE(buf.capacity() == cap_before - 3);
+    REQUIRE(buf.data() == data_before);
+    REQUIRE(buf.size() == smallLimit + 13);
+    REQUIRE(buf.at(0) == 0xCC);
+    REQUIRE(buf.at(1) == 0xAA);
+    REQUIRE(buf.at(2) == 0xBB);
 }
 
 // ============================================================================

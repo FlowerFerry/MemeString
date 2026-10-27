@@ -283,6 +283,9 @@ TEST_CASE("variable_buffer native_handle accessor", "[variable_buffer]")
     buf.push_back(1);
 
     const auto& handle = buf.native_handle();
-    (void)handle;
-    REQUIRE(buf.size() == 1);
+
+    // Verify the handle is the live C object by querying it directly.
+    REQUIRE(MemeVariableBuffer_size(memepp::to_pointer(handle)) == 1);
+    REQUIRE(MemeVariableBuffer_size(memepp::to_pointer(handle)) == buf.size());
+    REQUIRE(MemeVariableBuffer_data(memepp::to_pointer(handle)) == buf.data());
 }

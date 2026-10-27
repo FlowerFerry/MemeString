@@ -253,6 +253,12 @@ xcopy /y "$(ProjectDir)..\..\projects\vs\libmeme_string\$(Platform)\$(Configurat
     <ClCompile Include="test_dll_import_export.cpp" />
     <ClCompile Include="test_string_span.cpp" />
     <ClCompile Include="test_buffer_span.cpp" />
+    <ClCompile Include="test_buffer_compare.cpp" />
+    <ClCompile Include="test_buffer_view_extra.cpp" />
+    <ClCompile Include="test_variable_buffer_append.cpp" />
+    <ClCompile Include="test_variable_buffer_modifiers.cpp" />
+    <ClCompile Include="test_variable_buffer_prepend.cpp" />
+    <ClCompile Include="test_variable_buffer_slice.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

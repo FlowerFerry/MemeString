@@ -44,7 +44,7 @@ inline namespace MMPP_NAMESPACE {
 		buffer(const_pointer _utf8, size_type _size, buffer_storage_t _suggest);
 		buffer(const_pointer _begin, const_pointer _end);
 
-		buffer(size_type _count, MemeByte_t _byte);
+		// buffer(size_type _count, MemeByte_t _byte);  // TODO: not implemented yet
 
 		buffer(std::nullptr_t) = delete;
 

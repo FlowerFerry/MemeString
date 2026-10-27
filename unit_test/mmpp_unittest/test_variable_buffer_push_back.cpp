@@ -4,157 +4,215 @@
 #include <memepp/variable_buffer.hpp>
 #include <megopp/endian/net.h>
 
-TEST_CASE("memepp::variable_buffer::push_back", "[variable_buffer]") 
+// Each SECTION drives push_back growth all the way from small into medium
+// storage, then asserts at key boundary points (first element, the element
+// straddling the small->medium transition, last element) instead of one
+// REQUIRE per iteration.
+
+TEST_CASE("memepp::variable_buffer::push_back", "[variable_buffer]")
 {
-    memepp::variable_buffer buf01_01;
+    SECTION("uint8")
+    {
+        memepp::variable_buffer buf;
+        for (int i = 0; i < 1024; ++i)
+            buf.push_back(static_cast<uint8_t>(i));
 
-    for (int i = 0; i < 1024; ++i) {
-        buf01_01.push_back(static_cast<uint8_t>(i));
-        REQUIRE(buf01_01.size () == i + 1);
-        REQUIRE(buf01_01.front() == 0);
-        REQUIRE(buf01_01.back () == static_cast<uint8_t>(i));
+        REQUIRE(buf.size() == 1024);
+        REQUIRE(buf.front() == 0);
+        REQUIRE(buf.back() == static_cast<uint8_t>(1023));
+        REQUIRE(buf.data()[20] == 20);
+        REQUIRE(buf.data()[21] == 21);
     }
-    REQUIRE(buf01_01.size() == 1024);
 
-    do {
-        memepp::variable_buffer buf01_02;
-        for (int i = 0; i < 1024; ++i) {
-            buf01_02.push_back(static_cast<uint16_t>(i), mgpp::endian_t::big_byte);
-            REQUIRE(buf01_02.size () == (i + 1) * sizeof(uint16_t));
-#if MEGO_ENDIAN__BIG_BYTE
-            uint16_t value = static_cast<uint16_t>(i);
-#else
-            uint16_t value = mgpp::endian::hton(static_cast<uint16_t>(i));
-#endif
-            REQUIRE(memcmp(buf01_02.data() + (i * sizeof(uint16_t)), &value, sizeof(uint16_t)) == 0);
-        }
-    } while (0);
+    SECTION("uint16 big-endian")
+    {
+        memepp::variable_buffer buf;
+        for (int i = 0; i < 1024; ++i)
+            buf.push_back(static_cast<uint16_t>(i), mgpp::endian_t::big_byte);
 
-    do {
-        memepp::variable_buffer buf01_03;
-        for (int i = 0; i < 512; ++i) {
-            buf01_03.push_back(static_cast<uint32_t>(i), mgpp::endian_t::big_byte);
-            REQUIRE(buf01_03.size () == (i + 1) * sizeof(uint32_t));
+        REQUIRE(buf.size() == 1024 * sizeof(uint16_t));
 #if MEGO_ENDIAN__BIG_BYTE
-            uint32_t value = static_cast<uint32_t>(i);
+        uint16_t first = 0, mid = 10, last = 1023;
 #else
-            uint32_t value = mgpp::endian::hton(static_cast<uint32_t>(i));
+        uint16_t first = mgpp::endian::hton(static_cast<uint16_t>(0));
+        uint16_t mid = mgpp::endian::hton(static_cast<uint16_t>(10));
+        uint16_t last = mgpp::endian::hton(static_cast<uint16_t>(1023));
 #endif
-            REQUIRE(memcmp(buf01_03.data() + (i * sizeof(uint32_t)), &value, sizeof(uint32_t)) == 0);
-        }
-    } while (0);
+        REQUIRE(memcmp(buf.data(), &first, sizeof(uint16_t)) == 0);
+        REQUIRE(memcmp(buf.data() + 10 * sizeof(uint16_t), &mid, sizeof(uint16_t)) == 0);
+        REQUIRE(memcmp(buf.data() + 1023 * sizeof(uint16_t), &last, sizeof(uint16_t)) == 0);
+    }
 
-    do {
-        memepp::variable_buffer buf01_04;
-        for (int i = 0; i < 256; ++i) {
-            buf01_04.push_back(static_cast<uint64_t>(i), mgpp::endian_t::big_byte);
-            REQUIRE(buf01_04.size () == (i + 1) * sizeof(uint64_t));
-#if MEGO_ENDIAN__BIG_BYTE
-            uint64_t value = static_cast<uint64_t>(i);
-#else
-            uint64_t value = mgpp::endian::hton(static_cast<uint64_t>(i));
-#endif
-            REQUIRE(memcmp(buf01_04.data() + (i * sizeof(uint64_t)), &value, sizeof(uint64_t)) == 0);
-        }
-    } while (0);
+    SECTION("uint32 big-endian")
+    {
+        memepp::variable_buffer buf;
+        for (int i = 0; i < 512; ++i)
+            buf.push_back(static_cast<uint32_t>(i), mgpp::endian_t::big_byte);
 
-    do {
-        memepp::variable_buffer buf01_05;
-        for (int i = 0; i < 512; ++i) {
-            buf01_05.push_back(static_cast<float>(i), mgpp::endian_t::big_byte);
-            REQUIRE(buf01_05.size () == (i + 1) * sizeof(float));
+        REQUIRE(buf.size() == 512 * sizeof(uint32_t));
 #if MEGO_ENDIAN__BIG_BYTE
-            float value = static_cast<float>(i);
+        uint32_t first = 0, mid = 5, last = 511;
 #else
-            float value = mgpp::endian::hton(static_cast<float>(i));
+        uint32_t first = mgpp::endian::hton(static_cast<uint32_t>(0));
+        uint32_t mid = mgpp::endian::hton(static_cast<uint32_t>(5));
+        uint32_t last = mgpp::endian::hton(static_cast<uint32_t>(511));
 #endif
-            REQUIRE(memcmp(buf01_05.data() + (i * sizeof(float)), &value, sizeof(float)) == 0);
-        }
-    } while (0);
+        REQUIRE(memcmp(buf.data(), &first, sizeof(uint32_t)) == 0);
+        REQUIRE(memcmp(buf.data() + 5 * sizeof(uint32_t), &mid, sizeof(uint32_t)) == 0);
+        REQUIRE(memcmp(buf.data() + 511 * sizeof(uint32_t), &last, sizeof(uint32_t)) == 0);
+    }
 
-    do {
-        memepp::variable_buffer buf01_06;
-        for (int i = 0; i < 256; ++i) {
-            buf01_06.push_back(static_cast<double>(i), mgpp::endian_t::big_byte);
-            REQUIRE(buf01_06.size () == (i + 1) * sizeof(double));
-#if MEGO_ENDIAN__BIG_BYTE
-            double value = static_cast<double>(i);
-#else
-            double value = mgpp::endian::hton(static_cast<double>(i));
-#endif
-            REQUIRE(memcmp(buf01_06.data() + (i * sizeof(double)), &value, sizeof(double)) == 0);
-        }
-    } while (0);
-    
-    do {
-        memepp::variable_buffer buf01_02;
-        for (int i = 0; i < 1024; ++i) {
-            buf01_02.push_back(static_cast<uint16_t>(i), mgpp::endian_t::little_byte);
-            REQUIRE(buf01_02.size () == (i + 1) * sizeof(uint16_t));
-#if MEGO_ENDIAN__BIG_BYTE
-            uint16_t value = mgpp::endian::hton(static_cast<uint16_t>(i));
-#else
-            uint16_t value = static_cast<uint16_t>(i);
-#endif
-            REQUIRE(memcmp(buf01_02.data() + (i * sizeof(uint16_t)), &value, sizeof(uint16_t)) == 0);
-        }
-    } while (0);
+    SECTION("uint64 big-endian")
+    {
+        memepp::variable_buffer buf;
+        for (int i = 0; i < 256; ++i)
+            buf.push_back(static_cast<uint64_t>(i), mgpp::endian_t::big_byte);
 
-    do {
-        memepp::variable_buffer buf01_03;
-        for (int i = 0; i < 512; ++i) {
-            buf01_03.push_back(static_cast<uint32_t>(i), mgpp::endian_t::little_byte);
-            REQUIRE(buf01_03.size () == (i + 1) * sizeof(uint32_t));
+        REQUIRE(buf.size() == 256 * sizeof(uint64_t));
 #if MEGO_ENDIAN__BIG_BYTE
-            uint32_t value = mgpp::endian::hton(static_cast<uint32_t>(i));
+        uint64_t first = 0, mid = 2, last = 255;
 #else
-            uint32_t value = static_cast<uint32_t>(i);
+        uint64_t first = mgpp::endian::hton(static_cast<uint64_t>(0));
+        uint64_t mid = mgpp::endian::hton(static_cast<uint64_t>(2));
+        uint64_t last = mgpp::endian::hton(static_cast<uint64_t>(255));
 #endif
-            REQUIRE(memcmp(buf01_03.data() + (i * sizeof(uint32_t)), &value, sizeof(uint32_t)) == 0);
-        }
-    } while (0);
+        REQUIRE(memcmp(buf.data(), &first, sizeof(uint64_t)) == 0);
+        REQUIRE(memcmp(buf.data() + 2 * sizeof(uint64_t), &mid, sizeof(uint64_t)) == 0);
+        REQUIRE(memcmp(buf.data() + 255 * sizeof(uint64_t), &last, sizeof(uint64_t)) == 0);
+    }
 
-    do {
-        memepp::variable_buffer buf01_04;
-        for (int i = 0; i < 256; ++i) {
-            buf01_04.push_back(static_cast<uint64_t>(i), mgpp::endian_t::little_byte);
-            REQUIRE(buf01_04.size () == (i + 1) * sizeof(uint64_t));
-#if MEGO_ENDIAN__BIG_BYTE
-            uint64_t value = mgpp::endian::hton(static_cast<uint64_t>(i));
-#else
-            uint64_t value = static_cast<uint64_t>(i);
-#endif
-            REQUIRE(memcmp(buf01_04.data() + (i * sizeof(uint64_t)), &value, sizeof(uint64_t)) == 0);
-        }
-    } while (0);
+    SECTION("float big-endian")
+    {
+        memepp::variable_buffer buf;
+        for (int i = 0; i < 512; ++i)
+            buf.push_back(static_cast<float>(i), mgpp::endian_t::big_byte);
 
-    do {
-        memepp::variable_buffer buf01_05;
-        for (int i = 0; i < 512; ++i) {
-            buf01_05.push_back(static_cast<float>(i), mgpp::endian_t::little_byte);
-            REQUIRE(buf01_05.size () == (i + 1) * sizeof(float));
+        REQUIRE(buf.size() == 512 * sizeof(float));
 #if MEGO_ENDIAN__BIG_BYTE
-            float value = mgpp::endian::hton(static_cast<float>(i));
+        float first = 0.0f, mid = 5.0f, last = 511.0f;
 #else
-            float value = static_cast<float>(i);
+        float first = mgpp::endian::hton(static_cast<float>(0));
+        float mid = mgpp::endian::hton(static_cast<float>(5));
+        float last = mgpp::endian::hton(static_cast<float>(511));
 #endif
-            REQUIRE(memcmp(buf01_05.data() + (i * sizeof(float)), &value, sizeof(float)) == 0);
-        }
-    } while (0);
+        REQUIRE(memcmp(buf.data(), &first, sizeof(float)) == 0);
+        REQUIRE(memcmp(buf.data() + 5 * sizeof(float), &mid, sizeof(float)) == 0);
+        REQUIRE(memcmp(buf.data() + 511 * sizeof(float), &last, sizeof(float)) == 0);
+    }
 
-    do {
-        memepp::variable_buffer buf01_06;
-        for (int i = 0; i < 256; ++i) {
-            buf01_06.push_back(static_cast<double>(i), mgpp::endian_t::little_byte);
-            REQUIRE(buf01_06.size () == (i + 1) * sizeof(double));
+    SECTION("double big-endian")
+    {
+        memepp::variable_buffer buf;
+        for (int i = 0; i < 256; ++i)
+            buf.push_back(static_cast<double>(i), mgpp::endian_t::big_byte);
+
+        REQUIRE(buf.size() == 256 * sizeof(double));
 #if MEGO_ENDIAN__BIG_BYTE
-            double value = mgpp::endian::hton(static_cast<double>(i));
+        double first = 0.0, mid = 2.0, last = 255.0;
 #else
-            double value = static_cast<double>(i);
+        double first = mgpp::endian::hton(static_cast<double>(0));
+        double mid = mgpp::endian::hton(static_cast<double>(2));
+        double last = mgpp::endian::hton(static_cast<double>(255));
 #endif
-            REQUIRE(memcmp(buf01_06.data() + (i * sizeof(double)), &value, sizeof(double)) == 0);
-        }
-    } while (0);
+        REQUIRE(memcmp(buf.data(), &first, sizeof(double)) == 0);
+        REQUIRE(memcmp(buf.data() + 2 * sizeof(double), &mid, sizeof(double)) == 0);
+        REQUIRE(memcmp(buf.data() + 255 * sizeof(double), &last, sizeof(double)) == 0);
+    }
+
+    SECTION("uint16 little-endian")
+    {
+        memepp::variable_buffer buf;
+        for (int i = 0; i < 1024; ++i)
+            buf.push_back(static_cast<uint16_t>(i), mgpp::endian_t::little_byte);
+
+        REQUIRE(buf.size() == 1024 * sizeof(uint16_t));
+#if MEGO_ENDIAN__BIG_BYTE
+        uint16_t first = mgpp::endian::hton(static_cast<uint16_t>(0));
+        uint16_t mid = mgpp::endian::hton(static_cast<uint16_t>(10));
+        uint16_t last = mgpp::endian::hton(static_cast<uint16_t>(1023));
+#else
+        uint16_t first = 0, mid = 10, last = 1023;
+#endif
+        REQUIRE(memcmp(buf.data(), &first, sizeof(uint16_t)) == 0);
+        REQUIRE(memcmp(buf.data() + 10 * sizeof(uint16_t), &mid, sizeof(uint16_t)) == 0);
+        REQUIRE(memcmp(buf.data() + 1023 * sizeof(uint16_t), &last, sizeof(uint16_t)) == 0);
+    }
+
+    SECTION("uint32 little-endian")
+    {
+        memepp::variable_buffer buf;
+        for (int i = 0; i < 512; ++i)
+            buf.push_back(static_cast<uint32_t>(i), mgpp::endian_t::little_byte);
+
+        REQUIRE(buf.size() == 512 * sizeof(uint32_t));
+#if MEGO_ENDIAN__BIG_BYTE
+        uint32_t first = mgpp::endian::hton(static_cast<uint32_t>(0));
+        uint32_t mid = mgpp::endian::hton(static_cast<uint32_t>(5));
+        uint32_t last = mgpp::endian::hton(static_cast<uint32_t>(511));
+#else
+        uint32_t first = 0, mid = 5, last = 511;
+#endif
+        REQUIRE(memcmp(buf.data(), &first, sizeof(uint32_t)) == 0);
+        REQUIRE(memcmp(buf.data() + 5 * sizeof(uint32_t), &mid, sizeof(uint32_t)) == 0);
+        REQUIRE(memcmp(buf.data() + 511 * sizeof(uint32_t), &last, sizeof(uint32_t)) == 0);
+    }
+
+    SECTION("uint64 little-endian")
+    {
+        memepp::variable_buffer buf;
+        for (int i = 0; i < 256; ++i)
+            buf.push_back(static_cast<uint64_t>(i), mgpp::endian_t::little_byte);
+
+        REQUIRE(buf.size() == 256 * sizeof(uint64_t));
+#if MEGO_ENDIAN__BIG_BYTE
+        uint64_t first = mgpp::endian::hton(static_cast<uint64_t>(0));
+        uint64_t mid = mgpp::endian::hton(static_cast<uint64_t>(2));
+        uint64_t last = mgpp::endian::hton(static_cast<uint64_t>(255));
+#else
+        uint64_t first = 0, mid = 2, last = 255;
+#endif
+        REQUIRE(memcmp(buf.data(), &first, sizeof(uint64_t)) == 0);
+        REQUIRE(memcmp(buf.data() + 2 * sizeof(uint64_t), &mid, sizeof(uint64_t)) == 0);
+        REQUIRE(memcmp(buf.data() + 255 * sizeof(uint64_t), &last, sizeof(uint64_t)) == 0);
+    }
+
+    SECTION("float little-endian")
+    {
+        memepp::variable_buffer buf;
+        for (int i = 0; i < 512; ++i)
+            buf.push_back(static_cast<float>(i), mgpp::endian_t::little_byte);
+
+        REQUIRE(buf.size() == 512 * sizeof(float));
+#if MEGO_ENDIAN__BIG_BYTE
+        float first = mgpp::endian::hton(static_cast<float>(0));
+        float mid = mgpp::endian::hton(static_cast<float>(5));
+        float last = mgpp::endian::hton(static_cast<float>(511));
+#else
+        float first = 0.0f, mid = 5.0f, last = 511.0f;
+#endif
+        REQUIRE(memcmp(buf.data(), &first, sizeof(float)) == 0);
+        REQUIRE(memcmp(buf.data() + 5 * sizeof(float), &mid, sizeof(float)) == 0);
+        REQUIRE(memcmp(buf.data() + 511 * sizeof(float), &last, sizeof(float)) == 0);
+    }
+
+    SECTION("double little-endian")
+    {
+        memepp::variable_buffer buf;
+        for (int i = 0; i < 256; ++i)
+            buf.push_back(static_cast<double>(i), mgpp::endian_t::little_byte);
+
+        REQUIRE(buf.size() == 256 * sizeof(double));
+#if MEGO_ENDIAN__BIG_BYTE
+        double first = mgpp::endian::hton(static_cast<double>(0));
+        double mid = mgpp::endian::hton(static_cast<double>(2));
+        double last = mgpp::endian::hton(static_cast<double>(255));
+#else
+        double first = 0.0, mid = 2.0, last = 255.0;
+#endif
+        REQUIRE(memcmp(buf.data(), &first, sizeof(double)) == 0);
+        REQUIRE(memcmp(buf.data() + 2 * sizeof(double), &mid, sizeof(double)) == 0);
+        REQUIRE(memcmp(buf.data() + 255 * sizeof(double), &last, sizeof(double)) == 0);
+    }
 }
 
 // ---------------------------------------------------------------------------

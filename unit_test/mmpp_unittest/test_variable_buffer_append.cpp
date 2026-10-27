@@ -127,6 +127,95 @@ TEST_CASE("variable_buffer append empty buffer_view", "[variable_buffer][append]
 // variable_buffer: insert(const_iterator, ...) — multi-type overloads
 // ============================================================================
 
+// ============================================================================
+// variable_buffer: append self (alias safety)
+// ============================================================================
+
+TEST_CASE("variable_buffer append self pointer+length", "[variable_buffer][append]")
+{
+    memepp::variable_buffer buf;
+    const uint8_t seed[] = { 1, 2, 3 };
+    buf.append(seed, 3);
+
+    // Exact pointer alias: buf.data() == _buf. The C layer detects this and
+    // stages through a temporary, so the write must not corrupt the source.
+    buf.append(buf.data(), buf.size());
+
+    REQUIRE(buf.size() == 6);
+    REQUIRE(buf.at(0) == 1);
+    REQUIRE(buf.at(1) == 2);
+    REQUIRE(buf.at(2) == 3);
+    REQUIRE(buf.at(3) == 1);
+    REQUIRE(buf.at(4) == 2);
+    REQUIRE(buf.at(5) == 3);
+}
+
+TEST_CASE("variable_buffer append self variable_buffer", "[variable_buffer][append]")
+{
+    memepp::variable_buffer buf;
+    const uint8_t seed[] = { 0xAA, 0xBB };
+    buf.append(seed, 2);
+
+    buf.append(buf);
+
+    REQUIRE(buf.size() == 4);
+    REQUIRE(buf.at(0) == 0xAA);
+    REQUIRE(buf.at(1) == 0xBB);
+    REQUIRE(buf.at(2) == 0xAA);
+    REQUIRE(buf.at(3) == 0xBB);
+}
+
+TEST_CASE("variable_buffer append self forcing reallocation", "[variable_buffer][append]")
+{
+    memepp::variable_buffer buf;
+    const uint8_t seed[] = { 1, 2, 3, 4, 5, 6, 7, 8 };
+    buf.append(seed, 8);
+
+    // Shrink capacity to exactly size so the self-append must reallocate.
+    buf.reserve(buf.size());
+    buf.append(buf.data(), buf.size());
+
+    REQUIRE(buf.size() == 16);
+    for (int i = 0; i < 8; ++i) {
+        REQUIRE(buf.at(i) == static_cast<uint8_t>(i + 1));
+        REQUIRE(buf.at(i + 8) == static_cast<uint8_t>(i + 1));
+    }
+}
+
+TEST_CASE("variable_buffer append self at offset", "[variable_buffer][append]")
+{
+    memepp::variable_buffer buf;
+    const uint8_t seed[] = { 1, 2, 3, 4, 5 };
+    buf.append(seed, 5);
+
+    // Offset alias: buf.data() + 1 != buf.data(), so the exact-match alias
+    // guard in MemeVariableBuffer_appendWithBytes does not trigger.
+    buf.append(buf.data() + 1, 2);
+
+    REQUIRE(buf.size() == 7);
+    REQUIRE(buf.at(0) == 1);
+    REQUIRE(buf.at(1) == 2);
+    REQUIRE(buf.at(2) == 3);
+    REQUIRE(buf.at(3) == 4);
+    REQUIRE(buf.at(4) == 5);
+    REQUIRE(buf.at(5) == 2);
+    REQUIRE(buf.at(6) == 3);
+}
+
+TEST_CASE("variable_buffer append self at offset forcing reallocation", "[variable_buffer][append]")
+{
+    memepp::variable_buffer buf;
+    const uint8_t seed[] = { 1, 2, 3, 4, 5 };
+    buf.append(seed, 5);
+
+    buf.reserve(buf.size());
+    buf.append(buf.data() + 1, 2);
+
+    REQUIRE(buf.size() == 7);
+    REQUIRE(buf.at(5) == 2);
+    REQUIRE(buf.at(6) == 3);
+}
+
 TEST_CASE("variable_buffer insert const_iterator variable_buffer", "[variable_buffer][insert]")
 {
     memepp::variable_buffer buf;
