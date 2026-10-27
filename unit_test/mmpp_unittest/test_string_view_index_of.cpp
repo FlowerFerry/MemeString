@@ -163,3 +163,47 @@ TEST_CASE("memepp::string_view last_index_of - empty view", "[string_view]")
     REQUIRE(empty.last_index_of(memepp::string_view("a")) == memepp::string_view::npos);
     REQUIRE(empty.last_index_of("a")                      == memepp::string_view::npos);
 }
+
+// ---------------------------------------------------------------------------
+// Case sensitivity overloads
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::string_view index_of - case insensitive overloads", "[string_view]")
+{
+    memepp::string_view s = "xx HeLLo yy hELLo zz HELLO";
+    memepp::string_view needle = "hEllO";
+    const auto insensitive = memepp::case_sensitivity_t::all_insensitive;
+    const auto sensitive = memepp::case_sensitivity_t::case_sensitive;
+
+    // The five-byte needle exercises the Boyer-Moore path.
+    REQUIRE(s.index_of(needle, insensitive) == 3);
+    REQUIRE(s.index_of(needle, true, insensitive) == 3);
+    REQUIRE(s.index_of(needle, 8, 13, false, insensitive) == 12);
+
+    REQUIRE(s.index_of("hEllO", insensitive) == 3);
+    REQUIRE(s.index_of("hEllO", true, insensitive) == 3);
+    REQUIRE(s.index_of("hEllO", 5, 8, false, insensitive) == 12);
+
+    REQUIRE(s.index_of(needle, sensitive) == memepp::string_view::npos);
+    REQUIRE(s.index_of("hEllO", sensitive) == memepp::string_view::npos);
+}
+
+TEST_CASE("memepp::string_view last_index_of - case insensitive overloads", "[string_view]")
+{
+    memepp::string_view s = "xx HeLLo yy hELLo zz HELLO";
+    memepp::string_view needle = "hEllO";
+    const auto insensitive = memepp::case_sensitivity_t::all_insensitive;
+    const auto sensitive = memepp::case_sensitivity_t::case_sensitive;
+
+    // The five-byte needle exercises the reverse Boyer-Moore path.
+    REQUIRE(s.last_index_of(needle, insensitive) == 21);
+    REQUIRE(s.last_index_of(needle, true, insensitive) == 21);
+    REQUIRE(s.last_index_of(needle, 8, 13, false, insensitive) == 12);
+
+    REQUIRE(s.last_index_of("hEllO", insensitive) == 21);
+    REQUIRE(s.last_index_of("hEllO", true, insensitive) == 21);
+    REQUIRE(s.last_index_of("hEllO", 5, 8, 13, false, insensitive) == 12);
+
+    REQUIRE(s.last_index_of(needle, sensitive) == memepp::string_view::npos);
+    REQUIRE(s.last_index_of("hEllO", sensitive) == memepp::string_view::npos);
+}

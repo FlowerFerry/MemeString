@@ -404,9 +404,10 @@ TEST_CASE("memepp::string_view index_of — with offset/limit", "[string_view]")
 
 TEST_CASE("memepp::string_view index_of — case insensitive", "[string_view]")
 {
-    // Single-char case-insensitive matching via index_of(const char*, case_sensitivity_t)
+    // Mixed-case needle with explicit case sensitivity.
     memepp::string_view sv = "ABCDEF";
-    REQUIRE(sv.index_of("bcd", memepp::case_sensitivity_t::all_sensitive) == -1);
+    REQUIRE(sv.index_of("bCd", memepp::case_sensitivity_t::all_insensitive) == 1);
+    REQUIRE(sv.index_of("bCd", memepp::case_sensitivity_t::case_sensitive) == -1);
 }
 
 TEST_CASE("memepp::string_view last_index_of", "[string_view]")
@@ -425,7 +426,8 @@ TEST_CASE("memepp::string_view last_index_of — with offset/limit", "[string_vi
 TEST_CASE("memepp::string_view last_index_of — case insensitive", "[string_view]")
 {
     memepp::string_view sv = "ABCabcABC";
-    REQUIRE(sv.last_index_of("ABC", memepp::case_sensitivity_t::all_sensitive) == 6);
+    REQUIRE(sv.last_index_of("aBc", memepp::case_sensitivity_t::all_insensitive) == 6);
+    REQUIRE(sv.last_index_of("abc", memepp::case_sensitivity_t::case_sensitive) == 3);
 }
 
 
@@ -527,6 +529,29 @@ TEST_CASE("memepp::string_view count -- const_pointer with size", "[string_view]
     REQUIRE(sv.count(p, 5) == 2);
     REQUIRE(sv.count(p, 4) == 2);          // "Hell" appears twice
     REQUIRE(sv.count(p, 2) == 2);          // "He" appears twice
+}
+
+TEST_CASE("memepp::string_view count - case insensitive overloads", "[string_view]")
+{
+    memepp::string_view sv = "xx HeLLo yy hELLo zz HELLO";
+    memepp::string_view needle = "hEllO";
+    const memepp::string_view::const_pointer p =
+        reinterpret_cast<const memepp::string_view::const_pointer>("hEllO");
+    memepp::rune rune_h = 'h';
+    const auto insensitive = memepp::case_sensit_t::all_insensitive;
+    const auto sensitive = memepp::case_sensit_t::case_sensitive;
+
+    // The five-byte needle exercises the Boyer-Moore path.
+    REQUIRE(sv.count(needle, insensitive) == 3);
+    REQUIRE(sv.count("hEllO", insensitive) == 3);
+    REQUIRE(sv.count("hEllO", 5, insensitive) == 3);
+    REQUIRE(sv.count(p, insensitive) == 3);
+    REQUIRE(sv.count(p, 5, insensitive) == 3);
+
+    // The rune overload uses the single-byte case-insensitive path.
+    REQUIRE(sv.count(rune_h, insensitive) == 3);
+
+    REQUIRE(sv.count(needle, sensitive) == 0);
 }
 
 // ---------------------------------------------------------------------------
