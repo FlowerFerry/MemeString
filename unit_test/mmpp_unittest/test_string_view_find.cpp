@@ -135,8 +135,9 @@ TEST_CASE("memepp::string_view rfind - const char* with substr_count", "[string_
     REQUIRE(s.rfind("Hello", 6, 5) == 0);
     // partial prefix match
     REQUIRE(s.rfind("HelloXYZ", memepp::string_view::npos, 4) == 7);
-    // zero count → should return npos
-    REQUIRE(s.rfind("Hello", memepp::string_view::npos, 0) == memepp::string_view::npos);
+    // zero count == empty needle -> returns min(pos, size()), per std::string_view
+    REQUIRE(s.rfind("Hello", memepp::string_view::npos, 0) == s.size());
+    REQUIRE(s.rfind("Hello", 6, 0) == 6);
     // not found
     REQUIRE(s.rfind("Hello", memepp::string_view::npos, 6) == memepp::string_view::npos);
 }

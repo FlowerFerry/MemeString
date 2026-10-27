@@ -462,6 +462,157 @@ TEST_CASE("buffer_span rfind span with pos", "[buffer_span]")
     REQUIRE(bs.rfind(needle, 0, 2) == 0);       // only searches [0..0]
 }
 
+TEST_CASE("buffer_span rfind empty needle", "[buffer_span]")
+{
+    const uint8_t raw[] = {0x01, 0x02, 0x03};
+    memepp::buffer_span bs(raw, 3);
+    memepp::buffer_span empty;
+
+    // empty needle: pos == npos or pos >= size -> size
+    REQUIRE(bs.rfind(empty) == 3);
+    REQUIRE(bs.rfind(empty, memepp::buffer_span::npos) == 3);
+    REQUIRE(bs.rfind(empty, 3) == 3);
+    REQUIRE(bs.rfind(empty, 99) == 3);
+
+    // empty needle: pos < size -> pos
+    REQUIRE(bs.rfind(empty, 2) == 2);
+    REQUIRE(bs.rfind(empty, 1) == 1);
+    REQUIRE(bs.rfind(empty, 0) == 0);
+}
+
+TEST_CASE("buffer_span rfind empty needle on empty span", "[buffer_span]")
+{
+    memepp::buffer_span bs;
+    REQUIRE(bs.rfind(memepp::buffer_span()) == 0);
+}
+
+TEST_CASE("buffer_span rfind needle longer than span", "[buffer_span]")
+{
+    const uint8_t raw[] = {0x01, 0x02};
+    memepp::buffer_span bs(raw, 2);
+    const uint8_t nl[] = {0x01, 0x02, 0x03};
+    REQUIRE(bs.rfind(memepp::buffer_span(nl, 3)) == memepp::buffer_span::npos);
+}
+
+TEST_CASE("buffer_span rfind needle equals span", "[buffer_span]")
+{
+    const uint8_t raw[] = {0x01, 0x02, 0x03};
+    memepp::buffer_span bs(raw, 3);
+    REQUIRE(bs.rfind(memepp::buffer_span(raw, 3)) == 0);
+}
+
+TEST_CASE("buffer_span rfind match starts exactly at pos", "[buffer_span]")
+{
+    const uint8_t raw[] = {0x01, 0x02, 0x03, 0x01, 0x02};
+    memepp::buffer_span bs(raw, 5);
+    const uint8_t nl[] = {0x01, 0x02};
+
+    // match starts exactly at pos -> returned as-is
+    REQUIRE(bs.rfind(memepp::buffer_span(nl, 2), 3) == 3);
+    REQUIRE(bs.rfind(memepp::buffer_span(nl, 2), 4) == 3);
+    // pos before the last occurrence
+    REQUIRE(bs.rfind(memepp::buffer_span(nl, 2), 2) == 0);
+    REQUIRE(bs.rfind(memepp::buffer_span(nl, 2), 1) == 0);
+    REQUIRE(bs.rfind(memepp::buffer_span(nl, 2), 0) == 0);
+}
+
+TEST_CASE("buffer_span rfind pos at or beyond size", "[buffer_span]")
+{
+    const uint8_t raw[] = {0x01, 0x02, 0x03, 0x01, 0x02};
+    memepp::buffer_span bs(raw, 5);
+    const uint8_t nl[] = {0x01, 0x02};
+
+    // pos == size and pos > size both clamp to size - needle
+    REQUIRE(bs.rfind(memepp::buffer_span(nl, 2), 5) == 3);
+    REQUIRE(bs.rfind(memepp::buffer_span(nl, 2), 99) == 3);
+    REQUIRE(bs.rfind(memepp::buffer_span(nl, 2), memepp::buffer_span::npos) == 3);
+}
+
+TEST_CASE("buffer_span rfind size - pos < needle", "[buffer_span]")
+{
+    const uint8_t raw[] = {0x01, 0x02, 0x03, 0x01, 0x02};
+    memepp::buffer_span bs(raw, 5);
+    const uint8_t nl[] = {0x01, 0x02};
+
+    // size - pos == 1 < needle 2 -> clamped to size - needle, single probe
+    REQUIRE(bs.rfind(memepp::buffer_span(nl, 2), 4) == 3);
+    // size - pos == 4 >= needle 2 -> no clamp
+    REQUIRE(bs.rfind(memepp::buffer_span(nl, 2), 1) == 0);
+}
+
+TEST_CASE("buffer_span rfind negative pos", "[buffer_span]")
+{
+    const uint8_t raw[] = {0x01, 0x02, 0x03, 0x01, 0x02};
+    memepp::buffer_span bs(raw, 5);
+    const uint8_t nl[] = {0x01, 0x02};
+
+    // pos < 0 and not npos -> npos
+    REQUIRE(bs.rfind(memepp::buffer_span(nl, 2), -5) == memepp::buffer_span::npos);
+    REQUIRE(bs.rfind(memepp::buffer_span(nl, 2), -99) == memepp::buffer_span::npos);
+}
+
+TEST_CASE("buffer_span rfind byte pos at or beyond size", "[buffer_span]")
+{
+    const uint8_t raw[] = {0x10, 0x20, 0x30, 0x20, 0x40};
+    memepp::buffer_span bs(raw, 5);
+
+    REQUIRE(bs.rfind(0x20, 5) == 3);
+    REQUIRE(bs.rfind(0x20, 99) == 3);
+    REQUIRE(bs.rfind(0x20, memepp::buffer_span::npos) == 3);
+}
+
+TEST_CASE("buffer_span rfind byte pos zero", "[buffer_span]")
+{
+    const uint8_t raw[] = {0x10, 0x20, 0x30, 0x20, 0x40};
+    memepp::buffer_span bs(raw, 5);
+
+    REQUIRE(bs.rfind(0x10, 0) == 0);
+    REQUIRE(bs.rfind(0x20, 0) == memepp::buffer_span::npos);
+    REQUIRE(bs.rfind(0xFF, 0) == memepp::buffer_span::npos);
+}
+
+TEST_CASE("buffer_span rfind negative pos byte", "[buffer_span]")
+{
+    const uint8_t raw[] = {0x10, 0x20, 0x30, 0x20, 0x40};
+    memepp::buffer_span bs(raw, 5);
+
+    REQUIRE(bs.rfind(0x20, -5) == memepp::buffer_span::npos);
+
+    memepp::buffer_span empty;
+    REQUIRE(empty.rfind(0x00, -5) == memepp::buffer_span::npos);
+    REQUIRE(empty.rfind(0x00, 0) == memepp::buffer_span::npos);
+}
+
+TEST_CASE("buffer_span rfind multi-byte needle on empty span", "[buffer_span]")
+{
+    memepp::buffer_span bs;
+    const uint8_t nl[] = {0x01, 0x02};
+    REQUIRE(bs.rfind(memepp::buffer_span(nl, 2)) == memepp::buffer_span::npos);
+    REQUIRE(bs.rfind(memepp::buffer_span(nl, 2), 0) == memepp::buffer_span::npos);
+    REQUIRE(bs.rfind(memepp::buffer_span(nl, 2), memepp::buffer_span::npos)
+            == memepp::buffer_span::npos);
+}
+
+TEST_CASE("buffer_span rfind buffer_span with explicit pos", "[buffer_span]")
+{
+    const uint8_t raw[] = {0x01, 0x02, 0x01, 0x02, 0x01, 0x02};
+    memepp::buffer_span bs(raw, 6);
+    const uint8_t nl[] = {0x01, 0x02};
+    memepp::buffer_span needle(nl, 2);
+
+    REQUIRE(bs.rfind(needle, 0) == 0);
+    REQUIRE(bs.rfind(needle, 1) == 0);
+    REQUIRE(bs.rfind(needle, 2) == 2);
+    REQUIRE(bs.rfind(needle, 3) == 2);
+    REQUIRE(bs.rfind(needle, 4) == 4);
+    REQUIRE(bs.rfind(needle, 5) == 4);
+    REQUIRE(bs.rfind(needle, 6) == 4);
+
+    // const_pointer+count overload must agree with the buffer_span overload
+    REQUIRE(bs.rfind(nl, 3, 2) == bs.rfind(needle, 3));
+    REQUIRE(bs.rfind(nl, 4, 2) == bs.rfind(needle, 4));
+}
+
 // ============================================================================
 //  contains
 // ============================================================================

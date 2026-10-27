@@ -43,7 +43,6 @@ TEST_CASE("memepp::string replace - empty 'from' is safe", "[string]")
     memepp::string s = "Hello";
 
     auto r = s.replace("", "X");
-    REQUIRE(r.size() >= 0);
     REQUIRE(r == "Hello");
 }
 

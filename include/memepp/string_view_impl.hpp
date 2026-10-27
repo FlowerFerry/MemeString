@@ -557,11 +557,9 @@ inline namespace MMPP_NAMESPACE {
 		size_type limit = (_pos == npos || _pos >= sz)
 			? sz
 			: (std::min)(_pos + nlen, sz);
-		return MemeString_lastIndexOfOther(
-			to_pointer(native_handle()),
-			0, static_cast<mmint_t>(limit),
-			to_pointer(_other.native_handle()), -1,
-			1,
+		return MemeString_lastIndexOfWithUtf8bytes(
+			to_pointer(native_handle()), static_cast<mmint_t>(limit),
+			reinterpret_cast<const uint8_t*>(_other.data()), static_cast<mmint_t>(nlen),
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
 	}
 
@@ -583,6 +581,7 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::rfind(const char* _utf8, size_type _pos, size_type _substr_count) const noexcept
 	{
 		size_type sz = size();
+		if (_substr_count == 0) return (_pos == npos || _pos >= sz) ? sz : _pos;
 		if (_substr_count > sz) return npos;
 		size_type limit = (_pos == npos || _pos >= sz)
 			? sz
@@ -611,6 +610,7 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::rfind(const_pointer _utf8, size_type _pos, size_type _substr_count) const noexcept
 	{
 		size_type sz = size();
+		if (_substr_count == 0) return (_pos == npos || _pos >= sz) ? sz : _pos;
 		if (_substr_count > sz) return npos;
 		size_type limit = (_pos == npos || _pos >= sz)
 			? sz
@@ -1000,10 +1000,18 @@ inline namespace MMPP_NAMESPACE {
 
 	MEMEPP__IMPL_INLINE string_view string_view::substr(size_type _pos, size_type _count) const noexcept
 	{
-		if (_count == npos)
-            _count = size() - _pos;
-		if (_count > size() - _pos)
-            _count = size() - _pos;
+		// Clamp pos to [0, size()] to avoid OOB pointer arithmetic.
+		if (_pos < 0)
+			_pos = 0;
+		if (_pos > size())
+			_pos = size();
+
+		// npos or negative count means "rest of string".
+		if (_count < 0)
+			_count = size() - _pos;
+		else if (_count > size() - _pos)
+			_count = size() - _pos;
+
         return string_view(data() + _pos, _count);
 	}
 

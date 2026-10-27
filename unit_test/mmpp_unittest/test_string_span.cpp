@@ -695,6 +695,110 @@ TEST_CASE("string_span rfind empty string", "[string_span]")
     REQUIRE(sv.rfind(memepp::string_span("")) == 0);
 }
 
+TEST_CASE("string_span rfind - match starting exactly at pos", "[string_span]")
+{
+    memepp::string_span sv("hello hello");
+    REQUIRE(sv.rfind("hello", 6) == 6);
+    REQUIRE(sv.rfind("hello", 5) == 0);
+
+    memepp::string_span h("hello");
+    REQUIRE(h.rfind('l', 3) == 3);
+}
+
+TEST_CASE("string_span rfind - pos equals or exceeds size", "[string_span]")
+{
+    memepp::string_span sv("hello");
+
+    // pos == size
+    REQUIRE(sv.rfind("lo", 5) == 3);
+    REQUIRE(sv.rfind('l', 5) == 3);
+
+    // pos > size
+    REQUIRE(sv.rfind("lo", 99) == 3);
+    REQUIRE(sv.rfind('h', 99) == 0);
+}
+
+TEST_CASE("string_span rfind - pos zero", "[string_span]")
+{
+    memepp::string_span sv("hello");
+
+    // match at 0
+    REQUIRE(sv.rfind('h', 0) == 0);
+    REQUIRE(sv.rfind("he", 0) == 0);
+
+    // no match at 0
+    REQUIRE(sv.rfind('e', 0) == memepp::string_span::npos);
+    REQUIRE(sv.rfind("el", 0) == memepp::string_span::npos);
+}
+
+TEST_CASE("string_span rfind - needle longer than haystack", "[string_span]")
+{
+    memepp::string_span sv("hi");
+    REQUIRE(sv.rfind("hello") == memepp::string_span::npos);
+    REQUIRE(sv.rfind("hello", 0, 5) == memepp::string_span::npos);
+}
+
+TEST_CASE("string_span rfind - needle equals haystack", "[string_span]")
+{
+    memepp::string_span sv("hello");
+    REQUIRE(sv.rfind("hello") == 0);
+    REQUIRE(sv.rfind('h', 4) == 0);
+}
+
+TEST_CASE("string_span rfind - empty needle with pos", "[string_span]")
+{
+    memepp::string_span sv("hello");
+
+    // empty needle returns pos when pos < size
+    REQUIRE(sv.rfind("", 3) == 3);
+    REQUIRE(sv.rfind("", 0) == 0);
+
+    // pos == size and pos > size both clamp to size
+    REQUIRE(sv.rfind("", 5) == 5);
+    REQUIRE(sv.rfind("", 99) == 5);
+
+    // string_span overload agrees
+    REQUIRE(sv.rfind(memepp::string_span(""), 3) == 3);
+}
+
+TEST_CASE("string_span rfind - count zero", "[string_span]")
+{
+    memepp::string_span sv("hello");
+
+    // count == 0 behaves like an empty needle: returns pos
+    REQUIRE(sv.rfind("xyz", 3, 0) == 3);
+    REQUIRE(sv.rfind("xyz", 0, 0) == 0);
+
+    const MemeByte_t* p = reinterpret_cast<const MemeByte_t*>("xyz");
+    REQUIRE(sv.rfind(p, 3, 0) == 3);
+    REQUIRE(sv.rfind(p, 0, 0) == 0);
+}
+
+TEST_CASE("string_span rfind - string_span and const char* agree", "[string_span]")
+{
+    memepp::string_span sv("abcabcabc");
+
+    // embedded match near the end
+    REQUIRE(sv.rfind(memepp::string_span("abc")) == sv.rfind("abc"));
+    REQUIRE(sv.rfind(memepp::string_span("abc")) == 6);
+
+    // with pos
+    REQUIRE(sv.rfind(memepp::string_span("abc"), 7) == sv.rfind("abc", 7));
+    REQUIRE(sv.rfind(memepp::string_span("abc"), 7) == 6);
+}
+
+TEST_CASE("string_span find_last_of char - pos boundaries", "[string_span]")
+{
+    memepp::string_span sv("hello");
+
+    // find_last_of(char) delegates to rfind
+    REQUIRE(sv.find_last_of('h', 0) == 0);
+    REQUIRE(sv.find_last_of('l', 0) == memepp::string_span::npos);
+    REQUIRE(sv.find_last_of('l', 2) == 2);
+    REQUIRE(sv.find_last_of('l', 5) == 3);
+    REQUIRE(sv.find_last_of('l', 99) == 3);
+}
+
 // ============================================================================
 //  find_first_of — all 4 overloads
 // ============================================================================
@@ -1013,10 +1117,21 @@ TEST_CASE("string_span operator==  const_pointer vs string_span", "[string_span]
 
 TEST_CASE("string_span operator!=  const_pointer vs string_span", "[string_span]")
 {
-    const MemeByte_t* p = reinterpret_cast<const MemeByte_t*>("a");
-    const MemeByte_t* q = reinterpret_cast<const MemeByte_t*>("b");
-    REQUIRE(memepp::string_span(p) != memepp::string_span(q));
-    REQUIRE(memepp::string_span(q) != memepp::string_span(p));
+    const MemeByte_t* p = reinterpret_cast<const MemeByte_t*>("hello");
+    const MemeByte_t* q = reinterpret_cast<const MemeByte_t*>("world");
+    memepp::string_span sv("hello");
+
+    // const_pointer != string_span
+    REQUIRE(p != memepp::string_span("world"));
+    REQUIRE(q != sv);
+
+    // string_span != const_pointer
+    REQUIRE(memepp::string_span("world") != p);
+    REQUIRE(sv != q);
+
+    // false cases: identical content
+    REQUIRE_FALSE(p != sv);
+    REQUIRE_FALSE(sv != p);
 }
 
 TEST_CASE("string_span operator<   const_pointer vs string_span", "[string_span]")

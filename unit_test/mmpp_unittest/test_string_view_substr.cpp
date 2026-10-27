@@ -85,3 +85,21 @@ TEST_CASE("memepp::string_view substr - constructed from char*", "[string_view]"
     REQUIRE(s.substr(2, 4) == "CDEF");
     REQUIRE(s.substr(6)    == "GH");
 }
+
+TEST_CASE("memepp::string_view substr - pos out of bounds", "[string_view]")
+{
+    memepp::string src = "abc";
+    memepp::string_view s = src;
+
+    // pos > size: clamp to size, return empty
+    REQUIRE(s.substr(10) == "");
+    REQUIRE(s.substr(100) == "");
+    REQUIRE(s.substr(100, 1) == "");
+
+    // pos < 0: clamp to 0
+    REQUIRE(s.substr(-1) == "abc");
+    REQUIRE(s.substr(memepp::string_view::npos) == "abc");
+
+    // negative count (not npos): treat as "rest of string"
+    REQUIRE(s.substr(1, -2) == "bc");
+}
