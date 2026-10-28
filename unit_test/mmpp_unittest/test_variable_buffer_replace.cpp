@@ -310,3 +310,44 @@ TEST_CASE("memepp::variable_buffer replace — count limit beyond occurrence cou
     REQUIRE(buf.size() == 2);
     REQUIRE(memcmp(buf.data(), "XX", 2) == 0);
 }
+
+// ---------------------------------------------------------------------------
+// variable_buffer::replace — _new pointing into own buffer (alias safety)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::variable_buffer replace — _new from own buffer (equal-length)", "[variable_buffer]")
+{
+    const char data[] = "abcXYZdef";
+    variable_buffer buf(reinterpret_cast<const memepp::variable_buffer::value_type*>(data), 9);
+
+    // Replace "XYZ" (offset 3) with first 3 bytes of buf ("abc")
+    buf.replace(make_span("XYZ", 3), make_span(reinterpret_cast<const char*>(buf.data()), 3));
+
+    REQUIRE(buf.size() == 9);
+    REQUIRE(memcmp(buf.data(), "abcabcdef", 9) == 0);
+}
+
+
+TEST_CASE("memepp::variable_buffer replace — _new from own buffer (longer)", "[variable_buffer]")
+{
+    const char data[] = "abcXYZdef";
+    variable_buffer buf(reinterpret_cast<const memepp::variable_buffer::value_type*>(data), 9);
+
+    // Replace "XYZ" (3 bytes) with first 5 bytes of buf ("abcXY") — grows
+    buf.replace(make_span("XYZ", 3), make_span(reinterpret_cast<const char*>(buf.data()), 5));
+
+    REQUIRE(buf.size() == 11);
+    REQUIRE(memcmp(buf.data(), "abcabcXYdef", 11) == 0);
+}
+
+TEST_CASE("memepp::variable_buffer replace — _new from own buffer (shorter)", "[variable_buffer]")
+{
+    const char data[] = "abcXYZdef";
+    variable_buffer buf(reinterpret_cast<const memepp::variable_buffer::value_type*>(data), 9);
+
+    // Replace "XYZ" (3 bytes) with first 1 byte of buf ("a") — shrinks
+    buf.replace(make_span("XYZ", 3), make_span(reinterpret_cast<const char*>(buf.data()), 1));
+
+    REQUIRE(buf.size() == 7);
+    REQUIRE(memcmp(buf.data(), "abcadef", 7) == 0);
+}

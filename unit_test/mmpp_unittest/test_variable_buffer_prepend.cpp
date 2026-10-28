@@ -372,3 +372,33 @@ TEST_CASE("variable_buffer prepend and append interleaved", "[variable_buffer][p
     REQUIRE(buf.at(4) == 0x05);
     REQUIRE(buf.at(5) == 0x06);
 }
+
+// ============================================================================
+// variable_buffer: prepend self in medium storage (reallocation path)
+// ============================================================================
+
+TEST_CASE("variable_buffer prepend self doubles medium buffer", "[variable_buffer][prepend]")
+{
+    // Build a medium-type buffer: exceed the small limit so storage is medium.
+    const mmint_t smallLimit = MemeStringOption_getStorageSmallLimit();
+    memepp::variable_buffer buf;
+    for (mmint_t i = 0; i < smallLimit + 1; ++i) {
+        buf.push_back(static_cast<uint8_t>(i + 1));
+    }
+
+    REQUIRE(buf.storage_type() == memepp::buffer_storage_t::medium);
+    const mmint_t originalSize = buf.size();
+    REQUIRE(originalSize == smallLimit + 1);
+
+    // Prepend own data: buffer must double and stay intact.
+    buf.prepend(buf.data(), buf.size());
+
+    REQUIRE(buf.size() == originalSize * 2);
+    REQUIRE(buf.storage_type() == memepp::buffer_storage_t::medium);
+
+    // First half is the original prefix, second half is the original content.
+    for (mmint_t i = 0; i < originalSize; ++i) {
+        REQUIRE(buf.at(i) == static_cast<uint8_t>(i + 1));
+        REQUIRE(buf.at(i + originalSize) == static_cast<uint8_t>(i + 1));
+    }
+}

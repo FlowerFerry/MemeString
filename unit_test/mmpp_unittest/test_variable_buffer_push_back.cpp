@@ -389,3 +389,52 @@ TEST_CASE("memepp::variable_buffer operator[] — mutable", "[variable_buffer]")
     REQUIRE(buf[0] == 99);
     REQUIRE(buf.data()[0] == 99);
 }
+
+// ---------------------------------------------------------------------------
+// variable_buffer: operator+= self (alias safety)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::variable_buffer operator+= self", "[variable_buffer]")
+{
+    memepp::variable_buffer buf;
+    buf.push_back(static_cast<uint8_t>(0xAA));
+    buf.push_back(static_cast<uint8_t>(0xBB));
+
+    buf += buf;
+    REQUIRE(buf.size() == 4);
+    REQUIRE(buf.at(0) == 0xAA);
+    REQUIRE(buf.at(1) == 0xBB);
+    REQUIRE(buf.at(2) == 0xAA);
+    REQUIRE(buf.at(3) == 0xBB);
+}
+
+TEST_CASE("memepp::variable_buffer operator+= self forcing reallocation", "[variable_buffer]")
+{
+    memepp::variable_buffer buf;
+    for (int i = 0; i < 8; ++i)
+        buf.push_back(static_cast<uint8_t>(i + 1));
+
+    buf.reserve(buf.size());
+    buf += buf;
+
+    REQUIRE(buf.size() == 16);
+    for (int i = 0; i < 8; ++i) {
+        REQUIRE(buf.at(i) == static_cast<uint8_t>(i + 1));
+        REQUIRE(buf.at(i + 8) == static_cast<uint8_t>(i + 1));
+    }
+}
+
+TEST_CASE("memepp::variable_buffer operator=(string_view) from self data", "[variable_buffer]")
+{
+    memepp::variable_buffer buf;
+    const uint8_t seed[] = { 'H', 'e', 'l', 'l', 'o' };
+    buf.append(seed, 5);
+
+    // Build a string_view over buf's own data, then assign it back.
+    // Aliasing: the source bytes live inside buf, so operator= must stage.
+    memepp::string_view sv(reinterpret_cast<const char*>(buf.data()), buf.size());
+    buf = sv;
+
+    REQUIRE(buf.size() == 5);
+    REQUIRE(memcmp(buf.data(), "Hello", 5) == 0);
+}

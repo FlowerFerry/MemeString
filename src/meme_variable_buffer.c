@@ -2,6 +2,7 @@
 #include "meme/variable_buffer.h"
 #include "meme/string.h"
 #include "meme/buffer.h"
+#include "meme/string_memory.h"
 #include "meme/impl/string.h"
 #include "meme/impl/string_p__medium.h"
 #include "meme/impl/string_p__small.h"
@@ -1045,6 +1046,7 @@ MEME_STDCALL MemeVariableBuffer_replace(
 	MemeInteger_t count;
 	MemeInteger_t pos;
 	MemeByte_t* data;
+	MemeByte_t* to_staging = NULL;
 
 	assert(s != NULL && "MemeVariableBuffer_replace");
 	assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE(s)) == 1);
@@ -1057,6 +1059,18 @@ MEME_STDCALL MemeVariableBuffer_replace(
 
 	total = MemeVariableBuffer_size(_s);
 	delta = _to_len - _from_len;
+
+	/* Self-alias detection: if _to points into our storage, stage through a
+	   temporary copy so the splice loop reads from stable memory even after
+	   reserve() reallocates the underlying buffer. */
+	data = MemeVariableBuffer_dataWithNotConst(_s);
+	if (_to_len > 0 && _to >= data && _to < data + total) {
+		to_staging = (MemeByte_t*)mmmem_malloc(_to_len);
+		if (!to_staging)
+			return MGEC__NOMEM;
+		memcpy(to_staging, _to, _to_len);
+		_to = to_staging;
+	}
 
 	/* --- Equal-length fast path: direct memcpy, zero allocation --- */
 	if (delta == 0) {
@@ -1074,6 +1088,8 @@ MEME_STDCALL MemeVariableBuffer_replace(
 				++pos;
 			}
 		}
+		if (to_staging)
+			mmmem_free(to_staging);
 		return 0;
 	}
 
@@ -1093,15 +1109,21 @@ MEME_STDCALL MemeVariableBuffer_replace(
 		}
 	}
 
-	if (count == 0)
+	if (count == 0) {
+		if (to_staging)
+			mmmem_free(to_staging);
 		return 0;
+	}
 
 	/* Grow capacity once up-front when the buffer will become longer */
 	if (delta > 0) {
 		MemeInteger_t new_size = total + delta * count;
 		MemeInteger_t rc = MemeVariableBuffer_reserve(_s, new_size);
-		if (rc)
+		if (rc) {
+			if (to_staging)
+				mmmem_free(to_staging);
 			return rc;
+		}
 	}
 
 	/*
@@ -1122,8 +1144,11 @@ MEME_STDCALL MemeVariableBuffer_replace(
 		while (remaining > 0) {
 			MemeInteger_t idx = MemeVariableBuffer_indexOfWithBytes(
 				_s, pos, _from, _from_len);
-			if (idx < 0)
+			if (idx < 0) {
+				if (to_staging)
+					mmmem_free(to_staging);
 				return MGEC__INVAL;   /* cannot happen: pass 1 counted `count` */
+			}
 
 			MemeInteger_t tail_start = idx + _from_len;
 			MemeInteger_t tail_len = total - tail_start;
@@ -1146,6 +1171,8 @@ MEME_STDCALL MemeVariableBuffer_replace(
 				MemeStringMedium_byteSizeOffsetAndSetZero(&s->medium_, delta);
 				break;
 			default:
+				if (to_staging)
+					mmmem_free(to_staging);
 				return MGEC__OPNOTSUPP;
 			}
 
@@ -1154,6 +1181,8 @@ MEME_STDCALL MemeVariableBuffer_replace(
 		}
 	}
 
+	if (to_staging)
+		mmmem_free(to_staging);
 	return 0;
 }
 

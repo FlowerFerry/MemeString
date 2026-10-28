@@ -102,6 +102,14 @@ inline namespace MMPP_NAMESPACE {
 
 	MEMEPP__IMPL_INLINE variable_buffer& variable_buffer::operator=(const string_view& _other)
 	{
+		// Self-alias check: if _other points into our storage, stage through temp
+		if (_other.data() >= reinterpret_cast<const char*>(data()) &&
+			_other.data() < reinterpret_cast<const char*>(data() + size())) {
+			variable_buffer tmp;
+			tmp.append(reinterpret_cast<const uint8_t*>(_other.data()), _other.size());
+			clear();
+			return append(tmp);
+		}
 		clear();
 		return append(_other);
 	}
