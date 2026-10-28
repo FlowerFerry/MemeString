@@ -1,151 +1,298 @@
-﻿
+
 #include <catch2/catch.hpp>
 
 #include <memepp/variable_buffer.hpp>
 #include <vector>
 
-TEST_CASE("memepp::variable_buffer resize", "[variable_buffer]")
+// Helpers: replay a chain of resize(size, fill) calls so each SECTION is
+// self-contained, and derive the expected bytes from the same chain instead
+// of hand-written literals.
+//
+// resize(N, v) semantics:
+//   - N < current size  -> truncate to N (fill ignored)
+//   - N > current size  -> keep existing bytes, append (N - size) copies of v
+static memepp::variable_buffer build_buffer(
+	std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>> steps)
 {
-	memepp::variable_buffer b01;
+	memepp::variable_buffer b;
+	for (auto& s : steps)
+		b.resize(s.first, s.second);
+	return b;
+}
 
-	b01.resize(0);
-	REQUIRE(sizeof(memepp::variable_buffer) == MMSTR__OBJ_SIZE);
-	REQUIRE(b01.storage_type() == memepp::buffer_storage_t::small);
-	REQUIRE(b01.size() == 0);
-	REQUIRE(b01.empty());
-	REQUIRE(b01.capacity() == MemeStringOption_getStorageSmallLimit());
-	REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b01.native_handle())) == 1);
+static std::vector<uint8_t> build_expected(
+	std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>> steps)
+{
+	std::vector<uint8_t> v;
+	for (auto& s : steps) {
+		if (s.first > v.size())
+			v.insert(v.end(), s.first - v.size(), s.second);
+		else
+			v.resize(s.first);
+	}
+	return v;
+}
 
-	b01.resize(MemeStringOption_getStorageSmallLimit(), 1);
-	REQUIRE(b01.storage_type() == memepp::buffer_storage_t::small);
-	REQUIRE(b01.size() == MemeStringOption_getStorageSmallLimit());
+static bool data_matches(const memepp::variable_buffer& _b, const std::vector<uint8_t>& _expected)
+{
+	return _b.size() == _expected.size()
+		&& memcmp(_b.data(), _expected.data(), _b.size()) == 0;
+}
 
-	uint8_t buf01[] = { 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01 };
-	REQUIRE(0 == memcmp(b01.data(), buf01, b01.size()));
-	REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b01.native_handle())) == 1);
+TEST_CASE("memepp::variable_buffer::resize", "[variable_buffer]")
+{
+	const auto small_limit =
+		static_cast<memepp::variable_buffer::size_type>(MemeStringOption_getStorageSmallLimit());
 
+	SECTION("sizeof variable_buffer == MMSTR__OBJ_SIZE")
+	{
+		REQUIRE(sizeof(memepp::variable_buffer) == MMSTR__OBJ_SIZE);
+	}
 
-	b01.resize(10);
-	REQUIRE(b01.storage_type() == memepp::buffer_storage_t::small);
-	REQUIRE(b01.size() == 10);
+	SECTION("resize(0) on empty buffer")
+	{
+		memepp::variable_buffer b;
+		b.resize(0);
 
-	uint8_t buf02[] = { 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01 };
-	REQUIRE(0 == memcmp(b01.data(), buf02, b01.size()));
-	REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b01.native_handle())) == 1);
+		REQUIRE(b.storage_type() == memepp::buffer_storage_t::small);
+		REQUIRE(b.size() == 0);
+		REQUIRE(b.empty());
+		REQUIRE(b.capacity() == small_limit);
+		REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b.native_handle())) == 1);
+	}
 
+	SECTION("resize to small limit with fill")
+	{
+		auto steps = std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>>{
+			{ small_limit, 0x01 }
+		};
+		auto b = build_buffer(steps);
+		auto expected = build_expected(steps);
 
-	b01.resize(20, 2);
+		REQUIRE(b.storage_type() == memepp::buffer_storage_t::small);
+		REQUIRE(b.size() == small_limit);
+		REQUIRE(data_matches(b, expected));
+		REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b.native_handle())) == 1);
+	}
+
+	SECTION("resize down within small")
+	{
+		auto steps = std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>>{
+			{ small_limit, 0x01 },
+			{ 10, 0x00 }
+		};
+		auto b = build_buffer(steps);
+		auto expected = build_expected(steps);
+
+		REQUIRE(b.storage_type() == memepp::buffer_storage_t::small);
+		REQUIRE(b.size() == 10);
+		REQUIRE(data_matches(b, expected));
+		REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b.native_handle())) == 1);
+	}
+
+	SECTION("resize to 20 with fill (small on x64, medium on x86)")
+	{
+		auto steps = std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>>{
+			{ small_limit, 0x01 },
+			{ 10, 0x00 },
+			{ 20, 0x02 }
+		};
+		auto b = build_buffer(steps);
+		auto expected = build_expected(steps);
+
 #if INTPTR_MAX == INT64_MAX
-	REQUIRE(b01.storage_type() == memepp::buffer_storage_t::small);
+		REQUIRE(b.storage_type() == memepp::buffer_storage_t::small);
 #else
-	REQUIRE(b01.storage_type() == memepp::buffer_storage_t::medium);
+		REQUIRE(b.storage_type() == memepp::buffer_storage_t::medium);
 #endif
-	REQUIRE(b01.size() == 20);
-	REQUIRE(MemeString_checkHeadTailMemory(
-		(MemeString_Const_t)memepp::to_pointer(b01.native_handle())) == 1);
+		REQUIRE(b.size() == 20);
+		REQUIRE(data_matches(b, expected));
+		REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b.native_handle())) == 1);
+		REQUIRE(MemeString_checkHeadTailMemory(
+			(MemeString_Const_t)memepp::to_pointer(b.native_handle())) == 1);
+	}
 
-	uint8_t buf03[] = { 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02, 0x02 };
-	REQUIRE(0 == memcmp(b01.data(), buf03, b01.size()));
-	REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b01.native_handle())) == 1);
+	SECTION("resize down to 10 keeps truncation semantics")
+	{
+		auto steps = std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>>{
+			{ small_limit, 0x01 },
+			{ 10, 0x00 },
+			{ 20, 0x02 },
+			{ 10, 0x02 }
+		};
+		auto b = build_buffer(steps);
+		auto expected = build_expected(steps);
 
-
-	b01.resize(10, 2);
 #if INTPTR_MAX == INT64_MAX
-	REQUIRE(b01.storage_type() == memepp::buffer_storage_t::small);
+		REQUIRE(b.storage_type() == memepp::buffer_storage_t::small);
 #else
-	REQUIRE(b01.storage_type() == memepp::buffer_storage_t::medium);
+		REQUIRE(b.storage_type() == memepp::buffer_storage_t::medium);
 #endif
-	REQUIRE(b01.size() == 10);
-	REQUIRE(MemeString_checkHeadTailMemory(
-		(MemeString_Const_t)memepp::to_pointer(b01.native_handle())) == 1);
+		REQUIRE(b.size() == 10);
+		REQUIRE(data_matches(b, expected));
+		REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b.native_handle())) == 1);
+		REQUIRE(MemeString_checkHeadTailMemory(
+			(MemeString_Const_t)memepp::to_pointer(b.native_handle())) == 1);
+	}
 
-	uint8_t buf04[] = { 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01 };
-	REQUIRE(0 == memcmp(b01.data(), buf04, b01.size()));
-	REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b01.native_handle())) == 1);
+	SECTION("resize to 23 with fill promotes to medium")
+	{
+		auto steps = std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>>{
+			{ small_limit, 0x01 },
+			{ 10, 0x00 },
+			{ 20, 0x02 },
+			{ 10, 0x02 },
+			{ 23, 0x03 }
+		};
+		auto b = build_buffer(steps);
+		auto expected = build_expected(steps);
 
+		REQUIRE(b.storage_type() == memepp::buffer_storage_t::medium);
+		REQUIRE(b.size() == 23);
+		REQUIRE(data_matches(b, expected));
+		REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b.native_handle())) == 1);
+		REQUIRE(MemeString_checkHeadTailMemory(
+			(MemeString_Const_t)memepp::to_pointer(b.native_handle())) == 1);
+	}
 
-	b01.resize(23, 3);
-	REQUIRE(b01.storage_type() == memepp::buffer_storage_t::medium);
-	REQUIRE(b01.size() == 23);
-	REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b01.native_handle())) == 1);
-	REQUIRE(MemeString_checkHeadTailMemory(
-		(MemeString_Const_t)memepp::to_pointer(b01.native_handle())) == 1);
+	SECTION("resize to 42 with fill (medium growth)")
+	{
+		auto steps = std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>>{
+			{ small_limit, 0x01 },
+			{ 10, 0x00 },
+			{ 20, 0x02 },
+			{ 10, 0x02 },
+			{ 23, 0x03 },
+			{ 42, 0x04 }
+		};
+		auto b = build_buffer(steps);
+		auto expected = build_expected(steps);
 
-	uint8_t buf05[] = { 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03 };
-	REQUIRE(0 == memcmp(b01.data(), buf05, b01.size()));
+		REQUIRE(b.storage_type() == memepp::buffer_storage_t::medium);
+		REQUIRE(b.size() == 42);
+		REQUIRE(data_matches(b, expected));
+		REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b.native_handle())) == 1);
+		REQUIRE(MemeString_checkHeadTailMemory(
+			(MemeString_Const_t)memepp::to_pointer(b.native_handle())) == 1);
+	}
 
+	SECTION("resize to 128 with fill (medium growth)")
+	{
+		auto steps = std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>>{
+			{ small_limit, 0x01 },
+			{ 10, 0x00 },
+			{ 20, 0x02 },
+			{ 10, 0x02 },
+			{ 23, 0x03 },
+			{ 42, 0x04 },
+			{ 128, 0x05 }
+		};
+		auto b = build_buffer(steps);
+		auto expected = build_expected(steps);
 
-	b01.resize(42, 4);
-	REQUIRE(b01.storage_type() == memepp::buffer_storage_t::medium);
-	REQUIRE(b01.size() == 42);
-	REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b01.native_handle())) == 1);
-	REQUIRE(MemeString_checkHeadTailMemory(
-		(MemeString_Const_t)memepp::to_pointer(b01.native_handle())) == 1);
+		REQUIRE(b.storage_type() == memepp::buffer_storage_t::medium);
+		REQUIRE(b.size() == 128);
+		REQUIRE(data_matches(b, expected));
+		REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b.native_handle())) == 1);
+		REQUIRE(MemeString_checkHeadTailMemory(
+			(MemeString_Const_t)memepp::to_pointer(b.native_handle())) == 1);
+	}
 
-	uint8_t buf06[] = { 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04 };
-	REQUIRE(0 == memcmp(b01.data(), buf06, b01.size()));
+	SECTION("resize down to 1 keeps medium storage")
+	{
+		auto steps = std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>>{
+			{ small_limit, 0x01 },
+			{ 10, 0x00 },
+			{ 20, 0x02 },
+			{ 10, 0x02 },
+			{ 23, 0x03 },
+			{ 42, 0x04 },
+			{ 128, 0x05 },
+			{ 1, 0x06 }
+		};
+		auto b = build_buffer(steps);
+		auto expected = build_expected(steps);
 
+		REQUIRE(b.storage_type() == memepp::buffer_storage_t::medium);
+		REQUIRE(b.size() == 1);
+		REQUIRE(data_matches(b, expected));
+		REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b.native_handle())) == 1);
+		REQUIRE(MemeString_checkHeadTailMemory(
+			(MemeString_Const_t)memepp::to_pointer(b.native_handle())) == 1);
+	}
 
-	b01.resize(128, 5);
-	REQUIRE(b01.storage_type() == memepp::buffer_storage_t::medium);
-	REQUIRE(b01.size() == 128);
-	REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b01.native_handle())) == 1);
-	REQUIRE(MemeString_checkHeadTailMemory(
-		(MemeString_Const_t)memepp::to_pointer(b01.native_handle())) == 1);
+	SECTION("resize to 256 with fill (medium growth)")
+	{
+		auto steps = std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>>{
+			{ small_limit, 0x01 },
+			{ 10, 0x00 },
+			{ 20, 0x02 },
+			{ 10, 0x02 },
+			{ 23, 0x03 },
+			{ 42, 0x04 },
+			{ 128, 0x05 },
+			{ 1, 0x06 },
+			{ 256, 0x07 }
+		};
+		auto b = build_buffer(steps);
+		auto expected = build_expected(steps);
 
-	uint8_t buf07[] = {
-		0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04,
-		0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05,
-		0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05, 0x05,
-		0x05, 0x05
-	};
-	REQUIRE(0 == memcmp(b01.data(), buf07, b01.size()));
+		REQUIRE(b.storage_type() == memepp::buffer_storage_t::medium);
+		REQUIRE(b.size() == 256);
+		REQUIRE(data_matches(b, expected));
+		REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b.native_handle())) == 1);
+		REQUIRE(MemeString_checkHeadTailMemory(
+			(MemeString_Const_t)memepp::to_pointer(b.native_handle())) == 1);
+	}
 
+	SECTION("resize to 65536 with fill (medium growth)")
+	{
+		auto steps = std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>>{
+			{ small_limit, 0x01 },
+			{ 10, 0x00 },
+			{ 20, 0x02 },
+			{ 10, 0x02 },
+			{ 23, 0x03 },
+			{ 42, 0x04 },
+			{ 128, 0x05 },
+			{ 1, 0x06 },
+			{ 256, 0x07 },
+			{ 65536, 0x08 }
+		};
+		auto b = build_buffer(steps);
 
-	b01.resize(1, 6);
-	REQUIRE(b01.storage_type() == memepp::buffer_storage_t::medium);
-	REQUIRE(b01.size() == 1);
-	uint8_t buf08[] = { 0x01 };
-	REQUIRE(0 == memcmp(b01.data(), buf08, b01.size()));
-	REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b01.native_handle())) == 1);
-	REQUIRE(MemeString_checkHeadTailMemory(
-		(MemeString_Const_t)memepp::to_pointer(b01.native_handle())) == 1);
+		REQUIRE(b.storage_type() == memepp::buffer_storage_t::medium);
+		REQUIRE(b.size() == 65536);
+		REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b.native_handle())) == 1);
+		REQUIRE(MemeString_checkHeadTailMemory(
+			(MemeString_Const_t)memepp::to_pointer(b.native_handle())) == 1);
+	}
 
+	SECTION("resize_and_overwrite(256)")
+	{
+		memepp::variable_buffer b;
+		b.resize_and_overwrite(256);
 
-	b01.resize(256, 7);
-	REQUIRE(b01.storage_type() == memepp::buffer_storage_t::medium);
-	REQUIRE(b01.size() == 256);
-	std::vector<uint8_t> buf09(256, 0x07);
-	buf09[0] = 0x01;
-	REQUIRE(0 == memcmp(b01.data(), buf09.data(), b01.size()));
-	REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b01.native_handle())) == 1);
-	REQUIRE(MemeString_checkHeadTailMemory(
-		(MemeString_Const_t)memepp::to_pointer(b01.native_handle())) == 1);
+		REQUIRE(b.storage_type() == memepp::buffer_storage_t::medium);
+		REQUIRE(b.size() == 256);
+		REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b.native_handle())) == 1);
+		REQUIRE(MemeString_checkHeadTailMemory(
+			(MemeString_Const_t)memepp::to_pointer(b.native_handle())) == 1);
+	}
 
+	SECTION("resize_and_overwrite then memcpy prefix")
+	{
+		memepp::variable_buffer b;
+		b.resize_and_overwrite(256);
 
-	b01.resize(65536, 8);
-	REQUIRE(b01.storage_type() == memepp::buffer_storage_t::medium);
-	REQUIRE(b01.size() == 65536);
-	REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b01.native_handle())) == 1);
-	REQUIRE(MemeString_checkHeadTailMemory(
-		(MemeString_Const_t)memepp::to_pointer(b01.native_handle())) == 1);
+		const uint8_t pattern[16] = {
+			0x01, 0x03, 0x05, 0x07, 0x09, 0x0B, 0x0D, 0x0F,
+			0x11, 0x13, 0x15, 0x17, 0x19, 0x1B, 0x1D, 0x1F
+		};
+		memcpy(b.data(), pattern, sizeof(pattern));
 
-    memepp::variable_buffer b02;
-    b02.resize_and_overwrite(256);
-    REQUIRE(b02.storage_type() == memepp::buffer_storage_t::medium);
-    REQUIRE(b02.size() == 256);
-	uint8_t buf10[256] = { 0 };
-    //REQUIRE(0 != memcmp(b02.data(), buf10, b02.size()));
-    REQUIRE(MemeVariableBuffer_capacityCorrectness(memepp::to_pointer(b02.native_handle())) == 1);
-    REQUIRE(MemeString_checkHeadTailMemory(
-        (MemeString_Const_t)memepp::to_pointer(b02.native_handle())) == 1);
-	
-	uint8_t buf11[16] = { 
-        0x01, 0x03, 0x05, 0x07, 0x09, 0x0B, 0x0D, 0x0F, 0x11, 0x13, 0x15, 0x17, 0x19, 0x1B, 0x1D, 0x1F
-	};
-
-    memcpy(b02.data(), buf11, 16);
-    REQUIRE(0 == memcmp(b02.data(), buf11, 16));
-	REQUIRE(MemeString_checkHeadTailMemory(
-		(MemeString_Const_t)memepp::to_pointer(b02.native_handle())) == 1);
+		REQUIRE(0 == memcmp(b.data(), pattern, sizeof(pattern)));
+		REQUIRE(MemeString_checkHeadTailMemory(
+			(MemeString_Const_t)memepp::to_pointer(b.native_handle())) == 1);
+	}
 }
