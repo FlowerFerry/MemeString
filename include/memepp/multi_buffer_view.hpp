@@ -262,6 +262,9 @@ struct multi_buffer_view
 
     void assign(const multi_buffer_view& _other) 
     {
+        // Self-assign is a no-op: clear() would empty the source we then copy.
+        if (this == &_other)
+            return;
         clear();
         append(_other);
     }
@@ -313,7 +316,15 @@ struct multi_buffer_view
 
     void append(const multi_buffer_view& _other) 
     {
-        views_.insert(views_.end(), _other.views_.begin(), _other.views_.end());
+        // Copy first when aliased: inserting from our own vector's iterators
+        // while it reallocates is undefined behaviour.
+        if (this == &_other) {
+            auto temp = _other.views_;
+            views_.insert(views_.end(), temp.begin(), temp.end());
+        }
+        else {
+            views_.insert(views_.end(), _other.views_.begin(), _other.views_.end());
+        }
         total_size_ += _other.size();
     }
 
@@ -392,7 +403,15 @@ struct multi_buffer_view
 
     void prepend(const multi_buffer_view& _other) 
     {
-        views_.insert(views_.begin(), _other.views_.begin(), _other.views_.end());
+        // Copy first when aliased: inserting from our own vector's iterators
+        // while it reallocates is undefined behaviour.
+        if (this == &_other) {
+            auto temp = _other.views_;
+            views_.insert(views_.begin(), temp.begin(), temp.end());
+        }
+        else {
+            views_.insert(views_.begin(), _other.views_.begin(), _other.views_.end());
+        }
         total_size_ += _other.size();
     }
 
@@ -1175,10 +1194,17 @@ struct multi_buffer_view
                     continue;
                 }
                 else {
-                    if (_pos.index == start.index)
-                        _pos.offset = start.offset + 1;
-                    else
-                        _pos.offset = 0;
+                    // Mismatch: advance the CANDIDATE START by one byte
+                    // (globally), then resume scanning from there.  Restarting
+                    // at the current view's offset 0 loses matches whose start
+                    // lies in an EARLIER view and straddle a view boundary.
+                    ++start.offset;
+                    while (start.index < static_cast<size_type>(views_.size())
+                        && start.offset >= views_[start.index].second) {
+                        ++start.index;
+                        start.offset = 0;
+                    }
+                    _pos = start;
                     bytes_found = 0;
                     start = end_position();
                     continue;
@@ -1389,8 +1415,9 @@ private:
 
 inline multi_buffer_view::size_type multi_buffer_view::split_at(position _pos)
 {
+    // {npos, npos} or any negative index/offset means "end of view"
     if (_pos.index < 0 || _pos.offset < 0)
-        return 0;
+        return static_cast<size_type>(views_.size());
 
     if (_pos.index < static_cast<size_type>(views_.size()) && _pos.offset >= views_[_pos.index].second)
     {

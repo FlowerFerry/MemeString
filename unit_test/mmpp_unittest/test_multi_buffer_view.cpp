@@ -2817,13 +2817,22 @@ TEST_CASE("multi_buffer_view: read<Ty> for signed and floating-point types", "[m
 }
 
 // Additional fuzz: random removes and checks
+//
+// The view must be backed by storage that NOTHING else mutates.  Backing it
+// with `model`'s vector was a bug: mv.erase() only re-spans the view, while
+// model.erase() memmoves the very bytes the view points at, so flatten(mv)
+// read shifted data and diverged from model.  Here the view reads a const
+// source array and `model` is an independent working copy.
 TEST_CASE("multi_buffer_view: fuzz random removes and consistency", "[multi_buffer_view][fuzz][remove]") 
 {
     std::mt19937 gen(7654321u);
-    std::vector<uint8_t> model{1,2,3,4,5,6,7,8,9,10};
+
+    static const uint8_t src[10] = {1,2,3,4,5,6,7,8,9,10};
+
+    std::vector<uint8_t> model(src, src + 10);
 
     memepp::multi_buffer_view mv;
-    mv.append(model.data(), model.size());
+    mv.append(src, 10);
 
     for (int i = 0; i < 50; ++i) {
         if (mv.empty()) break;
@@ -2835,5 +2844,282 @@ TEST_CASE("multi_buffer_view: fuzz random removes and consistency", "[multi_buff
 
         REQUIRE(flatten(mv) == model);
         REQUIRE(mv.size() == model.size());
+    }
+}
+
+// ---------------------------------------------------------------------------
+// {npos, npos} position must mean "end of view", matching insert(size_type npos)
+// ---------------------------------------------------------------------------
+
+TEST_CASE("multi_buffer_view: npos position inserts at end", "[multi_buffer_view][insert][npos]")
+{
+    const uint8_t a[] = { 1, 2, 3, 4, 5 };
+    const uint8_t b[] = { 9, 9 };
+
+    SECTION("insert(size_type npos) appends at end")
+    {
+        memepp::multi_buffer_view mv;
+        mv.append(a, 5);
+
+        mv.insert(memepp::multi_buffer_view::npos, b, 2);
+
+        REQUIRE(flatten(mv) == std::vector<uint8_t>{1, 2, 3, 4, 5, 9, 9});
+    }
+
+    SECTION("insert(position{npos,npos}) appends at end")
+    {
+        memepp::multi_buffer_view mv;
+        mv.append(a, 5);
+
+        memepp::multi_buffer_view::position p;
+        p.index  = memepp::multi_buffer_view::npos;
+        p.offset = memepp::multi_buffer_view::npos;
+        mv.insert(p, b, 2);
+
+        // Must agree with insert(size_type npos) above: END, not front.
+        REQUIRE(flatten(mv) == std::vector<uint8_t>{1, 2, 3, 4, 5, 9, 9});
+    }
+
+    SECTION("insert(const_iterator at npos position) appends at end")
+    {
+        memepp::multi_buffer_view mv;
+        mv.append(a, 5);
+
+        memepp::multi_buffer_view::position p;
+        p.index  = memepp::multi_buffer_view::npos;
+        p.offset = memepp::multi_buffer_view::npos;
+        memepp::multi_buffer_view::const_iterator it{ &mv, p };
+        mv.insert(it, b, 2);
+
+        REQUIRE(flatten(mv) == std::vector<uint8_t>{1, 2, 3, 4, 5, 9, 9});
+    }
+
+    SECTION("insert at end_position() appends at end")
+    {
+        memepp::multi_buffer_view mv;
+        mv.append(a, 5);
+
+        auto it = memepp::multi_buffer_view::const_iterator{ &mv, mv.end_position() };
+        mv.insert(it, b, 2);
+
+        REQUIRE(flatten(mv) == std::vector<uint8_t>{1, 2, 3, 4, 5, 9, 9});
+    }
+
+    SECTION("insert(position{0,0}) still inserts at front")
+    {
+        memepp::multi_buffer_view mv;
+        mv.append(a, 5);
+
+        memepp::multi_buffer_view::position p;
+        p.index  = 0;
+        p.offset = 0;
+        mv.insert(p, b, 2);
+
+        REQUIRE(flatten(mv) == std::vector<uint8_t>{9, 9, 1, 2, 3, 4, 5});
+    }
+}
+
+// ---------------------------------------------------------------------------
+// find(): candidate start must advance GLOBALLY on mismatch
+//
+// A failed comparison that began in an earlier view must retry from
+// start+1 in that earlier view, not from the current view's offset 0.
+// Otherwise any match straddling a view boundary is missed.
+// ---------------------------------------------------------------------------
+
+TEST_CASE("multi_buffer_view: find overlapping across view boundary", "[multi_buffer_view][find][overlap]")
+{
+    SECTION("restart inside earlier view: [1,1][1,2] needle 1,1,2")
+    {
+        const uint8_t v0[] = { 1, 1 };
+        const uint8_t v1[] = { 1, 2 };
+        memepp::multi_buffer_view mv;
+        mv.append(v0, 2);
+        mv.append(v1, 2);
+
+        const uint8_t needle[] = { 1, 1, 2 };
+        auto p = mv.find(needle, 3);
+
+        REQUIRE(p.index == 0);
+        REQUIRE(p.offset == 1);
+    }
+
+    SECTION("restart inside earlier view: [a,b,a][b,c] needle a,b,c")
+    {
+        const uint8_t v0[] = { 'a', 'b', 'a' };
+        const uint8_t v1[] = { 'b', 'c' };
+        memepp::multi_buffer_view mv;
+        mv.append(v0, 3);
+        mv.append(v1, 2);
+
+        const uint8_t needle[] = { 'a', 'b', 'c' };
+        auto p = mv.find(needle, 3);
+
+        REQUIRE(p.index == 0);
+        REQUIRE(p.offset == 2);
+    }
+
+    SECTION("shortest form: [0,0][0,2,1][0,2,2] needle 0,0,2")
+    {
+        const uint8_t v0[] = { 0, 0 };
+        const uint8_t v1[] = { 0, 2, 1 };
+        const uint8_t v2[] = { 0, 2, 2 };
+        memepp::multi_buffer_view mv;
+        mv.append(v0, 2);
+        mv.append(v1, 3);
+        mv.append(v2, 3);
+
+        const uint8_t needle[] = { 0, 0, 2 };
+        auto p = mv.find(needle, 3);
+
+        REQUIRE(p.index == 0);
+        REQUIRE(p.offset == 1);
+    }
+
+    SECTION("candidate far back: [7,1][9,9,1,2,3] needle 1,2,3")
+    {
+        const uint8_t v0[] = { 7, 1 };
+        const uint8_t v1[] = { 9, 9, 1, 2, 3 };
+        memepp::multi_buffer_view mv;
+        mv.append(v0, 2);
+        mv.append(v1, 5);
+
+        const uint8_t needle[] = { 1, 2, 3 };
+        auto p = mv.find(needle, 3);
+
+        REQUIRE(p.index == 1);
+        REQUIRE(p.offset == 2);
+    }
+
+    SECTION("no match still returns end")
+    {
+        const uint8_t v0[] = { 1, 1 };
+        const uint8_t v1[] = { 1, 2 };
+        memepp::multi_buffer_view mv;
+        mv.append(v0, 2);
+        mv.append(v1, 2);
+
+        const uint8_t needle[] = { 2, 2, 2 };
+        auto p = mv.find(needle, 3);
+
+        REQUIRE(p == mv.end_position());
+    }
+
+    SECTION("match at very end across boundary")
+    {
+        const uint8_t v0[] = { 5, 5 };
+        const uint8_t v1[] = { 5, 9 };
+        memepp::multi_buffer_view mv;
+        mv.append(v0, 2);
+        mv.append(v1, 2);
+
+        const uint8_t needle[] = { 5, 9 };
+        auto p = mv.find(needle, 2);
+
+        REQUIRE(p.index == 1);
+        REQUIRE(p.offset == 0);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Self-alias safety for mutators
+//
+// assign(*this) used to clear() the source it then copied (data loss), and
+// append/prepend(*this) inserted from their own vector's iterators while it
+// reallocated — undefined behaviour per [vector.modifiers].
+// ---------------------------------------------------------------------------
+
+TEST_CASE("multi_buffer_view: self-alias safety", "[multi_buffer_view][self-alias]")
+{
+    const uint8_t d[] = { 1, 2, 3 };
+
+    SECTION("assign(*this) is a no-op")
+    {
+        memepp::multi_buffer_view mv;
+        mv.append(d, 3);
+
+        mv.assign(mv);
+
+        REQUIRE(mv.size() == 3);
+        REQUIRE(flatten(mv) == std::vector<uint8_t>{1, 2, 3});
+    }
+
+    SECTION("append(*this) doubles content")
+    {
+        memepp::multi_buffer_view mv;
+        mv.append(d, 3);
+
+        mv.append(mv);
+
+        REQUIRE(mv.size() == 6);
+        REQUIRE(flatten(mv) == std::vector<uint8_t>{1, 2, 3, 1, 2, 3});
+    }
+
+    SECTION("prepend(*this) doubles content")
+    {
+        memepp::multi_buffer_view mv;
+        mv.append(d, 3);
+
+        mv.prepend(mv);
+
+        REQUIRE(mv.size() == 6);
+        REQUIRE(flatten(mv) == std::vector<uint8_t>{1, 2, 3, 1, 2, 3});
+    }
+
+    SECTION("push_back(*this) doubles content")
+    {
+        memepp::multi_buffer_view mv;
+        mv.append(d, 3);
+
+        mv.push_back(mv);
+
+        REQUIRE(mv.size() == 6);
+        REQUIRE(flatten(mv) == std::vector<uint8_t>{1, 2, 3, 1, 2, 3});
+    }
+
+    SECTION("push_front(*this) doubles content")
+    {
+        memepp::multi_buffer_view mv;
+        mv.append(d, 3);
+
+        mv.push_front(mv);
+
+        REQUIRE(mv.size() == 6);
+        REQUIRE(flatten(mv) == std::vector<uint8_t>{1, 2, 3, 1, 2, 3});
+    }
+
+    SECTION("insert(size_type, *this) inserts the whole view at that offset")
+    {
+        memepp::multi_buffer_view mv;
+        mv.append(d, 3);
+
+        mv.insert(static_cast<memepp::multi_buffer_view::size_type>(1), mv);
+
+        REQUIRE(mv.size() == 6);
+        REQUIRE(flatten(mv) == std::vector<uint8_t>{1, 1, 2, 3, 2, 3});
+    }
+
+    SECTION("insert(const_iterator, *this) inserts the whole view at that offset")
+    {
+        memepp::multi_buffer_view mv;
+        mv.append(d, 3);
+
+        auto it = mv.cbegin();
+        ++it;
+        mv.insert(it, mv);
+
+        REQUIRE(mv.size() == 6);
+        REQUIRE(flatten(mv) == std::vector<uint8_t>{1, 1, 2, 3, 2, 3});
+    }
+
+    SECTION("self copy-assignment keeps content")
+    {
+        memepp::multi_buffer_view mv;
+        mv.append(d, 3);
+
+        mv = mv;
+
+        REQUIRE(mv.size() == 3);
+        REQUIRE(flatten(mv) == std::vector<uint8_t>{1, 2, 3});
     }
 }

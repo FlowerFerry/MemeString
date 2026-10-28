@@ -675,8 +675,7 @@ MEME_STDCALL MemeVariableBuffer_insertWithBytes(
 		_len = strlen((const char*)_buf);
 	if ((_buf == NULL || _len == 0))
 		return (MGEC__INVAL);
-    //if (_pos < 0 || _pos > MemeVariableBuffer_size(s))
-	if ((_pos & (MemeString_byteSize(s) - _pos)) & INTPTR_MIN)
+	if (_pos < 0 || _pos > MemeString_byteSize(s))
 		return (MGEC__INVAL);
 	
     switch (MMSTR__GET_IMPLTYPE(s))
