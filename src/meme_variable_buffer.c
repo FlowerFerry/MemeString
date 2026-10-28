@@ -666,6 +666,8 @@ MEME_STDCALL MemeVariableBuffer_insertWithBytes(
 	MemeVariableBuffer_t _s, MemeInteger_t _pos, const MemeByte_t* _buf, MemeInteger_t _len)
 {
     MemeString_Const_t s = (MemeString_Const_t)_s;
+    MemeByte_t* staging = NULL;
+    MemeInteger_t result;
 
     assert(s != 0 && "MemeVariableBuffer_insertWithBytes");
     assert(MemeStringImpl_isModifiableType(MMSTR__GET_IMPLTYPE(s)) == 1
@@ -677,33 +679,51 @@ MEME_STDCALL MemeVariableBuffer_insertWithBytes(
 		return (MGEC__INVAL);
 	if (_pos < 0 || _pos > MemeString_byteSize(s))
 		return (MGEC__INVAL);
-	
+
+    /* Self-alias: inserting the buffer's own bytes.  The insert may promote
+       small->medium or realloc the medium storage, which would invalidate
+       _buf before it is read.  Copy the source first. */
+    {
+        const MemeByte_t* own = MemeString_byteData(s);
+        const MemeInteger_t own_size = MemeString_byteSize(s);
+        if (own != NULL && own_size > 0 && _buf >= own && _buf < own + own_size)
+        {
+            staging = (MemeByte_t*)mmmem_malloc((size_t)_len);
+            if (staging == NULL)
+                return (MGEC__NOMEM);
+            memcpy(staging, _buf, (size_t)_len);
+            _buf = staging;
+        }
+    }
+
     switch (MMSTR__GET_IMPLTYPE(s))
     {
     case MemeString_ImplType_small:
     {
         if (0 == MemeStringSmall_canBeAppendIt((const MemeStringSmall_t*)s, _len))
         {
-            return MemeStringSmall_insertWithBytes((MemeStringSmall_t*)s, _pos, _buf, _len);
+            result = MemeStringSmall_insertWithBytes((MemeStringSmall_t*)s, _pos, _buf, _len);
         }
         else {
-            int result = MemeStringImpl_capacityExpansionSmallToMedium(
+            result = MemeStringImpl_capacityExpansionSmallToMedium(
                 (MemeStringStack_t*)s, MemeString_byteSize(s) + _len);
-            if ((result != 0))
-                return result;
-            return MemeStringMedium_insertWithBytes((MemeStringMedium_t*)s, _pos, _buf, _len);
+            if (result == 0)
+                result = MemeStringMedium_insertWithBytes((MemeStringMedium_t*)s, _pos, _buf, _len);
         }
     } break;
     case MemeString_ImplType_medium:
     {
-        return MemeStringMedium_insertWithBytes((MemeStringMedium_t*)s, _pos, _buf, _len);
-    };
+        result = MemeStringMedium_insertWithBytes((MemeStringMedium_t*)s, _pos, _buf, _len);
+    } break;
     default: {
-        return (MGEC__OPNOTSUPP);
+        result = MGEC__OPNOTSUPP;
     } break;
     }
 
-    //return 0;
+    if (staging != NULL)
+        mmmem_free(staging);
+
+    return result;
 }
 
 MEME_EXTERN_C MEME_API MemeInteger_t
