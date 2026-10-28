@@ -11,8 +11,15 @@
 // resize(N, v) semantics:
 //   - N < current size  -> truncate to N (fill ignored)
 //   - N > current size  -> keep existing bytes, append (N - size) copies of v
-static memepp::variable_buffer build_buffer(
-	std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>> steps)
+//
+// The step list is a std::vector, NOT a std::initializer_list: copying an
+// initializer_list does not extend the lifetime of its backing array before
+// C++17, so naming one in a variable leaves a dangling pointer that reads as
+// garbage sizes (this crashed the cxx11/cxx14 builds with bad_alloc).
+using resize_step = std::pair<memepp::variable_buffer::size_type, uint8_t>;
+using resize_steps = std::vector<resize_step>;
+
+static memepp::variable_buffer build_buffer(const resize_steps& steps)
 {
 	memepp::variable_buffer b;
 	for (auto& s : steps)
@@ -20,8 +27,7 @@ static memepp::variable_buffer build_buffer(
 	return b;
 }
 
-static std::vector<uint8_t> build_expected(
-	std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>> steps)
+static std::vector<uint8_t> build_expected(const resize_steps& steps)
 {
 	std::vector<uint8_t> v;
 	for (auto& s : steps) {
@@ -63,7 +69,7 @@ TEST_CASE("memepp::variable_buffer::resize", "[variable_buffer]")
 
 	SECTION("resize to small limit with fill")
 	{
-		auto steps = std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>>{
+		resize_steps steps = {
 			{ small_limit, 0x01 }
 		};
 		auto b = build_buffer(steps);
@@ -77,7 +83,7 @@ TEST_CASE("memepp::variable_buffer::resize", "[variable_buffer]")
 
 	SECTION("resize down within small")
 	{
-		auto steps = std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>>{
+		resize_steps steps = {
 			{ small_limit, 0x01 },
 			{ 10, 0x00 }
 		};
@@ -92,7 +98,7 @@ TEST_CASE("memepp::variable_buffer::resize", "[variable_buffer]")
 
 	SECTION("resize to 20 with fill (small on x64, medium on x86)")
 	{
-		auto steps = std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>>{
+		resize_steps steps = {
 			{ small_limit, 0x01 },
 			{ 10, 0x00 },
 			{ 20, 0x02 }
@@ -114,7 +120,7 @@ TEST_CASE("memepp::variable_buffer::resize", "[variable_buffer]")
 
 	SECTION("resize down to 10 keeps truncation semantics")
 	{
-		auto steps = std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>>{
+		resize_steps steps = {
 			{ small_limit, 0x01 },
 			{ 10, 0x00 },
 			{ 20, 0x02 },
@@ -137,7 +143,7 @@ TEST_CASE("memepp::variable_buffer::resize", "[variable_buffer]")
 
 	SECTION("resize to 23 with fill promotes to medium")
 	{
-		auto steps = std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>>{
+		resize_steps steps = {
 			{ small_limit, 0x01 },
 			{ 10, 0x00 },
 			{ 20, 0x02 },
@@ -157,7 +163,7 @@ TEST_CASE("memepp::variable_buffer::resize", "[variable_buffer]")
 
 	SECTION("resize to 42 with fill (medium growth)")
 	{
-		auto steps = std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>>{
+		resize_steps steps = {
 			{ small_limit, 0x01 },
 			{ 10, 0x00 },
 			{ 20, 0x02 },
@@ -178,7 +184,7 @@ TEST_CASE("memepp::variable_buffer::resize", "[variable_buffer]")
 
 	SECTION("resize to 128 with fill (medium growth)")
 	{
-		auto steps = std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>>{
+		resize_steps steps = {
 			{ small_limit, 0x01 },
 			{ 10, 0x00 },
 			{ 20, 0x02 },
@@ -200,7 +206,7 @@ TEST_CASE("memepp::variable_buffer::resize", "[variable_buffer]")
 
 	SECTION("resize down to 1 keeps medium storage")
 	{
-		auto steps = std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>>{
+		resize_steps steps = {
 			{ small_limit, 0x01 },
 			{ 10, 0x00 },
 			{ 20, 0x02 },
@@ -223,7 +229,7 @@ TEST_CASE("memepp::variable_buffer::resize", "[variable_buffer]")
 
 	SECTION("resize to 256 with fill (medium growth)")
 	{
-		auto steps = std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>>{
+		resize_steps steps = {
 			{ small_limit, 0x01 },
 			{ 10, 0x00 },
 			{ 20, 0x02 },
@@ -247,7 +253,7 @@ TEST_CASE("memepp::variable_buffer::resize", "[variable_buffer]")
 
 	SECTION("resize to 65536 with fill (medium growth)")
 	{
-		auto steps = std::initializer_list<std::pair<memepp::variable_buffer::size_type, uint8_t>>{
+		resize_steps steps = {
 			{ small_limit, 0x01 },
 			{ 10, 0x00 },
 			{ 20, 0x02 },
