@@ -113,18 +113,16 @@ TEST_CASE("memepp::string_builder release clears builder", "[string_builder]")
 // copy & move constructors
 // ---------------------------------------------------------------------------
 
-TEST_CASE("memepp::string_builder copy constructor steals content", "[string_builder]")
+TEST_CASE("memepp::string_builder copy constructor", "[string_builder]")
 {
     memepp::string_builder src;
     src += "copy_src";
 
     memepp::string_builder dst(src);
 
-    // copy constructor uses swap (string_builder_impl.hpp): dst steals src's
-    // content and src is left empty -- auto_ptr-like ownership transfer, NOT a
-    // deep copy. Declared as string_builder(string_builder&), non-const on purpose.
+    // Deep copy: dst receives src's content and src is left untouched.
     REQUIRE(dst.generate() == "copy_src");
-    REQUIRE(src.generate() == "");
+    REQUIRE(src.generate() == "copy_src");
 }
 
 TEST_CASE("memepp::string_builder move constructor", "[string_builder]")
@@ -134,6 +132,7 @@ TEST_CASE("memepp::string_builder move constructor", "[string_builder]")
 
     memepp::string_builder dst(std::move(src));
     REQUIRE(dst.generate() == "move_src");
+    REQUIRE(src.generate() == "");  // src should be empty after move
 }
 
 // ---------------------------------------------------------------------------
@@ -365,10 +364,10 @@ TEST_CASE("memepp::string_builder move assignment leaves source empty", "[string
 }
 
 // ---------------------------------------------------------------------------
-// copy assignment (swap semantics)
+// copy assignment
 // ---------------------------------------------------------------------------
 
-TEST_CASE("memepp::string_builder copy assignment swaps content", "[string_builder]")
+TEST_CASE("memepp::string_builder copy assignment", "[string_builder]")
 {
     memepp::string_builder src;
     src += "src_data";
@@ -377,8 +376,8 @@ TEST_CASE("memepp::string_builder copy assignment swaps content", "[string_build
     dst += "dst_data";
     dst = src;
 
-    // copy assignment uses swap: dst gets src's content, src gets dst's old content
-    REQUIRE(src.generate() == "dst_data");
+    // Deep copy: dst receives src's content and src is left untouched.
+    REQUIRE(src.generate() == "src_data");
     REQUIRE(dst.generate() == "src_data");
 }
 
@@ -410,20 +409,15 @@ TEST_CASE("memepp::string_builder native_handle returns valid reference", "[stri
 }
 
 // ---------------------------------------------------------------------------
-// prepend operator+ — (const string&) + string_builder&  (lvalue ref return)
-// ---------------------------------------------------------------------------
-
-//TEST_CASE("memepp::string_builder operator+(const string&, string_builder&) prepends", "[string_builder]")
-//{
-//    memepp::string s("prefix_");
-//    memepp::string_builder b;
-//    b += "suffix";
+// operator+(const string&, string_builder&) is intentionally absent.
 //
-//    // prepend s before b's content, returns lvalue ref to same builder
-//    memepp::string_builder& ref = s + b;
-//    REQUIRE(&ref == &b);
-//    REQUIRE(b.generate() == "prefix_suffix");
-//}
+// Returning `string_builder&` from `lhs + rhs` would mean the operator mutates
+// its right-hand operand and hands back a reference to it, which contradicts
+// the usual expectation that `+` leaves both sides untouched and yields a new
+// value. The overload is commented out in string_builder_def.hpp; the rvalue
+// form, operator+(const string&, string_builder&&), is the supported one and
+// is covered below.
+// ---------------------------------------------------------------------------
 
 // ---------------------------------------------------------------------------
 // prepend operator+ — (const string&) + string_builder&&  (rvalue return)

@@ -18,13 +18,13 @@ inline namespace MMPP_NAMESPACE {
 		using size_type = mmint_t;
 
 		string_builder();
-		string_builder(string_builder& _other);
+		string_builder(const string_builder& _other);
 		string_builder(string_builder&& _other) noexcept;
 
 		~string_builder();
 
 		string_builder& operator=(string_builder&& _other) noexcept;
-		string_builder& operator=(string_builder& _other);
+		string_builder& operator=(const string_builder& _other);
 
 		string_builder& operator=(const string& _other);
 		string_builder& operator=(const char* _other);

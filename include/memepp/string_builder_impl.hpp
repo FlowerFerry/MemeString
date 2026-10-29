@@ -16,10 +16,12 @@ inline namespace MMPP_NAMESPACE {
 		MemeStringBuilderStack_init(&data_, MMSBLDR__OBJ_SIZE);
 	}
 
-	MEMEPP__IMPL_INLINE string_builder::string_builder(string_builder& _other)
+	MEMEPP__IMPL_INLINE string_builder::string_builder(const string_builder& _other)
 	{
 		MemeStringBuilderStack_init(&data_, MMSBLDR__OBJ_SIZE);
-		MemeStringBuilderStack_swap(&data_, &(_other.data_), MMSBLDR__OBJ_SIZE);
+		MemeStringBuilderStack_assignByOther(
+			reinterpret_cast<mmsbldrstk_t*>(&data_), MMSBLDR__OBJ_SIZE,
+			reinterpret_cast<mmsbldr_const_t>(&_other.data_));
 	}
 	
 	//MEMEPP__IMPL_INLINE string_builder::string_builder(const string& _in)
@@ -57,12 +59,14 @@ inline namespace MMPP_NAMESPACE {
 		return *this;
 	}
 
-	MEMEPP__IMPL_INLINE string_builder& string_builder::operator=(string_builder& _other)
+	MEMEPP__IMPL_INLINE string_builder& string_builder::operator=(const string_builder& _other)
 	{
         if (this == &_other) 
 			return *this;
 		
-		MemeStringBuilderStack_swap(&data_, &(_other.data_), MEME_STRING_BUILDER__OBJECT_SIZE);
+		MemeStringBuilderStack_assignByOther(
+			reinterpret_cast<mmsbldrstk_t*>(&data_), MMSBLDR__OBJ_SIZE,
+			reinterpret_cast<mmsbldr_const_t>(&_other.data_));
 		return *this;
 	}
 
