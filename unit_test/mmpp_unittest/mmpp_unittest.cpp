@@ -1339,9 +1339,9 @@ TEST_CASE("memepp::string_builder append", "[string_builder]")
     auto sb80 = memepp::string_builder{} + u8"1234567890" + s2 + u8"abcdefghij" + s1 + u8"1234567890";
     REQUIRE(sb80 == u8"1234567890abcdefghijabcdefghij12345678901234567890");
 
-	// copy-ctor steals: auto_ptr-like ownership transfer (see string_builder_impl.hpp)
+	// copy-ctor performs a deep copy (see string_builder_impl.hpp)
 	auto sb81 = sb80;
-	REQUIRE(sb80 == u8"");
+	REQUIRE(sb80 == u8"1234567890abcdefghijabcdefghij12345678901234567890");
     REQUIRE(sb81 == u8"1234567890abcdefghijabcdefghij12345678901234567890");
 
 	memepp::string s81 = sb81;

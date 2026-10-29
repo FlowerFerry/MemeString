@@ -139,6 +139,13 @@ TEST_CASE("memepp::string DLL import/export — user storage (deep copy verifica
     REQUIRE(imported == src);
     REQUIRE(imported.storage_type() == memepp::string_storage_t::large);
 
+    // Deep copy means a NEW allocation: the data pointers must differ.
+    REQUIRE(imported.data() != src.data());
+
+    // Mutating the source must not disturb the copy.
+    src = "replaced";
+    REQUIRE(imported == kLongString);
+
     // --- import (&&): export to raw, import as rvalue ---
     {
         auto raw = memepp::export_into_dll<mmstrstk_t>(imported, MMSTR__OBJ_SIZE);
@@ -146,13 +153,24 @@ TEST_CASE("memepp::string DLL import/export — user storage (deep copy verifica
             std::move(raw), MMSTR__OBJ_SIZE);
         REQUIRE(imported2 == kLongString);
         REQUIRE(imported2.storage_type() == memepp::string_storage_t::large);
+        // Still a distinct allocation from the object it came from.
+        REQUIRE(imported2.data() != imported.data());
     }
 
-    // --- export (const&): large is shared (storage stays large) ---
+    // --- export (const&): large is shared, not copied ---
+    const void* shared_ptr = static_cast<const void*>(imported.data());
     auto stk = memepp::export_into_dll<mmstrstk_t>(imported, MMSTR__OBJ_SIZE);
     MEGOPP_UTIL__ON_SCOPE_CLEANUP([&]() { mmstrstk_uninit_v0(&stk, MMSTR__OBJ_SIZE); });
     REQUIRE_CSTR_EQ(MemeString_cStr(memepp::to_pointer(stk)), kLongString);
     REQUIRE(MemeString_storageType(memepp::to_pointer(stk)) == MemeString_StorageType_large);
+
+    // Shared storage: the exported stack points at the SAME bytes.
+    REQUIRE(static_cast<const void*>(MemeString_byteData(memepp::to_pointer(stk))) == shared_ptr);
+
+    // Dropping our reference must not invalidate the exported stack
+    // (this is what the reference count is for).
+    imported = "released";
+    REQUIRE_CSTR_EQ(MemeString_cStr(memepp::to_pointer(stk)), kLongString);
 
     // --- content preserved after import round-trip ---
     auto rt = memepp::import_from_dll<memepp::string>(stk, MMSTR__OBJ_SIZE);
@@ -190,6 +208,12 @@ TEST_CASE("memepp::string DLL import/export — large storage (verify deep copy)
     auto imported = memepp::import_from_dll<memepp::string>(
         src.native_handle(), MMSTR__OBJ_SIZE);
     REQUIRE(imported == src);
+    REQUIRE(imported.storage_type() == memepp::string_storage_t::large);
+
+    // Deep copy: a distinct allocation, independent of the source.
+    REQUIRE(imported.data() != src.data());
+    src = "replaced";
+    REQUIRE(imported == kLongString);
 
     // --- import (&&): export to raw, import as rvalue ---
     {
@@ -197,13 +221,20 @@ TEST_CASE("memepp::string DLL import/export — large storage (verify deep copy)
         auto imported2 = memepp::import_from_dll<memepp::string>(
             std::move(raw), MMSTR__OBJ_SIZE);
         REQUIRE(imported2 == kLongString);
+        REQUIRE(imported2.data() != imported.data());
     }
 
     // --- export (const&): large shares (by design) ---
+    const void* shared_ptr = static_cast<const void*>(imported.data());
     auto stk = memepp::export_into_dll<mmstrstk_t>(imported, MMSTR__OBJ_SIZE);
     MEGOPP_UTIL__ON_SCOPE_CLEANUP([&]() { mmstrstk_uninit_v0(&stk, MMSTR__OBJ_SIZE); });
     REQUIRE_CSTR_EQ(MemeString_cStr(memepp::to_pointer(stk)), kLongString);
     REQUIRE(MemeString_storageType(memepp::to_pointer(stk)) == MemeString_StorageType_large);
+
+    // Shared storage: same underlying bytes, kept alive by the refcount.
+    REQUIRE(static_cast<const void*>(MemeString_byteData(memepp::to_pointer(stk))) == shared_ptr);
+    imported = "released";
+    REQUIRE_CSTR_EQ(MemeString_cStr(memepp::to_pointer(stk)), kLongString);
 }
 
 TEST_CASE("memepp::string DLL import/export — export&& transfers ownership", "[dll][string]")
@@ -265,18 +296,31 @@ TEST_CASE("memepp::buffer DLL import/export — large storage (deep copy)", "[dl
     for (size_t i = 0; i < sizeof(kBufLarge); ++i)
         REQUIRE(imported.at(static_cast<mmint_t>(i)) == kBufLarge[i]);
 
+    // Deep copy: a distinct allocation from the source buffer.
+    REQUIRE(imported.data() != src.data());
+
     // --- import (&&) ---
     {
         auto raw = memepp::export_into_dll<mmbufstk_t>(imported, MMSTR__OBJ_SIZE);
         auto imported2 = memepp::import_from_dll<memepp::buffer>(
             std::move(raw), MMSTR__OBJ_SIZE);
         REQUIRE(imported2.size() == sizeof(kBufLarge));
+        REQUIRE(imported2.data() != imported.data());
     }
 
     // --- export (const&): large shares ---
+    const void* shared_ptr = static_cast<const void*>(imported.data());
     auto stk = memepp::export_into_dll<mmbufstk_t>(imported, MMSTR__OBJ_SIZE);
     MEGOPP_UTIL__ON_SCOPE_CLEANUP([&]() { MemeBufferStack_unInit(&stk, MMSTR__OBJ_SIZE); });
     REQUIRE(MemeBuffer_size(memepp::to_pointer(stk)) == sizeof(kBufLarge));
+
+    // Shared storage: same underlying bytes, kept alive by the refcount.
+    REQUIRE(static_cast<const void*>(MemeBuffer_data(memepp::to_pointer(stk))) == shared_ptr);
+
+    // Dropping our reference must not invalidate the exported stack.
+    imported = memepp::buffer{ kBufData, kBufLen };
+    REQUIRE(MemeBuffer_size(memepp::to_pointer(stk)) == sizeof(kBufLarge));
+    REQUIRE(MemeBuffer_data(memepp::to_pointer(stk))[0] == kBufLarge[0]);
     REQUIRE(MemeBuffer_storageType(memepp::to_pointer(stk)) == MemeBuffer_StorageType_large);
 }
 
