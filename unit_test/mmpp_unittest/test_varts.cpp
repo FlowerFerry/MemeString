@@ -739,3 +739,53 @@ TEST_CASE("memepp::varts timestamp out-of-range becomes invalid", "[varts]")
         REQUIRE(c.userdata() == 3);
     }
 }
+
+// ---------------------------------------------------------------------------
+// time_part / ms_part at the field boundaries
+//
+// MMVTS__TS_MAX sits far below the 56-bit field limit, so the split has to
+// stay exact all the way up to the largest storable value.
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::varts time_part and ms_part at field boundaries", "[varts]")
+{
+    SECTION("MMVTS__TS_MAX")
+    {
+        memepp::varts vts;
+        vts.set_timestamp(MMVTS__TS_MAX);
+
+        REQUIRE(vts.is_ts_valid());
+        REQUIRE(vts.timestamp() == MMVTS__TS_MAX);
+        REQUIRE(vts.time_part() == static_cast<mgu_time_t>(MMVTS__TS_MAX / 1000));
+        REQUIRE(vts.ms_part() == static_cast<int>(MMVTS__TS_MAX % 1000));
+    }
+
+    SECTION("largest storable value: 2^56 - 2")
+    {
+        const mgu_timestamp_t top = (static_cast<mgu_timestamp_t>(1) << 56) - 2;
+
+        memepp::varts vts;
+        vts.set_timestamp(top);
+
+        REQUIRE(vts.is_ts_valid());
+        REQUIRE(vts.timestamp() == top);
+        REQUIRE(vts.time_part() == static_cast<mgu_time_t>(top / 1000));
+        REQUIRE(vts.ms_part() == static_cast<int>(top % 1000));
+    }
+
+    SECTION("sentinel 2^56 - 1 is indistinguishable from MMVTS__TS_INVALID")
+    {
+        // Design limitation: a real timestamp at this magnitude (about 2.3
+        // million years past the epoch) collides with the invalid marker.
+        const mgu_timestamp_t sentinel = (static_cast<mgu_timestamp_t>(1) << 56) - 1;
+        REQUIRE(sentinel == static_cast<mgu_timestamp_t>(MMVTS__TS_INVALID));
+
+        memepp::varts vts;
+        vts.set_timestamp(sentinel);
+
+        REQUIRE(!vts.is_ts_valid());
+        REQUIRE(vts.timestamp() == -1);
+        REQUIRE(vts.time_part() == -1);
+        REQUIRE(vts.ms_part() == -1);
+    }
+}
