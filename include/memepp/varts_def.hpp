@@ -54,58 +54,40 @@ inline namespace MMPP_NAMESPACE {
             : var_(_var)
         {
             ts_ud_.ud_ = 0;
-            if (_ts == -1)
-                ts_ud_.ts_ = MMVTS__TS_INVALID;
-            else
-                ts_ud_.ts_ = _ts;
+            set_timestamp(_ts);
         }
 
         varts(variant&& _var, mgu_timestamp_t _ts)
             : var_(std::move(_var))
         {
             ts_ud_.ud_ = 0;
-            if (_ts == -1)
-                ts_ud_.ts_ = MMVTS__TS_INVALID;
-            else
-                ts_ud_.ts_ = _ts;
+            set_timestamp(_ts);
         }
         
         varts(const variant& _var, mgu_timestamp_t _ts, int8_t _ud)
             : var_(_var)
         {
             ts_ud_.ud_ = _ud;
-            if (_ts == -1)
-                ts_ud_.ts_ = MMVTS__TS_INVALID;
-            else
-                ts_ud_.ts_ = _ts;
+            set_timestamp(_ts);
         }
 
         varts(variant&& _var, mgu_timestamp_t _ts, int8_t _ud) noexcept
             : var_(std::move(_var))
         {
             ts_ud_.ud_ = _ud;
-            if (_ts == -1)
-                ts_ud_.ts_ = MMVTS__TS_INVALID;
-            else
-                ts_ud_.ts_ = _ts;
+            set_timestamp(_ts);
         }
 
         varts(mgu_timestamp_t _ts)
         {
             ts_ud_.ud_ = 0;
-            if (_ts == -1)
-                ts_ud_.ts_ = MMVTS__TS_INVALID;
-            else
-                ts_ud_.ts_ = _ts;
+            set_timestamp(_ts);
         }
 
         varts(mgu_timestamp_t _ts, int8_t _ud)
         {
             ts_ud_.ud_ = _ud;
-            if (_ts == -1)
-                ts_ud_.ts_ = MMVTS__TS_INVALID;
-            else
-                ts_ud_.ts_ = _ts;
+            set_timestamp(_ts);
         }
 
         varts& operator=(const varts& _other)
@@ -186,7 +168,12 @@ inline namespace MMPP_NAMESPACE {
 
         void set_timestamp(mgu_timestamp_t _ts) noexcept
         {
-            if (_ts == -1)
+            // The timestamp lives in a 56-bit field.  Values outside that range
+            // would be silently truncated (or become MMVTS__TS_INVALID by
+            // accident), so mark them invalid instead of storing corrupted data.
+            if (_ts < 0)
+                ts_ud_.ts_ = MMVTS__TS_INVALID;
+            else if ((uint64_t)_ts >= ((uint64_t)1 << 56))
                 ts_ud_.ts_ = MMVTS__TS_INVALID;
             else
                 ts_ud_.ts_ = (uint64_t)_ts;

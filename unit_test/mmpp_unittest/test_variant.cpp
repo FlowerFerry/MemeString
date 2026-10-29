@@ -7,6 +7,8 @@
 #include <memepp/rune.hpp>
 #include <memepp/string_view.hpp>
 #include <memepp/buffer_view.hpp>
+#include <cmath>
+#include <limits>
 
 // ---------------------------------------------------------------------------
 // default constructor — null variant
@@ -860,4 +862,407 @@ TEST_CASE("memepp::variant export_into_dll rvalue ref", "[variant]")
     memepp::variant v(std::move(exported));
     REQUIRE(v.is_type(memepp::meta::typid::int64));
     REQUIRE(v.get_or<int64_t>() == 88LL);
+}
+
+// ---------------------------------------------------------------------------
+// try_convert: NaN / inf -> integer must be rejected
+//
+// Converting NaN or infinity to an integer type is undefined behaviour in C,
+// so these paths return MGEC__RANGE instead of letting the C cast decide.
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::variant try_convert NaN to integer fails with MGEC__RANGE", "[variant]")
+    {
+            memepp::variant v(std::nan(""));
+
+            SECTION("NaN -> mmint_t")
+            {
+                mmint_t out = 12345;
+                REQUIRE(v.try_convert(out) == MGEC__RANGE);
+                REQUIRE(out == 12345);  // untouched
+            }
+
+            SECTION("NaN -> size_t")
+            {
+                size_t out = 12345;
+                REQUIRE(v.try_convert(out) == MGEC__RANGE);
+                REQUIRE(out == 12345);  // untouched
+            }
+
+    #if INTPTR_MAX != INT32_MAX
+            SECTION("NaN -> int32_t")
+            {
+                int32_t out = 12345;
+                REQUIRE(v.try_convert(out) == MGEC__RANGE);
+                REQUIRE(out == 12345);  // untouched
+            }
+
+            SECTION("NaN -> uint32_t")
+            {
+                uint32_t out = 12345;
+                REQUIRE(v.try_convert(out) == MGEC__RANGE);
+                REQUIRE(out == 12345);  // untouched
+            }
+    #endif
+    }
+
+    TEST_CASE("memepp::variant try_convert infinity to integer fails with MGEC__RANGE", "[variant]")
+    {
+            SECTION("+inf -> mmint_t")
+            {
+                memepp::variant v(std::numeric_limits<double>::infinity());
+                mmint_t out = 12345;
+                REQUIRE(v.try_convert(out) == MGEC__RANGE);
+                REQUIRE(out == 12345);
+            }
+
+            SECTION("-inf -> mmint_t")
+            {
+                memepp::variant v(-std::numeric_limits<double>::infinity());
+                mmint_t out = 12345;
+                REQUIRE(v.try_convert(out) == MGEC__RANGE);
+                REQUIRE(out == 12345);
+            }
+
+            SECTION("+inf -> size_t")
+            {
+                memepp::variant v(std::numeric_limits<double>::infinity());
+                size_t out = 12345;
+                REQUIRE(v.try_convert(out) == MGEC__RANGE);
+                REQUIRE(out == 12345);
+            }
+
+    #if INTPTR_MAX != INT32_MAX
+            SECTION("+inf -> int32_t")
+            {
+                memepp::variant v(std::numeric_limits<double>::infinity());
+                int32_t out = 12345;
+                REQUIRE(v.try_convert(out) == MGEC__RANGE);
+                REQUIRE(out == 12345);
+            }
+    #endif
+    }
+
+    TEST_CASE("memepp::variant try_convert finite double to integer keeps truncation", "[variant]")
+    {
+            SECTION("3.9 -> mmint_t truncates toward zero")
+            {
+                memepp::variant v(3.9);
+                mmint_t out = 0;
+                REQUIRE(v.try_convert(out) == 0);
+                REQUIRE(out == 3);
+            }
+
+            SECTION("-3.9 -> mmint_t truncates toward zero")
+            {
+                memepp::variant v(-3.9);
+                mmint_t out = 0;
+                REQUIRE(v.try_convert(out) == 0);
+                REQUIRE(out == -3);
+            }
+
+            SECTION("3.9 -> size_t truncates toward zero")
+            {
+                memepp::variant v(3.9);
+                size_t out = 0;
+                REQUIRE(v.try_convert(out) == 0);
+                REQUIRE(out == static_cast<size_t>(3));
+            }
+
+    #if INTPTR_MAX != INT32_MAX
+            SECTION("3.9 -> int32_t truncates toward zero")
+            {
+                memepp::variant v(3.9);
+                int32_t out = 0;
+                REQUIRE(v.try_convert(out) == 0);
+                REQUIRE(out == 3);
+            }
+
+            SECTION("0.0 -> uint32_t is exact")
+            {
+                memepp::variant v(0.0);
+                uint32_t out = 99;
+                REQUIRE(v.try_convert(out) == 0);
+                REQUIRE(out == 0u);
+            }
+    #endif
+    }
+
+    // ---------------------------------------------------------------------------
+    // try_convert: NaN -> double is a no-op (double to double)
+    // ---------------------------------------------------------------------------
+
+    TEST_CASE("memepp::variant try_convert NaN to double succeeds", "[variant]")
+    {
+        memepp::variant v(std::nan(""));
+        double out = 0.0;
+        REQUIRE(v.try_convert(out) == 0);
+        REQUIRE(std::isnan(out));
+    }
+
+    // ---------------------------------------------------------------------------
+    // try_convert: string -> number (strtoll / strtoull / strtod paths)
+    // ---------------------------------------------------------------------------
+
+    TEST_CASE("memepp::variant try_convert string to mmint_t", "[variant]")
+    {
+        SECTION("plain decimal")
+        {
+            memepp::variant v(memepp::string("42"));
+            mmint_t out = 0;
+            REQUIRE(v.try_convert(out) == 0);
+            REQUIRE(out == 42);
+        }
+
+        SECTION("negative decimal")
+        {
+            memepp::variant v(memepp::string("-1234"));
+            mmint_t out = 0;
+            REQUIRE(v.try_convert(out) == 0);
+            REQUIRE(out == -1234);
+        }
+
+        SECTION("hex with base 0 prefix")
+        {
+            memepp::variant v(memepp::string("0x1F"));
+            mmint_t out = 0;
+            REQUIRE(v.try_convert(out) == 0);
+            REQUIRE(out == 31);
+        }
+
+        SECTION("octal with base 0 prefix")
+        {
+            memepp::variant v(memepp::string("0755"));
+            mmint_t out = 0;
+            REQUIRE(v.try_convert(out) == 0);
+            REQUIRE(out == 493);
+        }
+
+        SECTION("no digits yields MGEC__INVAL")
+        {
+            memepp::variant v(memepp::string("abc"));
+            mmint_t out = 12345;
+            REQUIRE(v.try_convert(out) == MGEC__INVAL);
+        }
+
+        SECTION("empty string yields MGEC__INVAL")
+        {
+            memepp::variant v(memepp::string(""));
+            mmint_t out = 12345;
+            REQUIRE(v.try_convert(out) == MGEC__INVAL);
+        }
+
+        SECTION("overflow yields MGEC__RANGE")
+        {
+            memepp::variant v(memepp::string("99999999999999999999999999"));
+            mmint_t out = 0;
+            REQUIRE(v.try_convert(out) == MGEC__RANGE);
+        }
+
+        SECTION("trailing garbage is accepted (documented current behaviour)")
+        {
+            memepp::variant v(memepp::string("12abc"));
+            mmint_t out = 0;
+            REQUIRE(v.try_convert(out) == 0);
+            REQUIRE(out == 12);
+        }
+
+        SECTION("stale errno is not reused after a successful parse")
+        {
+            // Parse an overflowing value first to set ERANGE, then a valid one.
+            memepp::variant big(memepp::string("99999999999999999999999999"));
+            mmint_t sink = 0;
+            REQUIRE(big.try_convert(sink) == MGEC__RANGE);
+
+            // errno must be reset before the next parse, so this must succeed.
+            memepp::variant ok(memepp::string("7"));
+            mmint_t out = 0;
+            REQUIRE(ok.try_convert(out) == 0);
+            REQUIRE(out == 7);
+        }
+    }
+
+    TEST_CASE("memepp::variant try_convert string to size_t", "[variant]")
+    {
+        SECTION("plain decimal")
+        {
+            memepp::variant v(memepp::string("1234"));
+            size_t out = 0;
+            REQUIRE(v.try_convert(out) == 0);
+            REQUIRE(out == static_cast<size_t>(1234));
+        }
+
+        SECTION("hex with base 0 prefix")
+        {
+            memepp::variant v(memepp::string("0xAB"));
+            size_t out = 0;
+            REQUIRE(v.try_convert(out) == 0);
+            REQUIRE(out == static_cast<size_t>(0xAB));
+        }
+
+        SECTION("no digits yields MGEC__INVAL")
+        {
+            memepp::variant v(memepp::string("xyz"));
+            size_t out = 12345;
+            REQUIRE(v.try_convert(out) == MGEC__INVAL);
+        }
+
+        SECTION("negative wraps (documented current behaviour)")
+        {
+            memepp::variant v(memepp::string("-1"));
+            size_t out = 0;
+            REQUIRE(v.try_convert(out) == 0);
+            REQUIRE(out == static_cast<size_t>(-1));
+        }
+
+        SECTION("stale errno is not reused after a successful parse")
+        {
+            memepp::variant big(memepp::string("999999999999999999999999999999"));
+            size_t sink = 0;
+            REQUIRE(big.try_convert(sink) == MGEC__RANGE);
+
+            memepp::variant ok(memepp::string("9"));
+            size_t out = 0;
+            REQUIRE(ok.try_convert(out) == 0);
+            REQUIRE(out == static_cast<size_t>(9));
+        }
+    }
+
+    TEST_CASE("memepp::variant try_convert string to double", "[variant]")
+    {
+        SECTION("plain decimal")
+        {
+            memepp::variant v(memepp::string("3.5"));
+            double out = 0.0;
+            REQUIRE(v.try_convert(out) == 0);
+            REQUIRE(out == Approx(3.5));
+        }
+
+        SECTION("negative")
+        {
+            memepp::variant v(memepp::string("-2.25"));
+            double out = 0.0;
+            REQUIRE(v.try_convert(out) == 0);
+            REQUIRE(out == Approx(-2.25));
+        }
+
+        SECTION("exponent notation")
+        {
+            memepp::variant v(memepp::string("1.5e3"));
+            double out = 0.0;
+            REQUIRE(v.try_convert(out) == 0);
+            REQUIRE(out == Approx(1500.0));
+        }
+
+        SECTION("no digits yields MGEC__INVAL and NaN")
+        {
+            memepp::variant v(memepp::string("abc"));
+            double out = 1.0;
+            REQUIRE(v.try_convert(out) == MGEC__INVAL);
+            REQUIRE(std::isnan(out));
+        }
+
+        SECTION("stale errno is not reused after a successful parse")
+        {
+            memepp::variant big(memepp::string("1e400"));
+            double sink = 0.0;
+            REQUIRE(big.try_convert(sink) == MGEC__RANGE);
+
+            memepp::variant ok(memepp::string("2.5"));
+            double out = 0.0;
+            REQUIRE(ok.try_convert(out) == 0);
+            REQUIRE(out == Approx(2.5));
+        }
+    }
+
+// ---------------------------------------------------------------------------
+// try_convert: unsupported source types
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::variant try_convert — unsupported source types", "[variant]")
+{
+    SECTION("null -> mmint_t yields OPNOTSUPP")
+    {
+        memepp::variant v;  // null
+        mmint_t out = 12345;
+        REQUIRE(v.try_convert(out) == MGEC__OPNOTSUPP);
+        REQUIRE(out == 12345);  // untouched
+    }
+
+    SECTION("null -> size_t yields OPNOTSUPP")
+    {
+        memepp::variant v;
+        size_t out = 12345;
+        REQUIRE(v.try_convert(out) == MGEC__OPNOTSUPP);
+        REQUIRE(out == 12345);
+    }
+
+    SECTION("null -> double yields OPNOTSUPP and NaN")
+    {
+        memepp::variant v;
+        double out = 1.0;
+        REQUIRE(v.try_convert(out) == MGEC__OPNOTSUPP);
+        REQUIRE(std::isnan(out));
+    }
+
+    SECTION("null -> bool yields OPNOTSUPP")
+    {
+        memepp::variant v;
+        bool out = true;
+        REQUIRE(v.try_convert(out) == MGEC__OPNOTSUPP);
+        REQUIRE(out == true);  // untouched
+    }
+
+    SECTION("buffer -> mmint_t yields OPNOTSUPP")
+    {
+        const uint8_t raw[] = {1, 2};
+        memepp::buffer buf(raw, 2);
+        memepp::variant v(buf);
+        mmint_t out = 12345;
+        REQUIRE(v.try_convert(out) == MGEC__OPNOTSUPP);
+        REQUIRE(out == 12345);
+    }
+
+    SECTION("varbuf -> mmint_t yields OPNOTSUPP")
+    {
+        memepp::variable_buffer vb;
+        vb.push_back(static_cast<uint8_t>(1));
+        memepp::variant v(vb);
+        mmint_t out = 12345;
+        REQUIRE(v.try_convert(out) == MGEC__OPNOTSUPP);
+        REQUIRE(out == 12345);
+    }
+
+    SECTION("rune -> mmint_t yields OPNOTSUPP")
+    {
+        memepp::rune r('X');
+        memepp::variant v(r);
+        mmint_t out = 12345;
+        REQUIRE(v.try_convert(out) == MGEC__OPNOTSUPP);
+        REQUIRE(out == 12345);
+    }
+
+    SECTION("string \"true\" -> bool succeeds")
+    {
+        memepp::variant v(memepp::string("true"));
+        bool out = false;
+        REQUIRE(v.try_convert(out) == 0);
+        REQUIRE(out == true);
+    }
+
+    SECTION("string \"false\" -> bool succeeds")
+    {
+        memepp::variant v(memepp::string("false"));
+        bool out = true;
+        REQUIRE(v.try_convert(out) == 0);
+        REQUIRE(out == false);
+    }
+
+    SECTION("string -> bool succeeds for numeric string")
+    {
+        memepp::variant v(memepp::string("42"));
+        bool out = false;
+        REQUIRE(v.try_convert(out) == 0);
+        REQUIRE(out == true);  // non-zero = true
+    }
 }

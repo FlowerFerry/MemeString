@@ -729,12 +729,19 @@ MemeVariantStack_convToInt(
     case MMMETA_TYPID__NULL: {
         return MGEC__OPNOTSUPP;
     }
+    case MMMETA_TYPID__DOUBLE: {
+        /* NaN/inf -> integer is undefined behaviour in C. Reject it instead of
+           letting the C cast decide. */
+        if (isnan(obj->d.d) || isinf(obj->d.d))
+            return MGEC__RANGE;
+        *_out = MemeVariantImpl_basicNumberToInt(obj);
+        return MGEC__OK;
+    }
     case MMMETA_TYPID__BYTE:
     case MMMETA_TYPID__CHAR:
     case MMMETA_TYPID__WCHAR:
     case MMMETA_TYPID__INT64:
-    case MMMETA_TYPID__UINT64:
-    case MMMETA_TYPID__DOUBLE: {
+    case MMMETA_TYPID__UINT64: {
         *_out = MemeVariantImpl_basicNumberToInt(obj);
         return MGEC__OK;
     }
@@ -742,7 +749,19 @@ MemeVariantStack_convToInt(
         // The string class is not a view mode
 
         const char* ptr = MemeString_cStr((mmstr_cptr_t) & (obj->d.str));
+        
+        // Special case: "true" / "false" -> 1 / 0
+        if (strcmp(ptr, "true") == 0) {
+            *_out = 1;
+            return MGEC__OK;
+        }
+        if (strcmp(ptr, "false") == 0) {
+            *_out = 0;
+            return MGEC__OK;
+        }
+        
         char* end = NULL;
+        errno = 0;  // Reset before strtoll to avoid stale ERANGE
         *_out = (mmint_t)strtoll(ptr, &end, 0);
         if (ptr == end) {
             return MGEC__INVAL;
@@ -775,12 +794,19 @@ MemeVariantStack_convToUInt(
     case MMMETA_TYPID__NULL: {
         return MGEC__OPNOTSUPP;
     }
+    case MMMETA_TYPID__DOUBLE: {
+        /* NaN/inf -> integer is undefined behaviour in C. Reject it instead of
+           letting the C cast decide. */
+        if (isnan(obj->d.d) || isinf(obj->d.d))
+            return MGEC__RANGE;
+        *_out = MemeVariantImpl_basicNumberToUInt(obj);
+        return MGEC__OK;
+    }
     case MMMETA_TYPID__BYTE:
     case MMMETA_TYPID__CHAR:
     case MMMETA_TYPID__WCHAR:
     case MMMETA_TYPID__INT64:
-    case MMMETA_TYPID__UINT64:
-    case MMMETA_TYPID__DOUBLE: {
+    case MMMETA_TYPID__UINT64: {
         *_out = MemeVariantImpl_basicNumberToUInt(obj);
         return MGEC__OK;
     }
@@ -789,6 +815,7 @@ MemeVariantStack_convToUInt(
 
         const char* ptr = MemeString_cStr((mmstr_cptr_t) & (obj->d.str));
         char* end = NULL;
+        errno = 0;  // Reset before strtoull to avoid stale ERANGE
         *_out = (size_t)strtoull(ptr, &end, 0);
         if (ptr == end) {
             return MGEC__INVAL;
@@ -828,9 +855,10 @@ MEME_API mgec_t MEME_STDCALL MemeVariantStack_convToDouble(const mmvarstk_t* _ob
     }
     case MMMETA_TYPID__STRING: {
         // The string class is not a view mode
-        
+
         const char* ptr = MemeString_cStr((mmstr_cptr_t)&(obj->d.str));
         char* end = NULL;
+        errno = 0;  // Reset before strtod to avoid stale ERANGE
         *_out = strtod(ptr, &end);
         if (ptr == end) {
             *_out = nan("");

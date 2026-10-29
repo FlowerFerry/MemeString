@@ -5,6 +5,12 @@
 #include <memepp/string.hpp>
 
 #include <cstring>
+#include <limits>
+
+// Fixed timestamp for deterministic tests.  Using the wall clock here made
+// these tests depend on the machine's current time (and a pre-1970 or -1
+// clock would flip is_ts_valid()).  make_now tests keep using the clock.
+static const mgu_timestamp_t kTs = 1700000000123LL;
 
 // ---------------------------------------------------------------------------
 // default constructor
@@ -62,7 +68,7 @@ TEST_CASE("memepp::varts construct from variant (move)", "[varts]")
 TEST_CASE("memepp::varts construct from variant and timestamp", "[varts]")
 {
     memepp::variant var(static_cast<int64_t>(7LL));
-    mgu_timestamp_t ts = mgu_timestamp_get();
+    mgu_timestamp_t ts = kTs;
 
     memepp::varts vts(var, ts);
 
@@ -91,7 +97,7 @@ TEST_CASE("memepp::varts construct from variant and invalid timestamp (-1)", "[v
 TEST_CASE("memepp::varts construct from variant, timestamp, and userdata", "[varts]")
 {
     memepp::variant var(memepp::string("hello"));
-    mgu_timestamp_t ts = mgu_timestamp_get();
+    mgu_timestamp_t ts = kTs;
 
     memepp::varts vts(var, ts, static_cast<int8_t>(5));
 
@@ -107,7 +113,7 @@ TEST_CASE("memepp::varts construct from variant, timestamp, and userdata", "[var
 TEST_CASE("memepp::varts construct from variant (move), timestamp, and userdata", "[varts]")
 {
     memepp::variant var(static_cast<uint64_t>(999ULL));
-    mgu_timestamp_t ts = mgu_timestamp_get();
+    mgu_timestamp_t ts = kTs;
 
     memepp::varts vts(std::move(var), ts, static_cast<int8_t>(-1));
 
@@ -125,7 +131,7 @@ TEST_CASE("memepp::varts construct from variant (move), timestamp, and userdata"
 
 TEST_CASE("memepp::varts construct from timestamp only", "[varts]")
 {
-    mgu_timestamp_t ts = mgu_timestamp_get();
+    mgu_timestamp_t ts = kTs;
     memepp::varts vts(ts);
 
     REQUIRE(vts.is_ts_valid());
@@ -145,7 +151,7 @@ TEST_CASE("memepp::varts construct from invalid timestamp only", "[varts]")
 
 TEST_CASE("memepp::varts construct from timestamp and userdata", "[varts]")
 {
-    mgu_timestamp_t ts = mgu_timestamp_get();
+    mgu_timestamp_t ts = kTs;
     memepp::varts vts(ts, static_cast<int8_t>(127));
 
     REQUIRE(vts.is_ts_valid());
@@ -160,7 +166,7 @@ TEST_CASE("memepp::varts construct from timestamp and userdata", "[varts]")
 
 TEST_CASE("memepp::varts copy constructor", "[varts]")
 {
-    mgu_timestamp_t ts = mgu_timestamp_get();
+    mgu_timestamp_t ts = kTs;
     memepp::variant var(static_cast<int64_t>(55LL));
     memepp::varts src(var, ts, static_cast<int8_t>(3));
 
@@ -177,7 +183,7 @@ TEST_CASE("memepp::varts copy constructor", "[varts]")
 
 TEST_CASE("memepp::varts move constructor", "[varts]")
 {
-    mgu_timestamp_t ts = mgu_timestamp_get();
+    mgu_timestamp_t ts = kTs;
     memepp::variant var(static_cast<int64_t>(88LL));
     memepp::varts src(var, ts, static_cast<int8_t>(9));
 
@@ -198,7 +204,7 @@ TEST_CASE("memepp::varts move constructor", "[varts]")
 
 TEST_CASE("memepp::varts copy assignment", "[varts]")
 {
-    mgu_timestamp_t ts = mgu_timestamp_get();
+    mgu_timestamp_t ts = kTs;
     memepp::variant var(static_cast<double>(1.5));
     memepp::varts src(var, ts, static_cast<int8_t>(2));
 
@@ -216,7 +222,7 @@ TEST_CASE("memepp::varts copy assignment", "[varts]")
 
 TEST_CASE("memepp::varts move assignment", "[varts]")
 {
-    mgu_timestamp_t ts = mgu_timestamp_get();
+    mgu_timestamp_t ts = kTs;
     memepp::variant var(static_cast<int64_t>(100LL));
     memepp::varts src(var, ts, static_cast<int8_t>(7));
 
@@ -267,7 +273,7 @@ TEST_CASE("memepp::varts set_timestamp", "[varts]")
     REQUIRE(vts.is_ts_valid());
     REQUIRE(vts.timestamp() == 0);
 
-    mgu_timestamp_t ts = mgu_timestamp_get();
+    mgu_timestamp_t ts = kTs;
     vts.set_timestamp(ts);
     REQUIRE(vts.is_ts_valid());
     REQUIRE(vts.timestamp() == ts);
@@ -321,7 +327,7 @@ TEST_CASE("memepp::varts set_var (move)", "[varts]")
 
 TEST_CASE("memepp::varts reset", "[varts]")
 {
-    mgu_timestamp_t ts = mgu_timestamp_get();
+    mgu_timestamp_t ts = kTs;
     memepp::variant var(static_cast<int64_t>(1LL));
     memepp::varts vts(var, ts, static_cast<int8_t>(4));
 
@@ -343,7 +349,7 @@ TEST_CASE("memepp::varts reset", "[varts]")
 
 TEST_CASE("memepp::varts swap", "[varts]")
 {
-    mgu_timestamp_t ts_a = mgu_timestamp_get();
+    mgu_timestamp_t ts_a = kTs;
     memepp::variant var_a(static_cast<int64_t>(10LL));
     memepp::varts a(var_a, ts_a, static_cast<int8_t>(1));
 
@@ -483,7 +489,7 @@ TEST_CASE("memepp::varts size matches mmvtsstk_t", "[varts]")
 TEST_CASE("memepp::varts construct from moved variant and timestamp", "[varts]")
 {
     memepp::variant var(static_cast<int64_t>(99LL));
-    mgu_timestamp_t ts = mgu_timestamp_get();
+    mgu_timestamp_t ts = kTs;
 
     memepp::varts vts(std::move(var), ts);
 
@@ -517,7 +523,7 @@ TEST_CASE("memepp::varts construct from moved variant and invalid timestamp", "[
 TEST_CASE("memepp::varts construct from mmvtsstk_t (copy)", "[varts]")
 {
     memepp::variant var(static_cast<int64_t>(-7LL));
-    mgu_timestamp_t ts = mgu_timestamp_get();
+    mgu_timestamp_t ts = kTs;
     memepp::varts src(var, ts, static_cast<int8_t>(12));
 
     // access underlying C struct
@@ -553,7 +559,7 @@ TEST_CASE("memepp::varts construct from mmvtsstk_t with invalid timestamp", "[va
 TEST_CASE("memepp::varts construct from mmvtsstk_t (move)", "[varts]")
 {
     memepp::variant var(static_cast<uint64_t>(256ULL));
-    mgu_timestamp_t ts = mgu_timestamp_get();
+    mgu_timestamp_t ts = kTs;
     memepp::varts src(var, ts, static_cast<int8_t>(7));
 
     auto&& stk = *reinterpret_cast<mmvtsstk_t*>(&src);
@@ -612,7 +618,7 @@ TEST_CASE("memepp::varts time_part and ms_part with invalid timestamp", "[varts]
 TEST_CASE("memepp::varts time_part and ms_part after set_timestamp", "[varts]")
 {
     memepp::varts vts;
-    mgu_timestamp_t ts = mgu_timestamp_get();
+    mgu_timestamp_t ts = kTs;
 
     vts.set_timestamp(ts);
     REQUIRE(vts.time_part() == mgu_timestamp_to_time(ts));
@@ -629,7 +635,7 @@ TEST_CASE("memepp::varts time_part and ms_part after set_timestamp", "[varts]")
 
 TEST_CASE("memepp::varts self-assignment copy", "[varts]")
 {
-    mgu_timestamp_t ts = mgu_timestamp_get();
+    mgu_timestamp_t ts = kTs;
     memepp::variant var(static_cast<int64_t>(42LL));
     memepp::varts vts(var, ts, static_cast<int8_t>(8));
 
@@ -648,7 +654,7 @@ TEST_CASE("memepp::varts self-assignment copy", "[varts]")
 
 TEST_CASE("memepp::varts self-assignment move", "[varts]")
 {
-    mgu_timestamp_t ts = mgu_timestamp_get();
+    mgu_timestamp_t ts = kTs;
     memepp::variant var(static_cast<double>(3.14));
     memepp::varts vts(var, ts, static_cast<int8_t>(-5));
 
@@ -663,4 +669,73 @@ TEST_CASE("memepp::varts self-assignment move", "[varts]")
     double out = 0.0;
     REQUIRE(vts.var().try_get(out) == 0);
     REQUIRE(out == Approx(3.14));
+}
+
+// ---------------------------------------------------------------------------
+// timestamp range: the field is 56 bits, values outside it become invalid
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::varts timestamp out-of-range becomes invalid", "[varts]")
+{
+    SECTION("MMVTS__TS_MAX is accepted")
+    {
+        memepp::varts vts;
+        vts.set_timestamp(MMVTS__TS_MAX);
+        REQUIRE(vts.is_ts_valid());
+        REQUIRE(vts.timestamp() == MMVTS__TS_MAX);
+    }
+
+    SECTION("MMVTS__TS_MAX + 1 still fits the 56-bit field")
+    {
+        memepp::varts vts;
+        vts.set_timestamp(MMVTS__TS_MAX + 1);
+        REQUIRE(vts.is_ts_valid());
+        REQUIRE(vts.timestamp() == MMVTS__TS_MAX + 1);
+    }
+
+    SECTION("2^56 is rejected instead of truncating to 0")
+    {
+        memepp::varts vts;
+        vts.set_timestamp(static_cast<mgu_timestamp_t>(1) << 56);
+        REQUIRE(!vts.is_ts_valid());
+        REQUIRE(vts.timestamp() == -1);
+    }
+
+    SECTION("-2 is rejected instead of wrapping to a large positive value")
+    {
+        memepp::varts vts;
+        vts.set_timestamp(-2);
+        REQUIRE(!vts.is_ts_valid());
+        REQUIRE(vts.timestamp() == -1);
+    }
+
+    SECTION("INT64_MAX is rejected instead of truncating to the invalid marker")
+    {
+        memepp::varts vts;
+        vts.set_timestamp(std::numeric_limits<mgu_timestamp_t>::max());
+        REQUIRE(!vts.is_ts_valid());
+        REQUIRE(vts.timestamp() == -1);
+    }
+
+    SECTION("INT64_MIN is rejected instead of truncating to 0")
+    {
+        memepp::varts vts;
+        vts.set_timestamp(std::numeric_limits<mgu_timestamp_t>::min());
+        REQUIRE(!vts.is_ts_valid());
+        REQUIRE(vts.timestamp() == -1);
+    }
+
+    SECTION("range check also applies to constructors")
+    {
+        memepp::varts a(static_cast<mgu_timestamp_t>(1) << 56);
+        REQUIRE(!a.is_ts_valid());
+
+        memepp::varts b(-2);
+        REQUIRE(!b.is_ts_valid());
+
+        memepp::variant var(static_cast<int64_t>(1LL));
+        memepp::varts c(var, static_cast<mgu_timestamp_t>(1) << 56, static_cast<int8_t>(3));
+        REQUIRE(!c.is_ts_valid());
+        REQUIRE(c.userdata() == 3);
+    }
 }
