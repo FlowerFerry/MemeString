@@ -821,3 +821,263 @@ TEST_CASE("memepp::rune from_codepoint — null character", "[rune]")
     REQUIRE(r.size() == 1);
     REQUIRE(r.data()[0] == 0x00);
 }
+
+// ---------------------------------------------------------------------------
+// valid(): lazy UTF-8 validation
+//
+// invalid is a tri-state field: 3 = not yet validated, 0 = valid, 1 = invalid.
+// Construction stores bytes without validating; the first valid() call resolves
+// it.  This keeps rune usable as a plain byte array while still answering
+// validity on demand.
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::rune valid() — legal 1..6 byte sequences", "[rune][valid]")
+{
+    SECTION("1-byte ASCII")
+    {
+        const uint8_t b[] = { 0x41 };
+        memepp::rune r(b, 1);
+        REQUIRE(r.valid());
+        REQUIRE(r.size() == 1);
+    }
+
+    SECTION("2-byte max: DF BF -> U+07FF")
+    {
+        const uint8_t b[] = { 0xDF, 0xBF };
+        memepp::rune r(b, 2);
+        REQUIRE(r.valid());
+        REQUIRE(r.codepoint() == 0x7FF);
+    }
+
+    SECTION("3-byte max: EF BF BF -> U+FFFF")
+    {
+        const uint8_t b[] = { 0xEF, 0xBF, 0xBF };
+        memepp::rune r(b, 3);
+        REQUIRE(r.valid());
+        REQUIRE(r.codepoint() == 0xFFFF);
+    }
+
+    SECTION("4-byte max: F7 BF BF BF -> U+1FFFFF")
+    {
+        const uint8_t b[] = { 0xF7, 0xBF, 0xBF, 0xBF };
+        memepp::rune r(b, 4);
+        REQUIRE(r.valid());
+        REQUIRE(r.codepoint() == 0x1FFFFF);
+    }
+
+    SECTION("5-byte max: FB BF BF BF BF -> U+3FFFFFF")
+    {
+        const uint8_t b[] = { 0xFB, 0xBF, 0xBF, 0xBF, 0xBF };
+        memepp::rune r(b, 5);
+        REQUIRE(r.valid());
+        REQUIRE(r.codepoint() == 0x3FFFFFF);
+    }
+
+    SECTION("6-byte max: FD BF BF BF BF BF -> U+7FFFFFFF")
+    {
+        const uint8_t b[] = { 0xFD, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF };
+        memepp::rune r(b, 6);
+        REQUIRE(r.valid());
+        REQUIRE(r.codepoint() == 0x7FFFFFFF);
+    }
+}
+
+TEST_CASE("memepp::rune valid() — rejected sequences", "[rune][valid]")
+{
+    SECTION("invalid lead byte FE")
+    {
+        const uint8_t b[] = { 0xFE };
+        memepp::rune r(b, 1);
+        REQUIRE_FALSE(r.valid());
+        REQUIRE(r.size() == 1);
+    }
+
+    SECTION("invalid lead byte FF")
+    {
+        const uint8_t b[] = { 0xFF };
+        memepp::rune r(b, 1);
+        REQUIRE_FALSE(r.valid());
+        REQUIRE(r.size() == 1);
+    }
+
+    SECTION("lone continuation byte 0x80")
+    {
+        const uint8_t b[] = { 0x80 };
+        memepp::rune r(b, 1);
+        REQUIRE_FALSE(r.valid());
+    }
+
+    SECTION("lone continuation byte 0xBF")
+    {
+        const uint8_t b[] = { 0xBF };
+        memepp::rune r(b, 1);
+        REQUIRE_FALSE(r.valid());
+    }
+
+    SECTION("truncated 3-byte sequence E4 B8")
+    {
+        const uint8_t b[] = { 0xE4, 0xB8 };
+        memepp::rune r(b, 2);
+        REQUIRE_FALSE(r.valid());
+        REQUIRE(r.size() == 2);
+    }
+
+    SECTION("truncated 4-byte sequence F0 9F 98")
+    {
+        const uint8_t b[] = { 0xF0, 0x9F, 0x98 };
+        memepp::rune r(b, 3);
+        REQUIRE_FALSE(r.valid());
+    }
+
+    SECTION("truncated 6-byte sequence FC 80 80")
+    {
+        const uint8_t b[] = { 0xFC, 0x80, 0x80 };
+        memepp::rune r(b, 3);
+        REQUIRE_FALSE(r.valid());
+    }
+
+    SECTION("size shorter than the declared sequence: 3-byte char passed as 2")
+    {
+        const uint8_t b[] = { 0xE4, 0xB8, 0xAD };
+        memepp::rune r(b, 2);
+        REQUIRE_FALSE(r.valid());
+        REQUIRE(r.size() == 2);
+    }
+
+    SECTION("size shorter than a 6-byte sequence")
+    {
+        const uint8_t b[] = { 0xFD, 0xBF, 0xBF, 0xBF, 0xBF, 0xBF };
+        memepp::rune r(b, 5);
+        REQUIRE_FALSE(r.valid());
+    }
+}
+
+TEST_CASE("memepp::rune valid() — empty rune", "[rune][valid]")
+{
+    SECTION("default constructed")
+    {
+        memepp::rune r;
+        REQUIRE(r.valid());
+        REQUIRE(r.empty());
+    }
+
+    SECTION("size 0 from a non-null pointer")
+    {
+        const uint8_t b[] = { 0x41 };
+        memepp::rune r(b, 0);
+        REQUIRE(r.valid());
+        REQUIRE(r.empty());
+    }
+
+    SECTION("nullptr with size 0 does not crash")
+    {
+        memepp::rune r(static_cast<memepp::rune::const_pointer>(nullptr), 0);
+        REQUIRE(r.valid());
+        REQUIRE(r.empty());
+    }
+}
+
+// ---------------------------------------------------------------------------
+// from_codepoint / codepoint boundary table
+//
+// The library follows the original RFC 2279 layout: 1..6 bytes, up to
+// 0x7FFFFFFF.  Surrogates and points above U+10FFFF are NOT rejected, and
+// anything beyond 0x7FFFFFFF yields an empty rune.
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::rune from_codepoint boundary table", "[rune][codepoint]")
+{
+    struct Row {
+        uint32_t cp;
+        int      expected_size;
+        uint32_t expected_roundtrip;
+    };
+
+    auto check = [](const Row& _row) {
+        auto r = memepp::rune::from_codepoint(_row.cp);
+        REQUIRE(r.size() == _row.expected_size);
+        REQUIRE(r.valid());
+        REQUIRE(r.codepoint() == _row.expected_roundtrip);
+    };
+
+    SECTION("1-byte range")
+    {
+        const Row rows[] = {
+            { 0x00, 1, 0x00 },
+            { 0x41, 1, 0x41 },
+            { 0x7F, 1, 0x7F },
+        };
+        for (const auto& row : rows) check(row);
+    }
+
+    SECTION("2-byte range")
+    {
+        const Row rows[] = {
+            { 0x80, 2, 0x80 },
+            { 0x7FF, 2, 0x7FF },
+        };
+        for (const auto& row : rows) check(row);
+    }
+
+    SECTION("3-byte range")
+    {
+        const Row rows[] = {
+            { 0x800, 3, 0x800 },
+            { 0x4E2D, 3, 0x4E2D },
+            { 0xFFFF, 3, 0xFFFF },
+        };
+        for (const auto& row : rows) check(row);
+    }
+
+    SECTION("4-byte range, including above U+10FFFF")
+    {
+        const Row rows[] = {
+            { 0x10000, 4, 0x10000 },
+            { 0x10FFFF, 4, 0x10FFFF },
+            { 0x110000, 4, 0x110000 },   // not rejected: RFC 2279 layout
+            { 0x1FFFFF, 4, 0x1FFFFF },
+        };
+        for (const auto& row : rows) check(row);
+    }
+
+    SECTION("5-byte range")
+    {
+        const Row rows[] = {
+            { 0x200000, 5, 0x200000 },
+            { 0x3FFFFFF, 5, 0x3FFFFFF },
+        };
+        for (const auto& row : rows) check(row);
+    }
+
+    SECTION("6-byte range")
+    {
+        const Row rows[] = {
+            { 0x4000000, 6, 0x4000000 },
+            { 0x7FFFFFFF, 6, 0x7FFFFFFF },
+        };
+        for (const auto& row : rows) check(row);
+    }
+
+    SECTION("surrogate range is accepted, not rejected")
+    {
+        const Row rows[] = {
+            { 0xD7FF, 3, 0xD7FF },
+            { 0xD800, 3, 0xD800 },
+            { 0xDFFF, 3, 0xDFFF },
+            { 0xE000, 3, 0xE000 },
+        };
+        for (const auto& row : rows) check(row);
+    }
+
+    SECTION("beyond 0x7FFFFFFF yields an empty rune")
+    {
+        const uint32_t cps[] = { 0x80000000u, 0xFFFFFFFFu };
+        for (uint32_t cp : cps) {
+            auto r = memepp::rune::from_codepoint(cp);
+            REQUIRE(r.size() == 0);
+            REQUIRE(r.empty());
+            REQUIRE(r.valid());
+            REQUIRE(r.codepoint() == 0);
+        }
+    }
+}

@@ -171,6 +171,7 @@ MG_CAPI_INLINE MemeRune_t
     MemeRune_t w;
     memset(&w, 0, sizeof(w));
     w.attr.capacity = MEME_RUNE__MAX_CHAR_SIZE;
+    w.attr.invalid  = 3;   // deferred: validated on first MemeRune_isValid()
     return w;
 }
 
@@ -206,7 +207,13 @@ MG_CAPI_INLINE int
 MG_CAPI_INLINE int
     MemeRune_initByUtf8Bytes(MemeRune_t* _out, const MemeByte_t* _buf, MemeInteger_t _len)
 {
-    assert(_out != NULL && _buf != NULL);
+    assert(_out != NULL);
+
+    if (_buf == NULL) {
+        if (_len > 0)
+            return MGEC__INVAL;
+        _len = 0;
+    }
 
     if ((_len > MEME_RUNE__MAX_CHAR_SIZE))
         return MGEC__INVAL;
@@ -216,7 +223,8 @@ MG_CAPI_INLINE int
         _len = 0;
 
     _out->attr.capacity = (mmbyte_t)(MEME_RUNE__MAX_CHAR_SIZE - _len);
-    _out->attr.invalid  = 0;
+    // Defer UTF-8 validation to the first MemeRune_isValid() call.
+    _out->attr.invalid  = 3;
     memcpy(_out->byte, _buf, _len);
     _out->byte[MemeRune_size(_out)] = '\0';
     return 0;
@@ -229,6 +237,7 @@ MG_CAPI_INLINE int
 
     memset(_out, 0, sizeof(*_out));
     _out->attr.capacity = MEME_RUNE__MAX_CHAR_SIZE;
+    _out->attr.invalid  = 3;   // deferred: validated on first MemeRune_isValid()
     return 0;
 }
 
@@ -276,6 +285,20 @@ MG_CAPI_INLINE int
     MemeRune_isValid(const MemeRune_t* _s)
 {
     assert(_s != NULL);
+
+    // invalid == 3 means "not yet validated".  Validate lazily on first call.
+    if (_s->attr.invalid == 3) {
+        // Cast away const for lazy initialization.  The byte content is not
+        // modified; only the attr.invalid field changes.
+        MemeRune_t* self = (MemeRune_t*)_s;
+        int size = MemeRune_size(_s);
+        if (size == 0) {
+            self->attr.invalid = 0;  // empty rune is valid
+        } else {
+            int valid_len = mmutf_u8rune_valid(_s->byte, size);
+            self->attr.invalid = (valid_len == size) ? 0 : 1;
+        }
+    }
 
     return _s->attr.invalid == 0;
 }
