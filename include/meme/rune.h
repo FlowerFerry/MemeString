@@ -209,14 +209,21 @@ MG_CAPI_INLINE int
 {
     assert(_out != NULL);
 
-    if (_buf == NULL) {
-        if (_len > 0)
+    // Every error path leaves _out as a well-defined empty rune, so a caller
+    // that ignores the return value cannot end up reading garbage from an
+    // uninitialised (or stale) stack object.
+    if (_buf == NULL || _len > MEME_RUNE__MAX_CHAR_SIZE) {
+        if (_buf != NULL || _len > 0) {
+            memset(_out, 0, sizeof(*_out));
+            _out->attr.capacity = MEME_RUNE__MAX_CHAR_SIZE;
+            _out->attr.invalid  = 3;
             return MGEC__INVAL;
-        _len = 0;
+        }
     }
 
-    if ((_len > MEME_RUNE__MAX_CHAR_SIZE))
-        return MGEC__INVAL;
+    if (_buf == NULL)
+        _len = 0;
+
     if (_len < 0)
         _len = mmutf_u8rune_char_size(_buf[0]);
     if (_len < 0)

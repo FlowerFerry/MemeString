@@ -59,31 +59,14 @@ TEST_CASE("memepp::string_builder operator+= with memepp::string_view", "[string
 }
 
 // ---------------------------------------------------------------------------
-// operator+ (append, returns reference)
+// operator+ is intentionally absent.
+//
+// A `string_builder& operator+(...)` would read as a non-mutating append while
+// actually mutating the builder, so the overloads are commented out in
+// string_builder_def.hpp. Use operator+= instead. The tests that used to live
+// here were removed along with the API and will be restored only if the
+// design is settled.
 // ---------------------------------------------------------------------------
-
-//TEST_CASE("memepp::string_builder operator+ with const char*", "[string_builder]")
-//{
-//    memepp::string_builder builder;
-//    builder + "abc";
-//    builder + "def";
-//
-//    memepp::string result = builder.generate();
-//    REQUIRE(result == "abcdef");
-//}
-
-//TEST_CASE("memepp::string_builder operator+ chained mixed types", "[string_builder]")
-//{
-//    memepp::string s("str");
-//    memepp::string_view sv("_sv");
-//
-//    memepp::string_builder builder;
-//    (builder + s) + sv;
-//    (builder + "_end");
-//
-//    memepp::string result = builder.generate();
-//    REQUIRE(result == "str_sv_end");
-//}
 
 // ---------------------------------------------------------------------------
 // generate() — non-destructive
