@@ -21,8 +21,11 @@ namespace convert {
 		}
 		static memepp::string from_object(::std::u16string&& _s)
 		{
-			return memepp::string{
+			auto out = memepp::string{
 				reinterpret_cast<const uint16_t*>(_s.data()), static_cast<MemeInteger_t>(_s.size()) };
+			/* Consistent with from(std::wstring&&): leave the source empty. */
+			_s.clear();
+			return out;
 		}
 	};
 
