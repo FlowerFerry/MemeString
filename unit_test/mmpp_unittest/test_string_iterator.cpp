@@ -1,9 +1,12 @@
 ﻿
 #include <catch2/catch.hpp>
 
+#include <mego/predef/lang/version.h>
+
 #include <memepp/string_view.hpp>
 #include <memepp/string.hpp>
 #include <memepp/convert/std/string.hpp>
+#include <iterator>
 #include <string>
 
 TEMPLATE_TEST_CASE("memepp::string begin/end", "[string]",
@@ -69,12 +72,21 @@ TEMPLATE_TEST_CASE("memepp::string begin/end", "[string]",
 
         REQUIRE(std::begin(obj)   == obj.begin());
         REQUIRE(std::end(obj)     == obj.end());
+        // std::cbegin/cend/rbegin/rend/crbegin/crend arrived in C++14.  At C++11
+        // only the const-iterator aliases can be checked portably: the reverse
+        // ones return memepp::reverse_iterator / memepp::const_reverse_iterator,
+        // which do not compare against std::reverse_iterator.
+#if MG_LANG__CXX14_AVAIL
         REQUIRE(std::cbegin(obj)  == obj.cbegin());
         REQUIRE(std::cend(obj)    == obj.cend());
         REQUIRE(std::rbegin(obj)  == obj.rbegin());
         REQUIRE(std::rend(obj)    == obj.rend());
         REQUIRE(std::crbegin(obj) == obj.crbegin());
         REQUIRE(std::crend(obj)   == obj.crend());
+#else
+        REQUIRE(obj.cbegin() == obj.begin());
+        REQUIRE(obj.cend()   == obj.end());
+#endif
 
         REQUIRE(std::next(obj.begin())   == obj.end());
         REQUIRE(std::next(obj.cbegin())  == obj.cend());

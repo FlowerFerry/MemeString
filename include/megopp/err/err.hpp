@@ -4,6 +4,7 @@
 
 
 #include <mego/err/ec.h>
+#include <megopp/memory/make_unique.h>
 #include <memepp/string.hpp>
 #include <exception>
 #include <memory>
@@ -31,8 +32,8 @@ namespace details {
 
         err_payload(const err_payload& _o)
             : message_ (_o.message_)
-            , solution_(_o.solution_ ? std::make_unique<memepp::string>(*_o.solution_)         : nullptr)
-            , fninfo_  (_o.fninfo_   ? std::make_unique<fninfo_err::fninfo>(*_o.fninfo_)       : nullptr)
+            , solution_(_o.solution_ ? mgpp::mem::make_unique<memepp::string>(*_o.solution_)         : nullptr)
+            , fninfo_  (_o.fninfo_   ? mgpp::mem::make_unique<fninfo_err::fninfo>(*_o.fninfo_)       : nullptr)
             , next_    (_o.next_)
             , userdata_(_o.userdata_)
         {}
@@ -42,8 +43,8 @@ namespace details {
         err_payload& operator=(const err_payload& _o)
         {
             message_  = _o.message_;
-            solution_ = _o.solution_ ? std::make_unique<memepp::string>(*_o.solution_)     : nullptr;
-            fninfo_   = _o.fninfo_   ? std::make_unique<fninfo_err::fninfo>(*_o.fninfo_)   : nullptr;
+            solution_ = _o.solution_ ? mgpp::mem::make_unique<memepp::string>(*_o.solution_)     : nullptr;
+            fninfo_   = _o.fninfo_   ? mgpp::mem::make_unique<fninfo_err::fninfo>(*_o.fninfo_)   : nullptr;
             next_     = _o.next_;
             userdata_ = _o.userdata_;
             return *this;
@@ -60,47 +61,47 @@ namespace details {
 
     inline std::unique_ptr<err_payload> make_err(const memepp::string& _msg)
     {
-        auto p = std::make_unique<err_payload>();
+        auto p = mgpp::mem::make_unique<err_payload>();
         p->message_ = _msg;
         return p;
     }
 
     inline std::unique_ptr<err_payload> make_err(const memepp::string& _msg, const memepp::string& _sln)
     {
-        auto p = std::make_unique<err_payload>();
+        auto p = mgpp::mem::make_unique<err_payload>();
         p->message_  = _msg;
-        p->solution_ = std::make_unique<memepp::string>(_sln);
+        p->solution_ = mgpp::mem::make_unique<memepp::string>(_sln);
         return p;
     }
 
     inline std::unique_ptr<err_payload> make_err(const fninfo_err::fninfo& _fninfo)
     {
-        auto p = std::make_unique<err_payload>();
-        p->fninfo_ = std::make_unique<fninfo_err::fninfo>(_fninfo);
+        auto p = mgpp::mem::make_unique<err_payload>();
+        p->fninfo_ = mgpp::mem::make_unique<fninfo_err::fninfo>(_fninfo);
         return p;
     }
 
     inline std::unique_ptr<err_payload> make_err(const memepp::string& _msg, const fninfo_err::fninfo& _fninfo)
     {
-        auto p = std::make_unique<err_payload>();
+        auto p = mgpp::mem::make_unique<err_payload>();
         p->message_ = _msg;
-        p->fninfo_  = std::make_unique<fninfo_err::fninfo>(_fninfo);
+        p->fninfo_  = mgpp::mem::make_unique<fninfo_err::fninfo>(_fninfo);
         return p;
     }
 
     inline std::unique_ptr<err_payload> make_err(
         const memepp::string& _msg, const memepp::string& _sln, const fninfo_err::fninfo& _fninfo)
     {
-        auto p = std::make_unique<err_payload>();
+        auto p = mgpp::mem::make_unique<err_payload>();
         p->message_  = _msg;
-        p->solution_ = std::make_unique<memepp::string>(_sln);
-        p->fninfo_   = std::make_unique<fninfo_err::fninfo>(_fninfo);
+        p->solution_ = mgpp::mem::make_unique<memepp::string>(_sln);
+        p->fninfo_   = mgpp::mem::make_unique<fninfo_err::fninfo>(_fninfo);
         return p;
     }
 
     inline std::unique_ptr<err_payload> make_err(const std::shared_ptr<void>& _data)
     {
-        auto p = std::make_unique<err_payload>();
+        auto p = mgpp::mem::make_unique<err_payload>();
         p->userdata_ = _data;
         return p;
     }
@@ -453,7 +454,7 @@ public:
         : code_{ _e.code_ }
         , user_code_{ _e.user_code_ }
         , global_cat_{ _e.global_cat_ }
-        , payload_{ _e.payload_ ? std::make_unique<details::err_payload>(*_e.payload_) : nullptr }
+        , payload_{ _e.payload_ ? mgpp::mem::make_unique<details::err_payload>(*_e.payload_) : nullptr }
     {}
 
     err (err &&_e) noexcept
@@ -468,7 +469,7 @@ public:
         code_ = _e.code_;
         user_code_ = _e.user_code_;
         global_cat_ = _e.global_cat_;
-        payload_ = _e.payload_ ? std::make_unique<details::err_payload>(*_e.payload_) : nullptr;
+        payload_ = _e.payload_ ? mgpp::mem::make_unique<details::err_payload>(*_e.payload_) : nullptr;
         return *this;
     }
 
@@ -534,7 +535,7 @@ public:
 private:
     details::err_payload& ensure_payload() {
         if (!payload_) {
-            payload_ = std::make_unique<details::err_payload>();
+            payload_ = mgpp::mem::make_unique<details::err_payload>();
         }
         return *payload_;
     }
@@ -607,12 +608,12 @@ inline void err::set_message(const memepp::string &_message)
 
 inline void err::set_solution(const memepp::string &_solution)
 {
-    ensure_payload().solution_ = std::make_unique<memepp::string>(_solution);
+    ensure_payload().solution_ = mgpp::mem::make_unique<memepp::string>(_solution);
 }
 
 inline void err::set_funcinfo(const fninfo &info)
 {
-    ensure_payload().fninfo_ = std::make_unique<fninfo>(info);
+    ensure_payload().fninfo_ = mgpp::mem::make_unique<fninfo>(info);
 }
 
 inline void err::set_userdata(const std::shared_ptr<void> &data)

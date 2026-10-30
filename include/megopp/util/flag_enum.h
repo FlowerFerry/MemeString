@@ -22,7 +22,7 @@ inline constexpr bool is_flag_enum_v = is_flag_enum<_Enum>::value;
 // ============================================================
 
 template <typename _Enum>
-using enable_if_flag_t = std::enable_if_t<is_flag_enum_v<_Enum>, int>;
+using enable_if_flag_t = typename std::enable_if<is_flag_enum_v<_Enum>, int>::type;
 
 // ============================================================
 // Bitwise operators
@@ -31,28 +31,28 @@ using enable_if_flag_t = std::enable_if_t<is_flag_enum_v<_Enum>, int>;
 template <typename _Enum, enable_if_flag_t<_Enum> = 0>
 inline constexpr _Enum operator|(_Enum _lhs, _Enum _rhs) noexcept
 {
-    using _U = std::underlying_type_t<_Enum>;
+    using _U = typename std::underlying_type<_Enum>::type;
     return static_cast<_Enum>(static_cast<_U>(_lhs) | static_cast<_U>(_rhs));
 }
 
 template <typename _Enum, enable_if_flag_t<_Enum> = 0>
 inline constexpr _Enum operator&(_Enum _lhs, _Enum _rhs) noexcept
 {
-    using _U = std::underlying_type_t<_Enum>;
+    using _U = typename std::underlying_type<_Enum>::type;
     return static_cast<_Enum>(static_cast<_U>(_lhs) & static_cast<_U>(_rhs));
 }
 
 template <typename _Enum, enable_if_flag_t<_Enum> = 0>
 inline constexpr _Enum operator^(_Enum _lhs, _Enum _rhs) noexcept
 {
-    using _U = std::underlying_type_t<_Enum>;
+    using _U = typename std::underlying_type<_Enum>::type;
     return static_cast<_Enum>(static_cast<_U>(_lhs) ^ static_cast<_U>(_rhs));
 }
 
 template <typename _Enum, enable_if_flag_t<_Enum> = 0>
 inline constexpr _Enum operator~(_Enum _val) noexcept
 {
-    using _U = std::underlying_type_t<_Enum>;
+    using _U = typename std::underlying_type<_Enum>::type;
     return static_cast<_Enum>(~static_cast<_U>(_val));
 }
 
@@ -127,7 +127,7 @@ inline constexpr _Enum& flag_xor_eq(_Enum& _lhs, _Enum _rhs) noexcept
 template <typename _Enum, enable_if_flag_t<_Enum> = 0>
 inline constexpr bool has_any_flag(_Enum _val) noexcept
 {
-    return static_cast<std::underlying_type_t<_Enum>>(_val) != 0;
+    return static_cast<typename std::underlying_type<_Enum>::type>(_val) != 0;
 }
 
 /// Check if all bits are unset (is 0)
@@ -166,7 +166,7 @@ inline constexpr bool has_no_flag(_Enum _val, _Enum _flags) noexcept
 template <typename _Enum, enable_if_flag_t<_Enum> = 0>
 inline constexpr auto to_underlying(_Enum _val) noexcept
 {
-    return static_cast<std::underlying_type_t<_Enum>>(_val);
+    return static_cast<typename std::underlying_type<_Enum>::type>(_val);
 }
 
 /// Set or clear a flag based on a condition
@@ -212,7 +212,7 @@ inline constexpr _Enum& keep_only_flags(_Enum& _val, _Enum _mask) noexcept
 template <typename _Enum, enable_if_flag_t<_Enum> = 0>
 inline constexpr _Enum extract_lowest_flag(_Enum _val) noexcept
 {
-    using _U = std::underlying_type_t<_Enum>;
+    using _U = typename std::underlying_type<_Enum>::type;
     _U _v = to_underlying(_val);
     return static_cast<_Enum>(_v & (~_v + 1));
 }
@@ -221,7 +221,7 @@ inline constexpr _Enum extract_lowest_flag(_Enum _val) noexcept
 template <typename _Enum, enable_if_flag_t<_Enum> = 0>
 inline constexpr bool has_single_flag(_Enum _val) noexcept
 {
-    using _U = std::underlying_type_t<_Enum>;
+    using _U = typename std::underlying_type<_Enum>::type;
     _U _v = to_underlying(_val);
     return _v != 0 && (_v & (_v - 1)) == 0;
 }
@@ -230,7 +230,7 @@ inline constexpr bool has_single_flag(_Enum _val) noexcept
 template <typename _Enum, enable_if_flag_t<_Enum> = 0>
 inline constexpr std::size_t count_flags(_Enum _val) noexcept
 {
-    using _U = std::underlying_type_t<_Enum>;
+    using _U = typename std::underlying_type<_Enum>::type;
     return std::bitset<sizeof(_U) * 8>(to_underlying(_val)).count();
 }
 

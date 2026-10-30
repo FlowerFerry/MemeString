@@ -31,7 +31,7 @@ template<typename _IntTy, _IntTy _Value, typename _EnumTy, _EnumTy _First, _Enum
 struct is_value_in_enum
 {
     static constexpr bool value = 
-        static_cast<std::underlying_type_t<_EnumTy> >(_Value) == static_cast<std::underlying_type_t<_EnumTy>>(_First) ||
+        static_cast<typename std::underlying_type<_EnumTy>::type >(_Value) == static_cast<typename std::underlying_type<_EnumTy>::type>(_First) ||
         is_value_in_enum<_IntTy, _Value, _EnumTy, _Rest...>::value;
 };
 
@@ -39,7 +39,7 @@ template<typename _IntTy, _IntTy _Value, typename _EnumTy, _EnumTy _First>
 struct is_value_in_enum<_IntTy, _Value, _EnumTy, _First>
 {
     static constexpr bool value =
-        static_cast<std::underlying_type_t<_EnumTy>>(_Value) == static_cast<std::underlying_type_t<_EnumTy>>(_First);
+        static_cast<typename std::underlying_type<_EnumTy>::type>(_Value) == static_cast<typename std::underlying_type<_EnumTy>::type>(_First);
 };
 
 template<typename _IntTy, _IntTy _Value, typename _EnumTy, _EnumTy _First, _EnumTy... _Rest>
