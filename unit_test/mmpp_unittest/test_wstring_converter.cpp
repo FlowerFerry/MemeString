@@ -265,17 +265,24 @@ TEST_CASE("memepp::from(std::wstring_view) — C++17", "[wstring]")
     std::wstring backing = L"A\U0001F600B";
     std::wstring_view sv{ backing };
 
+    // wchar_t is UTF-16 on Windows (surrogate pair: A, D83D, DE00, B) and
+    // UTF-32 elsewhere (A, U+1F600, B).
+#if MG_OS__WIN_AVAIL
+    const size_t kBackingUnits = 4;
+#else
+    const size_t kBackingUnits = 3;
+#endif
+
     auto s1 = memepp::from(sv);                        /* lvalue: source kept */
     REQUIRE(!sv.empty());
-    REQUIRE(sv.size() == 4);
+    REQUIRE(sv.size() == kBackingUnits);
 
     std::wstring_view moved{ backing };
     auto s2 = memepp::from(std::move(moved));          /* rvalue: source cleared */
     REQUIRE(moved.empty());
     REQUIRE(moved.size() == 0);
 
-    // Both platforms now produce the same UTF-8 result: the non-Windows
-    // overload implements the UTF-32 → UTF-8 path like from(const std::wstring&).
+    // Both platforms produce the same UTF-8 output.
     REQUIRE(s1.size() == 6);
     REQUIRE(s2 == s1);
     const uint8_t* d = reinterpret_cast<const uint8_t*>(s1.data());
@@ -284,7 +291,7 @@ TEST_CASE("memepp::from(std::wstring_view) — C++17", "[wstring]")
     REQUIRE(d[5] == 0x42);
 
     // The view does not own the data, so the backing is untouched.
-    REQUIRE(backing.size() == 4);
+    REQUIRE(backing.size() == kBackingUnits);
 }
 #endif // MG_LANG__CXX17_AVAIL
 
@@ -298,15 +305,20 @@ TEST_CASE("memepp::to<std::wstring> — 4-byte char becomes a surrogate pair", "
     memepp::string s{ "A" "\xF0" "\x9F" "\x98" "\x80" "B", 6 };
 
     auto w = memepp::to<std::wstring>(s);
+#if MG_OS__WIN_AVAIL
+    // UTF-16: A, D83D, DE00, B  -> 4 code units
     REQUIRE(w.size() == 4);
     REQUIRE(static_cast<uint16_t>(w[0]) == 0x0041);
-#if MG_OS__WIN_AVAIL
     REQUIRE(static_cast<uint16_t>(w[1]) == 0xD83D);    /* high surrogate */
     REQUIRE(static_cast<uint16_t>(w[2]) == 0xDE00);    /* low surrogate */
+    REQUIRE(static_cast<uint32_t>(w[3]) == 0x0042);
 #else
+    // UTF-32: A, U+1F600, B  -> 3 code units
+    REQUIRE(w.size() == 3);
+    REQUIRE(static_cast<uint32_t>(w[0]) == 0x0041);
     REQUIRE(static_cast<uint32_t>(w[1]) == 0x1F600);   /* single code unit */
+    REQUIRE(static_cast<uint32_t>(w[2]) == 0x0042);
 #endif
-    REQUIRE(static_cast<uint16_t>(w[3]) == 0x0042);
 
     // string_view overload produces the same result.
     auto w2 = memepp::to<std::wstring>(memepp::string_view{ s });
@@ -333,11 +345,14 @@ TEST_CASE("memepp::to<std::wstring> — invalid UTF-8 truncates silently", "[wst
     // 例外：多字节编码的 U+0000（C0 80 / E0 80 80 / F0 80 80 80 /
     // F8 80 80 80 80 / FC 80 80 80 80 80）不产生 NUL 码元，而是转成
     // U+FFFD，避免消费者按 C 字符串处理后内容被截断。
-    struct row { const char* bytes; int len; size_t want_units; uint16_t first_unit; };
+    struct row { const char* bytes; int len; size_t want_units; uint32_t first_unit; };
     const row rows[] = {
         { "A" "\xFF" "B",  3, 1, 0x0041 },   /* stops at FF, 'B' lost */
         { "\xE4\xB8",      2, 0, 0 },         /* truncated sequence, all lost */
-        { "\xC0\x80",      2, 1, 0xFFFD },    /* overlong U+0000 -> REPLACEMENT */
+        // Overlong U+0000: one U+FFFD per source byte.  UTF-16 substitutes
+        // U+FFFD so the result is not silently truncated by C-string consumers;
+        // UTF-32 holds the value directly and reports the same width.
+        { "\xC0\x80",      2, 2, 0xFFFD },
     };
     for (const auto& r : rows) {
         memepp::string bad{ r.bytes, r.len };
@@ -345,17 +360,18 @@ TEST_CASE("memepp::to<std::wstring> — invalid UTF-8 truncates silently", "[wst
         auto w = memepp::to<std::wstring>(bad);
         REQUIRE(w.size() == r.want_units);
         if (r.want_units > 0)
-            REQUIRE(static_cast<uint16_t>(w[0]) == r.first_unit);
+            REQUIRE(static_cast<uint32_t>(w[0]) == r.first_unit);
         REQUIRE(memepp::get_errc() == MGEC__OK);
     }
 }
 
-TEST_CASE("memepp::to<std::wstring> — overlong U+0000 becomes U+FFFD", "[wstring]")
+TEST_CASE("memepp::to<std::wstring> — overlong U+0000 becomes one U+FFFD per byte", "[wstring]")
 {
     // A multi-byte encoding of U+0000 must not reach the UTF-16 output as a NUL
     // code unit: that would silently truncate any consumer treating the result
-    // as a C string.  Every length from 2 to 6 collapses to one U+FFFD, and the
-    // text around it survives.
+    // as a C string.  Every byte of such a sequence becomes its own U+FFFD, so
+    // a 2-byte sequence yields two replacement characters and a 6-byte sequence
+    // yields six.  Text around it survives untouched.
     struct row { const char* bytes; int len; const char* label; };
     const row rows[] = {
         { "\xC0\x80",                        2, "C0 80" },
@@ -367,12 +383,13 @@ TEST_CASE("memepp::to<std::wstring> — overlong U+0000 becomes U+FFFD", "[wstri
 
 #if MG_OS__WIN_AVAIL
     for (const auto& r : rows) {
-        // Standalone.
+        // Standalone: one U+FFFD per source byte.
         memepp::string alone{ r.bytes, static_cast<mmint_t>(r.len) };
         auto w = memepp::to<std::wstring>(alone);
         INFO(r.label);
-        REQUIRE(w.size() == 1);
-        REQUIRE(static_cast<uint16_t>(w[0]) == 0xFFFD);
+        REQUIRE(w.size() == static_cast<size_t>(r.len));
+        for (int i = 0; i < r.len; ++i)
+            REQUIRE(static_cast<uint16_t>(w[static_cast<size_t>(i)]) == 0xFFFD);
 
         // Spliced between ASCII: the trailing character must not be dropped.
         std::string spliced = "A";
@@ -382,20 +399,22 @@ TEST_CASE("memepp::to<std::wstring> — overlong U+0000 becomes U+FFFD", "[wstri
 
         auto ws = memepp::to<std::wstring>(s);
         INFO(r.label);
-        REQUIRE(ws.size() == 3);
+        REQUIRE(ws.size() == static_cast<size_t>(r.len) + 2);
         REQUIRE(static_cast<uint16_t>(ws[0]) == 0x0041);
-        REQUIRE(static_cast<uint16_t>(ws[1]) == 0xFFFD);
-        REQUIRE(static_cast<uint16_t>(ws[2]) == 0x0042);
+        for (int i = 0; i < r.len; ++i)
+            REQUIRE(static_cast<uint16_t>(ws[static_cast<size_t>(i) + 1]) == 0xFFFD);
+        REQUIRE(static_cast<uint16_t>(ws[static_cast<size_t>(r.len) + 1]) == 0x0042);
     }
 #else
     // UTF-32 can hold U+0000 directly, so the substitution does not apply and
-    // the decoded code point is preserved.
+    // the decoded code point is preserved byte-count-independently.
     for (const auto& r : rows) {
         memepp::string alone{ r.bytes, static_cast<mmint_t>(r.len) };
         auto w = memepp::to<std::wstring>(alone);
         INFO(r.label);
-        REQUIRE(w.size() == 1);
-        REQUIRE(static_cast<uint32_t>(w[0]) == 0x0000);
+        REQUIRE(w.size() == static_cast<size_t>(r.len));
+        for (int i = 0; i < r.len; ++i)
+            REQUIRE(static_cast<uint32_t>(w[static_cast<size_t>(i)]) == 0x0000FFFD);
     }
 #endif
 }

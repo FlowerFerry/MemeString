@@ -289,12 +289,13 @@ mmutf_default_convert_u8to16(
        A multi-byte sequence that decodes to U+0000 (C0 80, E0 80 80,
        F0 80 80 80, F8 80 80 80 80, FC 80 80 80 80 80) would otherwise emit a
        literal NUL code unit, which silently truncates any consumer that treats
-       the result as a C string.  Such sequences become U+FFFD instead.  A
-       single 0x00 byte still decodes to U+0000 unchanged, and no other overlong
-       form (C1 BF, E0 9F BF, ...) is affected.
+       the result as a C string.  Each byte of such a sequence becomes one
+       U+FFFD, so a 2-byte sequence yields two replacement characters and a
+       6-byte sequence yields six.  A single 0x00 byte still decodes to U+0000
+       unchanged, and no other overlong form (C1 BF, E0 9F BF, ...) is affected.
 
-       The matching size computation in mmutf_u16char_size_from8 already reports
-       1 unit for both U+0000 and U+FFFD, so the two passes stay in step. */
+       mmutf_u16char_size_from8 applies the same width rule, so the size pass
+       and this one stay in step. */
     MemeInteger_t pos = 0;
     int srcCharSize   = 0;
     int dstCharSize   = 0;
@@ -310,19 +311,26 @@ mmutf_default_convert_u8to16(
             break;
         }
 
-        /* Overlong encoding of U+0000: emit REPLACEMENT CHARACTER instead. */
         if (u32rune == 0 && srcCharSize > 1) {
-            u32rune = 0xFFFD;
+            /* Overlong encoding of U+0000: one U+FFFD per source byte. */
+            for (int i = 0; i < srcCharSize; ++i) {
+                dstCharSize = mmutf_u16rune_set_u32(_out + pos, INTPTR_MAX, 0xFFFD);
+                if (dstCharSize == -1) {
+                    return pos;
+                }
+                pos += dstCharSize;
+            }
         }
-
-        dstCharSize = mmutf_u16rune_set_u32(_out + pos, INTPTR_MAX, u32rune);
-        if (dstCharSize == -1) {
-            break;
+        else {
+            dstCharSize = mmutf_u16rune_set_u32(_out + pos, INTPTR_MAX, u32rune);
+            if (dstCharSize == -1) {
+                break;
+            }
+            pos += dstCharSize;
         }
 
         _buf += srcCharSize;
         _len -= srcCharSize;
-        pos += dstCharSize;
     }
     return pos;
 }
@@ -331,7 +339,46 @@ inline MemeInteger_t
 mmutf_default_convert_u8to32(
     const MemeByte_t* _buf, MemeInteger_t _len, uint32_t* _out, void* _data)
 {
-    MMUTF_DEFAULT_CONVERT_X_TO_Y(u8, u32, _buf, _len, _out);
+    /* Same overlong-U+0000 rule as mmutf_default_convert_u8to16: every byte of
+       such a sequence becomes one U+FFFD.  Hand-written rather than
+       MMUTF_DEFAULT_CONVERT_X_TO_Y for that reason; mmutf_u32char_size_from8
+       applies the matching width rule. */
+    MemeInteger_t pos = 0;
+    int srcCharSize   = 0;
+    int dstCharSize   = 0;
+    uint32_t u32rune  = 0;
+
+    if (!_buf) {
+        return pos;
+    }
+
+    while (_len > 0) {
+        srcCharSize = mmutf_u8rune_get_u32(_buf, _len, &u32rune);
+        if (srcCharSize == -1) {
+            break;
+        }
+
+        if (u32rune == 0 && srcCharSize > 1) {
+            for (int i = 0; i < srcCharSize; ++i) {
+                dstCharSize = mmutf_u32rune_set_u32(_out + pos, INTPTR_MAX, 0xFFFD);
+                if (dstCharSize == -1) {
+                    return pos;
+                }
+                pos += dstCharSize;
+            }
+        }
+        else {
+            dstCharSize = mmutf_u32rune_set_u32(_out + pos, INTPTR_MAX, u32rune);
+            if (dstCharSize == -1) {
+                break;
+            }
+            pos += dstCharSize;
+        }
+
+        _buf += srcCharSize;
+        _len -= srcCharSize;
+    }
+    return pos;
 }
 
 inline MemeInteger_t

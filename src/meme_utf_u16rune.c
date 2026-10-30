@@ -55,6 +55,15 @@ mmutf_u16char_size_from8(const MemeByte_t* _ch, MemeInteger_t _len, int* _ch_siz
     if (srcCharSize < 0)
         return -1;
 
+    /* An overlong encoding of U+0000 becomes one U+FFFD per source byte, so the
+       width is the source width rather than the width of U+FFFD itself.  This
+       must match mmutf_default_convert_u8to16. */
+    if (ch == 0 && srcCharSize > 1) {
+        if (_ch_size)
+            *_ch_size = srcCharSize;
+        return srcCharSize;
+    }
+
     dstCharSize = mmutf_u16char_size_from32(&ch, 1, &dstCharSize);
     if (dstCharSize < 0)
         return -1;

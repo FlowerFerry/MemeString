@@ -42,12 +42,19 @@ mmutf_u32rune_valid(const uint32_t* _buf, MemeInteger_t _len)
 MEME_EXTERN_C MEME_API int MEME_STDCALL
 mmutf_u32char_size_from8(const MemeByte_t* _ch, MemeInteger_t _len, int* _ch_size)
 {
-    int size = mmutf_u8rune_char_size(*_ch);
+    uint32_t ch = 0;
+    int size = mmutf_u8rune_get_u32(_ch, _len, &ch);
     if (size < 0)
         return -1;
 
     if (_ch_size)
         *_ch_size = size;
+
+    /* An overlong encoding of U+0000 becomes one U+FFFD per source byte, so the
+       width is the source width.  This must match mmutf_default_convert_u8to32. */
+    if (ch == 0 && size > 1)
+        return size;
+
     return 1;
 }
 
