@@ -244,46 +244,52 @@ TEST_CASE("plugin DLL — host -> plugin across all storage classes", "[dll][plu
     auto echo = reinterpret_cast<echo_fn>(lookup(p.handle, "plugin_echo_verify"));
     REQUIRE(echo != nullptr);
 
-    // Payload sizes chosen to land in each storage class on 64-bit builds:
-    //   small  <= 21 bytes, medium fits the medium limit, large/user are bigger.
-    const char small_text[]  = "small_payload";
-    const char medium_text[] = "medium_payload_012345678901234567890123";
-    const char large_text[]  =
-        "large_payload_0123456789012345678901234567890123456789"
-        "0123456789012345678901234567890123456789"
-        "0123456789012345678901234567890123456789";
+    // Query the library's own limits rather than hard-coding byte counts: the
+    // small buffer's capacity depends on struct layout, which differs between
+    // 32-bit and 64-bit builds.
+    const auto small_max  = static_cast<size_t>(MemeStringOption_getStorageSmallLimit());
+    const auto medium_max = static_cast<size_t>(MemeStringOption_getStorageMediumLimit());
 
     SECTION("small storage")
     {
-        memepp::string host{ small_text, static_cast<memepp::string::size_type>(std::strlen(small_text)) };
+        REQUIRE(small_max > 0);
+        std::string small_text(small_max > 4 ? small_max - 4 : 1, 's');
+
+        memepp::string host{ small_text.data(), static_cast<memepp::string::size_type>(small_text.size()) };
         REQUIRE(host.storage_type() == memepp::string_storage_t::small);
 
         auto raw = memepp::export_into_dll<mmstrstk_t>(host, MMSTR__OBJ_SIZE);
-        const int seen = echo(&raw, MMSTR__OBJ_SIZE, small_text, static_cast<mmint_t>(std::strlen(small_text)));
+        const int seen = echo(&raw, MMSTR__OBJ_SIZE, small_text.data(), static_cast<mmint_t>(small_text.size()));
         mmstrstk_uninit_v0(&raw, MMSTR__OBJ_SIZE);
 
-        REQUIRE(seen == static_cast<int>(std::strlen(small_text)));
-        REQUIRE(host.size() == static_cast<memepp::string::size_type>(std::strlen(small_text)));
-        REQUIRE(std::memcmp(host.data(), small_text, std::strlen(small_text)) == 0);
+        REQUIRE(seen == static_cast<int>(small_text.size()));
+        REQUIRE(host.size() == static_cast<memepp::string::size_type>(small_text.size()));
+        REQUIRE(std::memcmp(host.data(), small_text.data(), small_text.size()) == 0);
     }
 
     SECTION("medium storage")
     {
-        memepp::string host{ medium_text, static_cast<memepp::string::size_type>(std::strlen(medium_text)) };
+        REQUIRE(medium_max > small_max);
+        std::string medium_text(medium_max > 10 ? medium_max - 10 : small_max + 5, 'm');
+
+        memepp::string host{ medium_text.data(), static_cast<memepp::string::size_type>(medium_text.size()) };
         REQUIRE(host.storage_type() == memepp::string_storage_t::medium);
 
         auto raw = memepp::export_into_dll<mmstrstk_t>(host, MMSTR__OBJ_SIZE);
-        const int seen = echo(&raw, MMSTR__OBJ_SIZE, medium_text, static_cast<mmint_t>(std::strlen(medium_text)));
+        const int seen = echo(&raw, MMSTR__OBJ_SIZE, medium_text.data(), static_cast<mmint_t>(medium_text.size()));
         mmstrstk_uninit_v0(&raw, MMSTR__OBJ_SIZE);
 
-        REQUIRE(seen == static_cast<int>(std::strlen(medium_text)));
-        REQUIRE(host.size() == static_cast<memepp::string::size_type>(std::strlen(medium_text)));
-        REQUIRE(std::memcmp(host.data(), medium_text, std::strlen(medium_text)) == 0);
+        REQUIRE(seen == static_cast<int>(medium_text.size()));
+        REQUIRE(host.size() == static_cast<memepp::string::size_type>(medium_text.size()));
+        REQUIRE(std::memcmp(host.data(), medium_text.data(), medium_text.size()) == 0);
     }
 
     SECTION("large storage (shared by refcount, not copied)")
     {
-        memepp::string host{ large_text, static_cast<memepp::string::size_type>(std::strlen(large_text)),
+        // Large storage: anything above medium_max
+        std::string large_text(medium_max + 100, 'l');
+
+        memepp::string host{ large_text.data(), static_cast<memepp::string::size_type>(large_text.size()),
                              memepp::string_storage_t::large };
         REQUIRE(host.storage_type() == memepp::string_storage_t::large);
 
@@ -293,14 +299,14 @@ TEST_CASE("plugin DLL — host -> plugin across all storage classes", "[dll][plu
         REQUIRE(static_cast<const void*>(MemeString_byteData(memepp::to_pointer(raw)))
                 == static_cast<const void*>(host.data()));
 
-        const int seen = echo(&raw, MMSTR__OBJ_SIZE, large_text, static_cast<mmint_t>(std::strlen(large_text)));
+        const int seen = echo(&raw, MMSTR__OBJ_SIZE, large_text.data(), static_cast<mmint_t>(large_text.size()));
 
         mmstrstk_uninit_v0(&raw, MMSTR__OBJ_SIZE);
 
-        REQUIRE(seen == static_cast<int>(std::strlen(large_text)));
+        REQUIRE(seen == static_cast<int>(large_text.size()));
         // Host object still owns its data and is untouched.
         REQUIRE(host.storage_type() == memepp::string_storage_t::large);
-        REQUIRE(std::memcmp(host.data(), large_text, std::strlen(large_text)) == 0);
+        REQUIRE(std::memcmp(host.data(), large_text.data(), large_text.size()) == 0);
     }
 
     SECTION("user storage (shared by refcount, not copied)")
