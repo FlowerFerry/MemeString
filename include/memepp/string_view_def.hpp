@@ -267,7 +267,7 @@ inline namespace MMPP_NAMESPACE {
 		//	std::back_insert_iterator<_Container<_Ty, _Arg...>> _inserter) const;
 
 		template<template<class> class _Container,
-            typename = std::enable_if_t<std::is_same<string, typename _Container<string>::value_type>::value>>
+            typename = typename std::enable_if<std::is_same<string, typename _Container<string>::value_type>::value>::type>
 		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string>> _inserter) const;
 		
@@ -276,7 +276,7 @@ inline namespace MMPP_NAMESPACE {
 		//	std::back_insert_iterator<_Container<string>> _inserter) const;
 
 		template<template<class> class _Container,
-            typename = std::enable_if_t<std::is_same<string, typename _Container<string>::value_type>::value>>
+            typename = typename std::enable_if<std::is_same<string, typename _Container<string>::value_type>::value>::type>
 		inline MemeInteger_t split(string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string_view>> _inserter) const;
 		
@@ -285,44 +285,44 @@ inline namespace MMPP_NAMESPACE {
 		//	std::back_insert_iterator<_Container<string_view>> _inserter) const;
 
 		template<template<class, class...> class _Container, class... _Arg,
-            typename = std::enable_if_t<std::is_same<string, typename _Container<string, _Arg...>::value_type>::value>>
+            typename = typename std::enable_if<std::is_same<string, typename _Container<string, _Arg...>::value_type>::value>::type>
 		inline MemeInteger_t split(
 			string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string, _Arg...>> _inserter) const;
 		
 		template<template<class, class...> class _Container, class... _Arg,            
-		    typename = std::enable_if_t<std::is_same<string, typename _Container<string, _Arg...>::value_type>::value>>
+		    typename = typename std::enable_if<std::is_same<string, typename _Container<string, _Arg...>::value_type>::value>::type>
 		inline mmint_t split(
 			string_view _key, 
 			std::back_insert_iterator<_Container<string, _Arg...>> _inserter) const;
 
 		template<template<class, class...> class _Container, class... _Arg,
-            typename = std::enable_if_t<std::is_same<string_view, typename _Container<string_view, _Arg...>::value_type>::value>>
+            typename = typename std::enable_if<std::is_same<string_view, typename _Container<string_view, _Arg...>::value_type>::value>::type>
 		inline MemeInteger_t split(
 			string_view _key, split_behavior_t _behavior,
 			std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const MEGOPP__NOEXCEPT;
 		
 		template<template<class, class...> class _Container, class... _Arg,
-		    typename = std::enable_if_t<std::is_same<string_view, typename _Container<string_view, _Arg...>::value_type>::value>>
+		    typename = typename std::enable_if<std::is_same<string_view, typename _Container<string_view, _Arg...>::value_type>::value>::type>
 		inline mmint_t split(
 			string_view _key, 
 			std::back_insert_iterator<_Container<string_view, _Arg...>> _inserter) const MEGOPP__NOEXCEPT;
 
 		//! \brief Join items with this string_view as separator.
 		template<template<class> class _Container,
-			typename = std::enable_if_t<std::is_same<string, typename _Container<string>::value_type>::value>>
+			typename = typename std::enable_if<std::is_same<string, typename _Container<string>::value_type>::value>::type>
 		inline string join(const _Container<string>& _items) const;
 
 		template<template<class, class...> class _Container, class... _Arg,
-			typename = std::enable_if_t<std::is_same<string, typename _Container<string, _Arg...>::value_type>::value>>
+			typename = typename std::enable_if<std::is_same<string, typename _Container<string, _Arg...>::value_type>::value>::type>
 		inline string join(const _Container<string, _Arg...>& _items) const;
 
 		template<template<class> class _Container,
-			typename = std::enable_if_t<std::is_same<string_view, typename _Container<string_view>::value_type>::value>>
+			typename = typename std::enable_if<std::is_same<string_view, typename _Container<string_view>::value_type>::value>::type>
 		inline string join(const _Container<string_view>& _items) const;
 
 		template<template<class, class...> class _Container, class... _Arg,
-			typename = std::enable_if_t<std::is_same<string_view, typename _Container<string_view, _Arg...>::value_type>::value>>
+			typename = typename std::enable_if<std::is_same<string_view, typename _Container<string_view, _Arg...>::value_type>::value>::type>
 		inline string join(const _Container<string_view, _Arg...>& _items) const;
 
 		const native_handle_type& native_handle() const noexcept;

@@ -47,14 +47,18 @@ namespace memepp {
 	inline memepp::string from(std::wstring&& _s)
 	{
 #if MG_OS__WIN_AVAIL
-		return memepp::string{ 
+		auto s = memepp::string{
 			reinterpret_cast<const uint16_t*>(_s.data()), static_cast<mmint_t>(_s.size())};
 #else
 		/* Non-Windows: same UTF-32 → UTF-8 path as lvalue variant. */
-		return memepp::from(const_cast<const std::wstring&>(_s));
+		auto s = memepp::from(const_cast<const std::wstring&>(_s));
 #endif
+		/* The rvalue overload owns the source: clear it so callers can rely on
+		   the same emptied-after-move convention as memepp::string(string&&). */
+		_s.clear();
+		return s;
 	}
-	
+
 #if MG_LANG__CXX17_AVAIL
 	inline memepp::string from(const std::wstring_view& _sv)
 	{
@@ -62,18 +66,34 @@ namespace memepp {
 		return memepp::string{
 			reinterpret_cast<const uint16_t*>(_sv.data()), static_cast<mmint_t>(_sv.size()) };
 #else
-		return {};
+		/* Non-Windows: wchar_t is UTF-32. Same UTF-32 → UTF-8 path as the
+		   std::wstring overload. */
+		if (_sv.empty())
+			return {};
+		/* Pre-allocate enough space: worst case 6 bytes per code unit. */
+		size_t maxBytes = _sv.size() * 6;
+		uint8_t* u8buf = (uint8_t*)mmmem_malloc(maxBytes);
+		if (!u8buf)
+			return {};
+		size_t used = 0;
+		for (size_t i = 0; i < _sv.size() && used + 6 <= maxBytes; ++i) {
+			uint32_t ch = static_cast<uint32_t>(_sv[i]);
+			int bytes = mmutf_u8rune_set_u32(u8buf + used, 6, ch);
+			if (bytes > 0)
+				used += (size_t)bytes;
+		}
+		memepp::string result{ u8buf, static_cast<mmint_t>(used) };
+		mmmem_free(u8buf);
+		return result;
 #endif
 	}
 	
 	inline memepp::string from(std::wstring_view&& _sv)
 	{
-#if MG_OS__WIN_AVAIL
-		return memepp::string{
-			reinterpret_cast<const uint16_t*>(_sv.data()), static_cast<mmint_t>(_sv.size()) };
-#else
-		return {};
-#endif
+		auto s = memepp::from(const_cast<const std::wstring_view&>(_sv));
+		/* Consistent with the other rvalue overloads: leave the source empty. */
+		_sv = std::wstring_view{};
+		return s;
 	}
 #endif
 

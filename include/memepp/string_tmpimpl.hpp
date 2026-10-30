@@ -17,7 +17,7 @@ namespace memepp {
 inline namespace MMPP_NAMESPACE {
 
 #if MG_LANG__CXX17_AVAIL
-	template<typename _Func, typename = std::enable_if_t<std::is_invocable_v<_Func, memepp::rune&>>>
+	template<typename _Func, typename = typename std::enable_if<std::is_invocable_v<_Func, memepp::rune&>>::type>
 #else
     template<typename _Func>
 #endif
@@ -36,7 +36,7 @@ inline namespace MMPP_NAMESPACE {
 			}
 #else
 			return call_wrap(_ch, 
-				typename std::is_integral< std::result_of_t<_Func(memepp::rune&)> >::type{});
+				typename std::is_integral< typename std::result_of<_Func(memepp::rune&)>::type >::type{});
 #endif
 		}
 
@@ -67,7 +67,7 @@ inline namespace MMPP_NAMESPACE {
 	};
 
 #if MG_LANG__CXX17_AVAIL
-    template<typename _Func, typename = std::enable_if_t<std::is_invocable_v<_Func, const memepp::rune&>>>
+    template<typename _Func, typename = typename std::enable_if<std::is_invocable_v<_Func, const memepp::rune&>>::type>
 #else
     template<typename _Func>
 #endif
@@ -86,7 +86,7 @@ inline namespace MMPP_NAMESPACE {
 			}
 #else
             return call_wrap(_ch,
-                typename std::is_same<std::result_of_t<_Func(const memepp::rune&)>, mmflag_cbproc_t>::type{});
+            	typename std::is_same<typename std::result_of<_Func(const memepp::rune&)>::type, mmflag_cbproc_t>::type{});
 #endif
 		}
 

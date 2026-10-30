@@ -10,7 +10,7 @@ namespace memepp {
 	// ---- trim_if (byte predicate) ----
 
 #if MG_LANG__CXX17_AVAIL
-	template<typename _Func, typename = std::enable_if_t<std::is_invocable_v<_Func, mmbyte_t>>>
+	template<typename _Func, typename = typename std::enable_if<std::is_invocable_v<_Func, mmbyte_t>>::type>
 #else
 	template<typename _Func>
 #endif
@@ -29,7 +29,7 @@ namespace memepp {
 	// ---- trim_if_rune (rune predicate) ----
 
 #if MG_LANG__CXX17_AVAIL
-	template<typename _Func, typename = std::enable_if_t<std::is_invocable_v<_Func, const memepp::rune&>>>
+	template<typename _Func, typename = typename std::enable_if<std::is_invocable_v<_Func, const memepp::rune&>>::type>
 #else
 	template<typename _Func>
 #endif

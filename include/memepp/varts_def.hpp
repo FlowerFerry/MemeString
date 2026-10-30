@@ -207,6 +207,22 @@ inline namespace MMPP_NAMESPACE {
             var_.swap(_other.var_);
         }
 
+        //! \brief Access the underlying C struct.
+        //!
+        //! varts is layout-compatible with mmvtsstk_t (guaranteed by the
+        //! static_assert at the bottom of this header), so this is the one
+        //! place that performs the type pun; callers get a typed reference
+        //! instead of doing reinterpret_cast themselves.
+        const mmvtsstk_t& native_handle() const noexcept
+        {
+            return *reinterpret_cast<const mmvtsstk_t*>(this);
+        }
+
+        mmvtsstk_t& native_handle() noexcept
+        {
+            return *reinterpret_cast<mmvtsstk_t*>(this);
+        }
+
         static varts make_now()
         {
             return varts{ mgu_timestamp_get() };
