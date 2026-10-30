@@ -1,7 +1,10 @@
 ﻿#include <catch2/catch.hpp>
 
 #include <memepp/string.hpp>
+#include <memepp/errc.hpp>
 #include <memepp/convert/std/wstring.hpp>
+
+#include <mego/predef/os/windows.h>
 
 /*
  * Test the std::wstring → memepp::string converter (BUG-014 fix).
@@ -51,11 +54,26 @@ TEST_CASE("memepp::from(std::wstring) — roundtrip with std::wstring", "[wstrin
     REQUIRE(s == expected);
 }
 
-#if !defined(MG_OS__WIN_AVAIL) && !defined(_WIN32)
-/* Non-Windows: test the UTF-32 path with supplementary plane characters */
-TEST_CASE("memepp::from(std::wstring) — non-Windows: supplementary plane", "[wstring]")
+// ---------------------------------------------------------------------------
+// Supplementary plane.  Runs unconditionally: the input literal takes a
+// different shape per platform (UTF-16 surrogate pair vs. one UTF-32 code
+// unit) but the required UTF-8 output is identical.
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::from(std::wstring) — supplementary plane U+1F600", "[wstring]")
 {
     std::wstring ws = L"\U0001F600";  /* U+1F600 grinning face */
+
+#if MG_OS__WIN_AVAIL
+    // UTF-16: a surrogate pair, so two code units.
+    REQUIRE(ws.size() == 2);
+    REQUIRE(static_cast<uint16_t>(ws[0]) == 0xD83D);
+    REQUIRE(static_cast<uint16_t>(ws[1]) == 0xDE00);
+#else
+    // UTF-32: one code unit holding the code point directly.
+    REQUIRE(ws.size() == 1);
+#endif
+
     memepp::string s = memepp::from(ws);
     REQUIRE(s.size() == 4);
     const uint8_t* d = reinterpret_cast<const uint8_t*>(s.data());
@@ -64,4 +82,271 @@ TEST_CASE("memepp::from(std::wstring) — non-Windows: supplementary plane", "[w
     REQUIRE(d[2] == 0x98);
     REQUIRE(d[3] == 0x80);
 }
+
+TEST_CASE("memepp::from(std::wstring) — supplementary plane spliced into text", "[wstring]")
+{
+    std::wstring ws = L"A\U0001F600B";
+    memepp::string s = memepp::from(ws);
+
+    REQUIRE(s.size() == 6);
+    const uint8_t* d = reinterpret_cast<const uint8_t*>(s.data());
+    REQUIRE(d[0] == 0x41);               /* 'A' */
+    REQUIRE(d[1] == 0xF0);
+    REQUIRE(d[2] == 0x9F);
+    REQUIRE(d[3] == 0x98);
+    REQUIRE(d[4] == 0x80);
+    REQUIRE(d[5] == 0x42);               /* 'B' */
+}
+
+#if MG_OS__WIN_AVAIL
+// ---------------------------------------------------------------------------
+// Malformed UTF-16 (lone / mis-paired surrogates).
+//
+// These tests pin the CURRENT behaviour, which is silent truncation: the UTF-16
+// decoder stops at the first unit it cannot pair and everything from there on is
+// dropped.  MemeStringStack_initByU16bytesAndType pre-sizes the buffer with
+// mmutf_char_size_u8from16 and then fills it with mmutf_convert_u16to8; both use
+// the same rune parser, so they stop at the same unit, pos == u8len, and the
+// function reports success.  memepp::from therefore returns a SHORT string with
+// errc() left at 0 — there is no error signal to the caller.
+//
+// TODO(impl): conversion should report MGEC__INVAL instead of silently
+//             returning a truncated string.  Until it does, these assertions
+//             describe a defect, not a contract.
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::from(std::wstring) — lone high surrogate yields empty", "[wstring]")
+{
+    std::wstring ws(1, static_cast<wchar_t>(0xD83D));
+
+    memepp::set_errc(MGEC__OK);
+    memepp::string s = memepp::from(ws);
+
+    REQUIRE(s.empty());
+    REQUIRE(memepp::get_errc() == MGEC__OK);   /* no error reported */
+}
+
+TEST_CASE("memepp::from(std::wstring) — lone low surrogate yields empty", "[wstring]")
+{
+    std::wstring ws(1, static_cast<wchar_t>(0xDE00));
+
+    memepp::set_errc(MGEC__OK);
+    memepp::string s = memepp::from(ws);
+
+    REQUIRE(s.empty());
+    REQUIRE(memepp::get_errc() == MGEC__OK);
+}
+
+TEST_CASE("memepp::from(std::wstring) — high surrogate followed by non-low truncates", "[wstring]")
+{
+    std::wstring ws;
+    ws.push_back(L'A');
+    ws.push_back(static_cast<wchar_t>(0xD83D));
+    ws.push_back(L'B');
+
+    memepp::set_errc(MGEC__OK);
+    memepp::string s = memepp::from(ws);
+
+    // 'A' survives, the unpaired high surrogate and everything after it is
+    // dropped — 'B' never reaches the output.
+    REQUIRE(s == "A");
+    REQUIRE(s.size() == 1);
+    REQUIRE(memepp::get_errc() == MGEC__OK);
+}
+
+TEST_CASE("memepp::from(std::wstring) — leading lone surrogate truncates the rest", "[wstring]")
+{
+    std::wstring ws;
+    ws.push_back(static_cast<wchar_t>(0xD83D));
+    ws.push_back(L'A');
+
+    memepp::set_errc(MGEC__OK);
+    memepp::string s = memepp::from(ws);
+
+    // The offending unit is in front, so nothing is emitted at all.
+    REQUIRE(s.empty());
+    REQUIRE(memepp::get_errc() == MGEC__OK);
+}
+
+TEST_CASE("memepp::from(std::wstring) — two high surrogates yield empty", "[wstring]")
+{
+    std::wstring ws;
+    ws.push_back(static_cast<wchar_t>(0xD83D));
+    ws.push_back(static_cast<wchar_t>(0xD83D));
+
+    memepp::set_errc(MGEC__OK);
+    memepp::string s = memepp::from(ws);
+
+    REQUIRE(s.empty());
+    REQUIRE(memepp::get_errc() == MGEC__OK);
+}
+
+TEST_CASE("memepp::from(std::wstring) — lone low surrogate before text truncates", "[wstring]")
+{
+    std::wstring ws;
+    ws.push_back(static_cast<wchar_t>(0xDE00));
+    ws.push_back(L'A');
+
+    memepp::set_errc(MGEC__OK);
+    memepp::string s = memepp::from(ws);
+
+    REQUIRE(s.empty());
+    REQUIRE(memepp::get_errc() == MGEC__OK);
+}
+
+TEST_CASE("memepp::from(std::wstring) — trailing lone high surrogate keeps prefix", "[wstring]")
+{
+    std::wstring ws;
+    ws.push_back(L'A');
+    ws.push_back(static_cast<wchar_t>(0xD83D));
+
+    memepp::set_errc(MGEC__OK);
+    memepp::string s = memepp::from(ws);
+
+    REQUIRE(s == "A");
+    REQUIRE(s.size() == 1);
+    REQUIRE(memepp::get_errc() == MGEC__OK);
+}
+#endif // MG_OS__WIN_AVAIL
+
+// ---------------------------------------------------------------------------
+// from(std::wstring&&) and mm_from(wstring) — rvalue / free-function paths.
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::from(std::wstring) — rvalue overload", "[wstring]")
+{
+    // 4-byte supplementary-plane character in the middle of ASCII text.
+    std::wstring ws = L"A\U0001F600B";
+    auto s = memepp::from(std::move(ws));
+
+    REQUIRE(s.size() == 6);
+    const uint8_t* d = reinterpret_cast<const uint8_t*>(s.data());
+    REQUIRE(d[0] == 0x41);               /* 'A' */
+    REQUIRE(d[1] == 0xF0);
+    REQUIRE(d[2] == 0x9F);
+    REQUIRE(d[3] == 0x98);
+    REQUIRE(d[4] == 0x80);
+    REQUIRE(d[5] == 0x42);               /* 'B' */
+
+    // The rvalue overload now clears the source after moving the data out,
+    // consistent with memepp::string(string&&) semantics.
+    REQUIRE(ws.empty());
+    REQUIRE(ws.size() == 0);
+}
+
+TEST_CASE("mm_from(std::wstring) forwards to memepp::from", "[wstring]")
+{
+    // lvalue
+    std::wstring a = L"\x4E2D";
+    REQUIRE(mm_from(a) == memepp::from(a));
+
+    // rvalue
+    std::wstring b = L"\U0001F600";
+    auto s = mm_from(std::move(b));
+    REQUIRE(s.size() == 4);
+    const uint8_t* d = reinterpret_cast<const uint8_t*>(s.data());
+    REQUIRE(d[0] == 0xF0);
+    REQUIRE(d[1] == 0x9F);
+    REQUIRE(d[2] == 0x98);
+    REQUIRE(d[3] == 0x80);
+    REQUIRE(b.empty());                   /* source cleared by the rvalue path */
+}
+
+// ---------------------------------------------------------------------------
+// from(std::wstring_view) — C++17 only.
+// ---------------------------------------------------------------------------
+
+#if MG_LANG__CXX17_AVAIL
+TEST_CASE("memepp::from(std::wstring_view) — C++17", "[wstring]")
+{
+    std::wstring backing = L"A\U0001F600B";
+    std::wstring_view sv{ backing };
+
+    auto s1 = memepp::from(sv);                        /* lvalue: source kept */
+    REQUIRE(!sv.empty());
+    REQUIRE(sv.size() == 4);
+
+    std::wstring_view moved{ backing };
+    auto s2 = memepp::from(std::move(moved));          /* rvalue: source cleared */
+    REQUIRE(moved.empty());
+    REQUIRE(moved.size() == 0);
+
+    // Both platforms now produce the same UTF-8 result: the non-Windows
+    // overload implements the UTF-32 → UTF-8 path like from(const std::wstring&).
+    REQUIRE(s1.size() == 6);
+    REQUIRE(s2 == s1);
+    const uint8_t* d = reinterpret_cast<const uint8_t*>(s1.data());
+    REQUIRE(d[0] == 0x41);
+    REQUIRE(d[1] == 0xF0);
+    REQUIRE(d[5] == 0x42);
+
+    // The view does not own the data, so the backing is untouched.
+    REQUIRE(backing.size() == 4);
+}
+#endif // MG_LANG__CXX17_AVAIL
+
+// ---------------------------------------------------------------------------
+// to<std::wstring> — UTF-8 → UTF-16/UTF-32, both overloads.
+// ---------------------------------------------------------------------------
+
+TEST_CASE("memepp::to<std::wstring> — 4-byte char becomes a surrogate pair", "[wstring]")
+{
+    // Split hex escapes so the compiler doesn't merge them with trailing chars.
+    memepp::string s{ "A" "\xF0" "\x9F" "\x98" "\x80" "B", 6 };
+
+    auto w = memepp::to<std::wstring>(s);
+    REQUIRE(w.size() == 4);
+    REQUIRE(static_cast<uint16_t>(w[0]) == 0x0041);
+#if MG_OS__WIN_AVAIL
+    REQUIRE(static_cast<uint16_t>(w[1]) == 0xD83D);    /* high surrogate */
+    REQUIRE(static_cast<uint16_t>(w[2]) == 0xDE00);    /* low surrogate */
+#else
+    REQUIRE(static_cast<uint32_t>(w[1]) == 0x1F600);   /* single code unit */
 #endif
+    REQUIRE(static_cast<uint16_t>(w[3]) == 0x0042);
+
+    // string_view overload produces the same result.
+    auto w2 = memepp::to<std::wstring>(memepp::string_view{ s });
+    REQUIRE(w2 == w);
+}
+
+TEST_CASE("memepp::to<std::wstring> — BMP and empty", "[wstring]")
+{
+    memepp::string bmp{ "\xE4\xB8\xAD", 3 };
+    auto w = memepp::to<std::wstring>(bmp);
+    REQUIRE(w.size() == 1);
+    REQUIRE(static_cast<uint16_t>(w[0]) == 0x4E2D);
+
+    memepp::string empty;
+    REQUIRE(memepp::to<std::wstring>(empty).empty());
+}
+
+TEST_CASE("memepp::to<std::wstring> — invalid UTF-8 truncates silently", "[wstring]")
+{
+    // 固定当前行为：解码遇到无效字节即停止，后面内容全部丢弃，
+    // 且 errc 保持 0，调用方无法感知。
+    // TODO(impl): 应返回 MGEC__INVAL 而非静默截断。
+    struct row { const char* bytes; int len; size_t want_units; uint16_t first_unit; };
+    const row rows[] = {
+        { "A" "\xFF" "B",  3, 1, 0x0041 },   /* stops at FF, 'B' lost */
+        { "\xE4\xB8",      2, 0, 0 },         /* truncated sequence, all lost */
+        { "\xC0\x80",      2, 1, 0x0000 },    /* overlong encoding decodes to U+0000 */
+    };
+    for (const auto& r : rows) {
+        memepp::string bad{ r.bytes, r.len };
+        memepp::set_errc(MGEC__OK);
+        auto w = memepp::to<std::wstring>(bad);
+        REQUIRE(w.size() == r.want_units);
+        if (r.want_units > 0)
+            REQUIRE(static_cast<uint16_t>(w[0]) == r.first_unit);
+        REQUIRE(memepp::get_errc() == MGEC__OK);
+    }
+}
+
+TEST_CASE("memepp::to<std::wstring> — roundtrip preserves supplementary plane", "[wstring]")
+{
+    memepp::string s{ "A" "\xF0" "\x9F" "\x98" "\x80" "B", 6 };
+    auto w = memepp::to<std::wstring>(s);
+    REQUIRE(memepp::from(w) == s);
+}
+

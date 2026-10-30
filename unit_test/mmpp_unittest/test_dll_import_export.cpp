@@ -657,7 +657,7 @@ TEST_CASE("memepp::varts DLL import/export — basic round-trip", "[dll][varts]"
 
     // --- import (const&) ---
     auto imported = memepp::import_from_dll<memepp::varts>(
-        *reinterpret_cast<const mmvtsstk_t*>(&src), MMVTS__OBJ_SIZE);
+        src.native_handle(), MMVTS__OBJ_SIZE);
     REQUIRE(imported.timestamp() == 1700000000LL);
     REQUIRE(imported.userdata() == 1);
     REQUIRE(imported.var().is_type(memepp::meta::typid::int64));
@@ -665,6 +665,7 @@ TEST_CASE("memepp::varts DLL import/export — basic round-trip", "[dll][varts]"
 
     // --- export (const&) ---
     auto stk = memepp::export_into_dll<mmvtsstk_t>(imported, MMVTS__OBJ_SIZE);
+    MEGOPP_UTIL__ON_SCOPE_CLEANUP([&]() { mmvarstk_uninit(&stk.var, MMVAR__OBJ_SIZE); });
     REQUIRE(stk.ts == 1700000000ULL);
     REQUIRE(stk.userdata == 1);
     auto rt_var = memepp::import_from_dll<memepp::variant>(stk.var, MMVAR__OBJ_SIZE);
@@ -679,21 +680,23 @@ TEST_CASE("memepp::varts DLL import/export — nested string variant", "[dll][va
 
     // --- import (const&) ---
     auto imported = memepp::import_from_dll<memepp::varts>(
-        *reinterpret_cast<const mmvtsstk_t*>(&src), MMVTS__OBJ_SIZE);
+        src.native_handle(), MMVTS__OBJ_SIZE);
     REQUIRE(imported.timestamp() == 1700000000LL);
     REQUIRE(imported.userdata() == 0);
     REQUIRE(imported.var().get_or<memepp::string>() == str);
 
     // --- export (const&) ---
     auto stk = memepp::export_into_dll<mmvtsstk_t>(imported, MMVTS__OBJ_SIZE);
+    MEGOPP_UTIL__ON_SCOPE_CLEANUP([&]() { mmvarstk_uninit(&stk.var, MMVAR__OBJ_SIZE); });
     REQUIRE(stk.ts == 1700000000ULL);
     auto rt_var = memepp::import_from_dll<memepp::variant>(stk.var, MMVAR__OBJ_SIZE);
     REQUIRE(rt_var.get_or<memepp::string>() == str);
 
     // --- export (&&) ---
     auto imported2 = memepp::import_from_dll<memepp::varts>(
-        *reinterpret_cast<const mmvtsstk_t*>(&src), MMVTS__OBJ_SIZE);
+        src.native_handle(), MMVTS__OBJ_SIZE);
     auto stk2 = memepp::export_into_dll<mmvtsstk_t>(std::move(imported2), MMVTS__OBJ_SIZE);
+    MEGOPP_UTIL__ON_SCOPE_CLEANUP([&]() { mmvarstk_uninit(&stk2.var, MMVAR__OBJ_SIZE); });
     auto rt_var2 = memepp::import_from_dll<memepp::variant>(stk2.var, MMVAR__OBJ_SIZE);
     REQUIRE(rt_var2.get_or<memepp::string>() == str);
 }
@@ -704,6 +707,7 @@ TEST_CASE("memepp::varts DLL import/export — export&& transfers ownership", "[
     memepp::varts src{ var, 1700000000LL, static_cast<int8_t>(7) };
 
     auto stk = memepp::export_into_dll<mmvtsstk_t>(std::move(src), MMVTS__OBJ_SIZE);
+    MEGOPP_UTIL__ON_SCOPE_CLEANUP([&]() { mmvarstk_uninit(&stk.var, MMVAR__OBJ_SIZE); });
     REQUIRE(stk.ts == 1700000000ULL);
     REQUIRE(stk.userdata == 7);
 
@@ -720,17 +724,23 @@ TEST_CASE("memepp::varts DLL import/export — export&& transfers ownership", "[
 
 TEST_CASE("memepp::varts DLL import/export — import rvalue", "[dll][varts]")
 {
-    memepp::variant var{ static_cast<int64_t>(99LL) };
+    // String payload so the refcount path is exercised, not just a scalar.
+    auto str = mm_from(std::string{ kLongString });
+    memepp::variant var{ str };
     memepp::varts src{ var, 1700000000LL, static_cast<int8_t>(3) };
 
-    // Get a mutable copy of the underlying C struct
-    mmvtsstk_t raw;
-    std::memcpy(&raw, &src, sizeof(mmvtsstk_t));
+    // Produce the raw struct through the public export path.  memcpy'ing a live
+    // varts would duplicate the payload without touching the refcount and rely
+    // on the callee swapping it back out to avoid a double release.
+    auto raw = memepp::export_into_dll<mmvtsstk_t>(std::move(src), MMVTS__OBJ_SIZE);
+
+    // Moving out through export must leave the source cleared.
+    REQUIRE(src.var().is_null());
 
     auto imported = memepp::import_from_dll<memepp::varts>(
         std::move(raw), MMVTS__OBJ_SIZE);
+
     REQUIRE(imported.timestamp() == 1700000000LL);
     REQUIRE(imported.userdata() == 3);
-    REQUIRE(imported.var().is_type(memepp::meta::typid::int64));
-    REQUIRE(imported.var().get_or<int64_t>() == 99LL);
+    REQUIRE(imported.var().get_or<memepp::string>() == str);
 }

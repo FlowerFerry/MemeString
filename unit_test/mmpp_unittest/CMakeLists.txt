@@ -44,6 +44,7 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/test_rune.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_builder.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_err.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_errc.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_trimif.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_to_valid_utf8.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_reverse.cpp
@@ -75,6 +76,7 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/test_utf_rune.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_wstring_converter.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_dll_import_export.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_dll_plugin.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_span.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_span.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_compare.cpp
@@ -129,11 +131,26 @@ set(MMUT_CXX11_EXEC_NAME ${PROJECT_NAME}_cxx11)
 set(MMUT_CXX14_EXEC_NAME ${PROJECT_NAME}_cxx14)
 set(MMUT_CXX17_EXEC_NAME ${PROJECT_NAME}_cxx17)
 
+# Plugin shared library used by test_dll_plugin.cpp to exercise the DLL boundary
+# for real: separate CRT, separate allocator, separate meme runtime.
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/mmpp_dll_plugin)
+
 mmut_create_exec_for_stdcxx(${MMUT_CXX11_EXEC_NAME} cxx_std_11 ${SRC_FILES})
 mmut_create_exec_for_stdcxx(${MMUT_CXX14_EXEC_NAME} cxx_std_14 ${SRC_FILES})
 mmut_create_exec_for_stdcxx(${MMUT_CXX17_EXEC_NAME} cxx_std_17 ${SRC_FILES})
 
 mmut_create_exec_for_stdcxx(${PROJECT_NAME} cxx_std_17 ${SRC_FILES})
+
+# Every test executable needs the plugin next to it, and must be built after it.
+foreach(tgt IN ITEMS ${MMUT_CXX11_EXEC_NAME} ${MMUT_CXX14_EXEC_NAME} ${MMUT_CXX17_EXEC_NAME} ${PROJECT_NAME})
+  add_dependencies(${tgt} mmpp_dll_plugin)
+  add_custom_command(
+    TARGET ${tgt} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      $<TARGET_FILE:mmpp_dll_plugin>
+      $<TARGET_FILE_DIR:${tgt}>
+  )
+endforeach()
 
 enable_testing()
 

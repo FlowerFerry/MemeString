@@ -39,6 +39,7 @@ endfunction()
 
 set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_dll_concurrent.cpp
 )
 
 set(MMUT_CXX11_EXEC_NAME ${PROJECT_NAME}_cxx11)
