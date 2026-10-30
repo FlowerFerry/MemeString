@@ -1,4 +1,4 @@
-#include <catch2/catch.hpp>
+﻿#include <catch2/catch.hpp>
 
 #include <memepp/string.hpp>
 #include <memepp/dll.hpp>
@@ -233,6 +233,8 @@ TEST_CASE("plugin DLL — round trip leaves the host object untouched", "[dll][p
 // user only bump a reference count.  All four must arrive intact on the plugin
 // side, and the host object must survive the crossing unchanged.
 // ---------------------------------------------------------------------------
+
+#undef small
 
 TEST_CASE("plugin DLL — host -> plugin across all storage classes", "[dll][plugin]")
 {
