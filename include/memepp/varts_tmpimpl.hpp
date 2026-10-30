@@ -40,6 +40,9 @@ namespace memepp {
         vts.ts = (uint64_t)_obj.timestamp();
         vts.userdata = (uint8_t)_obj.userdata();
         vts.var = memepp::export_into_dll<mmvarstk_t>(std::move(_obj.var()), MMVAR__OBJ_SIZE);
+        // Move semantics: clear the source so it is in a consistent empty state,
+        // matching the contract of other export_into_dll(&&) overloads.
+        _obj.reset();
 		return vts;
 	}
     

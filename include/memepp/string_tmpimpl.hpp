@@ -442,6 +442,32 @@ inline namespace MMPP_NAMESPACE {
 		return s;
 	}
 
+    // --- string_view -----------------------------------------------------
+    // A view does not own its bytes, so exporting it by const& must deep-copy.
+    // Building a temporary string and delegating to the string overload keeps a
+    // single copy path; the temporary dies right after the export, so the
+    // receiving side never shares the view's backing store.
+
+    template<>
+	inline mmstrstk_t export_into_dll(const memepp::string_view& _obj, mmint_t _struct_size)
+	{
+        // to_string() yields a prvalue, so this binds to the string&& overload:
+        // the temporary's storage is swapped straight into the result instead of
+        // being copied again.
+        return export_into_dll<mmstrstk_t>(_obj.to_string(), _struct_size);
+	}
+
+    template<>
+	inline mmstrstk_t export_into_dll(memepp::string_view&& _obj, mmint_t _struct_size)
+	{
+        // A view never owns its bytes, so there is no ownership to transfer:
+        // deep-copy regardless, then reset the source to make the move explicit.
+        auto result = export_into_dll<mmstrstk_t>(
+            static_cast<const memepp::string_view&>(_obj), _struct_size);
+        _obj = memepp::string_view{};
+        return result;
+	}
+
 }
 
 #endif // !MEME_STRING_TEMPLATEIMPL_H_INCLUDED
