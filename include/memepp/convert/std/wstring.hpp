@@ -111,20 +111,37 @@ namespace memepp {
 			u16.resize(afterSize);
         return u16;
 #else
-		/* Non-Windows: wchar_t is UTF-32. Convert UTF-8 → UTF-32 code units. */
-		if (_sv.empty())
-			return {};
-		auto cnt = _sv.rune_size();
-		std::wstring u32; u32.resize(cnt);
-		size_t i = 0;
-		for (auto it = _sv.rune_begin(); it != _sv.rune_end() && i < cnt; ++it, ++i) {
-			auto idx = it.to_index();
-			uint32_t cp;
-			mmutf_u8rune_get_u32(idx.data(), idx.size(), &cp);
-			u32[i] = static_cast<wchar_t>(cp);
+		/* Non-Windows: wchar_t is UTF-32.  Walk the bytes with the strict
+		   decoder rather than rune_begin/rune_end: rune_size() applies loose
+		   validation (lead byte only) and would size the buffer wrong for
+		   malformed input.
+
+		   An overlong encoding of U+0000 (C0 80, E0 80 80, F0 80 80 80,
+		   F8 80 80 80 80, FC 80 80 80 80 80) becomes one U+FFFD per source
+		   byte, matching mmutf_default_convert_u8to32 and what the UTF-16
+		   path produces. */
+		const MemeByte_t* p   = reinterpret_cast<const MemeByte_t*>(_sv.data());
+		MemeInteger_t     len = static_cast<MemeInteger_t>(_sv.size());
+
+		std::wstring u32;
+		while (len > 0) {
+			uint32_t cp  = 0;
+			int srcSize  = mmutf_u8rune_get_u32(p, len, &cp);
+			if (srcSize == -1) {
+				break;                      /* undecodable byte: truncate */
+			}
+
+			if (cp == 0 && srcSize > 1) {
+				for (int k = 0; k < srcSize; ++k)
+					u32.push_back(static_cast<wchar_t>(0xFFFD));
+			}
+			else {
+				u32.push_back(static_cast<wchar_t>(cp));
+			}
+
+			p   += srcSize;
+			len -= srcSize;
 		}
-		if (i != cnt)
-			u32.resize(i);
 		return u32;
 #endif
 	}
