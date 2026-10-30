@@ -6,6 +6,9 @@
 
 #include <mego/predef/os/windows.h>
 
+#include <cstring>
+#include <string>
+
 /*
  * Test the std::wstring → memepp::string converter (BUG-014 fix).
  *
@@ -326,11 +329,15 @@ TEST_CASE("memepp::to<std::wstring> — invalid UTF-8 truncates silently", "[wst
     // 固定当前行为：解码遇到无效字节即停止，后面内容全部丢弃，
     // 且 errc 保持 0，调用方无法感知。
     // TODO(impl): 应返回 MGEC__INVAL 而非静默截断。
+    //
+    // 例外：多字节编码的 U+0000（C0 80 / E0 80 80 / F0 80 80 80 /
+    // F8 80 80 80 80 / FC 80 80 80 80 80）不产生 NUL 码元，而是转成
+    // U+FFFD，避免消费者按 C 字符串处理后内容被截断。
     struct row { const char* bytes; int len; size_t want_units; uint16_t first_unit; };
     const row rows[] = {
         { "A" "\xFF" "B",  3, 1, 0x0041 },   /* stops at FF, 'B' lost */
         { "\xE4\xB8",      2, 0, 0 },         /* truncated sequence, all lost */
-        { "\xC0\x80",      2, 1, 0x0000 },    /* overlong encoding decodes to U+0000 */
+        { "\xC0\x80",      2, 1, 0xFFFD },    /* overlong U+0000 -> REPLACEMENT */
     };
     for (const auto& r : rows) {
         memepp::string bad{ r.bytes, r.len };
@@ -341,6 +348,82 @@ TEST_CASE("memepp::to<std::wstring> — invalid UTF-8 truncates silently", "[wst
             REQUIRE(static_cast<uint16_t>(w[0]) == r.first_unit);
         REQUIRE(memepp::get_errc() == MGEC__OK);
     }
+}
+
+TEST_CASE("memepp::to<std::wstring> — overlong U+0000 becomes U+FFFD", "[wstring]")
+{
+    // A multi-byte encoding of U+0000 must not reach the UTF-16 output as a NUL
+    // code unit: that would silently truncate any consumer treating the result
+    // as a C string.  Every length from 2 to 6 collapses to one U+FFFD, and the
+    // text around it survives.
+    struct row { const char* bytes; int len; const char* label; };
+    const row rows[] = {
+        { "\xC0\x80",                        2, "C0 80" },
+        { "\xE0\x80\x80",                    3, "E0 80 80" },
+        { "\xF0\x80\x80\x80",                4, "F0 80 80 80" },
+        { "\xF8\x80\x80\x80\x80",            5, "F8 80 80 80 80" },
+        { "\xFC\x80\x80\x80\x80\x80",        6, "FC 80 80 80 80 80" },
+    };
+
+#if MG_OS__WIN_AVAIL
+    for (const auto& r : rows) {
+        // Standalone.
+        memepp::string alone{ r.bytes, static_cast<mmint_t>(r.len) };
+        auto w = memepp::to<std::wstring>(alone);
+        INFO(r.label);
+        REQUIRE(w.size() == 1);
+        REQUIRE(static_cast<uint16_t>(w[0]) == 0xFFFD);
+
+        // Spliced between ASCII: the trailing character must not be dropped.
+        std::string spliced = "A";
+        spliced.append(r.bytes, static_cast<size_t>(r.len));
+        spliced.push_back('B');
+        memepp::string s{ spliced.data(), static_cast<mmint_t>(spliced.size()) };
+
+        auto ws = memepp::to<std::wstring>(s);
+        INFO(r.label);
+        REQUIRE(ws.size() == 3);
+        REQUIRE(static_cast<uint16_t>(ws[0]) == 0x0041);
+        REQUIRE(static_cast<uint16_t>(ws[1]) == 0xFFFD);
+        REQUIRE(static_cast<uint16_t>(ws[2]) == 0x0042);
+    }
+#else
+    // UTF-32 can hold U+0000 directly, so the substitution does not apply and
+    // the decoded code point is preserved.
+    for (const auto& r : rows) {
+        memepp::string alone{ r.bytes, static_cast<mmint_t>(r.len) };
+        auto w = memepp::to<std::wstring>(alone);
+        INFO(r.label);
+        REQUIRE(w.size() == 1);
+        REQUIRE(static_cast<uint32_t>(w[0]) == 0x0000);
+    }
+#endif
+}
+
+TEST_CASE("memepp::to<std::wstring> — a real NUL and other overlongs are untouched", "[wstring]")
+{
+#if MG_OS__WIN_AVAIL
+    // A single 0x00 byte is a legitimate U+0000 and must stay a NUL code unit.
+    memepp::string real_nul{ "A" "\x00" "B", 3 };
+    auto w1 = memepp::to<std::wstring>(real_nul);
+    REQUIRE(w1.size() == 3);
+    REQUIRE(static_cast<uint16_t>(w1[0]) == 0x0041);
+    REQUIRE(static_cast<uint16_t>(w1[1]) == 0x0000);
+    REQUIRE(static_cast<uint16_t>(w1[2]) == 0x0042);
+
+    // Overlong encodings of non-zero code points keep their value.
+    struct row { const char* bytes; mmint_t len; uint16_t want; };
+    const row rows[] = {
+        { "\xC1\xBF",     2, 0x007F },   /* overlong U+007F */
+        { "\xE0\x9F\xBF", 3, 0x07FF },   /* overlong U+07FF */
+    };
+    for (const auto& r : rows) {
+        memepp::string s{ r.bytes, r.len };
+        auto w = memepp::to<std::wstring>(s);
+        REQUIRE(w.size() == 1);
+        REQUIRE(static_cast<uint16_t>(w[0]) == r.want);
+    }
+#endif
 }
 
 TEST_CASE("memepp::to<std::wstring> — roundtrip preserves supplementary plane", "[wstring]")
