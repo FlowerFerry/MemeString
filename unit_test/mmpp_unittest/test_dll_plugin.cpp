@@ -11,8 +11,8 @@
 #include <memory>
 #include <string>
 
+#include <mego/util/os/windows/windows_simplify.h>
 #if defined(_WIN32)
-#  include <windows.h>
 #else
 #  include <dlfcn.h>
 #endif
@@ -233,8 +233,6 @@ TEST_CASE("plugin DLL — round trip leaves the host object untouched", "[dll][p
 // user only bump a reference count.  All four must arrive intact on the plugin
 // side, and the host object must survive the crossing unchanged.
 // ---------------------------------------------------------------------------
-
-#undef small
 
 TEST_CASE("plugin DLL — host -> plugin across all storage classes", "[dll][plugin]")
 {
