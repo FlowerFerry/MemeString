@@ -76,6 +76,7 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/test_utf_rune.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_wstring_converter.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_u16string_converter.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_u32string_converter.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_u8string_converter.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_dll_import_export.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_dll_plugin.cpp

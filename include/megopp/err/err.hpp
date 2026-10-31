@@ -494,8 +494,11 @@ public:
 
     const char* what() const noexcept;
 
-    constexpr int32_t code() const noexcept;
-    constexpr int32_t usercode() const noexcept;
+    // Defined in-class: C++11 rejects a constexpr member declared constexpr in the
+    // class and defined constexpr out of line when the enclosing class is not a
+    // literal type (err holds a std::unique_ptr member).
+    constexpr int32_t code() const noexcept { return code_; }
+    constexpr int32_t usercode() const noexcept { return user_code_; }
     const memepp::string &message() const noexcept;
 
     memepp::string solution() const noexcept;
@@ -549,16 +552,6 @@ private:
 inline const char* err::what() const noexcept
 {
     return message().data();
-}
-
-inline constexpr int32_t err::code() const noexcept
-{
-    return code_;
-}
-
-inline constexpr int32_t err::usercode() const noexcept
-{
-    return user_code_;
 }
 
 inline const memepp::string &err::message() const noexcept
