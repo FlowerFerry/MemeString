@@ -53,7 +53,7 @@ extern "C" {
         mgu_round_up = 1
     } mgu_round_t;
 
-#ifdef TIME_UTC
+#if defined(TIME_UTC) && (!defined(__ANDROID__) || __ANDROID_API__ >= 29)
     MG_CAPI_INLINE int mgu_timespec_get(mgu_timespec_t* _ts, int _base)
     {
         struct timespec ts;
