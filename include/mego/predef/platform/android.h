@@ -1,4 +1,3 @@
-
 // Boost Software License - Version 1.0
 
 // Permission is hereby granted, free of charge, to any person or organization
@@ -23,21 +22,23 @@
 // ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-#ifndef MEGO_PREDEF_OS_ANDROID_H_INCLUDED
-#define MEGO_PREDEF_OS_ANDROID_H_INCLUDED
+#ifndef MEGO_PREDEF_PLATFORM_ANDROID_H_INCLUDED
+#define MEGO_PREDEF_PLATFORM_ANDROID_H_INCLUDED
 
-#if !defined(__MEGO_PREDEF_DETAIL__OS_DETECTED) && \
-	(defined(__ANDROID__)) 
+#include "../os/linux.h"
 
-#	define MEGO_OS__ANDROID__AVAILABLE (1)
-#	include "details/os_detected.h"
+#if !defined(__MEGO_PREDEF_DETAIL__PLATFORM_DETECTED) && \
+    defined(__ANDROID__)
 
-#endif 
+#	define MEGO_PLAT__ANDROID__AVAILABLE (1)
+#	include "details/platform_detected.h"
 
-#ifndef MEGO_OS__ANDROID__AVAILABLE
-#	define MEGO_OS__ANDROID__AVAILABLE (0)
-#endif // !MEGO_OS__ANDROID__AVAILABLE
+#endif
 
-#define MG_OS__ANDROID_AVAIL (MEGO_OS__ANDROID__AVAILABLE)
+#ifndef MEGO_PLAT__ANDROID__AVAILABLE
+#	define MEGO_PLAT__ANDROID__AVAILABLE (0)
+#endif // !MEGO_PLAT__ANDROID__AVAILABLE
 
-#endif // !MEGO_PREDEF_OS_ANDROID_H_INCLUDED
+#define MG_PLAT__ANDROID_AVAIL (MEGO_PLAT__ANDROID__AVAILABLE)
+
+#endif // !MEGO_PREDEF_PLATFORM_ANDROID_H_INCLUDED
