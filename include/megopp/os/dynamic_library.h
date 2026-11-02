@@ -4,6 +4,7 @@
 
 #include <mego/predef/os/linux.h>
 #include <mego/predef/os/windows.h>
+#include <mego/predef/platform/android.h>
 #include <mego/util/os/windows/windows_simplify.h>
 
 #include "memepp/string_view.hpp"
@@ -116,7 +117,7 @@ namespace os {
 		}
 #else
 		handle = ::dlopen(_path.c_str(), 
-#if MG_OS__LINUX_AVAIL
+#if MG_OS__LINUX_AVAIL && !MG_PLAT__ANDROID_AVAIL
 				RTLD_NOW | RTLD_LOCAL | RTLD_DEEPBIND);
 #else
 				RTLD_NOW | RTLD_LOCAL);
