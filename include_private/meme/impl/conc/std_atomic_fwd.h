@@ -90,25 +90,25 @@ MEGO__STATIC_ASSERT(
 
 typedef struct mmconc_std_atmc_i64 {
     mmconc_atomic_none_t base;
-    uint8_t reserved[MMCONC_ATOMIC_INT64_OBJ_SIZE - sizeof(mmconc_atomic_none_t) - sizeof(atomic_llong)];
-    atomic_llong data;
+    uint8_t reserved[MMCONC_ATOMIC_INT64_OBJ_SIZE - sizeof(mmconc_atomic_none_t) - sizeof(_Atomic int64_t)];
+    _Atomic int64_t data;
 } mmconc_std_atmc_i64_t;
 
 typedef struct mmconc_std_atmc_u64 {
     mmconc_atomic_none_t base;
-    uint8_t reserved[MMCONC_ATOMIC_UINT64_OBJ_SIZE - sizeof(mmconc_atomic_none_t) - sizeof(atomic_ullong)];
-    atomic_ullong data;
+    uint8_t reserved[MMCONC_ATOMIC_UINT64_OBJ_SIZE - sizeof(mmconc_atomic_none_t) - sizeof(_Atomic uint64_t)];
+    _Atomic uint64_t data;
 } mmconc_std_atmc_u64_t;
 
 MEGO__STATIC_ASSERT(
     sizeof(mmconc_std_atmc_i64_t) == sizeof(mmconc_atomic_int64_t),
     mmconc_std_atmc_i64_size_mismatch,
-    "'atomic_llong' size mismatch");
+    "'_Atomic int64_t' size mismatch");
 
     MEGO__STATIC_ASSERT(
     sizeof(mmconc_std_atmc_u64_t) == sizeof(mmconc_atomic_uint64_t),
     mmconc_std_atmc_u64_size_mismatch,
-    "'atomic_ullong' size mismatch");
+    "'_Atomic uint64_t' size mismatch");
 
 typedef struct mmconc_std_atmc_flag {
     mmconc_atomic_none_t base;

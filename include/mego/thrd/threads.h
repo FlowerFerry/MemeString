@@ -234,7 +234,7 @@ MG_CAPI_INLINE int mgthrd_sleep(const struct mgu_timespec_t *_duration, struct m
     if (!_duration) 
         return -2;
 
-	mgu_timespec_get(&start, TIME_UTC);
+	mgu_timespec_get(&start, MGU_TIME_UTC);
 
 	t = SleepEx((DWORD)(_duration->tv_sec * 1000 +
 		_duration->tv_nsec / 1000000 +
@@ -246,7 +246,7 @@ MG_CAPI_INLINE int mgthrd_sleep(const struct mgu_timespec_t *_duration, struct m
 	}
 	else {
 		if (_remaining != NULL) {
-			mgu_timespec_get(_remaining, TIME_UTC);
+			mgu_timespec_get(_remaining, MGU_TIME_UTC);
 			_remaining->tv_sec -= start.tv_sec;
 			_remaining->tv_nsec -= start.tv_nsec;
 			if (_remaining->tv_nsec < 0)
