@@ -1834,6 +1834,54 @@ mmint_t mmsimd_avx2_u8_find(const uint8_t* _buf, mmint_t _len, uint8_t _val)
     return mmsimd_avx2_i8_find((const int8_t*)_buf, _len, (int8_t)_val);
 }
 
+/* Index of the lowest set bit. _mask must be non-zero. */
+MG_CAPI_INLINE mmint_t __mmsimd_avx2_ctz32(uint32_t _mask)
+{
+#if MG_COMP__MSVC_AVAIL
+    unsigned long idx = 0;
+    _BitScanForward(&idx, (unsigned long)_mask);
+    return (mmint_t)idx;
+#else
+    return (mmint_t)__builtin_ctz(_mask);
+#endif
+}
+
+/* Two-key variant: finds the lowest index where _buf[i] is _v1 or _v2.
+ * Both comparisons are fused into one movemask so only a single
+ * vector-to-GPR transfer happens per block. */
+MG_SYM__TARGET_AVX2
+mmint_t mmsimd_avx2_u8_find2(
+    const uint8_t* _buf, mmint_t _len, uint8_t _v1, uint8_t _v2)
+{
+    mmint_t idx = 0;
+    const mmint_t blk = (mmint_t)sizeof(__m256i);
+
+    if (_len >= blk)
+    {
+        const __m256i vv1 = _mm256_set1_epi8((char)_v1);
+        const __m256i vv2 = _mm256_set1_epi8((char)_v2);
+
+        for (; idx + blk <= _len; idx += blk)
+        {
+            const __m256i vi  = _mm256_loadu_si256((const __m256i*)&_buf[idx]);
+            const __m256i m1  = _mm256_cmpeq_epi8(vi, vv1);
+            const __m256i m2  = _mm256_cmpeq_epi8(vi, vv2);
+            const uint32_t mk = (uint32_t)_mm256_movemask_epi8(_mm256_or_si256(m1, m2));
+
+            if (mk)
+                return idx + __mmsimd_avx2_ctz32(mk);
+        }
+    }
+
+    for (; idx < _len; ++idx)
+    {
+        if (_buf[idx] == _v1 || _buf[idx] == _v2)
+            return idx;
+    }
+
+    return -1;
+}
+
 MG_SYM__TARGET_AVX2
 mmint_t mmsimd_avx2_i16_find(const int16_t* _buf, mmint_t _len, int16_t _val)
 {

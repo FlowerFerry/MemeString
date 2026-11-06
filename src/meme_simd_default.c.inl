@@ -251,6 +251,19 @@ MMSIMD_DEFAULT_CONV_FUNC(f64, f32, double, float)
 
 MMSIMD_DEFAULT_FIND_FUNC(i8, int8_t)
 MMSIMD_DEFAULT_FIND_FUNC(u8, uint8_t)
+
+/* Two-key variant: matches either _v1 or _v2. Hand-written because the
+ * MMSIMD_DEFAULT_FIND_FUNC macro only produces single-key functions. */
+static mmint_t mmsimd_default_u8_find2(
+    const uint8_t* _buf, mmint_t _len, uint8_t _v1, uint8_t _v2)
+{
+    for (mmint_t i = 0; i < _len; ++i)
+    {
+        if (_buf[i] == _v1 || _buf[i] == _v2)
+            return i;
+    }
+    return -1;
+}
 MMSIMD_DEFAULT_FIND_FUNC(i16, int16_t)
 MMSIMD_DEFAULT_FIND_FUNC(u16, uint16_t)
 MMSIMD_DEFAULT_FIND_FUNC(i32, int32_t)

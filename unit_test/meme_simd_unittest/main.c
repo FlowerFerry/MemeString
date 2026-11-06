@@ -2859,6 +2859,65 @@ MU_TEST(ctest_mmsimd_u8_find_002)
     mu_assert(c == -1, "Error: c == -1 failed");
 }
 
+MU_TEST(ctest_mmsimd_u8_find2_001)
+{
+    /* basic: v1 hit, v2 hit, neither present */
+    uint8_t a[65];
+    for (int i = 0; i < 65; ++i)
+        a[i] = (uint8_t)('0' + (i % 10));
+
+    mu_assert(mmsimd_u8_find2(a, 65, '3', 'X') == 3,  "Error: v1 hit failed");
+    mu_assert(mmsimd_u8_find2(a, 65, 'X', '3') == 3,  "Error: v2 hit failed");
+    mu_assert(mmsimd_u8_find2(a, 65, 'X', 'Y') == -1, "Error: no hit failed");
+}
+
+MU_TEST(ctest_mmsimd_u8_find2_002)
+{
+    /* v1 == v2 must degrade to the single-key behaviour */
+    uint8_t a[65];
+    for (int i = 0; i < 65; ++i)
+        a[i] = (uint8_t)i;
+
+    mu_assert(mmsimd_u8_find2(a, 65, 31, 31) == 31, "Error: same key failed");
+    mu_assert(mmsimd_u8_find2(a, 65, 31, 31) == mmsimd_u8_find(a, 65, 31),
+        "Error: same key != u8_find");
+}
+
+MU_TEST(ctest_mmsimd_u8_find2_003)
+{
+    /* lowest index wins: v2 occurs first, v1 later */
+    uint8_t a[8] = { 'z','z','z','z','A','z','a','z' };
+
+    mu_assert(mmsimd_u8_find2(a, 8, 'a', 'A') == 4, "Error: lowest index failed");
+    mu_assert(mmsimd_u8_find2(a, 8, 'A', 'a') == 4, "Error: argument order changed result");
+}
+
+MU_TEST(ctest_mmsimd_u8_find2_004)
+{
+    /* AVX2 32-byte block boundary and scalar tail */
+    uint8_t a[70];
+    for (int i = 0; i < 70; ++i)
+        a[i] = 'x';
+
+    mu_assert(mmsimd_u8_find2(a, 70, 'A', 'a') == -1, "Error: full scan failed");
+
+    a[31] = 'A';
+    mu_assert(mmsimd_u8_find2(a, 70, 'A', 'a') == 31, "Error: block boundary failed");
+
+    a[31] = 'x';
+    a[69] = 'a';
+    mu_assert(mmsimd_u8_find2(a, 70, 'A', 'a') == 69, "Error: scalar tail failed");
+}
+
+MU_TEST(ctest_mmsimd_u8_find2_005)
+{
+    /* non-positive length must not read out of bounds */
+    uint8_t a[4] = { 'A','B','C','D' };
+
+    mu_assert(mmsimd_u8_find2(a, 0,  'A', 'a') == -1, "Error: len 0 failed");
+    mu_assert(mmsimd_u8_find2(a, -1, 'A', 'a') == -1, "Error: len -1 failed");
+}
+
 MU_TEST(ctest_mmsimd_i16_find_001)
 {
     int16_t a[65];
@@ -3669,6 +3728,11 @@ MU_TEST_SUITE(ctest_suite) {
     MU_RUN_TEST(ctest_mmsimd_i8_find_002);
     MU_RUN_TEST(ctest_mmsimd_u8_find_001);
     MU_RUN_TEST(ctest_mmsimd_u8_find_002);
+    MU_RUN_TEST(ctest_mmsimd_u8_find2_001);
+    MU_RUN_TEST(ctest_mmsimd_u8_find2_002);
+    MU_RUN_TEST(ctest_mmsimd_u8_find2_003);
+    MU_RUN_TEST(ctest_mmsimd_u8_find2_004);
+    MU_RUN_TEST(ctest_mmsimd_u8_find2_005);
     MU_RUN_TEST(ctest_mmsimd_i16_find_001);
     MU_RUN_TEST(ctest_mmsimd_i16_find_002);
     MU_RUN_TEST(ctest_mmsimd_u16_find_001);

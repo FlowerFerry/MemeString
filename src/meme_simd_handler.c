@@ -639,6 +639,7 @@ static mmsimd_other8_hdlr_t* mmsimd_get_default_other8_handler()
     static mmsimd_other8_hdlr_t hdlr = {
         .i8_find_fn = mmsimd_default_i8_find,
         .u8_find_fn = mmsimd_default_u8_find,
+        .u8_find2_fn = mmsimd_default_u8_find2,
         
         .i8_rfind_fn = mmsimd_default_i8_rfind,
         .u8_rfind_fn = mmsimd_default_u8_rfind,
@@ -717,6 +718,7 @@ static mmsimd_other8_hdlr_t* mmsimd_get_avx2_other8_handler()
     static mmsimd_other8_hdlr_t hdlr = {
         .i8_find_fn = mmsimd_avx2_i8_find,
         .u8_find_fn = mmsimd_avx2_u8_find,
+        .u8_find2_fn = mmsimd_avx2_u8_find2,
 
         .i8_rfind_fn = mmsimd_default_i8_rfind,
         .u8_rfind_fn = mmsimd_default_u8_rfind,
@@ -1030,6 +1032,15 @@ MMSIMD_FIND_FUNC(64, i64, int64_t)
 MMSIMD_FIND_FUNC(64, u64, uint64_t)
 //MMSIMD_FIND_FUNC(32, f32, float)
 //MMSIMD_FIND_FUNC(64, f64, double)
+
+/* Two-key variant. Not expressed through MMSIMD_FIND_FUNC because that
+ * macro emits both _find and _rfind with a single-key signature. */
+MEME_API mmint_t MEME_STDCALL mmsimd_u8_find2(
+    const uint8_t* _in, mmint_t _len, uint8_t _v1, uint8_t _v2)
+{
+    mmsimd_other8_hdlr_t* hdlr = mmsimd_get_best_other8_handler();
+    return hdlr->u8_find2_fn(_in, _len, _v1, _v2);
+}
 
 #undef MMSIMD_FIND_FUNC
 

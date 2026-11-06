@@ -214,6 +214,7 @@ struct mmsimd_other8_hdlr
 {
     mmsimd_i8_find_func_t* i8_find_fn;
     mmsimd_u8_find_func_t* u8_find_fn;
+    mmsimd_u8_find2_func_t* u8_find2_fn;
 
     mmsimd_i8_find_func_t* i8_rfind_fn;
     mmsimd_u8_find_func_t* u8_rfind_fn;
