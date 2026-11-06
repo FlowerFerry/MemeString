@@ -1816,14 +1816,17 @@ mmint_t mmsimd_avx2_i8_find(const int8_t* _buf, mmint_t _len, int8_t _val)
 {
     mmint_t idx = 0;
 
-    /* Precompute the last index at which a full 32-byte block still fits,
-     * so the loop condition is a single compare instead of an add + compare. */
+    /* last_block is the highest index at which a full 32-byte block still
+     * fits inside _len.  Keep it as an inclusive bound in the loop condition,
+     * NOT as a post-scan early exit: an idx >= last_block test placed after
+     * the scan lets one extra block through (e.g. _len=65, last_block=33
+     * scans 0 and 32, then 64 -> reads 31 bytes past the end). */
     if (_len >= (mmint_t)sizeof(__m256i))
     {
         const mmint_t last_block = _len - (mmint_t)sizeof(__m256i);
         const __m256i vval = _mm256_set1_epi8(_val);
 
-        for (;; idx += (mmint_t)sizeof(__m256i))
+        for (; idx <= last_block; idx += (mmint_t)sizeof(__m256i))
         {
             const __m256i vi = _mm256_loadu_si256((const __m256i*)&_buf[idx]);
             const __m256i vm = _mm256_cmpeq_epi8(vi, vval);
@@ -1834,12 +1837,6 @@ mmint_t mmsimd_avx2_i8_find(const int8_t* _buf, mmint_t _len, int8_t _val)
              * hit, which is where most of this function's cost went. */
             if (mask)
                 return idx + __mmsimd_avx2_ctz32(mask);
-
-            if (idx >= last_block)
-            {
-                idx += (mmint_t)sizeof(__m256i);
-                break;
-            }
         }
     }
 
