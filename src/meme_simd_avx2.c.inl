@@ -1811,6 +1811,20 @@ MG_CAPI_INLINE mmint_t __mmsimd_avx2_ctz32(uint32_t _mask)
 #endif
 }
 
+/* Index of the highest set bit. _mask must be non-zero.  No BMI1/LZCNT
+ * requirement: BSR (via _BitScanReverse) and 31 - __builtin_clz are both
+ * baseline x86 available everywhere AVX2 is. */
+MG_CAPI_INLINE mmint_t __mmsimd_avx2_msb32(uint32_t _mask)
+{
+#if MG_COMP__MSVC_AVAIL
+    unsigned long idx = 0;
+    _BitScanReverse(&idx, (unsigned long)_mask);
+    return (mmint_t)idx;
+#else
+    return (mmint_t)(31 - __builtin_clz((unsigned int)_mask));
+#endif
+}
+
 MG_SYM__TARGET_AVX2
 mmint_t mmsimd_avx2_i8_find(const int8_t* _buf, mmint_t _len, int8_t _val)
 {
@@ -1884,6 +1898,47 @@ mmint_t mmsimd_avx2_u8_find2(
     {
         if (_buf[idx] == _v1 || _buf[idx] == _v2)
             return idx;
+    }
+
+    return -1;
+}
+
+/* Two-key reverse variant: scans blocks from the end, returning the highest
+ * index whose byte equals either key.  Processes 32-byte blocks so the cost
+ * stays linear in _len; a per-candidate reverse rescan would be quadratic. */
+MG_SYM__TARGET_AVX2
+mmint_t mmsimd_avx2_u8_rfind2(
+    const uint8_t* _buf, mmint_t _len, uint8_t _v1, uint8_t _v2)
+{
+    mmint_t end = _len;
+    const mmint_t blk = (mmint_t)sizeof(__m256i);
+
+    if (end >= blk)
+    {
+        const __m256i vv1 = _mm256_set1_epi8((char)_v1);
+        const __m256i vv2 = _mm256_set1_epi8((char)_v2);
+
+        do
+        {
+            end -= blk;
+
+            const __m256i vi = _mm256_loadu_si256((const __m256i*)(_buf + end));
+            const __m256i m1 = _mm256_cmpeq_epi8(vi, vv1);
+            const __m256i m2 = _mm256_cmpeq_epi8(vi, vv2);
+            const uint32_t mk = (uint32_t)_mm256_movemask_epi8(
+                _mm256_or_si256(m1, m2));
+
+            if (mk != 0)
+                return end + __mmsimd_avx2_msb32(mk);
+        } while (end >= blk);
+    }
+
+    /* Remaining prefix, strictly before the scanned blocks. */
+    while (end > 0)
+    {
+        --end;
+        if (_buf[end] == _v1 || _buf[end] == _v2)
+            return end;
     }
 
     return -1;

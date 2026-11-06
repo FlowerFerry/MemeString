@@ -264,6 +264,18 @@ static mmint_t mmsimd_default_u8_find2(
     }
     return -1;
 }
+
+/* Two-key reverse variant: highest index matching either key. */
+static mmint_t mmsimd_default_u8_rfind2(
+    const uint8_t* _buf, mmint_t _len, uint8_t _v1, uint8_t _v2)
+{
+    for (mmint_t i = _len - 1; i >= 0; --i)
+    {
+        if (_buf[i] == _v1 || _buf[i] == _v2)
+            return i;
+    }
+    return -1;
+}
 MMSIMD_DEFAULT_FIND_FUNC(i16, int16_t)
 MMSIMD_DEFAULT_FIND_FUNC(u16, uint16_t)
 MMSIMD_DEFAULT_FIND_FUNC(i32, int32_t)

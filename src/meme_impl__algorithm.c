@@ -716,28 +716,28 @@ static mmint_t __MemeImpl_shortForwardSearch(
     const mmint_t mid_len = _needle_len - 2;
     mmint_t       pos = 0;
 
+    /* Only ASCII letters have a case pair.  Folding '@' (0x40) gives '`'
+     * (0x60), '[' (0x5B) gives '{' (0x7B), 0x80 gives 0xA0 -- none of those
+     * are case variants, so pairing them would produce false matches.
+     * first_is_letter gates the two-key scan for exactly this reason. */
+    const int     first_is_letter =
+        fold && first >= 0x61u && first <= 0x7au;
+    const uint8_t alternate =
+        first_is_letter ? (uint8_t)(first ^ 0x20u) : first;
+
     while (pos <= last_start)
     {
+        const mmint_t scan_len = last_start - pos + 1;
         mmint_t rel;
 
-        if (fold)
+        if (first_is_letter)
         {
-            /* Folding means the first byte can appear in either case, so the
-             * scan must look for both.  mmsimd_u8_find2 compares two keys in
-             * a single SIMD pass and returns the lower index; when the byte is
-             * not a letter the two keys are equal and it degenerates to
-             * mmsimd_u8_find. */
-            const uint8_t lo = _SHORT_CF(_needle[0]);
-            /* Bit arithmetic, not toupper: toupper follows setlocale(), and
-             * under tr_TR it would fold 'i' to a byte outside ASCII. */
-            const uint8_t hi = (uint8_t)(lo ^ 0x20u);
-            rel = mmsimd_u8_find2(
-                _haystack + pos, last_start - pos + 1, lo, hi);
+            /* Both cases of the first byte in one SIMD pass. */
+            rel = mmsimd_u8_find2(_haystack + pos, scan_len, first, alternate);
         }
         else
         {
-            rel = mmsimd_u8_find(
-                _haystack + pos, last_start - pos + 1, first);
+            rel = mmsimd_u8_find(_haystack + pos, scan_len, first);
         }
 
         if (rel < 0)
@@ -773,26 +773,30 @@ static mmint_t __MemeImpl_shortReverseSearch(
     const mmint_t mid_len = _needle_len - 2;
     mmint_t       last_start = _haystack_len - _needle_len;
 
+    /* See __MemeImpl_shortForwardSearch: only ASCII letters have a case
+     * pair, so only they may be searched as a two-key set. */
+    const int     first_is_letter =
+        fold && first >= 0x61u && first <= 0x7au;
+    const uint8_t alternate =
+        first_is_letter ? (uint8_t)(first ^ 0x20u) : first;
+
     while (last_start >= 0)
     {
-        /* The reverse SIMD primitive has no two-key form, so under folding
-         * both cases are searched and the larger index wins (reverse search
-         * takes the LAST occurrence). */
+        const mmint_t scan_len = last_start + 1;
         mmint_t rel;
 
-        if (fold)
+        /* mmsimd_u8_rfind2 scans 32-byte blocks from the end and takes the
+         * highest matching bit, so the whole search stays linear.  Calling
+         * rfind twice per candidate (the previous approach) rescanned the
+         * remaining prefix each round, which is quadratic: 16 KiB of 'a'
+         * with needle "ab" took 31 ms. */
+        if (first_is_letter)
         {
-            const uint8_t lo = _SHORT_CF(_needle[0]);
-            /* Bit arithmetic, not toupper: locale-independent, and matches
-             * the folding used by _bm_casefold_table. */
-            const uint8_t hi = (uint8_t)(lo ^ 0x20u);
-            const mmint_t a = mmsimd_u8_rfind(_haystack, last_start + 1, lo);
-            const mmint_t b = mmsimd_u8_rfind(_haystack, last_start + 1, hi);
-            rel = (a > b) ? a : b;
+            rel = mmsimd_u8_rfind2(_haystack, scan_len, first, alternate);
         }
         else
         {
-            rel = mmsimd_u8_rfind(_haystack, last_start + 1, first);
+            rel = mmsimd_u8_rfind(_haystack, scan_len, first);
         }
 
         if (rel < 0)
@@ -1037,21 +1041,27 @@ mmint_t MemeImpl_ReverseSearchByViolenceWithSensitivity(
         return p_lo ? (mmint_t)(p_lo - (const char*)_source) : -1;
     }
 
-    /* Fixed-length buffer: unchanged.  strrchr would read past the end when
-     * the buffer has no terminator, and mmsimd_u8_rfind has no vectorised
-     * implementation on this branch (the AVX2 handler registers the scalar
-     * mmsimd_default_u8_rfind -- see src/meme_simd_handler.c:722), so there is
-     * nothing to gain here.  Out of scope for this change. */
+    /* Fixed-length buffer.  strrchr cannot be used here because the buffer
+     * may have no terminator; the bounded SIMD primitive is the right tool.
+     * */
     if ((_cs & MemeFlag_CaseSensitive) == 0)
     {
-        uint8_t key = (uint8_t)tolower(_key);
-        for (MemeInteger_t index = _source_len - 1; index >= 0; --index)
-            if (tolower(_source[index]) == key)
-                return index;
-    }
-    else {
+        /* ASCII-only case folding, matching _bm_casefold_table.
+         * Bit arithmetic instead of tolower so the result does not depend on
+         * the CRT locale (tr_TR maps 'I' to U+0131). */
+        const unsigned folded = (unsigned)_key | 0x20u;
+
+        if (folded >= 0x61u && folded <= 0x7au) {
+            /* Both cases of the key in one reverse SIMD pass. */
+            return mmsimd_u8_rfind2(
+                _source, _source_len,
+                (uint8_t)folded, (uint8_t)(folded ^ 0x20u));
+        }
+
+        /* Non-ASCII letters -- and every non-letter byte such as digits
+         * and punctuation -- only match the raw byte. */
         return mmsimd_u8_rfind(_source, _source_len, _key);
     }
 
-    return -1;
+    return mmsimd_u8_rfind(_source, _source_len, _key);
 }

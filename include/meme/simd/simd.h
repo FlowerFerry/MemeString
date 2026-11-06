@@ -653,6 +653,12 @@ MEME_API mmint_t
 MEME_STDCALL mmsimd_u8_find2(
     const uint8_t* _buf, mmint_t _len, uint8_t _v1, uint8_t _v2);
 
+/* Reverse variant: finds the LAST index whose byte equals _v1 or _v2.
+ * Returns -1 when neither is present, or when _len <= 0. */
+MEME_API mmint_t
+MEME_STDCALL mmsimd_u8_rfind2(
+    const uint8_t* _buf, mmint_t _len, uint8_t _v1, uint8_t _v2);
+
 MEME_API mmint_t
 MEME_STDCALL mmsimd_u8_rfind(const uint8_t* _buf, mmint_t _len, uint8_t _val);
 
