@@ -35,7 +35,7 @@ MEME_STDCALL MemeVariableBufferStack_initByOther(
 	case MemeString_ImplType_medium: {
 		MemeStringStack_init((MemeStringStack_t*)_out, MEME_STRING__OBJECT_SIZE);
 		return (int)MemeVariableBuffer_appendWithBytes((MemeVariableBuffer_t)_out,
-			MemeString_byteData((MemeString_t)_other), MemeString_byteSize((MemeString_t)_other));
+			MemeStringImpl_byteData((MemeString_t)_other), MemeStringImpl_byteSize((MemeString_t)_other));
 	};
 	default: {
 		return (MGEC__OPNOTSUPP);
@@ -137,18 +137,18 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeVariableBuffer_isEmpty(MemeVariableB
 MEME_EXTERN_C MEME_API const MemeByte_t*
 MEME_STDCALL MemeVariableBuffer_data(MemeVariableBuffer_Const_t _s)
 {
-	return MemeString_byteData((MemeString_Const_t)_s);
+	return MemeStringImpl_byteData((MemeString_Const_t)_s);
 }
 
 MEME_EXTERN_C MEME_API MemeByte_t* MEME_STDCALL MemeVariableBuffer_dataWithNotConst(MemeVariableBuffer_t _s)
 {
-	return (MemeByte_t*)MemeString_byteData((MemeString_Const_t)_s);
+	return (MemeByte_t*)MemeStringImpl_byteData((MemeString_Const_t)_s);
 }
 
 MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeVariableBuffer_size(MemeVariableBuffer_Const_t _s)
 {
-	return MemeString_byteSize((MemeString_Const_t)_s);
+	return MemeStringImpl_byteSize((MemeString_Const_t)_s);
 }
 
 MEME_EXTERN_C MEME_API MemeInteger_t
@@ -399,7 +399,7 @@ MEME_STDCALL MemeVariableBuffer_prependWithBytes(
 		}
 		else {
 			int result = MemeStringImpl_capacityExpansionSmallToMedium(
-				(MemeStringStack_t*)s, MemeString_byteSize(s) + _len);
+				(MemeStringStack_t*)s, MemeStringImpl_byteSize(s) + _len);
 			if (result)
 				return result;
 			return MemeStringMedium_prependWithBytes((MemeStringMedium_t*)s, _buf, _len);
@@ -532,7 +532,7 @@ MEME_STDCALL MemeVariableBuffer_appendWithBytes(
 		}
 		else {
 			int result = MemeStringImpl_capacityExpansionSmallToMedium(
-				(MemeStringStack_t*)s, MemeString_byteSize(s) + _len);
+				(MemeStringStack_t*)s, MemeStringImpl_byteSize(s) + _len);
 			if (result)
 				return result;
 			return MemeStringMedium_appendWithBytes((MemeStringMedium_t*)s, _buf, _len);
@@ -572,7 +572,7 @@ MEME_STDCALL MemeVariableBuffer_appendWithRepeatBytes(
 		}
 		else {
 			int result = MemeStringImpl_capacityExpansionSmallToMedium(
-				(MemeStringStack_t*)s, MemeString_byteSize(s) + _count);
+				(MemeStringStack_t*)s, MemeStringImpl_byteSize(s) + _count);
 			if (result)
 				return result;
 			return MemeStringMedium_appendWithByte((MemeStringMedium_t*)s, _count, _byte);
@@ -641,7 +641,7 @@ MEME_STDCALL MemeVariableBuffer_appendWithOther(
 		}
 		else {
 			int result = MemeStringImpl_capacityExpansionSmallToMedium(
-				(MemeStringStack_t*)str, MemeString_byteSize(str) + MemeVariableBuffer_size(_other));
+				(MemeStringStack_t*)str, MemeStringImpl_byteSize(str) + MemeVariableBuffer_size(_other));
 			if (result)
 				return result;
 			return MemeStringMedium_appendWithBytes(
@@ -677,15 +677,15 @@ MEME_STDCALL MemeVariableBuffer_insertWithBytes(
 		_len = strlen((const char*)_buf);
 	if ((_buf == NULL || _len == 0))
 		return (MGEC__INVAL);
-	if (_pos < 0 || _pos > MemeString_byteSize(s))
+	if (_pos < 0 || _pos > MemeStringImpl_byteSize(s))
 		return (MGEC__INVAL);
 
     /* Self-alias: inserting the buffer's own bytes.  The insert may promote
        small->medium or realloc the medium storage, which would invalidate
        _buf before it is read.  Copy the source first. */
     {
-        const MemeByte_t* own = MemeString_byteData(s);
-        const MemeInteger_t own_size = MemeString_byteSize(s);
+        const MemeByte_t* own = MemeStringImpl_byteData(s);
+        const MemeInteger_t own_size = MemeStringImpl_byteSize(s);
         if (own != NULL && own_size > 0 && _buf >= own && _buf < own + own_size)
         {
             staging = (MemeByte_t*)mmmem_malloc((size_t)_len);
@@ -706,7 +706,7 @@ MEME_STDCALL MemeVariableBuffer_insertWithBytes(
         }
         else {
             result = MemeStringImpl_capacityExpansionSmallToMedium(
-                (MemeStringStack_t*)s, MemeString_byteSize(s) + _len);
+                (MemeStringStack_t*)s, MemeStringImpl_byteSize(s) + _len);
             if (result == 0)
                 result = MemeStringMedium_insertWithBytes((MemeStringMedium_t*)s, _pos, _buf, _len);
         }
@@ -1017,7 +1017,7 @@ MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL MemeVariableBuffer_selfChop(Me
 
 	if (_n <= 0)
 		return 0;
-	else if (_n > MemeString_byteSize((MemeString_t)_s)) 
+	else if (_n > MemeStringImpl_byteSize((MemeString_t)_s)) 
 	{
 		MemeVariableBuffer_clear(_s);
 		return 0;
@@ -1046,7 +1046,7 @@ MEME_EXTERN_C MEME_API MemeInteger_t MEME_STDCALL MemeVariableBuffer_capacityCor
 		return 0;
 
 	if (MemeString_maxByteCapacity((MemeString_Const_t)_s) ==
-		MemeString_availableByteCapacity((MemeString_Const_t)_s) + MemeString_byteSize((MemeString_Const_t)_s))
+		MemeString_availableByteCapacity((MemeString_Const_t)_s) + MemeStringImpl_byteSize((MemeString_Const_t)_s))
 		return 1;
 	else
 		return 0;

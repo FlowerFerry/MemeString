@@ -127,13 +127,13 @@ MEME_STDCALL MemeBuffer_at(mmbuf_cptr_t _s, mmint_t _pos)
 MEME_EXTERN_C MEME_API const MemeByte_t*
 MEME_STDCALL MemeBuffer_data(MemeBuffer_Const_t _s)
 {
-	return MemeString_byteData((MemeString_Const_t)_s);
+	return MemeStringImpl_byteData((MemeString_Const_t)_s);
 }
 
 MEME_EXTERN_C MEME_API MemeInteger_t
 MEME_STDCALL MemeBuffer_size(MemeBuffer_Const_t _s)
 {
-	return MemeString_byteSize((MemeString_Const_t)_s);
+	return MemeStringImpl_byteSize((MemeString_Const_t)_s);
 }
 
 MEME_EXTERN_C MEME_API MemeInteger_t
@@ -308,8 +308,8 @@ MEME_STDCALL MemeBufferViewUnsafeStack_initByOther(
 	else {
 		return MemeStringViewUnsafeStack_init(
 			s, _object_size,
-			MemeString_byteData((MemeString_t)_other),
-			MemeString_byteSize((MemeString_t)_other));
+			MemeStringImpl_byteData((MemeString_t)_other),
+			MemeStringImpl_byteSize((MemeString_t)_other));
 	}
 }
 
@@ -329,8 +329,8 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeBufferViewUnsafeStack_initByVariable
 
 	return MemeStringViewUnsafeStack_init(
 		s, _object_size,
-		MemeString_byteData((MemeString_t)_other),
-		MemeString_byteSize((MemeString_t)_other));
+		MemeStringImpl_byteData((MemeString_t)_other),
+		MemeStringImpl_byteSize((MemeString_t)_other));
 }
 
 MEME_EXTERN_C MEME_API int
@@ -363,8 +363,8 @@ MEME_STDCALL MemeBufferViewUnsafeStack_assignByOther(
 			return result;
 		return MemeStringViewUnsafeStack_init(
 			s, _object_size,
-			MemeString_byteData((MemeString_t)_other),
-			MemeString_byteSize((MemeString_t)_other));
+			MemeStringImpl_byteData((MemeString_t)_other),
+			MemeStringImpl_byteSize((MemeString_t)_other));
 	}
 }
 
@@ -387,6 +387,6 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeBufferViewUnsafeStack_assignByVariab
         return result;
     return MemeStringViewUnsafeStack_init(
         s, _object_size,
-        MemeString_byteData((MemeString_t)_other),
-        MemeString_byteSize((MemeString_t)_other));
+        MemeStringImpl_byteData((MemeString_t)_other),
+        MemeStringImpl_byteSize((MemeString_t)_other));
 }

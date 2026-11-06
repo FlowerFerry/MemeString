@@ -7,6 +7,7 @@
 #include <meme/unsafe/string_view.h>
 #include <meme/unsafe/buffer_view.h>
 #include <meme/impl/variant.h>
+#include <meme/impl/string.h>
 
 #include <stdlib.h>
 #include <float.h>
@@ -418,8 +419,8 @@ MEME_API mgec_t MEME_STDCALL
         mmvar_ptr_t var = (mmvar_ptr_t)_out;
         mgec_t   result = MemeStringStack_initByU8bytes(
             &(var->d.str), _object_size, 
-            MemeString_byteData((mmstr_cptr_t)(&(_other->d.str))),
-            MemeString_byteSize((mmstr_cptr_t)(&(_other->d.str))));
+            MemeStringImpl_byteData((mmstr_cptr_t)(&(_other->d.str))),
+            MemeStringImpl_byteSize((mmstr_cptr_t)(&(_other->d.str))));
         if (MEGO_SYMBOL__UNLIKELY(result != MGEC__OK))
             return result;
 

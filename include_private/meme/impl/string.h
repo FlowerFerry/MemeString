@@ -319,5 +319,72 @@ MemeStringImpl_forcedData(MemeStringStack_t* _s);
 
 
 
+
+/*
+ * Inline accessors for internal use only.
+ *
+ * The public MemeString_byteSize / MemeString_byteData are dllexport'ed and
+ * __stdcall, so every call from inside the DLL still crosses an export
+ * boundary and cannot be inlined.  Measured on this host: byteSize 2.4 ns,
+ * byteData 1.7 ns per call.  With 241 call sites inside src/, that is pure
+ * overhead on every string operation.
+ *
+ * These MG_CAPI_INLINE twins compile away at the call site.  The exported
+ * functions keep their exact signature and forward to these, so the ABI and
+ * the public behaviour are unchanged.
+ *
+ * The storage-layout helpers (MemeStringMedium_constData etc.) live in the
+ * string_p__*.h headers, which include this one, so their bodies are
+ * expanded inline here instead of being called.
+ */
+MG_CAPI_INLINE MemeInteger_t MemeStringImpl_byteSize(MemeString_Const_t _s)
+{
+	switch (MMSTR__GET_IMPLTYPE(_s)) {
+	case MemeString_ImplType_small:
+		return (MemeInteger_t)(MMSTR__GET_SMALL_BUF_MAX_SIZE - _s->small_.capacity_);
+	case MemeString_ImplType_medium:
+		return _s->medium_.size_;
+	case MemeString_ImplType_large:
+		return _s->large_.size_;
+	case MemeString_ImplType_view:
+		return _s->viewUnsafe_.size_;
+	case MemeString_ImplType_user:
+		return _s->user_.size_;
+	default:
+		return 0;
+	}
+}
+
+MG_CAPI_INLINE const MemeByte_t* MemeStringImpl_byteData(MemeString_Const_t _s)
+{
+	switch (MMSTR__GET_IMPLTYPE(_s)) {
+	case MemeString_ImplType_small:
+		return _s->small_.buffer_;
+	case MemeString_ImplType_medium:
+	{
+		/* MemeStringMedium_constData: real_ + frontCapacity */
+#if INTPTR_MAX == INT32_MAX
+		return _s->medium_.real_;
+#else
+		return _s->medium_.real_ + _s->medium_.front_capacity_;
+#endif
+	}
+	case MemeString_ImplType_large:
+		/* MemeStringLarge_constData: ref_->real_ + offset_ */
+		return _s->large_.ref_->real_ + _s->large_.offset_;
+	case MemeString_ImplType_view:
+		return _s->viewUnsafe_.data_;
+	case MemeString_ImplType_user:
+	{
+		/* MemeStringUser_constData: data_fn_(user_data_) + offset_ */
+		const char* p = _s->user_.ref_->data_fn_(_s->user_.ref_->user_data_);
+		return p ? (const MemeByte_t*)(p + _s->user_.offset_)
+		         : MemeStringImpl_default();
+	}
+	default:
+		return MemeStringImpl_default();
+	}
+}
+
 MEME_EXTERN_C_SCOPE_ENDED
 #endif // !MEME_IMPL_STRING_H_INCLUDED

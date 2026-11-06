@@ -266,7 +266,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByOther(
 		mgec_t eno;
 		mmstrstk_init_v0(_out, _object_size);
 		eno = (int)MemeVariableBuffer_appendWithBytes((mmvb_t)_out,
-			MemeString_byteData(_other), MemeString_byteSize(_other));
+			MemeStringImpl_byteData(_other), MemeStringImpl_byteSize(_other));
 		if (eno) {
 			mmstrstk_uninit_v0(_out, _object_size);
 			return eno;
@@ -280,7 +280,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_initByOther(
 	} break;
 	case MemeString_ImplType_view: {
 		return MemeStringStack_initByU8bytes(_out, MMS__OBJECT_SIZE,
-			MemeString_byteData(_other), MemeString_byteSize(_other));
+			MemeStringImpl_byteData(_other), MemeStringImpl_byteSize(_other));
 	} break;
 	default: {
 		return (MGEC__OPNOTSUPP);
@@ -481,7 +481,7 @@ MEME_STDCALL MemeStringStack_initAndConditionalConvert(
 	 || MemeString_storageType(_other) == MemeString_UnsafeStorageType_view)
 	{
         return MemeStringStack_initByU8bytes(
-			_out, MMS__OBJECT_SIZE, MemeString_byteData(_other), MemeString_byteSize(_other));
+			_out, MMS__OBJECT_SIZE, MemeStringImpl_byteData(_other), MemeStringImpl_byteSize(_other));
     }
     else {
         return MemeStringStack_initByOther(_out, MMS__OBJECT_SIZE, _other);
@@ -556,13 +556,13 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_assign(
 		memcpy(_s, &(_other->small_), MEME_STRING__OBJECT_SIZE);
 	} break;
 	case MemeString_ImplType_medium: {
-		result = MemeStringMedium_initWithCapacity((MemeStringMedium_t*)_s, MemeString_byteSize(_other));
+		result = MemeStringMedium_initWithCapacity((MemeStringMedium_t*)_s, MemeStringImpl_byteSize(_other));
 		if (result != 0) {
 			mmstrstk_uninit_v0(_s, _object_size);
 			return result;
 		}
 		MemeStringMedium_assign((MemeStringMedium_t*)_s, 
-			MemeString_byteData(_other), MemeString_byteSize(_other));
+			MemeStringImpl_byteData(_other), MemeStringImpl_byteSize(_other));
 	} break;
 	case MemeString_ImplType_large: {
 		MemeStringLarge_RefCount_increment(_other->large_.ref_);
@@ -593,7 +593,7 @@ MEME_EXTERN_C MEME_API int MEME_STDCALL MemeStringStack_assignByU8bytes(
 	if (_utf8 == NULL)
 		return mmstrstk_reset_v0((mmstrstk_t*)_s, _object_size);
 	
-	if ((MemeString_byteData((mms_t)_s) == _utf8))
+	if ((MemeStringImpl_byteData((mms_t)_s) == _utf8))
 		return 0;
 
 	result = MemeStringStack_unInit(_s, sizeof(mmsstk_t));
@@ -726,7 +726,7 @@ MEME_STDCALL MemeStringStack_mid_v2(
         mmstrstk_uninit_v0(_out, 0);
 	}
 
-	srcSize = MemeString_byteSize(str);
+	srcSize = MemeStringImpl_byteSize(str);
 	if (MG_SYM__UNLIKELY(_offset > srcSize))
 	{
 		return mmstrstk_init_v0(_out, (size_t)_obj_size);
@@ -748,12 +748,12 @@ MEME_STDCALL MemeStringStack_mid_v2(
 	else if (MMSTR__GET_IMPLTYPE(str) == MemeString_ImplType_view)
 	{
 		MemeStringViewUnsafeStack_init(
-			_out, (size_t)_obj_size, MemeString_byteData(str) + _offset, _count);
+			_out, (size_t)_obj_size, MemeStringImpl_byteData(str) + _offset, _count);
 	}
 	else {
 		mgec_t eno = 0;
 		eno = MemeStringStack_initByU8bytes(
-				_out, (size_t)_obj_size, MemeString_byteData(str) + _offset, _count);
+				_out, (size_t)_obj_size, MemeStringImpl_byteData(str) + _offset, _count);
 		if (eno)
 			return eno;
 	}
@@ -807,8 +807,8 @@ MEME_EXTERN_C MEME_API mgec_t MEME_STDCALL MemeStringStack_concat_v2(
 	assert(_other != NULL && "MemeStringStack_concat_v2");
 	assert(_out != NULL && "MemeStringStack_concat_v2");
 
-	lhsSize = MemeString_byteSize((mmstr_cptr_t)_str);
-	rhsSize = MemeString_byteSize((mmstr_cptr_t)_other);
+	lhsSize = MemeStringImpl_byteSize((mmstr_cptr_t)_str);
+	rhsSize = MemeStringImpl_byteSize((mmstr_cptr_t)_other);
 
 	if (_obj_size <= 0) {
 		_obj_size = MemeStringImpl_objByteSize((mmstr_cptr_t)_out);
@@ -826,14 +826,14 @@ MEME_EXTERN_C MEME_API mgec_t MEME_STDCALL MemeStringStack_concat_v2(
 	}
 
 	result = (mgec_t)MemeVariableBuffer_appendWithBytes(
-		(mmvb_ptr_t)_out, MemeString_byteData((mmstr_cptr_t)_str), lhsSize);
+		(mmvb_ptr_t)_out, MemeStringImpl_byteData((mmstr_cptr_t)_str), lhsSize);
 	if (result) {
 		mmstrstk_reset_v0(_out, 0);
 		return result;
 	}
 
 	result = (mgec_t)MemeVariableBuffer_appendWithBytes(
-		(mmvb_ptr_t)_out, MemeString_byteData((mmstr_cptr_t)_other), rhsSize);
+		(mmvb_ptr_t)_out, MemeStringImpl_byteData((mmstr_cptr_t)_other), rhsSize);
 	if (result) {
 		mmstrstk_reset_v0(_out, 0);
 		return result;
@@ -924,14 +924,14 @@ MemeStringStack_toEnUpper_v2(const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _
 	}
 
 	result = MemeStringStack_initByU8bytes(
-		_out, _obj_size, MemeString_byteData(str), MemeString_byteSize(str));
+		_out, _obj_size, MemeStringImpl_byteData(str), MemeStringImpl_byteSize(str));
 	if (result) {
 		mmstrstk_init_v0(_out, _obj_size);
 		return result;
 	}
 
 	it = MemeStringImpl_forcedData(_out);
-	end = it + MemeString_byteSize((mmstr_cptr_t)_out);
+	end = it + MemeStringImpl_byteSize((mmstr_cptr_t)_out);
 
 	// TO_DO : It can also be optimized
 	for (; it != end; ++it)
@@ -1022,14 +1022,14 @@ MemeStringStack_toEnLower_v2(const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _
 	}
 
 	result = MemeStringStack_initByU8bytes(
-		_out, _obj_size, MemeString_byteData(str), MemeString_byteSize(str));
+		_out, _obj_size, MemeStringImpl_byteData(str), MemeStringImpl_byteSize(str));
 	if (result) {
 		mmstrstk_init_v0(_out, _obj_size);
 		return result;
 	}
 
 	it = MemeStringImpl_forcedData(_out);
-	end = it + MemeString_byteSize((mmstr_cptr_t)_out);
+	end = it + MemeStringImpl_byteSize((mmstr_cptr_t)_out);
 
 	// TO_DO : It can also be optimized
 	for (; it != end; ++it)
@@ -1090,8 +1090,8 @@ MemeStringStack_reverse(const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _obj_s
 		mmstrstk_uninit(_out);
 	}
 
-	src_data = MemeString_byteData(str);
-	src_size = MemeString_byteSize(str);
+	src_data = MemeStringImpl_byteData(str);
+	src_size = MemeStringImpl_byteSize(str);
 
 	/* Step 3: copy source into _out */
 	result = MemeStringStack_initByU8bytes(_out, _obj_size, src_data, src_size);
@@ -1265,8 +1265,8 @@ MemeStringStack_trimSpace_v2(const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _
 
 	assert(_str != NULL && "MemeStringStack_trimSpace_v2");
 
-	it  = MemeString_byteData(str);
-	end = it + MemeString_byteSize(str);
+	it  = MemeStringImpl_byteData(str);
+	end = it + MemeStringImpl_byteSize(str);
 
 	/* Left scan: skip leading whitespace runes. */
 	for (int runeSize = -1; it != end; it += runeSize)
@@ -1295,7 +1295,7 @@ MemeStringStack_trimSpace_v2(const mmstrstk_t* _str, mmstrstk_t* _out, mmint_t _
 	}
 
 	/* Slice the byte range [it, end) into _out. */
-	return MemeStringStack_mid_v2(_str, it - MemeString_byteData(str), end - it, _out, _obj_size);
+	return MemeStringStack_mid_v2(_str, it - MemeStringImpl_byteData(str), end - it, _out, _obj_size);
 }
 
 MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL
@@ -1344,8 +1344,8 @@ MemeStringStack_trimLeftSpace_v2(const mmstrstk_t* _str, mmstrstk_t* _out, mmint
 
 	assert(str != NULL && "MemeStringStack_trimLeftSpace_v2");
 
-	begin = it = MemeString_byteData(str);
-	end = it + MemeString_byteSize(str);
+	begin = it = MemeStringImpl_byteData(str);
+	end = it + MemeStringImpl_byteSize(str);
 
 	for (int runeSize = -1; it != end; it += runeSize)
 	{
@@ -1406,8 +1406,8 @@ MemeStringStack_trimRightSpace_v2(const mmstrstk_t* _str, mmstrstk_t* _out, mmin
 
 	assert(_str != NULL && "MemeStringStack_trimRightSpace_v2");
 
-	it = MemeString_byteData(str);
-	end = it + MemeString_byteSize(str);
+	it = MemeStringImpl_byteData(str);
+	end = it + MemeStringImpl_byteSize(str);
 
 	for (int runeSize = -1; it != end; end -= runeSize)
 	{
@@ -1470,8 +1470,8 @@ MemeStringStack_trimByCuts_v2(
 	if (_cuts_len < 0)
         _cuts_len = strlen(_cuts);
 
-	it = MemeString_byteData(str);
-	end = it + MemeString_byteSize(str);
+	it = MemeStringImpl_byteData(str);
+	end = it + MemeStringImpl_byteSize(str);
 
 	for (; it != end; ++it)
 		if (!memchr(_cuts, *it, _cuts_len))
@@ -1483,7 +1483,7 @@ MemeStringStack_trimByCuts_v2(
 		if (!memchr(_cuts, *end, _cuts_len))
 			break;
 
-	return MemeStringStack_mid_v2(_str, it - MemeString_byteData(str), end - it + 1, _out, _obj_size);
+	return MemeStringStack_mid_v2(_str, it - MemeStringImpl_byteData(str), end - it + 1, _out, _obj_size);
 }
 
 MEME_EXTERN_C MEME_API mmsstk_t MEME_STDCALL
@@ -1531,8 +1531,8 @@ MemeStringStack_trimByCondByteFunc_v2(
 
 	assert(_str != NULL && "MemeStringStack_trimByCondByteFunc_v2");
 
-	it = MemeString_byteData(str);
-	end = it + MemeString_byteSize(str);
+	it = MemeStringImpl_byteData(str);
+	end = it + MemeStringImpl_byteSize(str);
 
 	for (; it != end; ++it)
 		if (!_cond_func(*it, _user_data))
@@ -1544,7 +1544,7 @@ MemeStringStack_trimByCondByteFunc_v2(
 		if (!_cond_func(*end, _user_data))
 			break;
 
-	return MemeStringStack_mid_v2(_str, it - MemeString_byteData(str), end - it + 1, _out, _obj_size);
+	return MemeStringStack_mid_v2(_str, it - MemeStringImpl_byteData(str), end - it + 1, _out, _obj_size);
 }
 
 MEME_API mgec_t MEME_STDCALL
@@ -1560,9 +1560,9 @@ MemeStringStack_trimByCondRuneFunc(
 
 	assert(_str != NULL && "MemeStringStack_trimByCondRuneFunc");
 
-	begin = MemeString_byteData(str);
+	begin = MemeStringImpl_byteData(str);
 	it    = begin;
-	end   = begin + MemeString_byteSize(str);
+	end   = begin + MemeStringImpl_byteSize(str);
 
 	for (; it != end; it += runeSize) {
 		MemeRune_t rune;
@@ -1638,9 +1638,9 @@ MemeStringStack_trimPrefix(
 		mmstrstk_uninit_v0(_out, 0);
 	}
 
-	srcSize = MemeString_byteSize(str);
+	srcSize = MemeStringImpl_byteSize(str);
 	if (_prefix_len > 0 && srcSize >= _prefix_len &&
-		memcmp(MemeString_byteData(str), _prefix, _prefix_len) == 0)
+		memcmp(MemeStringImpl_byteData(str), _prefix, _prefix_len) == 0)
 	{
 		return MemeStringStack_mid_v2(_str, _prefix_len, -1, _out, _obj_size);
 	}
@@ -1706,9 +1706,9 @@ MemeStringStack_trimSuffix(
 		mmstrstk_uninit_v0(_out, 0);
 	}
 
-	srcSize = MemeString_byteSize(str);
+	srcSize = MemeStringImpl_byteSize(str);
 	if (_suffix_len > 0 && srcSize >= _suffix_len &&
-		memcmp(MemeString_byteData(str) + srcSize - _suffix_len, _suffix, _suffix_len) == 0)
+		memcmp(MemeStringImpl_byteData(str) + srcSize - _suffix_len, _suffix, _suffix_len) == 0)
 	{
 		return MemeStringStack_mid_v2(_str, 0, srcSize - _suffix_len, _out, _obj_size);
 	}
@@ -2004,8 +2004,8 @@ MEME_STDCALL MemeStringStack_replace_v2(
 	if (_from_len == 0)
 		return MemeStringStack_initByOther(_out, _obj_size, (mmstr_cptr_t)_str);
 
-	it = MemeString_byteData(str);
-	end = it + MemeString_byteSize(str);
+	it = MemeStringImpl_byteData(str);
+	end = it + MemeStringImpl_byteSize(str);
 	from = (const mmbyte_t*)_from;
 	to = (const mmbyte_t*)_to;
 	from_end = from + _from_len;
@@ -2026,9 +2026,9 @@ MEME_STDCALL MemeStringStack_replace_v2(
 	}
 	MemeVariableBufferStack_init(&vb, MMSTR__OBJ_SIZE);
 
-	size = MemeString_byteSize(str) + (_to_len - _from_len) * count;
-	it = MemeString_byteData(str);
-	end = it + MemeString_byteSize(str);
+	size = MemeStringImpl_byteSize(str) + (_to_len - _from_len) * count;
+	it = MemeStringImpl_byteData(str);
+	end = it + MemeStringImpl_byteSize(str);
 
 	{
 		const mmbyte_t* last_it = it;
@@ -2150,7 +2150,7 @@ MEME_STDCALL MemeStringStack_toValidUtf8_v2(const mmstrstk_t* _str, mmstrstk_t* 
 		mmstrstk_uninit_v0(_out, _obj_size);
 	}
 
-	pos = mmutf_u8valid(MemeString_byteData((mmstr_cptr_t)_str), MemeString_byteSize((mmstr_cptr_t)_str));
+	pos = mmutf_u8valid(MemeStringImpl_byteData((mmstr_cptr_t)_str), MemeStringImpl_byteSize((mmstr_cptr_t)_str));
 	//if (pos == MemeString_byteSize((mmstr_cptr_t)_str))
 	//{
 	//	return MemeStringStack_initByOther(_out, _obj_size, (mmstr_cptr_t)_str);
@@ -2426,8 +2426,8 @@ MemeStringStack_mappingConvert_v2(
 
 	MemeVariableBufferStack_init(&vb, MMSTR__OBJ_SIZE);
 
-	size = MemeString_byteSize(str);
-	data = MemeString_byteData(str);
+	size = MemeStringImpl_byteSize(str);
+	data = MemeStringImpl_byteData(str);
 	for (mmint_t pos = 0; pos < size; )
 	{
 		int len = mmutf_u8rune_char_size(data[pos]);
@@ -2835,7 +2835,7 @@ MEME_STDCALL MemeStringStack_join(
 			mmstr_cptr_t s = (mmstr_cptr_t)item;
 			if (i > 0 && _separator_len > 0)
 				total_size += _separator_len;
-			total_size += MemeString_byteSize(s);
+			total_size += MemeStringImpl_byteSize(s);
 		}
 
 		result = (mgec_t)MemeVariableBufferStack_init(&vb, MMSTR__OBJ_SIZE);
@@ -2849,7 +2849,7 @@ MEME_STDCALL MemeStringStack_join(
 	for (i = 0; i < _item_count; ++i) {
 		const mmstrstk_t* item = (const mmstrstk_t*)((const uint8_t*)_items + i * item_stride);
 		mmstr_cptr_t s = (mmstr_cptr_t)item;
-		mmint_t item_size = MemeString_byteSize(s);
+		mmint_t item_size = MemeStringImpl_byteSize(s);
 
 		if (i > 0 && _separator_len > 0) {
 			result = (mgec_t)MemeVariableBuffer_appendWithBytes(
@@ -2863,7 +2863,7 @@ MEME_STDCALL MemeStringStack_join(
 
 		if (item_size > 0) {
 			result = (mgec_t)MemeVariableBuffer_appendWithBytes(
-				(mmvb_ptr_t)&vb, MemeString_byteData(s), item_size);
+				(mmvb_ptr_t)&vb, MemeStringImpl_byteData(s), item_size);
 			if (result) {
 				mmstrstk_init_v0(_str, _obj_size);
 				MemeVariableBufferStack_unInit(&vb, MMSTR__OBJ_SIZE);
@@ -2916,12 +2916,12 @@ MEME_STDCALL MemeStringStack_split(
 			MemeString_indexOfWithUtf8bytes(
 				str, last_index, (const mmbyte_t*)_key, _key_len, _sensitivity);
 		if (curr_index == -1) {
-			if (last_index < MemeString_byteSize(str))
+			if (last_index < MemeStringImpl_byteSize(str))
 			{
 				MemeStringStack_initByU8bytes(
 					output_item, _obj_size,
-					MemeString_byteData(str) + last_index,
-					MemeString_byteSize(str) - last_index);
+					MemeStringImpl_byteData(str) + last_index,
+					MemeStringImpl_byteSize(str) - last_index);
 				*_out_count = output_index + 1;
 			}
 			else if (_behavior == MemeFlag_KeepEmptyParts)
@@ -2944,7 +2944,7 @@ MEME_STDCALL MemeStringStack_split(
 		}
 
 		result = MemeStringStack_initByU8bytes(
-			output_item, _obj_size, MemeString_byteData(str) + last_index, curr_index - last_index);
+			output_item, _obj_size, MemeStringImpl_byteData(str) + last_index, curr_index - last_index);
 		if (result != 0) {
 			for (mmint_t i = 0; i < output_index; ++i)
 				MemeStringStack_unInit(_out + i, _obj_size);
@@ -2965,7 +2965,7 @@ MEME_STDCALL MemeStringStack_split(
 	}
 
 	*_out_count = output_index;
-	if (last_index < MemeString_byteSize(str))
+	if (last_index < MemeStringImpl_byteSize(str))
 	{
 		if (_search_index)
 			*_search_index = last_index;
@@ -3005,11 +3005,11 @@ MemeStringStack_splitByCondByteFunc(
 			MemeString_indexByCondByteFunc(
 				str, last_index, _cond_func, _user_data);
 		if (curr_index < 0) {
-			if (last_index < MemeString_byteSize(str))
+			if (last_index < MemeStringImpl_byteSize(str))
 			{
 				MemeStringStack_initByU8bytes(
-					output_item, _obj_size, MemeString_byteData(str) + last_index,
-					MemeString_byteSize(str) - last_index);
+					output_item, _obj_size, MemeStringImpl_byteData(str) + last_index,
+					MemeStringImpl_byteSize(str) - last_index);
 				*_out_count = output_index + 1;
 			}
 			else {
@@ -3028,7 +3028,7 @@ MemeStringStack_splitByCondByteFunc(
 
 		result = MemeStringStack_initByU8bytes(
 			output_item, _obj_size, 
-			MemeString_byteData(str) + last_index, curr_index - last_index);
+			MemeStringImpl_byteData(str) + last_index, curr_index - last_index);
 		if (result != 0) {
 			for (mmint_t i = 0; i < output_index; ++i)
 				MemeStringStack_unInit(_out + i, _obj_size);
@@ -3039,7 +3039,7 @@ MemeStringStack_splitByCondByteFunc(
 	}
 
 	*_out_count = output_index;
-	if (last_index < MemeString_byteSize(str))
+	if (last_index < MemeStringImpl_byteSize(str))
 	{
 		if (_search_index)
 			*_search_index = last_index;
@@ -3097,8 +3097,8 @@ MEME_STDCALL MemeStringViewUnsafeStack_initByOther(
 	else {
         return MemeStringViewUnsafeStack_init(
 			_s, _object_size, 
-			MemeString_byteData((mms_t)_other), 
-			MemeString_byteSize((mms_t)_other));
+			MemeStringImpl_byteData((mms_t)_other), 
+			MemeStringImpl_byteSize((mms_t)_other));
 	}
 }
 
@@ -3127,8 +3127,8 @@ MEME_STDCALL MemeStringViewUnsafeStack_assignByOther(
 			return result;
         return MemeStringViewUnsafeStack_init(
             _s, _object_size,
-            MemeString_byteData((mms_t)_other),
-            MemeString_byteSize((mms_t)_other));
+            MemeStringImpl_byteData((mms_t)_other),
+            MemeStringImpl_byteSize((mms_t)_other));
 	}
 }
 
@@ -3163,12 +3163,12 @@ MEME_STDCALL MemeStringViewUnsafeStack_split(
 		curr_index = MemeString_indexOfWithUtf8bytes(
 				str, last_index, (const mmbyte_t*)_key, _key_len, _sensitivity);
 		if (curr_index == -1) {
-			if (last_index < MemeString_byteSize(str))
+			if (last_index < MemeStringImpl_byteSize(str))
 			{
 				MemeStringViewUnsafeStack_init(
 					output_item, _obj_size, 
-					MemeString_byteData(str) + last_index,
-					MemeString_byteSize(str) - last_index);
+					MemeStringImpl_byteData(str) + last_index,
+					MemeStringImpl_byteSize(str) - last_index);
 				*_out_count = output_index + 1;
 			}
 			else if (_behavior == MemeFlag_KeepEmptyParts)
@@ -3191,7 +3191,7 @@ MEME_STDCALL MemeStringViewUnsafeStack_split(
 		}
 
 		MemeStringViewUnsafeStack_init(
-			output_item, _obj_size, MemeString_byteData(str) + last_index, curr_index - last_index);
+			output_item, _obj_size, MemeStringImpl_byteData(str) + last_index, curr_index - last_index);
 		last_index = curr_index + _key_len;
 		++output_index;
 	}
@@ -3207,7 +3207,7 @@ MEME_STDCALL MemeStringViewUnsafeStack_split(
 	}
 
 	*_out_count = output_index;
-	if (last_index < MemeString_byteSize(str))
+	if (last_index < MemeStringImpl_byteSize(str))
 	{
 		if (_search_index)
 			*_search_index = last_index;
