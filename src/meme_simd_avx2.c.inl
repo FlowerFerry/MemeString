@@ -1799,24 +1799,46 @@ void mmsimd_avx2_f64_fill(double* _out, mmint_t _len, double _val)
         _out[idx] = _val;
 }
 
+/* Index of the lowest set bit. _mask must be non-zero. */
+MG_CAPI_INLINE mmint_t __mmsimd_avx2_ctz32(uint32_t _mask)
+{
+#if MG_COMP__MSVC_AVAIL
+    unsigned long idx = 0;
+    _BitScanForward(&idx, (unsigned long)_mask);
+    return (mmint_t)idx;
+#else
+    return (mmint_t)__builtin_ctz(_mask);
+#endif
+}
+
 MG_SYM__TARGET_AVX2
 mmint_t mmsimd_avx2_i8_find(const int8_t* _buf, mmint_t _len, int8_t _val)
 {
     mmint_t idx = 0;
+
+    /* Precompute the last index at which a full 32-byte block still fits,
+     * so the loop condition is a single compare instead of an add + compare. */
     if (_len >= (mmint_t)sizeof(__m256i))
     {
-        __m256i vval = _mm256_set1_epi8(_val);
-        for (; idx + (mmint_t)sizeof(__m256i) <= _len; idx += (mmint_t)sizeof(__m256i))
+        const mmint_t last_block = _len - (mmint_t)sizeof(__m256i);
+        const __m256i vval = _mm256_set1_epi8(_val);
+
+        for (;; idx += (mmint_t)sizeof(__m256i))
         {
-            __m256i vi = _mm256_loadu_si256((__m256i*) & _buf[idx]);
-            __m256i vm = _mm256_cmpeq_epi8(vi, vval);
-            int mask = _mm256_movemask_epi8(vm);
-            if (mask) {
-                for (int i = 0; i < sizeof(__m256i); ++i)
-                {
-                    if (_buf[idx + i] == _val)
-                        return idx + i;
-                }
+            const __m256i vi = _mm256_loadu_si256((const __m256i*)&_buf[idx]);
+            const __m256i vm = _mm256_cmpeq_epi8(vi, vval);
+            const uint32_t mask = (uint32_t)_mm256_movemask_epi8(vm);
+
+            /* Take the lowest set bit instead of rescanning the block byte by
+             * byte: the old loop compared up to 32 times just to locate one
+             * hit, which is where most of this function's cost went. */
+            if (mask)
+                return idx + __mmsimd_avx2_ctz32(mask);
+
+            if (idx >= last_block)
+            {
+                idx += (mmint_t)sizeof(__m256i);
+                break;
             }
         }
     }
@@ -1832,18 +1854,6 @@ mmint_t mmsimd_avx2_i8_find(const int8_t* _buf, mmint_t _len, int8_t _val)
 mmint_t mmsimd_avx2_u8_find(const uint8_t* _buf, mmint_t _len, uint8_t _val)
 {
     return mmsimd_avx2_i8_find((const int8_t*)_buf, _len, (int8_t)_val);
-}
-
-/* Index of the lowest set bit. _mask must be non-zero. */
-MG_CAPI_INLINE mmint_t __mmsimd_avx2_ctz32(uint32_t _mask)
-{
-#if MG_COMP__MSVC_AVAIL
-    unsigned long idx = 0;
-    _BitScanForward(&idx, (unsigned long)_mask);
-    return (mmint_t)idx;
-#else
-    return (mmint_t)__builtin_ctz(_mask);
-#endif
 }
 
 /* Two-key variant: finds the lowest index where _buf[i] is _v1 or _v2.
