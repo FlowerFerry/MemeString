@@ -65,7 +65,9 @@ static void __MemeBoyerMoore_makeGoodDelta(MemeInteger_t* _delta2, const uint8_t
     for (p = 0; p < _pat_len - 1; ++p) 
     {
         MemeInteger_t slen = __MemeBoyerMoore_suffixLength(_pat, _pat_len, p);
-        if (_pat[p - slen] != _pat[_pat_len - 1 - slen]) 
+        if (slen > p)
+            slen = p;
+        if (_pat[p - slen] != _pat[_pat_len - 1 - slen])
         {
             _delta2[_pat_len - 1 - slen] = _pat_len - 1 - p + slen;
         }
@@ -198,6 +200,8 @@ mmint_t MemeImpl_SearchByBoyerMoore(
         return -1;
 
     g_delta = malloc(_needle_len * sizeof(MemeInteger_t));
+    if (g_delta == NULL)
+        return -1;
 
     __MemeBoyerMoore_makeBadDelta (b_delta, sizeof(b_delta) / sizeof(b_delta[0]), _needle, _needle_len);
     __MemeBoyerMoore_makeGoodDelta(g_delta, _needle, _needle_len);
@@ -218,6 +222,10 @@ mmint_t MemeImpl_SearchByBoyerMoore(
             MemeInteger_t move_count;
             while (needle_index >= 0 && (*index == _needle[needle_index]))
             {
+                if (index == _haystack) {
+                    --needle_index;
+                    break;
+                }
                 --index;
                 --needle_index;
             }
@@ -252,7 +260,14 @@ mmint_t MemeImpl_SearchByBoyerMoore(
                 return index + 1;
             }
 
-            index += MemeMath_Max(b_delta[_haystack[index]], g_delta[needle_index]);
+            {
+                MemeInteger_t move = MemeMath_Max(b_delta[_haystack[index]], g_delta[needle_index]);
+                if ((mmint_t)(index + move) < index) {  /* overflow */
+                    free(g_delta);
+                    return -1;
+                }
+                index += move;
+            }
         }
     }
     free(g_delta);
@@ -287,6 +302,8 @@ mmint_t MemeImpl_ReverseSearchByBoyerMoore(
     p_rbegin = _needle + _needle_len - 1;
     p_rend   = _needle - 1;
     g_delta  = malloc(_needle_len * sizeof(MemeInteger_t));
+    if (g_delta == NULL)
+        return -1;
     __MemeReverseBoyerMoore_makeBadDelta (
         b_delta, sizeof(b_delta) / sizeof(b_delta[0]), p_rbegin, p_rend);
     __MemeReverseBoyerMoore_makeGoodDelta(g_delta, p_rbegin, p_rend);
