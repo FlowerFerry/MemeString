@@ -1,4 +1,4 @@
-/*
+﻿/*
  * MemeSearcherStack -- reusable string searcher, stack-allocated value type.
  *
  * Pre-processes a needle once (algorithm selection + table building), then

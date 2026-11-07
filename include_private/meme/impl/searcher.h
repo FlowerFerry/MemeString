@@ -30,17 +30,17 @@ typedef struct MemeSearcherImpl
     /* MUST be first: object size in units of sizeof(mmint_t) */
     mmbyte_t                   reg_size_;
 
+    /* Result of the last init()/initByOther()/move(), for error_code(). */
+    mgec_t                     last_errc;
+
     mmint_t                    needle_len;
     mmflag_case_sensit_t       cs;
     MemeSearcherAlgo_t         algo;
     mmbyte_t                   b_width;      /* 0: FastScan, 1/2/4/8: BM width */
 
-    /* Result of the last init()/initByOther()/move(), for error_code(). */
-    mgec_t                     last_errc;
-
+    MemeSearcherDensity_t      density;
     mmint_t                    call_count;
     mmint_t                    hit_count;
-    MemeSearcherDensity_t      density;
 
     /* Heap block: the only pointer that is ever freed. */
     void*                      heap_block;

@@ -23,8 +23,25 @@ MEME_EXTERN_C_SCOPE_START
  *   }
  */
 
+/*
+ * Object size, in mmint_t registers.
+ *
+ * MemeSearcherImpl_t holds four pointers plus sizeof(mmint_t) fields, so its
+ * size follows the integer/pointer width.  The inline_ buffer is always 256
+ * bytes.  Measured:
+ *
+ *   64-bit: 336 bytes = 42 registers
+ *   32-bit: 300 bytes = 75 registers
+ */
 #ifndef MMSEARCHER__OBJ_REG_SIZE
-#define MMSEARCHER__OBJ_REG_SIZE (43)
+#include <stdint.h>
+#if INTPTR_MAX == INT64_MAX
+  #define MMSEARCHER__OBJ_REG_SIZE (42)
+#elif INTPTR_MAX == INT32_MAX
+  #define MMSEARCHER__OBJ_REG_SIZE (75)
+#else
+  #error "MMSEARCHER__OBJ_REG_SIZE not defined for this integer width"
+#endif
 #endif
 
 #ifndef MMSEARCHER__OBJ_SIZE
