@@ -400,6 +400,69 @@ MEME_API int MEME_STDCALL MemeSearcherStack_unInit(mmsrchstk_t* _out)
     return 0;
 }
 
+/*
+ * Offset of _p inside the object's own inline_ array, or -1 when _p points
+ * elsewhere (heap / NULL).
+ */
+static MemeInteger_t __mmsrch_inline_offset(
+    const MemeSearcherImpl_t* _s, const void* _p)
+{
+    const MemeByte_t* b = (const MemeByte_t*)_p;
+
+    if (b >= _s->inline_ && b < _s->inline_ + sizeof(_s->inline_))
+        return (MemeInteger_t)(b - _s->inline_);
+    return -1;
+}
+
+/*
+ * Swap two searchers.
+ *
+ * A plain byte swap is wrong for the same reason move() cannot memcpy: a
+ * needle_ptr (or the b_width==1 view of heap_b_delta) may point into the
+ * owner's own inline_ array.  Capture those offsets against each original
+ * object first, swap the bytes, then rebase onto the new owner.
+ */
+MEME_API int MEME_STDCALL MemeSearcherStack_swap(
+    mmsrchstk_t* _a, mmsrchstk_t* _b)
+{
+    MemeSearcherImpl_t* pa;
+    MemeSearcherImpl_t* pb;
+    MemeSearcherImpl_t  tmp;
+    MemeInteger_t a_needle, a_bdelta, b_needle, b_bdelta;
+
+    if (MEGO_SYMBOL__UNLIKELY(_a == NULL || _b == NULL))
+        return MGEC__INVAL;
+
+    if (MEGO_SYMBOL__UNLIKELY(_a == _b))
+        return 0;
+
+    pa = mmsrch_impl(_a);
+    pb = mmsrch_impl(_b);
+
+    a_needle = __mmsrch_inline_offset(pa, pa->needle_ptr);
+    a_bdelta = __mmsrch_inline_offset(pa, pa->heap_b_delta);
+    b_needle = __mmsrch_inline_offset(pb, pb->needle_ptr);
+    b_bdelta = __mmsrch_inline_offset(pb, pb->heap_b_delta);
+
+    memcpy(&tmp, pa, sizeof(MemeSearcherImpl_t));
+    memcpy(pa,   pb,  sizeof(MemeSearcherImpl_t));
+    memcpy(pb,  &tmp, sizeof(MemeSearcherImpl_t));
+
+    /* pa now holds b's bytes; rebase b's inline-relative pointers onto pa. */
+    if (b_needle >= 0)
+        pa->needle_ptr = pa->inline_ + b_needle;
+    if (b_bdelta >= 0)
+        pa->heap_b_delta = pa->inline_ + b_bdelta;
+
+    /* pb now holds a's bytes; rebase a's inline-relative pointers onto pb. */
+    if (a_needle >= 0)
+        pb->needle_ptr = pb->inline_ + a_needle;
+    if (a_bdelta >= 0)
+        pb->heap_b_delta = pb->inline_ + a_bdelta;
+
+    return 0;
+}
+
 /* ------------------------------------------------------------------ */
 /* find                                                                 */
 /* ------------------------------------------------------------------ */
@@ -439,26 +502,31 @@ MEME_API MemeInteger_t MEME_STDCALL MemeSearcherStack_find(
             switch (self->b_width)
             {
             case 1:
-                return __mmsrch_bm_u8 (h, -1, self->needle_ptr,
-                                       self->needle_len,
-                                       (const uint8_t*)b_delta,
-                                       self->heap_g_delta, 1);
+                result = __mmsrch_bm_u8 (h, -1, self->needle_ptr,
+                                         self->needle_len,
+                                         (const uint8_t*)b_delta,
+                                         self->heap_g_delta, 1);
+                break;
             case 2:
-                return __mmsrch_bm_u16(h, -1, self->needle_ptr,
-                                       self->needle_len,
-                                       (const uint16_t*)b_delta,
-                                       self->heap_g_delta, 1);
+                result = __mmsrch_bm_u16(h, -1, self->needle_ptr,
+                                         self->needle_len,
+                                         (const uint16_t*)b_delta,
+                                         self->heap_g_delta, 1);
+                break;
             case 4:
-                return __mmsrch_bm_u32(h, -1, self->needle_ptr,
-                                       self->needle_len,
-                                       (const uint32_t*)b_delta,
-                                       self->heap_g_delta, 1);
+                result = __mmsrch_bm_u32(h, -1, self->needle_ptr,
+                                         self->needle_len,
+                                         (const uint32_t*)b_delta,
+                                         self->heap_g_delta, 1);
+                break;
             default:
-                return __mmsrch_bm_u64(h, -1, self->needle_ptr,
-                                       self->needle_len,
-                                       (const uint64_t*)b_delta,
-                                       self->heap_g_delta, 1);
+                result = __mmsrch_bm_u64(h, -1, self->needle_ptr,
+                                         self->needle_len,
+                                         (const uint64_t*)b_delta,
+                                         self->heap_g_delta, 1);
+                break;
             }
+            goto count_density;
         }
 
         /* Case-sensitive FastScan: strstr() walks the terminator itself.
@@ -468,7 +536,8 @@ MEME_API MemeInteger_t MEME_STDCALL MemeSearcherStack_find(
         {
             const char* p = strstr((const char*)h,
                                    (const char*)self->needle_ptr);
-            return (p == NULL) ? -1 : (MemeInteger_t)(p - (const char*)h);
+            result = (p == NULL) ? -1 : (MemeInteger_t)(p - (const char*)h);
+            goto count_density;
         }
     }
 
@@ -541,6 +610,7 @@ MEME_API MemeInteger_t MEME_STDCALL MemeSearcherStack_find(
     }
 
     /* Update density counters (single-threaded usage per object). */
+count_density:
     {
         MemeSearcherImpl_t* mut = mmsrch_impl((mmsrchstk_t*)(void*)_out);
 

@@ -1,4 +1,4 @@
-#ifndef MEMEPP_SEARCHER_HPP_INCLUDED
+﻿#ifndef MEMEPP_SEARCHER_HPP_INCLUDED
 #define MEMEPP_SEARCHER_HPP_INCLUDED
 
 #include <meme/searcher.h>
@@ -253,6 +253,7 @@ public:
                  mmint_t _offset = 0) const noexcept
     {
         if (!valid_ || _text == nullptr) return -1;
+        if (_len < 0) return -1;
         return MemeSearcherStack_find(&handle_, _text, _len, _offset);
     }
 
@@ -278,11 +279,18 @@ public:
     native_handle_type native_handle() noexcept { return &handle_; }
     const MemeSearcherStack_t* native_handle() const noexcept { return &handle_; }
 
-    void swap(searcher& _other) noexcept
-    {
-        std::swap(handle_, _other.handle_);
-        std::swap(valid_, _other.valid_);
-    }
+/*
+ * Swap the two objects' contents.
+ *
+ * Delegates to MemeSearcherStack_swap(), which rebases the pointers that
+ * refer into an object's own inline_ storage; a plain byte swap would leave
+ * them pointing at the other object.
+ */
+void swap(searcher& _other) noexcept
+{
+    MemeSearcherStack_swap(&handle_, &_other.handle_);
+    std::swap(valid_, _other.valid_);
+}
 
 private:
     MemeSearcherStack_t handle_;

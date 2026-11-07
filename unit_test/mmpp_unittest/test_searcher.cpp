@@ -2,8 +2,10 @@
 
 #include <memepp/searcher.hpp>
 #include <memepp/string.hpp>
+#include <cctype>
 #include <cstring>
 #include <string>
+#include <type_traits>
 
 /* --------------------------------------------------------------------- */
 /* C API                                                                  */
@@ -474,4 +476,348 @@ TEST_CASE("memepp::searcher: density", "[searcher]")
 
     srch.reset_density();
     REQUIRE(srch.density() == memepp::search_density_t::unknown);
+}
+
+/* --------------------------------------------------------------------- */
+/* Gaps: constructors, find() overloads, lifecycle edge cases             */
+/* --------------------------------------------------------------------- */
+
+TEST_CASE("memepp::searcher: default constructor", "[searcher]")
+{
+    memepp::searcher srch;
+    REQUIRE(!srch.valid());
+    REQUIRE(srch.density() == memepp::search_density_t::unknown);
+    REQUIRE(srch.find("abc") == -1);
+
+    /* native_handle() must expose a zeroed object, not stack garbage. */
+    const MemeSearcherStack_t* h = srch.native_handle();
+    REQUIRE(h != nullptr);
+    for (size_t i = 0; i < sizeof(MemeSearcherStack_t); ++i)
+        REQUIRE(reinterpret_cast<const unsigned char*>(h)[i] == 0);
+}
+
+TEST_CASE("memepp::searcher: memepp::string_view constructor", "[searcher]")
+{
+    memepp::string hay = "abcabc";
+
+    memepp::string_view nv("abc", 3);
+    memepp::searcher s(nv);
+    REQUIRE(s.valid());
+    REQUIRE(s.find(hay) == 0);
+
+    memepp::string_view nvi("ABC", 3);
+    memepp::searcher si(nvi, memepp::case_sensitivity_t::all_insensitive);
+    REQUIRE(si.valid());
+    REQUIRE(si.find(hay) == 0);
+
+    /* Empty view is rejected. */
+    memepp::string_view ev("", 0);
+    memepp::searcher se(ev);
+    REQUIRE(!se.valid());
+}
+
+TEST_CASE("memepp::searcher: constructor failure inputs", "[searcher]")
+{
+    memepp::string hay = "abc";
+
+    /* nullptr C string. */
+    memepp::searcher c1(static_cast<const char*>(nullptr));
+    REQUIRE(!c1.valid());
+    REQUIRE(c1.find(hay) == -1);
+
+    /* nullptr raw bytes, even with a length. */
+    memepp::searcher c2(static_cast<const MemeByte_t*>(nullptr), 3);
+    REQUIRE(!c2.valid());
+
+    /* Zero length. */
+    memepp::searcher c3(reinterpret_cast<const MemeByte_t*>("abc"), 0);
+    REQUIRE(!c3.valid());
+
+    /* Negative length. */
+    memepp::searcher c4(reinterpret_cast<const MemeByte_t*>("abc"), -1);
+    REQUIRE(!c4.valid());
+
+    /* Empty std::string_view and empty memepp::string_view.
+     * Braces, not parens: `T v(std::string_view())` declares a function. */
+    memepp::searcher c5{std::string_view()};
+    REQUIRE(!c5.valid());
+    memepp::searcher c6{memepp::string_view()};
+    REQUIRE(!c6.valid());
+
+    /* A failed constructor must still leave a zeroed handle. */
+    const unsigned char* raw =
+        reinterpret_cast<const unsigned char*>(c1.native_handle());
+    for (size_t i = 0; i < sizeof(MemeSearcherStack_t); ++i)
+        REQUIRE(raw[i] == 0);
+}
+
+TEST_CASE("memepp::searcher: find(memepp::string_view)", "[searcher]")
+{
+    memepp::searcher s("brown");
+    const char* hay = "the quick brown fox";
+    memepp::string_view hv(hay, std::strlen(hay));
+
+    REQUIRE(s.find(hv) == 10);
+    REQUIRE(s.find(hv, 11) == -1);
+    REQUIRE(s.find(memepp::string_view(), 0) == -1);
+}
+
+TEST_CASE("memepp::searcher: find(const char*) NUL-terminated", "[searcher]")
+{
+    memepp::searcher s("brown");
+    const char* hay = "the quick brown fox";
+
+    REQUIRE(s.find(hay) == 10);
+    REQUIRE(s.find(hay, 11) == -1);
+    REQUIRE(s.find(hay, 10) == 10);      /* hit exactly at the offset */
+    REQUIRE(s.find("", 0) == -1);        /* empty haystack            */
+    REQUIRE(s.find(hay, -1) == -1);      /* negative offset           */
+    REQUIRE(s.find(hay, 999) == -1);     /* offset past the end       */
+
+    /* nullptr haystack. */
+    REQUIRE(s.find(static_cast<const char*>(nullptr)) == -1);
+
+    /* Invalid searcher. */
+    memepp::searcher inv;
+    REQUIRE(inv.find(hay) == -1);
+}
+
+TEST_CASE("memepp::searcher: find(const char*) tracks density", "[searcher]")
+{
+    /* The NUL-terminated path returns early in the C layer; the density
+     * counters must still advance, otherwise this overload silently
+     * degrades the adaptive algorithm selection. */
+    memepp::searcher s("fox");
+    for (int i = 0; i < 4; ++i)
+        REQUIRE(s.find("the quick brown fox") == 16);
+    REQUIRE(s.density() == memepp::search_density_t::frequent);
+}
+
+TEST_CASE("memepp::searcher: find(raw bytes) coverage", "[searcher]")
+{
+    memepp::searcher short_n(reinterpret_cast<const MemeByte_t*>("abc"), 3);
+    memepp::searcher long_n(
+        reinterpret_cast<const MemeByte_t*>(
+            "abcdefghijklmnopqrstuvwxyz0123456789"), 36,
+        memepp::case_sensitivity_t::all_insensitive);
+
+    auto B = [](const char* p) { return reinterpret_cast<const MemeByte_t*>(p); };
+
+    /* Short needle on the FastScan path. */
+    REQUIRE(short_n.find(B("xxabc"), 5) == 2);
+    REQUIRE(short_n.find(B("xxabc"), 5, 3) == -1);
+
+    /* Long needle on the Boyer-Moore path. */
+    REQUIRE(long_n.find(B("zzabcdefghijklmnopqrstuvwxyz0123456789zz"), 40) == 2);
+    REQUIRE(long_n.find(B("short"), 5) == -1);      /* haystack < needle */
+
+    /* nullptr / zero length / negative length. */
+    REQUIRE(short_n.find(static_cast<const MemeByte_t*>(nullptr), 5) == -1);
+    REQUIRE(short_n.find(B("abc"), 0) == -1);
+    REQUIRE(short_n.find(B("abc"), -1) == -1);
+
+    /* Offset boundaries. */
+    REQUIRE(short_n.find(B("abcabc"), 6, 0) == 0);
+    REQUIRE(short_n.find(B("abcabc"), 6, 3) == 3);
+    REQUIRE(short_n.find(B("abcabc"), 6, 6) == -1);
+    REQUIRE(short_n.find(B("abcabc"), 6, 7) == -1);
+    REQUIRE(short_n.find(B("abcabc"), 6, -1) == -1);
+
+    /* Embedded NUL in an explicitly-sized haystack is just a byte. */
+    const MemeByte_t with_nul[] = { 'x', 0, 'a', 'b', 'c' };
+    REQUIRE(short_n.find(with_nul, 5) == 2);
+}
+
+TEST_CASE("memepp::searcher: find(memepp::string) offset boundaries", "[searcher]")
+{
+    memepp::searcher s("abc");
+    memepp::string hay = "abcabc";
+
+    REQUIRE(s.find(hay, 0) == 0);
+    REQUIRE(s.find(hay, 1) == 3);
+    REQUIRE(s.find(hay, 3) == 3);
+    REQUIRE(s.find(hay, 4) == -1);
+    REQUIRE(s.find(hay, 6) == -1);      /* offset == size  */
+    REQUIRE(s.find(hay, 7) == -1);      /* offset > size   */
+    REQUIRE(s.find(hay, -1) == -1);     /* negative offset */
+
+    /* Empty haystack. */
+    memepp::string empty;
+    REQUIRE(s.find(empty, 0) == -1);
+}
+
+TEST_CASE("memepp::searcher: swap", "[searcher]")
+{
+    memepp::string hay = "the quick brown fox";
+    memepp::searcher a("brown");
+    memepp::searcher b("fox");
+
+    REQUIRE(a.find(hay) == 10);
+    REQUIRE(b.find(hay) == 16);
+
+    a.swap(b);
+    REQUIRE(a.valid());
+    REQUIRE(b.valid());
+    REQUIRE(a.find(hay) == 16);
+    REQUIRE(b.find(hay) == 10);
+
+    /* Valid <-> invalid. */
+    memepp::searcher inv;
+    a.swap(inv);
+    REQUIRE(!a.valid());
+    REQUIRE(inv.valid());
+    REQUIRE(inv.find(hay) == 16);
+
+    /* Invalid <-> invalid. */
+    memepp::searcher i1, i2;
+    i1.swap(i2);
+    REQUIRE(!i1.valid());
+    REQUIRE(!i2.valid());
+}
+
+TEST_CASE("memepp::searcher: self assignment", "[searcher]")
+{
+    memepp::string hay = "the quick brown fox";
+    memepp::searcher s("brown");
+
+    s = s;                       /* self copy-assign  */
+    REQUIRE(s.valid());
+    REQUIRE(s.find(hay) == 10);
+
+    s = std::move(s);            /* self move-assign  */
+    REQUIRE(s.valid());
+    REQUIRE(s.find(hay) == 10);
+}
+
+TEST_CASE("memepp::searcher: move/copy from invalid", "[searcher]")
+{
+    memepp::string hay = "abc";
+
+    memepp::searcher invalid;
+    REQUIRE(!invalid.valid());
+
+    /* Move construction from invalid. */
+    memepp::searcher m(std::move(invalid));
+    REQUIRE(!m.valid());
+    REQUIRE(m.find(hay) == -1);
+
+    /* Move assignment from invalid over a valid target. */
+    memepp::searcher dst("abc");
+    REQUIRE(dst.valid());
+    dst = std::move(m);
+    REQUIRE(!dst.valid());
+    REQUIRE(dst.find(hay) == -1);
+
+    /* Copy assignment from invalid over a valid target. */
+    memepp::searcher dst2("abc");
+    REQUIRE(dst2.valid());
+    dst2 = invalid;
+    REQUIRE(!dst2.valid());
+    REQUIRE(dst2.find(hay) == -1);
+
+    /* All of them must leave a zeroed handle. */
+    const unsigned char* raw =
+        reinterpret_cast<const unsigned char*>(dst2.native_handle());
+    for (size_t i = 0; i < sizeof(MemeSearcherStack_t); ++i)
+        REQUIRE(raw[i] == 0);
+}
+
+TEST_CASE("memepp::searcher: native_handle around", "[searcher]")
+{
+    memepp::searcher s("abc");
+    memepp::searcher& mut = s;
+    REQUIRE(mut.native_handle() != nullptr);
+    REQUIRE(std::is_same<decltype(mut.native_handle()),
+                         mmsrchstk_t*>::value);
+
+    const memepp::searcher& c = s;
+    REQUIRE(c.native_handle() != nullptr);
+    REQUIRE(std::is_same<decltype(c.native_handle()),
+                         const MemeSearcherStack_t*>::value);
+}
+
+TEST_CASE("memepp::searcher: density rare and sparse", "[searcher]")
+{
+    memepp::searcher s("fox");
+    memepp::string hit  = "the quick brown fox";
+    memepp::string miss = "nothing here";
+
+    /* 1/10 = 10 % -> rare */
+    s.find(hit);
+    for (int i = 0; i < 9; ++i) s.find(miss);
+    REQUIRE(s.density() == memepp::search_density_t::rare);
+
+    s.reset_density();
+
+    /* 3/10 = 30 % -> sparse */
+    for (int i = 0; i < 3; ++i) s.find(hit);
+    for (int i = 0; i < 7; ++i) s.find(miss);
+    REQUIRE(s.density() == memepp::search_density_t::sparse);
+
+    s.reset_density();
+
+    /* 0 % hits is still rare, not unknown. */
+    for (int i = 0; i < 4; ++i) s.find(miss);
+    REQUIRE(s.density() == memepp::search_density_t::rare);
+}
+
+TEST_CASE("memepp::searcher: density on invalid instance", "[searcher]")
+{
+    memepp::searcher inv;
+    REQUIRE(inv.density() == memepp::search_density_t::unknown);
+    inv.reset_density();               /* must not crash */
+    REQUIRE(inv.density() == memepp::search_density_t::unknown);
+}
+
+TEST_CASE("memepp::searcher: case sensitivity is honoured", "[searcher]")
+{
+    const MemeByte_t* nl   = reinterpret_cast<const MemeByte_t*>("AbCdEf");
+    const MemeByte_t* hit  = reinterpret_cast<const MemeByte_t*>("xxabcdefyy");
+    const MemeByte_t* nope = reinterpret_cast<const MemeByte_t*>("xxABCDEFyy");
+    const mmint_t      hn   = 10;
+
+    memepp::searcher ci(nl, 6, memepp::case_sensitivity_t::all_insensitive);
+    REQUIRE(ci.find(hit, hn) == 2);
+    REQUIRE(ci.find(nope, hn) == 2);
+
+    memepp::searcher cs(nl, 6, memepp::case_sensitivity_t::case_sensitive);
+    REQUIRE(cs.find(hit, hn) == -1);   /* case differs -> miss */
+    REQUIRE(cs.find(nope, hn) == -1);  /* needle is "AbCdEf", hay is "ABCDEF" */
+
+    /* all_sensitive behaves like case_sensitive here. */
+    memepp::searcher as(nl, 6, memepp::case_sensitivity_t::all_sensitive);
+    REQUIRE(as.find(hit, hn) == -1);
+    REQUIRE(as.find(nope, hn) == -1);
+
+    /* Exact-case haystack must hit in both sensitive modes. */
+    const MemeByte_t* exact = reinterpret_cast<const MemeByte_t*>("xxAbCdEfyy");
+    REQUIRE(cs.find(exact, hn) == 2);
+    REQUIRE(as.find(exact, hn) == 2);
+}
+
+TEST_CASE("memepp::searcher: Boyer-Moore case folding", "[searcher]")
+{
+    /* Mixed-case long needle: folding must be applied on BOTH the needle and
+     * the haystack, otherwise the tables and the comparison disagree. */
+    std::string needle = "AbCdEfGhIjKlMnOpQrStUvWxYz0123456789";
+    std::string lowercase(needle);
+    for (char& ch : lowercase)
+        ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+
+    std::string hay_lower = "xx" + lowercase + "yy";
+    std::string hay_upper = "xx" + needle + "yy";
+    std::string miss(needle.size(), 'q');
+
+    memepp::searcher s(
+        reinterpret_cast<const MemeByte_t*>(needle.data()),
+        static_cast<mmint_t>(needle.size()),
+        memepp::case_sensitivity_t::all_insensitive);
+    REQUIRE(s.valid());
+
+    REQUIRE(s.find(reinterpret_cast<const MemeByte_t*>(hay_lower.data()),
+                   static_cast<mmint_t>(hay_lower.size())) == 2);
+    REQUIRE(s.find(reinterpret_cast<const MemeByte_t*>(hay_upper.data()),
+                   static_cast<mmint_t>(hay_upper.size())) == 2);
+    REQUIRE(s.find(reinterpret_cast<const MemeByte_t*>(miss.data()),
+                   static_cast<mmint_t>(miss.size())) == -1);
 }

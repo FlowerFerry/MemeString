@@ -99,6 +99,18 @@ MEME_API int MEME_STDCALL MemeSearcherStack_unInit(
     mmsrchstk_t* _out);
 
 /*
+ * Exchange two searchers.
+ *
+ * A plain byte swap is wrong: needle_ptr and the b_width==1 view of
+ * heap_b_delta may point into the owner's own inline_ array.  This function
+ * rebases those pointers after the exchange.
+ *
+ * @return 0 on success, non-zero mgec_t on failure.
+ */
+MEME_API int MEME_STDCALL MemeSearcherStack_swap(
+    mmsrchstk_t* _a, mmsrchstk_t* _b);
+
+/*
  * Search with offset.
  *
  * _haystack_len < 0 means "null-terminated": the length is recovered with
