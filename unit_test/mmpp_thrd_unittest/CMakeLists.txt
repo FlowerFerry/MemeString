@@ -40,6 +40,7 @@ endfunction()
 set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_dll_concurrent.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_searcher_concurrent.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_thread_safety.cpp
 )
 

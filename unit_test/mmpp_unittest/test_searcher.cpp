@@ -1628,3 +1628,116 @@ TEST_CASE("memepp::searcher: buffer needle lifecycle", "[searcher]")
     REQUIRE(s.needle_size() == 5);
     REQUIRE(s.find(hay) == 10);
 }
+
+/* --------------------------------------------------------------------- */
+/* Behaviour flags: concurrent find()                                    */
+/* --------------------------------------------------------------------- */
+
+TEST_CASE("memepp::searcher: flags default to none", "[searcher]")
+{
+    memepp::searcher s("fox");
+    REQUIRE(s.flags() == memepp::searcher_flag_t::none);
+
+    /* An empty searcher reports none too. */
+    memepp::searcher e;
+    REQUIRE(e.flags() == memepp::searcher_flag_t::none);
+    /* Setting flags on an empty searcher is rejected, silently harmless. */
+    e.set_flags(memepp::searcher_flag_t::disable_density);
+    REQUIRE(e.flags() == memepp::searcher_flag_t::none);
+}
+
+TEST_CASE("memepp::searcher: disable_density stops counter updates",
+          "[searcher]")
+{
+    memepp::string hit  = "the quick brown fox";
+    memepp::string miss = "nothing here";
+
+    /* Without the flag, four calls make density() meaningful. */
+    {
+        memepp::searcher s("fox");
+        REQUIRE(s.flags() == memepp::searcher_flag_t::none);
+        for (int i = 0; i < 4; ++i) s.find(hit);
+        REQUIRE(s.density() == memepp::search_density_t::frequent);
+    }
+
+    /* With the flag, find() must not touch the counters at all. */
+    {
+        memepp::searcher s("fox");
+        s.set_flags(memepp::searcher_flag_t::disable_density);
+        REQUIRE(s.flags() == memepp::searcher_flag_t::disable_density);
+
+        for (int i = 0; i < 100; ++i)
+        {
+            REQUIRE(s.find(hit) == 16);
+            REQUIRE(s.find(miss) == memepp::searcher::npos);
+        }
+
+        /* Still unknown: nothing was counted. */
+        REQUIRE(s.density() == memepp::search_density_t::unknown);
+    }
+}
+
+TEST_CASE("memepp::searcher: disable_density keeps results correct",
+          "[searcher]")
+{
+    memepp::searcher s("brown", memepp::case_sensitivity_t::all_insensitive);
+    s.set_flags(memepp::searcher_flag_t::disable_density);
+
+    memepp::string hay = "the quick BROWN fox";
+    REQUIRE(s.find(hay) == 10);
+    REQUIRE(s.find(hay, 11) == memepp::searcher::npos);
+    REQUIRE(s.contains(hay));
+
+    /* Boyer-Moore path as well. */
+    std::string needle(200, 'a');
+    std::string big = "xx" + needle + "yy";
+    memepp::searcher bm(
+        reinterpret_cast<const MemeByte_t*>(needle.data()),
+        static_cast<mmint_t>(needle.size()),
+        memepp::case_sensitivity_t::all_insensitive);
+    bm.set_flags(memepp::searcher_flag_t::disable_density);
+    REQUIRE(bm.find(reinterpret_cast<const MemeByte_t*>(big.data()),
+                    static_cast<mmint_t>(big.size())) == 2);
+}
+
+TEST_CASE("memepp::searcher: flag enum operators", "[searcher]")
+{
+    using memepp::searcher_flag_t;
+
+    /* The bitwise operators come from megopp/util/flag_enum.h. */
+    const searcher_flag_t both =
+        searcher_flag_t::none | searcher_flag_t::disable_density;
+    REQUIRE(both == searcher_flag_t::disable_density);
+
+    REQUIRE((both & searcher_flag_t::disable_density)
+            == searcher_flag_t::disable_density);
+    REQUIRE((both & searcher_flag_t::none) == searcher_flag_t::none);
+
+    /* Round-trip through the searcher. */
+    memepp::searcher s("fox");
+    s.set_flags(both);
+    REQUIRE(s.flags() == searcher_flag_t::disable_density);
+
+    /* mgpp::util helpers work on it too. */
+    REQUIRE(mgpp::util::has_flag(s.flags(), searcher_flag_t::disable_density));
+    REQUIRE(mgpp::util::has_any_flag(s.flags()));
+    REQUIRE(mgpp::util::has_no_flag(searcher_flag_t::none));
+    REQUIRE(mgpp::util::count_flags(s.flags()) == 1);
+}
+
+TEST_CASE("memepp::searcher: flags survive copy", "[searcher]")
+{
+    memepp::searcher s("fox");
+    s.set_flags(memepp::searcher_flag_t::disable_density);
+
+    memepp::searcher c(s);
+    REQUIRE(c.flags() == memepp::searcher_flag_t::disable_density);
+
+    /* Move carries them too. */
+    memepp::searcher m(std::move(c));
+    REQUIRE(m.flags() == memepp::searcher_flag_t::disable_density);
+
+    /* reset() clears them (back to a default-constructed object). */
+    m.reset();
+    REQUIRE(m.flags() == memepp::searcher_flag_t::none);
+}

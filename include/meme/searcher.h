@@ -143,6 +143,40 @@ MEME_API int MEME_STDCALL MemeSearcherStack_unInit(
     mmsrchstk_t* _out);
 
 /*
+ * Behaviour flags for MemeSearcherStack_setFlags().
+ *
+ * MemeSearcherFlag_DisableDensity
+ *       Stop find() from updating the hit/miss counters.  With this flag set
+ *       find() writes nothing to the object, so one searcher may be shared by
+ *       several threads searching concurrently.  density() then keeps
+ *       reporting the value it last computed.
+ *
+ *       Without the flag find() bumps call_count/hit_count on every call and
+ *       is NOT safe to call concurrently on the same object: the increments
+ *       are plain (non-atomic) reads-modify-writes, so counts may be lost and
+ *       density() may be wrong -- the returned match position is still
+ *       correct in either case.
+ */
+typedef MemeByte_t MemeSearcherFlag_t;
+#define MemeSearcherFlag_None            ((MemeSearcherFlag_t)0)
+#define MemeSearcherFlag_DisableDensity  ((MemeSearcherFlag_t)0x01)
+
+/*
+ * Replace the searcher's behaviour flags.
+ *
+ * Call once before sharing the searcher across threads; changing the flags
+ * while another thread is inside find() is a data race.
+ *
+ * @return 0 on success, non-zero mgec_t on failure.
+ */
+MEME_API int MEME_STDCALL MemeSearcherStack_setFlags(
+    mmsrchstk_t* _out, MemeSearcherFlag_t _flags);
+
+/* Current behaviour flags; MemeSearcherFlag_None when not ready. */
+MEME_API MemeSearcherFlag_t MEME_STDCALL MemeSearcherStack_flags(
+    const mmsrchstk_t* _out);
+
+/*
  * Exchange two searchers.
  *
  * A plain byte swap is wrong: needle_ptr and the b_width==1 view of

@@ -19,6 +19,18 @@ typedef mmbyte_t MemeSearcherAlgo_t;
 #define MemeSearcherAlgo_BoyerMoore  ((MemeSearcherAlgo_t)2)  /* long needle: prebuilt BM tables        */
 
 /*
+ * Behaviour flags, stored in MemeSearcherImpl_t::flags_.
+ *
+ * MemeSearcherFlag_DisableDensity
+ *   Skip the hit/miss bookkeeping in find().  find() then touches no mutable
+ *   state, so the same searcher can be used concurrently from several
+ *   threads.  density() keeps reporting whatever it last reached.
+ */
+typedef mmbyte_t MemeSearcherFlag_t;
+#define MemeSearcherFlag_None            ((MemeSearcherFlag_t)0)
+#define MemeSearcherFlag_DisableDensity  ((MemeSearcherFlag_t)0x01)
+
+/*
  * Internal layout overlaid on MemeSearcherStack_t.byte[].
  *
  * reg_size_ must be the first field, matching the MemeString stack types: it
@@ -37,6 +49,12 @@ typedef struct MemeSearcherImpl
     mmflag_case_sensit_t       cs;
     MemeSearcherAlgo_t         algo;
     mmbyte_t                   b_width;      /* 0: FastScan, 1/2/4/8: BM width */
+
+    /*
+     * Behaviour flags; see MemeSearcherFlag_* below.  Placed in a padding
+     * byte between b_width and density so the struct size is unchanged.
+     */
+    mmbyte_t                   flags_;
 
     MemeSearcherDensity_t      density;
     mmint_t                    call_count;

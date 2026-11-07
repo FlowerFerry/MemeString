@@ -327,9 +327,17 @@ MEME_API int MEME_STDCALL MemeSearcherStack_initByOther(
     /* Re-run init() over the source needle: that rebuilds every table and
      * repoints needle_ptr at the new object's own storage, so the two
      * objects share nothing and can be released independently. */
-    return MemeSearcherStack_init(
-        _out, _object_size,
-        src->needle_ptr, src->needle_len, src->cs);
+    {
+        const MemeSearcherFlag_t flags = (MemeSearcherFlag_t)src->flags_;
+        const int rc = MemeSearcherStack_init(
+            _out, _object_size,
+            src->needle_ptr, src->needle_len, src->cs);
+
+        /* Carry the behaviour flags over; init() resets them to None. */
+        if (rc == 0)
+            mmsrch_impl(_out)->flags_ = (mmbyte_t)flags;
+        return rc;
+    }
 }
 
 /*
@@ -649,6 +657,12 @@ count_density:
     {
         MemeSearcherImpl_t* mut = mmsrch_impl((mmsrchstk_t*)(void*)_out);
 
+        /* With MemeSearcherFlag_DisableDensity set, find() must not write to
+         * the object at all -- that is what makes concurrent searches on one
+         * shared searcher safe. */
+        if ((mut->flags_ & MemeSearcherFlag_DisableDensity) != 0)
+            return result;
+
         if (result >= 0)
             mut->hit_count++;
         mut->call_count++;
@@ -709,6 +723,35 @@ MEME_API int MEME_STDCALL MemeSearcherStack_resetDensity(mmsrchstk_t* _out)
 /* ------------------------------------------------------------------ */
 /* introspection                                                        */
 /* ------------------------------------------------------------------ */
+
+MEME_API int MEME_STDCALL MemeSearcherStack_setFlags(
+    mmsrchstk_t* _out, MemeSearcherFlag_t _flags)
+{
+    MemeSearcherImpl_t* self;
+
+    if (MEGO_SYMBOL__UNLIKELY(_out == NULL))
+        return MGEC__INVAL;
+
+    self = mmsrch_impl(_out);
+
+    if (MEGO_SYMBOL__UNLIKELY(self->reg_size_ == 0))
+        return MGEC__INVAL;
+
+    self->flags_ = (mmbyte_t)_flags;
+    return 0;
+}
+
+MEME_API MemeSearcherFlag_t MEME_STDCALL MemeSearcherStack_flags(
+    const mmsrchstk_t* _out)
+{
+    if (MEGO_SYMBOL__UNLIKELY(_out == NULL))
+        return MemeSearcherFlag_None;
+
+    if (mmsrch_implc(_out)->reg_size_ == 0)
+        return MemeSearcherFlag_None;
+
+    return (MemeSearcherFlag_t)mmsrch_implc(_out)->flags_;
+}
 
 MEME_API MemeInteger_t MEME_STDCALL MemeSearcherStack_needleSize(
     const mmsrchstk_t* _out)

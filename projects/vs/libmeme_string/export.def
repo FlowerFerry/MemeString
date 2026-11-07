@@ -720,6 +720,8 @@ EXPORTS
     ; --- MemeSearcherStack (Phase 2 reusable searcher) ---
     MemeSearcherStack_init @50000
     MemeSearcherStack_initEmpty @50011
+    MemeSearcherStack_setFlags @50012
+    MemeSearcherStack_flags @50013
     MemeSearcherStack_move @50005
     MemeSearcherStack_swap @50006
     MemeSearcherStack_needleSize @50007

@@ -18,6 +18,7 @@
 #if MG_LANG__CXX17_AVAIL
 #include <string_view>
 #endif
+#include <megopp/util/flag_enum.h>
 #include <megopp/predef/keyword/noexcept.h>
 
 namespace memepp {
@@ -52,6 +53,25 @@ enum class searcher_state_t : uint8_t
     ready  = MemeSearcherState_Ready,
     failed = MemeSearcherState_Failed,
 };
+
+/*
+ * Behaviour flags for searcher::set_flags().
+ *
+ * disable_density
+ *   Stop find() from updating the hit/miss counters.  find() then writes
+ *   nothing to the object, so a single searcher can be shared by several
+ *   threads searching concurrently.  Without this flag the counters are
+ *   bumped with plain (non-atomic) increments and concurrent find() calls on
+ *   the same object are a data race -- the match position stays correct, but
+ *   density() may be wrong.
+ */
+enum class searcher_flag_t : uint8_t
+{
+    none            = 0,
+    disable_density = MemeSearcherFlag_DisableDensity,
+};
+
+MGPP_DECLARE_FLAG_ENUM_OPS()
 
 /*
  * RAII wrapper around MemeSearcherStack_t.
@@ -303,6 +323,8 @@ public:
     }
 
     /* Convenience: true when the needle occurs anywhere in _text. */
+    bool contains(const memepp::string& _text) const noexcept
+    { return find(_text) != npos; }
     bool contains(const memepp::string_view& _text) const noexcept
     { return find(_text) != npos; }
     bool contains(memepp::string_span _text) const noexcept
@@ -380,6 +402,26 @@ public:
     }
 
     /*
+     * Replace the behaviour flags.
+     *
+     * Call set_flags(searcher_flag_t::disable_density) before sharing the
+     * searcher across threads: find() then stops touching the object and
+     * concurrent searches become safe.  Changing the flags while another
+     * thread is inside find() is itself a data race.
+     */
+    void set_flags(searcher_flag_t _flags) noexcept
+    {
+        MemeSearcherStack_setFlags(
+            &handle_, static_cast<MemeSearcherFlag_t>(_flags));
+    }
+
+    searcher_flag_t flags() const noexcept
+    {
+        return static_cast<searcher_flag_t>(
+            MemeSearcherStack_flags(&handle_));
+    }
+
+    /*
      * Release the needle and every pre-built table, returning to the
      * default-constructed (empty) state.  Safe to call repeatedly and on an
      * object that never held a needle.
@@ -404,5 +446,8 @@ private:
 
 } // namespace MMPP_NAMESPACE
 } // namespace memepp
+
+/* Opt searcher_flag_t into the mgpp::util flag-enum operators. */
+MGPP_FLAG_ENUM(memepp::searcher_flag_t)
 
 #endif /* MEMEPP_SEARCHER_HPP_INCLUDED */
