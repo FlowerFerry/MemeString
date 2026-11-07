@@ -33,7 +33,7 @@ static MemeInteger_t __MemeBoyerMoore_suffixLength(
     return index;
 }
 
-void __MemeBoyerMoore_makeBadDelta(
+void MemeBoyerMoore_makeBadDelta(
     MemeInteger_t* _delta1, MemeInteger_t _delta1_len,
     const uint8_t* _pat, MemeInteger_t _pat_len) 
 {
@@ -48,7 +48,7 @@ void __MemeBoyerMoore_makeBadDelta(
     
 }
 
-void __MemeBoyerMoore_makeGoodDelta(MemeInteger_t* _delta2, const uint8_t* _pat, MemeInteger_t _pat_len)
+void MemeBoyerMoore_makeGoodDelta(MemeInteger_t* _delta2, const uint8_t* _pat, MemeInteger_t _pat_len)
 {
     MemeInteger_t p;
     MemeInteger_t last_prefix_index = 1;
@@ -203,8 +203,8 @@ mmint_t MemeImpl_SearchByBoyerMoore(
     if (g_delta == NULL)
         return -1;
 
-    __MemeBoyerMoore_makeBadDelta (b_delta, sizeof(b_delta) / sizeof(b_delta[0]), _needle, _needle_len);
-    __MemeBoyerMoore_makeGoodDelta(g_delta, _needle, _needle_len);
+    MemeBoyerMoore_makeBadDelta (b_delta, sizeof(b_delta) / sizeof(b_delta[0]), _needle, _needle_len);
+    MemeBoyerMoore_makeGoodDelta(g_delta, _needle, _needle_len);
     
     if ((_haystack_len < 0)) 
     {
@@ -400,7 +400,7 @@ static void __MemeBoyerMooreCI_makeBadDelta(
         _delta1[_BM_CF(_pat[index])] = _pat_len - 1 - index;
 }
 
-void __MemeBoyerMooreCI_makeGoodDelta(
+void MemeBoyerMooreCI_makeGoodDelta(
     MemeInteger_t* _delta2, const uint8_t* _pat, MemeInteger_t _pat_len)
 {
     MemeInteger_t p;
@@ -519,7 +519,7 @@ mmint_t MemeImpl_SearchByBoyerMoore_CaseInsensitive(
 
     __MemeBoyerMooreCI_makeBadDelta(b_delta,
         sizeof(b_delta) / sizeof(b_delta[0]), _needle, _needle_len);
-    __MemeBoyerMooreCI_makeGoodDelta(g_delta, _needle, _needle_len);
+    MemeBoyerMooreCI_makeGoodDelta(g_delta, _needle, _needle_len);
 
     if ((_haystack_len < 0))
     {
@@ -719,7 +719,7 @@ static int __MemeImpl_windowEquals(
     return 1;
 }
 
-mmint_t __MemeImpl_shortForwardSearch(
+mmint_t MemeImpl_shortForwardSearch(
     const uint8_t* _haystack, mmint_t _haystack_len,
     const uint8_t* _needle, mmint_t _needle_len,
     mmflag_case_sensit_t _cs)
@@ -790,7 +790,7 @@ static mmint_t __MemeImpl_shortReverseSearch(
     const mmint_t mid_len = _needle_len - 2;
     mmint_t       last_start = _haystack_len - _needle_len;
 
-    /* See __MemeImpl_shortForwardSearch: only ASCII letters have a case
+    /* See MemeImpl_shortForwardSearch: only ASCII letters have a case
      * pair, so only they may be searched as a two-key set. */
     const int     first_is_letter =
         fold && first >= 0x61u && first <= 0x7au;
@@ -880,11 +880,11 @@ mmint_t MemeImpl_SearchByBoyerMooreWithSensitivity
             if (hay_len < _needle_len)
                 return -1;
 
-            return __MemeImpl_shortForwardSearch(
+            return MemeImpl_shortForwardSearch(
                 _haystack, hay_len, _needle, _needle_len, _cs);
         }
 
-        return __MemeImpl_shortForwardSearch(
+        return MemeImpl_shortForwardSearch(
             _haystack, _haystack_len, _needle, _needle_len, _cs);
     }
 

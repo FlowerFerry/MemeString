@@ -62,6 +62,10 @@ __MMSRCH_MAKEBAD(u64, uint64_t, 0, 0)
  * Mirrors MemeImpl_SearchByBoyerMoore: `idx` walks leftwards during the
  * comparison and the shift is applied to the mismatching position, not to
  * the pattern's right end.
+ *
+ * _haystack_len < 0 selects the NUL-terminated mode, exactly as in the
+ * MemeImpl_Search* family: the shift loop watches for '\0' instead of
+ * comparing against a known end, so no preliminary strlen pass is needed.
  */
 #define __MMSRCH_BM_SEARCH(SUFFIX, DELTA_T)                                   \
 static MemeInteger_t __mmsrch_bm_##SUFFIX(                                    \
@@ -70,9 +74,21 @@ static MemeInteger_t __mmsrch_bm_##SUFFIX(                                    \
     const DELTA_T* _b_delta, const MemeInteger_t* _g_delta, int _ci)           \
 {                                                                             \
     const MemeInteger_t last = _pat_len - 1;                                  \
+    const int nul_mode = (_haystack_len < 0);                                 \
     MemeInteger_t idx = last;                                                 \
                                                                               \
-    while (idx < _haystack_len)                                               \
+    /* NUL mode: the needle must fit before the first NUL, so probe the
+     * first _pat_len bytes up front -- otherwise the leftward walk below
+     * would read past the terminator. */                                       \
+    if (nul_mode)                                                             \
+    {                                                                         \
+        for (MemeInteger_t i = 0; i < _pat_len; ++i)                          \
+            if (_haystack[i] == (MemeByte_t)'\0')                             \
+                return -1;                                                    \
+    }                                                                         \
+                                                                              \
+    while (nul_mode ? (_haystack[idx] != (MemeByte_t)'\0')                    \
+                    : (idx < _haystack_len))                                  \
     {                                                                         \
         MemeInteger_t ni = last;                                              \
                                                                               \
@@ -84,6 +100,7 @@ static MemeInteger_t __mmsrch_bm_##SUFFIX(                                    \
                                      : _pat[ni];                              \
             if (h != p)                                                       \
                 break;                                                        \
+            if (nul_mode && idx == 0) { --ni; break; }  /* left edge */        \
             --idx;                                                            \
             --ni;                                                             \
         }                                                                     \
@@ -102,7 +119,17 @@ static MemeInteger_t __mmsrch_bm_##SUFFIX(                                    \
                 move = 1;                                                     \
             if ((MemeInteger_t)((uint64_t)idx + (uint64_t)move) < idx)        \
                 return -1;                                                    \
-            idx += move;                                                      \
+                                                                              \
+            if (nul_mode)                                                     \
+            {                                                                 \
+                while (move-- > 0)                                            \
+                    if (_haystack[++idx] == (MemeByte_t)'\0')                 \
+                        return -1;                                            \
+            }                                                                 \
+            else                                                              \
+            {                                                                 \
+                idx += move;                                                  \
+            }                                                                 \
         }                                                                     \
     }                                                                         \
                                                                               \
@@ -147,21 +174,27 @@ MEME_API int MEME_STDCALL MemeSearcherStack_init(
         self->algo    = MemeSearcherAlgo_FastScan;
         self->b_width = 0;
 
-        if ((size_t)_needle_len <= sizeof(self->inline_))
+        /* Keep a NUL after the bytes: the case-sensitive NUL-mode path calls
+         * strstr() directly, which requires a terminated needle. */
+        if ((size_t)_needle_len < sizeof(self->inline_))
         {
             memcpy(self->inline_, _needle, (size_t)_needle_len);
+            self->inline_[_needle_len] = (mmbyte_t)0;
             self->needle_ptr = self->inline_;
         }
         else
         {
-            self->heap_block = malloc((size_t)_needle_len);
+            mmbyte_t* buf;
+            self->heap_block = malloc((size_t)_needle_len + 1);
             if (self->heap_block == NULL)
             {
                 self->reg_size_ = 0;
                 return MGEC__NOMEM;
             }
-            memcpy(self->heap_block, _needle, (size_t)_needle_len);
-            self->needle_ptr = (const MemeByte_t*)self->heap_block;
+            buf = (mmbyte_t*)self->heap_block;
+            memcpy(buf, _needle, (size_t)_needle_len);
+            buf[_needle_len] = (mmbyte_t)0;
+            self->needle_ptr = buf;
         }
         return 0;
     }
@@ -234,7 +267,7 @@ MEME_API int MEME_STDCALL MemeSearcherStack_init(
         }
 
         /* Good-suffix table with the same case folding as the search. */
-        __MemeBoyerMooreCI_makeGoodDelta(
+        MemeBoyerMooreCI_makeGoodDelta(
             self->heap_g_delta, _needle, _needle_len);
     }
 
@@ -389,20 +422,76 @@ MEME_API MemeInteger_t MEME_STDCALL MemeSearcherStack_find(
     if (self->reg_size_ == 0)
         return -1;
 
-    if (_haystack_len < 0 || _offset < 0 || _offset > _haystack_len)
-        return -1;
+    /* Negative length → NUL-terminated string.  Both algorithm paths can
+     * stop at the terminator themselves, so no separate strlen pass is
+     * needed -- but only when there is no offset to validate against. */
+    const int nul_mode = (_haystack_len < 0);
 
-    /* Empty needle matches at the offset. */
-    if (self->needle_len <= 0)
-        return _offset;
+    if (nul_mode && _offset == 0 && self->needle_len > 0)
+    {
+        const MemeByte_t* h = _haystack;
 
-    remaining = _haystack_len - _offset;
+        if (self->algo == MemeSearcherAlgo_BoyerMoore)
+        {
+            const void* b_delta = (self->b_width == 1)
+                ? (const void*)self->inline_ : self->heap_b_delta;
+
+            switch (self->b_width)
+            {
+            case 1:
+                return __mmsrch_bm_u8 (h, -1, self->needle_ptr,
+                                       self->needle_len,
+                                       (const uint8_t*)b_delta,
+                                       self->heap_g_delta, 1);
+            case 2:
+                return __mmsrch_bm_u16(h, -1, self->needle_ptr,
+                                       self->needle_len,
+                                       (const uint16_t*)b_delta,
+                                       self->heap_g_delta, 1);
+            case 4:
+                return __mmsrch_bm_u32(h, -1, self->needle_ptr,
+                                       self->needle_len,
+                                       (const uint32_t*)b_delta,
+                                       self->heap_g_delta, 1);
+            default:
+                return __mmsrch_bm_u64(h, -1, self->needle_ptr,
+                                       self->needle_len,
+                                       (const uint64_t*)b_delta,
+                                       self->heap_g_delta, 1);
+            }
+        }
+
+        /* Case-sensitive FastScan: strstr() walks the terminator itself.
+         * Case-insensitive has no ISO C equivalent, so it falls through to
+         * the strlen path below. */
+        if ((self->cs & MemeFlag_CaseSensitive) != 0)
+        {
+            const char* p = strstr((const char*)h,
+                                   (const char*)self->needle_ptr);
+            return (p == NULL) ? -1 : (MemeInteger_t)(p - (const char*)h);
+        }
+    }
+
+    {
+        MemeInteger_t h_len = _haystack_len;
+        if (h_len < 0)
+            h_len = (MemeInteger_t)strlen((const char*)_haystack);
+
+        if (_offset < 0 || _offset > h_len)
+            return -1;
+
+        /* Empty needle matches at the offset. */
+        if (self->needle_len <= 0)
+            return _offset;
+
+        remaining = h_len - _offset;
+    }
 
     if (self->needle_len <= remaining)
     {
         if (self->algo == MemeSearcherAlgo_FastScan)
         {
-            result = __MemeImpl_shortForwardSearch(
+            result = MemeImpl_shortForwardSearch(
                 _haystack + _offset, remaining,
                 self->needle_ptr, self->needle_len,
                 (mmflag_case_sensit_t)self->cs);

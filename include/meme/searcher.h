@@ -100,6 +100,10 @@ MEME_API int MEME_STDCALL MemeSearcherStack_unInit(
 
 /*
  * Search with offset.
+ *
+ * _haystack_len < 0 means "null-terminated": the length is recovered with
+ * strlen(), matching the convention used by the MemeImpl_Search* family.
+ *
  * @return Index of the first match, or -1 if not found.
  */
 MEME_API MemeInteger_t MEME_STDCALL MemeSearcherStack_find(

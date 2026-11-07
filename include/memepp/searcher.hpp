@@ -63,12 +63,15 @@ public:
              case_sensitivity_t _cs = case_sensitivity_t::all_sensitive)
         : valid_(false)
     {
-        std::memset(&handle_, 0, sizeof(handle_));
         if (_needle != nullptr && _len > 0)
         {
             valid_ = MemeSearcherStack_init(
                 &handle_, MMSEARCHER__OBJ_SIZE, _needle, _len,
                 static_cast<MemeFlag_CaseSensitivity_t>(_cs)) == 0;
+        }
+        else
+        {
+            std::memset(&handle_, 0, sizeof(handle_));
         }
     }
 
@@ -77,7 +80,6 @@ public:
                       case_sensitivity_t _cs = case_sensitivity_t::all_sensitive)
         : valid_(false)
     {
-        std::memset(&handle_, 0, sizeof(handle_));
         if (_needle != nullptr && _needle[0] != '\0')
         {
             const size_type n = static_cast<size_type>(std::strlen(_needle));
@@ -86,6 +88,10 @@ public:
                 reinterpret_cast<const MemeByte_t*>(_needle), n,
                 static_cast<MemeFlag_CaseSensitivity_t>(_cs)) == 0;
         }
+        else
+        {
+            std::memset(&handle_, 0, sizeof(handle_));
+        }
     }
 
     /* From std::string_view. */
@@ -93,7 +99,6 @@ public:
                       case_sensitivity_t _cs = case_sensitivity_t::all_sensitive)
         : valid_(false)
     {
-        std::memset(&handle_, 0, sizeof(handle_));
         if (!_needle.empty())
         {
             valid_ = MemeSearcherStack_init(
@@ -102,6 +107,10 @@ public:
                 static_cast<size_type>(_needle.size()),
                 static_cast<MemeFlag_CaseSensitivity_t>(_cs)) == 0;
         }
+        else
+        {
+            std::memset(&handle_, 0, sizeof(handle_));
+        }
     }
 
     /* From memepp::string_view. */
@@ -109,7 +118,6 @@ public:
                       case_sensitivity_t _cs = case_sensitivity_t::all_sensitive)
         : valid_(false)
     {
-        std::memset(&handle_, 0, sizeof(handle_));
         if (!_sv.empty())
         {
             valid_ = MemeSearcherStack_init(
@@ -117,6 +125,10 @@ public:
                 reinterpret_cast<const MemeByte_t*>(_sv.data()),
                 static_cast<size_type>(_sv.size()),
                 static_cast<MemeFlag_CaseSensitivity_t>(_cs)) == 0;
+        }
+        else
+        {
+            std::memset(&handle_, 0, sizeof(handle_));
         }
     }
 
@@ -127,23 +139,25 @@ public:
      * pointers that referred to the source's own inline storage.  No tables
      * are rebuilt, so this is cheap even for long needles.
      */
-    searcher(searcher&& _other) : valid_(false)
+    searcher(searcher&& _other) noexcept : valid_(false)
     {
-        std::memset(&handle_, 0, sizeof(handle_));
         if (_other.valid_)
         {
             valid_ = MemeSearcherStack_move(
                 &handle_, MMSEARCHER__OBJ_SIZE, &_other.handle_) == 0;
             _other.valid_ = false;
         }
+        else
+        {
+            std::memset(&handle_, 0, sizeof(handle_));
+        }
     }
 
-    searcher& operator=(searcher&& _other)
+    searcher& operator=(searcher&& _other) noexcept
     {
         if (this != &_other)
         {
             if (valid_) MemeSearcherStack_unInit(&handle_);
-            std::memset(&handle_, 0, sizeof(handle_));
             valid_ = false;
 
             if (_other.valid_)
@@ -151,6 +165,10 @@ public:
                 valid_ = MemeSearcherStack_move(
                     &handle_, MMSEARCHER__OBJ_SIZE, &_other.handle_) == 0;
                 _other.valid_ = false;
+            }
+            else
+            {
+                std::memset(&handle_, 0, sizeof(handle_));
             }
         }
         return *this;
@@ -166,11 +184,14 @@ public:
      */
     searcher(const searcher& _other) : valid_(false)
     {
-        std::memset(&handle_, 0, sizeof(handle_));
         if (_other.valid_)
         {
             valid_ = MemeSearcherStack_initByOther(
                 &handle_, MMSEARCHER__OBJ_SIZE, &_other.handle_) == 0;
+        }
+        else
+        {
+            std::memset(&handle_, 0, sizeof(handle_));
         }
     }
 
@@ -179,13 +200,16 @@ public:
         if (this != &_other)
         {
             if (valid_) MemeSearcherStack_unInit(&handle_);
-            std::memset(&handle_, 0, sizeof(handle_));
             valid_ = false;
 
             if (_other.valid_)
             {
                 valid_ = MemeSearcherStack_initByOther(
                     &handle_, MMSEARCHER__OBJ_SIZE, &_other.handle_) == 0;
+            }
+            else
+            {
+                std::memset(&handle_, 0, sizeof(handle_));
             }
         }
         return *this;
@@ -222,7 +246,7 @@ public:
         return MemeSearcherStack_find(
             &handle_,
             reinterpret_cast<const MemeByte_t*>(_text),
-            static_cast<MemeInteger_t>(std::strlen(_text)), _offset);
+            -1, _offset);
     }
 
     mmint_t find(const MemeByte_t* _text, size_type _len,
