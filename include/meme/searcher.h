@@ -68,6 +68,18 @@ typedef mmbyte_t MemeSearcherState_t;
 #define MemeSearcherState_Failed ((MemeSearcherState_t)2)
 
 /*
+ * Bring a searcher to the empty state without a needle.
+ *
+ * Zeroes the object and leaves it ready for a later init()/initByOther()/
+ * move().  Equivalent to a default construction in C++: state() reports
+ * MemeSearcherState_Empty and errorCode() reports MGEC__OK.
+ *
+ * @return 0 on success, non-zero mgec_t on failure.
+ */
+MEME_API int MEME_STDCALL MemeSearcherStack_initEmpty(
+    mmsrchstk_t* _out, size_t _object_size);
+
+/*
  * Initialise a searcher.
  * @param _object_size Must be MMSEARCHER__OBJ_SIZE. Used to validate and record size.
  * @return 0 on success, non-zero mgec_t on failure.

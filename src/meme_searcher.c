@@ -145,6 +145,19 @@ __MMSRCH_BM_SEARCH(u64, uint64_t)
 /* init / unInit                                                        */
 /* ------------------------------------------------------------------ */
 
+MEME_API int MEME_STDCALL MemeSearcherStack_initEmpty(
+    mmsrchstk_t* _out, size_t _object_size)
+{
+    if (MEGO_SYMBOL__UNLIKELY(_out == NULL))
+        return MGEC__INVAL;
+
+    if (MEGO_SYMBOL__UNLIKELY(_object_size < sizeof(MemeSearcherImpl_t)))
+        return MGEC__OPNOTSUPP;
+
+    memset(mmsrch_impl(_out), 0, sizeof(MemeSearcherImpl_t));
+    return 0;
+}
+
 MEME_API int MEME_STDCALL MemeSearcherStack_init(
     mmsrchstk_t* _out, size_t _object_size,
     const MemeByte_t* _needle, MemeInteger_t _needle_len,
@@ -665,6 +678,11 @@ MEME_API MemeSearcherDensity_t MEME_STDCALL MemeSearcherStack_density(
     const mmsrchstk_t* _out)
 {
     if (MEGO_SYMBOL__UNLIKELY(_out == NULL))
+        return MemeSearcherDensity_Unknown;
+
+    /* An uninitialised object has no measured density; do not rely on the
+     * zeroed field happening to equal MemeSearcherDensity_Unknown. */
+    if (mmsrch_implc(_out)->reg_size_ == 0)
         return MemeSearcherDensity_Unknown;
 
     return mmsrch_implc(_out)->density;

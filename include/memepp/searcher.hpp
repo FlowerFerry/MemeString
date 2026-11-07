@@ -83,7 +83,7 @@ public:
     /* Default constructor creates an empty searcher. */
     searcher() noexcept
     {
-        std::memset(&handle_, 0, sizeof(handle_));
+        MemeSearcherStack_initEmpty(&handle_, MMSEARCHER__OBJ_SIZE);
     }
 
     /* From raw bytes. */
@@ -188,7 +188,8 @@ public:
     {
         if (this != &_other)
         {
-            if (valid()) MemeSearcherStack_unInit(&handle_);
+            /* unInit is a no-op on an object that holds nothing. */
+            MemeSearcherStack_unInit(&handle_);
             MemeSearcherStack_move(&handle_, MMSEARCHER__OBJ_SIZE,
                                    &_other.handle_);
         }
@@ -213,7 +214,8 @@ public:
     {
         if (this != &_other)
         {
-            if (valid()) MemeSearcherStack_unInit(&handle_);
+            /* unInit is a no-op on an object that holds nothing. */
+            MemeSearcherStack_unInit(&handle_);
             MemeSearcherStack_initByOther(&handle_, MMSEARCHER__OBJ_SIZE,
                                           &_other.handle_);
         }
@@ -222,7 +224,7 @@ public:
 
     ~searcher()
     {
-        if (valid()) MemeSearcherStack_unInit(&handle_);
+        MemeSearcherStack_unInit(&handle_);
     }
 
     /* ------------------------------ search ---------------------------- */
@@ -313,14 +315,12 @@ public:
     /* Density of hits so far.  Fewer than 4 find() calls -> unknown. */
     density_type density() const noexcept
     {
-        return valid()
-            ? static_cast<search_density_t>(MemeSearcherStack_density(&handle_))
-            : search_density_t::unknown;
+        return static_cast<search_density_t>(MemeSearcherStack_density(&handle_));
     }
 
     void reset_density() noexcept
     {
-        if (valid()) MemeSearcherStack_resetDensity(&handle_);
+        MemeSearcherStack_resetDensity(&handle_);
     }
 
     /* ----------------------------- accessors -------------------------- */
@@ -365,16 +365,7 @@ public:
      */
     void reset() noexcept
     {
-        if (valid())
-        {
-            /* unInit leaves a well-defined empty object (cs restored). */
-            MemeSearcherStack_unInit(&handle_);
-        }
-        else
-        {
-            /* Never initialised, or a failed init: zero it out. */
-            std::memset(&handle_, 0, sizeof(handle_));
-        }
+        MemeSearcherStack_unInit(&handle_);
     }
 
     native_handle_type native_handle() noexcept { return &handle_; }
