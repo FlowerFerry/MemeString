@@ -45,14 +45,12 @@ typedef MemeSearcherStack_t mmsrchstk_t;
 /*
  * Hit-density classification, reported by MemeSearcherStack_density().
  */
-typedef enum MemeSearcherDensity
-{
-    MemeSearcherDensity_Unknown  = 0,  /* fewer than 4 calls so far     */
-    MemeSearcherDensity_Rare     = 1,  /* < 25 % of calls returned hit  */
-    MemeSearcherDensity_Sparse   = 2,  /* 25-50 %                       */
-    MemeSearcherDensity_Common   = 3,  /* 50-75 %                       */
-    MemeSearcherDensity_Frequent = 4,  /* > 75 %                        */
-} MemeSearcherDensity_t;
+typedef mmbyte_t MemeSearcherDensity_t;
+#define MemeSearcherDensity_Unknown  ((MemeSearcherDensity_t)0)  /* fewer than 4 calls so far     */
+#define MemeSearcherDensity_Rare     ((MemeSearcherDensity_t)1)  /* < 25 % of calls returned hit  */
+#define MemeSearcherDensity_Sparse   ((MemeSearcherDensity_t)2)  /* 25-50 %                       */
+#define MemeSearcherDensity_Common   ((MemeSearcherDensity_t)3)  /* 50-75 %                       */
+#define MemeSearcherDensity_Frequent ((MemeSearcherDensity_t)4)  /* > 75 %                        */
 
 /*
  * Initialise a searcher.
@@ -76,6 +74,22 @@ MEME_API int MEME_STDCALL MemeSearcherStack_init(
 MEME_API int MEME_STDCALL MemeSearcherStack_initByOther(
     mmsrchstk_t* _out, size_t _object_size,
     const mmsrchstk_t* _other);
+
+/*
+ * Move an initialised searcher into caller-provided storage.
+ *
+ * Unlike initByOther(), this does NOT rebuild any tables: the bytes are
+ * copied and the internal pointers are relocated to the destination.  That
+ * makes it O(1) instead of O(needle_len), at the cost of leaving _other in
+ * the empty state (its tables now belong to _out).
+ *
+ * _out must not already own resources.
+ *
+ * @return 0 on success, non-zero mgec_t on failure.
+ */
+MEME_API int MEME_STDCALL MemeSearcherStack_move(
+    mmsrchstk_t* _out, size_t _object_size,
+    mmsrchstk_t* _other);
 
 /*
  * Release resources. No size needed; reads internal state.

@@ -719,6 +719,7 @@ EXPORTS
     MemeString_lastIndexOfWithByte @40000
     ; --- MemeSearcherStack (Phase 2 reusable searcher) ---
     MemeSearcherStack_init @50000
+    MemeSearcherStack_move @50005
     MemeSearcherStack_unInit @50001
     MemeSearcherStack_find @50002
     MemeSearcherStack_density @50003

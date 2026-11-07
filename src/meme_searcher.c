@@ -270,6 +270,70 @@ MEME_API int MEME_STDCALL MemeSearcherStack_initByOther(
         src->needle_ptr, src->needle_len, src->cs);
 }
 
+/*
+ * Relocate pointers that refer into the source object's own inline_ storage
+ * so they point into the destination's inline_ instead.  Pointers into the
+ * heap block are left alone — both objects would agree on them, but the
+ * source is cleared right after, so only the destination keeps them.
+ */
+static void __mmsrch_relocate(MemeSearcherImpl_t* _dst,
+                              const MemeSearcherImpl_t* _src)
+{
+    const MemeByte_t* begin = _src->inline_;
+    const MemeByte_t* end   = _src->inline_ + sizeof(_src->inline_);
+
+    /* needle_ptr: may be inline_ (fast-scan / BM u8) or heap_block. */
+    if (_src->needle_ptr >= begin && _src->needle_ptr < end)
+        _dst->needle_ptr = _dst->inline_ + (_src->needle_ptr - begin);
+
+    /* heap_b_delta: only ever == inline_ when b_width == 1; otherwise it
+     * points into heap_block. */
+    if ((const MemeByte_t*)_src->heap_b_delta >= begin &&
+        (const MemeByte_t*)_src->heap_b_delta <  end)
+    {
+        _dst->heap_b_delta = _dst->inline_;
+    }
+
+    /* heap_block and heap_g_delta point into the heap and need no fixup. */
+}
+
+MEME_API int MEME_STDCALL MemeSearcherStack_move(
+    mmsrchstk_t* _out, size_t _object_size,
+    mmsrchstk_t* _other)
+{
+    MemeSearcherImpl_t* dst;
+    MemeSearcherImpl_t* src;
+
+    if (MEGO_SYMBOL__UNLIKELY(_out == NULL || _other == NULL))
+        return MGEC__INVAL;
+
+    if (MEGO_SYMBOL__UNLIKELY(_object_size < sizeof(MemeSearcherImpl_t)))
+        return MGEC__OPNOTSUPP;
+
+    if (MEGO_SYMBOL__UNLIKELY(_out == _other))
+        return MGEC__INVAL;
+
+    src = mmsrch_impl(_other);
+
+    /* Nothing to move: produce an empty destination. */
+    if (src->reg_size_ == 0)
+    {
+        memset(mmsrch_impl(_out), 0, sizeof(MemeSearcherImpl_t));
+        return 0;
+    }
+
+    dst = mmsrch_impl(_out);
+
+    /* Byte copy, then fix up the pointers that referred to src->inline_. */
+    memcpy(dst, src, sizeof(MemeSearcherImpl_t));
+    __mmsrch_relocate(dst, src);
+
+    /* The source no longer owns anything. */
+    memset(src, 0, sizeof(MemeSearcherImpl_t));
+
+    return 0;
+}
+
 MEME_API int MEME_STDCALL MemeSearcherStack_unInit(mmsrchstk_t* _out)
 {
     MemeSearcherImpl_t* self;

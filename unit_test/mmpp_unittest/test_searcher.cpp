@@ -112,6 +112,102 @@ TEST_CASE("MemeSearcherStack: invalid inputs", "[searcher]")
         &fresh, reinterpret_cast<const MemeByte_t*>("abc"), 3, 0) == -1);
 }
 
+TEST_CASE("MemeSearcherStack: move is O(1) and leaves the source empty", "[searcher]")
+{
+    const char* hay = "the quick brown fox jumps over the lazy dog";
+
+    /* FastScan case: needle stored in the object's own inline_ area. */
+    {
+        MemeSearcherStack_t a;
+        REQUIRE(MemeSearcherStack_init(
+            &a, MMSEARCHER__OBJ_SIZE,
+            reinterpret_cast<const MemeByte_t*>("brown"), 5,
+            MemeFlag_CaseSensitive) == 0);
+
+        MemeSearcherStack_t b;
+        REQUIRE(MemeSearcherStack_move(
+            &b, MMSEARCHER__OBJ_SIZE, &a) == 0);
+
+        /* The moved-to object finds the needle. */
+        REQUIRE(MemeSearcherStack_find(
+            &b, reinterpret_cast<const MemeByte_t*>(hay),
+            static_cast<MemeInteger_t>(std::strlen(hay)), 0) == 10);
+
+        /* The source no longer reports anything. */
+        REQUIRE(MemeSearcherStack_find(
+            &a, reinterpret_cast<const MemeByte_t*>(hay),
+            static_cast<MemeInteger_t>(std::strlen(hay)), 0) == -1);
+
+        /* Releasing the emptied source must not free the destination's data. */
+        REQUIRE(MemeSearcherStack_unInit(&a) == 0);
+
+        REQUIRE(MemeSearcherStack_find(
+            &b, reinterpret_cast<const MemeByte_t*>(hay),
+            static_cast<MemeInteger_t>(std::strlen(hay)), 0) == 10);
+
+        MemeSearcherStack_unInit(&b);
+    }
+
+    /* Boyer-Moore case with b_width == 1: both the needle and the bad-char
+     * table live inside the object, so the relocation path is exercised. */
+    {
+        std::string needle(200, 'a');
+        std::string big = "xx" + needle + "yy";
+        std::string miss(200, 'b');
+
+        MemeSearcherStack_t a;
+        REQUIRE(MemeSearcherStack_init(
+            &a, MMSEARCHER__OBJ_SIZE,
+            reinterpret_cast<const MemeByte_t*>(needle.data()),
+            static_cast<MemeInteger_t>(needle.size()),
+            MemeFlag_AllInsensitive) == 0);
+
+        MemeSearcherStack_t b;
+        REQUIRE(MemeSearcherStack_move(
+            &b, MMSEARCHER__OBJ_SIZE, &a) == 0);
+
+        REQUIRE(MemeSearcherStack_find(
+            &b, reinterpret_cast<const MemeByte_t*>(big.data()),
+            static_cast<MemeInteger_t>(big.size()), 0) == 2);
+        REQUIRE(MemeSearcherStack_find(
+            &b, reinterpret_cast<const MemeByte_t*>(miss.data()),
+            static_cast<MemeInteger_t>(miss.size()), 0) == -1);
+
+        MemeSearcherStack_unInit(&a);   /* must not corrupt b */
+
+        REQUIRE(MemeSearcherStack_find(
+            &b, reinterpret_cast<const MemeByte_t*>(big.data()),
+            static_cast<MemeInteger_t>(big.size()), 0) == 2);
+
+        MemeSearcherStack_unInit(&b);
+    }
+
+    /* Boyer-Moore case with b_width > 1: tables live on the heap. */
+    {
+        std::string needle(300, 'c');
+        std::string big = "zz" + needle + "ww";
+
+        MemeSearcherStack_t a;
+        REQUIRE(MemeSearcherStack_init(
+            &a, MMSEARCHER__OBJ_SIZE,
+            reinterpret_cast<const MemeByte_t*>(needle.data()),
+            static_cast<MemeInteger_t>(needle.size()),
+            MemeFlag_AllInsensitive) == 0);
+
+        MemeSearcherStack_t b;
+        REQUIRE(MemeSearcherStack_move(
+            &b, MMSEARCHER__OBJ_SIZE, &a) == 0);
+
+        MemeSearcherStack_unInit(&a);
+
+        REQUIRE(MemeSearcherStack_find(
+            &b, reinterpret_cast<const MemeByte_t*>(big.data()),
+            static_cast<MemeInteger_t>(big.size()), 0) == 2);
+
+        MemeSearcherStack_unInit(&b);
+    }
+}
+
 TEST_CASE("MemeSearcherStack: density tracking", "[searcher]")
 {
     const char* hit_s  = "hello world";
@@ -294,23 +390,88 @@ TEST_CASE("memepp::searcher: move semantics", "[searcher]")
     REQUIRE(c.find(hay) == 6);
 }
 
+TEST_CASE("memepp::searcher: copy is a deep copy", "[searcher]")
+{
+    memepp::string hay = "the quick brown fox jumps over the lazy dog";
+
+    memepp::searcher a("brown");
+    REQUIRE(a.valid());
+    REQUIRE(a.find(hay) == 10);
+
+    /* Copy construction: both must find, and releasing one must not affect
+     * the other (initByOther rebuilds the tables). */
+    memepp::searcher b(a);
+    REQUIRE(b.valid());
+    REQUIRE(b.find(hay) == 10);
+    REQUIRE(a.find(hay) == 10);
+
+    /* Copy assignment over an existing searcher. */
+    memepp::searcher c("fox");
+    REQUIRE(c.find(hay) == 16);
+    c = a;
+    REQUIRE(c.valid());
+    REQUIRE(c.find(hay) == 10);
+
+    /* The original still works after c was assigned and destroyed. */
+    {
+        memepp::searcher tmp(b);
+        REQUIRE(tmp.find(hay) == 10);
+    }
+    REQUIRE(b.find(hay) == 10);
+
+    /* Copying an invalid searcher yields an invalid one. */
+    memepp::searcher empty("");
+    REQUIRE(!empty.valid());
+    memepp::searcher empty_copy(empty);
+    REQUIRE(!empty_copy.valid());
+    REQUIRE(empty_copy.find(hay) == -1);
+}
+
+TEST_CASE("memepp::searcher: copy of a Boyer-Moore instance", "[searcher]")
+{
+    /* Long, case-insensitive needle -> Boyer-Moore with heap tables. */
+    std::string needle(200, 'a');
+    std::string big = "xx" + needle + "yy";
+    std::string miss(200, 'b');
+
+    memepp::searcher a(
+        reinterpret_cast<const MemeByte_t*>(needle.data()),
+        static_cast<mmint_t>(needle.size()),
+        memepp::case_sensitivity_t::all_insensitive);
+    REQUIRE(a.valid());
+
+    memepp::searcher b(a);
+    REQUIRE(b.valid());
+
+    REQUIRE(b.find(
+        reinterpret_cast<const MemeByte_t*>(big.data()),
+        static_cast<mmint_t>(big.size())) == 2);
+    REQUIRE(a.find(
+        reinterpret_cast<const MemeByte_t*>(miss.data()),
+        static_cast<mmint_t>(miss.size())) == -1);
+
+    /* Density counters are per-object, not shared with the source. */
+    REQUIRE(a.density() == memepp::search_density_t::unknown);
+    REQUIRE(b.density() == memepp::search_density_t::unknown);
+}
+
 TEST_CASE("memepp::searcher: density", "[searcher]")
 {
     memepp::searcher srch("fox");
     memepp::string hit  = "the quick brown fox";
     memepp::string miss = "nothing here";
 
-    REQUIRE(srch.density() == MemeSearcherDensity_Unknown);
+    REQUIRE(srch.density() == memepp::search_density_t::unknown);
 
     for (int i = 0; i < 3; ++i) srch.find(hit);
-    REQUIRE(srch.density() == MemeSearcherDensity_Unknown);
+    REQUIRE(srch.density() == memepp::search_density_t::unknown);
 
     srch.find(hit);                     /* 4/4 = 100 % */
-    REQUIRE(srch.density() == MemeSearcherDensity_Frequent);
+    REQUIRE(srch.density() == memepp::search_density_t::frequent);
 
     for (int i = 0; i < 4; ++i) srch.find(miss);
-    REQUIRE(srch.density() == MemeSearcherDensity_Common);  /* 4/8 = 50 % */
+    REQUIRE(srch.density() == memepp::search_density_t::common);  /* 4/8 = 50 % */
 
     srch.reset_density();
-    REQUIRE(srch.density() == MemeSearcherDensity_Unknown);
+    REQUIRE(srch.density() == memepp::search_density_t::unknown);
 }

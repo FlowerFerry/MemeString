@@ -14,6 +14,22 @@ namespace memepp {
 inline namespace MMPP_NAMESPACE {
 
 /*
+ * Hit-density classification for memepp::searcher.
+ *
+ * Mirrors the C MemeSearcherDensity_* values but is a scoped enum in C++,
+ * so a density value cannot be confused with an algorithm id or a raw
+ * integer.  The underlying type is fixed (uint8_t) to keep the ABI stable.
+ */
+enum class search_density_t : uint8_t
+{
+    unknown  = MemeSearcherDensity_Unknown,
+    rare     = MemeSearcherDensity_Rare,
+    sparse   = MemeSearcherDensity_Sparse,
+    common   = MemeSearcherDensity_Common,
+    frequent = MemeSearcherDensity_Frequent,
+};
+
+/*
  * RAII wrapper around MemeSearcherStack_t.
  *
  * A searcher pre-processes a needle once, then reuses the result across
@@ -33,7 +49,7 @@ class searcher
 {
 public:
     using native_handle_type = mmsrchstk_t*;
-    using density_type       = MemeSearcherDensity_t;
+    using density_type       = search_density_t;
     using size_type          = mmint_t;
 
     /* Default constructor creates an invalid searcher. */
@@ -105,21 +121,19 @@ public:
     }
 
     /*
-     * Move semantics.
+     * Move semantics: O(1).
      *
-     * The object cannot simply be byte-copied: needle_ptr and the table view
-     * pointers may refer to the source object's own inline_ storage, so a
-     * memcpy would leave them dangling once the source is destroyed.
-     * initByOther() rebuilds the tables in the destination instead.
+     * MemeSearcherStack_move() byte-copies the object and relocates the
+     * pointers that referred to the source's own inline storage.  No tables
+     * are rebuilt, so this is cheap even for long needles.
      */
     searcher(searcher&& _other) : valid_(false)
     {
         std::memset(&handle_, 0, sizeof(handle_));
         if (_other.valid_)
         {
-            valid_ = MemeSearcherStack_initByOther(
+            valid_ = MemeSearcherStack_move(
                 &handle_, MMSEARCHER__OBJ_SIZE, &_other.handle_) == 0;
-            MemeSearcherStack_unInit(&_other.handle_);
             _other.valid_ = false;
         }
     }
@@ -134,18 +148,48 @@ public:
 
             if (_other.valid_)
             {
-                valid_ = MemeSearcherStack_initByOther(
+                valid_ = MemeSearcherStack_move(
                     &handle_, MMSEARCHER__OBJ_SIZE, &_other.handle_) == 0;
-                MemeSearcherStack_unInit(&_other.handle_);
                 _other.valid_ = false;
             }
         }
         return *this;
     }
 
-    /* Non-copyable: the object owns pre-built tables. */
-    searcher(const searcher&)            = delete;
-    searcher& operator=(const searcher&) = delete;
+    /*
+     * Copy semantics: deep copy.
+     *
+     * MemeSearcherStack_initByOther() rebuilds the needle and every table in
+     * the destination, so the two searchers share nothing and can be released
+     * independently.  This is O(needle_len) — noticeably more expensive than
+     * a word copy, so prefer move or a reference when the copy is not needed.
+     */
+    searcher(const searcher& _other) : valid_(false)
+    {
+        std::memset(&handle_, 0, sizeof(handle_));
+        if (_other.valid_)
+        {
+            valid_ = MemeSearcherStack_initByOther(
+                &handle_, MMSEARCHER__OBJ_SIZE, &_other.handle_) == 0;
+        }
+    }
+
+    searcher& operator=(const searcher& _other)
+    {
+        if (this != &_other)
+        {
+            if (valid_) MemeSearcherStack_unInit(&handle_);
+            std::memset(&handle_, 0, sizeof(handle_));
+            valid_ = false;
+
+            if (_other.valid_)
+            {
+                valid_ = MemeSearcherStack_initByOther(
+                    &handle_, MMSEARCHER__OBJ_SIZE, &_other.handle_) == 0;
+            }
+        }
+        return *this;
+    }
 
     ~searcher()
     {
@@ -190,11 +234,12 @@ public:
 
     /* --------------------------- hit density -------------------------- */
 
-    /* Density of hits so far.  Fewer than 4 find() calls -> Unknown. */
+    /* Density of hits so far.  Fewer than 4 find() calls -> unknown. */
     density_type density() const noexcept
     {
-        return valid_ ? MemeSearcherStack_density(&handle_)
-                      : MemeSearcherDensity_Unknown;
+        return valid_
+            ? static_cast<search_density_t>(MemeSearcherStack_density(&handle_))
+            : search_density_t::unknown;
     }
 
     void reset_density() noexcept
