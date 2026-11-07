@@ -11,10 +11,13 @@
 #include <memepp/errc.hpp>
 #include <mego/predef/lang/version.h>
 
-#include <string_view>
+#include <string>
 #include <utility>
 #include <cstring>
 #include <cstdint>
+#if MG_LANG__CXX17_AVAIL
+#include <string_view>
+#endif
 #include <megopp/predef/keyword/noexcept.h>
 
 namespace memepp {
@@ -115,6 +118,7 @@ public:
         }
     }
 
+#if MG_LANG__CXX17_AVAIL
     /* From std::string_view. */
     explicit searcher(std::string_view _needle,
                       case_sensitivity_t _cs = case_sensitivity_t::all_sensitive)
@@ -125,6 +129,7 @@ public:
             static_cast<size_type>(_needle.size()),
             static_cast<MemeFlag_CaseSensitivity_t>(_cs));
     }
+#endif
 
     /* From memepp::string_view. */
     explicit searcher(memepp::string_view _sv,

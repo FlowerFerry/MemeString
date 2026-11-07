@@ -358,9 +358,11 @@ TEST_CASE("memepp::searcher: constructors", "[searcher]")
     REQUIRE(from_cstr.valid());
     REQUIRE(from_cstr.find(hay) == 0);
 
+#if MG_LANG__CXX17_AVAIL
     memepp::searcher from_sv(std::string_view("abc"));
     REQUIRE(from_sv.valid());
     REQUIRE(from_sv.find(hay) == 0);
+#endif
 
     memepp::searcher from_bytes(
         reinterpret_cast<const MemeByte_t*>("abc"), 3);
@@ -541,8 +543,10 @@ TEST_CASE("memepp::searcher: constructor failure inputs", "[searcher]")
 
     /* Empty std::string_view and empty memepp::string_view.
      * Braces, not parens: `T v(std::string_view())` declares a function. */
+#if MG_LANG__CXX17_AVAIL
     memepp::searcher c5{std::string_view()};
     REQUIRE(!c5.valid());
+#endif
     memepp::searcher c6{memepp::string_view()};
     REQUIRE(!c6.valid());
 
@@ -940,6 +944,7 @@ TEST_CASE("memepp::searcher: case_sensitivity()", "[searcher]")
     REQUIRE(s2.case_sensitivity() == memepp::case_sensitivity_t::all_insensitive);
 }
 
+#if MG_LANG__CXX17_AVAIL
 TEST_CASE("memepp::searcher: find(std::string_view)", "[searcher]")
 {
     memepp::searcher s("brown");
@@ -948,11 +953,10 @@ TEST_CASE("memepp::searcher: find(std::string_view)", "[searcher]")
     REQUIRE(s.find(hv) == 10);
     REQUIRE(s.find(hv, 11) == memepp::searcher::npos);
 
-#if MG_LANG__CXX17_AVAIL
     std::string_view empty;
     REQUIRE(s.find(empty) == memepp::searcher::npos);
-#endif
 }
+#endif
 
 TEST_CASE("memepp::searcher: find(string_span)", "[searcher]")
 {
@@ -1438,7 +1442,9 @@ TEST_CASE("memepp::searcher: error_code on invalid inputs", "[searcher]")
     REQUIRE(memepp::searcher(reinterpret_cast<const MemeByte_t*>("x"), -5)
                 .error_code() == MGEC__INVAL);
     /* Empty views. */
+#if MG_LANG__CXX17_AVAIL
     REQUIRE(memepp::searcher(std::string_view()).error_code() == MGEC__INVAL);
+#endif
     REQUIRE(memepp::searcher(memepp::string_view()).error_code() == MGEC__INVAL);
     REQUIRE(memepp::searcher(memepp::string_span()).error_code() == MGEC__INVAL);
     REQUIRE(memepp::searcher(memepp::buffer_span()).error_code() == MGEC__INVAL);
