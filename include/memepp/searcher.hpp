@@ -14,6 +14,7 @@
 #include <string_view>
 #include <utility>
 #include <cstring>
+#include <cstdint>
 #include <megopp/predef/keyword/noexcept.h>
 
 namespace memepp {
@@ -340,11 +341,26 @@ public:
             MemeSearcherStack_needleSize(&handle_));
     }
 
-    /* Case-sensitivity the searcher was built with. */
+    /*
+     * Case-sensitivity the searcher was built with.
+     *
+     * The C layer stores MemeFlag_CaseSensitivity_t (mmint_t), where
+     * MemeFlag_AllSensitive is 0xFFFFFFFF and therefore reads back as
+     * 4294967295 after integer promotion.  case_sensitivity_t is a 32-bit
+     * enum whose all_sensitive is -1, so the two only agree in their low 32
+     * bits.  Normalise here rather than leaking the C representation.
+     */
     case_sensitivity_t case_sensitivity() const noexcept
     {
-        return static_cast<case_sensitivity_t>(
-            MemeSearcherStack_caseSensitivity(&handle_));
+        const MemeFlag_CaseSensitivity_t cs =
+            MemeSearcherStack_caseSensitivity(&handle_);
+
+        if (static_cast<uint32_t>(cs) ==
+            static_cast<uint32_t>(MemeFlag_AllSensitive))
+        {
+            return case_sensitivity_t::all_sensitive;
+        }
+        return static_cast<case_sensitivity_t>(cs);
     }
 
     /* Error code of the last construction / move / swap. */

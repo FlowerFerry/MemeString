@@ -1202,9 +1202,20 @@ TEST_CASE("memepp::searcher: case_sensitivity after reset and move",
     memepp::searcher c(m);
     REQUIRE(c.case_sensitivity() == memepp::case_sensitivity_t::all_insensitive);
 
-    /* reset() clears the configuration back to the default. */
+    /*
+     * reset() clears the configuration back to the default.
+     *
+     * The C layer records MemeFlag_AllSensitive, whose value differs from
+     * case_sensitivity_t::all_sensitive once promoted to mmint_t on some
+     * platforms (0xFFFFFFFF unsigned vs -1 signed).  case_sensitivity() must
+     * normalise both representations, so this holds on every platform.
+     */
     c.reset();
     REQUIRE(c.case_sensitivity() == memepp::case_sensitivity_t::all_sensitive);
+
+    /* Explicitly cover both underlying representations. */
+    REQUIRE(static_cast<uint32_t>(memepp::case_sensitivity_t::all_sensitive) ==
+            static_cast<uint32_t>(MemeFlag_AllSensitive));
 }
 
 TEST_CASE("memepp::searcher: contains() negative and invalid cases",
