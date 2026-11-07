@@ -4,6 +4,12 @@
 #include <meme/searcher.h>
 #include <memepp/string.hpp>
 #include <memepp/string_view.hpp>
+#include <memepp/string_span.hpp>
+#include <memepp/buffer_span.hpp>
+#include <memepp/buffer.hpp>
+#include <memepp/buffer_view.hpp>
+#include <memepp/errc.hpp>
+#include <mego/predef/lang/version.h>
 
 #include <string_view>
 #include <utility>
@@ -30,6 +36,20 @@ enum class search_density_t : uint8_t
 };
 
 /*
+ * Lifecycle state of a searcher.
+ *
+ *   empty  - never held a needle (default-constructed or reset()).
+ *   ready  - init succeeded; find() may be called.
+ *   failed - init was attempted and rejected; error_code() says why.
+ */
+enum class searcher_state_t : uint8_t
+{
+    empty  = MemeSearcherState_Empty,
+    ready  = MemeSearcherState_Ready,
+    failed = MemeSearcherState_Failed,
+};
+
+/*
  * RAII wrapper around MemeSearcherStack_t.
  *
  * A searcher pre-processes a needle once, then reuses the result across
@@ -50,86 +70,106 @@ class searcher
 public:
     using native_handle_type = mmsrchstk_t*;
     using density_type       = search_density_t;
+    using state_type         = searcher_state_t;
     using size_type          = mmint_t;
 
-    /* Default constructor creates an invalid searcher. */
-    searcher() noexcept : valid_(false)
+    /* "not found", matching memepp::string / string_span / std::string. */
+#if MG_LANG__CXX17_AVAIL
+    inline static constexpr size_type npos = static_cast<size_type>(-1);
+#else
+    enum : size_type { npos = static_cast<size_type>(-1) };
+#endif
+
+    /* Default constructor creates an empty searcher. */
+    searcher() noexcept
     {
         std::memset(&handle_, 0, sizeof(handle_));
     }
 
     /* From raw bytes. */
-    searcher(const MemeByte_t* _needle, size_type _len,
+    searcher(const mmbyte_t* _needle, size_type _len,
              case_sensitivity_t _cs = case_sensitivity_t::all_sensitive)
-        : valid_(false)
     {
-        if (_needle != nullptr && _len > 0)
-        {
-            valid_ = MemeSearcherStack_init(
-                &handle_, MMSEARCHER__OBJ_SIZE, _needle, _len,
-                static_cast<MemeFlag_CaseSensitivity_t>(_cs)) == 0;
-        }
-        else
-        {
-            std::memset(&handle_, 0, sizeof(handle_));
-        }
+        MemeSearcherStack_init(&handle_, MMSEARCHER__OBJ_SIZE, _needle, _len,
+                               static_cast<MemeFlag_CaseSensitivity_t>(_cs));
     }
 
     /* From a null-terminated C string. */
     explicit searcher(const char* _needle,
                       case_sensitivity_t _cs = case_sensitivity_t::all_sensitive)
-        : valid_(false)
     {
-        if (_needle != nullptr && _needle[0] != '\0')
+        if (_needle != nullptr)
         {
-            const size_type n = static_cast<size_type>(std::strlen(_needle));
-            valid_ = MemeSearcherStack_init(
+            MemeSearcherStack_init(
                 &handle_, MMSEARCHER__OBJ_SIZE,
-                reinterpret_cast<const MemeByte_t*>(_needle), n,
-                static_cast<MemeFlag_CaseSensitivity_t>(_cs)) == 0;
+                reinterpret_cast<const mmbyte_t*>(_needle),
+                static_cast<size_type>(std::strlen(_needle)),
+                static_cast<MemeFlag_CaseSensitivity_t>(_cs));
         }
         else
         {
-            std::memset(&handle_, 0, sizeof(handle_));
+            MemeSearcherStack_init(&handle_, MMSEARCHER__OBJ_SIZE,
+                                   nullptr, 0,
+                                   static_cast<MemeFlag_CaseSensitivity_t>(_cs));
         }
     }
 
     /* From std::string_view. */
     explicit searcher(std::string_view _needle,
                       case_sensitivity_t _cs = case_sensitivity_t::all_sensitive)
-        : valid_(false)
     {
-        if (!_needle.empty())
-        {
-            valid_ = MemeSearcherStack_init(
-                &handle_, MMSEARCHER__OBJ_SIZE,
-                reinterpret_cast<const MemeByte_t*>(_needle.data()),
-                static_cast<size_type>(_needle.size()),
-                static_cast<MemeFlag_CaseSensitivity_t>(_cs)) == 0;
-        }
-        else
-        {
-            std::memset(&handle_, 0, sizeof(handle_));
-        }
+        MemeSearcherStack_init(
+            &handle_, MMSEARCHER__OBJ_SIZE,
+            reinterpret_cast<const mmbyte_t*>(_needle.data()),
+            static_cast<size_type>(_needle.size()),
+            static_cast<MemeFlag_CaseSensitivity_t>(_cs));
     }
 
     /* From memepp::string_view. */
     explicit searcher(memepp::string_view _sv,
                       case_sensitivity_t _cs = case_sensitivity_t::all_sensitive)
-        : valid_(false)
     {
-        if (!_sv.empty())
-        {
-            valid_ = MemeSearcherStack_init(
-                &handle_, MMSEARCHER__OBJ_SIZE,
-                reinterpret_cast<const MemeByte_t*>(_sv.data()),
-                static_cast<size_type>(_sv.size()),
-                static_cast<MemeFlag_CaseSensitivity_t>(_cs)) == 0;
-        }
-        else
-        {
-            std::memset(&handle_, 0, sizeof(handle_));
-        }
+        MemeSearcherStack_init(
+            &handle_, MMSEARCHER__OBJ_SIZE,
+            reinterpret_cast<const mmbyte_t*>(_sv.data()),
+            static_cast<size_type>(_sv.size()),
+            static_cast<MemeFlag_CaseSensitivity_t>(_cs));
+    }
+
+    /* From memepp::string_span (non-owning view of any UTF-8 data). */
+    explicit searcher(memepp::string_span _span,
+                      case_sensitivity_t _cs = case_sensitivity_t::all_sensitive)
+    {
+        MemeSearcherStack_init(&handle_, MMSEARCHER__OBJ_SIZE,
+                               _span.bytes(), _span.size(),
+                               static_cast<MemeFlag_CaseSensitivity_t>(_cs));
+    }
+
+    /* From memepp::buffer_span (generic byte range). */
+    explicit searcher(memepp::buffer_span _span,
+                      case_sensitivity_t _cs = case_sensitivity_t::all_sensitive)
+    {
+        MemeSearcherStack_init(&handle_, MMSEARCHER__OBJ_SIZE,
+                               _span.data(), _span.size(),
+                               static_cast<MemeFlag_CaseSensitivity_t>(_cs));
+    }
+
+    /* From memepp::buffer. */
+    explicit searcher(const memepp::buffer& _buf,
+                      case_sensitivity_t _cs = case_sensitivity_t::all_sensitive)
+    {
+        MemeSearcherStack_init(&handle_, MMSEARCHER__OBJ_SIZE,
+                               _buf.data(), _buf.size(),
+                               static_cast<MemeFlag_CaseSensitivity_t>(_cs));
+    }
+
+    /* From memepp::buffer_view. */
+    explicit searcher(const memepp::buffer_view& _bv,
+                      case_sensitivity_t _cs = case_sensitivity_t::all_sensitive)
+    {
+        MemeSearcherStack_init(&handle_, MMSEARCHER__OBJ_SIZE,
+                               _bv.data(), _bv.size(),
+                               static_cast<MemeFlag_CaseSensitivity_t>(_cs));
     }
 
     /*
@@ -139,37 +179,18 @@ public:
      * pointers that referred to the source's own inline storage.  No tables
      * are rebuilt, so this is cheap even for long needles.
      */
-    searcher(searcher&& _other) noexcept : valid_(false)
+    searcher(searcher&& _other) noexcept
     {
-        if (_other.valid_)
-        {
-            valid_ = MemeSearcherStack_move(
-                &handle_, MMSEARCHER__OBJ_SIZE, &_other.handle_) == 0;
-            _other.valid_ = false;
-        }
-        else
-        {
-            std::memset(&handle_, 0, sizeof(handle_));
-        }
+        MemeSearcherStack_move(&handle_, MMSEARCHER__OBJ_SIZE, &_other.handle_);
     }
 
     searcher& operator=(searcher&& _other) noexcept
     {
         if (this != &_other)
         {
-            if (valid_) MemeSearcherStack_unInit(&handle_);
-            valid_ = false;
-
-            if (_other.valid_)
-            {
-                valid_ = MemeSearcherStack_move(
-                    &handle_, MMSEARCHER__OBJ_SIZE, &_other.handle_) == 0;
-                _other.valid_ = false;
-            }
-            else
-            {
-                std::memset(&handle_, 0, sizeof(handle_));
-            }
+            if (valid()) MemeSearcherStack_unInit(&handle_);
+            MemeSearcherStack_move(&handle_, MMSEARCHER__OBJ_SIZE,
+                                   &_other.handle_);
         }
         return *this;
     }
@@ -179,122 +200,194 @@ public:
      *
      * MemeSearcherStack_initByOther() rebuilds the needle and every table in
      * the destination, so the two searchers share nothing and can be released
-     * independently.  This is O(needle_len) — noticeably more expensive than
+     * independently.  This is O(needle_len) -- noticeably more expensive than
      * a word copy, so prefer move or a reference when the copy is not needed.
      */
-    searcher(const searcher& _other) : valid_(false)
+    searcher(const searcher& _other)
     {
-        if (_other.valid_)
-        {
-            valid_ = MemeSearcherStack_initByOther(
-                &handle_, MMSEARCHER__OBJ_SIZE, &_other.handle_) == 0;
-        }
-        else
-        {
-            std::memset(&handle_, 0, sizeof(handle_));
-        }
+        MemeSearcherStack_initByOther(&handle_, MMSEARCHER__OBJ_SIZE,
+                                      &_other.handle_);
     }
 
     searcher& operator=(const searcher& _other)
     {
         if (this != &_other)
         {
-            if (valid_) MemeSearcherStack_unInit(&handle_);
-            valid_ = false;
-
-            if (_other.valid_)
-            {
-                valid_ = MemeSearcherStack_initByOther(
-                    &handle_, MMSEARCHER__OBJ_SIZE, &_other.handle_) == 0;
-            }
-            else
-            {
-                std::memset(&handle_, 0, sizeof(handle_));
-            }
+            if (valid()) MemeSearcherStack_unInit(&handle_);
+            MemeSearcherStack_initByOther(&handle_, MMSEARCHER__OBJ_SIZE,
+                                          &_other.handle_);
         }
         return *this;
     }
 
     ~searcher()
     {
-        if (valid_) MemeSearcherStack_unInit(&handle_);
+        if (valid()) MemeSearcherStack_unInit(&handle_);
     }
 
     /* ------------------------------ search ---------------------------- */
 
-    mmint_t find(const memepp::string& _text, mmint_t _offset = 0) const noexcept
+    /*
+     * Every overload forwards straight to MemeSearcherStack_find(), which
+     * already rejects a NULL haystack and an uninitialised object, so no
+     * check is repeated here.  _haystack_len < 0 asks the C side for the
+     * NUL-terminated mode.
+     */
+    size_type find(const memepp::string& _text, size_type _offset = 0) const noexcept
     {
-        if (!valid_) return -1;
-        return MemeSearcherStack_find(
-            &handle_,
-            reinterpret_cast<const MemeByte_t*>(_text.data()),
-            static_cast<MemeInteger_t>(_text.size()), _offset);
+        return static_cast<size_type>(MemeSearcherStack_find(
+            &handle_, reinterpret_cast<const mmbyte_t*>(_text.data()),
+            static_cast<size_type>(_text.size()), _offset));
     }
 
-    mmint_t find(const memepp::string_view& _text, mmint_t _offset = 0) const noexcept
+    size_type find(const memepp::string_view& _text, size_type _offset = 0) const noexcept
     {
-        if (!valid_) return -1;
-        return MemeSearcherStack_find(
-            &handle_,
-            reinterpret_cast<const MemeByte_t*>(_text.data()),
-            static_cast<MemeInteger_t>(_text.size()), _offset);
+        return static_cast<size_type>(MemeSearcherStack_find(
+            &handle_, reinterpret_cast<const mmbyte_t*>(_text.data()),
+            static_cast<size_type>(_text.size()), _offset));
     }
 
-    mmint_t find(const char* _text, mmint_t _offset = 0) const noexcept
+    size_type find(const char* _text, size_type _offset = 0) const noexcept
     {
-        if (!valid_ || _text == nullptr) return -1;
-        return MemeSearcherStack_find(
-            &handle_,
-            reinterpret_cast<const MemeByte_t*>(_text),
-            -1, _offset);
+        return static_cast<size_type>(MemeSearcherStack_find(
+            &handle_, reinterpret_cast<const mmbyte_t*>(_text), -1, _offset));
     }
 
-    mmint_t find(const MemeByte_t* _text, size_type _len,
-                 mmint_t _offset = 0) const noexcept
+    size_type find(const mmbyte_t* _text, size_type _len,
+                   size_type _offset = 0) const noexcept
     {
-        if (!valid_ || _text == nullptr) return -1;
-        if (_len < 0) return -1;
-        return MemeSearcherStack_find(&handle_, _text, _len, _offset);
+        if (_len < 0) return npos;      /* explicit length must be valid */
+        return static_cast<size_type>(
+            MemeSearcherStack_find(&handle_, _text, _len, _offset));
     }
+
+#if MG_LANG__CXX17_AVAIL
+    size_type find(std::string_view _text, size_type _offset = 0) const noexcept
+    {
+        return static_cast<size_type>(MemeSearcherStack_find(
+            &handle_, reinterpret_cast<const mmbyte_t*>(_text.data()),
+            static_cast<size_type>(_text.size()), _offset));
+    }
+#endif
+
+    size_type find(memepp::string_span _text, size_type _offset = 0) const noexcept
+    {
+        return static_cast<size_type>(MemeSearcherStack_find(
+            &handle_, _text.bytes(), _text.size(), _offset));
+    }
+
+    size_type find(memepp::buffer_span _text, size_type _offset = 0) const noexcept
+    {
+        return static_cast<size_type>(MemeSearcherStack_find(
+            &handle_, _text.data(), _text.size(), _offset));
+    }
+
+    size_type find(const memepp::buffer& _text, size_type _offset = 0) const noexcept
+    {
+        return static_cast<size_type>(MemeSearcherStack_find(
+            &handle_, _text.data(), _text.size(), _offset));
+    }
+
+    size_type find(const memepp::buffer_view& _text, size_type _offset = 0) const noexcept
+    {
+        return static_cast<size_type>(MemeSearcherStack_find(
+            &handle_, _text.data(), _text.size(), _offset));
+    }
+
+    /* Convenience: true when the needle occurs anywhere in _text. */
+    bool contains(const memepp::string_view& _text) const noexcept
+    { return find(_text) != npos; }
+    bool contains(memepp::string_span _text) const noexcept
+    { return find(_text) != npos; }
+    bool contains(memepp::buffer_span _text) const noexcept
+    { return find(_text) != npos; }
+    bool contains(const memepp::buffer& _text) const noexcept
+    { return find(_text) != npos; }
+    bool contains(const memepp::buffer_view& _text) const noexcept
+    { return find(_text) != npos; }
+    bool contains(const char* _text) const noexcept
+    { return find(_text) != npos; }
 
     /* --------------------------- hit density -------------------------- */
 
     /* Density of hits so far.  Fewer than 4 find() calls -> unknown. */
     density_type density() const noexcept
     {
-        return valid_
+        return valid()
             ? static_cast<search_density_t>(MemeSearcherStack_density(&handle_))
             : search_density_t::unknown;
     }
 
     void reset_density() noexcept
     {
-        if (valid_) MemeSearcherStack_resetDensity(&handle_);
+        if (valid()) MemeSearcherStack_resetDensity(&handle_);
     }
 
     /* ----------------------------- accessors -------------------------- */
 
-    bool valid() const noexcept { return valid_; }
+    bool valid() const noexcept
+    {
+        return MemeSearcherStack_state(&handle_) == MemeSearcherState_Ready;
+    }
+
+    /* Let `if (srch)` work; valid() stays for explicitness. */
+    explicit operator bool() const noexcept { return valid(); }
+
+    /* Length of the needle in bytes; 0 when not ready. */
+    size_type needle_size() const noexcept
+    {
+        return static_cast<size_type>(
+            MemeSearcherStack_needleSize(&handle_));
+    }
+
+    /* Case-sensitivity the searcher was built with. */
+    case_sensitivity_t case_sensitivity() const noexcept
+    {
+        return static_cast<case_sensitivity_t>(
+            MemeSearcherStack_caseSensitivity(&handle_));
+    }
+
+    /* Error code of the last construction / move / swap. */
+    mgec_t error_code() const noexcept
+    {
+        return static_cast<mgec_t>(MemeSearcherStack_errorCode(&handle_));
+    }
+
+    state_type state() const noexcept
+    {
+        return static_cast<state_type>(MemeSearcherStack_state(&handle_));
+    }
+
+    /*
+     * Release the needle and every pre-built table, returning to the
+     * default-constructed (empty) state.  Safe to call repeatedly and on an
+     * object that never held a needle.
+     */
+    void reset() noexcept
+    {
+        if (valid())
+        {
+            /* unInit leaves a well-defined empty object (cs restored). */
+            MemeSearcherStack_unInit(&handle_);
+        }
+        else
+        {
+            /* Never initialised, or a failed init: zero it out. */
+            std::memset(&handle_, 0, sizeof(handle_));
+        }
+    }
 
     native_handle_type native_handle() noexcept { return &handle_; }
     const MemeSearcherStack_t* native_handle() const noexcept { return &handle_; }
 
-/*
- * Swap the two objects' contents.
- *
- * Delegates to MemeSearcherStack_swap(), which rebases the pointers that
- * refer into an object's own inline_ storage; a plain byte swap would leave
- * them pointing at the other object.
- */
-void swap(searcher& _other) noexcept
-{
-    MemeSearcherStack_swap(&handle_, &_other.handle_);
-    std::swap(valid_, _other.valid_);
-}
+    /* Swap the two objects' contents. */
+    void swap(searcher& _other) noexcept
+    {
+        MemeSearcherStack_swap(&handle_, &_other.handle_);
+    }
 
 private:
     MemeSearcherStack_t handle_;
-    bool valid_;
 };
 
 } // namespace MMPP_NAMESPACE

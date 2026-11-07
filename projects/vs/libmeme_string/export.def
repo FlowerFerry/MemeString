@@ -721,6 +721,10 @@ EXPORTS
     MemeSearcherStack_init @50000
     MemeSearcherStack_move @50005
     MemeSearcherStack_swap @50006
+    MemeSearcherStack_needleSize @50007
+    MemeSearcherStack_caseSensitivity @50010
+    MemeSearcherStack_errorCode @50008
+    MemeSearcherStack_state @50009
     MemeSearcherStack_unInit @50001
     MemeSearcherStack_find @50002
     MemeSearcherStack_density @50003

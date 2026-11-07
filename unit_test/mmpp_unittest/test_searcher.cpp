@@ -1,4 +1,4 @@
-#include <catch2/catch.hpp>
+﻿#include <catch2/catch.hpp>
 
 #include <memepp/searcher.hpp>
 #include <memepp/string.hpp>
@@ -494,6 +494,8 @@ TEST_CASE("memepp::searcher: default constructor", "[searcher]")
     REQUIRE(h != nullptr);
     for (size_t i = 0; i < sizeof(MemeSearcherStack_t); ++i)
         REQUIRE(reinterpret_cast<const unsigned char*>(h)[i] == 0);
+    REQUIRE(srch.error_code() == MGEC__OK);
+    REQUIRE(srch.state() == memepp::searcher_state_t::empty);
 }
 
 TEST_CASE("memepp::searcher: memepp::string_view constructor", "[searcher]")
@@ -544,11 +546,19 @@ TEST_CASE("memepp::searcher: constructor failure inputs", "[searcher]")
     memepp::searcher c6{memepp::string_view()};
     REQUIRE(!c6.valid());
 
-    /* A failed constructor must still leave a zeroed handle. */
+    /* A failed constructor leaves a well-defined handle: everything zeroed
+     * except last_errc, which records why it failed. */
     const unsigned char* raw =
         reinterpret_cast<const unsigned char*>(c1.native_handle());
+    size_t nonzero = 0;
     for (size_t i = 0; i < sizeof(MemeSearcherStack_t); ++i)
-        REQUIRE(raw[i] == 0);
+        if (raw[i] != 0) ++nonzero;
+    REQUIRE(nonzero > 0);            /* last_errc is set  */
+    REQUIRE(nonzero <= sizeof(int));  /* nothing else is  */
+    REQUIRE(c1.error_code() == MGEC__INVAL);
+    REQUIRE(MemeSearcherStack_needleSize(c1.native_handle()) == 0);
+    REQUIRE(MemeSearcherStack_state(c1.native_handle())
+            == MemeSearcherState_Failed);
 }
 
 TEST_CASE("memepp::searcher: find(memepp::string_view)", "[searcher]")
@@ -820,4 +830,784 @@ TEST_CASE("memepp::searcher: Boyer-Moore case folding", "[searcher]")
                    static_cast<mmint_t>(hay_upper.size())) == 2);
     REQUIRE(s.find(reinterpret_cast<const MemeByte_t*>(miss.data()),
                    static_cast<mmint_t>(miss.size())) == -1);
+}
+
+/* --------------------------------------------------------------------- */
+/* New interface coverage                                                 */
+/* --------------------------------------------------------------------- */
+
+TEST_CASE("memepp::searcher: npos", "[searcher]")
+{
+    REQUIRE(memepp::searcher::npos == static_cast<memepp::searcher::size_type>(-1));
+}
+
+TEST_CASE("memepp::searcher: state and error_code", "[searcher]")
+{
+    /* Default-constructed: empty, no error. */
+    {
+        memepp::searcher s;
+        REQUIRE(!s.valid());
+        REQUIRE(s.state() == memepp::searcher_state_t::empty);
+        REQUIRE(s.error_code() == MGEC__OK);
+    }
+
+    /* Failed constructor (nullptr). */
+    {
+        memepp::searcher s(static_cast<const char*>(nullptr));
+    REQUIRE(!s.valid());
+        REQUIRE(s.state() == memepp::searcher_state_t::failed);
+        REQUIRE(s.error_code() == MGEC__INVAL);
+    }
+
+    /* Failed constructor (empty string). */
+    {
+        memepp::searcher s("");
+        REQUIRE(!s.valid());
+        REQUIRE(s.state() == memepp::searcher_state_t::failed);
+        REQUIRE(s.error_code() == MGEC__INVAL);
+    }
+
+    /* Failed constructor (negative length). */
+    {
+        memepp::searcher s(reinterpret_cast<const MemeByte_t*>("x"), -1);
+        REQUIRE(!s.valid());
+        REQUIRE(s.state() == memepp::searcher_state_t::failed);
+        REQUIRE(s.error_code() == MGEC__INVAL);
+    }
+
+    /* Successful constructor: ready, no error. */
+    {
+        memepp::searcher s("fox");
+        REQUIRE(s.valid());
+        REQUIRE(s.state() == memepp::searcher_state_t::ready);
+        REQUIRE(s.error_code() == MGEC__OK);
+    }
+}
+
+TEST_CASE("memepp::searcher: reset()", "[searcher]")
+{
+    memepp::searcher s("fox");
+    REQUIRE(s.valid());
+    REQUIRE(s.state() == memepp::searcher_state_t::ready);
+
+    s.reset();
+    REQUIRE(!s.valid());
+    REQUIRE(s.state() == memepp::searcher_state_t::empty);
+    REQUIRE(s.error_code() == MGEC__OK);
+    REQUIRE(s.find("the quick brown fox") == memepp::searcher::npos);
+
+    /* Repeat reset is safe. */
+    s.reset();
+    REQUIRE(!s.valid());
+    REQUIRE(s.state() == memepp::searcher_state_t::empty);
+
+    /* Reset an already-empty searcher is safe. */
+    memepp::searcher e;
+    e.reset();
+    REQUIRE(!e.valid());
+}
+
+TEST_CASE("memepp::searcher: operator bool", "[searcher]")
+{
+    memepp::searcher s("fox");
+    REQUIRE(s);
+
+    memepp::searcher e;
+    REQUIRE(!e);
+
+    memepp::searcher inv("");
+    REQUIRE(!inv);
+}
+
+TEST_CASE("memepp::searcher: needle_size()", "[searcher]")
+{
+    memepp::searcher short_s("fox");
+    REQUIRE(short_s.needle_size() == 3);
+
+    memepp::searcher long_s(reinterpret_cast<const MemeByte_t*>("a"), 42);
+    REQUIRE(long_s.needle_size() == 42);
+
+    memepp::searcher e;
+    REQUIRE(e.needle_size() == 0);
+}
+
+TEST_CASE("memepp::searcher: case_sensitivity()", "[searcher]")
+{
+    memepp::searcher s1("fox");
+    REQUIRE(s1.case_sensitivity() == memepp::case_sensitivity_t::all_sensitive);
+
+    memepp::searcher s2("fox", memepp::case_sensitivity_t::all_insensitive);
+    REQUIRE(s2.case_sensitivity() == memepp::case_sensitivity_t::all_insensitive);
+}
+
+TEST_CASE("memepp::searcher: find(std::string_view)", "[searcher]")
+{
+    memepp::searcher s("brown");
+    std::string_view hv = "the quick brown fox";
+
+    REQUIRE(s.find(hv) == 10);
+    REQUIRE(s.find(hv, 11) == memepp::searcher::npos);
+
+#if MG_LANG__CXX17_AVAIL
+    std::string_view empty;
+    REQUIRE(s.find(empty) == memepp::searcher::npos);
+#endif
+}
+
+TEST_CASE("memepp::searcher: find(string_span)", "[searcher]")
+{
+    memepp::searcher s("brown");
+    memepp::string_span sp("the quick brown fox");
+
+    REQUIRE(s.find(sp) == 10);
+    REQUIRE(s.find(sp, 11) == memepp::searcher::npos);
+
+    memepp::string_span empty;
+    REQUIRE(s.find(empty) == memepp::searcher::npos);
+}
+
+TEST_CASE("memepp::searcher: find(buffer_span)", "[searcher]")
+{
+    memepp::searcher s("brown");
+    const char* text = "the quick brown fox";
+    memepp::buffer_span bp(reinterpret_cast<const MemeByte_t*>(text), 19);
+
+    REQUIRE(s.find(bp) == 10);
+    REQUIRE(s.find(bp, 11) == memepp::searcher::npos);
+
+    memepp::buffer_span empty;
+    REQUIRE(s.find(empty) == memepp::searcher::npos);
+}
+
+TEST_CASE("memepp::searcher: contains()", "[searcher]")
+{
+    memepp::searcher s("brown");
+    const char* text = "the quick brown fox";
+
+    REQUIRE(s.contains(text));
+    REQUIRE(s.contains(memepp::string_view(text, 19)));
+    REQUIRE(s.contains(memepp::string_span(text, 19)));
+    REQUIRE(s.contains(memepp::buffer_span(reinterpret_cast<const MemeByte_t*>(text), 19)));
+
+    REQUIRE(!s.contains("no match here"));
+}
+
+TEST_CASE("memepp::searcher: string_span constructor", "[searcher]")
+{
+    memepp::string_span needle("fox");
+    memepp::searcher s(needle);
+    REQUIRE(s.valid());
+    REQUIRE(s.needle_size() == 3);
+
+    memepp::string_span empty;
+    memepp::searcher e(empty);
+    REQUIRE(!e.valid());
+}
+
+TEST_CASE("memepp::searcher: buffer_span constructor", "[searcher]")
+{
+    memepp::buffer_span needle(reinterpret_cast<const MemeByte_t*>("fox"), 3);
+    memepp::searcher s(needle);
+    REQUIRE(s.valid());
+    REQUIRE(s.needle_size() == 3);
+
+    memepp::buffer_span empty;
+    memepp::searcher e(empty);
+    REQUIRE(!e.valid());
+}
+
+TEST_CASE("memepp::searcher: move/copy preserve cs", "[searcher]")
+{
+    memepp::searcher src("FOX", memepp::case_sensitivity_t::all_insensitive);
+    REQUIRE(src.case_sensitivity() == memepp::case_sensitivity_t::all_insensitive);
+
+    memepp::searcher moved(std::move(src));
+    REQUIRE(moved.case_sensitivity() == memepp::case_sensitivity_t::all_insensitive);
+    REQUIRE(src.state() == memepp::searcher_state_t::empty);
+}
+
+TEST_CASE("memepp::searcher: find_all pattern via needle_size", "[searcher]")
+{
+    memepp::searcher s("ana");
+    memepp::string text = "banana";
+
+    std::vector<memepp::searcher::size_type> hits;
+    auto pos = s.find(text);
+    while (pos != memepp::searcher::npos)
+    {
+        hits.push_back(pos);
+        pos = s.find(text, pos + s.needle_size());
+    }
+
+    REQUIRE(hits.size() == 1);
+    REQUIRE(hits[0] == 1);
+}
+
+TEST_CASE("memepp::searcher: swap preserves all state", "[searcher]")
+{
+    memepp::string hay = "the quick brown fox";
+
+    memepp::searcher a("brown", memepp::case_sensitivity_t::all_insensitive);
+    memepp::searcher b("fox");
+
+    a.swap(b);
+
+    REQUIRE(a.case_sensitivity() == memepp::case_sensitivity_t::all_sensitive);
+    REQUIRE(b.case_sensitivity() == memepp::case_sensitivity_t::all_insensitive);
+    REQUIRE(a.needle_size() == 3);
+    REQUIRE(b.needle_size() == 5);
+    REQUIRE(a.find(hay) == 16);
+    REQUIRE(b.find(hay) == 10);
+
+    /* Swap with invalid. */
+    memepp::searcher e;
+    b.swap(e);
+    REQUIRE(!b.valid());
+    REQUIRE(e.valid());
+    REQUIRE(e.needle_size() == 5);
+    REQUIRE(e.find(hay) == 10);
+}
+
+/* --------------------------------------------------------------------- */
+/* Deep coverage for the interfaces added in this change                  */
+/* --------------------------------------------------------------------- */
+
+TEST_CASE("memepp::searcher: every find overload returns npos on miss",
+          "[searcher]")
+{
+    memepp::searcher s("zzz");
+    const char* raw = "the quick brown fox";
+    const size_t n   = std::strlen(raw);
+
+    REQUIRE(s.find(memepp::string("the quick brown fox")) == memepp::searcher::npos);
+    REQUIRE(s.find(memepp::string_view(raw, n)) == memepp::searcher::npos);
+    REQUIRE(s.find(raw) == memepp::searcher::npos);
+    REQUIRE(s.find(reinterpret_cast<const MemeByte_t*>(raw), (mmint_t)n)
+            == memepp::searcher::npos);
+#if MG_LANG__CXX17_AVAIL
+    REQUIRE(s.find(std::string_view(raw, n)) == memepp::searcher::npos);
+#endif
+    REQUIRE(s.find(memepp::string_span(raw, (mmint_t)n)) == memepp::searcher::npos);
+    REQUIRE(s.find(memepp::buffer_span(
+                reinterpret_cast<const MemeByte_t*>(raw), (mmint_t)n))
+            == memepp::searcher::npos);
+
+    /* npos is a real sentinel, not a coincidental -1 in one overload. */
+    REQUIRE(memepp::searcher::npos != 0);
+}
+
+TEST_CASE("memepp::searcher: npos unrelated to offset semantics", "[searcher]")
+{
+    /* Forward search only: npos must never mean "search from the end". */
+    memepp::searcher s("a");
+    memepp::string hay = "abcabc";
+
+    REQUIRE(s.find(hay, 0) == 0);
+    REQUIRE(s.find(hay, 3) == 3);
+    REQUIRE(s.find(hay, 4) == memepp::searcher::npos);
+    REQUIRE(s.find(hay, memepp::searcher::npos) == memepp::searcher::npos);
+}
+
+TEST_CASE("memepp::searcher: reset then rebuild", "[searcher]")
+{
+    memepp::searcher s("fox");
+    memepp::string hay = "the quick brown fox";
+    REQUIRE(s.find(hay) == 16);
+
+    s.reset();
+    REQUIRE(!s.valid());
+    REQUIRE(s.state() == memepp::searcher_state_t::empty);
+    REQUIRE(s.needle_size() == 0);
+    REQUIRE(s.error_code() == MGEC__OK);
+    REQUIRE(s.find(hay) == memepp::searcher::npos);
+
+    /* Build a different searcher in the same storage. */
+    memepp::searcher rebuilt("brown");
+    s = std::move(rebuilt);
+    REQUIRE(s.valid());
+    REQUIRE(s.state() == memepp::searcher_state_t::ready);
+    REQUIRE(s.needle_size() == 5);
+    REQUIRE(s.find(hay) == 10);
+}
+
+TEST_CASE("memepp::searcher: reset keeps the object reusable many times",
+          "[searcher]")
+{
+    memepp::string hay = "abcabc";
+    memepp::searcher s("abc");
+
+    for (int i = 0; i < 5; ++i)
+    {
+        s.reset();
+        REQUIRE(s.state() == memepp::searcher_state_t::empty);
+
+        memepp::searcher again("abc");
+        s = std::move(again);
+        REQUIRE(s.valid());
+        REQUIRE(s.find(hay) == 0);
+    }
+}
+
+TEST_CASE("memepp::searcher: needle_size survives move/copy/swap",
+          "[searcher]")
+{
+    memepp::searcher a("brown");          /* 5 bytes */
+    REQUIRE(a.needle_size() == 5);
+
+    memepp::searcher moved(std::move(a));
+    REQUIRE(moved.needle_size() == 5);
+    REQUIRE(a.needle_size() == 0);        /* moved-from is empty */
+
+    memepp::searcher copied(moved);
+    REQUIRE(copied.needle_size() == 5);
+
+    memepp::searcher b("fox");            /* 3 bytes */
+    REQUIRE(b.needle_size() == 3);
+
+    copied.swap(b);
+    REQUIRE(copied.needle_size() == 3);
+    REQUIRE(b.needle_size() == 5);
+}
+
+TEST_CASE("memepp::searcher: needle_size covers Boyer-Moore needles",
+          "[searcher]")
+{
+    /* Long + case-insensitive selects the Boyer-Moore path. */
+    std::string needle(200, 'a');
+    memepp::searcher s(
+        reinterpret_cast<const MemeByte_t*>(needle.data()),
+        static_cast<mmint_t>(needle.size()),
+        memepp::case_sensitivity_t::all_insensitive);
+
+    REQUIRE(s.valid());
+    REQUIRE(s.needle_size() == static_cast<mmint_t>(needle.size()));
+
+    std::string hay = "xx" + needle + "yy";
+    REQUIRE(s.find(reinterpret_cast<const MemeByte_t*>(hay.data()),
+                   static_cast<mmint_t>(hay.size())) == 2);
+
+    /* needle_size is unchanged by searching. */
+    REQUIRE(s.needle_size() == static_cast<mmint_t>(needle.size()));
+}
+
+TEST_CASE("memepp::searcher: case_sensitivity after reset and move",
+          "[searcher]")
+{
+    memepp::searcher s("FOX", memepp::case_sensitivity_t::all_insensitive);
+    REQUIRE(s.case_sensitivity() == memepp::case_sensitivity_t::all_insensitive);
+
+    memepp::searcher m(std::move(s));
+    REQUIRE(m.case_sensitivity() == memepp::case_sensitivity_t::all_insensitive);
+
+    memepp::searcher c(m);
+    REQUIRE(c.case_sensitivity() == memepp::case_sensitivity_t::all_insensitive);
+
+    /* reset() clears the configuration back to the default. */
+    c.reset();
+    REQUIRE(c.case_sensitivity() == memepp::case_sensitivity_t::all_sensitive);
+}
+
+TEST_CASE("memepp::searcher: contains() negative and invalid cases",
+          "[searcher]")
+{
+    memepp::searcher s("brown");
+    const char* raw = "the quick brown fox";
+    const mmint_t n = static_cast<mmint_t>(std::strlen(raw));
+
+    /* Present. */
+    REQUIRE(s.contains(raw));
+    REQUIRE(s.contains(memepp::string_view(raw, n)));
+    REQUIRE(s.contains(memepp::string_span(raw, n)));
+    REQUIRE(s.contains(memepp::buffer_span(
+                reinterpret_cast<const MemeByte_t*>(raw), n)));
+
+    /* Absent. */
+    REQUIRE(!s.contains("nothing here"));
+    REQUIRE(!s.contains(memepp::string_view("nothing here", 12)));
+    REQUIRE(!s.contains(memepp::string_span("nothing here", 12)));
+    REQUIRE(!s.contains(memepp::buffer_span(
+                reinterpret_cast<const MemeByte_t*>("nothing here"), 12)));
+
+    /* Invalid searcher never contains anything. */
+    memepp::searcher inv;
+    REQUIRE(!inv.contains(raw));
+    REQUIRE(!inv.contains(""));
+}
+
+TEST_CASE("memepp::searcher: operator bool across lifecycle", "[searcher]")
+{
+    memepp::searcher s;
+    REQUIRE(!static_cast<bool>(s));       /* empty      */
+
+    memepp::searcher failed("");
+    REQUIRE(!static_cast<bool>(failed));  /* failed     */
+
+    memepp::searcher ready("fox");
+    REQUIRE(static_cast<bool>(ready));    /* ready      */
+
+    ready.reset();
+    REQUIRE(!static_cast<bool>(ready));   /* back to empty */
+
+    /* if (...) uses the same operator. */
+    int hits = 0;
+    if (ready) ++hits;
+    REQUIRE(hits == 0);
+}
+
+TEST_CASE("memepp::searcher: find(std::string_view) offset and invalid",
+          "[searcher]")
+{
+#if MG_LANG__CXX17_AVAIL
+    memepp::searcher s("abc");
+    std::string_view hay = "abcabc";
+
+    REQUIRE(s.find(hay, 0) == 0);
+    REQUIRE(s.find(hay, 1) == 3);
+    REQUIRE(s.find(hay, 3) == 3);
+    REQUIRE(s.find(hay, 4) == memepp::searcher::npos);
+    REQUIRE(s.find(hay, 6) == memepp::searcher::npos);
+    REQUIRE(s.find(hay, 99) == memepp::searcher::npos);
+    REQUIRE(s.find(hay, -1) == memepp::searcher::npos);
+
+    /* Invalid searcher. */
+    memepp::searcher inv;
+    REQUIRE(inv.find(hay) == memepp::searcher::npos);
+
+    /* Empty text. */
+    REQUIRE(s.find(std::string_view()) == memepp::searcher::npos);
+#endif
+}
+
+TEST_CASE("memepp::searcher: find(string_span) offset, BM path and NUL",
+          "[searcher]")
+{
+    /* FastScan path with offsets. */
+    memepp::searcher fast("abc");
+    memepp::string_span hay("abcabc");
+    REQUIRE(fast.find(hay, 0) == 0);
+    REQUIRE(fast.find(hay, 3) == 3);
+    REQUIRE(fast.find(hay, 6) == memepp::searcher::npos);
+    REQUIRE(fast.find(hay, 99) == memepp::searcher::npos);
+    REQUIRE(fast.find(memepp::string_span()) == memepp::searcher::npos);
+
+    /* Boyer-Moore path. */
+    std::string needle(200, 'a');
+    std::string big = "xx" + needle + "yy";
+    memepp::searcher bm(
+        reinterpret_cast<const MemeByte_t*>(needle.data()),
+        static_cast<mmint_t>(needle.size()),
+        memepp::case_sensitivity_t::all_insensitive);
+
+    memepp::string_span bmhay(big.data(), static_cast<mmint_t>(big.size()));
+    REQUIRE(bm.find(bmhay) == 2);
+    REQUIRE(bm.find(bmhay, 3) == memepp::searcher::npos);
+
+    /* Embedded NUL is just a byte when the length is explicit. */
+    const char with_nul[] = { 'x', 0, 'a', 'b', 'c' };
+    memepp::string_span nul_span(with_nul, 5);
+    REQUIRE(fast.find(nul_span) == 2);
+}
+
+TEST_CASE("memepp::searcher: find(buffer_span) offset, BM path and NUL",
+          "[searcher]")
+{
+    auto B = [](const char* p) {
+        return reinterpret_cast<const MemeByte_t*>(p);
+    };
+
+    memepp::searcher fast("abc");
+    memepp::buffer_span hay(B("abcabc"), 6);
+    REQUIRE(fast.find(hay, 0) == 0);
+    REQUIRE(fast.find(hay, 3) == 3);
+    REQUIRE(fast.find(hay, 6) == memepp::searcher::npos);
+    REQUIRE(fast.find(hay, 99) == memepp::searcher::npos);
+    REQUIRE(fast.find(memepp::buffer_span()) == memepp::searcher::npos);
+
+    /* Boyer-Moore path. */
+    std::string needle(200, 'a');
+    std::string big = "xx" + needle + "yy";
+    memepp::searcher bm(
+        B(needle.data()), static_cast<mmint_t>(needle.size()),
+        memepp::case_sensitivity_t::all_insensitive);
+    memepp::buffer_span bmhay(B(big.data()), static_cast<mmint_t>(big.size()));
+    REQUIRE(bm.find(bmhay) == 2);
+
+    /* Embedded NUL. */
+    const MemeByte_t wy[] = { 'x', 0, 'a', 'b', 'c' };
+    REQUIRE(fast.find(memepp::buffer_span(wy, 5)) == 2);
+
+    /* Invalid searcher. */
+    memepp::searcher inv;
+    REQUIRE(inv.find(hay) == memepp::searcher::npos);
+}
+
+TEST_CASE("memepp::searcher: string_span constructor with case modes",
+          "[searcher]")
+{
+    memepp::string_span upper("ABC");
+    memepp::string hay = "xxabcxx";
+
+    memepp::searcher ci(upper, memepp::case_sensitivity_t::all_insensitive);
+    REQUIRE(ci.valid());
+    REQUIRE(ci.case_sensitivity() == memepp::case_sensitivity_t::all_insensitive);
+    REQUIRE(ci.needle_size() == 3);
+    REQUIRE(ci.find(hay) == 2);
+
+    memepp::searcher cs(upper, memepp::case_sensitivity_t::case_sensitive);
+    REQUIRE(cs.find(hay) == memepp::searcher::npos);
+}
+
+TEST_CASE("memepp::searcher: buffer_span constructor with case modes",
+          "[searcher]")
+{
+    auto B = [](const char* p) {
+        return reinterpret_cast<const MemeByte_t*>(p);
+    };
+
+    memepp::buffer_span upper(B("ABC"), 3);
+    memepp::string hay = "xxabcxx";
+
+    memepp::searcher ci(upper, memepp::case_sensitivity_t::all_insensitive);
+    REQUIRE(ci.valid());
+    REQUIRE(ci.needle_size() == 3);
+    REQUIRE(ci.find(hay) == 2);
+
+    memepp::searcher cs(upper, memepp::case_sensitivity_t::case_sensitive);
+    REQUIRE(cs.find(hay) == memepp::searcher::npos);
+}
+
+TEST_CASE("memepp::searcher: state after move and copy", "[searcher]")
+{
+    memepp::searcher ready("fox");
+    REQUIRE(ready.state() == memepp::searcher_state_t::ready);
+
+    memepp::searcher moved(std::move(ready));
+    REQUIRE(moved.state() == memepp::searcher_state_t::ready);
+    REQUIRE(ready.state() == memepp::searcher_state_t::empty);
+
+    memepp::searcher copied(moved);
+    REQUIRE(copied.state() == memepp::searcher_state_t::ready);
+
+    /* A failed searcher stays failed through a copy. */
+    memepp::searcher failed("");
+    REQUIRE(failed.state() == memepp::searcher_state_t::failed);
+    memepp::searcher failed_copy(failed);
+    REQUIRE(failed_copy.state() == memepp::searcher_state_t::failed);
+
+    /* Move-assigning a failed over a ready one.  error_code() reflects the
+     * thread-local errc, so re-trigger the failure immediately before
+     * checking it -- another searcher may have cleared it in between. */
+    memepp::searcher dst("abc");
+    REQUIRE(dst.state() == memepp::searcher_state_t::ready);
+
+    memepp::searcher failed_src("");
+    dst = std::move(failed_src);
+    REQUIRE(dst.state() == memepp::searcher_state_t::failed);
+    REQUIRE(dst.error_code() == MGEC__INVAL);
+
+    /* error_code() reads this object's own state, so building another
+     * searcher must not change it. */
+    REQUIRE(dst.state() == memepp::searcher_state_t::failed);
+    REQUIRE(memepp::searcher("ok").error_code() == MGEC__OK);
+    REQUIRE(dst.error_code() == MGEC__INVAL);
+}
+
+TEST_CASE("memepp::searcher: error_code on invalid inputs", "[searcher]")
+{
+    /* nullptr C string. */
+    REQUIRE(memepp::searcher(static_cast<const char*>(nullptr)).error_code()
+            == MGEC__INVAL);
+    /* nullptr raw bytes. */
+    REQUIRE(memepp::searcher(static_cast<const MemeByte_t*>(nullptr), 3)
+                .error_code() == MGEC__INVAL);
+    /* Zero length. */
+    REQUIRE(memepp::searcher(reinterpret_cast<const MemeByte_t*>("x"), 0)
+                .error_code() == MGEC__INVAL);
+    /* Negative length. */
+    REQUIRE(memepp::searcher(reinterpret_cast<const MemeByte_t*>("x"), -5)
+                .error_code() == MGEC__INVAL);
+    /* Empty views. */
+    REQUIRE(memepp::searcher(std::string_view()).error_code() == MGEC__INVAL);
+    REQUIRE(memepp::searcher(memepp::string_view()).error_code() == MGEC__INVAL);
+    REQUIRE(memepp::searcher(memepp::string_span()).error_code() == MGEC__INVAL);
+    REQUIRE(memepp::searcher(memepp::buffer_span()).error_code() == MGEC__INVAL);
+
+    /* A successful build clears it again. */
+    REQUIRE(memepp::searcher("x").error_code() == MGEC__OK);
+}
+
+TEST_CASE("memepp::searcher: buffer constructor", "[searcher]")
+{
+    auto B = [](const char* p) {
+        return reinterpret_cast<const MemeByte_t*>(p);
+    };
+
+    memepp::buffer needle(B("brown"), 5);
+    memepp::searcher s(needle);
+    REQUIRE(s.valid());
+    REQUIRE(s.state() == memepp::searcher_state_t::ready);
+    REQUIRE(s.needle_size() == 5);
+    REQUIRE(s.case_sensitivity() == memepp::case_sensitivity_t::all_sensitive);
+
+    memepp::string hay = "the quick brown fox";
+    REQUIRE(s.find(hay) == 10);
+
+    /* Case-insensitive. */
+    memepp::buffer upper(B("BROWN"), 5);
+    memepp::searcher ci(upper, memepp::case_sensitivity_t::all_insensitive);
+    REQUIRE(ci.valid());
+    REQUIRE(ci.case_sensitivity() == memepp::case_sensitivity_t::all_insensitive);
+    REQUIRE(ci.find(hay) == 10);
+
+    /* Case-sensitive must miss. */
+    memepp::searcher cs(upper, memepp::case_sensitivity_t::case_sensitive);
+    REQUIRE(cs.find(hay) == memepp::searcher::npos);
+
+    /* Empty buffer is rejected. */
+    memepp::buffer empty;
+    memepp::searcher e(empty);
+    REQUIRE(!e.valid());
+    REQUIRE(e.state() == memepp::searcher_state_t::failed);
+    REQUIRE(e.error_code() == MGEC__INVAL);
+}
+
+TEST_CASE("memepp::searcher: buffer_view constructor", "[searcher]")
+{
+    auto B = [](const char* p) {
+        return reinterpret_cast<const MemeByte_t*>(p);
+    };
+
+    memepp::buffer owner(B("brown"), 5);
+    memepp::buffer_view bv(owner);
+
+    memepp::searcher s(bv);
+    REQUIRE(s.valid());
+    REQUIRE(s.needle_size() == 5);
+
+    memepp::string hay = "the quick brown fox";
+    REQUIRE(s.find(hay) == 10);
+
+    /* Empty view is rejected. */
+    memepp::buffer empty_owner;
+    memepp::buffer_view empty_bv(empty_owner);
+    memepp::searcher e(empty_bv);
+    REQUIRE(!e.valid());
+    REQUIRE(e.error_code() == MGEC__INVAL);
+}
+
+TEST_CASE("memepp::searcher: find(buffer)", "[searcher]")
+{
+    auto B = [](const char* p) {
+        return reinterpret_cast<const MemeByte_t*>(p);
+    };
+
+    memepp::searcher s("brown");
+    memepp::buffer hay(B("the quick brown fox"), 19);
+
+    REQUIRE(s.find(hay) == 10);
+    REQUIRE(s.find(hay, 0) == 10);
+    REQUIRE(s.find(hay, 11) == memepp::searcher::npos);
+    REQUIRE(s.find(hay, 19) == memepp::searcher::npos);
+    REQUIRE(s.find(hay, 99) == memepp::searcher::npos);
+    REQUIRE(s.find(hay, -1) == memepp::searcher::npos);
+
+    /* Empty haystack. */
+    memepp::buffer empty;
+    REQUIRE(s.find(empty) == memepp::searcher::npos);
+
+    /* Invalid searcher. */
+    memepp::searcher inv;
+    REQUIRE(inv.find(hay) == memepp::searcher::npos);
+
+    /* Embedded NUL is just a byte. */
+    const MemeByte_t wy[] = { 'x', 0, 'a', 'b', 'c' };
+    memepp::buffer nul_buf(wy, 5);
+    memepp::searcher abc("abc");
+    REQUIRE(abc.find(nul_buf) == 2);
+}
+
+TEST_CASE("memepp::searcher: find(buffer_view)", "[searcher]")
+{
+    auto B = [](const char* p) {
+        return reinterpret_cast<const MemeByte_t*>(p);
+    };
+
+    memepp::searcher s("brown");
+    memepp::buffer owner(B("the quick brown fox"), 19);
+    memepp::buffer_view bv(owner);
+
+    REQUIRE(s.find(bv) == 10);
+    REQUIRE(s.find(bv, 11) == memepp::searcher::npos);
+
+    /* Empty view. */
+    memepp::buffer empty_owner;
+    memepp::buffer_view empty_bv(empty_owner);
+    REQUIRE(s.find(empty_bv) == memepp::searcher::npos);
+
+    /* Invalid searcher. */
+    memepp::searcher inv;
+    REQUIRE(inv.find(bv) == memepp::searcher::npos);
+}
+
+TEST_CASE("memepp::searcher: find(buffer) on the Boyer-Moore path", "[searcher]")
+{
+    auto B = [](const char* p) {
+        return reinterpret_cast<const MemeByte_t*>(p);
+    };
+
+    std::string needle(200, 'a');
+    std::string big = "xx" + needle + "yy";
+
+    memepp::searcher bm(
+        B(needle.data()), static_cast<mmint_t>(needle.size()),
+        memepp::case_sensitivity_t::all_insensitive);
+    REQUIRE(bm.valid());
+
+    memepp::buffer hay(B(big.data()), static_cast<mmint_t>(big.size()));
+    REQUIRE(bm.find(hay) == 2);
+    REQUIRE(bm.find(hay, 3) == memepp::searcher::npos);
+}
+
+TEST_CASE("memepp::searcher: contains(buffer) and contains(buffer_view)",
+          "[searcher]")
+{
+    auto B = [](const char* p) {
+        return reinterpret_cast<const MemeByte_t*>(p);
+    };
+
+    memepp::searcher s("brown");
+    memepp::buffer hit(B("the quick brown fox"), 19);
+    memepp::buffer_view hit_bv(hit);
+
+    REQUIRE(s.contains(hit));
+    REQUIRE(s.contains(hit_bv));
+
+    memepp::buffer miss(B("nothing here"), 12);
+    memepp::buffer_view miss_bv(miss);
+    REQUIRE(!s.contains(miss));
+    REQUIRE(!s.contains(miss_bv));
+
+    memepp::searcher inv;
+    REQUIRE(!inv.contains(hit));
+    REQUIRE(!inv.contains(hit_bv));
+}
+
+TEST_CASE("memepp::searcher: buffer needle lifecycle", "[searcher]")
+{
+    auto B = [](const char* p) {
+        return reinterpret_cast<const MemeByte_t*>(p);
+    };
+
+    /* The searcher copies the needle, so destroying the source buffer must
+     * not affect it. */
+    memepp::searcher s;
+    memepp::string hay = "the quick brown fox";
+    {
+        memepp::buffer tmp(B("brown"), 5);
+        memepp::searcher built(tmp);
+        s = std::move(built);
+    }
+    REQUIRE(s.valid());
+    REQUIRE(s.needle_size() == 5);
+    REQUIRE(s.find(hay) == 10);
 }

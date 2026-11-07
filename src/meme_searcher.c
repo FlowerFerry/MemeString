@@ -152,19 +152,30 @@ MEME_API int MEME_STDCALL MemeSearcherStack_init(
 {
     MemeSearcherImpl_t* self;
 
-    if (MEGO_SYMBOL__UNLIKELY(_out == NULL || _needle == NULL || _needle_len <= 0))
+    if (MEGO_SYMBOL__UNLIKELY(_out == NULL))
         return MGEC__INVAL;
 
-    /* Caller must provide at least the current implementation size. */
+    /* The object must be big enough for this layout before we may touch it. */
     if (MEGO_SYMBOL__UNLIKELY(_object_size < sizeof(MemeSearcherImpl_t)))
         return MGEC__OPNOTSUPP;
 
     self = mmsrch_impl(_out);
+
+    /* Clear first: whether init succeeds or fails, the caller is left with a
+     * well-defined object.  On failure last_errc records why, so
+     * MemeSearcherStack_errorCode()/state() can report it. */
     memset(self, 0, sizeof(MemeSearcherImpl_t));
+
+    if (MEGO_SYMBOL__UNLIKELY(_needle == NULL || _needle_len <= 0))
+    {
+        self->last_errc = MGEC__INVAL;
+        return MGEC__INVAL;
+    }
 
     self->reg_size_  = (mmbyte_t)(_object_size / sizeof(mmint_t));
     self->needle_len = _needle_len;
     self->cs         = _cs;
+    self->last_errc  = MGEC__OK;
     self->density    = MemeSearcherDensity_Unknown;
 
     /* --- short needle (or case-sensitive): fast scan ------------------- */
@@ -189,6 +200,7 @@ MEME_API int MEME_STDCALL MemeSearcherStack_init(
             if (self->heap_block == NULL)
             {
                 self->reg_size_ = 0;
+                self->last_errc = MGEC__NOMEM;
                 return MGEC__NOMEM;
             }
             buf = (mmbyte_t*)self->heap_block;
@@ -288,10 +300,14 @@ MEME_API int MEME_STDCALL MemeSearcherStack_initByOther(
 
     src = mmsrch_implc(_other);
 
-    /* A copy of an uninitialised object is just an empty object. */
+    /* A copy of an uninitialised object is just an empty object, carrying
+     * over why it is empty and which case mode it was asked for. */
     if (src->reg_size_ == 0)
     {
-        memset(mmsrch_impl(_out), 0, sizeof(MemeSearcherImpl_t));
+        MemeSearcherImpl_t* dst = mmsrch_impl(_out);
+        memset(dst, 0, sizeof(MemeSearcherImpl_t));
+        dst->last_errc = src->last_errc;
+        dst->cs        = src->cs;
         return 0;
     }
 
@@ -348,10 +364,14 @@ MEME_API int MEME_STDCALL MemeSearcherStack_move(
 
     src = mmsrch_impl(_other);
 
-    /* Nothing to move: produce an empty destination. */
+    /* Nothing to move: produce an empty destination that remembers why the
+     * source is empty (failed vs never initialised). */
     if (src->reg_size_ == 0)
     {
-        memset(mmsrch_impl(_out), 0, sizeof(MemeSearcherImpl_t));
+        MemeSearcherImpl_t* dst = mmsrch_impl(_out);
+        memset(dst, 0, sizeof(MemeSearcherImpl_t));
+        dst->last_errc = src->last_errc;
+        dst->cs        = src->cs;
         return 0;
     }
 
@@ -395,6 +415,8 @@ MEME_API int MEME_STDCALL MemeSearcherStack_unInit(mmsrchstk_t* _out)
     self->call_count   = 0;
     self->hit_count    = 0;
     self->density      = MemeSearcherDensity_Unknown;
+    self->last_errc    = MGEC__OK;
+    self->cs           = MemeFlag_AllSensitive;
     self->reg_size_    = 0;
 
     return 0;
@@ -664,6 +686,53 @@ MEME_API int MEME_STDCALL MemeSearcherStack_resetDensity(mmsrchstk_t* _out)
     self->hit_count  = 0;
     self->density    = MemeSearcherDensity_Unknown;
     return 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* introspection                                                        */
+/* ------------------------------------------------------------------ */
+
+MEME_API MemeInteger_t MEME_STDCALL MemeSearcherStack_needleSize(
+    const mmsrchstk_t* _out)
+{
+    if (MEGO_SYMBOL__UNLIKELY(_out == NULL))
+        return 0;
+
+    return mmsrch_implc(_out)->needle_len;
+}
+
+MEME_API MemeFlag_CaseSensitivity_t MEME_STDCALL MemeSearcherStack_caseSensitivity(
+    const mmsrchstk_t* _out)
+{
+    if (MEGO_SYMBOL__UNLIKELY(_out == NULL))
+        return MemeFlag_AllSensitive;
+
+    return mmsrch_implc(_out)->cs;
+}
+
+MEME_API int MEME_STDCALL MemeSearcherStack_errorCode(
+    const mmsrchstk_t* _out)
+{
+    if (MEGO_SYMBOL__UNLIKELY(_out == NULL))
+        return MGEC__INVAL;
+
+    return mmsrch_implc(_out)->last_errc;
+}
+
+MEME_API MemeSearcherState_t MEME_STDCALL MemeSearcherStack_state(
+    const mmsrchstk_t* _out)
+{
+    const MemeSearcherImpl_t* self;
+
+    if (MEGO_SYMBOL__UNLIKELY(_out == NULL))
+        return MemeSearcherState_Empty;
+
+    self = mmsrch_implc(_out);
+
+    if (self->reg_size_ != 0)
+        return MemeSearcherState_Ready;
+    return (self->last_errc != MGEC__OK) ? MemeSearcherState_Failed
+                                         : MemeSearcherState_Empty;
 }
 
 MEME_EXTERN_C_SCOPE_ENDED

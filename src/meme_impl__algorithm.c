@@ -762,10 +762,13 @@ mmint_t MemeImpl_shortForwardSearch(
 
         const mmint_t hit = pos + rel;
 
-        /* Last byte next: a single compare rejects most candidates. */
+        /* Last byte next: a single compare rejects most candidates.
+         * mid_len < 1 covers both the 1-byte needle (mid_len == -1: first
+         * and last are the same byte, already compared above) and the
+         * 2-byte needle (mid_len == 0: nothing between first and last). */
         const uint8_t hay_last = _haystack[hit + _needle_len - 1];
         if ((fold ? __MemeImpl_foldCase(hay_last) : hay_last) == last
-            && (mid_len == 0
+            && (mid_len < 1
                 || __MemeImpl_windowEquals(_haystack + hit + 1,
                                            _needle + 1, mid_len, fold)))
         {
@@ -820,8 +823,10 @@ static mmint_t __MemeImpl_shortReverseSearch(
             return -1;
 
         const uint8_t hay_last = _haystack[rel + _needle_len - 1];
+        /* mid_len < 1: see MemeImpl_shortForwardSearch -- a 1-byte needle
+         * has nothing between first and last either. */
         if ((fold ? __MemeImpl_foldCase(hay_last) : hay_last) == last
-            && (mid_len == 0
+            && (mid_len < 1
                 || __MemeImpl_windowEquals(_haystack + rel + 1,
                                            _needle + 1, mid_len, fold)))
         {

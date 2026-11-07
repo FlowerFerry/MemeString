@@ -53,6 +53,21 @@ typedef mmbyte_t MemeSearcherDensity_t;
 #define MemeSearcherDensity_Frequent ((MemeSearcherDensity_t)4)  /* > 75 %                        */
 
 /*
+ * Lifecycle state, reported by MemeSearcherStack_state().
+ *
+ *   empty  - default-constructed or reset(): never held a needle.
+ *   ready  - init() succeeded; find() may be called.
+ *   failed - init() was attempted and rejected; error_code() says why.
+ *
+ * A plain integer type (not an enum) for the same ABI reason as
+ * MemeSearcherDensity_t.
+ */
+typedef mmbyte_t MemeSearcherState_t;
+#define MemeSearcherState_Empty  ((MemeSearcherState_t)0)
+#define MemeSearcherState_Ready  ((MemeSearcherState_t)1)
+#define MemeSearcherState_Failed ((MemeSearcherState_t)2)
+
+/*
  * Initialise a searcher.
  * @param _object_size Must be MMSEARCHER__OBJ_SIZE. Used to validate and record size.
  * @return 0 on success, non-zero mgec_t on failure.
@@ -130,6 +145,22 @@ MEME_API MemeSearcherDensity_t MEME_STDCALL MemeSearcherStack_density(
 /* Reset the hit/miss counters. */
 MEME_API int MEME_STDCALL MemeSearcherStack_resetDensity(
     mmsrchstk_t* _out);
+
+/* The needle length in bytes, or 0 if not initialised. */
+MEME_API MemeInteger_t MEME_STDCALL MemeSearcherStack_needleSize(
+    const mmsrchstk_t* _out);
+
+/* The case-sensitivity flag the searcher was built with. */
+MEME_API MemeFlag_CaseSensitivity_t MEME_STDCALL MemeSearcherStack_caseSensitivity(
+    const mmsrchstk_t* _out);
+
+/* Error code of the last init()/move()/swap().  Zero when valid. */
+MEME_API int MEME_STDCALL MemeSearcherStack_errorCode(
+    const mmsrchstk_t* _out);
+
+/* State of the searcher. */
+MEME_API MemeSearcherState_t MEME_STDCALL MemeSearcherStack_state(
+    const mmsrchstk_t* _out);
 
 MEME_EXTERN_C_SCOPE_ENDED
 
