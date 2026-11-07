@@ -33,7 +33,7 @@ static MemeInteger_t __MemeBoyerMoore_suffixLength(
     return index;
 }
 
-static void __MemeBoyerMoore_makeBadDelta(
+void __MemeBoyerMoore_makeBadDelta(
     MemeInteger_t* _delta1, MemeInteger_t _delta1_len,
     const uint8_t* _pat, MemeInteger_t _pat_len) 
 {
@@ -48,7 +48,7 @@ static void __MemeBoyerMoore_makeBadDelta(
     
 }
 
-static void __MemeBoyerMoore_makeGoodDelta(MemeInteger_t* _delta2, const uint8_t* _pat, MemeInteger_t _pat_len)
+void __MemeBoyerMoore_makeGoodDelta(MemeInteger_t* _delta2, const uint8_t* _pat, MemeInteger_t _pat_len)
 {
     MemeInteger_t p;
     MemeInteger_t last_prefix_index = 1;
@@ -400,7 +400,7 @@ static void __MemeBoyerMooreCI_makeBadDelta(
         _delta1[_BM_CF(_pat[index])] = _pat_len - 1 - index;
 }
 
-static void __MemeBoyerMooreCI_makeGoodDelta(
+void __MemeBoyerMooreCI_makeGoodDelta(
     MemeInteger_t* _delta2, const uint8_t* _pat, MemeInteger_t _pat_len)
 {
     MemeInteger_t p;
@@ -682,7 +682,7 @@ mmint_t MemeImpl_ReverseSearchByBoyerMoore_CaseInsensitive(
  *
  * Both helpers require a non-negative _haystack_len and 2 <= _needle_len.
  */
-#define MEME_IMPL_SHORT_NEEDLE_MAX   (16)
+#define MEME_IMPL_SHORT_NEEDLE_MAX   (32)
 #define MEME_IMPL_FEW_CANDIDATES     (8)
 
 static int __MemeImpl_shouldUseShortPath(mmint_t _haystack_len, mmint_t _needle_len)
@@ -719,7 +719,7 @@ static int __MemeImpl_windowEquals(
     return 1;
 }
 
-static mmint_t __MemeImpl_shortForwardSearch(
+mmint_t __MemeImpl_shortForwardSearch(
     const uint8_t* _haystack, mmint_t _haystack_len,
     const uint8_t* _needle, mmint_t _needle_len,
     mmflag_case_sensit_t _cs)

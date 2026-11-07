@@ -41,6 +41,7 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/test_multi_buffer_view.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variant.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_searcher.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_rune.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_builder.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_err.cpp

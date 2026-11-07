@@ -84,6 +84,7 @@ set(SRC_FILES
     src/meme_atomic__basics.c
     src/meme_conc_atomic.c
     src/meme_simd_handler.c
+    src/meme_searcher.c
 )
 
 add_library(${MMSTR_PROJECT_NAME} SHARED ${SRC_FILES})
