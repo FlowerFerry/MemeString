@@ -4,7 +4,7 @@
  * Pre-processes a needle once (algorithm selection + table building), then
  * reuses the result across many MemeSearcherStack_find() calls.
  *
- * The object layout lives in include_private/meme/impl/searcher_p.h; the
+ * The object layout lives in include_private/meme/impl/searcher.h; the
  * public header only exposes the opaque MMSEARCHER__OBJ_SIZE byte buffer.
  * init() records _object_size in reg_size_, and every later entry point reads
  * the size from the object rather than taking it again.
@@ -12,7 +12,7 @@
 
 #include <meme/impl/algorithm.h>
 #include <mego/predef/symbol/likely.h>
-#include <meme/impl/searcher_p.h>
+#include <meme/impl/searcher.h>
 #include <meme/simd/simd.h>
 #include <meme/string_fwd.h>
 
