@@ -1903,6 +1903,58 @@ mmint_t mmsimd_avx2_u8_find2(
     return -1;
 }
 
+/* Dual-position filter: finds the lowest index _i such that
+ * _buf[_i + _off1] == _v1  AND  _buf[_i + _off2] == _v2.
+ *
+ * Both 32-lane comparisons are fused with AND before the movemask, so a block
+ * yields candidates already filtered by two needle positions at once.  This
+ * is what makes short-needle scanning cheap on low-entropy data: a needle
+ * like "ab" over "aaaa..." matches the first byte almost everywhere, but the
+ * pair (0, 1) rejects all but the real candidates inside the vector unit.
+ *
+ * The second load starts _span bytes after the first, so the loop must stop
+ * where BOTH loads stay inside _len. */
+MG_SYM__TARGET_AVX2
+mmint_t mmsimd_avx2_u8_find_dual_pos(
+    const uint8_t* _buf, mmint_t _len,
+    uint8_t _v1, mmint_t _off1, uint8_t _v2, mmint_t _off2)
+{
+    const mmint_t blk  = (mmint_t)sizeof(__m256i);
+    const mmint_t span = (_off1 > _off2) ? _off1 : _off2;
+    mmint_t idx = 0;
+
+    /* Highest start index for which both windows are fully inside _len. */
+    const mmint_t last = _len - 1 - span;
+
+    if (last >= 0 && last + 1 >= blk)
+    {
+        const mmint_t vec_last = last + 1 - blk;   /* last full-vector start */
+        const __m256i vv1 = _mm256_set1_epi8((char)_v1);
+        const __m256i vv2 = _mm256_set1_epi8((char)_v2);
+
+        for (; idx <= vec_last; idx += blk)
+        {
+            const __m256i v1 = _mm256_loadu_si256((const __m256i*)&_buf[idx + _off1]);
+            const __m256i v2 = _mm256_loadu_si256((const __m256i*)&_buf[idx + _off2]);
+            const __m256i m1 = _mm256_cmpeq_epi8(v1, vv1);
+            const __m256i m2 = _mm256_cmpeq_epi8(v2, vv2);
+            const uint32_t mk = (uint32_t)_mm256_movemask_epi8(
+                _mm256_and_si256(m1, m2));
+
+            if (mk)
+                return idx + __mmsimd_avx2_ctz32(mk);
+        }
+    }
+
+    for (; idx <= last; ++idx)
+    {
+        if (_buf[idx + _off1] == _v1 && _buf[idx + _off2] == _v2)
+            return idx;
+    }
+
+    return -1;
+}
+
 /* Reverse signed-byte search: scans 32-byte blocks from the end and returns
  * the highest matching index.  This is the canonical implementation;
  * mmsimd_avx2_u8_rfind delegates here. */

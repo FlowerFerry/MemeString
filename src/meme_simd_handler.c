@@ -640,6 +640,7 @@ static mmsimd_other8_hdlr_t* mmsimd_get_default_other8_handler()
         .i8_find_fn = mmsimd_default_i8_find,
         .u8_find_fn = mmsimd_default_u8_find,
         .u8_find2_fn = mmsimd_default_u8_find2,
+        .u8_find_dual_pos_fn = mmsimd_default_u8_find_dual_pos,
         
         .i8_rfind_fn = mmsimd_default_i8_rfind,
         .u8_rfind_fn = mmsimd_default_u8_rfind,
@@ -720,6 +721,7 @@ static mmsimd_other8_hdlr_t* mmsimd_get_avx2_other8_handler()
         .i8_find_fn = mmsimd_avx2_i8_find,
         .u8_find_fn = mmsimd_avx2_u8_find,
         .u8_find2_fn = mmsimd_avx2_u8_find2,
+        .u8_find_dual_pos_fn = mmsimd_avx2_u8_find_dual_pos,
 
         .i8_rfind_fn = mmsimd_avx2_i8_rfind,
         .u8_rfind_fn = mmsimd_avx2_u8_rfind,
@@ -1050,6 +1052,15 @@ MEME_API mmint_t MEME_STDCALL mmsimd_u8_rfind2(
 {
     mmsimd_other8_hdlr_t* hdlr = mmsimd_get_best_other8_handler();
     return hdlr->u8_rfind2_fn(_in, _len, _v1, _v2);
+}
+
+/* Dual-position filter; see mmsimd_u8_find_dual_pos in simd.h. */
+MEME_API mmint_t MEME_STDCALL mmsimd_u8_find_dual_pos(
+    const uint8_t* _in, mmint_t _len,
+    uint8_t _v1, mmint_t _off1, uint8_t _v2, mmint_t _off2)
+{
+    mmsimd_other8_hdlr_t* hdlr = mmsimd_get_best_other8_handler();
+    return hdlr->u8_find_dual_pos_fn(_in, _len, _v1, _off1, _v2, _off2);
 }
 
 #undef MMSIMD_FIND_FUNC

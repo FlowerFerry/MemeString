@@ -49,30 +49,107 @@ void MemeBoyerMoore_makeBadDelta(
     
 }
 
+/* Linear-time suffix table used by the good-suffix construction.
+ *
+ * suff[i] is the length of the longest suffix of pat[0..i] that is also a
+ * suffix of the whole pattern.  Built by the classic Z-algorithm-style scan
+ * (Gusfield, "Algorithms on Strings, Trees, and Sequences", section 2.3.2),
+ * O(m) time and O(m) extra space. */
+static void __MemeBoyerMoore_computeSuffixes(
+    const uint8_t* _pat, MemeInteger_t _pat_len, MemeInteger_t* _suff)
+{
+    MemeInteger_t f = 0;
+    MemeInteger_t g = _pat_len - 1;
+    MemeInteger_t i;
+
+    _suff[_pat_len - 1] = _pat_len;
+
+    for (i = _pat_len - 2; i >= 0; --i)
+    {
+        if (i > g && _suff[i + _pat_len - 1 - f] < i - g)
+        {
+            _suff[i] = _suff[i + _pat_len - 1 - f];
+        }
+        else
+        {
+            if (i < g)
+                g = i;
+            f = i;
+            while (g >= 0 && _pat[g] == _pat[g + _pat_len - 1 - f])
+                --g;
+            _suff[i] = f - g;
+        }
+    }
+}
+
 void MemeBoyerMoore_makeGoodDelta(MemeInteger_t* _delta2, const uint8_t* _pat, MemeInteger_t _pat_len)
 {
-    MemeInteger_t p;
-    MemeInteger_t last_prefix_index = 1;
+    MemeInteger_t  small_suff[MEME_IMPL_LOCAL_NEEDLE_MAX];
+    MemeInteger_t  small_bmgs[MEME_IMPL_LOCAL_NEEDLE_MAX];
+    MemeInteger_t* suff = small_suff;
+    MemeInteger_t* bmgs = small_bmgs;
+    MemeInteger_t  i, j;
 
-    for (p = _pat_len - 1; p >= 0; --p) 
+    if (_pat_len > MEME_IMPL_LOCAL_NEEDLE_MAX)
     {
-        if (__MemeBoyerMoore_isPrefix(_pat, _pat_len, p + 1))
+        suff = (MemeInteger_t*)malloc((size_t)_pat_len * sizeof(MemeInteger_t));
+        bmgs = (MemeInteger_t*)malloc((size_t)_pat_len * sizeof(MemeInteger_t));
+        if (suff == NULL || bmgs == NULL)
         {
-            last_prefix_index = p + 1;
+            /* Allocation failure: fall back to the always-correct naive
+             * construction so callers never receive an uninitialised table. */
+            free(suff);
+            free(bmgs);
+            {
+                MemeInteger_t p;
+                MemeInteger_t last_prefix_index = 1;
+                for (p = _pat_len - 1; p >= 0; --p)
+                {
+                    if (__MemeBoyerMoore_isPrefix(_pat, _pat_len, p + 1))
+                        last_prefix_index = p + 1;
+                    _delta2[p] = (_pat_len - 1 - p) + last_prefix_index;
+                }
+                for (p = 0; p < _pat_len - 1; ++p)
+                {
+                    MemeInteger_t slen = __MemeBoyerMoore_suffixLength(_pat, _pat_len, p);
+                    if (slen > p)
+                        slen = p;
+                    if (_pat[p - slen] != _pat[_pat_len - 1 - slen])
+                        _delta2[_pat_len - 1 - slen] = _pat_len - 1 - p + slen;
+                }
+            }
+            return;
         }
-        _delta2[p] = (_pat_len - 1 - p) + last_prefix_index;
     }
 
-    for (p = 0; p < _pat_len - 1; ++p) 
-    {
-        MemeInteger_t slen = __MemeBoyerMoore_suffixLength(_pat, _pat_len, p);
-        if (slen > p)
-            slen = p;
-        if (_pat[p - slen] != _pat[_pat_len - 1 - slen])
-        {
-            _delta2[_pat_len - 1 - slen] = _pat_len - 1 - p + slen;
-        }
-    }
+    __MemeBoyerMoore_computeSuffixes(_pat, _pat_len, suff);
+
+    /* bmgs[j] is the standard "shift the window by this much when the
+     * mismatch is at pattern index j" table. */
+    for (i = 0; i < _pat_len; ++i)
+        bmgs[i] = _pat_len;
+
+    /* Case 1: a proper suffix of pat[0..i] also occurs earlier in the pattern. */
+    j = 0;
+    for (i = _pat_len - 1; i >= 0; --i)
+        if (suff[i] == i + 1)
+            for (; j < _pat_len - 1 - i; ++j)
+                if (bmgs[j] == _pat_len)
+                    bmgs[j] = _pat_len - 1 - i;
+
+    /* Case 2: the longest suffix of the whole pattern that is also a prefix. */
+    for (i = 0; i <= _pat_len - 2; ++i)
+        bmgs[_pat_len - 1 - suff[i]] = _pat_len - 1 - i;
+
+    /* The search loops in this file add the shift to the MISMATCHED byte's
+     * index, not to the pattern's right end, so convert the window shift into
+     * a distance from the mismatch position.  Without this offset the tables
+     * would be shifted by (m - 1 - j) and matches would be missed. */
+    for (j = 0; j < _pat_len; ++j)
+        _delta2[j] = bmgs[j] + (_pat_len - 1 - j);
+
+    if (suff != small_suff) free(suff);
+    if (bmgs != small_bmgs) free(bmgs);
 }
 
 mmint_t MemeImpl_SearchByBoyerMoore(
@@ -648,40 +725,85 @@ mmint_t MemeImpl_shortForwardSearch(
     const uint8_t alternate =
         first_is_letter ? (uint8_t)(first ^ 0x20u) : first;
 
+    /* Dual-position prefilter.  A single-byte scan returns one candidate at a
+     * time, so a needle whose first byte is common in the haystack ("ab" over
+     * "aaaa...") re-enters the SIMD routine for every position.  Filtering on
+     * two needle positions inside the vector unit rejects almost all of those
+     * candidates before they cost a scalar verification.
+     *
+     * Only usable when the two positions differ (a 2-byte needle uses
+     * offsets 0 and 1) and when neither position needs case folding, because
+     * the SIMD compare is exact: a folded first byte would need the two-key
+     * (lower/upper) variant, which the dual-position entry point does not
+     * provide. */
+    const int use_dual = (!fold && _needle_len >= 2);
+
     while (pos <= last_start)
     {
-        const mmint_t scan_len = last_start - pos + 1;
-        mmint_t rel;
+        mmint_t hit;
 
-        if (first_is_letter)
+        if (use_dual)
         {
-            /* Both cases of the first byte in one SIMD pass. */
-            rel = mmsimd_u8_find2(_haystack + pos, scan_len, first, alternate);
+            const mmint_t span = _needle_len - 1;
+            const mmint_t limit = last_start - pos;   /* relative last start */
+            mmint_t rel = mmsimd_u8_find_dual_pos(
+                _haystack + pos, limit + 1 + span,
+                first, 0, last, span);
+
+            if (rel < 0)
+                return -1;
+            if (rel > limit)
+                return -1;
+
+            hit = pos + rel;
+            /* Offsets 0 and span already matched inside the vector filter. */
+            if (mid_len < 1
+                || __MemeImpl_windowEquals(_haystack + hit + 1,
+                                           _needle + 1, mid_len, fold))
+            {
+                return hit;
+            }
+
+            pos = hit + 1;
+            continue;
         }
-        else
+
         {
-            rel = mmsimd_u8_find(_haystack + pos, scan_len, first);
+            const mmint_t scan_len = last_start - pos + 1;
+            mmint_t rel;
+
+            if (first_is_letter)
+            {
+                /* Both cases of the first byte in one SIMD pass. */
+                rel = mmsimd_u8_find2(_haystack + pos, scan_len, first, alternate);
+            }
+            else
+            {
+                rel = mmsimd_u8_find(_haystack + pos, scan_len, first);
+            }
+
+            if (rel < 0)
+                return -1;
+
+            hit = pos + rel;
         }
-
-        if (rel < 0)
-            return -1;
-
-        const mmint_t hit = pos + rel;
 
         /* Last byte next: a single compare rejects most candidates.
          * mid_len < 1 covers both the 1-byte needle (mid_len == -1: first
          * and last are the same byte, already compared above) and the
          * 2-byte needle (mid_len == 0: nothing between first and last). */
-        const uint8_t hay_last = _haystack[hit + _needle_len - 1];
-        if ((fold ? __MemeImpl_foldCase(hay_last) : hay_last) == last
-            && (mid_len < 1
-                || __MemeImpl_windowEquals(_haystack + hit + 1,
-                                           _needle + 1, mid_len, fold)))
         {
-            return hit;
-        }
+            const uint8_t hay_last = _haystack[hit + _needle_len - 1];
+            if ((fold ? __MemeImpl_foldCase(hay_last) : hay_last) == last
+                && (mid_len < 1
+                    || __MemeImpl_windowEquals(_haystack + hit + 1,
+                                               _needle + 1, mid_len, fold)))
+            {
+                return hit;
+            }
 
-        pos = hit + 1;
+            pos = hit + 1;
+        }
     }
 
     return -1;

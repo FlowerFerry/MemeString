@@ -688,8 +688,10 @@ EXPORTS
     mmsimd_f64_clamp @12199
     mmsimd_u8_find2 @12200
     mmsimd_u8_rfind2 @12201
+    mmsimd_u8_find_dual_pos @12202
     MemeBuffer_availableByteCapacity @20000
     MemeBuffer_compare @20001
+    MemeBuffer_compareWithBytes @20002
     MemeVariableBuffer_startsMatchWithBytes @21000
     MemeVariableBuffer_endsMatchWithBytes @21001
     MemeVariableBuffer_insertWithByte @21002
@@ -719,17 +721,18 @@ EXPORTS
     MemeString_lastIndexOfWithByte @40000
     ; --- MemeSearcherStack (Phase 2 reusable searcher) ---
     MemeSearcherStack_init @50000
-    MemeSearcherStack_initEmpty @50011
-    MemeSearcherStack_setFlags @50012
-    MemeSearcherStack_flags @50013
-    MemeSearcherStack_move @50005
-    MemeSearcherStack_swap @50006
-    MemeSearcherStack_needleSize @50007
-    MemeSearcherStack_caseSensitivity @50010
-    MemeSearcherStack_errorCode @50008
-    MemeSearcherStack_state @50009
     MemeSearcherStack_unInit @50001
     MemeSearcherStack_find @50002
     MemeSearcherStack_density @50003
     MemeSearcherStack_resetDensity @50004
+    MemeSearcherStack_move @50005
+    MemeSearcherStack_swap @50006
+    MemeSearcherStack_needleSize @50007
+    MemeSearcherStack_errorCode @50008
+    MemeSearcherStack_state @50009
+    MemeSearcherStack_caseSensitivity @50010
+    MemeSearcherStack_initEmpty @50011
+    MemeSearcherStack_setFlags @50012
+    MemeSearcherStack_flags @50013
+    MemeSearcherStack_initByOther @50014
         

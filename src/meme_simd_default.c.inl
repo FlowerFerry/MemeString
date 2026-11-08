@@ -276,6 +276,24 @@ static mmint_t mmsimd_default_u8_rfind2(
     }
     return -1;
 }
+
+/* Dual-position filter: lowest index _i with _buf[_i+off1]==_v1 AND
+ * _buf[_i+off2]==_v2.  Scalar reference implementation; the AVX2/NEON paths
+ * widen this to 32/16 candidate positions per pass. */
+static mmint_t mmsimd_default_u8_find_dual_pos(
+    const uint8_t* _buf, mmint_t _len,
+    uint8_t _v1, mmint_t _off1, uint8_t _v2, mmint_t _off2)
+{
+    const mmint_t span = (_off1 > _off2) ? _off1 : _off2;
+    const mmint_t last = _len - 1 - span;
+
+    for (mmint_t i = 0; i <= last; ++i)
+    {
+        if (_buf[i + _off1] == _v1 && _buf[i + _off2] == _v2)
+            return i;
+    }
+    return -1;
+}
 MMSIMD_DEFAULT_FIND_FUNC(i16, int16_t)
 MMSIMD_DEFAULT_FIND_FUNC(u16, uint16_t)
 MMSIMD_DEFAULT_FIND_FUNC(i32, int32_t)

@@ -653,6 +653,18 @@ MEME_API mmint_t
 MEME_STDCALL mmsimd_u8_find2(
     const uint8_t* _buf, mmint_t _len, uint8_t _v1, uint8_t _v2);
 
+/* Dual-position filter: finds the first index _i such that
+ * _buf[_i + _offset_a] == _val_a AND _buf[_i + _offset_b] == _val_b.
+ * Both positions must be within bounds: _i + max(_offset_a, _offset_b) < _len.
+ * Returns -1 if no such index exists, or if _len is too small.
+ * Used for short-needle search to filter candidates by checking two needle
+ * positions simultaneously, reducing false positives before full comparison. */
+MEME_API mmint_t
+MEME_STDCALL mmsimd_u8_find_dual_pos(
+    const uint8_t* _buf, mmint_t _len,
+    uint8_t _val_a, mmint_t _offset_a,
+    uint8_t _val_b, mmint_t _offset_b);
+
 /* Reverse variant: finds the LAST index whose byte equals _v1 or _v2.
  * Returns -1 when neither is present, or when _len <= 0. */
 MEME_API mmint_t
