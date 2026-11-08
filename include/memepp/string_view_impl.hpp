@@ -497,6 +497,8 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::find(
 		const string_view& _other, size_type _pos) const noexcept
 	{
+		if (_other.empty())
+			return (_pos < 0 || _pos > size()) ? npos : _pos;
 		return MemeString_indexOfWithOther(
 			to_pointer(native_handle()), _pos, to_pointer(_other.native_handle()), 
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
@@ -504,6 +506,10 @@ inline namespace MMPP_NAMESPACE {
 
     MEMEPP__IMPL_INLINE string_view::size_type string_view::find(const char* _utf8, size_type _pos) const noexcept
     {
+        if (_utf8 == nullptr)
+            return npos;
+        if (_utf8[0] == '\0')
+            return (_pos < 0 || _pos > size()) ? npos : _pos;
         return MemeString_indexOfWithUtf8bytes(
             to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), -1, 
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
@@ -512,6 +518,10 @@ inline namespace MMPP_NAMESPACE {
     MEMEPP__IMPL_INLINE string_view::size_type string_view::find(
 		const char* _utf8, size_type _pos, size_type _size) const noexcept
     {
+        if (_utf8 == nullptr)
+            return npos;
+        if (_size == 0)
+            return (_pos < 0 || _pos > size()) ? npos : _pos;
         return MemeString_indexOfWithUtf8bytes(
             to_pointer(native_handle()), _pos, reinterpret_cast<const uint8_t*>(_utf8), _size, 
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
@@ -519,6 +529,10 @@ inline namespace MMPP_NAMESPACE {
 
     MEMEPP__IMPL_INLINE string_view::size_type string_view::find(const_pointer _utf8, size_type _pos) const noexcept
     {
+        if (_utf8 == nullptr)
+            return npos;
+        if (_utf8[0] == 0)
+            return (_pos < 0 || _pos > size()) ? npos : _pos;
         return MemeString_indexOfWithUtf8bytes(
             to_pointer(native_handle()), _pos, _utf8, -1, 
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
@@ -527,6 +541,10 @@ inline namespace MMPP_NAMESPACE {
     MEMEPP__IMPL_INLINE string_view::size_type string_view::find(
 		const_pointer _utf8, size_type _pos, size_type _size) const noexcept
     {
+        if (_utf8 == nullptr)
+            return npos;
+        if (_size == 0)
+            return (_pos < 0 || _pos > size()) ? npos : _pos;
         return MemeString_indexOfWithUtf8bytes(
             to_pointer(native_handle()), _pos, _utf8, _size,
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));

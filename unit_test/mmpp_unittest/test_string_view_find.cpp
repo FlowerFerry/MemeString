@@ -59,8 +59,11 @@ TEST_CASE("memepp::string_view find - empty / edge cases", "[string_view]")
     REQUIRE(empty.find('a')               == memepp::string_view::npos);
     REQUIRE(empty.find(memepp::rune('a')) == memepp::string_view::npos);
 
-    // empty pattern
-    REQUIRE(s.find("") == memepp::string_view::npos);
+    // empty pattern returns pos (std::string_view semantics)
+    REQUIRE(s.find("") == 0);
+    REQUIRE(s.find("", 1) == 1);
+    REQUIRE(s.find("", 3) == 3);
+    REQUIRE(s.find("", 10) == memepp::string_view::npos);
 
     // pos beyond length
     REQUIRE(s.find("a", 10) == memepp::string_view::npos);

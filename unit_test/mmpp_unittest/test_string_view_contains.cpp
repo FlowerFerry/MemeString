@@ -52,8 +52,9 @@ TEST_CASE("memepp::string_view contains - empty / edge cases", "[string_view]")
     REQUIRE_FALSE(empty.contains('a'));
     REQUIRE_FALSE(empty.contains(memepp::rune('a')));
 
-    REQUIRE_FALSE(s.contains(""));
-    REQUIRE_FALSE(s.contains(memepp::string_view("")));
+    // empty needle is contained in every string (std::string_view semantics)
+    REQUIRE(s.contains(""));
+    REQUIRE(s.contains(memepp::string_view("")));
 }
 
 TEST_CASE("memepp::string_view contains - pointer overload", "[string_view]")

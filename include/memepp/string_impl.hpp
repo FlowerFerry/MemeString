@@ -528,8 +528,9 @@ inline namespace MMPP_NAMESPACE {
 
     MEMEPP__IMPL_INLINE string::size_type string::find(const char* _utf8, size_type _pos) const noexcept
     {
-		size_type nlen = std::char_traits<char>::length(_utf8);
-		if (nlen == 0) {
+        if (_utf8 == nullptr)
+            return npos;
+		if (_utf8[0] == 0) {
 			if (_pos < 0)
 				return _pos == npos ? npos : 0;
 			return (std::min)(_pos, size());
@@ -553,8 +554,9 @@ inline namespace MMPP_NAMESPACE {
     
     MEMEPP__IMPL_INLINE string::size_type string::find(const_pointer _utf8, size_type _pos) const noexcept
     {
-		size_type nlen = std::char_traits<char>::length(reinterpret_cast<const char*>(_utf8));
-		if (nlen == 0) {
+        if (_utf8 == nullptr)
+            return npos;
+		if (_utf8[0] == 0) {
 			if (_pos < 0)
 				return _pos == npos ? npos : 0;
 			return (std::min)(_pos, size());
@@ -616,6 +618,8 @@ inline namespace MMPP_NAMESPACE {
 
 	MEMEPP__IMPL_INLINE string::size_type string::rfind(const char* _utf8, size_type _pos) const noexcept
 	{
+        if (_utf8 == nullptr)
+            return npos;
 		size_type sz = size();
 		size_type nlen = std::char_traits<char>::length(_utf8);
 		if (nlen > sz) return npos;
@@ -645,6 +649,8 @@ inline namespace MMPP_NAMESPACE {
 
     MEMEPP__IMPL_INLINE string::size_type string::rfind(const_pointer _utf8, size_type _pos) const noexcept
     {
+        if (_utf8 == nullptr)
+            return npos;
 		size_type sz = size();
 		size_type nlen = std::char_traits<char>::length(reinterpret_cast<const char*>(_utf8));
 		if (nlen > sz) return npos;

@@ -345,13 +345,16 @@ string_span::compare(size_type _pos1, size_type _count1, string_span _v,
 MEMEPP__IMPL_INLINE int
 string_span::compare(const char* _s) const
 {
-	return compare(string_span(_s));
+	auto sr = to_string_ref();
+	return MemeString_compareByUtf8bytes(
+		to_pointer(sr.native_handle()),
+		reinterpret_cast<const mmbyte_t*>(_s), -1);
 }
 
 MEMEPP__IMPL_INLINE int
 string_span::compare(size_type _pos1, size_type _count1, const char* _s) const
 {
-	return substr(_pos1, _count1).compare(string_span(_s));
+	return substr(_pos1, _count1).compare(_s);
 }
 
 MEMEPP__IMPL_INLINE int
@@ -383,13 +386,13 @@ string_span::starts_with(char _c) const MEGOPP__NOEXCEPT
 MEMEPP__IMPL_INLINE bool
 string_span::starts_with(const char* _s) const
 {
-	return starts_with(string_span(_s));
+	return to_string_ref().starts_with(_s);
 }
 
 MEMEPP__IMPL_INLINE bool
 string_span::starts_with(const_pointer _s) const MEGOPP__NOEXCEPT
 {
-	return starts_with(string_span(_s));
+	return to_string_ref().starts_with(_s);
 }
 
 MEMEPP__IMPL_INLINE bool
@@ -410,13 +413,13 @@ string_span::ends_with(char _c) const MEGOPP__NOEXCEPT
 MEMEPP__IMPL_INLINE bool
 string_span::ends_with(const char* _s) const
 {
-	return ends_with(string_span(_s));
+	return to_string_ref().ends_with(_s);
 }
 
 MEMEPP__IMPL_INLINE bool
 string_span::ends_with(const_pointer _s) const MEGOPP__NOEXCEPT
 {
-	return ends_with(string_span(_s));
+	return to_string_ref().ends_with(_s);
 }
 
 MEMEPP__IMPL_INLINE bool
@@ -472,25 +475,25 @@ string_span::find(char _c, size_type _pos) const MEGOPP__NOEXCEPT
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::find(const char* _s, size_type _pos, size_type _count) const
 {
-	return find(string_span(_s, _count), _pos);
+	return to_string_ref().find(_s, _pos, _count);
 }
 
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::find(const char* _s, size_type _pos) const
 {
-	return find(string_span(_s), _pos);
+	return to_string_ref().find(_s, _pos);
 }
 
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::find(const_pointer _s, size_type _pos, size_type _count) const MEGOPP__NOEXCEPT
 {
-	return find(string_span(_s, _count), _pos);
+	return to_string_ref().find(_s, _pos, _count);
 }
 
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::find(const_pointer _s, size_type _pos) const MEGOPP__NOEXCEPT
 {
-	return find(string_span(_s), _pos);
+	return to_string_ref().find(_s, _pos);
 }
 
 // ============================================================
