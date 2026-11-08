@@ -721,8 +721,8 @@ static mmsimd_other8_hdlr_t* mmsimd_get_avx2_other8_handler()
         .u8_find_fn = mmsimd_avx2_u8_find,
         .u8_find2_fn = mmsimd_avx2_u8_find2,
 
-        .i8_rfind_fn = mmsimd_default_i8_rfind,
-        .u8_rfind_fn = mmsimd_default_u8_rfind,
+        .i8_rfind_fn = mmsimd_avx2_i8_rfind,
+        .u8_rfind_fn = mmsimd_avx2_u8_rfind,
         .u8_rfind2_fn = mmsimd_avx2_u8_rfind2,
 
         .i8_clamp_fn = mmsimd_avx2_i8_clamp,
@@ -744,8 +744,8 @@ static mmsimd_other16_hdlr_t* mmsimd_get_avx2_other16_handler()
         .i16_find_fn  = mmsimd_avx2_i16_find,
         .u16_find_fn  = mmsimd_avx2_u16_find,
 
-        .i16_rfind_fn = mmsimd_default_i16_rfind,
-        .u16_rfind_fn = mmsimd_default_u16_rfind,
+        .i16_rfind_fn = mmsimd_avx2_i16_rfind,
+        .u16_rfind_fn = mmsimd_avx2_u16_rfind,
 
         .i16_clamp_fn = mmsimd_avx2_i16_clamp,
         .u16_clamp_fn = mmsimd_avx2_u16_clamp
@@ -768,8 +768,8 @@ static mmsimd_other32_hdlr_t* mmsimd_get_avx2_other32_handler()
         .u32_find_fn  = mmsimd_avx2_u32_find,
         //.f32_find_fn  = mmsimd_default_f32_find,
 
-        .i32_rfind_fn = mmsimd_default_i32_rfind,
-        .u32_rfind_fn = mmsimd_default_u32_rfind,
+        .i32_rfind_fn = mmsimd_avx2_i32_rfind,
+        .u32_rfind_fn = mmsimd_avx2_u32_rfind,
         //.f32_rfind_fn = mmsimd_default_f32_rfind
 
         .i32_clamp_fn = mmsimd_avx2_i32_clamp,
@@ -794,8 +794,8 @@ static mmsimd_other64_hdlr_t* mmsimd_get_avx2_other64_handler()
         .u64_find_fn  = mmsimd_avx2_u64_find,
         //.f64_find_fn  = mmsimd_default_f64_find,
 
-        .i64_rfind_fn = mmsimd_default_i64_rfind,
-        .u64_rfind_fn = mmsimd_default_u64_rfind,
+        .i64_rfind_fn = mmsimd_avx2_i64_rfind,
+        .u64_rfind_fn = mmsimd_avx2_u64_rfind,
         //.f64_rfind_fn = mmsimd_default_f64_rfind
 
         .i64_clamp_fn = mmsimd_default_i64_clamp,

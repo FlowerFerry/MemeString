@@ -1903,6 +1903,51 @@ mmint_t mmsimd_avx2_u8_find2(
     return -1;
 }
 
+/* Reverse signed-byte search: scans 32-byte blocks from the end and returns
+ * the highest matching index.  This is the canonical implementation;
+ * mmsimd_avx2_u8_rfind delegates here. */
+MG_SYM__TARGET_AVX2
+mmint_t mmsimd_avx2_i8_rfind(const int8_t* _buf, mmint_t _len, int8_t _val)
+{
+    mmint_t end = _len;
+    const mmint_t blk = (mmint_t)sizeof(__m256i);
+
+    if (end >= blk)
+    {
+        const __m256i vval = _mm256_set1_epi8(_val);
+
+        do
+        {
+            end -= blk;
+
+            const __m256i vi = _mm256_loadu_si256((const __m256i*)(_buf + end));
+            const uint32_t mk = (uint32_t)_mm256_movemask_epi8(
+                _mm256_cmpeq_epi8(vi, vval));
+
+            if (mk != 0)
+                return end + __mmsimd_avx2_msb32(mk);
+        } while (end >= blk);
+    }
+
+    /* Remaining prefix, strictly before the scanned blocks. */
+    while (end > 0)
+    {
+        --end;
+        if (_buf[end] == _val)
+            return end;
+    }
+
+    return -1;
+}
+
+/* Reverse unsigned-byte search: delegates to the signed implementation;
+ * the underlying AVX2 _mm256_cmpeq_epi8 is identical for signed/unsigned. */
+MG_SYM__TARGET_AVX2
+mmint_t mmsimd_avx2_u8_rfind(const uint8_t* _buf, mmint_t _len, uint8_t _val)
+{
+    return mmsimd_avx2_i8_rfind((const int8_t*)_buf, _len, (int8_t)_val);
+}
+
 /* Two-key reverse variant: scans blocks from the end, returning the highest
  * index whose byte equals either key.  Processes 32-byte blocks so the cost
  * stays linear in _len; a per-candidate reverse rescan would be quadratic. */
@@ -1979,6 +2024,53 @@ mmint_t mmsimd_avx2_u16_find(const uint16_t* _buf, mmint_t _len, uint16_t _val)
     return mmsimd_avx2_i16_find((const int16_t*)_buf, _len, (int16_t)_val);
 }
 
+/* Reverse 16-bit search: scans 16-element blocks from the end and returns the
+ * highest matching element index.  _mm256_movemask_epi8 turns a 16-bit lane
+ * match into a PAIR of adjacent bits, so the highest set bit of the mask is
+ * always the high byte of its lane and mask>>1 is the element index.  This
+ * avoids the byte-by-byte rescan that mmsimd_avx2_i16_find still pays. */
+MG_SYM__TARGET_AVX2
+mmint_t mmsimd_avx2_i16_rfind(const int16_t* _buf, mmint_t _len, int16_t _val)
+{
+    mmint_t end = _len;
+    const mmint_t blk = MMSIMD_AVX2_I16_OFFSET;
+
+    if (end >= blk)
+    {
+        const __m256i vval = _mm256_set1_epi16(_val);
+
+        do
+        {
+            end -= blk;
+
+            const __m256i vi = _mm256_loadu_si256((const __m256i*)(_buf + end));
+            const uint32_t mk = (uint32_t)_mm256_movemask_epi8(
+                _mm256_cmpeq_epi16(vi, vval));
+
+            if (mk != 0)
+                return end + (__mmsimd_avx2_msb32(mk) >> 1);
+        } while (end >= blk);
+    }
+
+    /* Remaining prefix, strictly before the scanned blocks. */
+    while (end > 0)
+    {
+        --end;
+        if (_buf[end] == _val)
+            return end;
+    }
+
+    return -1;
+}
+
+/* Reverse unsigned 16-bit search: delegates to the signed implementation;
+ * _mm256_cmpeq_epi16 compares bit patterns identically for both. */
+MG_SYM__TARGET_AVX2
+mmint_t mmsimd_avx2_u16_rfind(const uint16_t* _buf, mmint_t _len, uint16_t _val)
+{
+    return mmsimd_avx2_i16_rfind((const int16_t*)_buf, _len, (int16_t)_val);
+}
+
 MG_SYM__TARGET_AVX2
 mmint_t mmsimd_avx2_i32_find(const int32_t* _buf, mmint_t _len, int32_t _val)
 {
@@ -2014,6 +2106,47 @@ mmint_t mmsimd_avx2_u32_find(const uint32_t* _buf, mmint_t _len, uint32_t _val)
     return mmsimd_avx2_i32_find((const int32_t*)_buf, _len, (int32_t)_val);
 }
 
+/* Reverse 32-bit search: scans 8-element blocks from the end.  Each matching
+ * lane produces 4 consecutive bits in the movemask; msb32(mk)/4 is the index. */
+MG_SYM__TARGET_AVX2
+mmint_t mmsimd_avx2_i32_rfind(const int32_t* _buf, mmint_t _len, int32_t _val)
+{
+    mmint_t end = _len;
+    const mmint_t blk = MMSIMD_AVX2_I32_OFFSET;
+
+    if (end >= blk)
+    {
+        const __m256i vval = _mm256_set1_epi32(_val);
+
+        do
+        {
+            end -= blk;
+
+            const __m256i vi = _mm256_loadu_si256((const __m256i*)(_buf + end));
+            const uint32_t mk = (uint32_t)_mm256_movemask_epi8(
+                _mm256_cmpeq_epi32(vi, vval));
+
+            if (mk != 0)
+                return end + (__mmsimd_avx2_msb32(mk) >> 2);
+        } while (end >= blk);
+    }
+
+    while (end > 0)
+    {
+        --end;
+        if (_buf[end] == _val)
+            return end;
+    }
+
+    return -1;
+}
+
+MG_SYM__TARGET_AVX2
+mmint_t mmsimd_avx2_u32_rfind(const uint32_t* _buf, mmint_t _len, uint32_t _val)
+{
+    return mmsimd_avx2_i32_rfind((const int32_t*)_buf, _len, (int32_t)_val);
+}
+
 MG_SYM__TARGET_AVX2
 mmint_t mmsimd_avx2_i64_find(const int64_t* _buf, mmint_t _len, int64_t _val)
 {
@@ -2047,6 +2180,48 @@ mmint_t mmsimd_avx2_i64_find(const int64_t* _buf, mmint_t _len, int64_t _val)
 mmint_t mmsimd_avx2_u64_find(const uint64_t* _buf, mmint_t _len, uint64_t _val)
 {
     return mmsimd_avx2_i64_find((const int64_t*)_buf, _len, (int64_t)_val);
+}
+
+/* Reverse 64-bit search: scans 4-element blocks from the end.  _mm256_cmpeq_epi64
+ * is AVX2-only (absent in AVX1), which is fine inside this TU.  Each matching
+ * lane produces 8 consecutive bits in the movemask; msb32(mk)>>3 is the index. */
+MG_SYM__TARGET_AVX2
+mmint_t mmsimd_avx2_i64_rfind(const int64_t* _buf, mmint_t _len, int64_t _val)
+{
+    mmint_t end = _len;
+    const mmint_t blk = MMSIMD_AVX2_I64_OFFSET;
+
+    if (end >= blk)
+    {
+        const __m256i vval = _mm256_set1_epi64x(_val);
+
+        do
+        {
+            end -= blk;
+
+            const __m256i vi = _mm256_loadu_si256((const __m256i*)(_buf + end));
+            const uint32_t mk = (uint32_t)_mm256_movemask_epi8(
+                _mm256_cmpeq_epi64(vi, vval));
+
+            if (mk != 0)
+                return end + (__mmsimd_avx2_msb32(mk) >> 3);
+        } while (end >= blk);
+    }
+
+    while (end > 0)
+    {
+        --end;
+        if (_buf[end] == _val)
+            return end;
+    }
+
+    return -1;
+}
+
+MG_SYM__TARGET_AVX2
+mmint_t mmsimd_avx2_u64_rfind(const uint64_t* _buf, mmint_t _len, uint64_t _val)
+{
+    return mmsimd_avx2_i64_rfind((const int64_t*)_buf, _len, (int64_t)_val);
 }
 
 //mmint_t mmsimd_avx2_f32_find(const float* _buf, mmint_t _len, float _val)
