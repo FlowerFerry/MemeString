@@ -86,6 +86,15 @@ MEGO__STATIC_ASSERT(
     MemeSearcherImplSizeMismatch,
     "MemeSearcherImpl_t must equal MMSEARCHER__OBJ_SIZE");
 
+/* The opaque type is a byte array; <meme/searcher.h> forces pointer-width
+ * alignment on it via MEGO__ALIGNAS, so the overlay cast in mmsrch_impl() is
+ * well defined.  Verify the internal struct does not need MORE alignment than
+ * that, which would break the overlay. */
+MEGO__STATIC_ASSERT(
+    sizeof(MemeSearcherImpl_t) % sizeof(void*) == 0,
+    MemeSearcherImplAlignMismatch,
+    "MemeSearcherImpl_t size must be a multiple of pointer alignment");
+
 /* Ensure reg_size_ (mmbyte_t, 0-255) can hold the object size in registers. */
 MEGO__STATIC_ASSERT(
     (sizeof(MemeSearcherImpl_t) + sizeof(mmint_t) - 1) / sizeof(mmint_t) == MMSEARCHER__OBJ_REG_SIZE,

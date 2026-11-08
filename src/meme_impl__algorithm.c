@@ -55,6 +55,20 @@ void MemeBoyerMoore_makeBadDelta(
  * suffix of the whole pattern.  Built by the classic Z-algorithm-style scan
  * (Gusfield, "Algorithms on Strings, Trees, and Sequences", section 2.3.2),
  * O(m) time and O(m) extra space. */
+/* Allocates _count MemeInteger_t, rejecting sizes whose byte count would wrap
+ * size_t.  Without this check a needle length near SIZE_MAX / sizeof would
+ * truncate the product to a small number, malloc would succeed, and the
+ * caller would then write far past the block.
+ * Returns NULL when the request is impossible or the allocation fails. */
+static MemeInteger_t* __MemeBoyerMoore_allocTables(MemeInteger_t _count)
+{
+    if (_count <= 0)
+        return NULL;
+    if ((size_t)_count > SIZE_MAX / sizeof(MemeInteger_t))
+        return NULL;
+    return (MemeInteger_t*)malloc((size_t)_count * sizeof(MemeInteger_t));
+}
+
 static void __MemeBoyerMoore_computeSuffixes(
     const uint8_t* _pat, MemeInteger_t _pat_len, MemeInteger_t* _suff)
 {
@@ -92,8 +106,8 @@ void MemeBoyerMoore_makeGoodDelta(MemeInteger_t* _delta2, const uint8_t* _pat, M
 
     if (_pat_len > MEME_IMPL_LOCAL_NEEDLE_MAX)
     {
-        suff = (MemeInteger_t*)malloc((size_t)_pat_len * sizeof(MemeInteger_t));
-        bmgs = (MemeInteger_t*)malloc((size_t)_pat_len * sizeof(MemeInteger_t));
+        suff = __MemeBoyerMoore_allocTables(_pat_len);
+        bmgs = __MemeBoyerMoore_allocTables(_pat_len);
         if (suff == NULL || bmgs == NULL)
         {
             /* Allocation failure: fall back to the always-correct naive
@@ -170,7 +184,7 @@ mmint_t MemeImpl_SearchByBoyerMoore(
 
     if (_needle_len > MEME_IMPL_LOCAL_NEEDLE_MAX)
     {
-        g_delta = (MemeInteger_t*)malloc((size_t)_needle_len * sizeof(MemeInteger_t));
+        g_delta = __MemeBoyerMoore_allocTables(_needle_len);
         if (g_delta == NULL)
             return -1;
     }
@@ -274,10 +288,12 @@ mmint_t MemeImpl_ReverseSearchByBoyerMoore(
     uint8_t*       rev     = rev_local;
 
     assert(_haystack != NULL  && MemeImpl_ReverseSearchByBoyerMoore);
-    assert(_haystack_len > 0  && MemeImpl_ReverseSearchByBoyerMoore);
+    assert(_haystack_len != 0 && MemeImpl_ReverseSearchByBoyerMoore);
     assert(_needle != NULL    && MemeImpl_ReverseSearchByBoyerMoore);
     assert(_needle_len > 0    && MemeImpl_ReverseSearchByBoyerMoore);
 
+    /* Negative haystack length means "NUL-terminated", so the assertion above
+     * must allow it; strlen() below turns it into a positive length. */
     if (_haystack_len < 0)
         _haystack_len = (mmint_t)strlen((const char*)_haystack);
 
@@ -288,7 +304,7 @@ mmint_t MemeImpl_ReverseSearchByBoyerMoore(
 
     if (m > MEME_IMPL_LOCAL_NEEDLE_MAX)
     {
-        g_delta = (MemeInteger_t*)malloc((size_t)m * sizeof(MemeInteger_t));
+        g_delta = __MemeBoyerMoore_allocTables(m);
         rev     = (uint8_t*)malloc((size_t)m);
         if (g_delta == NULL || rev == NULL)
         {
@@ -455,7 +471,7 @@ mmint_t MemeImpl_SearchByBoyerMoore_CaseInsensitive(
 
     if (_needle_len > MEME_IMPL_LOCAL_NEEDLE_MAX)
     {
-        g_delta       = (MemeInteger_t*)malloc((size_t)_needle_len * sizeof(MemeInteger_t));
+        g_delta       = __MemeBoyerMoore_allocTables(_needle_len);
         needle_folded = (uint8_t*)malloc((size_t)_needle_len);
         if (g_delta == NULL || needle_folded == NULL) {
             free(g_delta);
@@ -543,8 +559,16 @@ mmint_t MemeImpl_SearchByBoyerMoore_CaseInsensitive(
                 return index + 1;
             }
 
-            index += MemeMath_Max(
-                b_delta[__MemeImpl_foldCase(_haystack[index])], g_delta[needle_index]);
+            {
+                const MemeInteger_t move = MemeMath_Max(
+                    b_delta[__MemeImpl_foldCase(_haystack[index])],
+                    g_delta[needle_index]);
+                /* Safe bound check using subtraction so a shift near the
+                 * signed limit cannot overflow. */
+                if (move >= _haystack_len - index)
+                    break;
+                index += move;
+            }
         }
     }
     MEME_IMPL_BMCI_RELEASE();
@@ -584,7 +608,7 @@ mmint_t MemeImpl_ReverseSearchByBoyerMoore_CaseInsensitive(
 
     if (m > MEME_IMPL_LOCAL_NEEDLE_MAX)
     {
-        g_delta    = (MemeInteger_t*)malloc((size_t)m * sizeof(MemeInteger_t));
+        g_delta    = __MemeBoyerMoore_allocTables(m);
         rev_folded = (uint8_t*)malloc((size_t)m);
         if (g_delta == NULL || rev_folded == NULL) {
             free(g_delta);

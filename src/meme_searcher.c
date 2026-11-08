@@ -160,13 +160,31 @@ __MMSRCH_BM_SEARCH(u64, uint64_t)
 /* init / unInit                                                        */
 /* ------------------------------------------------------------------ */
 
+/* reg_size_ stores the caller's object size in units of sizeof(mmint_t) and
+ * its type is mmbyte_t, so it can only represent up to 255 registers.  An
+ * _object_size above this bound would be truncated by the cast and leave the
+ * object looking uninitialised -- which later functions report as "empty" and
+ * leak the heap block.  Reject it up front instead. */
+#define MEME_SRCH_MAX_OBJECT_SIZE ((size_t)0xFF * sizeof(mmint_t))
+
+/* Validates the caller-supplied object size: it must be large enough for this
+ * build's layout, and small enough that reg_size_ can record it without
+ * truncation.  Sizes larger than the current layout are accepted so a future,
+ * smaller library build can still operate on an object allocated by a newer
+ * caller. */
+static int __mmsrch_check_object_size(size_t _object_size)
+{
+    return (_object_size >= sizeof(MemeSearcherImpl_t)
+            && _object_size <= MEME_SRCH_MAX_OBJECT_SIZE);
+}
+
 MEME_API int MEME_STDCALL MemeSearcherStack_initEmpty(
     mmsrchstk_t* _out, size_t _object_size)
 {
     if (MEGO_SYMBOL__UNLIKELY(_out == NULL))
         return MGEC__INVAL;
 
-    if (MEGO_SYMBOL__UNLIKELY(_object_size < sizeof(MemeSearcherImpl_t)))
+    if (MEGO_SYMBOL__UNLIKELY(!__mmsrch_check_object_size(_object_size)))
         return MGEC__OPNOTSUPP;
 
     memset(mmsrch_impl(_out), 0, sizeof(MemeSearcherImpl_t));
@@ -183,8 +201,9 @@ MEME_API int MEME_STDCALL MemeSearcherStack_init(
     if (MEGO_SYMBOL__UNLIKELY(_out == NULL))
         return MGEC__INVAL;
 
-    /* The object must be big enough for this layout before we may touch it. */
-    if (MEGO_SYMBOL__UNLIKELY(_object_size < sizeof(MemeSearcherImpl_t)))
+    /* The object must be big enough for this layout before we may touch it,
+     * and small enough that reg_size_ can record the size without truncation. */
+    if (MEGO_SYMBOL__UNLIKELY(!__mmsrch_check_object_size(_object_size)))
         return MGEC__OPNOTSUPP;
 
     self = mmsrch_impl(_out);
@@ -266,6 +285,7 @@ MEME_API int MEME_STDCALL MemeSearcherStack_init(
         if (n > SIZE_MAX / sizeof(MemeInteger_t))
         {
             self->reg_size_ = 0;
+            self->last_errc = MGEC__NOMEM;
             return MGEC__NOMEM;
         }
         g_bytes = n * sizeof(MemeInteger_t);
@@ -273,6 +293,7 @@ MEME_API int MEME_STDCALL MemeSearcherStack_init(
         if (b_bytes > SIZE_MAX - g_bytes || n > SIZE_MAX - (b_bytes + g_bytes))
         {
             self->reg_size_ = 0;
+            self->last_errc = MGEC__NOMEM;
             return MGEC__NOMEM;
         }
         total = b_bytes + g_bytes + n;
@@ -281,6 +302,7 @@ MEME_API int MEME_STDCALL MemeSearcherStack_init(
         if (self->heap_block == NULL)
         {
             self->reg_size_ = 0;
+            self->last_errc = MGEC__NOMEM;
             return MGEC__NOMEM;
         }
 
@@ -326,9 +348,11 @@ MEME_API int MEME_STDCALL MemeSearcherStack_init(
             break;
         }
 
-        /* Good-suffix table with the same case folding as the search; the
-         * stored needle is already folded when _ci is on. */
-        MemeBoyerMooreCI_makeGoodDelta(
+        /* Good-suffix table.  The stored needle is already folded when _ci is
+         * on, so the linear construction applies directly -- using the CI
+         * variant here would reintroduce the O(m^2) preprocessing this code
+         * path was just freed from. */
+        MemeBoyerMoore_makeGoodDelta(
             self->heap_g_delta, self->needle_ptr, _needle_len);
     }
 
@@ -344,8 +368,14 @@ MEME_API int MEME_STDCALL MemeSearcherStack_initByOther(
     if (MEGO_SYMBOL__UNLIKELY(_out == NULL || _other == NULL))
         return MGEC__INVAL;
 
-    if (MEGO_SYMBOL__UNLIKELY(_object_size < sizeof(MemeSearcherImpl_t)))
+    if (MEGO_SYMBOL__UNLIKELY(!__mmsrch_check_object_size(_object_size)))
         return MGEC__OPNOTSUPP;
+
+    /* Self-copy would memset the destination (== source) in init() before the
+     * needle bytes are read, destroying them, and would leak any previous heap
+     * block.  Copying a searcher onto itself is meaningless anyway. */
+    if (MEGO_SYMBOL__UNLIKELY(_out == _other))
+        return MGEC__INVAL;
 
     src = mmsrch_implc(_other);
 
@@ -409,7 +439,7 @@ MEME_API int MEME_STDCALL MemeSearcherStack_move(
     if (MEGO_SYMBOL__UNLIKELY(_out == NULL || _other == NULL))
         return MGEC__INVAL;
 
-    if (MEGO_SYMBOL__UNLIKELY(_object_size < sizeof(MemeSearcherImpl_t)))
+    if (MEGO_SYMBOL__UNLIKELY(!__mmsrch_check_object_size(_object_size)))
         return MGEC__OPNOTSUPP;
 
     if (MEGO_SYMBOL__UNLIKELY(_out == _other))
@@ -550,6 +580,7 @@ MEME_API MemeInteger_t MEME_STDCALL MemeSearcherStack_find(
     const MemeSearcherImpl_t* self;
     MemeInteger_t remaining;
     MemeInteger_t result = -1;
+    int bm_fold;
 
     if (MEGO_SYMBOL__UNLIKELY(_out == NULL || _haystack == NULL))
         return -1;
@@ -559,6 +590,13 @@ MEME_API MemeInteger_t MEME_STDCALL MemeSearcherStack_find(
     /* Not initialised. */
     if (self->reg_size_ == 0)
         return -1;
+
+    /* The stored needle is already folded when matching is case-insensitive
+     * (see init()), so the BM kernels must fold the haystack byte under
+     * exactly the same condition.  Passing a hard-coded 1 would fold the
+     * haystack even for case-sensitive searchers whose needle was stored
+     * unfolded, comparing 'A' against 'a' and missing matches. */
+    bm_fold = ((self->cs & MemeFlag_CaseSensitive) == 0) ? 1 : 0;
 
     /* Negative length → NUL-terminated string. */
     const int nul_mode = (_haystack_len < 0);
@@ -592,25 +630,25 @@ MEME_API MemeInteger_t MEME_STDCALL MemeSearcherStack_find(
                 result = __mmsrch_bm_u8 (start, -1, self->needle_ptr,
                                          self->needle_len,
                                          (const uint8_t*)b_delta,
-                                         self->heap_g_delta, 1);
+                                         self->heap_g_delta, bm_fold);
                 break;
             case 2:
                 result = __mmsrch_bm_u16(start, -1, self->needle_ptr,
                                          self->needle_len,
                                          (const uint16_t*)b_delta,
-                                         self->heap_g_delta, 1);
+                                         self->heap_g_delta, bm_fold);
                 break;
             case 4:
                 result = __mmsrch_bm_u32(start, -1, self->needle_ptr,
                                          self->needle_len,
                                          (const uint32_t*)b_delta,
-                                         self->heap_g_delta, 1);
+                                         self->heap_g_delta, bm_fold);
                 break;
             default:
                 result = __mmsrch_bm_u64(start, -1, self->needle_ptr,
                                          self->needle_len,
                                          (const uint64_t*)b_delta,
-                                         self->heap_g_delta, 1);
+                                         self->heap_g_delta, bm_fold);
                 break;
             }
             if (result >= 0)
@@ -685,25 +723,25 @@ MEME_API MemeInteger_t MEME_STDCALL MemeSearcherStack_find(
                 result = __mmsrch_bm_u8 (h, remaining, self->needle_ptr,
                                          self->needle_len,
                                          (const uint8_t*)b_delta,
-                                         self->heap_g_delta, 1);
+                                         self->heap_g_delta, bm_fold);
                 break;
             case 2:
                 result = __mmsrch_bm_u16(h, remaining, self->needle_ptr,
                                          self->needle_len,
                                          (const uint16_t*)b_delta,
-                                         self->heap_g_delta, 1);
+                                         self->heap_g_delta, bm_fold);
                 break;
             case 4:
                 result = __mmsrch_bm_u32(h, remaining, self->needle_ptr,
                                          self->needle_len,
                                          (const uint32_t*)b_delta,
-                                         self->heap_g_delta, 1);
+                                         self->heap_g_delta, bm_fold);
                 break;
             case 8:
                 result = __mmsrch_bm_u64(h, remaining, self->needle_ptr,
                                          self->needle_len,
                                          (const uint64_t*)b_delta,
-                                         self->heap_g_delta, 1);
+                                         self->heap_g_delta, bm_fold);
                 break;
             default:
                 break;
@@ -728,6 +766,17 @@ count_density:
         if (result >= 0)
             mut->hit_count++;
         mut->call_count++;
+
+        /* Prevent signed-integer overflow: when call_count approaches half of
+         * the signed maximum, halve both counters.  The ratio (hit/call) stays
+         * identical, so the density classification is unchanged.  The trigger
+         * point (MMINT_MAX / 4) is chosen so that even doubling after a scale-
+         * down cannot overflow. */
+        if (mut->call_count > (MMINT_MAX / 4))
+        {
+            mut->hit_count  /= 2;
+            mut->call_count /= 2;
+        }
 
         if (mut->call_count >= 4)
         {
@@ -810,7 +859,13 @@ MEME_API int MEME_STDCALL MemeSearcherStack_setFlags(
     if (MEGO_SYMBOL__UNLIKELY(self->reg_size_ == 0))
         return MGEC__INVAL;
 
-    self->flags_ = (mmbyte_t)_flags;
+    /* Keep the internal HasNul marker: it records a property of the needle
+     * discovered at init() time, not a caller-settable behaviour flag.
+     * Overwriting it would silently re-enable the strstr() shortcut for a
+     * needle with an embedded NUL and produce wrong matches. */
+    self->flags_ = (mmbyte_t)(
+        (self->flags_ & MemeSearcherFlag__HasNul)
+        | (_flags & MemeSearcherFlag_DisableDensity));
     return 0;
 }
 
@@ -823,7 +878,10 @@ MEME_API MemeSearcherFlag_t MEME_STDCALL MemeSearcherStack_flags(
     if (mmsrch_implc(_out)->reg_size_ == 0)
         return MemeSearcherFlag_None;
 
-    return (MemeSearcherFlag_t)mmsrch_implc(_out)->flags_;
+    /* Mask out the internal HasNul marker so callers only ever see the
+     * documented behaviour flags. */
+    return (MemeSearcherFlag_t)(
+        mmsrch_implc(_out)->flags_ & MemeSearcherFlag_DisableDensity);
 }
 
 MEME_API MemeInteger_t MEME_STDCALL MemeSearcherStack_needleSize(

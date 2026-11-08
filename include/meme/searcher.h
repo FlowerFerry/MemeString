@@ -3,6 +3,7 @@
 
 #include <meme/string_fwd.h>
 #include <mego/err/ec.h>
+#include <mego/predef/symbol/alignas.h>
 
 MEME_EXTERN_C_SCOPE_START
 
@@ -51,9 +52,17 @@ MEME_EXTERN_C_SCOPE_START
 /* Legacy alias, mirroring MEME_STRING__OBJECT_SIZE. */
 #define MEME_SEARCHER__OBJECT_SIZE MMSEARCHER__OBJ_SIZE
 
-/* Opaque stack type, mirrors MemeStringStack_t */
+/* Opaque stack type, mirrors MemeStringStack_t.
+ *
+ * The struct is a plain byte array, which by itself only guarantees byte
+ * alignment, while the internal implementation holds pointers and mmint_t.
+ * The MEGO__ALIGNAS member forces the same alignment the implementation needs
+ * so that the overlay cast in mmsrch_impl() is well defined wherever the
+ * object is placed (nested in another struct, on the stack, in an array).
+ * _Alignas/alignas cannot be attached to the struct-head, so it decorates the
+ * member instead -- which raises the whole struct's alignment. */
 typedef struct _MemeSearcherStack_t {
-    MemeByte_t byte[MMSEARCHER__OBJ_SIZE];
+    MEGO__ALIGNAS(sizeof(void*)) MemeByte_t byte[MMSEARCHER__OBJ_SIZE];
 } MemeSearcherStack_t;
 
 typedef MemeSearcherStack_t MemeSearcher_t;
@@ -66,8 +75,8 @@ typedef mmbyte_t MemeSearcherDensity_t;
 #define MemeSearcherDensity_Unknown  ((MemeSearcherDensity_t)0)  /* fewer than 4 calls so far     */
 #define MemeSearcherDensity_Rare     ((MemeSearcherDensity_t)1)  /* < 25 % of calls returned hit  */
 #define MemeSearcherDensity_Sparse   ((MemeSearcherDensity_t)2)  /* 25-50 %                       */
-#define MemeSearcherDensity_Common   ((MemeSearcherDensity_t)3)  /* 50-75 %                       */
-#define MemeSearcherDensity_Frequent ((MemeSearcherDensity_t)4)  /* > 75 %                        */
+#define MemeSearcherDensity_Common   ((MemeSearcherDensity_t)3)  /* 50 % .. < 75 %                 */
+#define MemeSearcherDensity_Frequent ((MemeSearcherDensity_t)4)  /* >= 75 %                       */
 
 /*
  * Lifecycle state, reported by MemeSearcherStack_state().
@@ -152,10 +161,12 @@ MEME_API int MEME_STDCALL MemeSearcherStack_unInit(
  *       reporting the value it last computed.
  *
  *       Without the flag find() bumps call_count/hit_count on every call and
- *       is NOT safe to call concurrently on the same object: the increments
- *       are plain (non-atomic) reads-modify-writes, so counts may be lost and
- *       density() may be wrong -- the returned match position is still
- *       correct in either case.
+ *       is NOT safe to call concurrently on the same object.  The increments
+ *       are plain (non-atomic) read-modify-writes: with two threads inside
+ *       find() this is a C data race and therefore undefined behaviour as a
+ *       whole, not merely "counts may be lost".  Callers that share one
+ *       searcher across threads must either set this flag or serialise
+ *       access with their own lock.
  */
 typedef MemeByte_t MemeSearcherFlag_t;
 #define MemeSearcherFlag_None            ((MemeSearcherFlag_t)0)
