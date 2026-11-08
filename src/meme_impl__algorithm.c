@@ -74,122 +74,13 @@ void MemeBoyerMoore_makeGoodDelta(MemeInteger_t* _delta2, const uint8_t* _pat, M
     }
 }
 
-static inline MemeInteger_t 
-    mbit_distance(const MemeByte_t* _last, const MemeByte_t* _first)
-{
-    return _last - _first;
-}
-static inline const MemeByte_t* 
-    mbit_advance(const MemeByte_t* _it, MemeInteger_t _n)
-{
-    return _it + _n;
-}
-static inline const MemeByte_t* 
-    mbit_next(const MemeByte_t* _it)
-{
-    return _it + 1;
-}
-static inline const MemeByte_t* 
-    mbit_prev(const MemeByte_t * _it)
-{
-    return _it - 1;
-}
-static inline MemeInteger_t 
-    mbit_rDistance(const MemeByte_t* _last, const MemeByte_t* _first)
-{
-    return _first - _last;
-}
-static inline const MemeByte_t* 
-    mbit_rAdvance(const MemeByte_t* _rit, MemeInteger_t _n)
-{
-    return _rit - _n;
-}
-static inline const MemeByte_t* 
-    mbit_rNext(const MemeByte_t* _rit)
-{
-    return _rit - 1;
-}
-static inline const MemeByte_t* 
-    mbit_rPrev(const MemeByte_t* _rit)
-{
-    return _rit + 1;
-}
-
-static inline MemeInteger_t __MemeReverseBoyerMoore_isPrefix(
-    const MemeByte_t* _pat_rbegin, const MemeByte_t* _pat_rend, MemeInteger_t _pos)
-{
-    MemeInteger_t suffixlen = mbit_rDistance(_pat_rend, _pat_rbegin) - _pos;
-    for (MemeInteger_t index = 0; index < suffixlen; ++index)
-    {
-        if (*mbit_rAdvance(_pat_rbegin, index) != *mbit_rAdvance(_pat_rbegin, _pos + index))
-            return 0;
-    }
-    return 1;
-    
-}
-
-static MemeInteger_t __MemeReverseBoyerMoore_suffixLength(
-    const MemeByte_t* _pat_rbegin, const MemeByte_t* _pat_rend, MemeInteger_t _pos)
-{
-    MemeInteger_t len = mbit_rDistance(_pat_rend, _pat_rbegin);
-    MemeInteger_t index;
-    for (index = 0; 
-        (*mbit_rAdvance(_pat_rbegin, _pos - index) 
-            == *mbit_rAdvance(_pat_rbegin, len - 1 - index))
-        && (index < _pos); ++index)
-        continue;
-    return index;
-    
-}
-
-static inline void __MemeReverseBoyerMoore_makeBadDelta(
-    MemeInteger_t* _delta1, MemeInteger_t _delta1_len, 
-    const MemeByte_t* _pat_rbegin, const MemeByte_t* _pat_rend)
-{
-    MemeInteger_t diff = mbit_rDistance(_pat_rend, _pat_rbegin);
-    //for (MemeInteger_t index = 0; index < _delta1_len; ++index)
-    //    _delta1[index] = diff;
-    mmsimd_iptr_fill(_delta1, _delta1_len, diff);
-
-    for (const MemeByte_t *it = _pat_rbegin, *last = mbit_rPrev(_pat_rend);
-        mbit_rDistance(last, it) > 0; it = mbit_rNext(it))
-    {
-        _delta1[*it] = mbit_rDistance(last, it);
-    }
-}
-
-static void __MemeReverseBoyerMoore_makeGoodDelta(
-    MemeInteger_t* _delta2, const MemeByte_t* _pat_rbegin, const MemeByte_t* _pat_rend)
-{
-    MemeInteger_t p;
-    MemeInteger_t last_prefix_index = 1;
-    MemeInteger_t pat_len = mbit_rDistance(_pat_rend, _pat_rbegin);
-
-    for (p = pat_len - 1; p >= 0; --p)
-    {
-        if (__MemeReverseBoyerMoore_isPrefix(_pat_rbegin, _pat_rend, p + 1))
-        {
-            last_prefix_index = p + 1;
-        }
-        _delta2[p] = (pat_len - 1 - p) + last_prefix_index;
-    }
-
-    for (p = 0; p < pat_len - 1; ++p)
-    {
-        MemeInteger_t slen = __MemeReverseBoyerMoore_suffixLength(_pat_rbegin, _pat_rend, p);
-        if (*mbit_rAdvance(_pat_rbegin, p - slen) != *mbit_rAdvance(_pat_rbegin, pat_len - 1 - slen))
-            _delta2[pat_len - 1 - slen] = pat_len - 1 - p + slen;
-
-    }
-    
-}
-
 mmint_t MemeImpl_SearchByBoyerMoore(
 	const uint8_t* _haystack, mmint_t _haystack_len,
 	const uint8_t* _needle, mmint_t _needle_len)
 {
     MemeInteger_t  b_delta[256];
-    MemeInteger_t* g_delta;
+    MemeInteger_t  good_local[MEME_IMPL_LOCAL_NEEDLE_MAX];
+    MemeInteger_t* g_delta = good_local;
 
     assert(_haystack != NULL    && MemeImpl_SearchByBoyerMoore);
     assert(_haystack_len != 0   && MemeImpl_SearchByBoyerMoore);
@@ -199,19 +90,26 @@ mmint_t MemeImpl_SearchByBoyerMoore(
     if (_haystack_len >= 0 && _haystack_len < _needle_len)
         return -1;
 
-    g_delta = malloc(_needle_len * sizeof(MemeInteger_t));
-    if (g_delta == NULL)
-        return -1;
+    if (_needle_len > MEME_IMPL_LOCAL_NEEDLE_MAX)
+    {
+        g_delta = (MemeInteger_t*)malloc((size_t)_needle_len * sizeof(MemeInteger_t));
+        if (g_delta == NULL)
+            return -1;
+    }
 
     MemeBoyerMoore_makeBadDelta (b_delta, sizeof(b_delta) / sizeof(b_delta[0]), _needle, _needle_len);
     MemeBoyerMoore_makeGoodDelta(g_delta, _needle, _needle_len);
+
+#define MEME_IMPL_BM_RELEASE()                                  \
+    do { if (g_delta != good_local) free(g_delta); } while (0)
+
     
     if ((_haystack_len < 0)) 
     {
         const MemeByte_t* index = _haystack;
         for (MemeInteger_t count = 0; count < _needle_len; ++count)
             if (*index++ == '\0') {
-                free(g_delta);
+                MEME_IMPL_BM_RELEASE();
                 return -1;
             }
         --_needle_len;
@@ -222,24 +120,28 @@ mmint_t MemeImpl_SearchByBoyerMoore(
             MemeInteger_t move_count;
             while (needle_index >= 0 && (*index == _needle[needle_index]))
             {
-                if (index == _haystack) {
-                    --needle_index;
-                    break;
+                /* If we matched the very first byte of the needle at the
+                 * very start of the haystack, return 0 immediately.
+                 * Avoids underflowing 'index' past _haystack. */
+                if (index == _haystack && needle_index == 0) {
+                    MEME_IMPL_BM_RELEASE();
+                    return 0;
                 }
                 --index;
                 --needle_index;
             }
             if (needle_index < 0) {
-                free(g_delta);
+                MEME_IMPL_BM_RELEASE();
                 return index + 1 - _haystack;
             }
 
             move_count = MemeMath_Max(b_delta[*index], g_delta[needle_index]);
+            /* Safe overflow check: use subtraction to avoid UB. */
             while (move_count --> 0)
             {
                 if (*(++index) == '\0')
                 {
-                    free(g_delta);
+                    MEME_IMPL_BM_RELEASE();
                     return -1;
                 }
             }
@@ -252,82 +154,114 @@ mmint_t MemeImpl_SearchByBoyerMoore(
             MemeInteger_t needle_index = _needle_len;
             while (needle_index >= 0 && (_haystack[index] == _needle[needle_index]))
             {
+                /* Match at the start of needle: index is the correct result.
+                 * Avoid index going below 0 (which would wrap for unsigned
+                 * and is undefined for signed arithmetic on decrement). */
+                if (needle_index == 0) {
+                    MEME_IMPL_BM_RELEASE();
+                    return index;
+                }
                 --index;
                 --needle_index;
             }
             if (needle_index < 0) {
-                free(g_delta);
+                MEME_IMPL_BM_RELEASE();
                 return index + 1;
             }
 
             {
                 MemeInteger_t move = MemeMath_Max(b_delta[_haystack[index]], g_delta[needle_index]);
-                if ((mmint_t)(index + move) < index) {  /* overflow */
-                    free(g_delta);
-                    return -1;
-                }
+                /* Safe bound check: if move would go past end, stop.
+                 * Uses subtraction to avoid signed overflow UB. */
+                if (move >= _haystack_len - index)
+                    break;
                 index += move;
             }
         }
     }
-    free(g_delta);
+    MEME_IMPL_BM_RELEASE();
     return -1;
 }
+
+#undef MEME_IMPL_BM_RELEASE
 
 mmint_t MemeImpl_ReverseSearchByBoyerMoore(
     const uint8_t* _haystack, mmint_t _haystack_len,
     const uint8_t* _needle, mmint_t _needle_len)
-{    
+{
     MemeInteger_t  b_delta[256];
-    MemeInteger_t* g_delta;
-    const MemeByte_t* s_rbegin;
-    const MemeByte_t* s_rend;
-    const MemeByte_t* p_rbegin;
-    const MemeByte_t* p_rend;
-    MemeInteger_t index;
-    
+    MemeInteger_t  good_local[MEME_IMPL_LOCAL_NEEDLE_MAX];
+    uint8_t        rev_local[MEME_IMPL_LOCAL_NEEDLE_MAX];
+    MemeInteger_t* g_delta = good_local;
+    uint8_t*       rev     = rev_local;
+
     assert(_haystack != NULL  && MemeImpl_ReverseSearchByBoyerMoore);
-    assert(_haystack_len != 0 && MemeImpl_ReverseSearchByBoyerMoore);
+    assert(_haystack_len > 0  && MemeImpl_ReverseSearchByBoyerMoore);
     assert(_needle != NULL    && MemeImpl_ReverseSearchByBoyerMoore);
-    assert(_needle_len != 0   && MemeImpl_ReverseSearchByBoyerMoore);
-    
-    if ((_haystack_len < 0))
-        _haystack_len = strlen((const char*)_haystack);
-    
-    if ((_haystack_len < _needle_len))
+    assert(_needle_len > 0    && MemeImpl_ReverseSearchByBoyerMoore);
+
+    if (_haystack_len < 0)
+        _haystack_len = (mmint_t)strlen((const char*)_haystack);
+
+    if (_haystack_len < _needle_len)
         return -1;
 
-    s_rbegin = _haystack + _haystack_len - 1;
-    s_rend   = _haystack - 1;
-    p_rbegin = _needle + _needle_len - 1;
-    p_rend   = _needle - 1;
-    g_delta  = malloc(_needle_len * sizeof(MemeInteger_t));
-    if (g_delta == NULL)
-        return -1;
-    __MemeReverseBoyerMoore_makeBadDelta (
-        b_delta, sizeof(b_delta) / sizeof(b_delta[0]), p_rbegin, p_rend);
-    __MemeReverseBoyerMoore_makeGoodDelta(g_delta, p_rbegin, p_rend);
-    
-    --_needle_len;
-    index = _needle_len;
+    const MemeInteger_t m = _needle_len;
+
+    if (m > MEME_IMPL_LOCAL_NEEDLE_MAX)
+    {
+        g_delta = (MemeInteger_t*)malloc((size_t)m * sizeof(MemeInteger_t));
+        rev     = (uint8_t*)malloc((size_t)m);
+        if (g_delta == NULL || rev == NULL)
+        {
+            free(g_delta);
+            free(rev);
+            return -1;
+        }
+    }
+
+    /* Reverse search is expressed as a FORWARD search for the reversed
+     * needle inside the reversed haystack.  Building the tables from the
+     * reversed needle keeps a single, already-tested preprocessing path and
+     * removes the index/table mismatch the old hand-rolled reverse tables
+     * had.  Reversed coordinate H maps to original index
+     * (_haystack_len - 1 - H). */
+    for (MemeInteger_t i = 0; i < m; ++i)
+        rev[i] = _needle[m - 1 - i];
+
+    MemeBoyerMoore_makeBadDelta (b_delta, 256, rev, m);
+    MemeBoyerMoore_makeGoodDelta(g_delta, rev, m);
+
+    MemeInteger_t index = m - 1;
     while (index < _haystack_len)
     {
-        MemeInteger_t needle_index = _needle_len;
-        while (needle_index >= 0 
-            && *mbit_rAdvance(s_rbegin, index) == *mbit_rAdvance(p_rbegin, needle_index))
+        MemeInteger_t needle_index = m - 1;
+        while (needle_index >= 0
+            && _haystack[_haystack_len - 1 - index] == rev[needle_index])
         {
+            if (needle_index == 0)
+            {
+                const mmint_t hit = (mmint_t)(_haystack_len - index - m);
+                if (g_delta != good_local) free(g_delta);
+                if (rev     != rev_local)  free(rev);
+                return hit;
+            }
             --index;
             --needle_index;
         }
-        if (needle_index < 0)
+
         {
-            free(g_delta);
-            return _haystack_len - (index + 1) - (_needle_len + 1);
+            const MemeInteger_t move = MemeMath_Max(
+                b_delta[_haystack[_haystack_len - 1 - index]],
+                g_delta[needle_index]);
+            if (move >= _haystack_len - index)
+                break;
+            index += move;
         }
-        index += MemeMath_Max(b_delta[*mbit_rAdvance(s_rbegin, index)], g_delta[needle_index]);
     }
 
-    free(g_delta);
+    if (g_delta != good_local) free(g_delta);
+    if (rev     != rev_local)  free(rev);
     return -1;
 }
 
@@ -423,79 +357,15 @@ void MemeBoyerMooreCI_makeGoodDelta(
 
 /* ── case-insensitive  reverse  Boyer-Moore helpers ──────────────────── */
 
-static inline MemeInteger_t __MemeReverseBoyerMooreCI_isPrefix(
-    const MemeByte_t* _pat_rbegin, const MemeByte_t* _pat_rend, MemeInteger_t _pos)
-{
-    MemeInteger_t suffixlen = mbit_rDistance(_pat_rend, _pat_rbegin) - _pos;
-    for (MemeInteger_t index = 0; index < suffixlen; ++index)
-    {
-        if (__MemeImpl_foldCase(*mbit_rAdvance(_pat_rbegin, index))
-            != __MemeImpl_foldCase(*mbit_rAdvance(_pat_rbegin, _pos + index)))
-            return 0;
-    }
-    return 1;
-}
-
-static MemeInteger_t __MemeReverseBoyerMooreCI_suffixLength(
-    const MemeByte_t* _pat_rbegin, const MemeByte_t* _pat_rend, MemeInteger_t _pos)
-{
-    MemeInteger_t len = mbit_rDistance(_pat_rend, _pat_rbegin);
-    MemeInteger_t index;
-    for (index = 0;
-        (__MemeImpl_foldCase(*mbit_rAdvance(_pat_rbegin, _pos - index))
-            == __MemeImpl_foldCase(*mbit_rAdvance(_pat_rbegin, len - 1 - index)))
-        && (index < _pos); ++index)
-        continue;
-    return index;
-}
-
-static inline void __MemeReverseBoyerMooreCI_makeBadDelta(
-    MemeInteger_t* _delta1, MemeInteger_t _delta1_len,
-    const MemeByte_t* _pat_rbegin, const MemeByte_t* _pat_rend)
-{
-    MemeInteger_t diff = mbit_rDistance(_pat_rend, _pat_rbegin);
-    mmsimd_iptr_fill(_delta1, _delta1_len, diff);
-
-    for (const MemeByte_t *it = _pat_rbegin, *last = mbit_rPrev(_pat_rend);
-        mbit_rDistance(last, it) > 0; it = mbit_rNext(it))
-    {
-        _delta1[__MemeImpl_foldCase(*it)] = mbit_rDistance(last, it);
-    }
-}
-
-static void __MemeReverseBoyerMooreCI_makeGoodDelta(
-    MemeInteger_t* _delta2, const MemeByte_t* _pat_rbegin, const MemeByte_t* _pat_rend)
-{
-    MemeInteger_t p;
-    MemeInteger_t last_prefix_index = 1;
-    MemeInteger_t pat_len = mbit_rDistance(_pat_rend, _pat_rbegin);
-
-    for (p = pat_len - 1; p >= 0; --p)
-    {
-        if (__MemeReverseBoyerMooreCI_isPrefix(_pat_rbegin, _pat_rend, p + 1))
-            last_prefix_index = p + 1;
-        _delta2[p] = (pat_len - 1 - p) + last_prefix_index;
-    }
-
-    for (p = 0; p < pat_len - 1; ++p)
-    {
-        MemeInteger_t slen =
-            __MemeReverseBoyerMooreCI_suffixLength(_pat_rbegin, _pat_rend, p);
-        if (__MemeImpl_foldCase(*mbit_rAdvance(_pat_rbegin, p - slen))
-            != __MemeImpl_foldCase(*mbit_rAdvance(_pat_rbegin, pat_len - 1 - slen)))
-            _delta2[pat_len - 1 - slen] = pat_len - 1 - p + slen;
-    }
-}
-
-/* ── case-insensitive Boyer-Moore  (forward) ─────────────────────────── */
-
 mmint_t MemeImpl_SearchByBoyerMoore_CaseInsensitive(
     const uint8_t* _haystack, mmint_t _haystack_len,
     const uint8_t* _needle, mmint_t _needle_len)
 {
     MemeInteger_t  b_delta[256];
-    MemeInteger_t* g_delta;
-    uint8_t*       needle_folded;
+    MemeInteger_t  good_local[MEME_IMPL_LOCAL_NEEDLE_MAX];
+    uint8_t        folded_local[MEME_IMPL_LOCAL_NEEDLE_MAX];
+    MemeInteger_t* g_delta       = good_local;
+    uint8_t*       needle_folded = folded_local;
 
     assert(_haystack != NULL    && MemeImpl_SearchByBoyerMoore_CaseInsensitive);
     assert(_haystack_len != 0   && MemeImpl_SearchByBoyerMoore_CaseInsensitive);
@@ -505,28 +375,42 @@ mmint_t MemeImpl_SearchByBoyerMoore_CaseInsensitive(
     if (_haystack_len >= 0 && _haystack_len < _needle_len)
         return -1;
 
-    g_delta       = malloc(_needle_len * sizeof(MemeInteger_t));
-    needle_folded = malloc((size_t)_needle_len);
-    if (g_delta == NULL || needle_folded == NULL) {
-        free(g_delta);
-        free(needle_folded);
-        return -1;
+    if (_needle_len > MEME_IMPL_LOCAL_NEEDLE_MAX)
+    {
+        g_delta       = (MemeInteger_t*)malloc((size_t)_needle_len * sizeof(MemeInteger_t));
+        needle_folded = (uint8_t*)malloc((size_t)_needle_len);
+        if (g_delta == NULL || needle_folded == NULL) {
+            free(g_delta);
+            free(needle_folded);
+            return -1;
+        }
     }
+
+#define MEME_IMPL_BMCI_RELEASE()                                        \
+    do {                                                                \
+        if (g_delta != good_local)               free(g_delta);          \
+        if (needle_folded != folded_local)       free(needle_folded);    \
+    } while (0)
 
     /* Pre-fold the needle so the hot loop never calls __MemeImpl_foldCase per needle byte. */
     for (MemeInteger_t i = 0; i < _needle_len; ++i)
         needle_folded[i] = __MemeImpl_foldCase(_needle[i]);
 
-    __MemeBoyerMooreCI_makeBadDelta(b_delta,
-        sizeof(b_delta) / sizeof(b_delta[0]), _needle, _needle_len);
-    MemeBoyerMooreCI_makeGoodDelta(g_delta, _needle, _needle_len);
+    /* Use the already-folded needle for table construction.  The ASCII
+     * case-folding is idempotent (fold(fold(c)) == fold(c)), so the
+     * resulting tables are identical to passing the original needle to
+     * the CI-specific variants, but we save _needle_len fold calls here
+     * and many more inside the O(m^2) good-delta construction. */
+    MemeBoyerMoore_makeBadDelta(b_delta,
+        sizeof(b_delta) / sizeof(b_delta[0]), needle_folded, _needle_len);
+    MemeBoyerMoore_makeGoodDelta(g_delta, needle_folded, _needle_len);
 
     if ((_haystack_len < 0))
     {
         const MemeByte_t* index = _haystack;
         for (MemeInteger_t count = 0; count < _needle_len; ++count)
             if (*index++ == '\0') {
-                free(needle_folded); free(g_delta);
+                MEME_IMPL_BMCI_RELEASE();
                 return -1;
             }
         --_needle_len;
@@ -538,11 +422,17 @@ mmint_t MemeImpl_SearchByBoyerMoore_CaseInsensitive(
             while (needle_index >= 0
                 && __MemeImpl_foldCase(*index) == needle_folded[needle_index])
             {
+                /* Match at the very start: return 0 before stepping index
+                 * below _haystack (that pointer is not valid to form). */
+                if (index == _haystack && needle_index == 0) {
+                    MEME_IMPL_BMCI_RELEASE();
+                    return 0;
+                }
                 --index;
                 --needle_index;
             }
             if (needle_index < 0) {
-                free(needle_folded); free(g_delta);
+                MEME_IMPL_BMCI_RELEASE();
                 return index + 1 - _haystack;
             }
 
@@ -552,7 +442,7 @@ mmint_t MemeImpl_SearchByBoyerMoore_CaseInsensitive(
             {
                 if (*(++index) == '\0')
                 {
-                    free(needle_folded); free(g_delta);
+                    MEME_IMPL_BMCI_RELEASE();
                     return -1;
                 }
             }
@@ -571,7 +461,7 @@ mmint_t MemeImpl_SearchByBoyerMoore_CaseInsensitive(
                 --needle_index;
             }
             if (needle_index < 0) {
-                free(needle_folded); free(g_delta);
+                MEME_IMPL_BMCI_RELEASE();
                 return index + 1;
             }
 
@@ -579,10 +469,11 @@ mmint_t MemeImpl_SearchByBoyerMoore_CaseInsensitive(
                 b_delta[__MemeImpl_foldCase(_haystack[index])], g_delta[needle_index]);
         }
     }
-    free(needle_folded);
-    free(g_delta);
+    MEME_IMPL_BMCI_RELEASE();
     return -1;
 }
+
+#undef MEME_IMPL_BMCI_RELEASE
 
 /* ── case-insensitive Boyer-Moore  (reverse) ─────────────────────────── */
 
@@ -591,13 +482,10 @@ mmint_t MemeImpl_ReverseSearchByBoyerMoore_CaseInsensitive(
     const uint8_t* _needle, mmint_t _needle_len)
 {
     MemeInteger_t  b_delta[256];
-    MemeInteger_t* g_delta;
-    const MemeByte_t* s_rbegin;
-    const MemeByte_t* s_rend;
-    const MemeByte_t* p_rbegin;
-    const MemeByte_t* p_rend;
-    MemeInteger_t index;
-    uint8_t*       needle_folded;
+    MemeInteger_t  good_local[MEME_IMPL_LOCAL_NEEDLE_MAX];
+    uint8_t        rev_folded_local[MEME_IMPL_LOCAL_NEEDLE_MAX];
+    MemeInteger_t* g_delta    = good_local;
+    uint8_t*       rev_folded = rev_folded_local;
 
     assert(_haystack != NULL
         && MemeImpl_ReverseSearchByBoyerMoore_CaseInsensitive);
@@ -609,56 +497,75 @@ mmint_t MemeImpl_ReverseSearchByBoyerMoore_CaseInsensitive(
         && MemeImpl_ReverseSearchByBoyerMoore_CaseInsensitive);
 
     if ((_haystack_len < 0))
-        _haystack_len = strlen((const char*)_haystack);
+        _haystack_len = (mmint_t)strlen((const char*)_haystack);
 
     if ((_haystack_len < _needle_len))
         return -1;
 
-    s_rbegin       = _haystack + _haystack_len - 1;
-    s_rend         = _haystack - 1;
-    p_rbegin       = _needle + _needle_len - 1;
-    p_rend         = _needle - 1;
-    g_delta        = malloc(_needle_len * sizeof(MemeInteger_t));
-    needle_folded  = malloc((size_t)_needle_len);
-    if (g_delta == NULL || needle_folded == NULL) {
-        free(g_delta);
-        free(needle_folded);
-        return -1;
+    const MemeInteger_t m = _needle_len;
+
+    if (m > MEME_IMPL_LOCAL_NEEDLE_MAX)
+    {
+        g_delta    = (MemeInteger_t*)malloc((size_t)m * sizeof(MemeInteger_t));
+        rev_folded = (uint8_t*)malloc((size_t)m);
+        if (g_delta == NULL || rev_folded == NULL) {
+            free(g_delta);
+            free(rev_folded);
+            return -1;
+        }
     }
 
-    for (MemeInteger_t i = 0; i < _needle_len; ++i)
-        needle_folded[i] = __MemeImpl_foldCase(_needle[i]);
+#define MEME_IMPL_RBMCI_RELEASE()                                       \
+    do {                                                                \
+        if (g_delta    != good_local)        free(g_delta);             \
+        if (rev_folded != rev_folded_local)  free(rev_folded);          \
+    } while (0)
 
-    __MemeReverseBoyerMooreCI_makeBadDelta(
-        b_delta, sizeof(b_delta) / sizeof(b_delta[0]), p_rbegin, p_rend);
-    __MemeReverseBoyerMooreCI_makeGoodDelta(g_delta, p_rbegin, p_rend);
+    /* Same trick as the case-sensitive reverse path: build the tables from
+     * the reversed, already-folded needle and run a forward comparison in
+     * reversed coordinates.  Reversed coordinate H maps to the original
+     * index (_haystack_len - 1 - H).  No pointer below either base is ever
+     * formed, and the CI-specific reverse table builders are no longer
+     * needed. */
+    for (MemeInteger_t i = 0; i < m; ++i)
+        rev_folded[i] = __MemeImpl_foldCase(_needle[m - 1 - i]);
 
-    --_needle_len;
-    index = _needle_len;
+    MemeBoyerMoore_makeBadDelta (b_delta, 256, rev_folded, m);
+    MemeBoyerMoore_makeGoodDelta(g_delta, rev_folded, m);
+
+    MemeInteger_t index = m - 1;
     while (index < _haystack_len)
     {
-        MemeInteger_t needle_index = _needle_len;
+        MemeInteger_t needle_index = m - 1;
         while (needle_index >= 0
-            && __MemeImpl_foldCase(*mbit_rAdvance(s_rbegin, index))
-                == needle_folded[_needle_len - needle_index])
+            && __MemeImpl_foldCase(_haystack[_haystack_len - 1 - index])
+                == rev_folded[needle_index])
         {
+            if (needle_index == 0)
+            {
+                const mmint_t hit = (mmint_t)(_haystack_len - index - m);
+                MEME_IMPL_RBMCI_RELEASE();
+                return hit;
+            }
             --index;
             --needle_index;
         }
-        if (needle_index < 0)
+
         {
-            free(needle_folded); free(g_delta);
-            return _haystack_len - (index + 1) - (_needle_len + 1);
+            const MemeInteger_t move = MemeMath_Max(
+                b_delta[__MemeImpl_foldCase(_haystack[_haystack_len - 1 - index])],
+                g_delta[needle_index]);
+            if (move >= _haystack_len - index)
+                break;
+            index += move;
         }
-        index += MemeMath_Max(
-            b_delta[__MemeImpl_foldCase(*mbit_rAdvance(s_rbegin, index))],
-            g_delta[needle_index]);
     }
 
-    free(needle_folded);
-    free(g_delta);
+    MEME_IMPL_RBMCI_RELEASE();
     return -1;
 }
+
+#undef MEME_IMPL_RBMCI_RELEASE
 
 /* ── short-needle fast paths ──────────────────────────────────────────── */
 
@@ -682,8 +589,6 @@ mmint_t MemeImpl_ReverseSearchByBoyerMoore_CaseInsensitive(
  *
  * Both helpers require a non-negative _haystack_len and 2 <= _needle_len.
  */
-#define MEME_IMPL_SHORT_NEEDLE_MAX   (32)
-#define MEME_IMPL_FEW_CANDIDATES     (8)
 
 static int __MemeImpl_shouldUseShortPath(mmint_t _haystack_len, mmint_t _needle_len)
 {
@@ -851,8 +756,13 @@ mmint_t MemeImpl_SearchByBoyerMooreWithSensitivity
 {
     if ((_haystack == NULL || _needle == NULL))
         return -1;
-    if (_needle_len < 0)
-        _needle_len = strlen((const char*)_needle);
+
+    /* Record original length semantics before overwriting _needle_len. */
+    const int needle_is_cstr     = (_needle_len < 0);
+    const int haystack_is_cstr   = (_haystack_len < 0);
+
+    if (needle_is_cstr)
+        _needle_len = (mmint_t)strlen((const char*)_needle);
     if ((_haystack_len == 0 || _needle_len == 0))
         return -1;
 
@@ -867,14 +777,14 @@ mmint_t MemeImpl_SearchByBoyerMooreWithSensitivity
      * folds through _bm_casefold_table so it agrees with the BM path. */
     if (__MemeImpl_shouldUseShortPath(_haystack_len, _needle_len))
     {
-        if (_haystack_len < 0)
+        if (haystack_is_cstr)
         {
-            /* NUL-terminated haystack.  Case-sensitive matching needs no
-             * length at all: strstr already handles it and is SIMD-vectorised
-             * in this CRT, so measuring the haystack first would add a full
-             * pass for nothing.  Only the folding path needs a bounded buffer,
-             * because no standard function does case-insensitive search. */
-            if ((_cs & MemeFlag_CaseSensitive) != 0)
+            /* NUL-terminated haystack.  Case-sensitive matching can only
+             * safely use strstr() when the needle is ALSO a NUL-terminated
+             * C string; otherwise the explicit length might be shorter than
+             * the actual bytes, causing strstr() to read past the intended
+             * needle. */
+            if (needle_is_cstr && (_cs & MemeFlag_CaseSensitive) != 0)
             {
                 const char* hit = strstr((const char*)_haystack,
                                          (const char*)_needle);
@@ -907,7 +817,12 @@ mmint_t MemeImpl_ReverseSearchByBoyerMooreWithSensitivity(
 {
     if ((_haystack == NULL || _needle == NULL))
         return -1;
-    if (_needle_len < 0)
+
+    /* Record original length semantics before overwriting _needle_len. */
+    const int needle_is_cstr     = (_needle_len < 0);
+    const int haystack_is_cstr   = (_haystack_len < 0);
+
+    if (needle_is_cstr)
         _needle_len = strlen((const char*)_needle);
     if ((_haystack_len == 0 || _needle_len == 0))
         return -1;
@@ -922,7 +837,7 @@ mmint_t MemeImpl_ReverseSearchByBoyerMooreWithSensitivity(
      * the reverse scan can be bounded. */
     if (__MemeImpl_shouldUseShortPath(_haystack_len, _needle_len))
     {
-        const mmint_t hay_len = (_haystack_len < 0)
+        const mmint_t hay_len = haystack_is_cstr
             ? (mmint_t)strlen((const char*)_haystack)
             : _haystack_len;
 

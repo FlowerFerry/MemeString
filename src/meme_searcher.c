@@ -100,11 +100,14 @@ static MemeInteger_t __mmsrch_bm_##SUFFIX(                                    \
                                      : _pat[ni];                              \
             if (h != p)                                                       \
                 break;                                                        \
-            if (nul_mode && idx == 0) { --ni; break; }  /* left edge */        \
             --idx;                                                            \
             --ni;                                                             \
         }                                                                     \
                                                                               \
+        /* idx became -1 only when a match consumed the very first haystack\n
+         * byte; idx + 1 == 0 is then the correct result.  In fixed-length\n
+         * mode idx is signed and never read again before return, so no\n
+         * special case is needed for the left edge. */                        \
         if (ni < 0)                                                           \
             return idx + 1;                                                   \
                                                                               \

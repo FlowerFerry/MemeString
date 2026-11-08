@@ -62,10 +62,18 @@ mmint_t MemeImpl_ReverseSearchByBoyerMoore_CaseInsensitive
 
 /* Short-needle threshold used by the Phase-1 dispatch. */
 #ifndef MEME_IMPL_SHORT_NEEDLE_MAX
-#define MEME_IMPL_SHORT_NEEDLE_MAX   (32)
+#define MEME_IMPL_SHORT_NEEDLE_MAX   (8 * sizeof(mmint_t))
 #endif
 #ifndef MEME_IMPL_FEW_CANDIDATES
 #define MEME_IMPL_FEW_CANDIDATES     (8)
+#endif
+
+/* Needle lengths at or below this bound use stack buffers for the
+ * good-suffix table and helper needle copies, avoiding malloc/free on the
+ * common path.  Sized so the extra stack (128 * 8 + 128 = 1152 bytes)
+ * stays small next to the 2 KB bad-character table. */
+#ifndef MEME_IMPL_LOCAL_NEEDLE_MAX
+#define MEME_IMPL_LOCAL_NEEDLE_MAX   (128)
 #endif
 
 void MemeBoyerMoore_makeBadDelta(
