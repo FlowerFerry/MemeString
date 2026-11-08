@@ -329,57 +329,57 @@ BENCH3_BIG(StartsWith_512B,
 // primitive; calling strlen inline would measure the missing-API cost (a full
 // rescan) rather than the comparison itself.  Both other columns get the
 // length for free from the object.
-static void C_EndsWith_91B(benchmark::State& state) {
+static void C_EndsWith_5_91B(benchmark::State& state) {
     const std::string own(kHay91);
     const char* cs = own.c_str();
     const std::size_t n = own.size();
     for (auto _ : state)
         benchmark::DoNotOptimize(std::strcmp(cs + n - 5, "jugs.") == 0);
 }
-BENCHMARK(C_EndsWith_91B)->Iterations(MMBM_ITERATION_COUNT);
-static void Std_EndsWith_91B(benchmark::State& state) {
+BENCHMARK(C_EndsWith_5_91B)->Iterations(MMBM_ITERATION_COUNT);
+static void Std_EndsWith_5_91B(benchmark::State& state) {
     std::string ss(kHay91);
     for (auto _ : state)
         benchmark::DoNotOptimize(
             ss.size() >= 5 && ss.compare(ss.size() - 5, 5, "jugs.") == 0);
 }
-BENCHMARK(Std_EndsWith_91B)->Iterations(MMBM_ITERATION_COUNT);
-static void Meme_EndsWith_91B(benchmark::State& state) {
+BENCHMARK(Std_EndsWith_5_91B)->Iterations(MMBM_ITERATION_COUNT);
+static void Meme_EndsWith_5_91B(benchmark::State& state) {
     memepp::string ms(kHay91);
     for (auto _ : state)
         benchmark::DoNotOptimize(ms.ends_with("jugs."));
 }
-BENCHMARK(Meme_EndsWith_91B)->Iterations(MMBM_ITERATION_COUNT);
+BENCHMARK(Meme_EndsWith_5_91B)->Iterations(MMBM_ITERATION_COUNT);
 
 // ===========================================================================
 // CASE-INSENSITIVE.  No ISO C function exists for any of these, so the C cell
 // is a hand-rolled tolower loop in every row.
 // ===========================================================================
-BENCH3(FindCharCI_91B,
+BENCH3(Find_Char_CI_91B,
     kHay91,
     benchmark::DoNotOptimize(c_find_ci(cs, 'W')),
     benchmark::DoNotOptimize(s_find_ci(ss, 'W')),
     benchmark::DoNotOptimize(ms.index_of("W", memepp::case_sensitivity_t::all_insensitive)))
 
-BENCH3_BIG(FindCharCI_512B,
+BENCH3_BIG(Find_Char_CI_512B,
     kHay512,
     benchmark::DoNotOptimize(c_find_ci(cs, 'Q')),
     benchmark::DoNotOptimize(s_find_ci(ss, 'Q')),
     benchmark::DoNotOptimize(ms.index_of("Q", memepp::case_sensitivity_t::all_insensitive)))
 
-BENCH3_BIG(FindCharCIAbsent_512B,
+BENCH3_BIG(Find_Char_CI_Absent_512B,
     kHay512,
     benchmark::DoNotOptimize(c_find_ci(cs, 'z')),
     benchmark::DoNotOptimize(s_find_ci(ss, 'z')),
     benchmark::DoNotOptimize(ms.index_of("z", memepp::case_sensitivity_t::all_insensitive)))
 
-BENCH3(RfindCharCI_91B,
+BENCH3(Rfind_Char_CI_91B,
     kHay91,
     benchmark::DoNotOptimize(c_rfind_ci(cs, 'O')),
     benchmark::DoNotOptimize(s_rfind_ci(ss, 'O')),
     benchmark::DoNotOptimize(ms.last_index_of("O", memepp::case_sensitivity_t::all_insensitive)))
 
-BENCH3_BIG(RfindCharCI_512B,
+BENCH3_BIG(Rfind_Char_CI_512B,
     kHay512,
     benchmark::DoNotOptimize(c_rfind_ci(cs, 'O')),
     benchmark::DoNotOptimize(s_rfind_ci(ss, 'O')),
@@ -389,7 +389,7 @@ BENCH3_BIG(RfindCharCI_512B,
 // std::string both lack the operation, so both cells are hand-rolled with the
 // same algorithm (first-byte scan + per-byte fold compare) to keep the
 // comparison honest; only memepp has a library implementation.
-BENCH3(FindStrCI_91B,
+BENCH3(Find_Str_CI_91B,
     kHay91Upper,
     benchmark::DoNotOptimize(c_find_str_ci(cs, kNdlShort)),
     benchmark::DoNotOptimize(c_find_str_ci(ss.c_str(), kNdlShort)),

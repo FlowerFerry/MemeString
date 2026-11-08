@@ -4,6 +4,8 @@
 #include <type_traits>
 #include <bitset>
 
+#include <mego/predef/lang/version.h>
+
 namespace mgpp {
 namespace util {
 
@@ -14,15 +16,26 @@ namespace util {
 template <typename _Enum>
 struct is_flag_enum : std::false_type {};
 
+/* is_flag_enum_v is a variable template, which needs C++14, and an inline
+ * variable, which needs C++17.  The library still builds C++11 targets, so
+ * expose it as a variable only where the language supports it and fall back
+ * to the trait itself below. */
+#if MG_LANG__CXX17_AVAIL
 template <typename _Enum>
 inline constexpr bool is_flag_enum_v = is_flag_enum<_Enum>::value;
+#endif
 
 // ============================================================
 // SFINAE helper
 // ============================================================
 
 template <typename _Enum>
-using enable_if_flag_t = typename std::enable_if<is_flag_enum_v<_Enum>, int>::type;
+using enable_if_flag_t =
+#if MG_LANG__CXX17_AVAIL
+    typename std::enable_if<is_flag_enum_v<_Enum>, int>::type;
+#else
+    typename std::enable_if<is_flag_enum<_Enum>::value, int>::type;
+#endif
 
 // ============================================================
 // Bitwise operators
