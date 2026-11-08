@@ -799,7 +799,7 @@ mmint_t MemeImpl_shortForwardSearch(
             if (first_is_letter)
             {
                 /* Both cases of the first byte in one SIMD pass. */
-                rel = mmsimd_u8_find2(_haystack + pos, scan_len, first, alternate);
+                rel = mmsimd_u8_find_dual_val(_haystack + pos, scan_len, first, alternate);
             }
             else
             {
@@ -857,14 +857,14 @@ static mmint_t __MemeImpl_shortReverseSearch(
         const mmint_t scan_len = last_start + 1;
         mmint_t rel;
 
-        /* mmsimd_u8_rfind2 scans 32-byte blocks from the end and takes the
+        /* mmsimd_u8_rfind_dual_val scans 32-byte blocks from the end and takes the
          * highest matching bit, so the whole search stays linear.  Calling
          * rfind twice per candidate (the previous approach) rescanned the
          * remaining prefix each round, which is quadratic: 16 KiB of 'a'
          * with needle "ab" took 31 ms. */
         if (first_is_letter)
         {
-            rel = mmsimd_u8_rfind2(_haystack, scan_len, first, alternate);
+            rel = mmsimd_u8_rfind_dual_val(_haystack, scan_len, first, alternate);
         }
         else
         {
@@ -1060,7 +1060,7 @@ mmint_t MemeImpl_SearchByViolenceWithSensitivity(
             const unsigned folded = (unsigned)_key | 0x20u;
 
             if (folded >= 0x61u && folded <= 0x7au) {
-                return mmsimd_u8_find2(
+                return mmsimd_u8_find_dual_val(
                     _source, _source_len,
                     (uint8_t)folded, (uint8_t)(folded ^ 0x20u));
             }
@@ -1137,7 +1137,7 @@ mmint_t MemeImpl_ReverseSearchByViolenceWithSensitivity(
 
         if (folded >= 0x61u && folded <= 0x7au) {
             /* Both cases of the key in one reverse SIMD pass. */
-            return mmsimd_u8_rfind2(
+            return mmsimd_u8_rfind_dual_val(
                 _source, _source_len,
                 (uint8_t)folded, (uint8_t)(folded ^ 0x20u));
         }

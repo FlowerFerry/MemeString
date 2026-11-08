@@ -686,8 +686,8 @@ EXPORTS
     mmsimd_u64_clamp @12197
     mmsimd_f32_clamp @12198
     mmsimd_f64_clamp @12199
-    mmsimd_u8_find2 @12200
-    mmsimd_u8_rfind2 @12201
+    mmsimd_u8_find_dual_val @12200
+    mmsimd_u8_rfind_dual_val @12201
     mmsimd_u8_find_dual_pos @12202
     MemeBuffer_availableByteCapacity @20000
     MemeBuffer_compare @20001

@@ -1039,15 +1039,15 @@ MMSIMD_FIND_FUNC(64, u64, uint64_t)
 
 /* Two-key variant. Not expressed through MMSIMD_FIND_FUNC because that
  * macro emits both _find and _rfind with a single-key signature. */
-MEME_API mmint_t MEME_STDCALL mmsimd_u8_find2(
+MEME_API mmint_t MEME_STDCALL mmsimd_u8_find_dual_val(
     const uint8_t* _in, mmint_t _len, uint8_t _v1, uint8_t _v2)
 {
     mmsimd_other8_hdlr_t* hdlr = mmsimd_get_best_other8_handler();
     return hdlr->u8_find2_fn(_in, _len, _v1, _v2);
 }
 
-/* Two-key reverse variant; see mmsimd_u8_find2 for the rationale. */
-MEME_API mmint_t MEME_STDCALL mmsimd_u8_rfind2(
+/* Two-key reverse variant; see mmsimd_u8_find_dual_val for the rationale. */
+MEME_API mmint_t MEME_STDCALL mmsimd_u8_rfind_dual_val(
     const uint8_t* _in, mmint_t _len, uint8_t _v1, uint8_t _v2)
 {
     mmsimd_other8_hdlr_t* hdlr = mmsimd_get_best_other8_handler();

@@ -104,8 +104,8 @@ typedef void(mmsimd_f64_fill_func_t)(double*   _out, mmint_t _len, double   _v);
 
 typedef mmint_t(mmsimd_i8_find_func_t )(const int8_t*   _a, mmint_t _len, int8_t   _v);
 typedef mmint_t(mmsimd_u8_find_func_t )(const uint8_t*  _a, mmint_t _len, uint8_t  _v);
-typedef mmint_t(mmsimd_u8_find2_func_t)(const uint8_t*  _a, mmint_t _len, uint8_t  _v1, uint8_t _v2);
-typedef mmint_t(mmsimd_u8_rfind2_func_t)(const uint8_t* _a, mmint_t _len, uint8_t _v1, uint8_t _v2);
+typedef mmint_t(mmsimd_u8_find_dual_val_func_t)(const uint8_t*  _a, mmint_t _len, uint8_t  _v1, uint8_t _v2);
+typedef mmint_t(mmsimd_u8_rfind_dual_val_func_t)(const uint8_t* _a, mmint_t _len, uint8_t _v1, uint8_t _v2);
 typedef mmint_t(mmsimd_u8_find_dual_pos_func_t)(const uint8_t* _a, mmint_t _len, uint8_t _v1, mmint_t _offset1, uint8_t _v2, mmint_t _offset2);
 typedef mmint_t(mmsimd_i16_find_func_t)(const int16_t*  _a, mmint_t _len, int16_t  _v);
 typedef mmint_t(mmsimd_u16_find_func_t)(const uint16_t* _a, mmint_t _len, uint16_t _v);
