@@ -31,6 +31,14 @@ typedef mmbyte_t MemeSearcherFlag_t;
 #define MemeSearcherFlag_DisableDensity  ((MemeSearcherFlag_t)0x01)
 
 /*
+ * Internal (not part of the public flag surface): set by init() when the
+ * needle contains an embedded NUL byte.  Such a needle cannot be handed to
+ * strstr(), whose needle argument is NUL-terminated by construction, so the
+ * case-sensitive NUL-mode shortcut has to be skipped.
+ */
+#define MemeSearcherFlag__HasNul         ((MemeSearcherFlag_t)0x80)
+
+/*
  * Internal layout overlaid on MemeSearcherStack_t.byte[].
  *
  * reg_size_ must be the first field, matching the MemeString stack types: it

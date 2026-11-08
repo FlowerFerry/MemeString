@@ -2,6 +2,7 @@
 #include "meme/impl/algorithm.h"
 #include <meme/impl/string.h>
 #include <meme/simd/simd.h>
+#include <mego/predef/charset.h>
 #include <mego/predef/symbol/likely.h>
 
 #include <assert.h>
