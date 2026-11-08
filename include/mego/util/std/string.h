@@ -3,6 +3,7 @@
 #define MEGO_UTIL_STD_STRING_H_INCLUDED
 
 #include <mego/predef/os/windows.h>
+#include <mego/predef/compiler/visualc.h>
 #include <mego/predef/symbol/inline.h>
 #include <mego/util/std/errno.h>
 #include <mego/util/std/stddef.h>
@@ -72,6 +73,31 @@ MG_CAPI_INLINE errno_t mgu_strncpy_s(
     strncpy(_dest, _src, _count);
     _dest[_count] = '\0';
     return 0;
+}
+
+#endif
+
+/*
+ * strnlen_s() counts the bytes before the first '\0', stopping at _maxsize.
+ *
+ * The guard is narrower than the strncpy_s one above: MinGW targets Windows
+ * (so MG_OS__WIN_AVAIL is set) but its CRT provides strncpy_s without
+ * strnlen_s. Only MSVC and compilers that advertise Annex K actually declare
+ * strnlen_s, so the fallback must cover MinGW and every Annex-K-absent target.
+ */
+#if MG_COMP__MSVC_AVAIL || defined(__STDC_LIB_EXT1__)
+
+#define mgu_strnlen_s(_s, _maxsize) strnlen_s(_s, _maxsize)
+
+#else
+
+MG_CAPI_INLINE rsize_t mgu_strnlen_s(const char* _s, rsize_t _maxsize)
+{
+    if (MG_SYM__UNLIKELY(_s == NULL || _maxsize == 0))
+        return 0;
+
+    const void* hit = memchr(_s, '\0', (size_t)_maxsize);
+    return hit ? (rsize_t)((const char*)hit - _s) : _maxsize;
 }
 
 #endif
