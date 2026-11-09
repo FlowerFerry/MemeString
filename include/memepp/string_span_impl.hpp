@@ -1,4 +1,4 @@
-﻿
+
 #ifndef MEMEPP_STRING_SPAN_IMPL_HPP_INCLUDED
 #define MEMEPP_STRING_SPAN_IMPL_HPP_INCLUDED
 
@@ -345,6 +345,7 @@ string_span::compare(size_type _pos1, size_type _count1, string_span _v,
 MEMEPP__IMPL_INLINE int
 string_span::compare(const char* _s) const
 {
+	if (_s == NULL) _s = "";
 	auto sr = to_string_ref();
 	return MemeString_compareByUtf8bytes(
 		to_pointer(sr.native_handle()),
@@ -354,6 +355,7 @@ string_span::compare(const char* _s) const
 MEMEPP__IMPL_INLINE int
 string_span::compare(size_type _pos1, size_type _count1, const char* _s) const
 {
+	if (_s == NULL) _s = "";
 	return substr(_pos1, _count1).compare(_s);
 }
 
@@ -361,6 +363,11 @@ MEMEPP__IMPL_INLINE int
 string_span::compare(size_type _pos1, size_type _count1,
                      const char* _s, size_type _count2) const
 {
+	/* A null pointer is the empty needle, so its length must be 0.  Passing
+	 * (_s == NULL, _count2 > 0) would build a span whose data_ is null but
+	 * size_ is non-zero, and the comparison could then reach
+	 * memcmp(nullptr, ...). */
+	if (_s == NULL) _count2 = 0;
 	return substr(_pos1, _count1).compare(string_span(_s, _count2));
 }
 
@@ -386,12 +393,14 @@ string_span::starts_with(char _c) const MEGOPP__NOEXCEPT
 MEMEPP__IMPL_INLINE bool
 string_span::starts_with(const char* _s) const
 {
+	if (_s == NULL) return true;
 	return to_string_ref().starts_with(_s);
 }
 
 MEMEPP__IMPL_INLINE bool
 string_span::starts_with(const_pointer _s) const MEGOPP__NOEXCEPT
 {
+	if (_s == NULL) return true;
 	return to_string_ref().starts_with(_s);
 }
 
@@ -413,12 +422,14 @@ string_span::ends_with(char _c) const MEGOPP__NOEXCEPT
 MEMEPP__IMPL_INLINE bool
 string_span::ends_with(const char* _s) const
 {
+	if (_s == NULL) return true;
 	return to_string_ref().ends_with(_s);
 }
 
 MEMEPP__IMPL_INLINE bool
 string_span::ends_with(const_pointer _s) const MEGOPP__NOEXCEPT
 {
+	if (_s == NULL) return true;
 	return to_string_ref().ends_with(_s);
 }
 
@@ -475,24 +486,28 @@ string_span::find(char _c, size_type _pos) const MEGOPP__NOEXCEPT
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::find(const char* _s, size_type _pos, size_type _count) const
 {
+	if (_s == NULL || _count == 0) return (_pos >= 0 && _pos <= size_) ? _pos : npos;
 	return to_string_ref().find(_s, _pos, _count);
 }
 
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::find(const char* _s, size_type _pos) const
 {
+	if (_s == NULL || _s[0] == '\0') return (_pos >= 0 && _pos <= size_) ? _pos : npos;
 	return to_string_ref().find(_s, _pos);
 }
 
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::find(const_pointer _s, size_type _pos, size_type _count) const MEGOPP__NOEXCEPT
 {
+	if (_s == NULL || _count == 0) return (_pos >= 0 && _pos <= size_) ? _pos : npos;
 	return to_string_ref().find(_s, _pos, _count);
 }
 
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::find(const_pointer _s, size_type _pos) const MEGOPP__NOEXCEPT
 {
+	if (_s == NULL || _s[0] == 0) return (_pos >= 0 && _pos <= size_) ? _pos : npos;
 	return to_string_ref().find(_s, _pos);
 }
 
@@ -515,24 +530,40 @@ string_span::rfind(char _c, size_type _pos) const MEGOPP__NOEXCEPT
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::rfind(const char* _s, size_type _pos, size_type _count) const
 {
+	if (_s == NULL || _count == 0) {
+		size_type sz = size();
+		return (_pos == npos || _pos >= sz) ? sz : _pos;
+	}
 	return string_view(data(), size()).rfind(_s, _pos, _count);
 }
 
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::rfind(const char* _s, size_type _pos) const
 {
+	if (_s == NULL || _s[0] == '\0') {
+		size_type sz = size();
+		return (_pos == npos || _pos >= sz) ? sz : _pos;
+	}
 	return string_view(data(), size()).rfind(_s, _pos);
 }
 
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::rfind(const_pointer _s, size_type _pos, size_type _count) const MEGOPP__NOEXCEPT
 {
+	if (_s == NULL || _count == 0) {
+		size_type sz = size();
+		return (_pos == npos || _pos >= sz) ? sz : _pos;
+	}
 	return string_view(data(), size()).rfind(_s, _pos, _count);
 }
 
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::rfind(const_pointer _s, size_type _pos) const MEGOPP__NOEXCEPT
 {
+	if (_s == NULL || _s[0] == 0) {
+		size_type sz = size();
+		return (_pos == npos || _pos >= sz) ? sz : _pos;
+	}
 	return string_view(data(), size()).rfind(_s, _pos);
 }
 
@@ -560,12 +591,14 @@ string_span::find_first_of(char _c, size_type _pos) const MEGOPP__NOEXCEPT
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::find_first_of(const char* _s, size_type _pos, size_type _count) const
 {
+	if (_s == NULL || _count == 0) return npos;
 	return find_first_of(string_span(_s, _count), _pos);
 }
 
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::find_first_of(const char* _s, size_type _pos) const
 {
+	if (_s == NULL || _s[0] == '\0') return npos;
 	return find_first_of(string_span(_s), _pos);
 }
 
@@ -598,12 +631,23 @@ string_span::find_first_not_of(char _c, size_type _pos) const MEGOPP__NOEXCEPT
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::find_first_not_of(const char* _s, size_type _pos, size_type _count) const
 {
+	/* An empty character set excludes nothing, so the first character not
+	 * in the set is _pos -- but only while there is a character to inspect.
+	 * At _pos == size() the string is exhausted, which is npos. */
+	if (_s == NULL || _count == 0) {
+		if (_pos < 0) _pos = 0;
+		return (_pos < size_) ? _pos : npos;
+	}
 	return find_first_not_of(string_span(_s, _count), _pos);
 }
 
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::find_first_not_of(const char* _s, size_type _pos) const
 {
+	if (_s == NULL || _s[0] == '\0') {
+		if (_pos < 0) _pos = 0;
+		return (_pos < size_) ? _pos : npos;
+	}
 	return find_first_not_of(string_span(_s), _pos);
 }
 
@@ -632,12 +676,14 @@ string_span::find_last_of(char _c, size_type _pos) const MEGOPP__NOEXCEPT
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::find_last_of(const char* _s, size_type _pos, size_type _count) const
 {
+	if (_s == NULL || _count == 0) return npos;
 	return find_last_of(string_span(_s, _count), _pos);
 }
 
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::find_last_of(const char* _s, size_type _pos) const
 {
+	if (_s == NULL || _s[0] == '\0') return npos;
 	return find_last_of(string_span(_s), _pos);
 }
 
@@ -672,12 +718,23 @@ string_span::find_last_not_of(char _c, size_type _pos) const MEGOPP__NOEXCEPT
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::find_last_not_of(const char* _s, size_type _pos, size_type _count) const
 {
+	/* An empty character set excludes nothing: the last character not in
+	 * the set is the last valid position (clamped by _pos). */
+	if (_s == NULL || _count == 0) {
+		if (_pos == npos || _pos >= size_) _pos = size_ - 1;
+		if (_pos < 0 || size_ == 0) return npos;
+		return _pos;
+	}
 	return find_last_not_of(string_span(_s, _count), _pos);
 }
 
 MEMEPP__IMPL_INLINE string_span::size_type
 string_span::find_last_not_of(const char* _s, size_type _pos) const
 {
+	if (_s == NULL || _s[0] == '\0') {
+		size_type sz = size();
+		return (_pos == npos || _pos >= sz) ? sz - 1 : _pos;
+	}
 	return find_last_not_of(string_span(_s), _pos);
 }
 

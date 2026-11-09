@@ -1143,7 +1143,10 @@ MEME_STDCALL MemeString_startsMatchWithUtf8bytes(
     const MemeByte_t* pointer = MemeStringImpl_byteData(_s);
     MemeInteger_t count = MemeStringImpl_byteSize(_s);
     
-	if (_needle_len < 0)
+	/* A null needle means the empty needle: every string starts with "". */
+	if (_needle == NULL)
+		_needle_len = 0;
+	else if (_needle_len < 0)
 		_needle_len = strlen((const char*)_needle);
 
     if (count < _needle_len)
@@ -1178,8 +1181,11 @@ MemeString_endsMatchWithUtf8bytes(
     const MemeByte_t* pointer = MemeStringImpl_byteData(_s);
     MemeInteger_t count = MemeStringImpl_byteSize(_s);
 
-	if (_needle_len < 0)
-        _needle_len = strlen((const char*)_needle);
+	/* A null needle means the empty needle: every string ends with "". */
+	if (_needle == NULL)
+		_needle_len = 0;
+	else if (_needle_len < 0)
+		_needle_len = strlen((const char*)_needle);
 
     if (count < _needle_len)
         return 0;

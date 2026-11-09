@@ -80,6 +80,10 @@ static MemeInteger_t __mmsrch_bm_##SUFFIX(                                    \
     const MemeInteger_t last = _pat_len - 1;                                  \
     const int nul_mode = (_haystack_len < 0);                                 \
     MemeInteger_t idx = last;                                                 \
+    /* NUL mode only: [0, checked] is known to contain no terminator.  It is
+     * kept separate from idx because the comparison walk below moves idx
+     * leftwards, so idx is not a monotonic scan boundary. */                  \
+    MemeInteger_t checked = last;                                             \
                                                                               \
     /* NUL mode: the needle must fit before the first NUL, so probe the
      * first _pat_len bytes up front -- otherwise the leftward walk below
@@ -125,21 +129,25 @@ static MemeInteger_t __mmsrch_bm_##SUFFIX(                                    \
                                                                               \
             if (move <= 0)                                                    \
                 move = 1;                                                     \
-            if ((MemeInteger_t)((uint64_t)idx + (uint64_t)move) < idx)        \
+            if (move > MMINT_MAX - idx)                                       \
                 return -1;                                                    \
                                                                               \
             if (nul_mode)                                                     \
             {                                                                 \
-                /* Shift forward and stop at the terminator.  memchr() is\n
-                 * vectorised in every libc we target, so a long shift costs\n
-                 * far less than a per-byte loop; it also returns NULL as\n
-                 * soon as no NUL exists in the moved-over range, which is\n
-                 * the common "run off the end" case. */                     \
-                const void* nul = memchr(&_haystack[idx + 1], (int)'\0',      \
-                                         (size_t)move);                       \
-                if (nul != NULL)                                              \
-                    return -1;                                                \
-                idx += move;                                                  \
+                /* Shift forward and stop at the terminator.  Only the bytes  \
+                 * newly reached since the last shift need checking:         \
+                 * [0, checked] is already known to be NUL-free, so each     \
+                 * byte is tested at most once and the total terminator      \
+                 * work stays O(n) instead of rescanning the tail every      \
+                 * shift (which made it O(n^2)). */                          \
+                const MemeInteger_t next = idx + move;                        \
+                while (checked < next)                                        \
+                {                                                             \
+                    ++checked;                                                \
+                    if (_haystack[checked] == (MemeByte_t)'\0')               \
+                        return -1;                                            \
+                }                                                             \
+                idx = next;                                                   \
             }                                                                 \
             else                                                              \
             {                                                                 \
@@ -612,13 +620,15 @@ MEME_API MemeInteger_t MEME_STDCALL MemeSearcherStack_find(
         if (_offset < 0)
             return -1;
 
-        /* Ensure the offset does not lie past the terminating NUL.
-         * memchr is vectorised in most libcs and stops at the first '\0'. */
+        /* Ensure the offset does not lie past the terminating NUL.  Only the
+         * prefix [0, _offset) needs probing: the caller guarantees just one
+         * terminator, so scanning further would read past it. */
         if (_offset > 0)
         {
-            const void* nul = memchr(_haystack, 0, (size_t)_offset);
-            if (nul != NULL)
-                return -1;
+            for (MemeInteger_t i = 0; i < _offset; ++i) {
+                if (_haystack[i] == 0)
+                    return -1;
+            }
         }
 
         const MemeByte_t* start = _haystack + _offset;
@@ -905,7 +915,17 @@ MEME_API MemeFlag_CaseSensitivity_t MEME_STDCALL MemeSearcherStack_caseSensitivi
     if (MEGO_SYMBOL__UNLIKELY(_out == NULL))
         return MemeFlag_AllSensitive;
 
-    return mmsrch_implc(_out)->cs;
+    const MemeSearcherImpl_t* self = mmsrch_implc(_out);
+
+    /* An uninitialised searcher (never had a needle, or just released) has
+     * no meaningful configuration.  initEmpty() zeroes the object, where 0
+     * means MemeFlag_AllInsensitive, while unInit() writes
+     * MemeFlag_AllSensitive -- report one fixed answer instead of letting
+     * the result depend on how the object was emptied. */
+    if (self->reg_size_ == 0)
+        return MemeFlag_AllSensitive;
+
+    return self->cs;
 }
 
 MEME_API int MEME_STDCALL MemeSearcherStack_errorCode(

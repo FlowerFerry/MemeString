@@ -491,6 +491,22 @@ TEST_CASE("string_span starts_with const_pointer", "[string_span]")
     REQUIRE_FALSE(sv.starts_with(reinterpret_cast<const MemeByte_t*>("zzz")));
 }
 
+TEST_CASE("string_span starts_with null pointer", "[string_span]")
+{
+    /* A null pointer must be treated as the empty needle.  This matches
+     * the behaviour of the old string_span(_s) construction, whose
+     * constructor guards NULL and yields size 0, and it avoids the
+     * strlen(nullptr) the C API would otherwise perform. */
+    memepp::string_span sv("hello");
+
+    REQUIRE(sv.starts_with(static_cast<const char*>(nullptr)));
+    REQUIRE(sv.starts_with(static_cast<const MemeByte_t*>(nullptr)));
+
+    /* The empty needle is a prefix of the empty string too. */
+    memepp::string_span empty;
+    REQUIRE(empty.starts_with(static_cast<const char*>(nullptr)));
+}
+
 // ============================================================================
 //  ends_with — all 4 overloads
 // ============================================================================
@@ -525,6 +541,150 @@ TEST_CASE("string_span ends_with const_pointer", "[string_span]")
     memepp::string_span sv("hello");
     const MemeByte_t* p = reinterpret_cast<const MemeByte_t*>("lo");
     REQUIRE(sv.ends_with(p));
+}
+
+TEST_CASE("string_span ends_with null pointer", "[string_span]")
+{
+    /* See starts_with: a null pointer is the empty needle, which is a
+     * suffix of every string.  Guarding here avoids strlen(nullptr)
+     * in the C API. */
+    memepp::string_span sv("hello");
+
+    REQUIRE(sv.ends_with(static_cast<const char*>(nullptr)));
+    REQUIRE(sv.ends_with(static_cast<const MemeByte_t*>(nullptr)));
+
+    memepp::string_span empty;
+    REQUIRE(empty.ends_with(static_cast<const char*>(nullptr)));
+}
+
+TEST_CASE("string_span pointer overloads treat nullptr as empty",
+          "[string_span]")
+{
+    /* MemeString extends the std::string_view contract: every pointer
+     * overload accepts nullptr and treats it as the empty string, so a
+     * null C string never reaches strlen(nullptr). */
+    memepp::string_span sv("hello");
+    const char* np = nullptr;
+    const MemeByte_t* npp = nullptr;
+
+    /* Empty needle is a prefix / suffix / substring of anything. */
+    REQUIRE(sv.starts_with(np));
+    REQUIRE(sv.starts_with(npp));
+    REQUIRE(sv.ends_with(np));
+    REQUIRE(sv.ends_with(npp));
+    REQUIRE(sv.contains(np));
+    REQUIRE(sv.contains(npp));
+
+    /* find: the empty needle matches at pos (std semantics). */
+    REQUIRE(sv.find(np) == 0);
+    REQUIRE(sv.find(np, 3) == 3);
+    REQUIRE(sv.find(np, 5) == 5);
+    REQUIRE(sv.find(np, 99) == memepp::string_span::npos);
+    REQUIRE(sv.find(npp, 3) == 3);
+    REQUIRE(sv.find(np, 0, 0) == 0);
+    REQUIRE(sv.find(npp, 0, 0) == 0);
+
+    /* rfind: clamps pos to size(). */
+    REQUIRE(sv.rfind(np) == 5);
+    REQUIRE(sv.rfind(np, 2) == 2);
+    REQUIRE(sv.rfind(npp) == 5);
+    REQUIRE(sv.rfind(np, 0, 0) == 0);   /* min(pos, size()) */
+
+    /* compare: "hello" > "" */
+    REQUIRE(sv.compare(np) > 0);
+    REQUIRE(sv.compare(0, 5, np) > 0);
+    REQUIRE(memepp::string_span().compare(np) == 0);
+
+    /* Character-set searches: an empty set matches nothing / everything. */
+    REQUIRE(sv.find_first_of(np) == memepp::string_span::npos);
+    REQUIRE(sv.find_last_of(np) == memepp::string_span::npos);
+    REQUIRE(sv.find_first_of(np, 0, 0) == memepp::string_span::npos);
+    REQUIRE(sv.find_last_of(np, 0, 0) == memepp::string_span::npos);
+    REQUIRE(sv.find_first_not_of(np) == 0);
+    REQUIRE(sv.find_first_not_of(np, 2) == 2);
+    REQUIRE(sv.find_last_not_of(np) == 4);
+}
+
+TEST_CASE("string_span empty-set boundary semantics", "[string_span]")
+{
+    memepp::string_span sv("hello");
+    const char* np = nullptr;
+
+    /* An empty character set excludes nothing, so find_first_not_of
+     * returns the (clamped) start position rather than npos. */
+    REQUIRE(sv.find_first_not_of(np, 99) == memepp::string_span::npos);
+    REQUIRE(sv.find_first_not_of("abc", 2, 0) == 2);
+    REQUIRE(sv.find_first_not_of(np, 2) == 2);
+    REQUIRE(sv.find_first_not_of(np, 5) == memepp::string_span::npos);   /* pos == size() */
+
+    /* find_last_not_of: empty set -> last valid position. */
+    REQUIRE(sv.find_last_not_of(np) == 4);
+    REQUIRE(sv.find_last_not_of(np, 2) == 2);
+    REQUIRE(sv.find_last_not_of(np, 99) == 4);
+    REQUIRE(sv.find_last_not_of("abc", 2, 0) == 2);
+
+    /* find_first_of / find_last_of: empty set matches nothing. */
+    REQUIRE(sv.find_first_of(np, 0) == memepp::string_span::npos);
+    REQUIRE(sv.find_last_of(np) == memepp::string_span::npos);
+    REQUIRE(sv.find_first_of("abc", 2, 0) == memepp::string_span::npos);
+    REQUIRE(sv.find_last_of("abc", 2, 0) == memepp::string_span::npos);
+
+    /* compare with (nullptr, count>0) must not build a null span. */
+    REQUIRE(sv.compare(0, 5, np, 3) > 0);
+    REQUIRE(memepp::string_span().compare(0, 0, np, 3) == 0);
+}
+
+TEST_CASE("string_span find_first_not_of empty set at pos == size",
+          "[string_span]")
+{
+    /* With an empty character set nothing is excluded, so the answer is
+     * _pos -- but only while a character exists to inspect.  Once
+     * _pos == size() the string is exhausted and the result is npos,
+     * matching the non-empty overloads. */
+    memepp::string_span sv("abc");
+    const char* np = nullptr;
+
+    REQUIRE(sv.find_first_not_of(np, 3) == memepp::string_span::npos);
+    REQUIRE(sv.find_first_not_of("", 3) == memepp::string_span::npos);
+    REQUIRE(sv.find_first_not_of(np, 0, 0) == 0);
+    REQUIRE(sv.find_first_not_of("", 3, 0) == memepp::string_span::npos);
+
+    /* In-range positions still return _pos. */
+    REQUIRE(sv.find_first_not_of(np, 0) == 0);
+    REQUIRE(sv.find_first_not_of(np, 2) == 2);
+    REQUIRE(sv.find_first_not_of(np, 0, 0) == 0);
+    REQUIRE(sv.find_first_not_of("", 1, 0) == 1);
+
+    /* Beyond size is npos too. */
+    REQUIRE(sv.find_first_not_of(np, 99) == memepp::string_span::npos);
+
+    /* Empty haystack: no character can be inspected at all. */
+    memepp::string_span empty;
+    REQUIRE(empty.find_first_not_of(np, 0) == memepp::string_span::npos);
+    REQUIRE(empty.find_first_not_of(np, 0, 0) == memepp::string_span::npos);
+}
+
+TEST_CASE("memepp::string starts_with/ends_with accept nullptr",
+          "[string] [string_span]")
+{
+    /* Same null-safe extension as string_span: a null C string is the
+     * empty needle, so it is both a prefix and a suffix. */
+    memepp::string s("hello");
+    const char* np = nullptr;
+    const MemeByte_t* npp = nullptr;
+
+    REQUIRE(s.starts_with(np));
+    REQUIRE(s.starts_with(npp));
+    REQUIRE(s.ends_with(np));
+    REQUIRE(s.ends_with(npp));
+
+    /* Explicit count of 0 with a null pointer too. */
+    REQUIRE(s.starts_with(np, 0));
+    REQUIRE(s.ends_with(np, 0));
+
+    memepp::string empty;
+    REQUIRE(empty.starts_with(np));
+    REQUIRE(empty.ends_with(np));
 }
 
 // ============================================================================

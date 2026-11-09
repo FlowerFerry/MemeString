@@ -944,6 +944,27 @@ TEST_CASE("memepp::searcher: case_sensitivity()", "[searcher]")
     REQUIRE(s2.case_sensitivity() == memepp::case_sensitivity_t::all_insensitive);
 }
 
+TEST_CASE("memepp::searcher: case_sensitivity() on an empty searcher",
+          "[searcher]")
+{
+    /*
+     * An empty searcher must report the same case sensitivity as a
+     * searcher that was reset: both are "unconfigured".  initEmpty()
+     * zeroes the object, but unInit()/reset() explicitly set
+     * MemeFlag_AllSensitive, so initEmpty() has to agree or the answer
+     * would depend on how the object was emptied.
+     */
+    memepp::searcher empty;
+    REQUIRE(empty.case_sensitivity() == memepp::case_sensitivity_t::all_sensitive);
+
+    memepp::searcher reset_one("FOX", memepp::case_sensitivity_t::all_insensitive);
+    REQUIRE(reset_one.case_sensitivity() == memepp::case_sensitivity_t::all_insensitive);
+    reset_one.reset();
+    REQUIRE(reset_one.case_sensitivity() == memepp::case_sensitivity_t::all_sensitive);
+
+    REQUIRE(empty.case_sensitivity() == reset_one.case_sensitivity());
+}
+
 #if MG_LANG__CXX17_AVAIL
 TEST_CASE("memepp::searcher: find(std::string_view)", "[searcher]")
 {
