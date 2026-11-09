@@ -44,7 +44,11 @@ MEMEPP__IMPL_INLINE string_span::string_span(const char* _utf8) MEGOPP__NOEXCEPT
 }
 
 MEMEPP__IMPL_INLINE string_span::string_span(const char* _utf8, size_type _count) MEGOPP__NOEXCEPT
-	: data_(reinterpret_cast<const_pointer>(_utf8)), size_(_count)
+	/* A null pointer is the empty string, whatever count says: keeping the
+	 * count would leave data_ == NULL with size_ > 0, and later operations
+	 * (memcmp, iteration) would read through the null pointer. */
+	: data_(reinterpret_cast<const_pointer>(_utf8))
+	, size_(_utf8 ? _count : 0)
 {
 }
 
@@ -56,7 +60,8 @@ MEMEPP__IMPL_INLINE string_span::string_span(const_pointer _utf8) MEGOPP__NOEXCE
 }
 
 MEMEPP__IMPL_INLINE string_span::string_span(const_pointer _utf8, size_type _count) MEGOPP__NOEXCEPT
-	: data_(_utf8), size_(_count)
+	: data_(_utf8)
+	, size_(_utf8 ? _count : 0)
 {
 }
 

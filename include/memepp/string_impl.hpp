@@ -486,24 +486,33 @@ inline namespace MMPP_NAMESPACE {
 	
 	MEMEPP__IMPL_INLINE string::size_type string::count(const char* _str, case_sensit_t _cs) const noexcept
 	{
+        /* A null needle is the empty needle, which occurs zero times. */
+        if (_str == NULL)
+            return 0;
         return MemeString_matchCountWithUtf8bytes(
             to_pointer(data_), 0, reinterpret_cast<const uint8_t*>(_str), -1, static_cast<mmflag_case_sensit_t>(_cs));
 	}
 
 	MEMEPP__IMPL_INLINE string::size_type string::count(const char* _str, size_type _size, case_sensit_t _cs) const noexcept
 	{
+        if (_str == NULL || _size == 0)
+            return 0;
         return MemeString_matchCountWithUtf8bytes(
             to_pointer(data_), 0, reinterpret_cast<const uint8_t*>(_str), _size, static_cast<mmflag_case_sensit_t>(_cs));
 	}
 
 	MEMEPP__IMPL_INLINE string::size_type string::count(const_pointer _str, case_sensit_t _cs) const noexcept
 	{
+        if (_str == NULL)
+            return 0;
         return MemeString_matchCountWithUtf8bytes(
             to_pointer(data_), 0, _str, -1, static_cast<mmflag_case_sensit_t>(_cs));
 	}
 
 	MEMEPP__IMPL_INLINE string::size_type string::count(const_pointer _str, size_type _size, case_sensit_t _cs) const noexcept
 	{
+        if (_str == NULL || _size == 0)
+            return 0;
         return MemeString_matchCountWithUtf8bytes(
             to_pointer(data_), 0, _str, _size, static_cast<mmflag_case_sensit_t>(_cs));
 	}
@@ -742,6 +751,8 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE string::size_type string::index_of(
 		const char* _utf8, case_sensitivity_t _cs) const noexcept
 	{
+		/* A null needle is the empty needle, which matches at offset 0. */
+		if (_utf8 == NULL) return 0;
 		return MemeString_indexOfWithUtf8bytes(
 			to_pointer(native_handle()), 0, reinterpret_cast<const uint8_t*>(_utf8), -1, 
 			static_cast<mmflag_case_sensit_t>(_cs));
@@ -750,6 +761,7 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE string::size_type string::index_of(const char* _utf8, bool _full_match,
 		case_sensitivity_t _cs) const noexcept
 	{
+		if (_utf8 == NULL) return 0;
 		return MemeString_indexOfUtf8bytes(
 			to_pointer(native_handle()), 0, -1,
 			reinterpret_cast<const uint8_t*>(_utf8), -1, (_full_match ? 1 : 0),
@@ -759,6 +771,10 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE string::size_type string::index_of(
 		const char* _utf8, size_type _u8len, size_type _offset, bool _full_match, case_sensitivity_t _cs) const noexcept
 	{
+		/* A null pointer or a zero length is the empty needle, which
+		 * matches at the requested offset. */
+		if (_utf8 == NULL || _u8len == 0)
+			return (_offset < size()) ? _offset : npos;
 		return MemeString_indexOfUtf8bytes(
 			to_pointer(native_handle()), _offset, -1,
 			reinterpret_cast<const uint8_t*>(_utf8), _u8len, (_full_match ? 1 : 0),
@@ -815,6 +831,8 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE string::size_type string::last_index_of(const char* _utf8, 
 		case_sensitivity_t _cs) const noexcept
 	{
+        /* A null needle is the empty needle: it matches at size(). */
+        if (_utf8 == NULL) return size();
         return MemeString_lastIndexOfUtf8bytes(
             to_pointer(native_handle()), 0, -1,
             reinterpret_cast<const uint8_t*>(_utf8), -1, 0,
@@ -824,6 +842,7 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE string::size_type string::last_index_of(const char* _utf8, bool _full_match,
 		case_sensitivity_t _cs) const noexcept
 	{
+        if (_utf8 == NULL) return size();
         return MemeString_lastIndexOfUtf8bytes(
             to_pointer(native_handle()), 0, -1,
             reinterpret_cast<const uint8_t*>(_utf8), -1, (_full_match ? 1 : 0),
@@ -834,6 +853,10 @@ inline namespace MMPP_NAMESPACE {
 		size_type _offset, size_type _limit, bool _full_match,
 		case_sensitivity_t _cs) const noexcept
 	{
+        /* A null pointer or a zero length is the empty needle, which
+         * matches at the requested limit. */
+        if (_utf8 == NULL || _u8len == 0)
+            return (_limit == npos || _limit > size()) ? size() : _limit;
         return MemeString_lastIndexOfUtf8bytes(
             to_pointer(native_handle()), _offset, _limit,
             reinterpret_cast<const uint8_t*>(_utf8), _u8len, (_full_match ? 1 : 0),
@@ -1320,6 +1343,8 @@ inline namespace MMPP_NAMESPACE {
 
 	MEMEPP__IMPL_INLINE bool operator<(const string& _lhs, const char* _rhs) noexcept
 	{
+        /* A null pointer is the empty string, so it compares as "". */
+        if (_rhs == NULL) _rhs = "";
         return MemeString_compareByUtf8bytes(
             to_pointer(_lhs.native_handle()), 
 			reinterpret_cast<string::const_pointer>(_rhs), -1) < 0;
@@ -1327,6 +1352,7 @@ inline namespace MMPP_NAMESPACE {
 	
 	MEMEPP__IMPL_INLINE bool operator<(const char* _lhs, const string& _rhs) noexcept
 	{
+        if (_lhs == NULL) _lhs = "";
         return MemeString_compareByUtf8bytes(
 			to_pointer(_rhs.native_handle()), 
 			reinterpret_cast<string::const_pointer>(_lhs), -1) > 0;
@@ -1334,6 +1360,7 @@ inline namespace MMPP_NAMESPACE {
 	
 	MEMEPP__IMPL_INLINE bool operator>(const string& _lhs, const char* _rhs) noexcept
 	{
+        if (_rhs == NULL) _rhs = "";
         return MemeString_compareByUtf8bytes(
             to_pointer(_lhs.native_handle()),
             reinterpret_cast<string::const_pointer>(_rhs), -1) > 0;
@@ -1341,6 +1368,7 @@ inline namespace MMPP_NAMESPACE {
 	
 	MEMEPP__IMPL_INLINE bool operator>(const char* _lhs, const string& _rhs) noexcept
 	{
+        if (_lhs == NULL) _lhs = "";
         return MemeString_compareByUtf8bytes(
             to_pointer(_rhs.native_handle()),
             reinterpret_cast<string::const_pointer>(_lhs), -1) < 0;

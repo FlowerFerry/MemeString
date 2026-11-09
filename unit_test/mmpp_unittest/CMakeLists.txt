@@ -82,6 +82,7 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/test_dll_import_export.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_dll_plugin.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_span.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_nullsafe_overloads.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_span.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_compare.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_extra.cpp

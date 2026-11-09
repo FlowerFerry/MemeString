@@ -64,6 +64,9 @@ inline namespace MMPP_NAMESPACE {
 
 	MEMEPP__IMPL_INLINE string_view::string_view(const char* _utf8, size_type _size) noexcept
 	{
+		/* A null pointer is the empty view; a non-zero size would describe
+		 * bytes that do not exist. */
+		if (_utf8 == NULL) _size = 0;
 		MemeStringViewUnsafeStack_init(&data_, MEME_STRING__OBJECT_SIZE, 
 			reinterpret_cast<const uint8_t*>(_utf8), _size);
 	}
@@ -75,6 +78,7 @@ inline namespace MMPP_NAMESPACE {
 
 	MEMEPP__IMPL_INLINE string_view::string_view(const_pointer _utf8, size_type _size) noexcept
 	{
+		if (_utf8 == NULL) _size = 0;
 		MemeStringViewUnsafeStack_init(&data_, MEME_STRING__OBJECT_SIZE, _utf8, _size);
 	}
 
@@ -466,24 +470,33 @@ inline namespace MMPP_NAMESPACE {
 
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::count(const char* _str, case_sensit_t _cs) const noexcept
 	{
+		/* A null needle is the empty needle, which occurs zero times. */
+		if (_str == NULL)
+			return 0;
 		return MemeString_matchCountWithUtf8bytes(
 			to_pointer(data_), 0, reinterpret_cast<const uint8_t*>(_str), -1, static_cast<mmflag_case_sensit_t>(_cs));
 	}
 
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::count(const char* _str, size_type _size, case_sensit_t _cs) const noexcept
 	{
+		if (_str == NULL || _size == 0)
+			return 0;
 		return MemeString_matchCountWithUtf8bytes(
 			to_pointer(data_), 0, reinterpret_cast<const uint8_t*>(_str), _size, static_cast<mmflag_case_sensit_t>(_cs));
 	}
 
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::count(const_pointer _str, case_sensit_t _cs) const noexcept
 	{
+		if (_str == NULL)
+			return 0;
 		return MemeString_matchCountWithUtf8bytes(
 			to_pointer(data_), 0, _str, -1, static_cast<mmflag_case_sensit_t>(_cs));
 	}
 
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::count(const_pointer _str, size_type _size, case_sensit_t _cs) const noexcept
 	{
+		if (_str == NULL || _size == 0)
+			return 0;
 		return MemeString_matchCountWithUtf8bytes(
 			to_pointer(data_), 0, _str, _size, static_cast<mmflag_case_sensit_t>(_cs));
 	}
@@ -584,6 +597,8 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::rfind(const char* _utf8, size_type _pos) const noexcept
 	{
 		size_type sz = size();
+		/* A null pointer is the empty needle. */
+		if (_utf8 == NULL) return (_pos == npos || _pos >= sz) ? sz : _pos;
 		size_type nlen = std::char_traits<char>::length(_utf8);
 		if (nlen > sz) return npos;
 		if (nlen == 0) return (_pos == npos || _pos >= sz) ? sz : _pos;
@@ -599,6 +614,7 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::rfind(const char* _utf8, size_type _pos, size_type _substr_count) const noexcept
 	{
 		size_type sz = size();
+		if (_utf8 == NULL) _substr_count = 0;
 		if (_substr_count == 0) return (_pos == npos || _pos >= sz) ? sz : _pos;
 		if (_substr_count > sz) return npos;
 		size_type limit = (_pos == npos || _pos >= sz)
@@ -613,6 +629,7 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::rfind(const_pointer _utf8, size_type _pos) const noexcept
 	{
 		size_type sz = size();
+		if (_utf8 == NULL) return (_pos == npos || _pos >= sz) ? sz : _pos;
 		size_type nlen = std::char_traits<char>::length(reinterpret_cast<const char*>(_utf8));
 		if (nlen > sz) return npos;
 		if (nlen == 0) return (_pos == npos || _pos >= sz) ? sz : _pos;
@@ -625,9 +642,12 @@ inline namespace MMPP_NAMESPACE {
 			static_cast<mmflag_case_sensit_t>(case_sensit_t::all_sensitive));
 	}
 	
-	MEMEPP__IMPL_INLINE string_view::size_type string_view::rfind(const_pointer _utf8, size_type _pos, size_type _substr_count) const noexcept
+	MEMEPP__IMPL_INLINE string_view::size_type
+	string_view::rfind(const_pointer _utf8, size_type _pos, size_type _substr_count) const noexcept
 	{
 		size_type sz = size();
+		/* A null pointer is the empty needle. */
+		if (_utf8 == NULL) _substr_count = 0;
 		if (_substr_count == 0) return (_pos == npos || _pos >= sz) ? sz : _pos;
 		if (_substr_count > sz) return npos;
 		size_type limit = (_pos == npos || _pos >= sz)
@@ -693,6 +713,8 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::index_of(
 		const char* _utf8, case_sensitivity_t _cs) const noexcept
 	{
+		/* A null needle is the empty needle, which matches at offset 0. */
+		if (_utf8 == NULL) return 0;
 		return MemeString_indexOfWithUtf8bytes(
 			to_pointer(native_handle()), 0, reinterpret_cast<const uint8_t*>(_utf8), -1, 
 			static_cast<mmflag_case_sensit_t>(_cs));
@@ -701,6 +723,7 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::index_of(
 		const char* _utf8, bool _full_match, case_sensitivity_t _cs) const noexcept
 	{
+        if (_utf8 == NULL) return 0;
         return MemeString_indexOfUtf8bytes(
             to_pointer(native_handle()), 0, -1,
             reinterpret_cast<const uint8_t*>(_utf8), -1, (_full_match ? 1 : 0),
@@ -710,6 +733,9 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::index_of(
 		const char* _utf8, size_type _u8len, size_type _offset, bool _full_match, case_sensitivity_t _cs) const noexcept
 	{
+		/* A null pointer or a zero length is the empty needle. */
+		if (_utf8 == NULL || _u8len == 0)
+			return (_offset < size()) ? _offset : npos;
 		return MemeString_indexOfUtf8bytes(
 			to_pointer(native_handle()), _offset, -1,
 			reinterpret_cast<const uint8_t*>(_utf8), _u8len, (_full_match ? 1 : 0),
@@ -747,6 +773,8 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::last_index_of(const char* _utf8, 
 		case_sensitivity_t _cs) const noexcept
 	{
+        /* A null needle is the empty needle: it matches at size(). */
+        if (_utf8 == NULL) return size();
         return MemeString_lastIndexOfUtf8bytes(
             to_pointer(native_handle()), 0, -1,
             reinterpret_cast<const uint8_t*>(_utf8), -1, 0,
@@ -756,6 +784,7 @@ inline namespace MMPP_NAMESPACE {
 	MEMEPP__IMPL_INLINE string_view::size_type string_view::last_index_of(const char* _utf8, bool _full_match,
 		case_sensitivity_t _cs) const noexcept
 	{
+        if (_utf8 == NULL) return size();
         return MemeString_lastIndexOfUtf8bytes(
             to_pointer(native_handle()), 0, -1,
             reinterpret_cast<const uint8_t*>(_utf8), -1, (_full_match ? 1 : 0),
@@ -766,6 +795,9 @@ inline namespace MMPP_NAMESPACE {
 		size_type _offset, size_type _limit, bool _full_match,
 		case_sensitivity_t _cs) const noexcept
 	{
+        /* A null pointer or a zero length is the empty needle. */
+        if (_utf8 == NULL || _u8len == 0)
+            return (_limit == npos || _limit > size()) ? size() : _limit;
         return MemeString_lastIndexOfUtf8bytes(
             to_pointer(native_handle()), _offset, _limit,
             reinterpret_cast<const uint8_t*>(_utf8), _u8len, (_full_match ? 1 : 0),

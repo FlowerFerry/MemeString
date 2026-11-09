@@ -83,6 +83,11 @@ inline namespace MMPP_NAMESPACE {
 
         inline bool operator==(const char* _u8) const noexcept
         {
+            /* A null pointer is the empty string, so a non-empty rune is
+             * never equal to it.  Guarding here also keeps strlen(nullptr)
+             * out of the picture. */
+            if (_u8 == NULL)
+                return size() == 0;
             size_t _size = strlen(_u8);
             if (static_cast<size_t>(size()) != _size)
                 return false;
