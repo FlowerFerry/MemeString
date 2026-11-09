@@ -249,38 +249,91 @@ MMSIMD_DEFAULT_CONV_FUNC(f64, f32, double, float)
         return -1; \
     }
 
-MMSIMD_DEFAULT_FIND_FUNC(i8, int8_t)
-MMSIMD_DEFAULT_FIND_FUNC(u8, uint8_t)
+/* Single-byte search optimized with libc's memchr (vectorized). */
+static inline mmint_t mmsimd_default_i8_find(
+    const int8_t* _buf, mmint_t _len, int8_t _val)
+{
+    const void* p = memchr(_buf, (uint8_t)_val, (size_t)_len);
+    return p ? (mmint_t)((const int8_t*)p - _buf) : -1;
+}
 
-/* Two-key variant: matches either _v1 or _v2. Hand-written because the
- * MMSIMD_DEFAULT_FIND_FUNC macro only produces single-key functions. */
-static mmint_t mmsimd_default_u8_find2(
+static inline mmint_t mmsimd_default_u8_find(
+    const uint8_t* _buf, mmint_t _len, uint8_t _val)
+{
+    const void* p = memchr(_buf, _val, (size_t)_len);
+    return p ? (mmint_t)((const uint8_t*)p - _buf) : -1;
+}
+
+/* Two-key forward variant: matches either _v1 or _v2. Uses two memchr calls. */
+static inline mmint_t mmsimd_default_u8_find_dual_val(
     const uint8_t* _buf, mmint_t _len, uint8_t _v1, uint8_t _v2)
 {
-    for (mmint_t i = 0; i < _len; ++i)
-    {
-        if (_buf[i] == _v1 || _buf[i] == _v2)
-            return i;
-    }
+    const uint8_t* p1 = memchr(_buf, _v1, (size_t)_len);
+    const uint8_t* p2 = memchr(_buf, _v2, (size_t)_len);
+    if (!p1) return p2 ? (mmint_t)(p2 - _buf) : -1;
+    if (!p2) return (mmint_t)(p1 - _buf);
+    return (p1 < p2) ? (mmint_t)(p1 - _buf) : (mmint_t)(p2 - _buf);
+}
+
+/* memrchr is NOT ISO C and NOT POSIX -- it is a GNU extension, adopted by
+ * the BSD family and Android's bionic.  Notably macOS/iOS do NOT declare it,
+ * so neither "not Windows" nor "not MSVC" is a safe test.  Gate on the libcs
+ * that actually document the symbol; everything else uses the scalar loop. */
+#if MG_OS__LINUX_AVAIL || MG_OS__BSD_AVAIL || MG_PLAT__ANDROID_AVAIL
+#define MEME_DEFAULT_USE_MEMRCHR 1
+#else
+#define MEME_DEFAULT_USE_MEMRCHR 0
+#endif
+
+static inline mmint_t mmsimd_default_i8_rfind(
+    const int8_t* _buf, mmint_t _len, int8_t _val)
+{
+#if MEME_DEFAULT_USE_MEMRCHR
+    const void* p = memrchr(_buf, (uint8_t)_val, (size_t)_len);
+    return p ? (mmint_t)((const int8_t*)p - _buf) : -1;
+#else
+    for (mmint_t i = _len - 1; i >= 0; --i)
+        if (_buf[i] == _val) return i;
     return -1;
+#endif
+}
+
+static inline mmint_t mmsimd_default_u8_rfind(
+    const uint8_t* _buf, mmint_t _len, uint8_t _val)
+{
+#if MEME_DEFAULT_USE_MEMRCHR
+    const void* p = memrchr(_buf, _val, (size_t)_len);
+    return p ? (mmint_t)((const uint8_t*)p - _buf) : -1;
+#else
+    for (mmint_t i = _len - 1; i >= 0; --i)
+        if (_buf[i] == _val) return i;
+    return -1;
+#endif
 }
 
 /* Two-key reverse variant: highest index matching either key. */
-static mmint_t mmsimd_default_u8_rfind2(
+static inline mmint_t mmsimd_default_u8_rfind_dual_val(
     const uint8_t* _buf, mmint_t _len, uint8_t _v1, uint8_t _v2)
 {
+#if MEME_DEFAULT_USE_MEMRCHR
+    const uint8_t* p1 = memrchr(_buf, _v1, (size_t)_len);
+    const uint8_t* p2 = memrchr(_buf, _v2, (size_t)_len);
+    if (!p1) return p2 ? (mmint_t)(p2 - _buf) : -1;
+    if (!p2) return (mmint_t)(p1 - _buf);
+    return (p1 > p2) ? (mmint_t)(p1 - _buf) : (mmint_t)(p2 - _buf);
+#else
     for (mmint_t i = _len - 1; i >= 0; --i)
     {
-        if (_buf[i] == _v1 || _buf[i] == _v2)
-            return i;
+        if (_buf[i] == _v1 || _buf[i] == _v2) return i;
     }
     return -1;
+#endif
 }
 
 /* Dual-position filter: lowest index _i with _buf[_i+off1]==_v1 AND
  * _buf[_i+off2]==_v2.  Scalar reference implementation; the AVX2/NEON paths
  * widen this to 32/16 candidate positions per pass. */
-static mmint_t mmsimd_default_u8_find_dual_pos(
+static inline mmint_t mmsimd_default_u8_find_dual_pos(
     const uint8_t* _buf, mmint_t _len,
     uint8_t _v1, mmint_t _off1, uint8_t _v2, mmint_t _off2)
 {
@@ -318,8 +371,10 @@ MMSIMD_DEFAULT_FIND_FUNC(u64, uint64_t)
         return -1; \
     }
 
-MMSIMD_DEFAULT_RFIND_FUNC(i8, int8_t)
-MMSIMD_DEFAULT_RFIND_FUNC(u8, uint8_t)
+/* removed: replaced by memchr memrchr inline */
+
+/* removed: replaced by memchr memrchr inline */
+
 MMSIMD_DEFAULT_RFIND_FUNC(i16, int16_t)
 MMSIMD_DEFAULT_RFIND_FUNC(u16, uint16_t)
 MMSIMD_DEFAULT_RFIND_FUNC(i32, int32_t)

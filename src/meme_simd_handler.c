@@ -1,6 +1,9 @@
 ﻿
 #include <mego/predef/architecture/x86.h>
 #include <mego/predef/architecture/arm.h>
+#include <mego/predef/os/linux.h>
+#include <mego/predef/os/bsd.h>
+#include <mego/predef/platform/android.h>
 #include <mego/hardware/cpu/instruction.h>
 #include <mego/thrd/call_once.h>
 #include <meme/simd/simd.h>
@@ -639,12 +642,12 @@ static mmsimd_other8_hdlr_t* mmsimd_get_default_other8_handler()
     static mmsimd_other8_hdlr_t hdlr = {
         .i8_find_fn = mmsimd_default_i8_find,
         .u8_find_fn = mmsimd_default_u8_find,
-        .u8_find2_fn = mmsimd_default_u8_find2,
+        .u8_find_dual_val_fn = mmsimd_default_u8_find_dual_val,
         .u8_find_dual_pos_fn = mmsimd_default_u8_find_dual_pos,
         
         .i8_rfind_fn = mmsimd_default_i8_rfind,
         .u8_rfind_fn = mmsimd_default_u8_rfind,
-        .u8_rfind2_fn = mmsimd_default_u8_rfind2,
+        .u8_rfind_dual_val_fn = mmsimd_default_u8_rfind_dual_val,
 
         .i8_clamp_fn = mmsimd_default_i8_clamp,
         .u8_clamp_fn = mmsimd_default_u8_clamp
@@ -720,12 +723,12 @@ static mmsimd_other8_hdlr_t* mmsimd_get_avx2_other8_handler()
     static mmsimd_other8_hdlr_t hdlr = {
         .i8_find_fn = mmsimd_avx2_i8_find,
         .u8_find_fn = mmsimd_avx2_u8_find,
-        .u8_find2_fn = mmsimd_avx2_u8_find2,
+        .u8_find_dual_val_fn = mmsimd_avx2_u8_find_dual_val,
         .u8_find_dual_pos_fn = mmsimd_avx2_u8_find_dual_pos,
 
         .i8_rfind_fn = mmsimd_avx2_i8_rfind,
         .u8_rfind_fn = mmsimd_avx2_u8_rfind,
-        .u8_rfind2_fn = mmsimd_avx2_u8_rfind2,
+        .u8_rfind_dual_val_fn = mmsimd_avx2_u8_rfind_dual_val,
 
         .i8_clamp_fn = mmsimd_avx2_i8_clamp,
         .u8_clamp_fn = mmsimd_avx2_u8_clamp
@@ -1043,7 +1046,7 @@ MEME_API mmint_t MEME_STDCALL mmsimd_u8_find_dual_val(
     const uint8_t* _in, mmint_t _len, uint8_t _v1, uint8_t _v2)
 {
     mmsimd_other8_hdlr_t* hdlr = mmsimd_get_best_other8_handler();
-    return hdlr->u8_find2_fn(_in, _len, _v1, _v2);
+    return hdlr->u8_find_dual_val_fn(_in, _len, _v1, _v2);
 }
 
 /* Two-key reverse variant; see mmsimd_u8_find_dual_val for the rationale. */
@@ -1051,7 +1054,7 @@ MEME_API mmint_t MEME_STDCALL mmsimd_u8_rfind_dual_val(
     const uint8_t* _in, mmint_t _len, uint8_t _v1, uint8_t _v2)
 {
     mmsimd_other8_hdlr_t* hdlr = mmsimd_get_best_other8_handler();
-    return hdlr->u8_rfind2_fn(_in, _len, _v1, _v2);
+    return hdlr->u8_rfind_dual_val_fn(_in, _len, _v1, _v2);
 }
 
 /* Dual-position filter; see mmsimd_u8_find_dual_pos in simd.h. */

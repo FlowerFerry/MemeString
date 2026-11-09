@@ -1871,7 +1871,7 @@ mmint_t mmsimd_avx2_u8_find(const uint8_t* _buf, mmint_t _len, uint8_t _val)
  * Both comparisons are fused into one movemask so only a single
  * vector-to-GPR transfer happens per block. */
 MG_SYM__TARGET_AVX2
-mmint_t mmsimd_avx2_u8_find2(
+mmint_t mmsimd_avx2_u8_find_dual_val(
     const uint8_t* _buf, mmint_t _len, uint8_t _v1, uint8_t _v2)
 {
     mmint_t idx = 0;
@@ -2004,7 +2004,7 @@ mmint_t mmsimd_avx2_u8_rfind(const uint8_t* _buf, mmint_t _len, uint8_t _val)
  * index whose byte equals either key.  Processes 32-byte blocks so the cost
  * stays linear in _len; a per-candidate reverse rescan would be quadratic. */
 MG_SYM__TARGET_AVX2
-mmint_t mmsimd_avx2_u8_rfind2(
+mmint_t mmsimd_avx2_u8_rfind_dual_val(
     const uint8_t* _buf, mmint_t _len, uint8_t _v1, uint8_t _v2)
 {
     mmint_t end = _len;

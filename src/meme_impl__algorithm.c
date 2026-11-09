@@ -702,7 +702,19 @@ static int __MemeImpl_shouldUseShortPath(mmint_t _haystack_len, mmint_t _needle_
     if (_haystack_len < 0)
         return 0;
 
-    return (_haystack_len - _needle_len) <= MEME_IMPL_FEW_CANDIDATES;
+    /* A haystack shorter than the needle can never match; the short helpers
+     * return -1 immediately for this case too. */
+    if (_haystack_len < _needle_len)
+        return 1;
+
+    /* candidate_count = _haystack_len - _needle_len + 1
+     *
+     * Keep FastScan while candidate_count <= MEME_IMPL_FEW_CANDIDATES:
+     *   _haystack_len - _needle_len + 1 <= FEW
+     *   _haystack_len - _needle_len     <  FEW
+     * Computing it as a strict '<' avoids the +1 (and the overflow it could
+     * cause at the extremes). */
+    return (_haystack_len - _needle_len) < (mmint_t)MEME_IMPL_FEW_CANDIDATES;
 }
 
 /* Folds one byte for case-insensitive comparison, using the same ASCII-only
@@ -913,6 +925,10 @@ mmint_t MemeImpl_SearchByBoyerMooreWithSensitivity
     if ((_haystack_len == 0 || _needle_len == 0))
         return -1;
 
+    /* An explicitly-sized haystack cannot contain a longer needle. */
+    if (_haystack_len > 0 && _haystack_len < _needle_len)
+        return -1;
+
     if (_needle_len == 1) {
         return MemeImpl_SearchByViolenceWithSensitivity(
             _haystack, _haystack_len, *_needle, _cs);
@@ -972,6 +988,10 @@ mmint_t MemeImpl_ReverseSearchByBoyerMooreWithSensitivity(
     if (needle_is_cstr)
         _needle_len = strlen((const char*)_needle);
     if ((_haystack_len == 0 || _needle_len == 0))
+        return -1;
+
+    /* An explicitly-sized haystack cannot contain a longer needle. */
+    if (_haystack_len > 0 && _haystack_len < _needle_len)
         return -1;
 
     if (_needle_len == 1) {

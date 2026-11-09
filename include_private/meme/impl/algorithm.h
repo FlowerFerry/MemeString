@@ -64,8 +64,11 @@ mmint_t MemeImpl_ReverseSearchByBoyerMoore_CaseInsensitive
 #ifndef MEME_IMPL_SHORT_NEEDLE_MAX
 #define MEME_IMPL_SHORT_NEEDLE_MAX   (8 * sizeof(mmint_t))
 #endif
+/* Use FastScan when there are at most this many candidate start positions.
+ * 512 is the crossover point where Boyer-Moore table construction finally
+ * amortizes its cost on this host (MSVC x64, AVX2). */
 #ifndef MEME_IMPL_FEW_CANDIDATES
-#define MEME_IMPL_FEW_CANDIDATES     (8)
+#define MEME_IMPL_FEW_CANDIDATES     (512)
 #endif
 
 /* Needle lengths at or below this bound use stack buffers for the
