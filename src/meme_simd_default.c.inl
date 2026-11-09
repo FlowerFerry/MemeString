@@ -257,6 +257,7 @@ MMSIMD_DEFAULT_CONV_FUNC(f64, f32, double, float)
 static inline mmint_t mmsimd_default_i8_find(
     const int8_t* _buf, mmint_t _len, int8_t _val)
 {
+    if (_len <= 0) return -1;
     const void* p = memchr(_buf, (uint8_t)_val, (size_t)_len);
     return p ? (mmint_t)((const int8_t*)p - _buf) : -1;
 }
@@ -264,6 +265,7 @@ static inline mmint_t mmsimd_default_i8_find(
 static inline mmint_t mmsimd_default_u8_find(
     const uint8_t* _buf, mmint_t _len, uint8_t _val)
 {
+    if (_len <= 0) return -1;
     const void* p = memchr(_buf, _val, (size_t)_len);
     return p ? (mmint_t)((const uint8_t*)p - _buf) : -1;
 }
@@ -272,6 +274,7 @@ static inline mmint_t mmsimd_default_u8_find(
 static inline mmint_t mmsimd_default_u8_find_dual_val(
     const uint8_t* _buf, mmint_t _len, uint8_t _v1, uint8_t _v2)
 {
+    if (_len <= 0) return -1;
     const uint8_t* p1 = memchr(_buf, _v1, (size_t)_len);
     const uint8_t* p2 = memchr(_buf, _v2, (size_t)_len);
     if (!p1) return p2 ? (mmint_t)(p2 - _buf) : -1;
@@ -292,6 +295,7 @@ static inline mmint_t mmsimd_default_u8_find_dual_val(
 static inline mmint_t mmsimd_default_i8_rfind(
     const int8_t* _buf, mmint_t _len, int8_t _val)
 {
+    if (_len <= 0) return -1;
 #if MEME_DEFAULT_USE_MEMRCHR
     const void* p = memrchr(_buf, (uint8_t)_val, (size_t)_len);
     return p ? (mmint_t)((const int8_t*)p - _buf) : -1;
@@ -305,6 +309,7 @@ static inline mmint_t mmsimd_default_i8_rfind(
 static inline mmint_t mmsimd_default_u8_rfind(
     const uint8_t* _buf, mmint_t _len, uint8_t _val)
 {
+    if (_len <= 0) return -1;
 #if MEME_DEFAULT_USE_MEMRCHR
     const void* p = memrchr(_buf, _val, (size_t)_len);
     return p ? (mmint_t)((const uint8_t*)p - _buf) : -1;
@@ -319,6 +324,7 @@ static inline mmint_t mmsimd_default_u8_rfind(
 static inline mmint_t mmsimd_default_u8_rfind_dual_val(
     const uint8_t* _buf, mmint_t _len, uint8_t _v1, uint8_t _v2)
 {
+    if (_len <= 0) return -1;
 #if MEME_DEFAULT_USE_MEMRCHR
     const uint8_t* p1 = memrchr(_buf, _v1, (size_t)_len);
     const uint8_t* p2 = memrchr(_buf, _v2, (size_t)_len);
