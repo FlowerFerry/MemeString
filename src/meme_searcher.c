@@ -230,15 +230,21 @@ MEME_API int MEME_STDCALL MemeSearcherStack_init(
     if (memchr(_needle, 0, (size_t)_needle_len) != NULL)
         self->flags_ |= MemeSearcherFlag__HasNul;
 
-    /* --- short needle (or case-sensitive): fast scan ------------------- */
-    if (_needle_len <= MEME_IMPL_SHORT_NEEDLE_MAX
-        || (_cs & MemeFlag_CaseSensitive) != 0)
+    /* --- short needle: fast scan --------------------------------------- */
+    /* The searcher prebuilds its tables in init() and reuses them for every
+     * find(), so Boyer-Moore pays off much earlier here than in the one-shot
+     * API (which rebuilds per call).  Use the searcher-specific threshold.
+     *
+     * Case sensitivity is NOT part of this decision: the BM path folds the
+     * needle once during init() and runs its hot loop unfolded for the
+     * sensitive case, so it is correct and faster for both. */
+    if (_needle_len <= MEME_IMPL_SEARCHER_SHORT_NEEDLE_MAX)
     {
         self->algo    = MemeSearcherAlgo_FastScan;
         self->b_width = 0;
 
-        /* Keep a NUL after the bytes: the case-sensitive NUL-mode path calls
-         * strstr() directly, which requires a terminated needle. */
+        /* Keep a NUL after the bytes: the NUL-mode paths call strstr(), which
+         * requires a terminated needle. */
         if ((size_t)_needle_len < sizeof(self->inline_))
         {
             memcpy(self->inline_, _needle, (size_t)_needle_len);
