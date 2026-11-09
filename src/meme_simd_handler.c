@@ -1,4 +1,13 @@
 ﻿
+/* memrchr (used by the default SIMD rfind helpers in the .inl below) is a
+ * GNU/BSD extension that glibc only declares when _GNU_SOURCE is defined
+ * before the very first system header.  This is the first line of the
+ * translation unit that includes meme_simd_default.c.inl, so the define has
+ * to live here rather than inside the .inl. */
+#ifndef _GNU_SOURCE
+#	define _GNU_SOURCE 1
+#endif
+
 #include <mego/predef/architecture/x86.h>
 #include <mego/predef/architecture/arm.h>
 #include <mego/predef/os/linux.h>

@@ -1,6 +1,10 @@
 ﻿
 #include <meme/common.h>
 
+/* memchr/memrchr are used by the u8/i8 find and rfind helpers below.
+ * <string.h> is required: without it the compiler assumes an int return and
+ * truncates the pointer result, which is silently wrong on LP64 targets. */
+#include <string.h>
 
 MEME_EXTERN_C_SCOPE_START
 
