@@ -150,7 +150,7 @@ TEST_CASE("MemeSearcherStack: move is O(1) and leaves the source empty", "[searc
         MemeSearcherStack_unInit(&b);
     }
 
-    /* Boyer-Moore case with b_width == 1: both the needle and the bad-char
+    /* Boyer-Moore case with b_width == 1: the bad-char table lives in
      * table live inside the object, so the relocation path is exercised. */
     {
         std::string needle(200, 'a');
@@ -271,7 +271,7 @@ TEST_CASE("MemeSearcherStack: bad-char table width selection", "[searcher]")
      * 255 / 256 and 65535 / 65536 straddle the uint8 / uint16 / uint32
      * thresholds.  These lengths only reach the Boyer-Moore path when the
      * search is case-insensitive (MEME_IMPL_SHORT_NEEDLE_MAX is 32 and the
-     * case-sensitive flag forces fast-scan).
+     * searcher threshold is MEME_IMPL_SEARCHER_SHORT_NEEDLE_MAX (8), and).
      */
     auto roundtrip = [](size_t len) {
         std::string needle(len, 'a');
@@ -1761,4 +1761,869 @@ TEST_CASE("memepp::searcher: flags survive copy", "[searcher]")
     /* reset() clears them (back to a default-constructed object). */
     m.reset();
     REQUIRE(m.flags() == memepp::searcher_flag_t::none);
+}
+
+
+/* --------------------------------------------------------------------- */
+/* Gap coverage: NUL-mode BM, embedded NUL, CS BM, positions, errors,     */
+/* resource reuse, swap state, density boundaries, flags filtering        */
+/* --------------------------------------------------------------------- */
+
+/*
+ * The u64 bad-char table width (needle length > UINT32_MAX) is not covered:
+ * allocating a 4 GB+ needle is impractical in a unit test, and the u64
+ * kernel is the same code as u8/u16/u32 with a wider table type.  The
+ * dispatch switch (case 8 / default) is NOT exercised by the NUL-mode path
+ * below: a 200-byte needle uses b_width == 1 (u8).
+ */
+
+TEST_CASE("MemeSearcherStack: NUL-terminated Boyer-Moore", "[searcher]")
+{
+    /* Needle longer than the searcher threshold (8) selects Boyer-Moore.
+     * find(const char*) passes -1, so the NUL-mode BM branch is taken. */
+    std::string needle(200, 'a');
+    std::string hay = "xx" + needle + "yy";
+    std::string miss(200, 'b');
+
+    MemeSearcherStack_t s;
+    REQUIRE(MemeSearcherStack_init(
+        &s, MMSEARCHER__OBJ_SIZE,
+        reinterpret_cast<const MemeByte_t*>(needle.data()),
+        static_cast<MemeInteger_t>(needle.size()),
+        MemeFlag_AllInsensitive) == 0);
+
+    /* Hit at position 2 through the NUL-terminated BM path. */
+    REQUIRE(MemeSearcherStack_find(
+        &s, reinterpret_cast<const MemeByte_t*>(hay.c_str()), -1, 0) == 2);
+
+    /* Miss. */
+    REQUIRE(MemeSearcherStack_find(
+        &s, reinterpret_cast<const MemeByte_t*>(miss.c_str()), -1, 0) == -1);
+
+    /* Offset past the hit. */
+    REQUIRE(MemeSearcherStack_find(
+        &s, reinterpret_cast<const MemeByte_t*>(hay.c_str()), -1, 3) == -1);
+
+    /* Offset exactly at the hit. */
+    REQUIRE(MemeSearcherStack_find(
+        &s, reinterpret_cast<const MemeByte_t*>(hay.c_str()), -1, 2) == 2);
+
+    /* Haystack shorter than the needle: the up-front NUL probe stops at the
+     * terminator before any comparison. */
+    REQUIRE(MemeSearcherStack_find(
+        &s, reinterpret_cast<const MemeByte_t*>("xx"), -1, 0) == -1);
+
+    MemeSearcherStack_unInit(&s);
+
+    /* Case-insensitive NUL-mode BM: the haystack is folded per byte. */
+    std::string mixed = "AbCdEfGhIjKlMnOpQrStUvWxYz0123456789";
+    std::string lower(mixed);
+    for (char& ch : lower)
+        ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+    std::string ci_hay = "xx" + lower + "yy";
+
+    MemeSearcherStack_t ci;
+    REQUIRE(MemeSearcherStack_init(
+        &ci, MMSEARCHER__OBJ_SIZE,
+        reinterpret_cast<const MemeByte_t*>(mixed.data()),
+        static_cast<MemeInteger_t>(mixed.size()),
+        MemeFlag_AllInsensitive) == 0);
+    REQUIRE(MemeSearcherStack_find(
+        &ci, reinterpret_cast<const MemeByte_t*>(ci_hay.c_str()), -1, 0) == 2);
+    MemeSearcherStack_unInit(&ci);
+}
+
+TEST_CASE("memepp::searcher: embedded NUL needle", "[searcher]")
+{
+    /* A needle containing a NUL byte sets the internal HasNul marker, which
+     * disables the strstr() shortcut in NUL mode. */
+    const MemeByte_t n[] = { 'a', 0, 'b' };
+    memepp::searcher s(n, 3);
+    REQUIRE(s.valid());
+    REQUIRE(s.needle_size() == 3);
+
+    /* Fixed-length mode: the NUL is just a byte. */
+    const MemeByte_t hay[] = { 'x', 'a', 0, 'b' };
+    REQUIRE(s.find(hay, 4) == 1);
+
+    /* NUL mode: the haystack is a C string, so it cannot contain the
+     * needle's embedded NUL.  The search must miss.  If the HasNul marker
+     * were lost, the strstr() shortcut would treat the needle as "a" and
+     * incorrectly report a hit at position 1. */
+    REQUIRE(s.find("xa") == memepp::searcher::npos);
+
+    /* setFlags(none) must not clear the internal HasNul marker. */
+    s.set_flags(memepp::searcher_flag_t::none);
+    REQUIRE(s.find("xa") == memepp::searcher::npos);
+
+    /* setFlags(disable_density) must not clear it either. */
+    s.set_flags(memepp::searcher_flag_t::disable_density);
+    REQUIRE(s.find("xa") == memepp::searcher::npos);
+
+    /* Long embedded-NUL needle on the Boyer-Moore path. */
+    std::string long_n(200, 'a');
+    long_n[100] = '\0';
+    memepp::searcher ls(
+        reinterpret_cast<const MemeByte_t*>(long_n.data()), 200);
+    REQUIRE(ls.valid());
+
+    std::string long_hay = "xx" + long_n + "yy";
+    REQUIRE(ls.find(
+        reinterpret_cast<const MemeByte_t*>(long_hay.data()),
+        static_cast<mmint_t>(long_hay.size())) == 2);
+
+    /* NUL mode with a long embedded-NUL needle: the haystack is shorter
+     * than the needle, so the up-front NUL probe stops at the terminator
+     * and the search misses. */
+    std::string cstr = "xx" + std::string(100, 'a');
+    REQUIRE(ls.find(cstr.c_str()) == memepp::searcher::npos);
+}
+
+TEST_CASE("memepp::searcher: case-sensitive Boyer-Moore", "[searcher]")
+{
+    /* Long mixed-case needle with case sensitivity: the needle is stored
+     * unfolded and the haystack is not folded (bm_fold == 0). */
+    const char* mixed = "AbCdEfGhIjKlMnOpQrStUvWxYz0123456789";
+    std::string lower(mixed);
+    for (char& ch : lower)
+        ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+
+    std::string exact_hay = "xx" + std::string(mixed) + "yy";
+    std::string lower_hay = "xx" + lower + "yy";
+
+    memepp::searcher cs(
+        reinterpret_cast<const MemeByte_t*>(mixed),
+        static_cast<mmint_t>(std::strlen(mixed)),
+        memepp::case_sensitivity_t::case_sensitive);
+    REQUIRE(cs.valid());
+    REQUIRE(cs.find(
+        reinterpret_cast<const MemeByte_t*>(exact_hay.data()),
+        static_cast<mmint_t>(exact_hay.size())) == 2);
+    REQUIRE(cs.find(
+        reinterpret_cast<const MemeByte_t*>(lower_hay.data()),
+        static_cast<mmint_t>(lower_hay.size())) == memepp::searcher::npos);
+
+    /* The same needle case-insensitive matches both. */
+    memepp::searcher ci(
+        reinterpret_cast<const MemeByte_t*>(mixed),
+        static_cast<mmint_t>(std::strlen(mixed)),
+        memepp::case_sensitivity_t::all_insensitive);
+    REQUIRE(ci.find(
+        reinterpret_cast<const MemeByte_t*>(exact_hay.data()),
+        static_cast<mmint_t>(exact_hay.size())) == 2);
+    REQUIRE(ci.find(
+        reinterpret_cast<const MemeByte_t*>(lower_hay.data()),
+        static_cast<mmint_t>(lower_hay.size())) == 2);
+}
+
+TEST_CASE("memepp::searcher: Boyer-Moore hit positions", "[searcher]")
+{
+    std::string needle(200, 'a');
+    memepp::searcher s(
+        reinterpret_cast<const MemeByte_t*>(needle.data()),
+        static_cast<mmint_t>(needle.size()),
+        memepp::case_sensitivity_t::all_insensitive);
+    REQUIRE(s.valid());
+
+    auto B = [](const std::string& p) {
+        return reinterpret_cast<const MemeByte_t*>(p.data());
+    };
+
+    /* Hit at position 0. */
+    std::string h0 = needle + "yy";
+    REQUIRE(s.find(B(h0), static_cast<mmint_t>(h0.size())) == 0);
+
+    /* Hit at the end. */
+    std::string hend = "xx" + needle;
+    REQUIRE(s.find(B(hend), static_cast<mmint_t>(hend.size())) == 2);
+
+    /* Haystack exactly the needle length. */
+    REQUIRE(s.find(B(needle), static_cast<mmint_t>(needle.size())) == 0);
+
+    /* Offset skips the only hit. */
+    std::string hmid = "xx" + needle + "yy";
+    REQUIRE(s.find(B(hmid), static_cast<mmint_t>(hmid.size()), 3)
+            == memepp::searcher::npos);
+
+    /* Offset exactly at the hit. */
+    REQUIRE(s.find(B(hmid), static_cast<mmint_t>(hmid.size()), 2) == 2);
+
+    /* Overlapping pattern: the needle is "ab" repeated 100 times. */
+    std::string rep(200, ' ');
+    for (size_t i = 0; i < 200; ++i)
+        rep[i] = (i % 2 == 0) ? 'a' : 'b';
+    memepp::searcher rs(
+        reinterpret_cast<const MemeByte_t*>(rep.data()), 200,
+        memepp::case_sensitivity_t::all_insensitive);
+    REQUIRE(rs.valid());
+
+    std::string rhit = rep + "ab";
+    REQUIRE(rs.find(B(rhit), static_cast<mmint_t>(rhit.size())) == 0);
+
+    std::string rhit1 = "x" + rep + "ab";
+    REQUIRE(rs.find(B(rhit1), static_cast<mmint_t>(rhit1.size())) == 1);
+}
+
+TEST_CASE("MemeSearcherStack: C API error branches", "[searcher]")
+{
+    const size_t sz = MMSEARCHER__OBJ_SIZE;
+    const MemeByte_t* one = reinterpret_cast<const MemeByte_t*>("x");
+
+    /* initEmpty. */
+    REQUIRE(MemeSearcherStack_initEmpty(nullptr, sz) == MGEC__INVAL);
+    {
+        MemeSearcherStack_t s;
+        REQUIRE(MemeSearcherStack_initEmpty(&s, 0) == MGEC__OPNOTSUPP);
+        REQUIRE(MemeSearcherStack_initEmpty(
+            &s, 0xFF * sizeof(mmint_t) + 1) == MGEC__OPNOTSUPP);
+        REQUIRE(MemeSearcherStack_initEmpty(&s, sz) == 0);
+    }
+
+    /* init. */
+    REQUIRE(MemeSearcherStack_init(nullptr, sz, one, 1, MemeFlag_CaseSensitive)
+            == MGEC__INVAL);
+    {
+        MemeSearcherStack_t s;
+        REQUIRE(MemeSearcherStack_init(&s, 0, one, 1, MemeFlag_CaseSensitive)
+                == MGEC__OPNOTSUPP);
+        REQUIRE(MemeSearcherStack_init(
+            &s, sz, nullptr, 3, MemeFlag_CaseSensitive) == MGEC__INVAL);
+        REQUIRE(MemeSearcherStack_init(
+            &s, sz, one, 0, MemeFlag_CaseSensitive) == MGEC__INVAL);
+        REQUIRE(MemeSearcherStack_init(
+            &s, sz, one, 1, MemeFlag_CaseSensitive) == 0);
+        MemeSearcherStack_unInit(&s);
+    }
+
+    /* initByOther. */
+    {
+        MemeSearcherStack_t a, b;
+        REQUIRE(MemeSearcherStack_init(
+            &a, sz, one, 1, MemeFlag_CaseSensitive) == 0);
+        REQUIRE(MemeSearcherStack_initByOther(nullptr, sz, &a) == MGEC__INVAL);
+        REQUIRE(MemeSearcherStack_initByOther(&b, sz, nullptr) == MGEC__INVAL);
+        REQUIRE(MemeSearcherStack_initByOther(&b, 0, &a) == MGEC__OPNOTSUPP);
+        REQUIRE(MemeSearcherStack_initByOther(&a, sz, &a) == MGEC__INVAL);
+        REQUIRE(MemeSearcherStack_initByOther(&b, sz, &a) == 0);
+        MemeSearcherStack_unInit(&a);
+        MemeSearcherStack_unInit(&b);
+    }
+
+    /* move. */
+    {
+        MemeSearcherStack_t a, b;
+        REQUIRE(MemeSearcherStack_init(
+            &a, sz, one, 1, MemeFlag_CaseSensitive) == 0);
+        REQUIRE(MemeSearcherStack_move(nullptr, sz, &a) == MGEC__INVAL);
+        REQUIRE(MemeSearcherStack_move(&b, sz, nullptr) == MGEC__INVAL);
+        REQUIRE(MemeSearcherStack_move(&b, 0, &a) == MGEC__OPNOTSUPP);
+        REQUIRE(MemeSearcherStack_move(&a, sz, &a) == MGEC__INVAL);
+        REQUIRE(MemeSearcherStack_move(&b, sz, &a) == 0);
+        MemeSearcherStack_unInit(&b);
+    }
+
+    /* unInit. */
+    REQUIRE(MemeSearcherStack_unInit(nullptr) == MGEC__INVAL);
+
+    /* swap.  b must be initialised first: swap() byte-exchanges the two
+     * objects, so an uninitialised b would copy stack garbage into a,
+     * and unInit(&a) would then free a garbage heap_block. */
+    {
+        MemeSearcherStack_t a, b;
+        REQUIRE(MemeSearcherStack_init(
+            &a, sz, one, 1, MemeFlag_CaseSensitive) == 0);
+        REQUIRE(MemeSearcherStack_initEmpty(&b, sz) == 0);
+        REQUIRE(MemeSearcherStack_swap(nullptr, &a) == MGEC__INVAL);
+        REQUIRE(MemeSearcherStack_swap(&a, nullptr) == MGEC__INVAL);
+        REQUIRE(MemeSearcherStack_swap(&a, &a) == 0);
+        REQUIRE(MemeSearcherStack_swap(&a, &b) == 0);
+        /* After the swap a holds the empty object, b the valid one. */
+        REQUIRE(MemeSearcherStack_state(&a) == MemeSearcherState_Empty);
+        REQUIRE(MemeSearcherStack_state(&b) == MemeSearcherState_Ready);
+        MemeSearcherStack_unInit(&a);
+        MemeSearcherStack_unInit(&b);
+    }
+
+    /* find. */
+    {
+        MemeSearcherStack_t s;
+        REQUIRE(MemeSearcherStack_init(
+            &s, sz, one, 1, MemeFlag_CaseSensitive) == 0);
+        REQUIRE(MemeSearcherStack_find(nullptr, one, 1, 0) == -1);
+        REQUIRE(MemeSearcherStack_find(&s, nullptr, 1, 0) == -1);
+        MemeSearcherStack_unInit(&s);
+    }
+
+    /* resetDensity. */
+    REQUIRE(MemeSearcherStack_resetDensity(nullptr) == MGEC__INVAL);
+    {
+        MemeSearcherStack_t z;
+        std::memset(&z, 0, sizeof(z));
+        REQUIRE(MemeSearcherStack_resetDensity(&z) == MGEC__INVAL);
+    }
+
+    /* setFlags. */
+    REQUIRE(MemeSearcherStack_setFlags(nullptr, MemeSearcherFlag_None)
+            == MGEC__INVAL);
+    {
+        MemeSearcherStack_t z;
+        std::memset(&z, 0, sizeof(z));
+        REQUIRE(MemeSearcherStack_setFlags(&z, MemeSearcherFlag_None)
+                == MGEC__INVAL);
+    }
+
+    /* Introspection on null. */
+    REQUIRE(MemeSearcherStack_density(nullptr) == MemeSearcherDensity_Unknown);
+    REQUIRE(MemeSearcherStack_needleSize(nullptr) == 0);
+    REQUIRE(MemeSearcherStack_caseSensitivity(nullptr) == MemeFlag_AllSensitive);
+    REQUIRE(MemeSearcherStack_errorCode(nullptr) == MGEC__INVAL);
+    REQUIRE(MemeSearcherStack_state(nullptr) == MemeSearcherState_Empty);
+
+    /* flags() on null - this was missing from the original test. */
+    REQUIRE(MemeSearcherStack_flags(nullptr) == MemeSearcherFlag_None);
+}
+
+TEST_CASE("MemeSearcherStack: re-init after unInit", "[searcher]")
+{
+    /*
+     * The C API contract: a caller that re-initialises an object that still
+     * owns a heap block must call unInit() first.  init() memsets the object
+     * before allocating, so a stale heap_block pointer would be lost and the
+     * block leaked.  The C++ wrapper always unInits before re-init (reset(),
+     * move-assign, copy-assign), so the safe pattern is what the tests
+     * exercise here.
+     */
+    const size_t sz = MMSEARCHER__OBJ_SIZE;
+
+    /* BM needle (heap block) -> unInit -> re-init with a different needle. */
+    {
+        std::string n1(200, 'a');
+        std::string n2(300, 'b');
+        std::string hay2 = "zz" + n2 + "ww";
+
+        MemeSearcherStack_t s;
+        REQUIRE(MemeSearcherStack_init(
+            &s, sz, reinterpret_cast<const MemeByte_t*>(n1.data()),
+            static_cast<MemeInteger_t>(n1.size()),
+            MemeFlag_AllInsensitive) == 0);
+        REQUIRE(MemeSearcherStack_unInit(&s) == 0);
+
+        REQUIRE(MemeSearcherStack_init(
+            &s, sz, reinterpret_cast<const MemeByte_t*>(n2.data()),
+            static_cast<MemeInteger_t>(n2.size()),
+            MemeFlag_AllInsensitive) == 0);
+        REQUIRE(MemeSearcherStack_find(
+            &s, reinterpret_cast<const MemeByte_t*>(hay2.data()),
+            static_cast<MemeInteger_t>(hay2.size()), 0) == 2);
+        MemeSearcherStack_unInit(&s);
+    }
+
+    /* unInit -> initEmpty -> init. */
+    {
+        MemeSearcherStack_t s;
+        REQUIRE(MemeSearcherStack_init(
+            &s, sz, reinterpret_cast<const MemeByte_t*>("fox"), 3,
+            MemeFlag_CaseSensitive) == 0);
+        REQUIRE(MemeSearcherStack_unInit(&s) == 0);
+        REQUIRE(MemeSearcherStack_initEmpty(&s, sz) == 0);
+        REQUIRE(MemeSearcherStack_state(&s) == MemeSearcherState_Empty);
+        REQUIRE(MemeSearcherStack_init(
+            &s, sz, reinterpret_cast<const MemeByte_t*>("bar"), 3,
+            MemeFlag_CaseSensitive) == 0);
+        REQUIRE(MemeSearcherStack_find(
+            &s, reinterpret_cast<const MemeByte_t*>("xxbar"), 5, 0) == 2);
+        MemeSearcherStack_unInit(&s);
+    }
+}
+
+TEST_CASE("memepp::searcher: swap edge cases and state", "[searcher]")
+{
+    memepp::string hay = "the quick brown fox";
+
+    /* Self-swap is a no-op. */
+    {
+        memepp::searcher s("fox");
+        s.swap(s);
+        REQUIRE(s.valid());
+        REQUIRE(s.find(hay) == 16);
+    }
+
+    /* Boyer-Moore <-> FastScan. */
+    {
+        std::string needle(200, 'a');
+        std::string big = "xx" + needle + "yy";
+        memepp::searcher bm(
+            reinterpret_cast<const MemeByte_t*>(needle.data()),
+            static_cast<mmint_t>(needle.size()),
+            memepp::case_sensitivity_t::all_insensitive);
+        memepp::searcher fast("fox");
+
+        bm.swap(fast);
+        REQUIRE(bm.needle_size() == 3);
+        REQUIRE(fast.needle_size() == 200);
+        REQUIRE(bm.find(hay) == 16);
+        REQUIRE(fast.find(
+            reinterpret_cast<const MemeByte_t*>(big.data()),
+            static_cast<mmint_t>(big.size())) == 2);
+    }
+
+    /* Failed <-> ready: state and error_code travel with the object. */
+    {
+        memepp::searcher failed("");
+        REQUIRE(failed.state() == memepp::searcher_state_t::failed);
+        memepp::searcher ready("fox");
+        REQUIRE(ready.state() == memepp::searcher_state_t::ready);
+
+        failed.swap(ready);
+        REQUIRE(failed.valid());
+        REQUIRE(failed.state() == memepp::searcher_state_t::ready);
+        REQUIRE(failed.error_code() == MGEC__OK);
+        REQUIRE(failed.find(hay) == 16);
+        REQUIRE(!ready.valid());
+        REQUIRE(ready.state() == memepp::searcher_state_t::failed);
+        REQUIRE(ready.error_code() == MGEC__INVAL);
+    }
+
+    /* Density counters travel with the object. */
+    {
+        memepp::searcher a("fox");
+        for (int i = 0; i < 4; ++i) a.find(hay);
+        REQUIRE(a.density() == memepp::search_density_t::frequent);
+
+        memepp::searcher b("bar");
+        REQUIRE(b.density() == memepp::search_density_t::unknown);
+
+        a.swap(b);
+        REQUIRE(b.density() == memepp::search_density_t::frequent);
+        REQUIRE(a.density() == memepp::search_density_t::unknown);
+    }
+
+    /* Behaviour flags travel with the object. */
+    {
+        memepp::searcher a("fox");
+        a.set_flags(memepp::searcher_flag_t::disable_density);
+        memepp::searcher b("bar");
+
+        a.swap(b);
+        REQUIRE(b.flags() == memepp::searcher_flag_t::disable_density);
+        REQUIRE(a.flags() == memepp::searcher_flag_t::none);
+    }
+}
+
+TEST_CASE("memepp::searcher: density exact boundaries", "[searcher]")
+{
+    memepp::string hit  = "the quick brown fox";
+    memepp::string miss = "nothing here";
+
+    /* Exactly 25 % (1/4): h == ceil(c/4), so it is Sparse, not Rare. */
+    {
+        memepp::searcher s("fox");
+        s.find(hit);
+        for (int i = 0; i < 3; ++i) s.find(miss);
+        REQUIRE(s.density() == memepp::search_density_t::sparse);
+    }
+
+    /* Exactly 50 % (2/4): Common, not Sparse. */
+    {
+        memepp::searcher s("fox");
+        s.find(hit); s.find(hit);
+        s.find(miss); s.find(miss);
+        REQUIRE(s.density() == memepp::search_density_t::common);
+    }
+
+    /* Exactly 75 % (3/4): Frequent, not Common. */
+    {
+        memepp::searcher s("fox");
+        s.find(hit); s.find(hit); s.find(hit);
+        s.find(miss);
+        REQUIRE(s.density() == memepp::search_density_t::frequent);
+    }
+
+    /* 25 % at c = 8 (2/8): Sparse. */
+    {
+        memepp::searcher s("fox");
+        s.find(hit); s.find(hit);
+        for (int i = 0; i < 6; ++i) s.find(miss);
+        REQUIRE(s.density() == memepp::search_density_t::sparse);
+    }
+
+    /* 50 % at c = 8 (4/8): Common. */
+    {
+        memepp::searcher s("fox");
+        for (int i = 0; i < 4; ++i) s.find(hit);
+        for (int i = 0; i < 4; ++i) s.find(miss);
+        REQUIRE(s.density() == memepp::search_density_t::common);
+    }
+
+    /* 75 % at c = 8 (6/8): Frequent. */
+    {
+        memepp::searcher s("fox");
+        for (int i = 0; i < 6; ++i) s.find(hit);
+        for (int i = 0; i < 2; ++i) s.find(miss);
+        REQUIRE(s.density() == memepp::search_density_t::frequent);
+    }
+}
+
+TEST_CASE("memepp::searcher: density not counted on early return",
+          "[searcher]")
+{
+    memepp::string hit  = "the quick brown fox";
+    memepp::string miss = "nothing here";
+
+    /* A null haystack returns before the density counters are touched. */
+    {
+        memepp::searcher s("fox");
+        for (int i = 0; i < 3; ++i) s.find(hit);
+        for (int i = 0; i < 5; ++i)
+            s.find(static_cast<const char*>(nullptr));
+        s.find(hit);
+        /* 4 counted calls, 4 hits -> Frequent.  If the null calls had been
+         * counted, the ratio would be 4/9 (t50 = ceil(9/2) = 5) and the
+         * answer would be Sparse. */
+        REQUIRE(s.density() == memepp::search_density_t::frequent);
+    }
+
+    /* An invalid offset returns before the counters are touched. */
+    {
+        memepp::searcher s("fox");
+        for (int i = 0; i < 3; ++i) s.find(hit);
+        for (int i = 0; i < 5; ++i)
+            s.find(miss, -1);
+        s.find(hit);
+        REQUIRE(s.density() == memepp::search_density_t::frequent);
+    }
+
+    /* Re-enabling density after disable_density counts only the new calls.
+     * The 4 miss calls after re-enable must be counted (0/4 = Rare). */
+    {
+        memepp::searcher s("fox");
+        s.set_flags(memepp::searcher_flag_t::disable_density);
+        for (int i = 0; i < 5; ++i) { s.find(hit); s.find(miss); }
+        REQUIRE(s.density() == memepp::search_density_t::unknown);
+
+        s.set_flags(memepp::searcher_flag_t::none);
+        for (int i = 0; i < 4; ++i) s.find(miss);
+        /* Critical: verify the re-enabled calls are actually counted. */
+        REQUIRE(s.density() == memepp::search_density_t::rare);
+
+        s.reset_density();
+        for (int i = 0; i < 4; ++i) s.find(hit);
+        REQUIRE(s.density() == memepp::search_density_t::frequent);
+    }
+}
+
+TEST_CASE("memepp::searcher: flags filtering and HasNul", "[searcher]")
+{
+    /* Unknown bits are filtered: only DisableDensity survives. */
+    {
+        memepp::searcher s("fox");
+        s.set_flags(static_cast<memepp::searcher_flag_t>(0xFF));
+        REQUIRE(s.flags() == memepp::searcher_flag_t::disable_density);
+
+        /* The internal HasNul bit (0x80) is not a caller-settable flag. */
+        s.set_flags(static_cast<memepp::searcher_flag_t>(0x80));
+        REQUIRE(s.flags() == memepp::searcher_flag_t::none);
+    }
+
+    /* The internal HasNul marker survives setFlags() calls. */
+    {
+        const MemeByte_t n[] = { 'a', 0, 'b' };
+        memepp::searcher s(n, 3);
+        REQUIRE(s.find("xa") == memepp::searcher::npos);
+
+        s.set_flags(memepp::searcher_flag_t::disable_density);
+        REQUIRE(s.flags() == memepp::searcher_flag_t::disable_density);
+        REQUIRE(s.find("xa") == memepp::searcher::npos);
+
+        s.set_flags(memepp::searcher_flag_t::none);
+        REQUIRE(s.flags() == memepp::searcher_flag_t::none);
+        REQUIRE(s.find("xa") == memepp::searcher::npos);
+    }
+
+    /* setFlags on an uninitialised object is rejected by the C layer. */
+    {
+        memepp::searcher e;
+        REQUIRE(MemeSearcherStack_setFlags(
+            e.native_handle(), MemeSearcherFlag_DisableDensity)
+            == MGEC__INVAL);
+        REQUIRE(e.flags() == memepp::searcher_flag_t::none);
+    }
+
+    /* setFlags on a failed object is rejected too (reg_size_ is 0). */
+    {
+        memepp::searcher failed("");
+        REQUIRE(failed.state() == memepp::searcher_state_t::failed);
+        REQUIRE(MemeSearcherStack_setFlags(
+            failed.native_handle(), MemeSearcherFlag_DisableDensity)
+            == MGEC__INVAL);
+    }
+}
+
+TEST_CASE("memepp::searcher: NUL-mode Boyer-Moore with u16/u32 tables",
+          "[searcher]")
+{
+    /* NUL-mode dispatch uses a switch on b_width.  Needle lengths that
+     * select u16 (256..65535) and u32 (65536..UINT32_MAX) need explicit
+     * NUL-mode coverage.  CI forces Boyer-Moore regardless of length. */
+
+    auto B = [](const char* p) {
+        return reinterpret_cast<const MemeByte_t*>(p);
+    };
+
+    /* u16 table: needle length 256 bytes. */
+    {
+        std::string needle(256, 'a');
+        std::string hay = "xx" + needle + "yy";
+        memepp::searcher s(
+            B(needle.data()), static_cast<mmint_t>(needle.size()),
+            memepp::case_sensitivity_t::all_insensitive);
+        REQUIRE(s.valid());
+        /* Fixed-length find uses u16 dispatch. */
+        REQUIRE(s.find(B(hay.data()), static_cast<mmint_t>(hay.size())) == 2);
+        /* NUL-mode also uses u16 dispatch. */
+        REQUIRE(s.find(hay.c_str()) == 2);
+        REQUIRE(s.find("xa") == memepp::searcher::npos);
+    }
+
+    /* u32 table: needle length 65536 bytes. */
+    {
+        std::string needle(65536, 'b');
+        std::string hay = "zz" + needle + "ww";
+        memepp::searcher s(
+            B(needle.data()), static_cast<mmint_t>(needle.size()),
+            memepp::case_sensitivity_t::all_insensitive);
+        REQUIRE(s.valid());
+        REQUIRE(s.find(B(hay.data()), static_cast<mmint_t>(hay.size())) == 2);
+        REQUIRE(s.find(hay.c_str()) == 2);
+    }
+}
+
+#if MG_LANG__CXX17_AVAIL
+TEST_CASE("memepp::searcher: std::string_view with CI and BM",
+          "[searcher]")
+{
+    /* This combination was missing from the interface matrix. */
+    std::string_view needle = "AbCdEfGhIjKlMnOpQrStUvWxYz0123456789";
+    std::string lower(needle);
+    for (char& ch : lower)
+        ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+
+    memepp::searcher s(needle, memepp::case_sensitivity_t::all_insensitive);
+    REQUIRE(s.valid());
+
+    std::string hay = "xx" + lower + "yy";
+    REQUIRE(s.find(std::string_view(hay)) == 2);
+    REQUIRE(s.find(std::string_view("nomatch")) == memepp::searcher::npos);
+}
+#endif
+
+TEST_CASE("memepp::searcher: buffer_view BM and embedded NUL",
+          "[searcher]")
+{
+    /* buffer_view with a long needle selects BM; embedded NUL is just a byte
+     * in fixed-length mode.  This fills a gap in the interface matrix. */
+    auto B = [](const char* p) { return reinterpret_cast<const MemeByte_t*>(p); };
+
+    std::string needle(300, 'a');
+    needle[150] = '\0';
+    std::string hay = "xx" + needle + "yy";
+
+    memepp::buffer_view nv(B(needle.data()), static_cast<mmint_t>(needle.size()));
+    memepp::searcher s(nv, memepp::case_sensitivity_t::all_insensitive);
+    REQUIRE(s.valid());
+
+    memepp::buffer_view hv(B(hay.data()), static_cast<mmint_t>(hay.size()));
+    REQUIRE(s.find(hv) == 2);
+
+    /* NUL-mode with embedded NUL needle: the haystack is NUL-free, so the
+     * up-front probe stops early and the search misses. */
+    std::string short_hay = "xx" + std::string(100, 'a');
+    REQUIRE(s.find(short_hay.c_str()) == memepp::searcher::npos);
+}
+
+/* --------------------------------------------------------------------- */
+/* API contract documentation                                            */
+/* --------------------------------------------------------------------- */
+
+/*
+ * Resource-reuse contract for MemeSearcherStack_init/initEmpty/initByOther:
+ *
+ * These functions memset the destination object before any other work.
+ * If the object already owns a heap_block (from a previous successful
+ * init), that pointer is lost and the block is leaked.  The safe pattern
+ * is: init -> unInit -> re-init.
+ *
+ * MemeSearcherStack_move() documents that _out must not already own
+ * resources; the other init variants should carry the same note.
+ *
+ * The C++ wrapper (searcher.hpp) always calls unInit() before re-init
+ * (reset(), move-assign, copy-assign), so it is safe by construction.
+ */
+
+
+TEST_CASE("memepp::searcher: contains(memepp::string) miss paths",
+          "[searcher]")
+{
+    /* contains(const memepp::string&) was only exercised on the hit path. */
+    memepp::searcher s("brown");
+    memepp::string hit  = "the quick brown fox";
+    memepp::string miss = "nothing here";
+    memepp::string empty;
+
+    REQUIRE(s.contains(hit));
+    REQUIRE_FALSE(s.contains(miss));
+    REQUIRE_FALSE(s.contains(empty));
+
+    /* Invalid searcher never contains anything, for every overload. */
+    memepp::searcher inv;
+    REQUIRE_FALSE(inv.contains(hit));
+    REQUIRE_FALSE(inv.contains(miss));
+    REQUIRE_FALSE(inv.contains(empty));
+}
+
+TEST_CASE("memepp::searcher: buffer_view case-insensitive search",
+          "[searcher]")
+{
+    /* buffer_view find() with all_insensitive was not covered; every other
+     * view type had a CI case but buffer_view only had sensitive ones. */
+    auto B = [](const char* p) { return reinterpret_cast<const MemeByte_t*>(p); };
+
+    memepp::buffer owner(B("HeLLo WoRLd"), 11);
+    memepp::buffer_view bv(owner);
+
+    memepp::searcher ci("world", memepp::case_sensitivity_t::all_insensitive);
+    REQUIRE(ci.valid());
+    REQUIRE(ci.find(bv) == 6);
+    REQUIRE(ci.contains(bv));
+
+    memepp::searcher cs("world", memepp::case_sensitivity_t::case_sensitive);
+    REQUIRE(cs.valid());
+    REQUIRE(cs.find(bv) == memepp::searcher::npos);
+    REQUIRE_FALSE(cs.contains(bv));
+}
+
+TEST_CASE("memepp::searcher: every find overload on the BM path",
+          "[searcher]")
+{
+    /* The BM path was covered through find(raw bytes), find(string),
+     * find(string_span), find(buffer) and find(buffer_view), but not through
+     * every overload.  A 40-byte mixed-case needle selects Boyer-Moore and
+     * exercises each forwarding function with the same expectation. */
+    std::string needle(40, 'a');
+    std::string hay = "xx" + needle + "yy";
+    const mmint_t hn = static_cast<mmint_t>(hay.size());
+
+    memepp::searcher s(
+        reinterpret_cast<const MemeByte_t*>(needle.data()),
+        static_cast<mmint_t>(needle.size()),
+        memepp::case_sensitivity_t::all_insensitive);
+    REQUIRE(s.valid());
+    REQUIRE(s.needle_size() == 40);
+
+    auto B = [](const char* p) { return reinterpret_cast<const MemeByte_t*>(p); };
+
+    /* memepp::string */
+    REQUIRE(s.find(memepp::string(B(hay.data()), hn)) == 2);
+
+    /* memepp::string_view */
+    REQUIRE(s.find(memepp::string_view(B(hay.data()), hn)) == 2);
+
+    /* raw bytes with explicit length */
+    REQUIRE(s.find(B(hay.data()), hn) == 2);
+
+#if MG_LANG__CXX17_AVAIL
+    /* std::string_view */
+    REQUIRE(s.find(std::string_view(hay)) == 2);
+#endif
+
+    /* string_span */
+    REQUIRE(s.find(memepp::string_span(B(hay.data()), hn)) == 2);
+
+    /* buffer_span */
+    REQUIRE(s.find(memepp::buffer_span(B(hay.data()), hn)) == 2);
+
+    /* memepp::buffer */
+    REQUIRE(s.find(memepp::buffer(B(hay.data()), hn)) == 2);
+
+    /* memepp::buffer_view */
+    {
+        memepp::buffer owner(B(hay.data()), hn);
+        memepp::buffer_view bv(owner);
+        REQUIRE(s.find(bv) == 2);
+    }
+
+    /* Null-terminated */
+    REQUIRE(s.find(hay.c_str()) == 2);
+}
+
+TEST_CASE("MemeSearcherStack: object size bounds on init/initByOther/move",
+          "[searcher]")
+{
+    /*
+     * MEME_SRCH_MAX_OBJECT_SIZE is 0xFF * sizeof(mmint_t).  A size above it
+     * would be truncated by the reg_size_ cast and leave the object looking
+     * uninitialised.  initEmpty() was covered; init(), initByOther() and
+     * move() only had the zero case.
+     */
+    const size_t too_big = (size_t)0xFF * sizeof(mmint_t) + 1;
+    const MemeByte_t* one = reinterpret_cast<const MemeByte_t*>("x");
+    MemeSearcherStack_t a, b;
+
+    REQUIRE(MemeSearcherStack_init(
+        &a, too_big, one, 1, MemeFlag_CaseSensitive) == MGEC__OPNOTSUPP);
+    REQUIRE(MemeSearcherStack_init(
+        &a, MMSEARCHER__OBJ_SIZE, one, 1, MemeFlag_CaseSensitive) == 0);
+
+    REQUIRE(MemeSearcherStack_initByOther(&b, too_big, &a) == MGEC__OPNOTSUPP);
+    REQUIRE(MemeSearcherStack_move(&b, too_big, &a) == MGEC__OPNOTSUPP);
+
+    /* The source is untouched by the rejected calls. */
+    REQUIRE(MemeSearcherStack_state(&a) == MemeSearcherState_Ready);
+    REQUIRE(MemeSearcherStack_find(
+        &a, one, 1, 0) == 0);
+
+    MemeSearcherStack_unInit(&a);
+}
+
+TEST_CASE("memepp::searcher: unInit then reuse the same storage",
+          "[searcher]")
+{
+    /*
+     * The C++ wrapper owns the unInit/re-init sequencing: reset() releases
+     * the heap block, and a later assignment rebuilds from scratch.  Cycling
+     * several times checks that no stale pointer survives and that a BM
+     * object (heap block) and a FastScan object (inline needle) can succeed
+     * each other in the same storage.
+     */
+    memepp::string hay = "the quick brown fox";
+    std::string big_needle(200, 'a');
+    std::string big_hay = "xx" + big_needle + "yy";
+
+    memepp::searcher s;
+    for (int i = 0; i < 4; ++i)
+    {
+        /* FastScan */
+        s = memepp::searcher("fox");
+        REQUIRE(s.find(hay) == 16);
+
+        s.reset();
+        REQUIRE(!s.valid());
+        REQUIRE(s.needle_size() == 0);
+
+        /* Boyer-Moore, with a heap block */
+        s = memepp::searcher(
+            reinterpret_cast<const MemeByte_t*>(big_needle.data()),
+            static_cast<mmint_t>(big_needle.size()),
+            memepp::case_sensitivity_t::all_insensitive);
+        REQUIRE(s.find(
+            reinterpret_cast<const MemeByte_t*>(big_hay.data()),
+            static_cast<mmint_t>(big_hay.size())) == 2);
+
+        s.reset();
+        REQUIRE(!s.valid());
+    }
+
+    /* The object is still usable after all that cycling. */
+    s = memepp::searcher("brown");
+    REQUIRE(s.find(hay) == 10);
 }

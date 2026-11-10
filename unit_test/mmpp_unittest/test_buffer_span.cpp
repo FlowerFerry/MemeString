@@ -958,3 +958,482 @@ TEST_CASE("buffer_span ends_with buffer_span", "[buffer_span]")
     REQUIRE(bs.ends_with(memepp::buffer_span(sf, 2)));
     REQUIRE_FALSE(bs.ends_with(memepp::buffer_span(sf, 1)));
 }
+
+
+/* ===================================================================== */
+/* Gap coverage: positions, empty spans, slicing bounds, conversions      */
+/* ===================================================================== */
+
+TEST_CASE("buffer_span find: negative and out-of-range positions",
+          "[buffer_span]")
+{
+    const uint8_t raw[] = { 'a', 'b', 'c', 'd', 'e' };
+    memepp::buffer_span bs(raw, 5);
+    const uint8_t nd[] = { 'c', 'd' };
+
+    /* find(buffer_span): _pos < 0 is clamped to 0. */
+    REQUIRE(bs.find(memepp::buffer_span(nd, 2), -1) == 2);
+    REQUIRE(bs.find(memepp::buffer_span(nd, 2), -100) == 2);
+
+    /* find(buffer_span): _pos == size() -> npos (needle does not fit). */
+    REQUIRE(bs.find(memepp::buffer_span(nd, 2), 5) == memepp::buffer_span::npos);
+    /* _pos > size() -> npos. */
+    REQUIRE(bs.find(memepp::buffer_span(nd, 2), 6) == memepp::buffer_span::npos);
+    REQUIRE(bs.find(memepp::buffer_span(nd, 2), 99) == memepp::buffer_span::npos);
+
+    /* find(byte): _pos < 0 is clamped to 0. */
+    REQUIRE(bs.find((uint8_t)'a', -1) == 0);
+    REQUIRE(bs.find((uint8_t)'e', -100) == 4);
+
+    /* find(byte): _pos == size() and beyond -> npos (loop never runs). */
+    REQUIRE(bs.find((uint8_t)'e', 5) == memepp::buffer_span::npos);
+    REQUIRE(bs.find((uint8_t)'e', 6) == memepp::buffer_span::npos);
+    REQUIRE(bs.find((uint8_t)'a', 99) == memepp::buffer_span::npos);
+
+    /* The pointer+count overload must reach the same behaviour. */
+    REQUIRE(bs.find(nd, -1, 2) == 2);      /* pos clamps to 0 */
+    REQUIRE(bs.find(nd, 5, 2) == memepp::buffer_span::npos);
+
+    /* Empty haystack: negative position clamps, then nothing can match. */
+    memepp::buffer_span empty;
+    REQUIRE(empty.find(memepp::buffer_span(nd, 2), -1)
+            == memepp::buffer_span::npos);
+    REQUIRE(empty.find((uint8_t)'a', -1) == memepp::buffer_span::npos);
+}
+
+TEST_CASE("buffer_span find: empty needle and empty haystack combinations",
+          "[buffer_span]")
+{
+    const uint8_t raw[] = { 'a', 'b', 'c' };
+    memepp::buffer_span bs(raw, 3);
+    memepp::buffer_span empty;
+
+    /* An empty needle matches at _pos, including _pos == size(). */
+    REQUIRE(bs.find(memepp::buffer_span()) == 0);
+    REQUIRE(bs.find(memepp::buffer_span(), 2) == 2);
+    REQUIRE(bs.find(memepp::buffer_span(), 3) == 3);
+    REQUIRE(bs.find(memepp::buffer_span(), 4) == memepp::buffer_span::npos);
+
+    /* Empty haystack + empty needle: 0, but a positive _pos is out of range. */
+    REQUIRE(empty.find(memepp::buffer_span()) == 0);
+    REQUIRE(empty.find(memepp::buffer_span(), 0) == 0);
+    REQUIRE(empty.find(memepp::buffer_span(), 1) == memepp::buffer_span::npos);
+
+    /* Empty haystack + non-empty needle: never matches. */
+    REQUIRE(empty.find(memepp::buffer_span(raw, 3)) == memepp::buffer_span::npos);
+    REQUIRE(empty.find((uint8_t)'a') == memepp::buffer_span::npos);
+
+    /* Null pointer with a zero count is the empty needle. */
+    REQUIRE(bs.find(static_cast<const uint8_t*>(nullptr), 0, 0) == 0);
+    REQUIRE(bs.find(static_cast<const uint8_t*>(nullptr), 2, 0) == 2);
+
+    /* Direct buffer_span overload with an explicit needle. */
+    const uint8_t nd[] = { 'b', 'c' };
+    REQUIRE(bs.find(memepp::buffer_span(nd, 2)) == 1);
+    REQUIRE(bs.find(memepp::buffer_span(nd, 2), 2) == memepp::buffer_span::npos);
+}
+
+TEST_CASE("buffer_span rfind: pointer overload with empty needle",
+          "[buffer_span]")
+{
+    const uint8_t raw[] = { 'a', 'b', 'c', 'd', 'e' };
+    memepp::buffer_span bs(raw, 5);
+    memepp::buffer_span empty;
+
+    /* Empty needle returns min(_pos, size()). */
+    const uint8_t* np = nullptr;
+    REQUIRE(bs.rfind(np, memepp::buffer_span::npos, 0) == 5);
+    REQUIRE(bs.rfind(np, 2, 0) == 2);
+    REQUIRE(bs.rfind(np, 0, 0) == 0);
+
+    /* Empty haystack. */
+    REQUIRE(empty.rfind(np, memepp::buffer_span::npos, 0) == 0);
+    REQUIRE(empty.rfind(np, 0, 0) == 0);
+
+    /* Non-empty needle via the pointer overload. */
+    const uint8_t nd[] = { 'b', 'c' };
+    REQUIRE(bs.rfind(nd, memepp::buffer_span::npos, 2) == 1);
+    REQUIRE(bs.rfind(nd, 0, 2) == memepp::buffer_span::npos);
+}
+
+TEST_CASE("buffer_span empty-range contains/starts_with/ends_with",
+          "[buffer_span]")
+{
+    const uint8_t raw[] = { 'a', 'b', 'c' };
+    memepp::buffer_span bs(raw, 3);
+    memepp::buffer_span empty;
+
+    /* An empty needle is always contained. */
+    REQUIRE(bs.contains(memepp::buffer_span()));
+    REQUIRE(empty.contains(memepp::buffer_span()));
+
+    /* An empty prefix/suffix always matches, including on an empty span. */
+    REQUIRE(bs.starts_with(memepp::buffer_span()));
+    REQUIRE(bs.ends_with(memepp::buffer_span()));
+    REQUIRE(empty.starts_with(memepp::buffer_span()));
+    REQUIRE(empty.ends_with(memepp::buffer_span()));
+
+    /* A non-empty needle on an empty haystack never matches. */
+    REQUIRE_FALSE(empty.contains(memepp::buffer_span(raw, 3)));
+    REQUIRE_FALSE(empty.starts_with(memepp::buffer_span(raw, 3)));
+    REQUIRE_FALSE(empty.ends_with(memepp::buffer_span(raw, 3)));
+}
+
+TEST_CASE("buffer_span slice/first/last: bounds and negative counts",
+          "[buffer_span]")
+{
+    const uint8_t raw[] = { 'a', 'b', 'c', 'd', 'e' };
+    memepp::buffer_span bs(raw, 5);
+    memepp::buffer_span empty;
+
+    /* slice(size) is the empty tail, slice(size, 0) the same. */
+    REQUIRE(bs.slice(5).size() == 0);
+    REQUIRE(bs.slice(5).empty());
+    REQUIRE(bs.slice(5, 0).size() == 0);
+
+    /* A count beyond the remaining length is clamped. */
+    REQUIRE(bs.slice(3).size() == 2);
+    REQUIRE(bs.slice(0, 99).size() == 5);
+    REQUIRE(bs.slice(3, 99).size() == 2);
+
+    /* npos means "to the end". */
+    REQUIRE(bs.slice(2, memepp::buffer_span::npos).size() == 3);
+
+    /* _pos > size clamps (no negative data_ offset). */
+    REQUIRE(bs.slice(99).size() == 0);
+    REQUIRE(bs.slice(99, 99).size() == 0);
+
+    /* Empty span: every slice is empty. */
+    REQUIRE(empty.slice(0).size() == 0);
+    REQUIRE(empty.slice(0, 0).size() == 0);
+    REQUIRE(empty.slice(99).size() == 0);
+
+    /* first()/last() clamp to size. */
+    REQUIRE(bs.first(5).size() == 5);
+    REQUIRE(bs.first(99).size() == 5);
+    REQUIRE(bs.last(5).size() == 5);
+    REQUIRE(bs.last(99).size() == 5);
+
+    /* last(size) starts at data_ + 0. */
+    REQUIRE(bs.last(5).data() == bs.data());
+
+    /* Empty span: first(0)/last(0) are empty; larger counts clamp to 0. */
+    REQUIRE(empty.first(0).size() == 0);
+    REQUIRE(empty.first(1).size() == 0);
+    REQUIRE(empty.last(0).size() == 0);
+    REQUIRE(empty.last(1).size() == 0);
+}
+
+TEST_CASE("buffer_span remove_prefix/remove_suffix edge cases",
+          "[buffer_span]")
+{
+    const uint8_t raw[] = { 'a', 'b', 'c', 'd', 'e' };
+    memepp::buffer_span bs(raw, 5);
+
+    /* Removing the whole length leaves an empty span at the end. */
+    {
+        memepp::buffer_span t(raw, 5);
+        t.remove_prefix(5);
+        REQUIRE(t.size() == 0);
+        REQUIRE(t.empty());
+        REQUIRE(t.data() == raw + 5);
+    }
+    {
+        memepp::buffer_span t(raw, 5);
+        t.remove_suffix(5);
+        REQUIRE(t.size() == 0);
+        REQUIRE(t.data() == raw);
+    }
+
+    /* remove_prefix(0) is a no-op. */
+    {
+        memepp::buffer_span t(raw, 5);
+        t.remove_prefix(0);
+        REQUIRE(t.size() == 5);
+        REQUIRE(t.data() == raw);
+    }
+
+    /* remove_suffix(0) is a no-op. */
+    {
+        memepp::buffer_span t(raw, 5);
+        t.remove_suffix(0);
+        REQUIRE(t.size() == 5);
+    }
+
+    /* Empty span: removing 0 keeps it empty. */
+    {
+        memepp::buffer_span t;
+        t.remove_prefix(0);
+        t.remove_suffix(0);
+        REQUIRE(t.empty());
+    }
+
+    /* Removing down to empty and then again by 0 stays consistent. */
+    {
+        memepp::buffer_span t(raw, 5);
+        t.remove_prefix(5);
+        t.remove_prefix(0);
+        REQUIRE(t.size() == 0);
+        REQUIRE(t.data() == raw + 5);
+    }
+}
+
+TEST_CASE("buffer_span compare: out-of-range positions and truncation",
+          "[buffer_span]")
+{
+    const uint8_t raw[] = { 'a', 'b', 'c', 'd', 'e' };
+    memepp::buffer_span bs(raw, 5);
+
+    /* Out-of-range _pos clamps through slice(), so the range is empty. */
+    REQUIRE(bs.compare(99, 3, bs.slice(0, 0)) == 0);     /* empty vs empty */
+    REQUIRE(bs.compare(99, 3, memepp::buffer_span()) == 0);
+    REQUIRE(bs.compare(99, 3, bs) < 0);                  /* empty vs "abcde" */
+
+    /* A count beyond the remainder truncates. */
+    REQUIRE(bs.compare(2, 99, bs.slice(2)) == 0);        /* "cde" vs "cde" */
+
+    /* Truncated equal, then different lengths. */
+    REQUIRE(bs.compare(0, 2, memepp::buffer_span(raw, 3)) < 0);   /* "ab" < "abc" */
+    REQUIRE(bs.compare(0, 3, memepp::buffer_span(raw, 2)) > 0);   /* "abc" > "ab" */
+
+    /* Both ranges empty -> equal. */
+    REQUIRE(bs.compare(2, 0, bs, 3, 0) == 0);
+
+    /* Empty range against a non-empty one. */
+    REQUIRE(bs.compare(2, 0, bs, 0, 2) < 0);
+    REQUIRE(bs.compare(0, 2, bs, 2, 0) > 0);
+
+    /* High bytes compare as unsigned through memcmp. */
+    const uint8_t hi[] = { 0xFF };
+    const uint8_t lo[] = { 0x01 };
+    REQUIRE(memepp::buffer_span(hi, 1).compare(memepp::buffer_span(lo, 1)) > 0);
+    REQUIRE(memepp::buffer_span(lo, 1).compare(memepp::buffer_span(hi, 1)) < 0);
+}
+
+TEST_CASE("buffer_span comparison operators: full truth matrix",
+          "[buffer_span]")
+{
+    const uint8_t small_raw[] = { 'a', 'b' };
+    const uint8_t big_raw[]   = { 'a', 'b', 'c' };
+    memepp::buffer_span small(small_raw, 2);
+    memepp::buffer_span big(big_raw, 3);
+    memepp::buffer_span same(small_raw, 2);      /* equal contents, other pointer */
+    memepp::buffer_span empty;
+
+    /* small < big */
+    REQUIRE(small < big);
+    REQUIRE_FALSE(small > big);
+    REQUIRE(small <= big);
+    REQUIRE_FALSE(small >= big);
+    REQUIRE(small != big);
+    REQUIRE_FALSE(small == big);
+
+    /* big > small */
+    REQUIRE_FALSE(big < small);
+    REQUIRE(big > small);
+    REQUIRE_FALSE(big <= small);
+    REQUIRE(big >= small);
+
+    /* Equal contents from different pointers. */
+    REQUIRE(small == same);
+    REQUIRE_FALSE(small != same);
+    REQUIRE(small <= same);
+    REQUIRE(small >= same);
+    REQUIRE_FALSE(small < same);
+    REQUIRE_FALSE(small > same);
+
+    /* Non-empty vs empty. */
+    REQUIRE(empty < big);
+    REQUIRE(big > empty);
+    REQUIRE_FALSE(empty > big);
+    REQUIRE_FALSE(big < empty);
+    REQUIRE(empty <= big);
+    REQUIRE(big >= empty);
+
+    /* Empty vs empty. */
+    REQUIRE(empty == memepp::buffer_span());
+    REQUIRE(empty <= memepp::buffer_span());
+    REQUIRE(empty >= memepp::buffer_span());
+    REQUIRE_FALSE(empty < memepp::buffer_span());
+    REQUIRE_FALSE(empty > memepp::buffer_span());
+}
+
+TEST_CASE("buffer_span copy assignment: self and empty combinations",
+          "[buffer_span]")
+{
+    const uint8_t raw[] = { 'a', 'b', 'c' };
+    memepp::buffer_span a(raw, 3);
+
+    /* Self-assignment is a no-op. */
+    a = a;
+    REQUIRE(a.size() == 3);
+    REQUIRE(a.data() == raw);
+
+    /* Non-empty assigned to empty. */
+    memepp::buffer_span empty;
+    empty = a;
+    REQUIRE(empty.size() == 3);
+    REQUIRE(empty.data() == raw);
+
+    /* Empty assigned to non-empty. */
+    memepp::buffer_span b(raw, 3);
+    b = memepp::buffer_span();
+    REQUIRE(b.empty());
+    REQUIRE(b.data() == nullptr);
+
+    /* Chained assignment keeps data/size consistent. */
+    memepp::buffer_span c;
+    c = b = a;
+    REQUIRE(c.size() == 3);
+    REQUIRE(c.data() == raw);
+    REQUIRE(b.size() == 3);
+    REQUIRE(b.data() == raw);
+}
+
+TEST_CASE("buffer_span swap: empty and non-empty combinations",
+          "[buffer_span]")
+{
+    const uint8_t raw[] = { 'a', 'b', 'c' };
+    memepp::buffer_span a(raw, 3);
+    memepp::buffer_span empty;
+
+    /* Non-empty <-> empty. */
+    a.swap(empty);
+    REQUIRE(a.empty());
+    REQUIRE(a.data() == nullptr);
+    REQUIRE(empty.size() == 3);
+    REQUIRE(empty.data() == raw);
+
+    /* The swapped-to object still works. */
+    REQUIRE(empty.front() == 'a');
+    REQUIRE(empty.back() == 'c');
+    REQUIRE(empty.find((uint8_t)'b') == 1);
+    REQUIRE(empty.rfind((uint8_t)'b') == 1);
+
+    /* Empty <-> empty. */
+    memepp::buffer_span e1, e2;
+    e1.swap(e2);
+    REQUIRE(e1.empty());
+    REQUIRE(e2.empty());
+    REQUIRE(e1.data() == nullptr);
+}
+
+TEST_CASE("buffer_span conversion: empty, NUL and high bytes",
+          "[buffer_span]")
+{
+    /* Empty span converts to an empty container. */
+    {
+        memepp::buffer_span empty;
+        REQUIRE(empty.to_buffer().size() == 0);
+        REQUIRE(empty.to_string().size() == 0);
+        REQUIRE(empty.to_variable_buffer().size() == 0);
+        REQUIRE(empty.to_shared_storage().size() == 0);
+    }
+
+    /* Embedded NUL and high bytes survive every conversion byte-for-byte. */
+    {
+        const uint8_t raw[] = { 0x00, 0xFF, 0x80, 0x00, 0x7F };
+        memepp::buffer_span bs(raw, 5);
+
+        memepp::buffer b = bs.to_buffer();
+        REQUIRE(b.size() == 5);
+        REQUIRE(std::memcmp(b.data(), raw, 5) == 0);
+
+        memepp::string s = bs.to_string();
+        REQUIRE(s.size() == 5);
+        REQUIRE(std::memcmp(s.data(), raw, 5) == 0);
+
+        memepp::variable_buffer vb = bs.to_variable_buffer();
+        REQUIRE(vb.size() == 5);
+        REQUIRE(std::memcmp(vb.data(), raw, 5) == 0);
+
+        memepp::buffer sh = bs.to_shared_storage();
+        REQUIRE(sh.size() == 5);
+        REQUIRE(std::memcmp(sh.data(), raw, 5) == 0);
+    }
+
+    /* A converted buffer owns its own storage: changing it must not touch
+     * the original span data. */
+    {
+        uint8_t raw[] = { 'a', 'b', 'c' };
+        memepp::buffer_span bs(raw, 3);
+
+        memepp::buffer b = bs.to_buffer();
+        REQUIRE(b.data() != raw);          /* deep copy */
+
+        raw[0] = 'z';
+        REQUIRE(bs[0] == 'z');             /* the span still aliases raw */
+        REQUIRE(b[0] == 'a');              /* the copy is independent */
+    }
+}
+
+TEST_CASE("buffer_span construction from empty sources",
+          "[buffer_span]")
+{
+    memepp::buffer empty_buf;
+    memepp::buffer_span a(empty_buf);
+    REQUIRE(a.empty());
+    REQUIRE(a.size() == 0);
+
+    memepp::variable_buffer empty_vb;
+    memepp::buffer_span b(empty_vb);
+    REQUIRE(b.empty());
+    REQUIRE(b.size() == 0);
+
+    memepp::buffer_view empty_bv;
+    memepp::buffer_span c(empty_bv);
+    REQUIRE(c.empty());
+    REQUIRE(c.size() == 0);
+
+    memepp::string_span empty_ss;
+    memepp::buffer_span d(empty_ss);
+    REQUIRE(d.empty());
+    REQUIRE(d.size() == 0);
+}
+
+TEST_CASE("buffer_span aliasing: span observes source mutations",
+          "[buffer_span]")
+{
+    /* buffer_span is strictly non-owning: it must alias the source bytes. */
+    memepp::variable_buffer vb;
+    vb.append(reinterpret_cast<const mmbyte_t*>("abc"), 3);
+
+    memepp::buffer_span bs(vb);
+    REQUIRE(bs.size() == 3);
+    REQUIRE(bs.data() == vb.data());        /* same address, no copy */
+    REQUIRE(bs[1] == 'b');
+
+    /* Mutating the source through its mutable accessor is visible. */
+    vb[1] = 'Z';
+    REQUIRE(bs[1] == 'Z');
+
+    /* To confirm the copy direction: a converted buffer must NOT alias. */
+    memepp::buffer copy = bs.to_buffer();
+    REQUIRE(copy.data() != bs.data());
+    REQUIRE(copy[1] == 'Z');
+    vb[1] = 'Q';
+    REQUIRE(bs[1] == 'Q');
+    REQUIRE(copy[1] == 'Z');                /* the copy is frozen */
+}
+
+TEST_CASE("mm_bspan: zero length and null pointer",
+          "[buffer_span]")
+{
+    /* nullptr with length 0 is the empty span. */
+    memepp::buffer_span a = mm_bspan(static_cast<const MemeByte_t*>(nullptr), 0);
+    REQUIRE(a.empty());
+    REQUIRE(a.size() == 0);
+    REQUIRE(a.data() == nullptr);
+
+    /* A non-null pointer with length 0 is also empty. */
+    const uint8_t raw[] = { 'a', 'b', 'c' };
+    memepp::buffer_span b = mm_bspan(raw, 0);
+    REQUIRE(b.empty());
+    REQUIRE(b.size() == 0);
+    REQUIRE(b.data() == raw);              /* pointer preserved */
+
+    /* The normal case still works. */
+    memepp::buffer_span c = mm_bspan(raw, 3);
+    REQUIRE(c.size() == 3);
+    REQUIRE(c.data() == raw);
+}
