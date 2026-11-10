@@ -60,7 +60,7 @@ inline namespace MMPP_NAMESPACE {
 
 		// --- element access ---
 
-		const_reference operator[](size_type _pos) const MEGOPP__NOEXCEPT;
+		const_reference operator[](size_type _pos) const;
 		const_reference at(size_type _pos) const;
 		const_reference front() const MEGOPP__NOEXCEPT;
 		const_reference back() const MEGOPP__NOEXCEPT;

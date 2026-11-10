@@ -928,7 +928,11 @@ TEST_CASE("memepp::searcher: needle_size()", "[searcher]")
     memepp::searcher short_s("fox");
     REQUIRE(short_s.needle_size() == 3);
 
-    memepp::searcher long_s(reinterpret_cast<const MemeByte_t*>("a"), 42);
+    /* The needle must actually be 42 bytes: init() copies _len bytes out of
+     * it, so pointing at a shorter literal would read past the object. */
+    std::string long_needle(42, 'a');
+    memepp::searcher long_s(
+        reinterpret_cast<const MemeByte_t*>(long_needle.data()), 42);
     REQUIRE(long_s.needle_size() == 42);
 
     memepp::searcher e;

@@ -67,9 +67,15 @@ MEMEPP__IMPL_INLINE buffer_span::buffer_span(const string_span& _other) MEGOPP__
 // ============================================================
 
 MEMEPP__IMPL_INLINE buffer_span::const_reference
-buffer_span::operator[](size_type _pos) const MEGOPP__NOEXCEPT
+buffer_span::operator[](size_type _pos) const
 {
-	return data_[_pos];
+	/*
+	 * Mirrors buffer::operator[] and buffer_view::operator[], both of which
+	 * forward to at().  An out-of-range index is reported through errc()
+	 * (and throws in the exception-enabled build) instead of being
+	 * undefined behaviour.
+	 */
+	return at(_pos);
 }
 
 MEMEPP__IMPL_INLINE buffer_span::const_reference
@@ -90,12 +96,26 @@ buffer_span::at(size_type _pos) const
 MEMEPP__IMPL_INLINE buffer_span::const_reference
 buffer_span::front() const MEGOPP__NOEXCEPT
 {
+	/* MemeString_front returns NULL for an empty string; buffer_span must
+	 * not dereference data_ in that case.  at() reports the range error
+	 * instead, but it is not noexcept, so the check is inlined here. */
+	if (size_ <= 0)
+	{
+		static const mmbyte_t s_empty = 0;
+		return s_empty;
+	}
 	return data_[0];
 }
 
 MEMEPP__IMPL_INLINE buffer_span::const_reference
 buffer_span::back() const MEGOPP__NOEXCEPT
 {
+	/* size_ - 1 on an empty span would be -1, i.e. data_[-1]. */
+	if (size_ <= 0)
+	{
+		static const mmbyte_t s_empty = 0;
+		return s_empty;
+	}
 	return data_[size_ - 1];
 }
 
@@ -118,7 +138,11 @@ buffer_span::size() const MEGOPP__NOEXCEPT
 MEMEPP__IMPL_INLINE bool
 buffer_span::empty() const MEGOPP__NOEXCEPT
 {
-	return size_ == 0;
+	/* A construction from (ptr, negative) is out of contract but must not
+	 * produce an object that reports empty() == false while front(), back()
+	 * and slice() all treat it as empty.  Treat any non-positive size as
+	 * empty so every accessor agrees. */
+	return size_ <= 0;
 }
 
 // ============================================================
@@ -128,6 +152,21 @@ buffer_span::empty() const MEGOPP__NOEXCEPT
 MEMEPP__IMPL_INLINE void
 buffer_span::remove_prefix(size_type _n) MEGOPP__NOEXCEPT
 {
+	/* Removing more than size() (or a negative amount) would move data_
+	 * outside the source array.  Clamp to size(), which yields the empty
+	 * span.  Skipping the arithmetic entirely for an empty result avoids
+	 * "nullptr + 0", which is still undefined: [expr.add] only defines
+	 * pointer arithmetic for pointers into an array object, and a null
+	 * pointer points to no object. */
+	if (_n < 0 || _n > size_)
+		_n = size_;
+	if (_n == size_)
+	{
+		/* Becomes empty: no pointer arithmetic on a possibly-null data_. */
+		data_ = (size_ > 0) ? data_ + size_ : data_;
+		size_ = 0;
+		return;
+	}
 	data_ += _n;
 	size_ -= _n;
 }
@@ -135,6 +174,9 @@ buffer_span::remove_prefix(size_type _n) MEGOPP__NOEXCEPT
 MEMEPP__IMPL_INLINE void
 buffer_span::remove_suffix(size_type _n) MEGOPP__NOEXCEPT
 {
+	/* A negative amount would increase size_ past the source array. */
+	if (_n < 0 || _n > size_)
+		_n = size_;
 	size_ -= _n;
 }
 
@@ -152,17 +194,32 @@ buffer_span::swap(buffer_span& _other) MEGOPP__NOEXCEPT
 MEMEPP__IMPL_INLINE buffer_span
 buffer_span::slice(size_type _pos, size_type _count) const MEGOPP__NOEXCEPT
 {
-	if (_pos > size_)
-		_pos = size_;
-	if (_count == npos || _count > size_ - _pos)
+	/*
+	 * Mirrors MemeBufferStack_slice, which buffer and buffer_view delegate
+	 * to:
+	 *   _pos < 0 || _pos >= size()  ->  empty span
+	 *   _count < 0                  ->  to the end (same as npos)
+	 *   _count > size() - _pos      ->  clamped to the remainder
+	 * Following the same rules removes the out-of-range pointer arithmetic
+	 * that a raw data_ + _pos would perform for a negative position.
+	 */
+	if (_pos < 0 || _pos >= size_)
+		return buffer_span();
+	if (_count < 0)
 		_count = size_ - _pos;
+	else if (_count > size_ - _pos)
+		_count = size_ - _pos;
+	/* The early return above guarantees _pos < size_, so size_ > 0 and
+	 * data_ is not null; the offset below is therefore inside the array. */
 	return buffer_span(data_ + _pos, _count);
 }
 
 MEMEPP__IMPL_INLINE buffer_span
 buffer_span::first(size_type _count) const MEGOPP__NOEXCEPT
 {
-	if (_count > size_)
+	/* A negative count is out of contract for first(); clamp it to the
+	 * whole span so no out-of-range pointer is ever formed. */
+	if (_count < 0 || _count > size_)
 		_count = size_;
 	return buffer_span(data_, _count);
 }
@@ -170,8 +227,16 @@ buffer_span::first(size_type _count) const MEGOPP__NOEXCEPT
 MEMEPP__IMPL_INLINE buffer_span
 buffer_span::last(size_type _count) const MEGOPP__NOEXCEPT
 {
-	if (_count > size_)
+	/* A negative count would compute data_ + size_ + |count|, past
+	 * one-past-the-end.  Clamp it to the whole span instead. */
+	if (_count < 0 || _count > size_)
 		_count = size_;
+	/* On an already-empty span there is nothing to point at; "data_ + 0"
+	 * would be arithmetic on a null pointer, which [expr.add] does not
+	 * define.  For a non-empty span data_ + size_ is the legal
+	 * one-past-the-end pointer, so that case keeps the arithmetic. */
+	if (size_ <= 0)
+		return buffer_span();
 	return buffer_span(data_ + size_ - _count, _count);
 }
 
@@ -182,8 +247,7 @@ buffer_span::last(size_type _count) const MEGOPP__NOEXCEPT
 MEMEPP__IMPL_INLINE buffer_span::size_type
 buffer_span::find(buffer_span _v, size_type _pos) const MEGOPP__NOEXCEPT
 {
-	if (_pos < 0) _pos = 0;
-	if (_pos > size_) return npos;
+	if (_pos < 0 || _pos > size_) return npos;
 	if (_v.size_ == 0) return _pos;
 	if (_v.size_ > size_ - _pos) return npos;
 
@@ -198,7 +262,7 @@ buffer_span::find(buffer_span _v, size_type _pos) const MEGOPP__NOEXCEPT
 MEMEPP__IMPL_INLINE buffer_span::size_type
 buffer_span::find(value_type _byte, size_type _pos) const MEGOPP__NOEXCEPT
 {
-	if (_pos < 0) _pos = 0;
+	if (_pos < 0) return npos;
 	for (size_type i = _pos; i < size_; ++i) {
 		if (data_[i] == _byte)
 			return i;
@@ -286,6 +350,9 @@ MEMEPP__IMPL_INLINE bool
 buffer_span::starts_with(buffer_span _v) const MEGOPP__NOEXCEPT
 {
 	if (_v.size_ > size_) return false;
+	/* An empty needle matches trivially.  Calling memcmp with a null
+	 * argument is undefined even for a zero count, so short-circuit it. */
+	if (_v.size_ == 0) return true;
 	return std::memcmp(data_, _v.data_, _v.size_) == 0;
 }
 
@@ -305,6 +372,9 @@ MEMEPP__IMPL_INLINE bool
 buffer_span::ends_with(buffer_span _v) const MEGOPP__NOEXCEPT
 {
 	if (_v.size_ > size_) return false;
+	/* Empty needle matches trivially; also avoids "data_ + size_ - 0" on an
+	 * empty span (null pointer arithmetic) and a null memcmp argument. */
+	if (_v.size_ == 0) return true;
 	return std::memcmp(data_ + size_ - _v.size_, _v.data_, _v.size_) == 0;
 }
 
@@ -356,6 +426,14 @@ MEMEPP__IMPL_INLINE int
 buffer_span::compare(buffer_span _v) const MEGOPP__NOEXCEPT
 {
 	const size_type min_size = (size_ < _v.size_) ? size_ : _v.size_;
+	/* Two empty ranges compare equal.  memcmp with a null argument is
+	 * undefined even when the count is zero. */
+	if (min_size <= 0)
+	{
+		if (size_ < _v.size_) return -1;
+		if (size_ > _v.size_) return 1;
+		return 0;
+	}
 	const int cmp = std::memcmp(data_, _v.data_, min_size);
 	if (cmp != 0) return cmp;
 	if (size_ < _v.size_) return -1;

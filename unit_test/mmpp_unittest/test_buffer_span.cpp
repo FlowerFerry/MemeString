@@ -8,6 +8,10 @@
 #include <memepp/string.hpp>
 #include <memepp/errc.hpp>
 
+#include <limits>
+#include <type_traits>
+#include <utility>
+
 // ============================================================================
 //  member types & npos
 // ============================================================================
@@ -971,9 +975,11 @@ TEST_CASE("buffer_span find: negative and out-of-range positions",
     memepp::buffer_span bs(raw, 5);
     const uint8_t nd[] = { 'c', 'd' };
 
-    /* find(buffer_span): _pos < 0 is clamped to 0. */
-    REQUIRE(bs.find(memepp::buffer_span(nd, 2), -1) == 2);
-    REQUIRE(bs.find(memepp::buffer_span(nd, 2), -100) == 2);
+    /* find(buffer_span): _pos < 0 -> npos (matches slice()'s rule). */
+    REQUIRE(bs.find(memepp::buffer_span(nd, 2), -1)
+            == memepp::buffer_span::npos);
+    REQUIRE(bs.find(memepp::buffer_span(nd, 2), -100)
+            == memepp::buffer_span::npos);
 
     /* find(buffer_span): _pos == size() -> npos (needle does not fit). */
     REQUIRE(bs.find(memepp::buffer_span(nd, 2), 5) == memepp::buffer_span::npos);
@@ -981,9 +987,9 @@ TEST_CASE("buffer_span find: negative and out-of-range positions",
     REQUIRE(bs.find(memepp::buffer_span(nd, 2), 6) == memepp::buffer_span::npos);
     REQUIRE(bs.find(memepp::buffer_span(nd, 2), 99) == memepp::buffer_span::npos);
 
-    /* find(byte): _pos < 0 is clamped to 0. */
-    REQUIRE(bs.find((uint8_t)'a', -1) == 0);
-    REQUIRE(bs.find((uint8_t)'e', -100) == 4);
+    /* find(byte): _pos < 0 -> npos. */
+    REQUIRE(bs.find((uint8_t)'a', -1) == memepp::buffer_span::npos);
+    REQUIRE(bs.find((uint8_t)'e', -100) == memepp::buffer_span::npos);
 
     /* find(byte): _pos == size() and beyond -> npos (loop never runs). */
     REQUIRE(bs.find((uint8_t)'e', 5) == memepp::buffer_span::npos);
@@ -991,10 +997,10 @@ TEST_CASE("buffer_span find: negative and out-of-range positions",
     REQUIRE(bs.find((uint8_t)'a', 99) == memepp::buffer_span::npos);
 
     /* The pointer+count overload must reach the same behaviour. */
-    REQUIRE(bs.find(nd, -1, 2) == 2);      /* pos clamps to 0 */
+    REQUIRE(bs.find(nd, -1, 2) == memepp::buffer_span::npos);
     REQUIRE(bs.find(nd, 5, 2) == memepp::buffer_span::npos);
 
-    /* Empty haystack: negative position clamps, then nothing can match. */
+    /* Empty haystack: negative position -> npos. */
     memepp::buffer_span empty;
     REQUIRE(empty.find(memepp::buffer_span(nd, 2), -1)
             == memepp::buffer_span::npos);
@@ -1436,4 +1442,618 @@ TEST_CASE("mm_bspan: zero length and null pointer",
     memepp::buffer_span c = mm_bspan(raw, 3);
     REQUIRE(c.size() == 3);
     REQUIRE(c.data() == raw);
+}
+
+
+/* ===================================================================== */
+/* Negative / oversized arguments and error-code precision               */
+/* ===================================================================== */
+
+/*
+ * buffer_span clamps like buffer/buffer_view do (MemeBufferStack_slice):
+ * out-of-range positions yield an empty span, a negative count means "to
+ * the end", and the modifiers clamp to size().  No out-of-range pointer
+ * is ever formed, so every call below is well defined and asserted.
+ */
+
+TEST_CASE("buffer_span slice/first/last: negative and out-of-range arguments",
+          "[buffer_span]")
+{
+    /*
+     * slice() follows the same rules as MemeBufferStack_slice, which buffer
+     * and buffer_view delegate to:
+     *   _pos < 0 || _pos >= size()  ->  empty span
+     *   _count < 0                  ->  to the end
+     *   _count > size() - _pos      ->  clamped to the remainder
+     * first() and last() clamp a negative count to the whole span.  No
+     * out-of-range pointer is ever formed, so these calls are well defined.
+     */
+
+    const uint8_t raw[] = { 'a', 'b', 'c', 'd', 'e' };
+    memepp::buffer_span bs(raw, 5);
+
+    /* _pos < 0 -> empty span (no data_ + (-1)). */
+    REQUIRE(bs.slice(-1).empty());
+    REQUIRE(bs.slice(-100).empty());
+    REQUIRE(bs.slice(-1, 0).empty());
+
+    /* _pos >= size() -> empty span. */
+    REQUIRE(bs.slice(5).empty());
+    REQUIRE(bs.slice(99).empty());
+
+    /* _count < 0 -> to the end, for any negative value. */
+    REQUIRE(bs.slice(0, -1).size() == 5);
+    REQUIRE(bs.slice(0, -2).size() == 5);
+    REQUIRE(bs.slice(2, -2).size() == 3);
+    REQUIRE(bs.slice(2, memepp::buffer_span::npos).size() == 3);
+
+    /* _count > remainder -> clamped. */
+    REQUIRE(bs.slice(3, 99).size() == 2);
+    REQUIRE(bs.slice(0, 99).size() == 5);
+
+    /* first(): a negative count becomes the whole span. */
+    REQUIRE(bs.first(-1).size() == 5);
+    REQUIRE(bs.first(-100).size() == 5);
+    REQUIRE(bs.first(-1).data() == raw);
+    REQUIRE(bs.first(99).size() == 5);
+
+    /* last(): a negative count becomes the whole span. */
+    REQUIRE(bs.last(-1).size() == 5);
+    REQUIRE(bs.last(-100).size() == 5);
+    REQUIRE(bs.last(-1).data() == raw);
+    REQUIRE(bs.last(99).size() == 5);
+
+    /* Empty span: every slicing call yields an empty span. */
+    memepp::buffer_span empty;
+    REQUIRE(empty.slice(-1).empty());
+    REQUIRE(empty.slice(0).empty());
+    REQUIRE(empty.slice(0, -1).empty());
+    REQUIRE(empty.slice(0, 0).empty());
+    REQUIRE(empty.first(-1).empty());
+    REQUIRE(empty.last(-1).empty());
+}
+
+TEST_CASE("buffer_span remove_prefix/remove_suffix: full-length and zero",
+          "[buffer_span]")
+{
+    const uint8_t raw[] = { 'a', 'b', 'c', 'd', 'e' };
+
+    /*
+     * Removing exactly size() is well defined: the span becomes empty and
+     * data_ moves to one-past-the-end (prefix) or stays (suffix).
+     * Removing *more* than size(), or a negative amount, would take data_
+     * outside the source array and is a caller error -- see the contract
+     * note above.  These are the boundary values that remain safe.
+     */
+    {
+        memepp::buffer_span t(raw, 5);
+        t.remove_prefix(5);
+        REQUIRE(t.size() == 0);
+        REQUIRE(t.data() == raw + 5);
+    }
+    {
+        memepp::buffer_span t(raw, 5);
+        t.remove_suffix(5);
+        REQUIRE(t.size() == 0);
+        REQUIRE(t.data() == raw);
+    }
+
+    /* Repeated partial removals sum to the full length. */
+    {
+        memepp::buffer_span t(raw, 5);
+        t.remove_prefix(2);
+        t.remove_prefix(3);
+        REQUIRE(t.size() == 0);
+        REQUIRE(t.data() == raw + 5);
+    }
+    {
+        memepp::buffer_span t(raw, 5);
+        t.remove_suffix(3);
+        t.remove_suffix(2);
+        REQUIRE(t.size() == 0);
+        REQUIRE(t.data() == raw);
+    }
+}
+
+TEST_CASE("buffer_span direct pointer constructor: null and negative size",
+          "[buffer_span]")
+{
+    /*
+     * The pointer constructor stores its arguments verbatim.  A null pointer
+     * with size 0 is the empty span; a null pointer with a non-zero size is
+     * a caller error that the class does not detect.  Only the well-defined
+     * combinations are asserted here.
+     */
+    {
+        memepp::buffer_span e(static_cast<const uint8_t*>(nullptr), 0);
+        REQUIRE(e.empty());
+        REQUIRE(e.size() == 0);
+        REQUIRE(e.data() == nullptr);
+    }
+
+    /*
+     * Negative size is stored as-is (no clamping), so size() reports it.
+     * empty() treats any non-positive size as empty, matching what
+     * front(), back() and slice() already do, so the object never claims
+     * to be non-empty while every accessor refuses to read it.
+     */
+    {
+        const uint8_t raw[] = { 'a', 'b', 'c' };
+        memepp::buffer_span n(raw, -1);
+        REQUIRE(n.size() == -1);
+        REQUIRE(n.empty());            /* size_ <= 0 */
+        REQUIRE(n.front() == 0);       /* treated as empty */
+        REQUIRE(n.back() == 0);
+        REQUIRE(n.slice(0).empty());
+
+        memepp::buffer_span nn(static_cast<const uint8_t*>(nullptr), -1);
+        REQUIRE(nn.size() == -1);
+        REQUIRE(nn.empty());
+    }
+}
+
+TEST_CASE("buffer_span compare: negative and out-of-range positions",
+          "[buffer_span]")
+{
+    /*
+     * compare(pos, count, ...) forwards to slice(pos, count).  Since slice()
+     * now clamps like MemeBufferStack_slice, a negative or out-of-range pos
+     * produces an empty range instead of an out-of-range pointer, so these
+     * calls are well defined.
+     */
+
+    const uint8_t raw[] = { 'a', 'b', 'c', 'd', 'e' };
+    memepp::buffer_span bs(raw, 5);
+
+    /* Negative pos -> empty range. */
+    REQUIRE(bs.compare(-1, 1, memepp::buffer_span()) == 0);
+    REQUIRE(bs.compare(-100, 3, memepp::buffer_span()) == 0);
+    REQUIRE(bs.compare(-1, 1, bs) < 0);              /* empty vs "abcde" */
+
+    /* pos == size() and pos > size() -> empty range too. */
+    REQUIRE(bs.compare(5, 0, memepp::buffer_span()) == 0);
+    REQUIRE(bs.compare(5, 99, memepp::buffer_span()) == 0);
+    REQUIRE(bs.compare(99, 3, memepp::buffer_span()) == 0);
+    REQUIRE(bs.compare(99, 3, bs) < 0);
+
+    /* Negative pos on the right-hand side. */
+    REQUIRE(bs.compare(0, 0, bs, -1, 1) == 0);
+    REQUIRE(bs.compare(0, 2, bs, -1, 1) > 0);        /* "ab" vs empty */
+
+    /* count beyond the remainder truncates to the remainder. */
+    REQUIRE(bs.compare(0, 99, bs) == 0);
+    REQUIRE(bs.compare(2, 99, bs.slice(2)) == 0);
+
+    /* Truncation produces different lengths, which orders by length. */
+    REQUIRE(bs.compare(0, 2, memepp::buffer_span(raw, 3)) < 0);
+    REQUIRE(bs.compare(0, 3, memepp::buffer_span(raw, 2)) > 0);
+
+    /* Both ranges empty -> equal. */
+    REQUIRE(bs.compare(2, 0, bs, 3, 0) == 0);
+
+    /* High bytes compare as unsigned through memcmp. */
+    const uint8_t hi[] = { 0xFF };
+    const uint8_t lo[] = { 0x01 };
+    REQUIRE(memepp::buffer_span(hi, 1).compare(memepp::buffer_span(lo, 1)) > 0);
+    REQUIRE(memepp::buffer_span(lo, 1).compare(memepp::buffer_span(hi, 1)) < 0);
+}
+
+TEST_CASE("buffer_span rfind pointer overload: negative positions",
+          "[buffer_span]")
+{
+    const uint8_t raw[] = { 'a', 'b', 'c', 'd', 'e' };
+    memepp::buffer_span bs(raw, 5);
+    const uint8_t nd[] = { 'c', 'd' };
+
+    /*
+     * rfind(buffer_span, _pos) logic:
+     *   _pos == npos || _pos >= size_  -> _pos = size_ - needle.size()
+     *   size_ - _pos < needle.size()   -> same clamp
+     *   _pos < 0                      -> npos
+     * A negative _pos makes size_ - _pos larger, so the clamp does not
+     * trigger and the final _pos < 0 check rejects it.
+     */
+    REQUIRE(bs.rfind(nd, -5, 2) == memepp::buffer_span::npos);
+    REQUIRE(bs.rfind(nd, -99, 2) == memepp::buffer_span::npos);
+
+    /* npos is the "search from the end" sentinel: with haystack
+     * "abcde" and needle "cd", the match is at index 2. */
+    REQUIRE(bs.rfind(nd, memepp::buffer_span::npos, 2) == 2);
+
+    /* A position before the match returns npos. */
+    REQUIRE(bs.rfind(nd, 1, 2) == memepp::buffer_span::npos);
+}
+
+TEST_CASE("buffer_span contains/starts_with/ends_with: nullptr with count 0",
+          "[buffer_span]")
+{
+    const uint8_t raw[] = { 'a', 'b', 'c' };
+    memepp::buffer_span bs(raw, 3);
+    const uint8_t* np = nullptr;
+
+    /* An empty range built from a null pointer is the empty needle, so it
+     * is always contained and always a prefix/suffix. */
+    REQUIRE(bs.contains(np, 0));
+    REQUIRE(bs.starts_with(np, 0));
+    REQUIRE(bs.ends_with(np, 0));
+
+    memepp::buffer_span empty;
+    REQUIRE(empty.contains(np, 0));
+    REQUIRE(empty.starts_with(np, 0));
+    REQUIRE(empty.ends_with(np, 0));
+
+    /* A non-zero count with a null pointer is a caller error and is not
+     * exercised; only the count == 0 case is contractually safe. */
+}
+
+TEST_CASE("buffer_span conversion: every result owns its own storage",
+          "[buffer_span]")
+{
+    /*
+     * to_buffer / to_shared_storage / to_string / to_variable_buffer all
+     * produce owning containers.  Each must be independent of the source
+     * span: modifying the source afterwards must not change the result, and
+     * each result must point at different memory than the span.
+     */
+    uint8_t raw[] = { 'a', 'b', 'c' };
+    memepp::buffer_span bs(raw, 3);
+
+    memepp::buffer          b  = bs.to_buffer();
+    memepp::buffer          sh = bs.to_shared_storage();
+    memepp::string          s  = bs.to_string();
+    memepp::variable_buffer vb = bs.to_variable_buffer();
+
+    /* No result aliases the span's data. */
+    REQUIRE(b.data()  != raw);
+    REQUIRE(sh.data() != raw);
+    REQUIRE(reinterpret_cast<const void*>(s.data()) !=
+            reinterpret_cast<const void*>(raw));
+    REQUIRE(vb.data() != raw);
+
+    /* Mutate the source after the copies were taken. */
+    raw[0] = 'X';
+    raw[1] = 'Y';
+    raw[2] = 'Z';
+
+    /* The span sees the change; every copy still holds the original bytes. */
+    REQUIRE(bs[0] == 'X');
+    REQUIRE(b[0]  == 'a');
+    REQUIRE(sh[0] == 'a');
+    REQUIRE(s[0]  == 'a');
+    REQUIRE(vb[0] == 'a');
+
+    REQUIRE(b.size()  == 3);
+    REQUIRE(sh.size() == 3);
+    REQUIRE(s.size()  == 3);
+    REQUIRE(vb.size() == 3);
+
+    /* Each copy holds its own identical bytes; the span is unaffected. */
+    REQUIRE(bs[0] == 'X');
+    REQUIRE(b[0] == 'a');
+    REQUIRE(sh[0] == 'a');
+}
+
+TEST_CASE("buffer_span at(): exact error codes",
+          "[buffer_span]")
+{
+    const uint8_t raw[] = { 'a', 'b', 'c' };
+    memepp::buffer_span bs(raw, 3);
+
+    /* A successful access clears the thread-local errc to MGEC__OK. */
+    REQUIRE(bs.at(1) == 'b');
+    REQUIRE(memepp::get_errc() == MGEC__OK);
+
+    REQUIRE(bs.at(0) == 'a');
+    REQUIRE(memepp::get_errc() == MGEC__OK);
+
+    /* Both the "negative index" and the "index == size" paths set
+     * MGEC__RANGE before any exception is thrown. */
+#if !MMOPT__EXCEPTION_DISABLED
+    try {
+        bs.at(3);
+        FAIL("at(3) should have thrown");
+    } catch (const memepp::errc_except& e) {
+        REQUIRE(e.code() == MGEC__RANGE);
+    }
+    REQUIRE(memepp::get_errc() == MGEC__RANGE);
+
+    try {
+        bs.at(-1);
+        FAIL("at(-1) should have thrown");
+    } catch (const memepp::errc_except& e) {
+        REQUIRE(e.code() == MGEC__RANGE);
+    }
+    REQUIRE(memepp::get_errc() == MGEC__RANGE);
+#else
+    /* Without exceptions the same errc is set and a static zero byte is
+     * returned. */
+    REQUIRE(bs.at(3) == 0);
+    REQUIRE(memepp::get_errc() == MGEC__RANGE);
+
+    REQUIRE(bs.at(-1) == 0);
+    REQUIRE(memepp::get_errc() == MGEC__RANGE);
+#endif
+
+    /* A subsequent successful access restores MGEC__OK. */
+    REQUIRE(bs.at(2) == 'c');
+    REQUIRE(memepp::get_errc() == MGEC__OK);
+}
+
+TEST_CASE("mm_bspan: lengths that fit size_type",
+          "[buffer_span]")
+{
+    /*
+     * mm_bspan static_casts a size_t length to the signed size_type.  A
+     * value that does NOT fit is implementation-defined behaviour
+     * ([conv.integral]/3), so asserting a particular wrapped value would
+     * only lock in one compiler's choice.  This test therefore stops at
+     * the largest representable length and does not exercise the
+     * out-of-range cast; the contract note below records that.
+     */
+    const uint8_t raw[] = { 'a', 'b', 'c' };
+
+    const size_t max_fit = static_cast<size_t>(
+        std::numeric_limits<memepp::buffer_span::size_type>::max());
+
+    /* The largest representable length is stored verbatim. */
+    memepp::buffer_span s = mm_bspan(raw, max_fit);
+    REQUIRE(s.size() ==
+            std::numeric_limits<memepp::buffer_span::size_type>::max());
+    REQUIRE(s.data() == raw);
+
+    /*
+     * Contract: _len must be <= size_type's maximum.  Beyond that the
+     * conversion is implementation-defined, so callers passing an untrusted
+     * size_t must range-check first.  No assertion is made about the
+     * wrapped value because no portable one exists.
+     */
+}
+
+/* ===================================================================== */
+/* Compile-time API / ABI contract                                       */
+/* ===================================================================== */
+
+TEST_CASE("buffer_span: noexcept and layout contract", "[buffer_span]")
+{
+    using bs_t = memepp::buffer_span;
+
+    /* The span is two words: a pointer and a signed size. */
+    static_assert(sizeof(bs_t) == 2 * sizeof(void*),
+                  "buffer_span must be two words (pointer + size_type)");
+    static_assert(alignof(bs_t) == alignof(void*),
+                  "buffer_span alignment must match a pointer");
+
+    /* Copy and construct are noexcept. */
+    static_assert(std::is_nothrow_copy_constructible<bs_t>::value,
+                  "copy construction must not throw");
+    static_assert(std::is_nothrow_copy_assignable<bs_t>::value,
+                  "copy assignment must not throw");
+
+    /* The hot-path queries and searches are noexcept. */
+    static_assert(noexcept(std::declval<const bs_t&>().data()),
+                  "data() must be noexcept");
+    static_assert(noexcept(std::declval<const bs_t&>().size()),
+                  "size() must be noexcept");
+    static_assert(noexcept(std::declval<const bs_t&>().empty()),
+                  "empty() must be noexcept");
+    static_assert(noexcept(std::declval<const bs_t&>().front()),
+                  "front() must be noexcept");
+    static_assert(noexcept(std::declval<const bs_t&>().back()),
+                  "back() must be noexcept");
+    /* operator[] forwards to at(), so like at() it may throw. */
+    static_assert(!noexcept(std::declval<const bs_t&>()[0]),
+                  "operator[] must not be noexcept (it reports range errors)");
+    static_assert(noexcept(std::declval<const bs_t&>().slice(0)),
+                  "slice() must be noexcept");
+    static_assert(noexcept(std::declval<const bs_t&>().first(0)),
+                  "first() must be noexcept");
+    static_assert(noexcept(std::declval<const bs_t&>().last(0)),
+                  "last() must be noexcept");
+    static_assert(noexcept(std::declval<const bs_t&>().find(
+                      std::declval<bs_t>())),
+                  "find() must be noexcept");
+    static_assert(noexcept(std::declval<const bs_t&>().rfind(
+                      std::declval<bs_t>())),
+                  "rfind() must be noexcept");
+    static_assert(noexcept(std::declval<const bs_t&>().compare(
+                      std::declval<bs_t>())),
+                  "compare() must be noexcept");
+    static_assert(noexcept(std::declval<bs_t&>().swap(
+                      std::declval<bs_t&>())),
+                  "swap() must be noexcept");
+
+    /* at() is the one accessor allowed to throw. */
+    static_assert(!noexcept(std::declval<const bs_t&>().at(0)),
+                  "at() must not be noexcept (it reports range errors)");
+
+    REQUIRE(true);   /* all of the above are compile-time */
+}
+
+/* ===================================================================== */
+/* Bounds behaviour aligned with buffer / buffer_view                    */
+/* ===================================================================== */
+
+TEST_CASE("buffer_span remove_prefix/remove_suffix: out-of-range and negative",
+          "[buffer_span]")
+{
+    /*
+     * remove_prefix/remove_suffix clamp to size(): removing more than the
+     * span holds, or a negative amount, leaves the empty span rather than
+     * moving data_ outside the source array.
+     */
+    const uint8_t raw[] = { 'a', 'b', 'c', 'd', 'e' };
+
+    /* More than size(). */
+    {
+        memepp::buffer_span t(raw, 5);
+        t.remove_prefix(99);
+        REQUIRE(t.empty());
+        REQUIRE(t.data() == raw + 5);
+    }
+    {
+        memepp::buffer_span t(raw, 5);
+        t.remove_suffix(99);
+        REQUIRE(t.empty());
+        REQUIRE(t.data() == raw);
+    }
+
+    /* Negative amount behaves like the full length. */
+    {
+        memepp::buffer_span t(raw, 5);
+        t.remove_prefix(-1);
+        REQUIRE(t.empty());
+        REQUIRE(t.data() == raw + 5);
+    }
+    {
+        memepp::buffer_span t(raw, 5);
+        t.remove_suffix(-100);
+        REQUIRE(t.empty());
+        REQUIRE(t.data() == raw);
+    }
+
+    /* A partially removed span keeps the rest intact. */
+    {
+        memepp::buffer_span t(raw, 5);
+        t.remove_prefix(2);
+        t.remove_suffix(1);
+        REQUIRE(t.size() == 2);
+        REQUIRE(t.data() == raw + 2);
+        REQUIRE(t[0] == 'c');
+        REQUIRE(t[1] == 'd');
+    }
+
+    /* Out-of-range removal on an already-empty span stays empty. */
+    {
+        memepp::buffer_span t;
+        t.remove_prefix(5);
+        t.remove_suffix(5);
+        REQUIRE(t.empty());
+    }
+}
+
+TEST_CASE("buffer_span operator[] and front/back on an empty span",
+          "[buffer_span]")
+{
+    /*
+     * operator[] mirrors buffer::operator[] and buffer_view::operator[] by
+     * forwarding to at(), so an out-of-range index reports MGEC__RANGE
+     * instead of dereferencing.  front()/back() have no equivalent in
+     * buffer/buffer_view; they return a static zero byte on an empty span
+     * for the same reason MemeString_front/MemeString_back return NULL.
+     */
+    memepp::buffer_span empty;
+
+    /* front()/back() on an empty span return a zero byte. */
+    REQUIRE(empty.front() == 0);
+    REQUIRE(empty.back() == 0);
+
+    /* operator[] on an empty span reports a range error. */
+#if !MMOPT__EXCEPTION_DISABLED
+    REQUIRE_THROWS_AS(empty[0], memepp::errc_except);
+    REQUIRE(memepp::get_errc() == MGEC__RANGE);
+#else
+    REQUIRE(empty[0] == 0);
+    REQUIRE(memepp::get_errc() == MGEC__RANGE);
+#endif
+
+    /* The same applies to a negative index on a non-empty span. */
+    const uint8_t raw[] = { 'a', 'b', 'c' };
+    memepp::buffer_span bs(raw, 3);
+#if !MMOPT__EXCEPTION_DISABLED
+    REQUIRE_THROWS_AS(bs[-1], memepp::errc_except);
+    REQUIRE(memepp::get_errc() == MGEC__RANGE);
+    REQUIRE_THROWS_AS(bs[3], memepp::errc_except);
+    REQUIRE(memepp::get_errc() == MGEC__RANGE);
+#else
+    REQUIRE(bs[-1] == 0);
+    REQUIRE(memepp::get_errc() == MGEC__RANGE);
+    REQUIRE(bs[3] == 0);
+    REQUIRE(memepp::get_errc() == MGEC__RANGE);
+#endif
+
+    /* In-range access still succeeds and clears the error. */
+    REQUIRE(bs[1] == 'b');
+    REQUIRE(memepp::get_errc() == MGEC__OK);
+    REQUIRE(bs.front() == 'a');
+    REQUIRE(bs.back() == 'c');
+}
+
+/* ===================================================================== */
+/* Empty-span operations must not perform pointer arithmetic on nullptr   */
+/* ===================================================================== */
+
+/*
+ * [expr.add] only defines pointer arithmetic for pointers into an array
+ * object; a null pointer points to no object, so even "nullptr + 0" is
+ * undefined.  Likewise memcmp() requires valid pointers even when the count
+ * is zero.  These tests exercise every operation that could reach such a
+ * call on a default-constructed span.  They cannot assert the absence of UB
+ * directly -- that needs a sanitizer -- but they pin down the results the
+ * implementation returns instead of performing the arithmetic.
+ */
+
+TEST_CASE("buffer_span empty span: no null pointer arithmetic",
+          "[buffer_span]")
+{
+    memepp::buffer_span e;
+
+    /* Capacity / accessors that report emptiness rather than dereferencing. */
+    REQUIRE(e.size() == 0);
+    REQUIRE(e.empty());
+    REQUIRE(e.data() == nullptr);
+
+    /* Modifiers on an empty span are no-ops (no data_ += 0). */
+    REQUIRE_NOTHROW(e.remove_prefix(0));
+    REQUIRE_NOTHROW(e.remove_prefix(5));
+    REQUIRE_NOTHROW(e.remove_prefix(-1));
+    REQUIRE(e.empty());
+    REQUIRE(e.data() == nullptr);
+
+    REQUIRE_NOTHROW(e.remove_suffix(0));
+    REQUIRE_NOTHROW(e.remove_suffix(5));
+    REQUIRE_NOTHROW(e.remove_suffix(-1));
+    REQUIRE(e.empty());
+    REQUIRE(e.data() == nullptr);
+
+    /* Slicing an empty span returns an empty span, never data_ + 0. */
+    REQUIRE(e.slice(0).empty());
+    REQUIRE(e.slice(0, 0).empty());
+    REQUIRE(e.slice(0, 5).empty());
+    REQUIRE(e.slice(-1).empty());
+    REQUIRE(e.first(0).empty());
+    REQUIRE(e.first(5).empty());
+    REQUIRE(e.last(0).empty());
+    REQUIRE(e.last(5).empty());
+
+    /* An empty needle always matches, without a null memcmp. */
+    REQUIRE(e.starts_with(memepp::buffer_span()));
+    REQUIRE(e.ends_with(memepp::buffer_span()));
+    REQUIRE(e.contains(memepp::buffer_span()));
+
+    /* Comparing two empty spans is equal, without a null memcmp. */
+    REQUIRE(e.compare(memepp::buffer_span()) == 0);
+    REQUIRE(e == memepp::buffer_span());
+    REQUIRE(e <= memepp::buffer_span());
+    REQUIRE(e >= memepp::buffer_span());
+
+    /* An empty haystack never matches a non-empty needle. */
+    const uint8_t raw[] = { 'a' };
+    REQUIRE_FALSE(e.starts_with(memepp::buffer_span(raw, 1)));
+    REQUIRE_FALSE(e.ends_with(memepp::buffer_span(raw, 1)));
+    REQUIRE_FALSE(e.contains(memepp::buffer_span(raw, 1)));
+    REQUIRE(e.find(memepp::buffer_span(raw, 1)) == memepp::buffer_span::npos);
+    REQUIRE(e.rfind(memepp::buffer_span(raw, 1)) == memepp::buffer_span::npos);
+    REQUIRE(e.find((uint8_t)'a') == memepp::buffer_span::npos);
+    REQUIRE(e.rfind((uint8_t)'a') == memepp::buffer_span::npos);
+}
+
+TEST_CASE("buffer_span empty span: conversions produce empty containers",
+          "[buffer_span]")
+{
+    memepp::buffer_span e;
+
+    REQUIRE(e.to_buffer().size() == 0);
+    REQUIRE(e.to_shared_storage().size() == 0);
+    REQUIRE(e.to_string().size() == 0);
+    REQUIRE(e.to_variable_buffer().size() == 0);
 }
