@@ -283,6 +283,10 @@ buffer_span::find(const_pointer _data, size_type _pos, size_type _count) const M
 MEMEPP__IMPL_INLINE buffer_span::size_type
 buffer_span::rfind(buffer_span _v, size_type _pos) const MEGOPP__NOEXCEPT
 {
+	/* A negative haystack size is the out-of-contract state; treat it as
+	 * empty rather than returning the negative size below. */
+	if (size_ < 0) return _v.size_ <= 0 ? 0 : npos;
+
 	if (_v.size_ == 0) {
 		if (_pos == npos || _pos >= size_)
 			return size_;
@@ -349,10 +353,15 @@ buffer_span::contains(const_pointer _data, size_type _count) const MEGOPP__NOEXC
 MEMEPP__IMPL_INLINE bool
 buffer_span::starts_with(buffer_span _v) const MEGOPP__NOEXCEPT
 {
+	/* A negative size is the out-of-contract state from (ptr, negative);
+	 * treat it as empty so a negative count never reaches memcmp as a huge
+	 * size_t.  A zero size is a normal empty span and still matches an
+	 * empty needle. */
+	if (size_ < 0) return _v.size_ <= 0;
 	if (_v.size_ > size_) return false;
 	/* An empty needle matches trivially.  Calling memcmp with a null
 	 * argument is undefined even for a zero count, so short-circuit it. */
-	if (_v.size_ == 0) return true;
+	if (_v.size_ <= 0) return true;
 	return std::memcmp(data_, _v.data_, _v.size_) == 0;
 }
 
@@ -371,10 +380,13 @@ buffer_span::starts_with(const_pointer _data, size_type _count) const MEGOPP__NO
 MEMEPP__IMPL_INLINE bool
 buffer_span::ends_with(buffer_span _v) const MEGOPP__NOEXCEPT
 {
+	/* See starts_with: a negative size is the out-of-contract state and is
+	 * treated as empty; a zero size still matches an empty needle. */
+	if (size_ < 0) return _v.size_ <= 0;
 	if (_v.size_ > size_) return false;
 	/* Empty needle matches trivially; also avoids "data_ + size_ - 0" on an
 	 * empty span (null pointer arithmetic) and a null memcmp argument. */
-	if (_v.size_ == 0) return true;
+	if (_v.size_ <= 0) return true;
 	return std::memcmp(data_ + size_ - _v.size_, _v.data_, _v.size_) == 0;
 }
 

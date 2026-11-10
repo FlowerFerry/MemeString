@@ -1522,7 +1522,8 @@ TEST_CASE("buffer_span remove_prefix/remove_suffix: full-length and zero",
      * Removing exactly size() is well defined: the span becomes empty and
      * data_ moves to one-past-the-end (prefix) or stays (suffix).
      * Removing *more* than size(), or a negative amount, would take data_
-     * outside the source array and is a caller error -- see the contract
+     * outside the source array; the implementation clamps them to size(),
+     * which yields the empty span.  See the contract note above.
      * note above.  These are the boundary values that remain safe.
      */
     {
@@ -1561,7 +1562,8 @@ TEST_CASE("buffer_span direct pointer constructor: null and negative size",
     /*
      * The pointer constructor stores its arguments verbatim.  A null pointer
      * with size 0 is the empty span; a null pointer with a non-zero size is
-     * a caller error that the class does not detect.  Only the well-defined
+     * still stored verbatim (size() reports it), but every accessor treats a
+     * non-positive size as empty.  Only the well-defined combinations are
      * combinations are asserted here.
      */
     {
@@ -1682,7 +1684,7 @@ TEST_CASE("buffer_span contains/starts_with/ends_with: nullptr with count 0",
     REQUIRE(empty.starts_with(np, 0));
     REQUIRE(empty.ends_with(np, 0));
 
-    /* A non-zero count with a null pointer is a caller error and is not
+    /* A non-zero count with a null pointer is out of contract and is not
      * exercised; only the count == 0 case is contractually safe. */
 }
 
@@ -2056,4 +2058,56 @@ TEST_CASE("buffer_span empty span: conversions produce empty containers",
     REQUIRE(e.to_shared_storage().size() == 0);
     REQUIRE(e.to_string().size() == 0);
     REQUIRE(e.to_variable_buffer().size() == 0);
+}
+
+TEST_CASE("buffer_span negative size: every query agrees it is empty",
+          "[buffer_span]")
+{
+    /*
+     * A construction from (ptr, negative) stores the value verbatim, but a
+     * non-positive size is the empty state.  Every accessor must agree; the
+     * negative value must never reach memcmp as a huge size_t count, and
+     * rfind must not return the negative size.
+     */
+    const uint8_t raw[] = { 'a', 'b', 'c' };
+    memepp::buffer_span neg(raw, -1);
+    memepp::buffer_span pos(raw, 3);
+
+    REQUIRE(neg.size() == -1);
+    REQUIRE(neg.empty());
+    REQUIRE(neg.front() == 0);
+    REQUIRE(neg.back() == 0);
+
+    /* starts_with / ends_with treat it as empty: only an empty needle matches,
+     * and a negative needle size does not reach memcmp. */
+    REQUIRE(neg.starts_with(memepp::buffer_span()));
+    REQUIRE(neg.ends_with(memepp::buffer_span()));
+    REQUIRE_FALSE(neg.starts_with(pos));
+    REQUIRE_FALSE(neg.ends_with(pos));
+    /* A negative-size needle is treated as an empty needle, which any span
+     * starts and ends with. */
+    REQUIRE(pos.starts_with(neg));
+    REQUIRE(pos.ends_with(neg));
+
+    /* compare: a negative size is ordered before a non-empty span and before
+     * a zero-size span (by length), without calling memcmp with a negative
+     * count. */
+    REQUIRE(neg.compare(pos) < 0);
+    REQUIRE(pos.compare(neg) > 0);
+    REQUIRE(neg.compare(memepp::buffer_span()) < 0);
+
+    /* find / rfind treat the negative haystack as empty. */
+    REQUIRE(neg.find(pos) == memepp::buffer_span::npos);
+    REQUIRE(neg.find((uint8_t)'a') == memepp::buffer_span::npos);
+    REQUIRE(neg.rfind(pos) == memepp::buffer_span::npos);
+    REQUIRE(neg.rfind((uint8_t)'a') == memepp::buffer_span::npos);
+    /* An empty needle in an empty haystack rfind()s to 0 (the haystack is
+     * empty, so size() is 0 for the purposes of this query). */
+    REQUIRE(neg.rfind(memepp::buffer_span()) == 0);
+    REQUIRE(neg.contains(pos) == false);
+
+    /* Slicing yields empty spans. */
+    REQUIRE(neg.slice(0).empty());
+    REQUIRE(neg.first(1).empty());
+    REQUIRE(neg.last(1).empty());
 }
