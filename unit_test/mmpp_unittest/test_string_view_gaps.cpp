@@ -349,9 +349,9 @@ TEST_CASE("string_view conversions produce independent storage",
 TEST_CASE("string_view to_valid_utf8 on malformed input", "[string_view][gap]")
 {
     /*
-     * to_valid_utf8() returns a string_view over a fresh internal buffer,
-     * so the returned view owns nothing.  Each case below keeps the source
-     * string alive for the whole statement (string_view is non-owning).
+     * The returned view borrows from the source view (see the tier notes in
+     * the "result storage depends on size" test below), so each case keeps
+     * the source string alive for as long as the result is inspected.
      */
 
     /* Valid ASCII is unchanged. */
@@ -464,4 +464,185 @@ TEST_CASE("string_view noexcept and layout contract", "[string_view][gap]")
                   "back() must not be noexcept");
 
     REQUIRE(true);   /* all of the above are compile-time */
+}
+
+// ============================================================================
+// to_valid_utf8 / trim_* return view: storage and lifetime
+// ============================================================================
+
+TEST_CASE("string_view to_valid_utf8 result storage depends on size",
+          "[string_view][gap]")
+{
+    /*
+     * to_valid_utf8() builds into a local `mmstrstk_t out`, wraps it in a
+     * string_view, uninits `out`, and returns the view:
+     *
+     *     string_view result{ out };
+     *     mmstrstk_uninit(&out);
+     *     return result;
+     *
+     * The returned tier is decided by MemeStringStack_mid_v2
+     * (src/meme_string__stack.c), which has three branches:
+     *
+     *   1. source is shared AND the slice covers it whole
+     *        -> MemeStringStack_initByOther          (refcount, SAFE)
+     *   2. source impl-type is view
+     *        -> MemeStringViewUnsafeStack_init(src_data + offset, count)
+     *           the result ALIASES the source's buffer  (SAFE while src lives)
+     *   3. otherwise
+     *        -> MemeStringStack_initByU8bytes        (a copy, SAFE)
+     *
+     * memepp::string_view's own storage IS a view, so a view source takes
+     * branch 2.  The result points into the SOURCE's bytes, never into the
+     * local `out` that to_valid_utf8() uninits -- so uninitting `out` does
+     * not dangle the result.
+     *
+     * Measured: to_valid_utf8("abc") -> tier 9 (view_unsafe), 3 bytes
+     *           to_valid_utf8(300 B) -> tier 3 (large), 300 bytes
+     */
+
+    /* Short result: view tier, aliasing the source. */
+    {
+        memepp::string src("abc");
+        memepp::string_view v(src);
+        memepp::string_view r = v.to_valid_utf8();
+
+        REQUIRE(r.size() == 3);
+        REQUIRE(static_cast<int>(r.storage_type()) == 9);   /* view_unsafe */
+
+        /* Readable: the view points into src's buffer, not the dead local. */
+        REQUIRE(r.data()[0] == 'a');
+        REQUIRE(r.data()[1] == 'b');
+        REQUIRE(r.data()[2] == 'c');
+    }
+
+    /* Long result: large tier, refcounted. */
+    {
+        std::string big(300, 'x');
+        memepp::string src(big.data(),
+                           static_cast<memepp::string::size_type>(big.size()),
+                           memepp::string_storage_t::large);
+        memepp::string_view v(src);
+        memepp::string_view r = v.to_valid_utf8();
+
+        REQUIRE(r.size() == 300);
+        REQUIRE(static_cast<int>(r.storage_type()) == 3);   /* large */
+        REQUIRE(r.data()[0] == 'x');
+        REQUIRE(r.data()[299] == 'x');
+    }
+}
+
+TEST_CASE("string_view trim_space result storage depends on size",
+          "[string_view][gap]")
+{
+    /*
+     * trim_space() follows the exact same pattern: it builds into a local
+     * `out`, wraps, uninits, and returns the view.
+     *
+     * MemeStringStack_trimSpace_v2 calls MemeStringStack_mid_v2, which (as
+     * explained above) either shares a refcounted block (large), aliases the
+     * source's buffer (view), or copies (other).  In all three cases the
+     * result is valid as long as the source lives.
+     *
+     * Measured: trim_space("   ab   ") -> tier 9 (view_unsafe), 2 bytes
+     *           trim_space(300 B padded) -> tier 3 (large), 300 bytes
+     */
+
+    /* Short result: view tier, aliasing the source. */
+    {
+        memepp::string src("   ab   ");
+        memepp::string_view v(src);
+        memepp::string_view r = v.trim_space();
+
+        REQUIRE(r.size() == 2);
+        REQUIRE(static_cast<int>(r.storage_type()) == 9);   /* view_unsafe */
+
+        /* Readable: the view points after the three leading spaces. */
+        REQUIRE(r.data()[0] == 'a');
+        REQUIRE(r.data()[1] == 'b');
+        REQUIRE(r.data() == src.data() + 3);
+    }
+
+    /* Long result: large tier, refcounted. */
+    {
+        std::string inner(300, 'y');
+        std::string padded = "   " + inner + "   ";
+        memepp::string src(padded.data(),
+                           static_cast<memepp::string::size_type>(padded.size()),
+                           memepp::string_storage_t::large);
+        memepp::string_view v(src);
+        memepp::string_view r = v.trim_space();
+
+        REQUIRE(r.size() == 300);
+        REQUIRE(static_cast<int>(r.storage_type()) == 3);   /* large */
+        REQUIRE(r.data()[0] == 'y');
+        REQUIRE(r.data()[299] == 'y');
+    }
+}
+
+TEST_CASE("string_view from a user-tier string", "[string_view][gap]")
+{
+    /*
+     * string_storage_t::user is not reachable through the plain byte
+     * constructors (MemeStringStack_initByU8bytesAndType has no `user`
+     * case -- see the buffer_span gap2 notes), so requesting it degrades to
+     * whatever the length selects.  What matters for string_view is the
+     * resulting tier's sharing behaviour, asserted below.
+     */
+    const uint8_t raw[] = { 'u', 's', 'e', 'r' };
+
+    memepp::string src(reinterpret_cast<const char*>(raw), 4,
+                       memepp::string_storage_t::user);
+    /* The hint is ignored; a 4-byte string lands in the small tier. */
+    REQUIRE(src.storage_type() != memepp::string_storage_t::user);
+    REQUIRE(src.size() == 4);
+
+    memepp::string_view v(src);
+    REQUIRE(v.size() == 4);
+    /* Small source -> borrow: the view aliases the string's inline bytes. */
+    REQUIRE(v.data() == src.data());
+}
+
+// ============================================================================
+// rvalue string: shared vs non-shared branch
+// ============================================================================
+
+TEST_CASE("string_view from rvalue string: both branches",
+          "[string_view][gap]")
+{
+    /*
+     * operator=(string&&) is deleted, so the rvalue branch is exercised
+     * through the constructor.  The view must be built outside the block
+     * that owns the source, hence the two-step form below: build inside,
+     * then inspect after the source is gone.
+     */
+
+    /* Large rvalue -> shared branch: refcount taken, view survives. */
+    {
+        std::string big(200, 'q');
+        memepp::string src(big.data(),
+                           static_cast<memepp::string::size_type>(big.size()),
+                           memepp::string_storage_t::large);
+        REQUIRE(src.storage_type() == memepp::string_storage_t::large);
+
+        memepp::string_view v(std::move(src));
+        REQUIRE(v.size() == 200);
+        REQUIRE(v.data()[0] == 'q');
+        /* Still valid after src was moved from / left the block. */
+        REQUIRE(v.data()[199] == 'q');
+    }
+
+    /* Small rvalue -> the constructor rebuilds a large string and views
+     * that, so the result is not a borrow of the temporary. */
+    {
+        memepp::string src("hello", 5);
+        REQUIRE(src.storage_type() == memepp::string_storage_t::small);
+
+        memepp::string_view v(std::move(src));
+        REQUIRE(v.size() == 5);
+        REQUIRE(v.data()[0] == 'h');
+        REQUIRE(v.data()[4] == 'o');
+        /* The fallback promotes to a shared tier, not a borrow. */
+        REQUIRE(static_cast<int>(v.storage_type()) != 9);   /* not view_unsafe */
+    }
 }

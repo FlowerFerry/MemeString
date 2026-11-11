@@ -990,6 +990,36 @@ inline namespace MMPP_NAMESPACE {
 		return ec ? string{} : string{ std::move(out) };
 	}
 
+	/*
+	 * The three trim_*_space() and trim_if*() helpers below all share one shape:
+	 *
+	 *     mmstrstk_t out;
+	 *     <C API>(&native_handle(), &out, sizeof(out));
+	 *     string_view result{ out };
+	 *     mmstrstk_uninit(&out);
+	 *     return result;
+	 *
+	 * That looks like it returns a view over a dead local, but it does not.
+	 * The tier of `out` -- and therefore what `result` refers to -- is decided
+	 * inside MemeStringStack_mid_v2 (src/meme_string__stack.c), which has three
+	 * branches:
+	 *
+	 *   1. source is a shared tier AND the slice covers it whole
+	 *          -> MemeStringStack_initByOther(): result bumps the refcount and
+	 *             keeps the block alive on its own.  Nothing dangles.
+	 *   2. source impl-type is view (this is the case for memepp::string_view,
+	 *      whose storage IS a view)
+	 *          -> MemeStringViewUnsafeStack_init(src_data + offset, count):
+	 *             result points INTO THE SOURCE's buffer, not into `out`.
+	 *             mmstrstk_uninit(&out) only clears the non-owning handle, so
+	 *             the bytes stay alive as long as the source does.
+	 *   3. anything else
+	 *          -> MemeStringStack_initByU8bytes(): result owns a fresh copy.
+	 *
+	 * So in every branch the returned view is safe to read for as long as the
+	 * object it was derived from is alive -- the same borrow contract as
+	 * string_view itself.  It is NOT a use-after-scope of the local `out`.
+	 */
 	MEMEPP__IMPL_INLINE string_view string_view::to_valid_utf8() const noexcept
 	{
 		mmstrstk_t out;

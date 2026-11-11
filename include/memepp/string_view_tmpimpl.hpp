@@ -188,7 +188,12 @@ inline namespace MMPP_NAMESPACE {
 	}
 
 	// ---- trim_if (byte predicate, returns string_view) ----
-
+	//
+	// Same local-`out` shape as trim_space(); see the long comment above
+	// string_view::to_valid_utf8() in string_view_impl.hpp for why the
+	// returned view is safe (MemeStringStack_mid_v2 aliases the source for a
+	// view source, shares a refcounted block for a shared source, and copies
+	// otherwise).  The result borrows from *this, so it must not outlive it.
 	template<typename _Func>
 	inline string_view string_view::trim_if(_Func&& _func) const noexcept
 	{
@@ -207,7 +212,8 @@ inline namespace MMPP_NAMESPACE {
 	}
 
 	// ---- trim_if_rune (rune predicate, returns string_view) ----
-
+	//
+	// See the note above trim_if().
 	template<typename _Func>
 	inline string_view string_view::trim_if_rune(_Func&& _func) const noexcept
 	{
