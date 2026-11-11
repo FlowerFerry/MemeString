@@ -646,3 +646,230 @@ TEST_CASE("string_view from rvalue string: both branches",
         REQUIRE(static_cast<int>(v.storage_type()) != 9);   /* not view_unsafe */
     }
 }
+
+// ============================================================================
+// trim_left_space / trim_right_space: storage tier of the result
+// ============================================================================
+
+/*
+ * trim_left_space() and trim_right_space() use the same local-`out` shape as
+ * trim_space(); the tier of the returned view is decided by
+ * MemeStringStack_mid_v2 exactly as described above.  These two tests pin
+ * the tier for a view source (aliasing) and for a large source (refcount),
+ * and read the bytes back to prove the result is live.
+ */
+
+TEST_CASE("string_view trim_left_space result storage", "[string_view][gap]")
+{
+    /* View source -> view tier, aliasing the source's buffer. */
+    {
+        memepp::string src("   ab");
+        memepp::string_view v(src);
+        memepp::string_view r = v.trim_left_space();
+
+        REQUIRE(r.size() == 2);
+        REQUIRE(static_cast<int>(r.storage_type()) == 9);   /* view_unsafe */
+        REQUIRE(r.data()[0] == 'a');
+        REQUIRE(r.data()[1] == 'b');
+        REQUIRE(r.data() == src.data() + 3);
+    }
+
+    /* Large source, whole range retained -> shared tier. */
+    {
+        std::string body(300, 'L');
+        memepp::string src(body.data(),
+                           static_cast<memepp::string::size_type>(body.size()),
+                           memepp::string_storage_t::large);
+        memepp::string_view v(src);
+        memepp::string_view r = v.trim_left_space();  /* nothing to trim */
+
+        REQUIRE(r.size() == 300);
+        REQUIRE(r.data()[0] == 'L');
+        REQUIRE(r.data()[299] == 'L');
+    }
+}
+
+TEST_CASE("string_view trim_right_space result storage", "[string_view][gap]")
+{
+    /* View source -> view tier, aliasing the source's buffer. */
+    {
+        memepp::string src("ab   ");
+        memepp::string_view v(src);
+        memepp::string_view r = v.trim_right_space();
+
+        REQUIRE(r.size() == 2);
+        REQUIRE(static_cast<int>(r.storage_type()) == 9);   /* view_unsafe */
+        REQUIRE(r.data()[0] == 'a');
+        REQUIRE(r.data()[1] == 'b');
+        /* The tail was trimmed, so the view starts at the source's start. */
+        REQUIRE(r.data() == src.data());
+    }
+
+    /* Large source, whole range retained -> shared tier. */
+    {
+        std::string body(300, 'R');
+        memepp::string src(body.data(),
+                           static_cast<memepp::string::size_type>(body.size()),
+                           memepp::string_storage_t::large);
+        memepp::string_view v(src);
+        memepp::string_view r = v.trim_right_space();  /* nothing to trim */
+
+        REQUIRE(r.size() == 300);
+        REQUIRE(r.data()[0] == 'R');
+        REQUIRE(r.data()[299] == 'R');
+    }
+}
+
+// ============================================================================
+// trim_if / trim_if_rune: storage tier of the result
+// ============================================================================
+
+TEST_CASE("string_view trim_if result storage", "[string_view][gap]")
+{
+    auto is_space = [](char c) { return c == ' '; };
+
+    /* View source -> view tier, aliasing the source's buffer. */
+    {
+        memepp::string src("  ab  ");
+        memepp::string_view v(src);
+        memepp::string_view r = v.trim_if(is_space);
+
+        REQUIRE(r.size() == 2);
+        REQUIRE(static_cast<int>(r.storage_type()) == 9);   /* view_unsafe */
+        REQUIRE(r.data()[0] == 'a');
+        REQUIRE(r.data()[1] == 'b');
+        REQUIRE(r.data() == src.data() + 2);
+    }
+
+    /* Large source, whole range retained -> shared tier. */
+    {
+        std::string body(300, 'I');
+        memepp::string src(body.data(),
+                           static_cast<memepp::string::size_type>(body.size()),
+                           memepp::string_storage_t::large);
+        memepp::string_view v(src);
+        memepp::string_view r = v.trim_if(is_space);   /* nothing to trim */
+
+        REQUIRE(r.size() == 300);
+        REQUIRE(r.data()[0] == 'I');
+        REQUIRE(r.data()[299] == 'I');
+    }
+}
+
+TEST_CASE("string_view trim_if_rune result storage", "[string_view][gap]")
+{
+    /* A rune predicate that trims ASCII spaces. */
+    auto is_space_rune = [](const memepp::rune& r) {
+        return r.size() == 1 && r.data()[0] == ' ';
+    };
+
+    /* View source -> view tier, aliasing the source's buffer. */
+    {
+        memepp::string src("  ab  ");
+        memepp::string_view v(src);
+        memepp::string_view r = v.trim_if_rune(is_space_rune);
+
+        REQUIRE(r.size() == 2);
+        REQUIRE(static_cast<int>(r.storage_type()) == 9);   /* view_unsafe */
+        REQUIRE(r.data()[0] == 'a');
+        REQUIRE(r.data()[1] == 'b');
+        REQUIRE(r.data() == src.data() + 2);
+    }
+
+    /* Large source, whole range retained -> shared tier. */
+    {
+        std::string body(300, 'U');
+        memepp::string src(body.data(),
+                           static_cast<memepp::string::size_type>(body.size()),
+                           memepp::string_storage_t::large);
+        memepp::string_view v(src);
+        memepp::string_view r = v.trim_if_rune(is_space_rune);
+
+        REQUIRE(r.size() == 300);
+        REQUIRE(r.data()[0] == 'U');
+        REQUIRE(r.data()[299] == 'U');
+    }
+}
+
+// ============================================================================
+// user-tier storage (reached through the C API only)
+// ============================================================================
+
+/*
+ * string_storage_t::user is not produced by any memepp::string constructor:
+ * MemeStringStack_initByU8bytesAndType has no `user` case (see the
+ * buffer_span gap2 notes).  The only way in is the C API
+ * MemeStringStack_initTakeOverUserObject(), which takes ownership of a
+ * caller object when its length exceeds MMSTR__GET_SMALL_BUF_MAX_SIZE --
+ * shorter payloads are copied and the user object is destroyed immediately.
+ *
+ * The test below drives that C API directly, so the user tier (and the
+ * refcount branch it takes in string_view) is genuinely exercised.
+ */
+
+namespace {
+
+struct UserPayload
+{
+    std::string bytes;
+    bool destroyed = false;
+};
+
+void user_destruct(void* obj)
+{
+    static_cast<UserPayload*>(obj)->destroyed = true;
+}
+
+const char* user_data(const void* obj)
+{
+    return static_cast<const UserPayload*>(obj)->bytes.data();
+}
+
+size_t user_size(const void* obj)
+{
+    return static_cast<const UserPayload*>(obj)->bytes.size();
+}
+
+} // namespace
+
+TEST_CASE("string_view from a real user-tier string", "[string_view][gap]")
+{
+    /* Long enough to avoid the small-buffer copy path. */
+    UserPayload payload;
+    payload.bytes.assign(200, 'U');
+
+    MemeStringStack_t handle;
+    REQUIRE(MemeStringStack_initTakeOverUserObject(
+                &handle, MEME_STRING__OBJECT_SIZE,
+                &payload, user_destruct, user_data, user_size) == 0);
+
+    /* Now the raw handle really is a user-tier string. */
+    REQUIRE(MemeString_storageType(memepp::to_pointer(handle))
+            == MemeString_StorageType_user);
+
+    /* Wrap it in a memepp::string so the C++ side sees a user-tier object.
+     * The const& overload shares the refcounted user block rather than
+     * copying, which is what lets the view below outlive it. */
+    memepp::string owned(handle);
+    REQUIRE(owned.storage_type() == memepp::string_storage_t::user);
+    REQUIRE(owned.size() == 200);
+
+    /* A view over a user-tier string takes the shared branch. */
+    memepp::string_view v(owned);
+    REQUIRE(v.size() == 200);
+    {
+        const int tier = static_cast<int>(v.storage_type());
+        REQUIRE((tier == 3 || tier == 10));   /* large or user */
+    }
+    REQUIRE(v.data()[0] == 'U');
+    REQUIRE(v.data()[199] == 'U');
+
+    /* The view keeps the user block alive: drop the string, the view stays. */
+    {
+        memepp::string_view keep(v);
+        owned = memepp::string();
+        REQUIRE(keep.size() == 200);
+        REQUIRE(keep.data()[0] == 'U');
+    }
+}
+
