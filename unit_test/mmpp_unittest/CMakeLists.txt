@@ -87,6 +87,8 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_compare.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_extra.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_view_extra.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_view_gaps.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_view_gaps2.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_append.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_modifiers.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_prepend.cpp
