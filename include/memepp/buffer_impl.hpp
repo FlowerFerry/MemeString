@@ -48,13 +48,35 @@ inline namespace MMPP_NAMESPACE {
 
 	MEMEPP__IMPL_INLINE buffer::buffer(const buffer& _other, size_type _pos)
 	{
-		size_type count = (_other.size() > _pos) ? _other.size() - _pos : 0;
+		const size_type total = _other.size();
+		if (_pos < 0)
+			_pos = 0;
+		// Clamp to a valid range before forming data() + _pos: advancing a
+		// pointer past the end of the allocation is UB even when the resulting
+		// count is zero.
+		if (_pos >= total) {
+			MemeBufferStack_init(&data_, MEME_STRING__OBJECT_SIZE);
+			return;
+		}
 		MemeBufferStack_initByBytes(
-			&data_, MMSTR__OBJ_SIZE, _other.data() + _pos, count);
+			&data_, MMSTR__OBJ_SIZE, _other.data() + _pos, total - _pos);
 	}
 
 	MEMEPP__IMPL_INLINE buffer::buffer(const buffer& _other, size_type _pos, size_type _count)
 	{
+		const size_type total = _other.size();
+		if (_pos < 0)
+			_pos = 0;
+		if (_pos >= total) {
+			MemeBufferStack_init(&data_, MEME_STRING__OBJECT_SIZE);
+			return;
+		}
+		// Clamp _count to the bytes actually available after _pos, mirroring
+		// MemeBufferStack_slice(). Without this a count larger than the
+		// remainder reads past the source allocation.
+		const size_type remain = total - _pos;
+		if (_count < 0 || _count > remain)
+			_count = remain;
 		MemeBufferStack_initByBytes(
 			&data_, MMSTR__OBJ_SIZE, _other.data() + _pos, _count);
 	}
@@ -63,10 +85,10 @@ inline namespace MMPP_NAMESPACE {
 	{
 		MemeBufferStack_initByBytes(&data_, MEME_STRING__OBJECT_SIZE, _utf8, _size);
 	}
-	
+
 	MEMEPP__IMPL_INLINE buffer::buffer(const_pointer _utf8, size_type _size, buffer_storage_t _suggest)
 	{
-        MemeBufferStack_initByU8bytesAndType(&data_, MMS__OBJECT_SIZE, _utf8, _size, 
+		MemeBufferStack_initByU8bytesAndType(&data_, MMS__OBJECT_SIZE, _utf8, _size,
 			static_cast<mmbuf_storage_t>(_suggest));
 	}
 

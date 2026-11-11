@@ -32,6 +32,22 @@ MEME_EXTERN_C MEME_API int
 MEME_STDCALL MemeBufferStack_initByBytes(
 	mmbufstk_t* _out, size_t _object_size, const MemeByte_t* _utf8, MemeInteger_t _len)
 {
+	assert(_out != NULL && "MemeBufferStack_initByBytes");
+	assert(_object_size != 0 && _object_size <= MMSTR__MAX_REG_BYTE_SIZE && "MemeBufferStack_initByBytes");
+
+	/* A null source or a negative length cannot describe any bytes. Buffer is a
+	 * binary container with no strlen() fallback, so treat the request as
+	 * "empty" and always leave _out in a valid, destructible state. */
+	if (_utf8 == NULL || _len < 0)
+		return MemeBufferStack_init(_out, _object_size);
+
+	/* Length must fit the size_ bitfield (MMSTR_IMPLTYPE_BITS reserved for the
+	 * storage tag). Reject impossible sizes but keep _out valid. */
+	if ((size_t)_len > MMSTR__MAX_BYTE_SIZE) {
+		MemeBufferStack_init(_out, _object_size);
+		return MGEC__2BIG;
+	}
+
 	return MemeStringStack_initByU8bytesAndType(
 		(MemeStringStack_t*)_out, _object_size, _utf8, _len, MemeString_StorageType_large);
 }

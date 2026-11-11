@@ -71,7 +71,9 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_trim_prefix_suffix.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_view_starts_ends.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_view_extra.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/test_string_view_gaps.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_view_lifetime.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_view_storage.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_view_access.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_extra.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_rune_extra.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_rune_iterator.cpp
@@ -83,14 +85,22 @@ set(SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/test_dll_import_export.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_dll_plugin.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_string_span.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/test_string_span_gaps.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_span_access.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_span_search.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_string_span_contract.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_nullsafe_overloads.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_span.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_compare.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_extra.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_construct.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_storage.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_lifetime.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_access.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_search.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_view_extra.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_view_gaps.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_view_gaps2.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_view_lifetime.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_view_storage.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/test_buffer_view_access.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_append.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_modifiers.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/test_variable_buffer_prepend.cpp
