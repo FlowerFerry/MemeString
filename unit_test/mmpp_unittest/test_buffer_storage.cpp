@@ -546,7 +546,9 @@ size_t user_blob_size(const void* _obj)
 }
 
 // Build a user-tier handle whose backing object outlives the buffer until the
-// last reference is released.
+// last reference is released. NOTE: MemeStringStack_initTakeOverUserObject()
+// copies payloads that fit the small inline buffer and only creates a *user*
+// node for larger ones, so callers must pass a length above that threshold.
 MemeBufferStack_t make_user_handle(size_t _len)
 {
     user_blob* b = new user_blob;
@@ -720,6 +722,127 @@ TEST_CASE("buffer user storage — result survives source reset", "[buffer][stor
     }
 
     REQUIRE(g_user_destruct_calls == 1);
+}
+
+
+
+TEST_CASE("buffer user storage — capacity is 0 (non-modifiable tier)", "[buffer][storage][user]")
+{
+    g_user_destruct_calls = 0;
+    {
+        memepp::buffer buf = make_user_buffer(64);
+        REQUIRE(buf.storage_type() == memepp::buffer_storage_t::user);
+        // user (like large) has no available capacity for append/insert.
+        REQUIRE(buf.capacity() == 0);
+    }
+    REQUIRE(g_user_destruct_calls == 1);
+}
+
+TEST_CASE("buffer user storage — copy assignment releases destination block", "[buffer][storage][user]")
+{
+    const size_t n = 48;
+    g_user_destruct_calls = 0;
+    {
+        memepp::buffer a = make_user_buffer(n);
+        memepp::buffer b = make_user_buffer(40);  // >small so it is user tier
+        REQUIRE(g_user_destruct_calls == 0);
+
+        // Copy assignment drops b's old block (destructor fires once) and makes
+        // b share a's user block.
+        b = a;
+        REQUIRE(g_user_destruct_calls == 1);
+        REQUIRE(b.size() == a.size());
+        REQUIRE(b.data() == a.data());  // shared user block
+    }
+    // a + b references released together -> a's block destructed once.
+    REQUIRE(g_user_destruct_calls == 2);
+}
+
+TEST_CASE("buffer user storage — move assignment swaps blocks", "[buffer][storage][user]")
+{
+    const size_t n = 48;
+    g_user_destruct_calls = 0;
+    {
+        memepp::buffer c = make_user_buffer(n);
+        memepp::buffer d = make_user_buffer(40);  // >small so it is user tier
+
+        // buffer move-assignment is a swap: c keeps d's 10-byte block, d keeps
+        // c's 48-byte block. Neither destructor runs during the swap.
+        c = std::move(d);
+        REQUIRE(g_user_destruct_calls == 0);
+        REQUIRE(c.size() == 40);
+        REQUIRE(d.size() == n);
+    }
+    // Both blocks released.
+    REQUIRE(g_user_destruct_calls == 2);
+}
+
+TEST_CASE("buffer user storage — swap with an empty buffer", "[buffer][storage][user]")
+{
+    const size_t n = 32;
+    g_user_destruct_calls = 0;
+    {
+        memepp::buffer user = make_user_buffer(n);
+        memepp::buffer empty;
+
+        empty.swap(user);
+
+        // The user block moved to `empty`; `user` is now the empty small buffer.
+        REQUIRE(empty.size() == n);
+        REQUIRE(empty.storage_type() == memepp::buffer_storage_t::user);
+        REQUIRE(user.empty());
+        REQUIRE(user.storage_type() == memepp::buffer_storage_t::small);
+        REQUIRE(g_user_destruct_calls == 0);
+    }
+    REQUIRE(g_user_destruct_calls == 1);
+}
+
+TEST_CASE("buffer user storage — slice", "[buffer][storage][user]")
+{
+    const size_t n = 48;
+    g_user_destruct_calls = 0;
+    {
+        memepp::buffer src = make_user_buffer(n);
+        auto sl = src.slice(4, 10);
+        REQUIRE(sl.size() == 10);
+        REQUIRE(sl.at(0) == 'E');  // 'A'+4
+        REQUIRE(sl.at(9) == 'N');  // 'A'+13
+        REQUIRE(sl.at(9) == (char)('A' + 4 + 9));
+    }
+    REQUIRE(g_user_destruct_calls == 1);
+}
+
+TEST_CASE("buffer user storage — search works", "[buffer][storage][user]")
+{
+    const size_t n = 26;
+    g_user_destruct_calls = 0;
+    {
+        memepp::buffer src = make_user_buffer(n);
+        // "ABC...Z"
+        const uint8_t needle[] = { 'D', 'E', 'F' };
+        REQUIRE(src.index_of(memepp::buffer(needle, 3)) == 3);
+        REQUIRE(src.contains(needle, 3));
+        REQUIRE(src.starts_with(reinterpret_cast<const uint8_t*>("ABC"), 3));
+        REQUIRE(src.ends_with(reinterpret_cast<const uint8_t*>("XYZ"), 3));
+    }
+    REQUIRE(g_user_destruct_calls == 1);
+}
+
+TEST_CASE("buffer user storage — compare and ordering", "[buffer][storage][user]")
+{
+    const size_t n = 26;
+    g_user_destruct_calls = 0;
+    {
+        memepp::buffer a = make_user_buffer(n);  // ABC...Z
+        memepp::buffer b = make_user_buffer(n);  // ABC...Z (same payload)
+
+        // Two independent user blocks with same content compare equal.
+        REQUIRE(a.compare(b) == 0);
+        REQUIRE(a == b);
+        REQUIRE_FALSE(a < b);
+        REQUIRE_FALSE(a > b);
+    }
+    REQUIRE(g_user_destruct_calls == 2);
 }
 
 // ============================================================================

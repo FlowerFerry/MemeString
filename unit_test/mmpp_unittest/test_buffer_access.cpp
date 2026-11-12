@@ -2,6 +2,7 @@
 
 #include <memepp/buffer.hpp>
 #include <meme/string.h>
+#include <meme/unsafe/buffer_view.h>
 #include <memepp/errc.hpp>
 
 #include <stdexcept>
@@ -215,5 +216,54 @@ TEST_CASE("buffer slice — negative count to end", "[buffer][slice]")
     REQUIRE(sl.size() == 3);
     REQUIRE(sl.at(0) == 3);
     REQUIRE(sl.at(2) == 5);
+}
+// ============================================================================
+// slice: the view-source branch of MemeBufferStack_slice (C API only)
+// ============================================================================
+
+TEST_CASE("MemeBufferStack_slice — view source produces a view slice", "[buffer][slice][capiview]")
+{
+    // buffer's importing constructor deep-copies a view into large storage, so
+    // the view branch of MemeBufferStack_slice is only reachable through the C
+    // API directly. Build a view handle, slice it, and check the result is a
+    // view that aliases the original bytes.
+    const uint8_t backing[] = { 0, 10, 20, 30, 40, 50, 60 };
+    MemeBufferStack_t view;
+    MemeBufferViewUnsafeStack_init(
+        reinterpret_cast<mmbufstk_t*>(&view), MMSTR__OBJ_SIZE, backing, 7);
+    REQUIRE(MemeBuffer_storageType(memepp::to_pointer(view)) == MemeBuffer_UnsafeStorageType_view);
+
+    MemeBufferStack_t out;
+    int rc = MemeBufferStack_slice(&out, MMSTR__OBJ_SIZE, &view, 2, 3);
+    REQUIRE(rc == 0);
+
+    // Result must stay a view and alias the same backing array.
+    REQUIRE(MemeBuffer_storageType(memepp::to_pointer(out)) == MemeBuffer_UnsafeStorageType_view);
+    REQUIRE(MemeBuffer_size(memepp::to_pointer(out)) == 3);
+    REQUIRE(MemeBuffer_data(memepp::to_pointer(out)) == backing + 2);
+    REQUIRE(MemeBuffer_data(memepp::to_pointer(out))[0] == 20);
+    REQUIRE(MemeBuffer_data(memepp::to_pointer(out))[2] == 40);
+
+    MemeBufferStack_unInit(&out, MMSTR__OBJ_SIZE);
+    MemeBufferStack_unInit(&view, MMSTR__OBJ_SIZE);
+}
+
+TEST_CASE("MemeBufferStack_slice — non-view source copies to large", "[buffer][slice][capiview]")
+{
+    const uint8_t data[] = { 0, 1, 2, 3, 4 };
+    MemeBufferStack_t src;
+    MemeBufferStack_initByBytes(&src, MMSTR__OBJ_SIZE, data, 5);
+
+    MemeBufferStack_t out;
+    int rc = MemeBufferStack_slice(&out, MMSTR__OBJ_SIZE, &src, 1, 3);
+    REQUIRE(rc == 0);
+    REQUIRE(MemeBuffer_storageType(memepp::to_pointer(out)) == MemeBuffer_StorageType_large);
+    REQUIRE(MemeBuffer_size(memepp::to_pointer(out)) == 3);
+    REQUIRE(MemeBuffer_data(memepp::to_pointer(out))[0] == 1);
+    // Deep copy, not an alias.
+    REQUIRE(MemeBuffer_data(memepp::to_pointer(out)) != data + 1);
+
+    MemeBufferStack_unInit(&out, MMSTR__OBJ_SIZE);
+    MemeBufferStack_unInit(&src, MMSTR__OBJ_SIZE);
 }
 

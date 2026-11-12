@@ -308,6 +308,16 @@ TEST_CASE("buffer pointer+size — nullptr with 0", "[buffer][constructors]")
     REQUIRE(buf.size() == 0);
 }
 
+TEST_CASE("buffer pointer+size — nullptr with positive size is empty", "[buffer][constructors]")
+{
+    // The C layer rejects a null source (MGEC__INVAL-safe path) but still
+    // leaves the buffer initialised and empty.
+    memepp::buffer buf(static_cast<const uint8_t*>(nullptr), static_cast<memepp::buffer::size_type>(8));
+    REQUIRE(buf.empty());
+    REQUIRE(buf.size() == 0);
+    REQUIRE(buf.data() != nullptr); // valid, readable empty buffer
+}
+
 // ============================================================================
 // 19a. C-level MemeBufferStack_initByBytes validation
 // ============================================================================
