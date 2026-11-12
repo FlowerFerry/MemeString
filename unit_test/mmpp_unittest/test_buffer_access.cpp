@@ -1,6 +1,7 @@
 #include <catch2/catch.hpp>
 
 #include <memepp/buffer.hpp>
+#include <meme/string.h>
 #include <memepp/errc.hpp>
 
 #include <stdexcept>
@@ -165,3 +166,54 @@ TEST_CASE("buffer iterators — range-for", "[buffer][iterator]")
     }
     REQUIRE(idx == 3);
 }
+
+// ============================================================================
+// slice: view source and negative parameters
+// ============================================================================
+
+TEST_CASE("buffer slice from view-tier buffer", "[buffer][slice][view]")
+{
+    // A buffer whose underlying handle is view-tier: after importing through
+    // buffer(native_handle_type&&) the buffer copies the view data into an
+    // owned (large) tier. Slice of that buffer is a copy, not a view.
+    const uint8_t backing[] = { 0, 10, 20, 30, 40, 50 };
+    MemeBufferStack_t raw;
+    MemeStringViewUnsafeStack_init(
+        reinterpret_cast<MemeStringStack_t*>(&raw), MMSTR__OBJ_SIZE, backing, 6);
+
+    memepp::buffer owned(std::move(raw));
+    REQUIRE(owned.size() == 6);
+    // After importing a view handle, buffer is large (deep copy).
+    REQUIRE(owned.storage_type() == memepp::buffer_storage_t::large);
+
+    auto sl = owned.slice(2, 3);
+    REQUIRE(sl.size() == 3);
+    REQUIRE(sl.at(0) == 20);
+    REQUIRE(sl.at(2) == 40);
+    // Slice of large is a deep copy, not a view.
+    REQUIRE(sl.storage_type() != memepp::buffer_storage_t::view_unsafe);
+}
+
+TEST_CASE("buffer slice — negative pos yields empty", "[buffer][slice]")
+{
+    // MemeBufferStack_slice treats pos < 0 (or pos >= size) as "no range" and
+    // returns an empty buffer; it does not clamp pos to 0.
+    const uint8_t data[] = { 1, 2, 3, 4, 5 };
+    memepp::buffer buf(data, static_cast<memepp::buffer::size_type>(5));
+
+    auto sl = buf.slice(static_cast<memepp::buffer::size_type>(-1), 3);
+    REQUIRE(sl.empty());
+    REQUIRE(sl.size() == 0);
+}
+
+TEST_CASE("buffer slice — negative count to end", "[buffer][slice]")
+{
+    const uint8_t data[] = { 1, 2, 3, 4, 5 };
+    memepp::buffer buf(data, static_cast<memepp::buffer::size_type>(5));
+
+    auto sl = buf.slice(2, static_cast<memepp::buffer::size_type>(-1));
+    REQUIRE(sl.size() == 3);
+    REQUIRE(sl.at(0) == 3);
+    REQUIRE(sl.at(2) == 5);
+}
+

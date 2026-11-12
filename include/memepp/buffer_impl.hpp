@@ -94,6 +94,12 @@ inline namespace MMPP_NAMESPACE {
 
 	MEMEPP__IMPL_INLINE buffer::buffer(const_pointer _begin, const_pointer _end)
 	{
+		// Null pointers cannot form a range, and _end - _begin on two nulls is
+		// undefined behaviour. Treat a null endpoint as an empty buffer.
+		if (_begin == NULL || _end == NULL) {
+			MemeBufferStack_init(&data_, MEME_STRING__OBJECT_SIZE);
+			return;
+		}
 		MemeBufferStack_initByBytes(&data_, MEME_STRING__OBJECT_SIZE, _begin, _end - _begin);
 	}
 

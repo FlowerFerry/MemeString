@@ -24,14 +24,14 @@ TEST_CASE("buffer native_handle move — view handle copies", "[buffer][native_h
 {
     MemeBufferStack_t raw;
     const uint8_t data[] = { 0x11, 0x22, 0x33 };
-    MemeBufferStack_init(&raw, MMSBLDR__OBJ_SIZE);
+    MemeBufferStack_init(&raw, MMSTR__OBJ_SIZE);
     // Create a small buffer, then copy it — small is not view,
     // so test view path explicitly
-    MemeBufferStack_unInit(&raw, MMSBLDR__OBJ_SIZE);
+    MemeBufferStack_unInit(&raw, MMSTR__OBJ_SIZE);
 
     // Build a view-backed stack
     const uint8_t view_data[] = { 0x01, 0x02, 0x03, 0x04 };
-    MemeBufferStack_init(&raw, MMSBLDR__OBJ_SIZE);
+    MemeBufferStack_init(&raw, MMSTR__OBJ_SIZE);
     // ViewUnsafeStack_init for buffer uses view type
     MemeStringViewUnsafeStack_init(
         reinterpret_cast<MemeStringStack_t*>(&raw), MMSTR__OBJ_SIZE,
@@ -44,12 +44,89 @@ TEST_CASE("buffer native_handle move — view handle copies", "[buffer][native_h
     REQUIRE(buf.at(3) == 0x04);
 
     // After move, raw should be uninitializable safely
-    MemeBufferStack_unInit(&raw, MMSBLDR__OBJ_SIZE);
+    MemeBufferStack_unInit(&raw, MMSTR__OBJ_SIZE);
 }
 
 // ============================================================================
 // 2. storage hint — small / medium / user
 // ============================================================================
+
+TEST_CASE("buffer construct with small hint — honoured for tiny payload", "[buffer][storage]")
+{
+    const uint8_t data[] = { 1, 2, 3 };
+    memepp::buffer buf(data, static_cast<memepp::buffer::size_type>(3),
+                       memepp::buffer_storage_t::small);
+    REQUIRE(buf.size() == 3);
+    REQUIRE(buf.storage_type() == memepp::buffer_storage_t::small);
+}
+
+TEST_CASE("buffer construct with small hint — promoted when payload too big", "[buffer][storage]")
+{
+    uint8_t data[64] = { 0 };  // larger than the small inline buffer
+    memepp::buffer buf(data, static_cast<memepp::buffer::size_type>(64),
+                       memepp::buffer_storage_t::small);
+    REQUIRE(buf.size() == 64);
+    REQUIRE(buf.storage_type() != memepp::buffer_storage_t::small);
+    REQUIRE(buf.storage_type() == memepp::buffer_storage_t::medium);
+}
+
+TEST_CASE("buffer construct with medium hint — honoured for small payload", "[buffer][storage]")
+{
+    const uint8_t data[] = { 1, 2, 3 };
+    memepp::buffer buf(data, static_cast<memepp::buffer::size_type>(3),
+                       memepp::buffer_storage_t::medium);
+    REQUIRE(buf.size() == 3);
+    REQUIRE(buf.storage_type() == memepp::buffer_storage_t::medium);
+}
+
+TEST_CASE("buffer construct with medium hint — honoured past default limit", "[buffer][storage]")
+{
+    uint8_t data[80] = { 0 };  // above the default medium byte limit
+    memepp::buffer buf(data, static_cast<memepp::buffer::size_type>(sizeof(data)),
+                       memepp::buffer_storage_t::medium);
+    REQUIRE(buf.size() == sizeof(data));
+    REQUIRE(buf.storage_type() == memepp::buffer_storage_t::medium);
+}
+
+TEST_CASE("buffer small copy constructor", "[buffer][constructors]")
+{
+    // Small buffers are those produced by C API or small-hint constructor.
+    MemeBufferStack_t raw;
+    const uint8_t data[] = { 0xAA, 0xBB };
+    int rc = MemeStringStack_initByU8bytes(
+        reinterpret_cast<mmstrstk_t*>(&raw), MMSTR__OBJ_SIZE, data, 2);
+    REQUIRE(rc == 0);
+    REQUIRE(MemeBuffer_storageType(memepp::to_pointer(raw)) == MemeBuffer_StorageType_small);
+
+    memepp::buffer src(std::move(raw));
+    REQUIRE(src.storage_type() == memepp::buffer_storage_t::small);
+    REQUIRE(src.size() == 2);
+    REQUIRE(src.at(0) == 0xAA);
+
+    memepp::buffer copy = src;           // small copy
+    REQUIRE(copy.storage_type() == memepp::buffer_storage_t::small);
+    REQUIRE(copy == src);
+    REQUIRE(copy.data() != src.data());  // separate inline storage
+}
+
+TEST_CASE("buffer small move constructor", "[buffer][constructors]")
+{
+    MemeBufferStack_t raw;
+    const uint8_t data[] = { 1, 2 };
+    MemeStringStack_initByU8bytes(
+        reinterpret_cast<mmstrstk_t*>(&raw), MMSTR__OBJ_SIZE, data, 2);
+
+    memepp::buffer src(std::move(raw));
+    REQUIRE(src.storage_type() == memepp::buffer_storage_t::small);
+
+    memepp::buffer moved = std::move(src);
+    REQUIRE(moved.size() == 2);
+    REQUIRE(moved.at(0) == 1);
+    REQUIRE(moved.storage_type() == memepp::buffer_storage_t::small);
+    REQUIRE(src.empty());
+    REQUIRE(src.size() == 0);
+}
+
 
 TEST_CASE("buffer construct with large hint — confirms large", "[buffer][storage]")
 {
@@ -174,6 +251,8 @@ TEST_CASE("buffer sub-range — binary NUL data", "[buffer][constructors]")
 
 TEST_CASE("buffer range constructor — nullptr nullptr", "[buffer][constructors]")
 {
+    // Both endpoints null: the implementation short-circuits to an empty
+    // buffer instead of computing the UB expression _end - _begin.
     const uint8_t* begin = nullptr;
     const uint8_t* end = nullptr;
     memepp::buffer buf(begin, end);
@@ -181,6 +260,35 @@ TEST_CASE("buffer range constructor — nullptr nullptr", "[buffer][constructors
     REQUIRE(buf.size() == 0);
 }
 
+TEST_CASE("buffer range constructor — mixed null endpoints", "[buffer][constructors]")
+{
+    const uint8_t data[] = { 1, 2, 3 };
+
+    memepp::buffer b1(static_cast<const uint8_t*>(nullptr), data + 3);
+    REQUIRE(b1.empty());
+
+    memepp::buffer b2(data, static_cast<const uint8_t*>(nullptr));
+    REQUIRE(b2.empty());
+}
+
+
+TEST_CASE("buffer range constructor — end before begin", "[buffer][constructors]")
+{
+    // Both pointers are in the same array: pointer subtraction is legal but
+    // yields a negative length, which initByBytes treats as an empty buffer.
+    const uint8_t data[] = { 1, 2, 3, 4, 5 };
+    memepp::buffer buf(data + 3, data + 1); // end < begin
+    REQUIRE(buf.empty());
+    REQUIRE(buf.size() == 0);
+}
+
+TEST_CASE("buffer range constructor — end == begin", "[buffer][constructors]")
+{
+    const uint8_t data[] = { 1, 2, 3 };
+    memepp::buffer buf(data + 2, data + 2);
+    REQUIRE(buf.empty());
+    REQUIRE(buf.size() == 0);
+}
 TEST_CASE("buffer range constructor — single element range", "[buffer][constructors]")
 {
     const uint8_t data[] = { 0xAB };
@@ -203,6 +311,14 @@ TEST_CASE("buffer pointer+size — nullptr with 0", "[buffer][constructors]")
 // ============================================================================
 // 19a. C-level MemeBufferStack_initByBytes validation
 // ============================================================================
+
+// A negative length is the only boundary that is portable across 32- and
+// 64-bit builds without triggering a genuine allocation attempt; it is
+// covered by "MemeBufferStack_initByBytes — negative length yields empty
+// buffer" below. Oversized (2BIG) lengths are not exercised here: on 32-bit
+// the MemeInteger_t length cannot exceed the size_ ceiling without first
+// reaching the allocator, so the assertion is not portable.
+
 
 TEST_CASE("MemeBufferStack_initByBytes — negative length yields empty buffer", "[buffer][capivalidation]")
 {
