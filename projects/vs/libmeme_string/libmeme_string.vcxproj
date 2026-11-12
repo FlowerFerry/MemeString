@@ -172,7 +172,6 @@
     <ClInclude Include="..\..\..\include\memepp\convert\common_def.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\exprtk_ex.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\fmt.hpp" />
-    <ClInclude Include="..\..\..\include\memepp\convert\qt\string.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\rapidjson.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\redis++.hpp" />
     <ClInclude Include="..\..\..\include\memepp\convert\self.hpp" />
@@ -242,6 +241,18 @@
     <ClInclude Include="..\..\..\include\memepp\to_string.hpp" />
     <ClInclude Include="..\..\..\include\memepp\to_string_def.hpp" />
     <ClInclude Include="..\..\..\include\memepp\to_string_srcimpl.hpp" />
+    <ClInclude Include="..\..\..\include\meme\\searcher.h" />
+    <ClInclude Include="..\..\..\include\memepp\\searcher.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\\buffer_span.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\\buffer_span_def.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\\buffer_span_fwd.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\\buffer_span_impl.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\\string_span.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\\string_span_def.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\\string_span_fwd.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\\string_span_impl.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\\convert\\std\\u8string.hpp" />
+    <ClInclude Include="..\..\..\include\memepp\\convert\\std\\u32string.hpp" />
     <ClInclude Include="..\..\..\include\meme\buffer.h" />
     <ClInclude Include="..\..\..\include\meme\buffer_fwd.h" />
     <ClInclude Include="..\..\..\include\meme\common.h" />
@@ -324,6 +335,7 @@
     <ClCompile Include="..\..\..\src\meme_string__stack.c" />
     <ClCompile Include="..\..\..\src\meme_rune.c" />
     <ClCompile Include="..\..\..\src\meme_variant.c" />
+    <ClCompile Include="..\..\..\src\meme_searcher.c" />
     <ClCompile Include="dllmain.cpp" />
   </ItemGroup>
   <ItemGroup>
